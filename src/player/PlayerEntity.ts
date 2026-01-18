@@ -9,6 +9,9 @@ import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
 import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
 import { ProjectileEmitterComponent, type EmitterOffset } from '../ecs/components/ProjectileEmitterComponent';
+import { AmmoComponent } from '../ecs/components/AmmoComponent';
+import { HudBarComponent } from '../ecs/components/HudBarComponent';
+import { OverheatSmokeComponent } from '../ecs/components/OverheatSmokeComponent';
 import { Animation } from '../animation/Animation';
 import { AnimationSystem } from '../animation/AnimationSystem';
 import { Direction } from '../constants/Direction';
@@ -79,6 +82,11 @@ export function createPlayerEntity(
   // Grid Collision
   entity.add(new GridCollisionComponent(grid));
 
+  // Ammo System
+  const ammo = entity.add(new AmmoComponent());
+  const ammoBar = entity.add(new HudBarComponent(scene, ammo, 70, 0x0000ff)); // Blue bar at 70px offset
+  ammoBar.init();
+
   // Projectile Emitter
   const emitterOffsets: Record<Direction, EmitterOffset> = {
     [Direction.Down]: { x: -16, y: 40 },
@@ -97,8 +105,13 @@ export function createPlayerEntity(
     emitterOffsets,
     () => input.isFirePressed(),
     200,  // 200ms cooldown between shots
-    onShellEject
+    onShellEject,
+    ammo
   ));
+
+  // Overheat Smoke Effect
+  const overheatSmoke = entity.add(new OverheatSmokeComponent(scene, ammo, emitterOffsets));
+  overheatSmoke.init();
 
   // State Machine (added after Animation so onEnter can access it)
   const stateMachine = new StateMachine(
@@ -117,7 +130,10 @@ export function createPlayerEntity(
     InputComponent,
     WalkComponent,
     GridCollisionComponent,
+    AmmoComponent,
     ProjectileEmitterComponent,
+    OverheatSmokeComponent,
+    HudBarComponent,
     StateMachineComponent,
     AnimationComponent,
   ]);

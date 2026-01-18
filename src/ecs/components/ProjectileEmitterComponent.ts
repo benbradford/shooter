@@ -3,6 +3,7 @@ import type { Entity } from '../Entity';
 import { TransformComponent } from './TransformComponent';
 import { WalkComponent } from './WalkComponent';
 import { Direction } from '../../constants/Direction';
+import type { AmmoComponent } from './AmmoComponent';
 
 export interface EmitterOffset {
   x: number;
@@ -19,17 +20,22 @@ export class ProjectileEmitterComponent implements Component {
     private readonly offsets: Record<Direction, EmitterOffset>,
     private readonly shouldFire: () => boolean,
     private readonly cooldown: number = 200,
-    private readonly onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void
+    private readonly onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void,
+    private readonly ammoComponent?: AmmoComponent
   ) {}
 
   update(_delta: number): void {
-    if (this.shouldFire() && this.canFire) {
+    if (this.shouldFire() && this.canFire && this.hasAmmo()) {
       this.fire();
       this.canFire = false;
       this.scene.time.delayedCall(this.cooldown, () => {
         this.canFire = true;
       });
     }
+  }
+
+  private hasAmmo(): boolean {
+    return !this.ammoComponent || this.ammoComponent.canFire();
   }
 
   private fire(): void {
@@ -56,6 +62,11 @@ export class ProjectileEmitterComponent implements Component {
     
     const dir = dirMap[direction];
     this.onFire(emitX, emitY, dir.x, dir.y);
+    
+    // Consume ammo
+    if (this.ammoComponent) {
+      this.ammoComponent.consumeAmmo();
+    }
     
     // Eject shell casing
     if (this.onShellEject) {

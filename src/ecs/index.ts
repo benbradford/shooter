@@ -11,3 +11,7 @@ export { GridCollisionComponent } from './components/GridCollisionComponent';
 export { ProjectileComponent } from './components/ProjectileComponent';
 export { ProjectileEmitterComponent } from './components/ProjectileEmitterComponent';
 export { ShellCasingComponent } from './components/ShellCasingComponent';
+export { AmmoComponent } from './components/AmmoComponent';
+export { HudBarComponent } from './components/HudBarComponent';
+export type { HudBarDataSource } from './components/HudBarComponent';
+export { OverheatSmokeComponent } from './components/OverheatSmokeComponent';

@@ -26,7 +26,6 @@ export class Animation {
       this.frameDuration = Infinity;
     }
 
-    console.log("frameDuration:", this.frameDuration);
   }
 
   update(delta: number) {
