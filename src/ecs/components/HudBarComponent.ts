@@ -43,7 +43,7 @@ export class HudBarComponent implements Component {
       this.barHeight,
       this.fillColor
     );
-    this.fill.setOrigin(0, 0.5); // Left-aligned
+    // Keep default origin (0.5, 0.5) for centered positioning
     
     // Outline (white)
     this.outline = this.scene.add.rectangle(
@@ -63,14 +63,16 @@ export class HudBarComponent implements Component {
     const barX = transform.x;
     const barY = transform.y + this.offsetY;
     
-    // Update positions
+    // Update positions (centered)
     this.background.setPosition(barX, barY);
     this.outline.setPosition(barX, barY);
     
-    // Update fill width and position
+    // Update fill width and position (left-aligned from left edge of bar)
     const fillWidth = this.barWidth * ratio;
     this.fill.setSize(fillWidth, this.barHeight);
-    this.fill.setPosition(barX - this.barWidth / 2, barY);
+    // Position at left edge: barX - half of total bar width + half of fill width
+    const fillX = barX - this.barWidth / 2 + fillWidth / 2;
+    this.fill.setPosition(fillX, barY);
     
     // Flash when empty (ratio at 0)
     if (ratio === 0) {

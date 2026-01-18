@@ -12,6 +12,7 @@ export { ProjectileComponent } from './components/ProjectileComponent';
 export { ProjectileEmitterComponent } from './components/ProjectileEmitterComponent';
 export { ShellCasingComponent } from './components/ShellCasingComponent';
 export { AmmoComponent } from './components/AmmoComponent';
+export { HealthComponent } from './components/HealthComponent';
 export { HudBarComponent } from './components/HudBarComponent';
 export type { HudBarDataSource } from './components/HudBarComponent';
 export { OverheatSmokeComponent } from './components/OverheatSmokeComponent';

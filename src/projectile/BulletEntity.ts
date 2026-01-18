@@ -21,12 +21,12 @@ export function createBulletEntity(
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
   sprite.sprite.setDisplaySize(16, 16);
   
-  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));  // Blocked by walls
+  const projectile = entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));
   
   entity.setUpdateOrder([
-    TransformComponent,
-    ProjectileComponent,
-    SpriteComponent,
+    transform,
+    projectile,
+    sprite,
   ]);
   
   return entity;

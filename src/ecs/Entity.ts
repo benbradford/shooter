@@ -27,10 +27,8 @@ export class Entity {
     this.updateOrder.forEach(component => component.update(delta));
   }
 
-  setUpdateOrder(componentClasses: (new (...args: never[]) => Component)[]): void {
-    this.updateOrder = componentClasses
-      .map(cls => this.components.get(cls.name))
-      .filter(c => c !== undefined) as Component[];
+  setUpdateOrder(components: Component[]): void {
+    this.updateOrder = components;
   }
 
   destroy(): void {
