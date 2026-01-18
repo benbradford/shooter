@@ -9,6 +9,7 @@ import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
 import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
 import { ProjectileEmitterComponent, type EmitterOffset } from '../ecs/components/ProjectileEmitterComponent';
+import { TouchJoystickComponent } from '../ecs/components/TouchJoystickComponent';
 import { AmmoComponent } from '../ecs/components/AmmoComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 import { HudBarComponent } from '../ecs/components/HudBarComponent';
@@ -27,7 +28,8 @@ export function createPlayerEntity(
   y: number,
   grid: Grid,
   onFire: (x: number, y: number, dirX: number, dirY: number) => void,
-  onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void
+  onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void,
+  joystick: Entity
 ): Entity {
   const entity = new Entity('player');
 
@@ -68,6 +70,10 @@ export function createPlayerEntity(
 
   // Input
   const input = entity.add(new InputComponent(scene));
+  
+  // Connect joystick to input
+  const joystickComp = joystick.get(TouchJoystickComponent)!;
+  input.setJoystick(joystickComp);
 
   // Walk
   const walk = entity.add(new WalkComponent(transform, input));

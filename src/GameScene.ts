@@ -3,6 +3,7 @@ import { Grid } from "./utils/Grid";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
+import { createJoystickEntity } from "./hud/JoystickEntity";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { ProjectileEmitterComponent } from "./ecs/components/ProjectileEmitterComponent";
 import { preloadAssets } from "./assets/AssetLoader";
@@ -10,6 +11,7 @@ import type { Entity } from "./ecs/Entity";
 
 export default class GameScene extends Phaser.Scene {
   private player!: Entity;
+  private joystick!: Entity;
   private grid!: Grid;
   private readonly cellSize: number = 128; // fixed size
   private bullets: Entity[] = [];
@@ -55,6 +57,9 @@ export default class GameScene extends Phaser.Scene {
 
     this.grid.render();
 
+    // Create joystick entity
+    this.joystick = createJoystickEntity(this);
+
     // Create the player entity, starting at the center of the visible area
     const startX = this.cellSize * 10; // column 10
     const startY = this.cellSize * 10; // row 10
@@ -70,7 +75,8 @@ export default class GameScene extends Phaser.Scene {
       (x, y, direction, playerDirection) => {
         const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
         this.shells.push(shell);
-      }
+      },
+      this.joystick
     );
 
     // Camera setup - follow the player's sprite
@@ -87,6 +93,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
+    // Update joystick
+    this.joystick.update(delta);
+
     // Update the player entity (all components)
     this.player.update(delta);
 

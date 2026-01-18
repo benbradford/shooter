@@ -16,3 +16,5 @@ export { HealthComponent } from './components/HealthComponent';
 export { HudBarComponent } from './components/HudBarComponent';
 export type { HudBarDataSource } from './components/HudBarComponent';
 export { OverheatSmokeComponent } from './components/OverheatSmokeComponent';
+export { TouchJoystickComponent } from './components/TouchJoystickComponent';
+export { JoystickVisualsComponent } from './components/JoystickVisualsComponent';
