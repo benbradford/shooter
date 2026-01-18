@@ -22,28 +22,33 @@ export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number, gr
   // Transform
   const transform = entity.add(new TransformComponent(x, y, 0, 2));
 
-  // Sprite
-  const sprite = entity.add(new SpriteComponent(scene, 'idle_down', transform));
+  // Sprite - use frame 0 (down idle) from sprite sheet
+  const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
+  sprite.sprite.setFrame(0);
 
-  // Animation System
+  // Animation System - map directions to sprite sheet rows
+  // Sprite sheet layout: 4 cols (idle, walk1, walk2, walk3) x 8 rows (8 directions)
+  // Row 0: Down, Row 1: Up, Row 2: Left, Row 3: Right
+  // Row 4: UpLeft, Row 5: UpRight, Row 6: DownLeft, Row 7: DownRight
   const animMap = new Map<string, Animation>();
-  const map: [Direction, string][] = [
-    [Direction.Down, 'down'],
-    [Direction.Up, 'up'],
-    [Direction.Left, 'left'],
-    [Direction.Right, 'right'],
-    [Direction.UpLeft, 'upleft'],
-    [Direction.UpRight, 'upright'],
-    [Direction.DownLeft, 'downleft'],
-    [Direction.DownRight, 'downright'],
+  const directionRows: [Direction, number][] = [
+    [Direction.Down, 0],
+    [Direction.Up, 1],
+    [Direction.Left, 2],
+    [Direction.Right, 3],
+    [Direction.UpLeft, 4],
+    [Direction.UpRight, 5],
+    [Direction.DownLeft, 6],
+    [Direction.DownRight, 7],
   ];
 
-  map.forEach(([dir, name]) => {
+  directionRows.forEach(([dir, row]) => {
+    const baseFrame = row * 4;
     animMap.set(
       `walk_${dir}`,
-      new Animation([1, 2, 3].map(i => `walk_${name}_${i}`), 'pingpong', 0.15)
+      new Animation([baseFrame + 1, baseFrame + 2, baseFrame + 3].map(String), 'pingpong', 0.15)
     );
-    animMap.set(`idle_${dir}`, new Animation([`idle_${name}`], 'static', 0));
+    animMap.set(`idle_${dir}`, new Animation([String(baseFrame)], 'static', 0));
   });
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);

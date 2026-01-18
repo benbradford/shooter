@@ -1,21 +1,22 @@
 import Phaser from "phaser";
-import { preloadPlayerAssets } from "./utils/preloadPlayerAssets";
 import { Grid } from "./utils/Grid";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
+import { preloadAssets } from "./assets/AssetLoader";
 import type { Entity } from "./ecs/Entity";
 
 export default class GameScene extends Phaser.Scene {
   private player!: Entity;
   private grid!: Grid;
-  private cellSize: number = 128; // fixed size
+  private readonly cellSize: number = 128; // fixed size
 
   constructor() {
     super("game");
   }
 
   preload() {
-    preloadPlayerAssets(this);
+    // Load all assets from registry
+    preloadAssets(this);
   }
 
   create() {
@@ -30,13 +31,13 @@ export default class GameScene extends Phaser.Scene {
     this.grid.setCell(6, 5, { walkable: false, blocksProjectiles: true });
     this.grid.setCell(7, 5, { walkable: false, blocksProjectiles: true });
     this.grid.setCell(8, 5, { walkable: false, blocksProjectiles: true });
-    
+
     // Vertical wall
     this.grid.setCell(12, 8, { walkable: false, blocksProjectiles: true });
     this.grid.setCell(12, 9, { walkable: false, blocksProjectiles: true });
     this.grid.setCell(12, 10, { walkable: false, blocksProjectiles: true });
     this.grid.setCell(12, 11, { walkable: false, blocksProjectiles: true });
-    
+
     // Box of walls
     for (let col = 15; col <= 18; col++) {
       this.grid.setCell(col, 12, { walkable: false, blocksProjectiles: true });
@@ -46,7 +47,7 @@ export default class GameScene extends Phaser.Scene {
       this.grid.setCell(15, row, { walkable: false, blocksProjectiles: true });
       this.grid.setCell(18, row, { walkable: false, blocksProjectiles: true });
     }
-    
+
     this.grid.render();
 
     // Create the player entity, starting at the center of the visible area

@@ -22,7 +22,11 @@ export class SpriteComponent implements Component {
     this.sprite.destroy();
   }
 
-  setTexture(texture: string): void {
-    this.sprite.setTexture(texture);
+  setTexture(textureOrFrame: string | number): void {
+    if (typeof textureOrFrame === 'number') {
+      this.sprite.setFrame(textureOrFrame);
+    } else {
+      this.sprite.setTexture(textureOrFrame);
+    }
   }
 }

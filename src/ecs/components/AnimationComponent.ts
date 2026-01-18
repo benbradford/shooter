@@ -14,8 +14,10 @@ export class AnimationComponent implements Component {
   update(delta: number): void {
     this.animationSystem.update(delta);
     const frame = this.animationSystem.getFrame();
-    if (frame) {
-      this.spriteComp.setTexture(frame);
+    if (frame !== undefined) {
+      // Try to parse as number (sprite sheet frame), fallback to string (texture name)
+      const frameNum = parseInt(frame, 10);
+      this.spriteComp.setTexture(isNaN(frameNum) ? frame : frameNum);
     }
   }
 
