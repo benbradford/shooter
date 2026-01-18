@@ -219,7 +219,7 @@ npm run build  # See TypeScript errors
 
 Common issues:
 - Import paths wrong (use `../` for parent directory)
-- Missing `readonly` on properties that never change
+- Missing `readonly` on properties that never change (enable with `@typescript-eslint/prefer-readonly`)
 - Using `any` type (use specific types or `unknown`)
 
 ### Linting Errors
@@ -231,13 +231,57 @@ npx eslint src --ext .ts
 Common issues:
 - Unused variables (prefix with `_` if intentional)
 - `any` types (replace with proper types)
+- Properties that should be `readonly` (eslint will warn with `prefer-readonly` rule)
 
-### Game Not Loading
+### Sprite Sizing Issues
 
-1. Check browser console for errors
-2. Verify asset paths in AssetRegistry
-3. Check sprite sheet dimensions match config
-4. Ensure all components are added before `setUpdateOrder()`
+If `sprite.setDisplaySize()` doesn't work:
+- `SpriteComponent.update()` calls `setScale()` every frame, overriding display size
+- Use `TransformComponent` scale parameter instead:
+  ```typescript
+  new TransformComponent(x, y, rotation, 0.5)  // Half size
+  ```
+
+### Visual Effects Not Rendering Correctly
+
+**Depth sorting:**
+- Set sprite depth based on context (player direction, Y position)
+- Behind player: `sprite.setDepth(-1)`
+- In front: `sprite.setDepth(1)`
+
+**Physics-based motion:**
+- Use velocity + gravity, not sine waves
+- Sine waves loop forever; physics settles naturally
+
+## Visual Effects Best Practices
+
+### Creating Particle Effects (Shell Casings, Debris)
+
+1. **Use physics-based motion**
+   ```typescript
+   velocityY += gravity * delta;  // Not: Math.sin(time)
+   ```
+
+2. **Randomize for variety**
+   ```typescript
+   const randomX = (Math.random() * 120) - 60;  // ±60 pixels
+   const randomY = (Math.random() * 30) - 15;   // ±15 pixels
+   ```
+
+3. **Set depth based on context**
+   ```typescript
+   const facingUp = [Direction.Up, Direction.UpLeft, Direction.UpRight].includes(dir);
+   sprite.setDepth(facingUp ? -1 : 1);
+   ```
+
+4. **Use simple phase management**
+   ```typescript
+   phase: 'flying' | 'bouncing' | 'fading'  // Not StateMachineComponent
+   ```
+
+5. **No grid interaction needed**
+   - Skip GridPositionComponent and GridCollisionComponent
+   - Visual effects don't occupy cells
 
 ## Performance Tips
 
@@ -245,6 +289,7 @@ Common issues:
 - Limit entities updated per frame
 - Use object pooling for frequently spawned entities (bullets, particles)
 - Profile with browser DevTools
+- Compress assets (use `sips -Z <size>` on macOS)
 
 ## Useful Links
 

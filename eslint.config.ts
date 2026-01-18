@@ -8,7 +8,13 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"], 
     plugins: { js }, 
     extends: ["js/recommended"], 
-    languageOptions: { globals: globals.browser },
+    languageOptions: { 
+      globals: globals.browser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      }
+    },
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -16,7 +22,8 @@ export default defineConfig([
           "argsIgnorePattern": "^_",
           "varsIgnorePattern": "^_"
         }
-      ]
+      ],
+      "@typescript-eslint/prefer-readonly": "warn"
     }
   },
   tseslint.configs.recommended,

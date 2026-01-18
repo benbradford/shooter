@@ -968,3 +968,158 @@ src/
 - `Direction` is used by animation, movement, AI, and projectiles
 - Keeping it in `animation/` implies it's animation-specific
 - `constants/` makes it clear it's shared across systems
+
+## Visual Effects and Particle Systems
+
+### Shell Casings - Physics-Based Effects
+
+Shell casings demonstrate how to create realistic physics-based visual effects without grid collision.
+
+**Key Concepts:**
+- Use velocity and gravity instead of sine waves for realistic motion
+- Randomize parameters for natural variation
+- Use sprite depth for proper rendering order
+- Manage lifecycle with phases (flying → bouncing → fading)
+
+**Shell Casing Example:**
+
+```typescript
+export class ShellCasingComponent implements Component {
+  private velocityY: number = -0.3;  // Initial upward velocity
+  private velocityX: number;
+  private readonly gravity: number = 0.0008;
+  private phase: 'flying' | 'bouncing' | 'fading' = 'flying';
+  
+  constructor(
+    _direction: 'left' | 'right',
+    floorY: number,
+    private readonly sprite: SpriteComponent
+  ) {
+    // Randomize horizontal velocity (±60 pixels)
+    const randomHorizontal = (Math.random() * 120) - 60;
+    this.velocityX = randomHorizontal / 1000;
+    
+    // Randomize landing position (±15 pixels)
+    this.floorY = floorY + (Math.random() * 30 - 15);
+    
+    // Rotation speed based on horizontal distance
+    this.rotationSpeed = 0.008 * Math.abs(randomHorizontal) / 30;
+    if (randomHorizontal < 0) this.rotationSpeed *= -1;
+  }
+  
+  update(delta: number): void {
+    if (this.phase === 'flying' || this.phase === 'bouncing') {
+      // Apply gravity
+      this.velocityY += this.gravity * delta;
+      
+      // Update position
+      transform.x += this.velocityX * delta;
+      transform.y += this.velocityY * delta;
+      transform.rotation += this.rotationSpeed * delta;
+      
+      // Check for ground collision
+      if (transform.y >= this.floorY) {
+        this.bounceCount++;
+        if (this.bounceCount === 1) {
+          this.phase = 'fading';  // Start fading on first bounce
+          this.velocityY = -0.15;  // Bounce with reduced velocity
+        }
+      }
+    } else if (this.phase === 'fading') {
+      // Continue physics while fading
+      // Fade alpha over 2 seconds
+      // Destroy when fully faded
+    }
+  }
+}
+```
+
+**Best Practices for Visual Effects:**
+
+1. **Physics over Math Functions**
+   - ❌ Sine waves for projectile motion (loops forever)
+   - ✅ Velocity + gravity (natural arc, settles)
+
+2. **Randomization for Variety**
+   - Randomize landing position (±15 pixels Y, ±60 pixels X)
+   - Randomize rotation speed based on horizontal distance
+   - Each effect looks unique
+
+3. **Sprite Depth Management**
+   ```typescript
+   // Set depth based on player orientation
+   const facingUp = [Direction.Up, Direction.UpLeft, Direction.UpRight].includes(playerDir);
+   sprite.sprite.setDepth(facingUp ? -1 : 1);
+   ```
+   - Facing up: Effects render behind player
+   - Facing down/side: Effects render in front
+
+4. **Sprite Scaling**
+   - ❌ `sprite.setDisplaySize()` - Overridden by SpriteComponent.update()
+   - ✅ Use `TransformComponent` scale parameter
+   ```typescript
+   new TransformComponent(x, y, rotation, 0.5)  // Half size
+   ```
+
+5. **Lifecycle Management**
+   - Use simple string phases for linear progression
+   - Don't use StateMachineComponent for time-based effects
+   - Clean up with `entity.destroy()` when effect completes
+
+6. **No Grid Interaction**
+   - Visual effects don't need GridPositionComponent
+   - Don't occupy grid cells
+   - No collision detection needed
+
+**Shell Casing Entity Factory:**
+
+```typescript
+export function createShellCasingEntity(
+  scene: Phaser.Scene,
+  playerX: number,
+  playerY: number,
+  direction: 'left' | 'right',
+  playerDirection: Direction
+): Entity {
+  const entity = new Entity('shell_casing');
+  
+  // Small scale for visual distinction
+  const transform = entity.add(new TransformComponent(playerX, playerY, 0, 0.5));
+  const sprite = entity.add(new SpriteComponent(scene, 'bullet_default_shell', transform));
+  
+  // Set depth based on player facing direction
+  const facingUp = [Direction.Up, Direction.UpLeft, Direction.UpRight].includes(playerDirection);
+  sprite.sprite.setDepth(facingUp ? -1 : 1);
+  
+  const floorY = playerY + 40;
+  entity.add(new ShellCasingComponent(direction, floorY, sprite));
+  
+  entity.setUpdateOrder([
+    ShellCasingComponent,  // Updates physics first
+    TransformComponent,
+    SpriteComponent,
+  ]);
+  
+  return entity;
+}
+```
+
+**Integration with Emitter:**
+
+```typescript
+// In ProjectileEmitterComponent
+if (this.onShellEject) {
+  const shellDir = [Direction.Left, Direction.UpLeft, Direction.DownLeft].includes(direction)
+    ? 'left' : 'right';
+  this.onShellEject(transform.x, transform.y, shellDir, direction);
+}
+
+// In GameScene
+private shells: Entity[] = [];
+
+this.shells = this.shells.filter(shell => {
+  if (shell.isDestroyed) return false;
+  shell.update(delta);
+  return true;
+});
+```

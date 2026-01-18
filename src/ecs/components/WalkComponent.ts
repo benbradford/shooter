@@ -10,8 +10,8 @@ export class WalkComponent implements Component {
   public lastDir: Direction = Direction.Down;
 
   constructor(
-    private transformComp: TransformComponent,
-    private inputComp: InputComponent
+    private readonly transformComp: TransformComponent,
+    private readonly inputComp: InputComponent
   ) {}
 
   update(delta: number): void {

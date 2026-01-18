@@ -10,11 +10,11 @@ export class ShellCasingComponent implements Component {
   private bounceStartTime: number = 0;
   private velocityY: number = -0.3;  // Initial upward velocity
   private velocityX: number;
-  private rotationSpeed: number;
+  private readonly rotationSpeed: number;
   private readonly gravity: number = 0.0008;  // Gravity pulls down
   private bounceCount: number = 0;
   private readonly maxBounces: number = 2;
-  private floorY: number;
+  private readonly floorY: number;
   
   constructor(
     _direction: 'left' | 'right',
