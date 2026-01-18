@@ -1,5 +1,9 @@
 # Dodging Bullets - Game Architecture Guide
 
+**Quick Links:**
+- [Quick Reference Guide](./quick-reference.md) - Common tasks and patterns
+- [README](../README.md) - Project overview
+
 This document explains the core architecture, ECS system, and best practices for adding new entities to the game.
 
 ## Development Workflow
