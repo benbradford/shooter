@@ -2,7 +2,7 @@ import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { TransformComponent } from './TransformComponent';
 import type { InputComponent } from './InputComponent';
-import { Direction, dirFromDelta } from '../../animation/Direction';
+import { Direction, dirFromDelta } from '../../constants/Direction';
 
 export class WalkComponent implements Component {
   entity!: Entity;

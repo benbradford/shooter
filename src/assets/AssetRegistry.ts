@@ -17,9 +17,11 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
-  // Add more assets here as needed
-  // enemy: { key: 'enemy', path: '...', type: 'spritesheet' as const, config: {...} },
-  // bullet: { key: 'bullet', path: '...', type: 'image' as const },
-};
+  bullet_default: {
+    key: 'bullet_default',
+    path: 'assets/player/bullet_default.png',
+    type: 'image' as const,
+  },
+} as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

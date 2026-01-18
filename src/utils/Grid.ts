@@ -12,8 +12,13 @@ export class Grid {
   public readonly height: number; // rows
   public readonly cellSize: number;
   private readonly graphics: Phaser.GameObjects.Graphics;
-  private debug: boolean = false;
+  private debug: boolean = true;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
+  private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
+
+  public get debugEnabled(): boolean {
+    return this.debug;
+  }
 
   public readonly cells: CellData[][];
 
@@ -134,12 +139,24 @@ export class Grid {
       this.graphics.strokeRect(box.x, box.y, box.width, box.height);
     });
 
+    // Draw emitter boxes
+    this.emitterBoxes.forEach(box => {
+      this.graphics.fillStyle(0xff0000, 0.5);
+      this.graphics.fillRect(box.x - box.size / 2, box.y - box.size / 2, box.size, box.size);
+    });
+
     // Clear collision boxes for next frame
     this.collisionBoxes = [];
+    this.emitterBoxes = [];
   }
 
   renderCollisionBox(x: number, y: number, width: number, height: number): void {
     if (!this.debug) return;
     this.collisionBoxes.push({ x, y, width, height });
+  }
+
+  renderEmitterBox(x: number, y: number, size: number): void {
+    if (!this.debug) return;
+    this.emitterBoxes.push({ x, y, size });
   }
 }

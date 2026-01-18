@@ -7,11 +7,11 @@ import { ASSET_REGISTRY, type AssetKey } from './AssetRegistry';
  * @param keys - Optional array of asset keys to load. If not provided, loads all assets
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  const assetsToLoad = keys 
-    ? keys.map(key => ASSET_REGISTRY[key])
-    : Object.values(ASSET_REGISTRY);
-
-  assetsToLoad.forEach(asset => {
+  const keysToLoad: AssetKey[] = keys || ['player', 'bullet_default'];
+  
+  keysToLoad.forEach((key: AssetKey) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const asset = ASSET_REGISTRY[key] as any;
     if (asset.type === 'spritesheet') {
       scene.load.spritesheet(asset.key, asset.path, asset.config);
     } else if (asset.type === 'image') {

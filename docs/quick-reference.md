@@ -92,21 +92,85 @@ for (let col = 5; col <= 10; col++) {
 
 ### Debug Controls
 
-- **G key** - Toggle grid debug visualization
+- **G key** - Toggle grid debug visualization (enabled by default)
   - White lines: Grid cells
   - Red cells: Non-walkable
   - Green cells: Occupied by entities
   - Blue boxes: Collision boxes
+  - Red boxes: Projectile emitter positions
+
+### Adding Projectiles
+
+1. Create projectile entity factory in `src/projectile/`
+2. Add `ProjectileComponent` for movement, lifetime, and collision
+3. Track bullets in GameScene and filter destroyed ones
+
+```typescript
+// In GameScene
+private bullets: Entity[] = [];
+
+update(delta: number) {
+  this.bullets = this.bullets.filter(bullet => {
+    if (bullet.isDestroyed) return false;
+    bullet.update(delta);
+    return true;
+  });
+}
+
+// Spawn bullet (blocked by walls)
+const bullet = createBulletEntity(this, x, y, dirX, dirY, grid);
+this.bullets.push(bullet);
+```
+
+### Projectile Wall Collision
+
+Control whether projectiles are blocked by walls:
+
+```typescript
+// Bullet - blocked by walls
+new ProjectileComponent(dirX, dirY, 800, 700, grid, true)
+
+// Grenade - flies over walls
+new ProjectileComponent(dirX, dirY, 600, 500, grid, false)
+```
+
+The last parameter (`blockedByWalls`) determines if the projectile checks `grid.blocksProjectiles`.
+
+### Making Components Reusable
+
+Use callbacks instead of hardcoding behavior:
+
+```typescript
+// ❌ Bad: Hardcoded to player input
+class ProjectileEmitterComponent {
+  constructor(scene: Phaser.Scene) {
+    this.fireKey = scene.input.keyboard!.addKey(KeyCodes.SPACE);
+  }
+}
+
+// ✅ Good: Callback-based
+class ProjectileEmitterComponent {
+  constructor(
+    scene: Phaser.Scene,
+    onFire: (x, y, dirX, dirY) => void,
+    offsets: Record<Direction, EmitterOffset>,
+    shouldFire: () => boolean,  // Player: () => input.isFirePressed()
+    cooldown: number = 200      // Enemy: () => ai.shouldAttack()
+  ) {}
+}
+```
 
 ## Project Structure Quick Reference
 
 ```
 src/
 ├── assets/              # Asset registry and loader
+├── constants/           # Shared constants (Direction, etc.)
 ├── ecs/                 # ECS framework
 │   └── components/      # All reusable components
 ├── animation/           # Animation system
 ├── player/              # Player entity and states
+├── projectile/          # Projectile entities (bullets, etc.)
 ├── utils/               # Grid, StateMachine, etc.
 ├── GameScene.ts         # Main game scene
 └── main.ts              # Entry point

@@ -698,3 +698,273 @@ When adding new entity types:
 - **Collision boxes are flexible**: Size and offset per entity type
 - **Debug mode is your friend**: Always test with G pressed
 - **Clean up properly**: Call `entity.destroy()` to remove from grid and scene
+
+## Component Reusability Best Practices
+
+### Decoupling Components from Specific Use Cases
+
+When creating components, design them to be reusable across different entity types. Avoid hardcoding behavior that's specific to one entity.
+
+#### ❌ Bad: Tightly Coupled Component
+
+```typescript
+class ProjectileEmitterComponent {
+  private fireKey: Phaser.Input.Keyboard.Key;
+  
+  constructor(scene: Phaser.Scene) {
+    // Hardcoded to keyboard input - can't be used by AI enemies
+    this.fireKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+  }
+  
+  update() {
+    if (this.fireKey.isDown) {
+      this.fire();
+    }
+  }
+}
+```
+
+#### ✅ Good: Decoupled Component
+
+```typescript
+class ProjectileEmitterComponent {
+  constructor(
+    private readonly scene: Phaser.Scene,
+    private readonly onFire: (x: number, y: number, dirX: number, dirY: number) => void,
+    private readonly offsets: Record<Direction, EmitterOffset>,
+    private readonly shouldFire: () => boolean,  // Callback decides when to fire
+    private readonly cooldown: number = 200      // Configurable per entity
+  ) {}
+  
+  update() {
+    if (this.shouldFire() && this.canFire) {
+      this.fire();
+      // Start cooldown...
+    }
+  }
+}
+```
+
+**Why this is better:**
+- **Player**: `shouldFire: () => input.isFirePressed()`
+- **Enemy**: `shouldFire: () => aiComponent.shouldAttack()`
+- **Turret**: `shouldFire: () => playerInRange && hasLineOfSight`
+
+### Parameterizing Component Behavior
+
+Make component behavior configurable through constructor parameters:
+
+```typescript
+// Player: Fast firing
+new ProjectileEmitterComponent(scene, onFire, offsets, shouldFire, 200)
+
+// Enemy: Slow firing
+new ProjectileEmitterComponent(scene, onFire, offsets, shouldFire, 1000)
+
+// Boss: Medium firing with different offsets
+new ProjectileEmitterComponent(scene, onFire, bossOffsets, shouldFire, 500)
+```
+
+### Separation of Concerns
+
+Keep input handling in `InputComponent`, not in gameplay components:
+
+```typescript
+// ✅ InputComponent handles all keyboard input
+class InputComponent {
+  getInputDelta(): { dx: number; dy: number } { /* ... */ }
+  isFirePressed(): boolean { return this.fireKey.isDown; }
+}
+
+// ✅ ProjectileEmitterComponent uses callback
+new ProjectileEmitterComponent(
+  scene,
+  onFire,
+  offsets,
+  () => input.isFirePressed(),  // Input logic stays in InputComponent
+  200
+)
+```
+
+## Projectile System Architecture
+
+### Components
+
+**ProjectileComponent** - Movement, lifetime, and collision
+```typescript
+new ProjectileComponent(
+  dirX,           // Direction X (-1 to 1)
+  dirY,           // Direction Y (-1 to 1)
+  speed,          // Pixels per second
+  maxDistance,    // Max travel distance before auto-destroy
+  grid,           // Grid reference for collision detection
+  blockedByWalls  // Whether walls stop this projectile (default: true)
+)
+// Moves in straight line, checks grid collisions, auto-destroys after maxDistance
+```
+
+**ProjectileEmitterComponent** - Firing logic
+```typescript
+new ProjectileEmitterComponent(
+  scene,
+  onFire,           // Callback when bullet spawns
+  offsets,          // Emitter position per direction
+  shouldFire,       // Callback to check if should fire
+  cooldown          // Ms between shots
+)
+```
+
+### Projectile Types and Wall Collision
+
+Different projectile types can have different collision behavior:
+
+**Bullets** - Blocked by walls:
+```typescript
+entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));
+```
+
+**Grenades** - Fly over walls:
+```typescript
+entity.add(new ProjectileComponent(dirX, dirY, 600, 500, grid, false));
+```
+
+**Rockets** - Blocked by walls, slower, longer range:
+```typescript
+entity.add(new ProjectileComponent(dirX, dirY, 400, 1200, grid, true));
+```
+
+The `blockedByWalls` parameter determines whether the projectile checks `grid.blocksProjectiles`:
+- `true`: Projectile is destroyed when hitting cells with `blocksProjectiles: true`
+- `false`: Projectile ignores walls and flies over them
+
+This allows for tactical gameplay where some weapons can shoot over cover while others cannot.
+
+### Entity Lifecycle Management
+
+Track projectiles in GameScene and clean up destroyed entities:
+
+```typescript
+class GameScene {
+  private bullets: Entity[] = [];
+  
+  update(delta: number) {
+    // Filter out destroyed bullets
+    this.bullets = this.bullets.filter(bullet => {
+      if (bullet.isDestroyed) {
+        return false;  // Remove from array
+      }
+      bullet.update(delta);
+      return true;
+    });
+  }
+}
+```
+
+### Bullet Entity Example
+
+```typescript
+export function createBulletEntity(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  dirX: number,
+  dirY: number,
+  grid: Grid
+): Entity {
+  const entity = new Entity('bullet');
+  
+  // Rotation: add 90° if bullet texture is vertical
+  const rotation = Math.atan2(dirY, dirX) + Math.PI / 2;
+  
+  const transform = entity.add(new TransformComponent(x, y, rotation, 1));
+  const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
+  sprite.sprite.setDisplaySize(16, 16);
+  
+  // Bullet is blocked by walls (true)
+  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));
+  
+  entity.setUpdateOrder([
+    TransformComponent,
+    ProjectileComponent,
+    SpriteComponent,
+  ]);
+  
+  return entity;
+}
+```
+
+### Grenade Entity Example (Flies Over Walls)
+
+```typescript
+export function createGrenadeEntity(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  dirX: number,
+  dirY: number,
+  grid: Grid
+): Entity {
+  const entity = new Entity('grenade');
+  
+  const rotation = Math.atan2(dirY, dirX);
+  const transform = entity.add(new TransformComponent(x, y, rotation, 1));
+  const sprite = entity.add(new SpriteComponent(scene, 'grenade', transform));
+  sprite.sprite.setDisplaySize(24, 24);
+  
+  // Grenade flies over walls (false)
+  entity.add(new ProjectileComponent(dirX, dirY, 600, 500, grid, false));
+  
+  entity.setUpdateOrder([
+    TransformComponent,
+    ProjectileComponent,
+    SpriteComponent,
+  ]);
+  
+  return entity;
+}
+```
+
+### Debug Visualization
+
+Use Grid's debug rendering system for temporary visualizations:
+
+```typescript
+// ❌ Bad: Creates permanent sprites
+if (debugEnabled) {
+  this.add.rectangle(x, y, 20, 20, 0xff0000);  // Leaves trail!
+}
+
+// ✅ Good: Uses Grid's frame-based rendering
+grid.renderEmitterBox(x, y, 20);  // Cleared each frame
+```
+
+**Grid debug methods:**
+- `grid.renderCollisionBox(x, y, width, height)` - Blue collision boxes
+- `grid.renderEmitterBox(x, y, size)` - Red emitter positions
+- Both only render when debug mode is enabled (G key)
+
+## File Organization
+
+### Constants vs Domain-Specific Code
+
+Place shared constants in `src/constants/`:
+
+```
+src/
+├── constants/
+│   └── Direction.ts        # Used by animation, movement, projectiles
+├── animation/
+│   ├── Animation.ts
+│   └── AnimationSystem.ts
+├── ecs/
+│   └── components/
+│       ├── ProjectileComponent.ts
+│       └── ProjectileEmitterComponent.ts
+└── projectile/
+    └── BulletEntity.ts     # Bullet factory function
+```
+
+**Why separate constants:**
+- `Direction` is used by animation, movement, AI, and projectiles
+- Keeping it in `animation/` implies it's animation-specific
+- `constants/` makes it clear it's shared across systems

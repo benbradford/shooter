@@ -6,10 +6,12 @@ export class InputComponent implements Component {
   entity!: Entity;
   private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
+  private readonly fireKey: Phaser.Input.Keyboard.Key;
 
   constructor(scene: Phaser.Scene) {
     this.cursors = scene.input.keyboard!.createCursorKeys();
     this.keys = scene.input.keyboard!.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
+    this.fireKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   }
 
   update(_delta: number): void {
@@ -26,5 +28,9 @@ export class InputComponent implements Component {
     if (this.cursors.up.isDown || this.keys.W.isDown) dy -= 1;
     if (this.cursors.down.isDown || this.keys.S.isDown) dy += 1;
     return { dx, dy };
+  }
+
+  isFirePressed(): boolean {
+    return this.fireKey.isDown;
   }
 }

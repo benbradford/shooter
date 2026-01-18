@@ -1,5 +1,5 @@
 import { Animation } from "./Animation";
-import { Direction } from "./Direction";
+import { Direction } from "../constants/Direction";
 
 export interface AnimDirProp {
   name: "idle" | "walk";

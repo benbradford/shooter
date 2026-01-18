@@ -8,15 +8,22 @@ import { WalkComponent } from '../ecs/components/WalkComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
 import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
+import { ProjectileEmitterComponent, type EmitterOffset } from '../ecs/components/ProjectileEmitterComponent';
 import { Animation } from '../animation/Animation';
 import { AnimationSystem } from '../animation/AnimationSystem';
-import { Direction } from '../animation/Direction';
+import { Direction } from '../constants/Direction';
 import { StateMachine } from '../utils/state/StateMachine';
 import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import type { Grid } from '../utils/Grid';
 
-export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number, grid: Grid): Entity {
+export function createPlayerEntity(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  grid: Grid,
+  onFire: (x: number, y: number, dirX: number, dirY: number) => void
+): Entity {
   const entity = new Entity('player');
 
   // Transform
@@ -71,6 +78,26 @@ export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number, gr
   // Grid Collision
   entity.add(new GridCollisionComponent(grid));
 
+  // Projectile Emitter
+  const emitterOffsets: Record<Direction, EmitterOffset> = {
+    [Direction.Down]: { x: -16, y: 40 },
+    [Direction.Up]: { x: 12, y: -40 },
+    [Direction.Left]: { x: -40, y: 0 },
+    [Direction.Right]: { x: 40, y: 0 },
+    [Direction.UpLeft]: { x: -20, y: -20 },
+    [Direction.UpRight]: { x: 20, y: -20 },
+    [Direction.DownLeft]: { x: -34, y: 22 },
+    [Direction.DownRight]: { x: 27, y: 24 },
+    [Direction.None]: { x: 0, y: 0 },
+  };
+  entity.add(new ProjectileEmitterComponent(
+    scene,
+    onFire,
+    emitterOffsets,
+    () => input.isFirePressed(),
+    200  // 200ms cooldown between shots
+  ));
+
   // State Machine (added after Animation so onEnter can access it)
   const stateMachine = new StateMachine(
     {
@@ -88,6 +115,7 @@ export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number, gr
     InputComponent,
     WalkComponent,
     GridCollisionComponent,
+    ProjectileEmitterComponent,
     StateMachineComponent,
     AnimationComponent,
   ]);

@@ -3,6 +3,7 @@ import type { Component } from './Component';
 export class Entity {
   private readonly components: Map<string, Component> = new Map();
   private updateOrder: Component[] = [];
+  public isDestroyed: boolean = false;
 
   constructor(public readonly id: string) {}
 
@@ -33,6 +34,7 @@ export class Entity {
   }
 
   destroy(): void {
+    this.isDestroyed = true;
     this.components.forEach(component => component.onDestroy());
     this.components.clear();
     this.updateOrder = [];
