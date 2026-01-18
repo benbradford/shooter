@@ -15,7 +15,6 @@ export class AnimationComponent implements Component {
     this.animationSystem.update(delta);
     const frame = this.animationSystem.getFrame();
     if (frame) {
-      console.log('Setting texture:', frame);
       this.spriteComp.setTexture(frame);
     }
   }

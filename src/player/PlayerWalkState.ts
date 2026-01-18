@@ -30,7 +30,6 @@ export class PlayerWalkState implements IState {
 
     const newKey = `walk_${walk.lastDir}`;
     if (newKey !== this.lastAnimKey) {
-      console.log(`Switching animation from ${this.lastAnimKey} to ${newKey}`);
       this.lastAnimKey = newKey;
       anim.animationSystem.play(newKey);
     }

@@ -6,3 +6,5 @@ export { AnimationComponent } from './components/AnimationComponent';
 export { InputComponent } from './components/InputComponent';
 export { WalkComponent } from './components/WalkComponent';
 export { StateMachineComponent } from './components/StateMachineComponent';
+export { GridPositionComponent } from './components/GridPositionComponent';
+export { GridCollisionComponent } from './components/GridCollisionComponent';

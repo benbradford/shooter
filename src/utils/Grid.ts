@@ -1,8 +1,10 @@
 import Phaser from "phaser";
+import type { Entity } from "../ecs/Entity";
 
 export type CellData = {
-  walkable?: boolean;
-  object?: any; // placeholder for walls, enemies, etc.
+  walkable: boolean;
+  occupants: Set<Entity>;
+  blocksProjectiles: boolean;
 };
 
 export class Grid {
@@ -12,6 +14,7 @@ export class Grid {
   private scene: Phaser.Scene;
   private graphics: Phaser.GameObjects.Graphics;
   private debug: boolean = false;
+  private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
 
   public cells: CellData[][];
 
@@ -26,7 +29,11 @@ export class Grid {
     for (let row = 0; row < height; row++) {
       this.cells[row] = [];
       for (let col = 0; col < width; col++) {
-        this.cells[row][col] = { walkable: true };
+        this.cells[row][col] = { 
+          walkable: true, 
+          occupants: new Set(),
+          blocksProjectiles: false
+        };
       }
     }
 
@@ -67,6 +74,30 @@ export class Grid {
     return this.cells[row][col];
   }
 
+  addOccupant(col: number, row: number, entity: Entity): void {
+    const cell = this.getCell(col, row);
+    if (cell) {
+      cell.occupants.add(entity);
+    }
+  }
+
+  removeOccupant(col: number, row: number, entity: Entity): void {
+    const cell = this.getCell(col, row);
+    if (cell) {
+      cell.occupants.delete(entity);
+    }
+  }
+
+  isOccupied(col: number, row: number): boolean {
+    const cell = this.getCell(col, row);
+    return cell ? cell.occupants.size > 0 : false;
+  }
+
+  getOccupants(col: number, row: number): Set<Entity> {
+    const cell = this.getCell(col, row);
+    return cell ? cell.occupants : new Set();
+  }
+
   /**
    * Render grid lines for debugging
    */
@@ -81,8 +112,15 @@ export class Grid {
         const y = row * this.cellSize;
         const cell = this.cells[row][col];
 
+        // Non-walkable cells in red
         if (!cell.walkable) {
           this.graphics.fillStyle(0xff0000, 0.3);
+          this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
+        }
+
+        // Occupied cells in green
+        if (cell.occupants.size > 0) {
+          this.graphics.fillStyle(0x00ff00, 0.3);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
 
@@ -91,5 +129,19 @@ export class Grid {
         this.graphics.strokeRect(x + 0.5, y + 0.5, this.cellSize, this.cellSize); // 0.5 for crisp lines
       }
     }
+
+    // Draw collision boxes on top
+    this.collisionBoxes.forEach(box => {
+      this.graphics.lineStyle(2, 0x0000ff, 1);
+      this.graphics.strokeRect(box.x, box.y, box.width, box.height);
+    });
+
+    // Clear collision boxes for next frame
+    this.collisionBoxes = [];
+  }
+
+  renderCollisionBox(x: number, y: number, width: number, height: number): void {
+    if (!this.debug) return;
+    this.collisionBoxes.push({ x, y, width, height });
   }
 }

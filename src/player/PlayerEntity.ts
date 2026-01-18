@@ -6,14 +6,17 @@ import { AnimationComponent } from '../ecs/components/AnimationComponent';
 import { InputComponent } from '../ecs/components/InputComponent';
 import { WalkComponent } from '../ecs/components/WalkComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
+import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
+import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
 import { Animation } from '../animation/Animation';
 import { AnimationSystem } from '../animation/AnimationSystem';
 import { Direction } from '../animation/Direction';
 import { StateMachine } from '../utils/state/StateMachine';
 import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
+import type { Grid } from '../utils/Grid';
 
-export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number): Entity {
+export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number, grid: Grid): Entity {
   const entity = new Entity('player');
 
   // Transform
@@ -52,6 +55,17 @@ export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number): E
   // Walk
   const walk = entity.add(new WalkComponent(transform, input));
 
+  // Grid Position - collision box at bottom quarter of sprite
+  const startCell = grid.worldToCell(x, y);
+  const gridPos = entity.add(new GridPositionComponent(
+    startCell.col,
+    startCell.row,
+    { offsetX: 0, offsetY: 32, width: 36, height: 32 }
+  ));
+
+  // Grid Collision
+  const gridCollision = entity.add(new GridCollisionComponent(grid));
+
   // State Machine (added after Animation so onEnter can access it)
   const stateMachine = new StateMachine(
     {
@@ -62,15 +76,19 @@ export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number): E
   );
   entity.add(new StateMachineComponent(stateMachine));
 
-  // Set update order: StateMachine before Animation
+  // Set update order: StateMachine before Animation, GridCollision after Walk
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
     InputComponent,
     WalkComponent,
+    GridCollisionComponent,
     StateMachineComponent,
     AnimationComponent,
   ]);
+
+  // Add to grid
+  grid.addOccupant(startCell.col, startCell.row, entity);
 
   return entity;
 }
