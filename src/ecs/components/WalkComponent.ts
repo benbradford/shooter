@@ -12,6 +12,10 @@ export class WalkComponent implements Component {
   private velocityX = 0;
   private velocityY = 0;
   private readonly accelerationTime = 300; // ms to reach full speed
+  
+  // Track last movement direction for shooting
+  public lastMoveX = 0;
+  public lastMoveY = 1; // Default to down
 
   constructor(
     private readonly transformComp: TransformComponent,
@@ -30,6 +34,10 @@ export class WalkComponent implements Component {
       targetVelX = (dx / len) * this.speed;
       targetVelY = (dy / len) * this.speed;
       this.lastDir = dirFromDelta(dx, dy);
+      
+      // Update last movement direction (normalized)
+      this.lastMoveX = dx / len;
+      this.lastMoveY = dy / len;
     }
     
     // Smoothly interpolate current velocity toward target

@@ -47,21 +47,11 @@ export class ProjectileEmitterComponent implements Component {
     const emitX = transform.x + offset.x;
     const emitY = transform.y + offset.y;
     
-    // Direction vector
-    const dirMap: Record<Direction, { x: number; y: number }> = {
-      [Direction.Down]: { x: 0, y: 1 },
-      [Direction.Up]: { x: 0, y: -1 },
-      [Direction.Left]: { x: -1, y: 0 },
-      [Direction.Right]: { x: 1, y: 0 },
-      [Direction.UpLeft]: { x: -0.707, y: -0.707 },
-      [Direction.UpRight]: { x: 0.707, y: -0.707 },
-      [Direction.DownLeft]: { x: -0.707, y: 0.707 },
-      [Direction.DownRight]: { x: 0.707, y: 0.707 },
-      [Direction.None]: { x: 0, y: 1 },
-    };
+    // Use actual movement direction instead of discrete sprite direction
+    const dirX = walk.lastMoveX;
+    const dirY = walk.lastMoveY;
     
-    const dir = dirMap[direction];
-    this.onFire(emitX, emitY, dir.x, dir.y);
+    this.onFire(emitX, emitY, dirX, dirY);
     
     // Consume ammo
     if (this.ammoComponent) {
