@@ -82,6 +82,21 @@ export class TouchJoystickComponent implements Component {
     };
   }
 
+  getRawInputDelta(): { dx: number; dy: number } {
+    if (!this.isActive) {
+      return { dx: 0, dy: 0 };
+    }
+
+    const dx = this.currentX - this.startX;
+    const dy = this.currentY - this.startY;
+
+    // Return raw direction without deadzone check
+    return {
+      dx: dx / this.maxRadius,
+      dy: dy / this.maxRadius,
+    };
+  }
+
   getJoystickState(): { active: boolean; startX: number; startY: number; currentX: number; currentY: number } {
     return {
       active: this.isActive,

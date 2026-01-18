@@ -45,6 +45,19 @@ export class InputComponent implements Component {
     return { dx, dy };
   }
 
+  getRawInputDelta(): { dx: number; dy: number } {
+    // Get raw input without deadzone (for facing direction)
+    if (this.joystick) {
+      const joystickDelta = this.joystick.getRawInputDelta();
+      if (joystickDelta.dx !== 0 || joystickDelta.dy !== 0) {
+        return joystickDelta;
+      }
+    }
+
+    // Keyboard has no deadzone
+    return this.getInputDelta();
+  }
+
   isFirePressed(): boolean {
     return this.fireKey.isDown;
   }

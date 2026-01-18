@@ -24,8 +24,17 @@ export class WalkComponent implements Component {
 
   update(delta: number): void {
     const { dx, dy } = this.inputComp.getInputDelta();
+    const { dx: rawDx, dy: rawDy } = this.inputComp.getRawInputDelta();
     
-    // Calculate target velocity
+    // Update facing direction from raw input (ignores deadzone)
+    if (rawDx !== 0 || rawDy !== 0) {
+      const len = Math.sqrt(rawDx * rawDx + rawDy * rawDy);
+      this.lastDir = dirFromDelta(rawDx, rawDy);
+      this.lastMoveX = rawDx / len;
+      this.lastMoveY = rawDy / len;
+    }
+    
+    // Calculate target velocity from deadzone-filtered input
     let targetVelX = 0;
     let targetVelY = 0;
     
@@ -33,11 +42,6 @@ export class WalkComponent implements Component {
       const len = Math.sqrt(dx * dx + dy * dy);
       targetVelX = (dx / len) * this.speed;
       targetVelY = (dy / len) * this.speed;
-      this.lastDir = dirFromDelta(dx, dy);
-      
-      // Update last movement direction (normalized)
-      this.lastMoveX = dx / len;
-      this.lastMoveY = dy / len;
     }
     
     // Smoothly interpolate current velocity toward target
