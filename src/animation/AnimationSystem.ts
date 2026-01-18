@@ -9,6 +9,7 @@ export interface AnimDirProp {
 export class AnimationSystem {
   private readonly animations: Map<string, Animation>;
   private current?: Animation;
+  private timeScale = 1;
 
   constructor(animations: Map<string, Animation>, defaultKey: string) {
     this.animations = animations;
@@ -25,8 +26,12 @@ export class AnimationSystem {
     this.current.reset();
   }
 
+  setTimeScale(scale: number) {
+    this.timeScale = Math.max(0, scale);
+  }
+
   update(delta: number) {
-    this.current?.update(delta);
+    this.current?.update(delta * this.timeScale);
   }
 
   getFrame(): string | undefined {

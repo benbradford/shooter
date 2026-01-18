@@ -8,6 +8,10 @@ export class WalkComponent implements Component {
   entity!: Entity;
   public speed = 300;
   public lastDir: Direction = Direction.Down;
+  
+  private velocityX = 0;
+  private velocityY = 0;
+  private readonly accelerationTime = 300; // ms to reach full speed
 
   constructor(
     private readonly transformComp: TransformComponent,
@@ -17,22 +21,43 @@ export class WalkComponent implements Component {
   update(delta: number): void {
     const { dx, dy } = this.inputComp.getInputDelta();
     
+    // Calculate target velocity
+    let targetVelX = 0;
+    let targetVelY = 0;
+    
     if (dx !== 0 || dy !== 0) {
       const len = Math.sqrt(dx * dx + dy * dy);
-      const ndx = dx / len;
-      const ndy = dy / len;
-      
-      this.transformComp.x += ndx * this.speed * (delta / 1000);
-      this.transformComp.y += ndy * this.speed * (delta / 1000);
-      
+      targetVelX = (dx / len) * this.speed;
+      targetVelY = (dy / len) * this.speed;
       this.lastDir = dirFromDelta(dx, dy);
     }
+    
+    // Smoothly interpolate current velocity toward target
+    const lerpFactor = Math.min(1, delta / this.accelerationTime);
+    this.velocityX += (targetVelX - this.velocityX) * lerpFactor;
+    this.velocityY += (targetVelY - this.velocityY) * lerpFactor;
+    
+    // Snap to zero if no input and moving very slowly (deadzone)
+    if (dx === 0 && dy === 0) {
+      const velocityMagnitude = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+      if (velocityMagnitude < 50) {
+        this.velocityX = 0;
+        this.velocityY = 0;
+      }
+    }
+    
+    // Apply velocity to position
+    this.transformComp.x += this.velocityX * (delta / 1000);
+    this.transformComp.y += this.velocityY * (delta / 1000);
   }
 
   onDestroy(): void {}
 
   isMoving(): boolean {
-    const { dx, dy } = this.inputComp.getInputDelta();
-    return dx !== 0 || dy !== 0;
+    return Math.abs(this.velocityX) > 1 || Math.abs(this.velocityY) > 1;
+  }
+
+  getVelocityMagnitude(): number {
+    return Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
   }
 }

@@ -29,6 +29,11 @@ export class PlayerWalkState implements IState {
       return;
     }
 
+    // Adjust animation speed based on velocity
+    const velocityMagnitude = walk.getVelocityMagnitude();
+    const speedRatio = velocityMagnitude / walk.speed;
+    anim.animationSystem.setTimeScale(speedRatio);
+
     const newKey = `walk_${walk.lastDir}`;
     if (newKey !== this.lastAnimKey) {
       this.lastAnimKey = newKey;
