@@ -2,6 +2,201 @@
 
 This document explains the core architecture, ECS system, and best practices for adding new entities to the game.
 
+## Development Workflow
+
+### CRITICAL: Always Build and Lint After Changes
+
+**Run these commands after making code changes** to catch errors early:
+
+```bash
+npm run build  # Compiles TypeScript and builds for production
+npx eslint src --ext .ts  # Check code quality and style
+npm run dev    # Runs development server with hot reload
+```
+
+**Recommended workflow:**
+1. Make code changes
+2. Run `npm run build` - fix any TypeScript errors
+3. Run `npx eslint src --ext .ts` - fix any linting warnings
+4. Test in browser with `npm run dev`
+
+### TypeScript Best Practices
+
+#### DO ✅
+
+**Imports:**
+- Use relative paths correctly based on file location
+- Components in `src/ecs/components/` import from `'../Component'` and `'../Entity'`
+- Use `import type` for type-only imports to reduce bundle size
+- Use `export type` when re-exporting interfaces
+
+```typescript
+// ✅ Correct - type-only import
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
+
+// ✅ Correct - value import for classes
+import { TransformComponent } from './TransformComponent';
+
+// ✅ Correct - re-exporting types
+export type { Component } from './Component';
+export { Entity } from './Entity';
+```
+
+**Readonly Properties:**
+- Mark properties `readonly` if they're never reassigned after construction
+- Use constructor parameter properties for readonly dependencies
+
+```typescript
+// ✅ Correct - readonly for immutable references
+class MyComponent {
+  constructor(
+    private readonly grid: Grid,
+    private readonly transform: TransformComponent
+  ) {}
+}
+
+// ✅ Correct - mutable state
+class MyComponent {
+  private currentHealth: number = 100;  // Changes during gameplay
+}
+```
+
+**Unused Parameters:**
+- Prefix unused parameters with `_` to satisfy linter
+- ESLint is configured to ignore variables starting with `_`
+
+```typescript
+// ✅ Correct
+update(_delta: number): void {
+  // delta not used
+}
+```
+
+**Type Safety:**
+- Never use `any` - use specific types or `unknown`
+- For constructor types, use `never[]` for args: `new (...args: never[]) => T`
+- For key-value objects, use `Record<string, Type>`
+
+```typescript
+// ✅ Correct - specific type
+private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
+
+// ✅ Correct - constructor type
+get<T extends Component>(componentClass: new (...args: never[]) => T): T | undefined
+
+// ❌ Wrong - any type
+private keys: any;
+```
+
+**Null Safety:**
+- Use optional chaining `?.` for potentially null values
+- Use non-null assertion `!` only when you're certain value exists
+
+```typescript
+// ✅ Correct - optional chaining
+scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
+
+// ✅ Correct - non-null assertion when guaranteed
+const transform = this.entity.get(TransformComponent)!;
+```
+
+#### DON'T ❌
+
+**Imports:**
+```typescript
+// ❌ Wrong - incorrect relative path
+import type { Component } from './Component';  // In components/ folder
+
+// ❌ Wrong - missing 'type' keyword for interfaces
+import { Component } from '../Component';
+
+// ❌ Wrong - re-exporting without 'type'
+export { Component } from './Component';  // Should be 'export type'
+```
+
+**Readonly:**
+```typescript
+// ❌ Wrong - readonly on reassigned property
+class MyComponent {
+  private readonly occupiedCells: Set<string> = new Set();
+  
+  update() {
+    this.occupiedCells = new Set();  // ERROR: Can't reassign readonly
+  }
+}
+
+// ❌ Wrong - not using readonly for immutable references
+class MyComponent {
+  constructor(private grid: Grid) {}  // Should be readonly
+}
+```
+
+**Type Safety:**
+```typescript
+// ❌ Wrong - using any
+private keys: any;
+get<T>(componentClass: new (...args: any[]) => T): T
+
+// ❌ Wrong - not typing Record
+private keys: { [key: string]: any };
+
+// ✅ Correct
+private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
+get<T extends Component>(componentClass: new (...args: never[]) => T): T | undefined
+```
+
+**Duplicate Declarations:**
+```typescript
+// ❌ Wrong - declaring property twice
+class Grid {
+  private scene: Phaser.Scene;
+  
+  constructor(private scene: Phaser.Scene) {}  // Duplicate!
+}
+
+// ✅ Correct - use parameter property OR separate declaration
+class Grid {
+  constructor(private readonly scene: Phaser.Scene) {}
+}
+```
+
+**Unused Variables:**
+```typescript
+// ❌ Wrong - unused variable
+const animation = entity.add(new AnimationComponent(...));
+// Never used again
+
+// ✅ Correct - don't assign if not used
+entity.add(new AnimationComponent(...));
+```
+
+### ESLint Configuration
+
+The project uses ESLint with TypeScript support. Key rules:
+
+- **`@typescript-eslint/no-unused-vars`**: Allows `_` prefix for intentionally unused parameters
+- **`@typescript-eslint/no-explicit-any`**: Disallows `any` type - use specific types
+
+**To add ESLint to a new project:**
+```bash
+npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
+npx eslint --init
+```
+
+**Configure in `eslint.config.ts`:**
+```typescript
+rules: {
+  "@typescript-eslint/no-unused-vars": [
+    "error",
+    {
+      "argsIgnorePattern": "^_",
+      "varsIgnorePattern": "^_"
+    }
+  ]
+}
+```
+
 ## Core Concepts
 
 ### Entity-Component System (ECS)

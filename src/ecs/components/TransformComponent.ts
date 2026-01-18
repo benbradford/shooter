@@ -1,5 +1,5 @@
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 
 export class TransformComponent implements Component {
   entity!: Entity;
@@ -11,7 +11,9 @@ export class TransformComponent implements Component {
     public scale: number = 1
   ) {}
 
-  update(delta: number): void {}
+  update(_delta: number): void {
+    // No-op: delta intentionally unused
+  }
 
   onDestroy(): void {}
 }

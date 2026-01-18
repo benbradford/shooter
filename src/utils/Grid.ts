@@ -8,18 +8,16 @@ export type CellData = {
 };
 
 export class Grid {
-  public width: number; // columns
-  public height: number; // rows
-  public cellSize: number;
-  private scene: Phaser.Scene;
-  private graphics: Phaser.GameObjects.Graphics;
+  public readonly width: number; // columns
+  public readonly height: number; // rows
+  public readonly cellSize: number;
+  private readonly graphics: Phaser.GameObjects.Graphics;
   private debug: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
 
-  public cells: CellData[][];
+  public readonly cells: CellData[][];
 
   constructor(scene: Phaser.Scene, width: number, height: number, cellSize: number = 64) {
-    this.scene = scene;
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
@@ -41,8 +39,8 @@ export class Grid {
     this.graphics = scene.add.graphics({ lineStyle: { width: 1, color: 0xffffff, alpha: 0.3 } });
 
     // Toggle debug grid with G
-    const keyG = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
-    keyG.on("down", () => {
+    const keyG = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
+    keyG?.on("down", () => {
       this.debug = !this.debug;
       this.render();
     });

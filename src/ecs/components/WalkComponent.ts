@@ -1,5 +1,5 @@
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 import type { TransformComponent } from './TransformComponent';
 import type { InputComponent } from './InputComponent';
 import { Direction, dirFromDelta } from '../../animation/Direction';

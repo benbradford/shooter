@@ -1,5 +1,5 @@
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 import type { Grid } from '../../utils/Grid';
 import { TransformComponent } from './TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
@@ -10,7 +10,7 @@ export class GridCollisionComponent implements Component {
   private previousY: number = 0;
   private occupiedCells: Set<string> = new Set(); // Track as "col,row" strings
 
-  constructor(private grid: Grid) {}
+  constructor(private readonly grid: Grid) {}
 
   private checkCollision(x: number, y: number, gridPos: GridPositionComponent): boolean {
     // Calculate collision box bounds at given position
@@ -35,7 +35,7 @@ export class GridCollisionComponent implements Component {
     return false; // not blocked
   }
 
-  update(delta: number): void {
+  update(_delta: number): void {
     const transform = this.entity.get(TransformComponent)!;
     const gridPos = this.entity.get(GridPositionComponent)!;
 

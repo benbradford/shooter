@@ -7,7 +7,7 @@ import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
 
-  constructor(private entity: Entity) {}
+  constructor(private readonly entity: Entity) {}
 
   onEnter(): void {
     const walk = this.entity.get(WalkComponent)!;
@@ -18,7 +18,8 @@ export class PlayerWalkState implements IState {
 
   onExit(): void {}
 
-  onUpdate(delta: number): void {
+  onUpdate(_delta: number): void {
+    // No-op: delta intentionally unused
     const walk = this.entity.get(WalkComponent)!;
     const anim = this.entity.get(AnimationComponent)!;
     const sm = this.entity.get(StateMachineComponent)!;

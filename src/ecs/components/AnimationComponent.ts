@@ -1,5 +1,5 @@
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 import { AnimationSystem } from '../../animation/AnimationSystem';
 import type { SpriteComponent } from './SpriteComponent';
 
@@ -7,8 +7,8 @@ export class AnimationComponent implements Component {
   entity!: Entity;
 
   constructor(
-    public animationSystem: AnimationSystem,
-    private spriteComp: SpriteComponent
+    public readonly animationSystem: AnimationSystem,
+    private readonly spriteComp: SpriteComponent
   ) {}
 
   update(delta: number): void {

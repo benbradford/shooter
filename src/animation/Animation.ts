@@ -1,14 +1,14 @@
 export type AnimationStyle = "static" | "repeat" | "pingpong";
 
 export class Animation {
-  private frames: string[];
-  private style: AnimationStyle;
+  private readonly frames: string[];
+  private readonly style: AnimationStyle;
 
   private index = 0;
   private forward = true;
 
   private elapsed = 0;
-  private frameDuration: number;
+  private readonly frameDuration: number;
 
   constructor(
     frames: string[],

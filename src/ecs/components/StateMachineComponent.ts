@@ -1,11 +1,11 @@
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 import { StateMachine } from '../../utils/state/StateMachine';
 
 export class StateMachineComponent implements Component {
   entity!: Entity;
 
-  constructor(public stateMachine: StateMachine) {}
+  constructor(public readonly stateMachine: StateMachine) {}
 
   update(delta: number): void {
     this.stateMachine.update(delta);

@@ -7,7 +7,7 @@ export interface AnimDirProp {
 }
 
 export class AnimationSystem {
-  private animations: Map<string, Animation>;
+  private readonly animations: Map<string, Animation>;
   private current?: Animation;
 
   constructor(animations: Map<string, Animation>, defaultKey: string) {

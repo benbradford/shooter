@@ -1,5 +1,5 @@
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 
 export class GridPositionComponent implements Component {
   entity!: Entity;
@@ -25,7 +25,9 @@ export class GridPositionComponent implements Component {
     this.collisionBox = collisionBox;
   }
 
-  update(delta: number): void {}
+  update(_delta: number): void {
+    // No-op: delta intentionally unused
+  }
 
   onDestroy(): void {}
 }

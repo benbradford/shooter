@@ -1,5 +1,5 @@
 export { Entity } from './Entity';
-export { Component } from './Component';
+export type { Component } from './Component';
 export { TransformComponent } from './components/TransformComponent';
 export { SpriteComponent } from './components/SpriteComponent';
 export { AnimationComponent } from './components/AnimationComponent';

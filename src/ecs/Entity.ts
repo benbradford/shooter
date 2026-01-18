@@ -1,10 +1,10 @@
 import type { Component } from './Component';
 
 export class Entity {
-  private components: Map<string, Component> = new Map();
+  private readonly components: Map<string, Component> = new Map();
   private updateOrder: Component[] = [];
 
-  constructor(public id: string) {}
+  constructor(public readonly id: string) {}
 
   add<T extends Component>(component: T): T {
     const name = component.constructor.name;
@@ -14,11 +14,11 @@ export class Entity {
     return component;
   }
 
-  get<T extends Component>(componentClass: new (...args: any[]) => T): T | undefined {
+  get<T extends Component>(componentClass: new (...args: never[]) => T): T | undefined {
     return this.components.get(componentClass.name) as T | undefined;
   }
 
-  has(componentClass: new (...args: any[]) => any): boolean {
+  has(componentClass: new (...args: never[]) => Component): boolean {
     return this.components.has(componentClass.name);
   }
 
@@ -26,7 +26,7 @@ export class Entity {
     this.updateOrder.forEach(component => component.update(delta));
   }
 
-  setUpdateOrder(componentClasses: (new (...args: any[]) => Component)[]): void {
+  setUpdateOrder(componentClasses: (new (...args: never[]) => Component)[]): void {
     this.updateOrder = componentClasses
       .map(cls => this.components.get(cls.name))
       .filter(c => c !== undefined) as Component[];

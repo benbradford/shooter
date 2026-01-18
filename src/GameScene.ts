@@ -67,7 +67,7 @@ export default class GameScene extends Phaser.Scene {
     // Optional: toggle debug grid with G is already handled in Grid constructor
   }
 
-  update(time: number, delta: number) {
+  update(_time: number, delta: number) {
     // Update the player entity (all components)
     this.player.update(delta);
 

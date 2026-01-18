@@ -1,18 +1,20 @@
 import Phaser from 'phaser';
-import type { Component } from '../ecs/Component';
-import type { Entity } from '../ecs/Entity';
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
 
 export class InputComponent implements Component {
   entity!: Entity;
-  private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-  private keys: any;
+  private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
 
   constructor(scene: Phaser.Scene) {
     this.cursors = scene.input.keyboard!.createCursorKeys();
-    this.keys = scene.input.keyboard!.addKeys('W,A,S,D');
+    this.keys = scene.input.keyboard!.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
   }
 
-  update(delta: number): void {}
+  update(_delta: number): void {
+    // No-op: delta intentionally unused
+  }
 
   onDestroy(): void {}
 

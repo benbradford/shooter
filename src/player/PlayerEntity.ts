@@ -47,24 +47,24 @@ export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number, gr
   });
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
-  const animation = entity.add(new AnimationComponent(animSystem, sprite));
+  entity.add(new AnimationComponent(animSystem, sprite));
 
   // Input
   const input = entity.add(new InputComponent(scene));
 
   // Walk
-  const walk = entity.add(new WalkComponent(transform, input));
+  entity.add(new WalkComponent(transform, input));
 
   // Grid Position - collision box at bottom quarter of sprite
   const startCell = grid.worldToCell(x, y);
-  const gridPos = entity.add(new GridPositionComponent(
+  entity.add(new GridPositionComponent(
     startCell.col,
     startCell.row,
     { offsetX: 0, offsetY: 32, width: 36, height: 32 }
   ));
 
   // Grid Collision
-  const gridCollision = entity.add(new GridCollisionComponent(grid));
+  entity.add(new GridCollisionComponent(grid));
 
   // State Machine (added after Animation so onEnter can access it)
   const stateMachine = new StateMachine(
