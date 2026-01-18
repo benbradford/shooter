@@ -1,5 +1,19 @@
 # Quick Reference Guide
 
+## ⚠️ MANDATORY: After Every Code Change ⚠️
+
+**Run these commands after EVERY code modification:**
+
+```bash
+npm run build                # MUST pass with zero errors
+npx eslint src --ext .ts     # MUST pass with zero errors
+npm run dev                  # Test the changes
+```
+
+**No exceptions. Every code change must build and lint successfully.**
+
+---
+
 ## Common Development Tasks
 
 ### Starting Development

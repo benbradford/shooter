@@ -12,8 +12,9 @@ export class WalkComponent implements Component {
   private velocityX = 0;
   private velocityY = 0;
   private readonly accelerationTime = 300; // ms to reach full speed
+  private readonly stopThreshold = 50; // velocity below this snaps to zero
   
-  // Track last movement direction for shooting
+  // Normalized direction vector for shooting
   public lastMoveX = 0;
   public lastMoveY = 1; // Default to down
 
@@ -23,44 +24,61 @@ export class WalkComponent implements Component {
   ) {}
 
   update(delta: number): void {
-    const { dx, dy } = this.inputComp.getInputDelta();
-    const { dx: rawDx, dy: rawDy } = this.inputComp.getRawInputDelta();
+    const movementInput = this.inputComp.getInputDelta();
+    const facingInput = this.inputComp.getRawInputDelta();
     
-    // Update facing direction from raw input (ignores deadzone)
-    if (rawDx !== 0 || rawDy !== 0) {
-      const len = Math.sqrt(rawDx * rawDx + rawDy * rawDy);
-      this.lastDir = dirFromDelta(rawDx, rawDy);
-      this.lastMoveX = rawDx / len;
-      this.lastMoveY = rawDy / len;
+    // Update facing direction from raw input (ignores joystick deadzone)
+    if (facingInput.dx !== 0 || facingInput.dy !== 0) {
+      this.updateFacingDirection(facingInput.dx, facingInput.dy);
     }
     
     // Calculate target velocity from deadzone-filtered input
-    let targetVelX = 0;
-    let targetVelY = 0;
+    const targetVelocity = this.calculateTargetVelocity(movementInput.dx, movementInput.dy);
     
-    if (dx !== 0 || dy !== 0) {
-      const len = Math.sqrt(dx * dx + dy * dy);
-      targetVelX = (dx / len) * this.speed;
-      targetVelY = (dy / len) * this.speed;
-    }
+    // Apply momentum (smooth acceleration/deceleration)
+    this.applyMomentum(targetVelocity, delta);
     
-    // Smoothly interpolate current velocity toward target
-    const lerpFactor = Math.min(1, delta / this.accelerationTime);
-    this.velocityX += (targetVelX - this.velocityX) * lerpFactor;
-    this.velocityY += (targetVelY - this.velocityY) * lerpFactor;
-    
-    // Snap to zero if no input and moving very slowly (deadzone)
-    if (dx === 0 && dy === 0) {
-      const velocityMagnitude = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
-      if (velocityMagnitude < 50) {
-        this.velocityX = 0;
-        this.velocityY = 0;
-      }
+    // Snap to zero if no input and moving very slowly
+    if (movementInput.dx === 0 && movementInput.dy === 0) {
+      this.applyStopThreshold();
     }
     
     // Apply velocity to position
     this.transformComp.x += this.velocityX * (delta / 1000);
     this.transformComp.y += this.velocityY * (delta / 1000);
+  }
+
+  private updateFacingDirection(dx: number, dy: number): void {
+    const len = Math.sqrt(dx * dx + dy * dy);
+    this.lastDir = dirFromDelta(dx, dy);
+    this.lastMoveX = dx / len;
+    this.lastMoveY = dy / len;
+  }
+
+  private calculateTargetVelocity(dx: number, dy: number): { x: number; y: number } {
+    if (dx === 0 && dy === 0) {
+      return { x: 0, y: 0 };
+    }
+    
+    const len = Math.sqrt(dx * dx + dy * dy);
+    return {
+      x: (dx / len) * this.speed,
+      y: (dy / len) * this.speed,
+    };
+  }
+
+  private applyMomentum(target: { x: number; y: number }, delta: number): void {
+    const lerpFactor = Math.min(1, delta / this.accelerationTime);
+    this.velocityX += (target.x - this.velocityX) * lerpFactor;
+    this.velocityY += (target.y - this.velocityY) * lerpFactor;
+  }
+
+  private applyStopThreshold(): void {
+    const magnitude = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+    if (magnitude < this.stopThreshold) {
+      this.velocityX = 0;
+      this.velocityY = 0;
+    }
   }
 
   onDestroy(): void {}

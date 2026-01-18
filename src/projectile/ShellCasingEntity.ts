@@ -21,12 +21,12 @@ export function createShellCasingEntity(
   sprite.sprite.setDepth(facingUp ? -1 : 1);
 
   const floorY = playerY + 40;
-  const shellCasing = entity.add(new ShellCasingComponent(direction, floorY, sprite));
+  entity.add(new ShellCasingComponent(direction, floorY, sprite));
 
   entity.setUpdateOrder([
-    shellCasing,
-    transform,
-    sprite,
+    ShellCasingComponent,
+    TransformComponent,
+    SpriteComponent,
   ]);
 
   return entity;

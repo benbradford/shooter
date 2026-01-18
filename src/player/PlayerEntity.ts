@@ -66,7 +66,7 @@ export function createPlayerEntity(
   });
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
-  const animation = entity.add(new AnimationComponent(animSystem, sprite));
+  entity.add(new AnimationComponent(animSystem, sprite));
 
   // Input
   const input = entity.add(new InputComponent(scene));
@@ -76,7 +76,7 @@ export function createPlayerEntity(
   input.setJoystick(joystickComp);
 
   // Walk
-  const walk = entity.add(new WalkComponent(transform, input));
+  entity.add(new WalkComponent(transform, input));
 
   // Grid Position - collision box at bottom quarter of sprite
   const startCell = grid.worldToCell(x, y);
@@ -87,17 +87,20 @@ export function createPlayerEntity(
   ));
 
   // Grid Collision
-  const gridCollision = entity.add(new GridCollisionComponent(grid));
+  entity.add(new GridCollisionComponent(grid));
 
   // Health System
   const health = entity.add(new HealthComponent());
-  const healthBar = entity.add(new HudBarComponent(scene, health, 70, 0x00ff00)); // Green bar at 70px
-  healthBar.init();
 
   // Ammo System
   const ammo = entity.add(new AmmoComponent());
-  const ammoBar = entity.add(new HudBarComponent(scene, ammo, 90, 0x0000ff)); // Blue bar at 90px (20px below health)
-  ammoBar.init();
+  
+  // HUD Bars (both health and ammo)
+  const hudBars = entity.add(new HudBarComponent(scene, [
+    { dataSource: health, offsetY: 70, fillColor: 0x00ff00 }, // Green health bar
+    { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },   // Blue ammo bar
+  ]));
+  hudBars.init();
 
   // Projectile Emitter
   const emitterOffsets: Record<Direction, EmitterOffset> = {
@@ -111,7 +114,7 @@ export function createPlayerEntity(
     [Direction.DownRight]: { x: 27, y: 24 },
     [Direction.None]: { x: 0, y: 0 },
   };
-  const emitter = entity.add(new ProjectileEmitterComponent(
+  entity.add(new ProjectileEmitterComponent(
     scene,
     onFire,
     emitterOffsets,
@@ -133,23 +136,22 @@ export function createPlayerEntity(
     },
     'idle'
   );
-  const stateMachineComp = entity.add(new StateMachineComponent(stateMachine));
+  entity.add(new StateMachineComponent(stateMachine));
 
   // Set update order with component instances
   entity.setUpdateOrder([
-    transform,
-    sprite,
-    input,
-    walk,
-    gridCollision,
-    health,
-    ammo,
-    emitter,
-    overheatSmoke,
-    healthBar,
-    ammoBar,
-    stateMachineComp,
-    animation,
+    TransformComponent,
+    SpriteComponent,
+    InputComponent,
+    WalkComponent,
+    GridCollisionComponent,
+    HealthComponent,
+    AmmoComponent,
+    ProjectileEmitterComponent,
+    OverheatSmokeComponent,
+    HudBarComponent,
+    StateMachineComponent,
+    AnimationComponent,
   ]);
 
   // Add to grid

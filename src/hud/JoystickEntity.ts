@@ -12,8 +12,8 @@ export function createJoystickEntity(scene: Phaser.Scene): Entity {
   visuals.init();
 
   entity.setUpdateOrder([
-    joystick,
-    visuals,
+    TouchJoystickComponent,
+    JoystickVisualsComponent,
   ]);
 
   return entity;

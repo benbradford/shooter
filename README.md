@@ -5,6 +5,19 @@ Create a 2D top-down cross-platform game using Phaser, with fixed grid-based mov
 
 ---
 
+## ⚠️ CRITICAL: Development Workflow ⚠️
+
+**After EVERY code change, you MUST run:**
+
+```bash
+npm run build                # TypeScript compilation - MUST pass
+npx eslint src --ext .ts     # Code quality check - MUST pass
+```
+
+**Both commands must complete with zero errors before considering any change complete.**
+
+---
+
 **1. Grid System:**
 
 * **Fixed-size cells:** 64x64 pixels.

@@ -26,6 +26,7 @@ export class InputComponent implements Component {
 
   onDestroy(): void {}
 
+  /** Get input with deadzone applied (for movement) */
   getInputDelta(): { dx: number; dy: number } {
     // Prioritize joystick input over keyboard
     if (this.joystick) {
@@ -45,6 +46,7 @@ export class InputComponent implements Component {
     return { dx, dy };
   }
 
+  /** Get raw input without deadzone (for facing direction) */
   getRawInputDelta(): { dx: number; dy: number } {
     // Get raw input without deadzone (for facing direction)
     if (this.joystick) {
@@ -56,6 +58,11 @@ export class InputComponent implements Component {
 
     // Keyboard has no deadzone
     return this.getInputDelta();
+  }
+
+  hasInput(): boolean {
+    const { dx, dy } = this.getRawInputDelta();
+    return dx !== 0 || dy !== 0;
   }
 
   isFirePressed(): boolean {

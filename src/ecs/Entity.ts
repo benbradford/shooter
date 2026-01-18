@@ -9,6 +9,11 @@ export class Entity {
 
   add<T extends Component>(component: T): T {
     const name = component.constructor.name;
+    
+    if (this.components.has(name)) {
+      throw new Error(`Entity ${this.id} already has a component of type ${name}`);
+    }
+    
     this.components.set(name, component);
     this.updateOrder.push(component);
     component.entity = this;
@@ -27,8 +32,14 @@ export class Entity {
     this.updateOrder.forEach(component => component.update(delta));
   }
 
-  setUpdateOrder(components: Component[]): void {
-    this.updateOrder = components;
+  setUpdateOrder(componentClasses: Array<new (...args: never[]) => Component>): void {
+    this.updateOrder = componentClasses.map(cls => {
+      const component = this.components.get(cls.name);
+      if (!component) {
+        throw new Error(`Entity ${this.id} does not have component ${cls.name}`);
+      }
+      return component;
+    });
   }
 
   destroy(): void {

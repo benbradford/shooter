@@ -8,21 +8,32 @@ This document explains the core architecture, ECS system, and best practices for
 
 ## Development Workflow
 
-### CRITICAL: Always Build and Lint After Changes
+### ⚠️ CRITICAL: ALWAYS Build and Lint After EVERY Code Change ⚠️
 
-**Run these commands after making code changes** to catch errors early:
+**MANDATORY: Run these commands after EVERY code change, no exceptions:**
 
 ```bash
-npm run build  # Compiles TypeScript and builds for production
-npx eslint src --ext .ts  # Check code quality and style
-npm run dev    # Runs development server with hot reload
+npm run build                # 1. Compile TypeScript - MUST pass
+npx eslint src --ext .ts     # 2. Check code quality - MUST pass with zero errors
+npm run dev                  # 3. Test in browser
 ```
 
-**Recommended workflow:**
+**This is NOT optional. Every single code modification must:**
+1. ✅ Build successfully with zero TypeScript errors
+2. ✅ Pass ESLint with zero errors or warnings
+3. ✅ Be tested in the browser
+
+**Why this matters:**
+- TypeScript catches type errors and missing imports
+- ESLint catches unused variables, incorrect types, and style issues
+- Building early prevents accumulating errors
+- Linting early prevents bad patterns from spreading
+
+**Workflow for AI assistants:**
 1. Make code changes
-2. Run `npm run build` - fix any TypeScript errors
-3. Run `npx eslint src --ext .ts` - fix any linting warnings
-4. Test in browser with `npm run dev`
+2. Run `npm run build` - if it fails, fix errors immediately
+3. Run `npx eslint src --ext .ts` - if it fails, fix errors immediately
+4. Only after both pass, consider the task complete
 
 ### TypeScript Best Practices
 

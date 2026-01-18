@@ -26,7 +26,6 @@ export class PlayerIdleState implements IState {
     
     // Update idle direction if it changed (from input in WalkComponent)
     if (walk.lastDir !== this.lastDir) {
-      console.log(`Idle: direction changed from ${this.lastDir} to ${walk.lastDir}`);
       this.lastDir = walk.lastDir;
       anim.animationSystem.play(`idle_${this.lastDir}`);
     }

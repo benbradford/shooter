@@ -6,95 +6,119 @@ export interface HudBarDataSource {
   getRatio(): number;
 }
 
+interface BarConfig {
+  dataSource: HudBarDataSource;
+  offsetY: number;
+  fillColor: number;
+}
+
 export class HudBarComponent implements Component {
   entity!: Entity;
   private readonly barWidth: number = 64;
   private readonly barHeight: number = 8;
-  private background!: Phaser.GameObjects.Rectangle;
-  private fill!: Phaser.GameObjects.Rectangle;
-  private outline!: Phaser.GameObjects.Rectangle;
-  private flashTimer: number = 0;
+  private readonly bars: Array<{
+    background: Phaser.GameObjects.Rectangle;
+    fill: Phaser.GameObjects.Rectangle;
+    outline: Phaser.GameObjects.Rectangle;
+    dataSource: HudBarDataSource;
+    offsetY: number;
+    fillColor: number;
+    flashTimer: number;
+  }> = [];
   private readonly flashInterval: number = 300;
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly dataSource: HudBarDataSource,
-    private readonly offsetY: number,
-    private readonly fillColor: number = 0x0000ff
+    private readonly configs: BarConfig[]
   ) {}
 
   init(): void {
     const transform = this.entity.get(TransformComponent)!;
     
-    // Background (black)
-    this.background = this.scene.add.rectangle(
-      transform.x,
-      transform.y + this.offsetY,
-      this.barWidth,
-      this.barHeight,
-      0x000000
-    );
-    
-    // Fill (configurable color)
-    this.fill = this.scene.add.rectangle(
-      transform.x,
-      transform.y + this.offsetY,
-      this.barWidth,
-      this.barHeight,
-      this.fillColor
-    );
-    // Keep default origin (0.5, 0.5) for centered positioning
-    
-    // Outline (white)
-    this.outline = this.scene.add.rectangle(
-      transform.x,
-      transform.y + this.offsetY,
-      this.barWidth,
-      this.barHeight
-    );
-    this.outline.setStrokeStyle(2, 0xffffff);
-    this.outline.setFillStyle(0x000000, 0); // Transparent fill
+    for (const config of this.configs) {
+      // Background (black)
+      const background = this.scene.add.rectangle(
+        transform.x,
+        transform.y + config.offsetY,
+        this.barWidth,
+        this.barHeight,
+        0x000000
+      );
+      
+      // Fill (configurable color)
+      const fill = this.scene.add.rectangle(
+        transform.x,
+        transform.y + config.offsetY,
+        this.barWidth,
+        this.barHeight,
+        config.fillColor
+      );
+      
+      // Outline (white)
+      const outline = this.scene.add.rectangle(
+        transform.x,
+        transform.y + config.offsetY,
+        this.barWidth,
+        this.barHeight
+      );
+      outline.setStrokeStyle(2, 0xffffff);
+      outline.setFillStyle(0x000000, 0); // Transparent fill
+      
+      this.bars.push({
+        background,
+        fill,
+        outline,
+        dataSource: config.dataSource,
+        offsetY: config.offsetY,
+        fillColor: config.fillColor,
+        flashTimer: 0,
+      });
+    }
   }
 
   update(delta: number): void {
     const transform = this.entity.get(TransformComponent)!;
-    const ratio = this.dataSource.getRatio();
     
-    const barX = transform.x;
-    const barY = transform.y + this.offsetY;
-    
-    // Update positions (centered)
-    this.background.setPosition(barX, barY);
-    this.outline.setPosition(barX, barY);
-    
-    // Update fill width and position (left-aligned from left edge of bar)
-    const fillWidth = this.barWidth * ratio;
-    this.fill.setSize(fillWidth, this.barHeight);
-    // Position at left edge: barX - half of total bar width + half of fill width
-    const fillX = barX - this.barWidth / 2 + fillWidth / 2;
-    this.fill.setPosition(fillX, barY);
-    
-    // Flash when empty (ratio at 0)
-    if (ratio === 0) {
-      this.flashTimer += delta;
-      if (this.flashTimer >= this.flashInterval) {
-        this.flashTimer = 0;
-        // Toggle visibility
-        const isVisible = this.outline.visible;
-        this.outline.setVisible(!isVisible);
-        this.background.setVisible(!isVisible);
+    for (const bar of this.bars) {
+      const ratio = bar.dataSource.getRatio();
+      
+      const barX = transform.x;
+      const barY = transform.y + bar.offsetY;
+      
+      // Update positions (centered)
+      bar.background.setPosition(barX, barY);
+      bar.outline.setPosition(barX, barY);
+      
+      // Update fill width and position (left-aligned from left edge of bar)
+      const fillWidth = this.barWidth * ratio;
+      bar.fill.setSize(fillWidth, this.barHeight);
+      const fillX = barX - this.barWidth / 2 + fillWidth / 2;
+      bar.fill.setPosition(fillX, barY);
+      
+      // Flash when empty (ratio at 0)
+      if (ratio === 0) {
+        bar.flashTimer += delta;
+        if (bar.flashTimer >= this.flashInterval) {
+          bar.flashTimer = 0;
+          // Toggle visibility
+          const isVisible = bar.outline.visible;
+          bar.outline.setVisible(!isVisible);
+          bar.background.setVisible(!isVisible);
+        }
+      } else {
+        // Ensure visible when not empty
+        bar.outline.setVisible(true);
+        bar.background.setVisible(true);
+        bar.flashTimer = 0;
       }
-    } else {
-      // Ensure visible when not empty
-      this.outline.setVisible(true);
-      this.background.setVisible(true);
-      this.flashTimer = 0;
     }
   }
 
   onDestroy(): void {
-    this.background.destroy();
-    this.fill.destroy();
-    this.outline.destroy();
+    for (const bar of this.bars) {
+      bar.background.destroy();
+      bar.fill.destroy();
+      bar.outline.destroy();
+    }
   }
 }
