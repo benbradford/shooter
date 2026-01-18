@@ -32,6 +32,16 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/smoke.png',
     type: 'image' as const,
   },
+  target: {
+    key: 'target',
+    path: 'assets/player/target.png',
+    type: 'image' as const,
+  },
+  crosshair: {
+    key: 'crosshair',
+    path: 'assets/player/crosshair.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

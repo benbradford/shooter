@@ -6,8 +6,8 @@ export class JoystickVisualsComponent implements Component {
   entity!: Entity;
   private outerCircle!: Phaser.GameObjects.Arc;
   private innerCircle!: Phaser.GameObjects.Arc;
-  private readonly outerRadius: number = 50;
-  private readonly innerRadius: number = 20;
+  private readonly outerRadius: number = 70;
+  private readonly innerRadius: number = 30;
 
   constructor(
     private readonly scene: Phaser.Scene,

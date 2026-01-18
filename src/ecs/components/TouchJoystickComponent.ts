@@ -8,18 +8,26 @@ export class TouchJoystickComponent implements Component {
   private startY: number = 0;
   private currentX: number = 0;
   private currentY: number = 0;
-  private readonly maxRadius: number = 50; // Outer circle radius
+  private readonly maxRadius: number = 70; // Outer circle radius
   private pointer: Phaser.Input.Pointer | null = null;
+  
+  // Fire button state
+  private isFirePressed: boolean = false;
+  private crosshairBounds: { x: number; y: number; radius: number } | null = null;
 
   constructor(private readonly scene: Phaser.Scene) {}
 
+  setCrosshairBounds(x: number, y: number, radius: number): void {
+    this.crosshairBounds = { x, y, radius };
+  }
+
   init(): void {
-    // Listen for pointer down in lower-left quadrant
+    // Listen for pointer down in lower-left quadrant (movement)
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       const screenWidth = this.scene.cameras.main.width;
       const screenHeight = this.scene.cameras.main.height;
       
-      // Check if in lower-left quadrant
+      // Check if in lower-left quadrant (movement)
       if (pointer.x < screenWidth / 2 && pointer.y > screenHeight / 2) {
         this.isActive = true;
         this.startX = pointer.x;
@@ -27,6 +35,17 @@ export class TouchJoystickComponent implements Component {
         this.currentX = pointer.x;
         this.currentY = pointer.y;
         this.pointer = pointer;
+      }
+      
+      // Check if touching crosshair (fire)
+      if (this.crosshairBounds) {
+        const dx = pointer.x - this.crosshairBounds.x;
+        const dy = pointer.y - this.crosshairBounds.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance <= this.crosshairBounds.radius) {
+          this.isFirePressed = true;
+        }
       }
     });
 
@@ -54,6 +73,9 @@ export class TouchJoystickComponent implements Component {
         this.isActive = false;
         this.pointer = null;
       }
+      
+      // Release fire button
+      this.isFirePressed = false;
     });
   }
 
@@ -95,6 +117,10 @@ export class TouchJoystickComponent implements Component {
       dx: dx / this.maxRadius,
       dy: dy / this.maxRadius,
     };
+  }
+
+  isFireButtonPressed(): boolean {
+    return this.isFirePressed;
   }
 
   getJoystickState(): { active: boolean; startX: number; startY: number; currentX: number; currentY: number } {

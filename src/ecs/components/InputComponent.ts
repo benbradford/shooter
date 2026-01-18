@@ -66,6 +66,12 @@ export class InputComponent implements Component {
   }
 
   isFirePressed(): boolean {
+    // Check joystick fire button first
+    if (this.joystick?.isFireButtonPressed()) {
+      return true;
+    }
+    
+    // Fall back to keyboard
     return this.fireKey.isDown;
   }
 }
