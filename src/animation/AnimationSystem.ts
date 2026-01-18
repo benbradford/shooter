@@ -15,10 +15,9 @@ export class AnimationSystem {
     this.current = animations.get(defaultKey);
   }
 
-  play(prop: AnimDirProp) {
-
-    const key = `${prop.name}_${prop.direction}`;
-    const next = this.animations.get(key);
+  play(key: string | AnimDirProp) {
+    const animKey = typeof key === 'string' ? key : `${key.name}_${key.direction}`;
+    const next = this.animations.get(animKey);
 
     if (!next || next === this.current) return;
 

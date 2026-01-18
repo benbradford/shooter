@@ -1,0 +1,76 @@
+import Phaser from 'phaser';
+import { Entity } from '../ecs/Entity';
+import { TransformComponent } from '../ecs/components/TransformComponent';
+import { SpriteComponent } from '../ecs/components/SpriteComponent';
+import { AnimationComponent } from '../ecs/components/AnimationComponent';
+import { InputComponent } from '../ecs/components/InputComponent';
+import { WalkComponent } from '../ecs/components/WalkComponent';
+import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
+import { Animation } from '../animation/Animation';
+import { AnimationSystem } from '../animation/AnimationSystem';
+import { Direction } from '../animation/Direction';
+import { StateMachine } from '../utils/state/StateMachine';
+import { PlayerIdleState } from './PlayerIdleState';
+import { PlayerWalkState } from './PlayerWalkState';
+
+export function createPlayerEntity(scene: Phaser.Scene, x: number, y: number): Entity {
+  const entity = new Entity('player');
+
+  // Transform
+  const transform = entity.add(new TransformComponent(x, y, 0, 2));
+
+  // Sprite
+  const sprite = entity.add(new SpriteComponent(scene, 'idle_down', transform));
+
+  // Animation System
+  const animMap = new Map<string, Animation>();
+  const map: [Direction, string][] = [
+    [Direction.Down, 'down'],
+    [Direction.Up, 'up'],
+    [Direction.Left, 'left'],
+    [Direction.Right, 'right'],
+    [Direction.UpLeft, 'upleft'],
+    [Direction.UpRight, 'upright'],
+    [Direction.DownLeft, 'downleft'],
+    [Direction.DownRight, 'downright'],
+  ];
+
+  map.forEach(([dir, name]) => {
+    animMap.set(
+      `walk_${dir}`,
+      new Animation([1, 2, 3].map(i => `walk_${name}_${i}`), 'pingpong', 0.15)
+    );
+    animMap.set(`idle_${dir}`, new Animation([`idle_${name}`], 'static', 0));
+  });
+
+  const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
+  const animation = entity.add(new AnimationComponent(animSystem, sprite));
+
+  // Input
+  const input = entity.add(new InputComponent(scene));
+
+  // Walk
+  const walk = entity.add(new WalkComponent(transform, input));
+
+  // State Machine (added after Animation so onEnter can access it)
+  const stateMachine = new StateMachine(
+    {
+      idle: new PlayerIdleState(entity),
+      walk: new PlayerWalkState(entity),
+    },
+    'idle'
+  );
+  entity.add(new StateMachineComponent(stateMachine));
+
+  // Set update order: StateMachine before Animation
+  entity.setUpdateOrder([
+    TransformComponent,
+    SpriteComponent,
+    InputComponent,
+    WalkComponent,
+    StateMachineComponent,
+    AnimationComponent,
+  ]);
+
+  return entity;
+}
