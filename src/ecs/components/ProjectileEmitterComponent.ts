@@ -18,7 +18,8 @@ export class ProjectileEmitterComponent implements Component {
     private readonly onFire: (x: number, y: number, dirX: number, dirY: number) => void,
     private readonly offsets: Record<Direction, EmitterOffset>,
     private readonly shouldFire: () => boolean,
-    private readonly cooldown: number = 200
+    private readonly cooldown: number = 200,
+    private readonly onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void
   ) {}
 
   update(_delta: number): void {
@@ -55,6 +56,14 @@ export class ProjectileEmitterComponent implements Component {
     
     const dir = dirMap[direction];
     this.onFire(emitX, emitY, dir.x, dir.y);
+    
+    // Eject shell casing
+    if (this.onShellEject) {
+      const shellDir = [Direction.Left, Direction.UpLeft, Direction.DownLeft].includes(direction)
+        ? 'left'
+        : 'right';
+      this.onShellEject(transform.x, transform.y, shellDir, direction);
+    }
   }
 
   getEmitterPosition(): { x: number; y: number } {

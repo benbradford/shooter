@@ -10,3 +10,4 @@ export { GridPositionComponent } from './components/GridPositionComponent';
 export { GridCollisionComponent } from './components/GridCollisionComponent';
 export { ProjectileComponent } from './components/ProjectileComponent';
 export { ProjectileEmitterComponent } from './components/ProjectileEmitterComponent';
+export { ShellCasingComponent } from './components/ShellCasingComponent';

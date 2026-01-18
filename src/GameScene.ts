@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { Grid } from "./utils/Grid";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
+import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { ProjectileEmitterComponent } from "./ecs/components/ProjectileEmitterComponent";
 import { preloadAssets } from "./assets/AssetLoader";
@@ -12,6 +13,7 @@ export default class GameScene extends Phaser.Scene {
   private grid!: Grid;
   private readonly cellSize: number = 128; // fixed size
   private bullets: Entity[] = [];
+  private shells: Entity[] = [];
 
   constructor() {
     super("game");
@@ -56,10 +58,20 @@ export default class GameScene extends Phaser.Scene {
     // Create the player entity, starting at the center of the visible area
     const startX = this.cellSize * 10; // column 10
     const startY = this.cellSize * 10; // row 10
-    this.player = createPlayerEntity(this, startX, startY, this.grid, (x, y, dirX, dirY) => {
-      const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid);
-      this.bullets.push(bullet);
-    });
+    this.player = createPlayerEntity(
+      this,
+      startX,
+      startY,
+      this.grid,
+      (x, y, dirX, dirY) => {
+        const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid);
+        this.bullets.push(bullet);
+      },
+      (x, y, direction, playerDirection) => {
+        const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
+        this.shells.push(shell);
+      }
+    );
 
     // Camera setup - follow the player's sprite
     const spriteComp = this.player.get(SpriteComponent)!;
@@ -84,6 +96,15 @@ export default class GameScene extends Phaser.Scene {
         return false;
       }
       bullet.update(delta);
+      return true;
+    });
+
+    // Update shells and remove destroyed ones
+    this.shells = this.shells.filter(shell => {
+      if (shell.isDestroyed) {
+        return false;
+      }
+      shell.update(delta);
       return true;
     });
 

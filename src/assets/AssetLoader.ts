@@ -7,7 +7,7 @@ import { ASSET_REGISTRY, type AssetKey } from './AssetRegistry';
  * @param keys - Optional array of asset keys to load. If not provided, loads all assets
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  const keysToLoad: AssetKey[] = keys || ['player', 'bullet_default'];
+  const keysToLoad: AssetKey[] = keys || ['player', 'bullet_default', 'bullet_default_shell'];
   
   keysToLoad.forEach((key: AssetKey) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

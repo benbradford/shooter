@@ -22,6 +22,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/bullet_default.png',
     type: 'image' as const,
   },
+  bullet_default_shell: {
+    key: 'bullet_default_shell',
+    path: 'assets/player/bullet_default_shell.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

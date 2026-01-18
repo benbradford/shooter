@@ -22,7 +22,8 @@ export function createPlayerEntity(
   x: number,
   y: number,
   grid: Grid,
-  onFire: (x: number, y: number, dirX: number, dirY: number) => void
+  onFire: (x: number, y: number, dirX: number, dirY: number) => void,
+  onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void
 ): Entity {
   const entity = new Entity('player');
 
@@ -95,7 +96,8 @@ export function createPlayerEntity(
     onFire,
     emitterOffsets,
     () => input.isFirePressed(),
-    200  // 200ms cooldown between shots
+    200,  // 200ms cooldown between shots
+    onShellEject
   ));
 
   // State Machine (added after Animation so onEnter can access it)
