@@ -6,8 +6,6 @@ export class JoystickVisualsComponent implements Component {
   entity!: Entity;
   private outerCircle!: Phaser.GameObjects.Arc;
   private innerCircle!: Phaser.GameObjects.Arc;
-  private readonly outerRadius: number = 70;
-  private readonly innerRadius: number = 30;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -16,15 +14,15 @@ export class JoystickVisualsComponent implements Component {
 
   init(): void {
     // Create outer circle (yellow outline)
-    this.outerCircle = this.scene.add.circle(0, 0, this.outerRadius);
-    this.outerCircle.setStrokeStyle(3, 0xffff00);
+    this.outerCircle = this.scene.add.circle(0, 0, this.joystick.maxRadius);
+    this.outerCircle.setStrokeStyle(5, 0xffff00);
     this.outerCircle.setFillStyle(0x000000, 0); // Transparent fill
     this.outerCircle.setDepth(2000); // Very high depth for HUD
     this.outerCircle.setVisible(false);
     this.outerCircle.setScrollFactor(0); // Fixed to camera
 
     // Create inner circle (yellow filled)
-    this.innerCircle = this.scene.add.circle(0, 0, this.innerRadius, 0xffff00);
+    this.innerCircle = this.scene.add.circle(0, 0, this.joystick.innerRadius, 0xffff00);
     this.innerCircle.setDepth(2001);
     this.innerCircle.setVisible(false);
     this.innerCircle.setScrollFactor(0); // Fixed to camera

@@ -18,6 +18,19 @@ npx eslint src --ext .ts     # Code quality check - MUST pass
 
 ---
 
+## Documentation
+
+### Core Guides
+- **[Coding Standards](./docs/coding-standards.md)** - TypeScript best practices, component design principles, mandatory build/lint workflow
+- **[ECS Architecture](./docs/ecs-architecture.md)** - Entity-Component system, creating new entities, component library
+- **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, collision detection, scene setup
+- **[Input Systems](./docs/input-systems.md)** - Joystick controls, keyboard input, touch firing
+
+### Quick Reference
+- **[Quick Reference](./docs/quick-reference.md)** - Common tasks, patterns, troubleshooting
+
+---
+
 **1. Grid System:**
 
 * **Fixed-size cells:** 64x64 pixels.

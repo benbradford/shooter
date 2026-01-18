@@ -23,13 +23,13 @@ export class OverheatSmokeComponent implements Component {
     this.particles = this.scene.add.particles(0, 0, 'smoke', {
       speed: { min: 50, max: 100 },
       angle: { min: 250, max: 290 },
-      scale: { start: 4, end: 0 }, // Much larger
+      scale: { start: 6, end: 0 }, // Much larger (50% bigger than before)
       alpha: { start: 1, end: 0 }, // Fully opaque at start
       lifespan: 1000,
       frequency: 50, // More frequent
       quantity: 2, // More particles per emission
       emitting: false,
-      tint: 0xffffff, // White tint to ensure visibility
+      tint: 0xffffff,
     });
     this.particles.setDepth(1000); // Very high depth
   }

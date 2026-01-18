@@ -7,10 +7,11 @@
 ```bash
 npm run build                # MUST pass with zero errors
 npx eslint src --ext .ts     # MUST pass with zero errors
-npm run dev                  # Test the changes
 ```
 
 **No exceptions. Every code change must build and lint successfully.**
+
+*Note: `npm run dev` is optional if you already have the dev server running in another terminal.*
 
 ---
 

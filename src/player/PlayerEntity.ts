@@ -70,7 +70,7 @@ export function createPlayerEntity(
 
   // Input
   const input = entity.add(new InputComponent(scene));
-  
+
   // Connect joystick to input
   const joystickComp = joystick.get(TouchJoystickComponent)!;
   input.setJoystick(joystickComp);
@@ -94,7 +94,7 @@ export function createPlayerEntity(
 
   // Ammo System
   const ammo = entity.add(new AmmoComponent());
-  
+
   // HUD Bars (both health and ammo)
   const hudBars = entity.add(new HudBarComponent(scene, [
     { dataSource: health, offsetY: 70, fillColor: 0x00ff00 }, // Green health bar
@@ -106,12 +106,12 @@ export function createPlayerEntity(
   const emitterOffsets: Record<Direction, EmitterOffset> = {
     [Direction.Down]: { x: -16, y: 40 },
     [Direction.Up]: { x: 12, y: -40 },
-    [Direction.Left]: { x: -40, y: 0 },
-    [Direction.Right]: { x: 40, y: 0 },
-    [Direction.UpLeft]: { x: -20, y: -20 },
-    [Direction.UpRight]: { x: 20, y: -20 },
-    [Direction.DownLeft]: { x: -34, y: 22 },
-    [Direction.DownRight]: { x: 27, y: 24 },
+    [Direction.Left]: { x: -51, y: 0 },
+    [Direction.Right]: { x: 43, y: 0 },
+    [Direction.UpLeft]: { x: -25, y: -25 },
+    [Direction.UpRight]: { x: 22, y: -20 },
+    [Direction.DownLeft]: { x: -35, y: 22 },
+    [Direction.DownRight]: { x: 29, y: 21 },
     [Direction.None]: { x: 0, y: 0 },
   };
   entity.add(new ProjectileEmitterComponent(

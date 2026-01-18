@@ -1,6 +1,26 @@
-# Joystick System
+# Input Systems
+
+**Related Docs:**
+- [ECS Architecture](./ecs-architecture.md) - Component system overview
+- [Coding Standards](./coding-standards.md) - Component design principles
+
+This document covers all input systems: joystick controls, keyboard input, and touch-based firing.
+
+---
 
 ## Overview
+
+The game supports dual input methods:
+- **Keyboard**: WASD/Arrow keys for movement, Space for firing
+- **Touch/Mouse**: Virtual joystick for movement, crosshair button for firing
+
+Both systems work simultaneously and are integrated through the `InputComponent`.
+
+---
+
+## Movement Input
+
+### Joystick System
 
 The joystick system provides touch/mouse-based movement controls for the player. When the user clicks/touches in the lower-left quadrant of the screen, a visual joystick appears and tracks their input, allowing 360-degree movement with momentum-based physics.
 
@@ -11,7 +31,7 @@ The joystick system provides touch/mouse-based movement controls for the player.
 **TouchJoystickComponent**
 - Handles pointer input (mouse/touch)
 - Tracks joystick state (active, start position, current position)
-- 50px max radius with 20px dead zone
+- has a deadzone whereby the player changes direction but doesn't move until move distance is outside of deadzone
 - Only activates in lower-left screen quadrant
 - Provides two input methods:
   - `getInputDelta()` - With deadzone (for movement)
@@ -19,8 +39,8 @@ The joystick system provides touch/mouse-based movement controls for the player.
 
 **JoystickVisualsComponent**
 - Renders the joystick UI
-- Outer circle: 50px radius, yellow outline, transparent fill
-- Inner circle: 20px radius, yellow filled
+- Outer circle: larger radius, yellow outline, transparent fill
+- Inner circle: smaller radius, yellow filled
 - Fixed to camera (scrollFactor = 0)
 - High depth (2000+) to stay on top
 - Automatically shows/hides based on joystick state
@@ -104,7 +124,7 @@ createPlayerEntity(scene, x, y, grid, onFire, onShellEject, joystick)
 // In GameScene.create()
 this.joystick = createJoystickEntity(this);
 this.player = createPlayerEntity(
-  this, x, y, grid, 
+  this, x, y, grid,
   onFire, onShellEject,
   this.joystick  // Pass joystick entity
 );
@@ -165,3 +185,141 @@ Both update from raw input, ensuring instant response to player intent.
 - Multiple joysticks can coexist (movement, aiming, etc.)
 - Touch zones can be configured per-entity
 - Acceleration time and stop threshold can be made configurable
+
+---
+
+## Fire Button System
+
+### Crosshair Component
+
+**CrosshairVisualsComponent** renders a crosshair sprite in the lower-right area of the screen that acts as a fire button.
+
+**Features:**
+- Positioned at 85% screen width, 65% screen height
+- Uses `crosshair.png` sprite asset
+- Scaled to 0.8x by default
+- Fixed to camera (doesn't scroll)
+- High depth (2000) to stay on top
+
+**Visual Feedback:**
+- **Normal state**: Default appearance
+- **Pressed state**: Scales up to 1.0x (25% larger) and applies blue tint (0x6666ff)
+- Instant visual response when touched/held
+
+### Touch Detection
+
+**Circular Hit Area:**
+- Touch detection uses circular collision based on sprite size
+- Radius calculated from sprite dimensions × scale
+- Only touches within the crosshair circle register as fire input
+
+**Implementation:**
+```typescript
+// CrosshairVisualsComponent sets bounds on joystick
+const radius = (this.sprite.width / 2) * this.scale;
+this.joystick.setCrosshairBounds(x, y, radius);
+
+// TouchJoystickComponent checks distance
+const dx = pointer.x - this.crosshairBounds.x;
+const dy = pointer.y - this.crosshairBounds.y;
+const distance = Math.sqrt(dx * dx + dy * dy);
+
+if (distance <= this.crosshairBounds.radius) {
+  this.isFirePressed = true;
+}
+```
+
+### Integration with Input System
+
+**InputComponent** checks both keyboard and touch fire inputs:
+```typescript
+isFirePressed(): boolean {
+  // Check joystick fire button first
+  if (this.joystick?.isFireButtonPressed()) {
+    return true;
+  }
+
+  // Fall back to keyboard
+  return this.fireKey.isDown;
+}
+```
+
+**Behavior:**
+- Single tap: Fires one bullet (respects cooldown)
+- Hold: Continuous firing (respects cooldown between shots)
+- Works alongside keyboard spacebar
+
+### Entity Structure
+
+```typescript
+// Joystick Entity (includes both movement and fire controls)
+createJoystickEntity(scene)
+  ├─ TouchJoystickComponent (handles both movement and fire input)
+  ├─ JoystickVisualsComponent (movement joystick circles)
+  └─ CrosshairVisualsComponent (fire button crosshair)
+```
+
+### Asset Requirements
+
+**crosshair.png:**
+- Located in `public/assets/player/crosshair.png`
+- Registered in `AssetRegistry.ts`
+- Loaded in `AssetLoader.ts` default assets list
+- Should have transparent background (white/grey alpha'd out)
+
+---
+
+## Keyboard Controls
+
+### Movement
+- **W / Up Arrow**: Move up
+- **A / Left Arrow**: Move left
+- **S / Down Arrow**: Move down
+- **D / Right Arrow**: Move right
+- Diagonal movement supported (normalized for consistent speed)
+
+### Actions
+- **Space**: Fire weapon
+- **G**: Toggle debug grid visualization
+
+### Implementation
+
+Keyboard input is handled by `InputComponent`:
+```typescript
+getInputDelta(): { dx: number; dy: number } {
+  let dx = 0;
+  let dy = 0;
+  if (this.cursors.left.isDown || this.keys.A.isDown) dx -= 1;
+  if (this.cursors.right.isDown || this.keys.D.isDown) dx += 1;
+  if (this.cursors.up.isDown || this.keys.W.isDown) dy -= 1;
+  if (this.cursors.down.isDown || this.keys.S.isDown) dy += 1;
+  return { dx, dy };
+}
+```
+
+---
+
+## Input Priority
+
+When both keyboard and touch inputs are active:
+
+**Movement:**
+- Joystick input takes priority over keyboard
+- If joystick is active (dx !== 0 || dy !== 0), keyboard is ignored
+- If joystick is inactive, keyboard input is used
+
+**Firing:**
+- Touch crosshair and keyboard spacebar work independently
+- Either input triggers firing
+- No priority system needed (both can fire simultaneously)
+
+---
+
+## Summary
+
+The input system provides flexible, dual-input controls:
+- **Touch users**: Virtual joystick (lower-left) + crosshair button (lower-right)
+- **Keyboard users**: WASD/Arrows + Space
+- **Hybrid users**: Can mix and match (e.g., keyboard movement + touch firing)
+
+All input is centralized through `InputComponent`, making it easy to add new input methods or change behavior without modifying gameplay code.

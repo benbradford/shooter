@@ -1,0 +1,381 @@
+# ECS Architecture Guide
+
+This document explains the Entity-Component-System architecture and how to create new entities.
+
+**Related Docs:**
+- [Coding Standards](./coding-standards.md) - TypeScript and component design principles
+- [Quick Reference](./quick-reference.md) - Common tasks and patterns
+- [Input Systems](./input-systems.md) - Joystick and keyboard controls
+
+---
+
+## Core Concepts
+
+### Entity-Component System (ECS)
+
+- **Entity**: A container with an ID that holds components
+- **Component**: Reusable logic/data modules that define behavior
+- **Update Order**: Components update in a specific order defined per entity
+
+### Why ECS?
+
+- **Composition over inheritance**: Build entities from components
+- **Reusability**: Components work across different entity types
+- **Flexibility**: Add/remove behavior by adding/removing components
+- **Clear dependencies**: Components declare what they need
+
+## Component Library
+
+### Core Components
+
+**TransformComponent** - Position, rotation, scale
+```typescript
+new TransformComponent(x, y, rotation, scale)
+```
+
+**SpriteComponent** - Visual representation
+```typescript
+new SpriteComponent(scene, texture, transformComponent)
+```
+
+**AnimationComponent** - Animation system integration
+```typescript
+new AnimationComponent(animationSystem, spriteComponent)
+```
+
+### Movement Components
+
+**InputComponent** - Keyboard and joystick input
+```typescript
+new InputComponent(scene)
+// Methods: getInputDelta(), getRawInputDelta(), isFirePressed()
+```
+
+**WalkComponent** - Movement physics with momentum
+```typescript
+new WalkComponent(transformComponent, inputComponent)
+// Properties: speed, lastDir, lastMoveX, lastMoveY
+// Methods: isMoving(), getVelocityMagnitude()
+```
+
+### Grid Integration Components
+
+**GridPositionComponent** - Tracks entity's cell position and collision box
+```typescript
+new GridPositionComponent(col, row, collisionBox)
+// collisionBox: { offsetX, offsetY, width, height }
+```
+
+**GridCollisionComponent** - Validates movement, updates grid occupancy
+```typescript
+new GridCollisionComponent(grid)
+// Handles: collision detection, sliding, grid tracking
+```
+
+### State Management
+
+**StateMachineComponent** - Wraps StateMachine for entity states
+```typescript
+new StateMachineComponent(stateMachine)
+```
+
+## Component Update Order
+
+**Critical**: Components update in the order specified by `setUpdateOrder()`.
+
+**Standard order for moving entities**:
+```typescript
+entity.setUpdateOrder([
+  TransformComponent,      // 1. Base position
+  SpriteComponent,         // 2. Sync sprite with transform
+  InputComponent,          // 3. Read input
+  WalkComponent,           // 4. Calculate new position
+  GridCollisionComponent,  // 5. Validate and adjust position
+  StateMachineComponent,   // 6. Update state based on movement
+  AnimationComponent,      // 7. Update animation frames
+]);
+```
+
+**Why this order matters**:
+- Walk must update before GridCollision (so collision sees new position)
+- GridCollision must update before StateMachine (so states see final position)
+- StateMachine must update before Animation (so animation changes apply)
+
+## Creating New Entities
+
+### Example: Bullet (Simple Projectile)
+
+**Requirements**:
+- Moves in a straight line
+- Destroyed on wall collision
+- Doesn't occupy grid cells
+
+**Implementation**:
+```typescript
+export function createBulletEntity(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  dirX: number,
+  dirY: number,
+  grid: Grid
+): Entity {
+  const entity = new Entity('bullet');
+  
+  const rotation = Math.atan2(dirY, dirX) + Math.PI / 2;
+  const transform = entity.add(new TransformComponent(x, y, rotation, 1));
+  const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
+  sprite.sprite.setDisplaySize(16, 16);
+  
+  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));
+  
+  entity.setUpdateOrder([
+    TransformComponent,
+    ProjectileComponent,
+    SpriteComponent,
+  ]);
+  
+  return entity;
+}
+```
+
+### Example: Player (Complex Character)
+
+**Requirements**:
+- Keyboard and joystick input
+- Movement with momentum
+- Collision with walls
+- Animations (idle, walk)
+- Shooting
+- Health and ammo
+
+**Implementation**:
+```typescript
+export function createPlayerEntity(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  grid: Grid,
+  onFire: (x, y, dirX, dirY) => void,
+  onShellEject: (x, y, dir, playerDir) => void,
+  joystick: Entity
+): Entity {
+  const entity = new Entity('player');
+
+  // Core components
+  const transform = entity.add(new TransformComponent(x, y, 0, 2));
+  const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
+  
+  // Animation system
+  const animMap = createPlayerAnimations();
+  const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
+  entity.add(new AnimationComponent(animSystem, sprite));
+
+  // Input
+  const input = entity.add(new InputComponent(scene));
+  const joystickComp = joystick.get(TouchJoystickComponent)!;
+  input.setJoystick(joystickComp);
+
+  // Movement
+  entity.add(new WalkComponent(transform, input));
+
+  // Grid integration
+  const startCell = grid.worldToCell(x, y);
+  entity.add(new GridPositionComponent(
+    startCell.col,
+    startCell.row,
+    { offsetX: 0, offsetY: 32, width: 36, height: 32 }
+  ));
+  entity.add(new GridCollisionComponent(grid));
+
+  // Systems
+  const health = entity.add(new HealthComponent());
+  const ammo = entity.add(new AmmoComponent());
+  
+  entity.add(new HudBarComponent(scene, [
+    { dataSource: health, offsetY: 70, fillColor: 0x00ff00 },
+    { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },
+  ]));
+
+  // Shooting
+  entity.add(new ProjectileEmitterComponent(
+    scene,
+    onFire,
+    emitterOffsets,
+    () => input.isFirePressed(),
+    200,
+    onShellEject,
+    ammo
+  ));
+
+  // State machine
+  const stateMachine = new StateMachine({
+    idle: new PlayerIdleState(entity),
+    walk: new PlayerWalkState(entity),
+  }, 'idle');
+  entity.add(new StateMachineComponent(stateMachine));
+
+  // Update order
+  entity.setUpdateOrder([
+    TransformComponent,
+    SpriteComponent,
+    InputComponent,
+    WalkComponent,
+    GridCollisionComponent,
+    HealthComponent,
+    AmmoComponent,
+    ProjectileEmitterComponent,
+    OverheatSmokeComponent,
+    HudBarComponent,
+    StateMachineComponent,
+    AnimationComponent,
+  ]);
+
+  grid.addOccupant(startCell.col, startCell.row, entity);
+  return entity;
+}
+```
+
+### Example: Static Decoration
+
+**Requirements**:
+- Doesn't move
+- Doesn't collide
+- Just visual
+
+**Implementation**:
+```typescript
+export function createDecorationEntity(scene: Phaser.Scene, x: number, y: number): Entity {
+  const entity = new Entity('decoration');
+  
+  const transform = entity.add(new TransformComponent(x, y, 0, 1));
+  entity.add(new SpriteComponent(scene, 'tree', transform));
+  
+  entity.setUpdateOrder([
+    TransformComponent,
+    SpriteComponent,
+  ]);
+  
+  return entity;
+}
+```
+
+## Grid Integration
+
+### When to Use GridPositionComponent + GridCollisionComponent
+
+**Use for**:
+- Player
+- Enemies
+- NPCs
+- Any entity that walks and collides with walls
+
+**Don't use for**:
+- Projectiles (they fly over, use custom collision)
+- Decorations (no collision needed)
+- Static turrets (don't move, manually set grid cell)
+- Visual effects (shell casings, smoke)
+
+### Collision Box Sizing
+
+**Small box (32x16)**: Fast-moving entities, tight corridors
+```typescript
+{ offsetX: 0, offsetY: 16, width: 32, height: 16 }
+```
+
+**Medium box (48x32)**: Standard characters
+```typescript
+{ offsetX: 0, offsetY: 16, width: 48, height: 32 }
+```
+
+**Large box (64x64)**: Big enemies, bosses
+```typescript
+{ offsetX: 0, offsetY: 0, width: 64, height: 64 }
+```
+
+**Offset guidelines**:
+- `offsetY > 0`: Push box down (feet collision)
+- `offsetY = 0`: Center box (full body collision)
+- `offsetX = 0`: Center horizontally (most common)
+
+## Entity Lifecycle
+
+1. **Create**: Call factory function (e.g., `createPlayerEntity()`)
+2. **Add to scene**: Entity components handle Phaser sprite creation
+3. **Update**: GameScene calls `entity.update(delta)` each frame
+4. **Destroy**: Call `entity.destroy()` to clean up
+   - Removes sprites
+   - Removes from grid occupancy
+   - Calls `onDestroy()` on all components
+
+## Entity Manager Pattern
+
+Instead of tracking entities individually, use an EntityManager:
+
+```typescript
+class EntityManager {
+  private entities: Entity[] = [];
+  
+  add(entity: Entity): void {
+    this.entities.push(entity);
+  }
+  
+  remove(entity: Entity): void {
+    const index = this.entities.indexOf(entity);
+    if (index > -1) {
+      this.entities[index].destroy();
+      this.entities.splice(index, 1);
+    }
+  }
+  
+  update(delta: number): void {
+    // Filter out destroyed entities
+    this.entities = this.entities.filter(e => {
+      if (e.isDestroyed) return false;
+      e.update(delta);
+      return true;
+    });
+  }
+  
+  getEntitiesByType(type: string): Entity[] {
+    return this.entities.filter(e => e.id.startsWith(type));
+  }
+}
+```
+
+## File Structure
+
+```
+src/
+├── ecs/
+│   ├── Entity.ts
+│   ├── Component.ts
+│   ├── components/
+│   │   ├── TransformComponent.ts
+│   │   ├── SpriteComponent.ts
+│   │   ├── AnimationComponent.ts
+│   │   ├── InputComponent.ts
+│   │   ├── WalkComponent.ts
+│   │   ├── GridPositionComponent.ts
+│   │   ├── GridCollisionComponent.ts
+│   │   └── StateMachineComponent.ts
+│   └── index.ts
+├── player/
+│   ├── PlayerEntity.ts (factory function)
+│   ├── PlayerIdleState.ts
+│   └── PlayerWalkState.ts
+├── projectile/
+│   ├── BulletEntity.ts
+│   └── ShellCasingEntity.ts
+└── GameScene.ts
+```
+
+## Key Takeaways
+
+- **Composition over inheritance**: Build entities from components
+- **Update order matters**: Control component execution sequence
+- **Grid integration is optional**: Only for entities that need collision
+- **One component type per entity**: Enforced at runtime
+- **Class-based update order**: More maintainable than instance references
+- **Factory functions**: Create entities with `createXEntity()` pattern
+- **Clean up properly**: Call `entity.destroy()` to remove from grid and scene
