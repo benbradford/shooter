@@ -114,15 +114,15 @@ export function createPlayerEntity(
     [Direction.DownRight]: { x: 29, y: 21 },
     [Direction.None]: { x: 0, y: 0 },
   };
-  entity.add(new ProjectileEmitterComponent(
+  entity.add(new ProjectileEmitterComponent({
     scene,
     onFire,
-    emitterOffsets,
-    () => input.isFirePressed(),
-    200,  // 200ms cooldown between shots
+    offsets: emitterOffsets,
+    shouldFire: () => input.isFirePressed(),
+    cooldown: 200,
     onShellEject,
-    ammo
-  ));
+    ammoComponent: ammo
+  }));
 
   // Overheat Smoke Effect
   const overheatSmoke = entity.add(new OverheatSmokeComponent(scene, ammo, emitterOffsets));

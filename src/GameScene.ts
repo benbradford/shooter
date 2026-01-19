@@ -70,8 +70,8 @@ export default class GameScene extends Phaser.Scene {
     this.joystick = createJoystickEntity(this);
 
     // Create the player entity, starting at the center of the visible area
-    const startX = this.cellSize * 10; // column 10
-    const startY = this.cellSize * 10; // row 10
+    const startX = this.cellSize * 10;
+    const startY = this.cellSize * 10;
     this.player = createPlayerEntity(
       this,
       startX,
@@ -81,7 +81,7 @@ export default class GameScene extends Phaser.Scene {
         const gridPos = this.player.get(GridPositionComponent)!;
         const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
         const fromTransition = playerCell?.isTransition ?? false;
-        
+
         const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid, gridPos.currentLayer, fromTransition);
         this.bullets.push(bullet);
       },
@@ -132,7 +132,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Re-render the grid (debug only)
     this.grid.render();
-    
+
     // Debug: Draw emitter position
     const emitter = this.player.get(ProjectileEmitterComponent)!;
     const pos = emitter.getEmitterPosition();

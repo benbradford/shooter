@@ -1,6 +1,12 @@
 import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 
+export interface TouchJoystickProps {
+  maxRadius?: number;
+  innerRadius?: number;
+  deadZoneDistance?: number;
+}
+
 export class TouchJoystickComponent implements Component {
   entity!: Entity;
   private isActive: boolean = false;
@@ -8,16 +14,20 @@ export class TouchJoystickComponent implements Component {
   private startY: number = 0;
   private currentX: number = 0;
   private currentY: number = 0;
-  public readonly maxRadius: number = 100; // Outer circle radius
-  public readonly innerRadius: number = 60; // Inner circle radius
-  private readonly deadZoneDistance: number = 60;
+  public readonly maxRadius: number;
+  public readonly innerRadius: number;
+  private readonly deadZoneDistance: number;
   private pointer: Phaser.Input.Pointer | null = null;
 
   // Fire button state
   private isFirePressed: boolean = false;
   private crosshairBounds: { x: number; y: number; radius: number } | null = null;
 
-  constructor(private readonly scene: Phaser.Scene) {}
+  constructor(private readonly scene: Phaser.Scene, props: TouchJoystickProps = {}) {
+    this.maxRadius = props.maxRadius ?? 100;
+    this.innerRadius = props.innerRadius ?? 60;
+    this.deadZoneDistance = props.deadZoneDistance ?? 60;
+  }
 
   setCrosshairBounds(x: number, y: number, radius: number): void {
     this.crosshairBounds = { x, y, radius };

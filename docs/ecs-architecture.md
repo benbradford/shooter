@@ -53,8 +53,10 @@ new InputComponent(scene)
 
 **WalkComponent** - Movement physics with momentum
 ```typescript
-new WalkComponent(transformComponent, inputComponent)
-// Properties: speed, lastDir, lastMoveX, lastMoveY
+new WalkComponent(transformComponent, inputComponent)  // Defaults
+new WalkComponent(transformComponent, inputComponent, { speed: 400, accelerationTime: 200 })  // Custom
+// Props: speed, accelerationTime, stopThreshold
+// Properties: lastDir, lastMoveX, lastMoveY
 // Methods: isMoving(), getVelocityMagnitude()
 ```
 
@@ -83,8 +85,9 @@ new StateMachineComponent(stateMachine)
 
 **AmmoComponent** - Ammo tracking with overheat
 ```typescript
-new AmmoComponent()
-// Properties: currentAmmo, maxAmmo, refillRate, refillDelay
+new AmmoComponent()  // Defaults: 20 ammo, 10/s refill, 2s delay
+new AmmoComponent({ maxAmmo: 30, refillRate: 15 })  // Custom
+// Props: maxAmmo, refillRate, refillDelay
 // Methods: canFire(), consumeAmmo(), isGunOverheated()
 ```
 
@@ -98,7 +101,9 @@ new OverheatSmokeComponent(scene, ammoComponent, emitterOffsets)
 
 **HealthComponent** - Health tracking
 ```typescript
-new HealthComponent(maxHealth)
+new HealthComponent()  // Default: 100 health
+new HealthComponent({ maxHealth: 200 })  // Boss with 200 health
+// Props: maxHealth
 // Implements HudBarDataSource for health bar display
 ```
 
@@ -134,6 +139,66 @@ entity.setUpdateOrder([
 - GridCollision must update before StateMachine (so states see final position)
 - StateMachine must update before Animation (so animation changes apply)
 
+## Creating New Components
+
+### Props-Based Design Pattern
+
+**When creating a new component, always think: "What might vary between different entities?"**
+
+Those values should be passed as props, not hardcoded.
+
+**Example: Creating a DashComponent**
+
+```typescript
+// 1. Define props interface with optional values
+export interface DashProps {
+  dashSpeed?: number;
+  dashDuration?: number;
+  dashCooldown?: number;
+  dashDistance?: number;
+}
+
+// 2. Use props in constructor with defaults
+export class DashComponent implements Component {
+  entity!: Entity;
+  private readonly dashSpeed: number;
+  private readonly dashDuration: number;
+  private readonly dashCooldown: number;
+  private readonly dashDistance: number;
+  private isDashing: boolean = false;
+  private cooldownRemaining: number = 0;
+
+  constructor(
+    private readonly transformComp: TransformComponent,
+    private readonly inputComp: InputComponent,
+    props: DashProps = {}
+  ) {
+    // Apply defaults using nullish coalescing
+    this.dashSpeed = props.dashSpeed ?? 800;
+    this.dashDuration = props.dashDuration ?? 200;
+    this.dashCooldown = props.dashCooldown ?? 1000;
+    this.dashDistance = props.dashDistance ?? 150;
+  }
+
+  update(delta: number): void {
+    // Component logic...
+  }
+
+  onDestroy(): void {}
+}
+
+// 3. Usage: Easy to customize per entity
+new DashComponent(transform, input)  // Player with defaults
+new DashComponent(transform, input, { dashSpeed: 1200, dashDistance: 250 })  // Fast enemy
+new DashComponent(transform, input, { dashCooldown: 500 })  // Frequent dasher
+```
+
+**Guidelines:**
+- All configurable values should be in props
+- All props should be optional with sensible defaults
+- Required dependencies (other components, scene) go as regular parameters
+- Use `readonly` for props that don't change after construction
+
 ## Creating New Entities
 
 ### Example: Bullet (Simple Projectile)
@@ -160,7 +225,14 @@ export function createBulletEntity(
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
   sprite.sprite.setDisplaySize(16, 16);
   
-  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));
+  entity.add(new ProjectileComponent({
+    dirX,
+    dirY,
+    speed: 800,
+    maxDistance: 700,
+    grid,
+    blockedByWalls: true
+  }));
   
   entity.setUpdateOrder([
     TransformComponent,

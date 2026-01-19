@@ -10,19 +10,36 @@ export interface EmitterOffset {
   y: number;
 }
 
+export interface ProjectileEmitterProps {
+  scene: Phaser.Scene;
+  onFire: (x: number, y: number, dirX: number, dirY: number) => void;
+  offsets: Record<Direction, EmitterOffset>;
+  shouldFire: () => boolean;
+  cooldown?: number;
+  onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
+  ammoComponent?: AmmoComponent;
+}
+
 export class ProjectileEmitterComponent implements Component {
   entity!: Entity;
   private canFire: boolean = true;
+  private readonly scene: Phaser.Scene;
+  private readonly onFire: (x: number, y: number, dirX: number, dirY: number) => void;
+  private readonly offsets: Record<Direction, EmitterOffset>;
+  private readonly shouldFire: () => boolean;
+  private readonly cooldown: number;
+  private readonly onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
+  private readonly ammoComponent?: AmmoComponent;
   
-  constructor(
-    private readonly scene: Phaser.Scene,
-    private readonly onFire: (x: number, y: number, dirX: number, dirY: number) => void,
-    private readonly offsets: Record<Direction, EmitterOffset>,
-    private readonly shouldFire: () => boolean,
-    private readonly cooldown: number = 200,
-    private readonly onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void,
-    private readonly ammoComponent?: AmmoComponent
-  ) {}
+  constructor(props: ProjectileEmitterProps) {
+    this.scene = props.scene;
+    this.onFire = props.onFire;
+    this.offsets = props.offsets;
+    this.shouldFire = props.shouldFire;
+    this.cooldown = props.cooldown ?? 200;
+    this.onShellEject = props.onShellEject;
+    this.ammoComponent = props.ammoComponent;
+  }
 
   update(_delta: number): void {
     if (this.shouldFire() && this.canFire && this.hasAmmo()) {

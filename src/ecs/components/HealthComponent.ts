@@ -2,10 +2,19 @@ import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { HudBarDataSource } from './HudBarComponent';
 
+export interface HealthProps {
+  maxHealth?: number;
+}
+
 export class HealthComponent implements Component, HudBarDataSource {
   entity!: Entity;
-  private currentHealth: number = 100;
-  private readonly maxHealth: number = 100;
+  private currentHealth: number;
+  private readonly maxHealth: number;
+
+  constructor(props: HealthProps = {}) {
+    this.maxHealth = props.maxHealth ?? 100;
+    this.currentHealth = this.maxHealth;
+  }
 
   getHealth(): number {
     return this.currentHealth;

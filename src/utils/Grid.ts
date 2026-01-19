@@ -12,12 +12,17 @@ export class Grid {
   public readonly height: number; // rows
   public readonly cellSize: number;
   private readonly graphics: Phaser.GameObjects.Graphics;
-  private debug: boolean = true;
+  private gridDebug: boolean = true;
+  private sceneDebug: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
 
-  public get debugEnabled(): boolean {
-    return this.debug;
+  public get gridDebugEnabled(): boolean {
+    return this.gridDebug;
+  }
+
+  public get sceneDebugEnabled(): boolean {
+    return this.sceneDebug;
   }
 
   public readonly cells: CellData[][];
@@ -43,10 +48,17 @@ export class Grid {
     // Graphics for debug rendering
     this.graphics = scene.add.graphics({ lineStyle: { width: 1, color: 0xffffff, alpha: 0.3 } });
 
-    // Toggle debug grid with G
+    // Toggle grid debug with G
     const keyG = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
     keyG?.on("down", () => {
-      this.debug = !this.debug;
+      this.gridDebug = !this.gridDebug;
+      this.render();
+    });
+
+    // Toggle scene debug with C
+    const keyC = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+    keyC?.on("down", () => {
+      this.sceneDebug = !this.sceneDebug;
       this.render();
     });
   }
@@ -107,7 +119,13 @@ export class Grid {
   render() {
     this.graphics.clear();
 
-    if (!this.debug) return;
+    if (!this.gridDebug) {
+      // Still draw scene debug elements even if grid is off
+      if (this.sceneDebug) {
+        this.renderSceneDebug();
+      }
+      return;
+    }
 
     for (let row = 0; row < this.height; row++) {
       for (let col = 0; col < this.width; col++) {
@@ -139,7 +157,14 @@ export class Grid {
       }
     }
 
-    // Draw collision boxes on top
+    // Draw scene debug elements if enabled
+    if (this.sceneDebug) {
+      this.renderSceneDebug();
+    }
+  }
+
+  private renderSceneDebug(): void {
+    // Draw collision boxes
     this.collisionBoxes.forEach(box => {
       this.graphics.lineStyle(2, 0x0000ff, 1);
       this.graphics.strokeRect(box.x, box.y, box.width, box.height);
@@ -151,18 +176,18 @@ export class Grid {
       this.graphics.fillRect(box.x - box.size / 2, box.y - box.size / 2, box.size, box.size);
     });
 
-    // Clear collision boxes for next frame
+    // Clear for next frame
     this.collisionBoxes = [];
     this.emitterBoxes = [];
   }
 
   renderCollisionBox(x: number, y: number, width: number, height: number): void {
-    if (!this.debug) return;
+    if (!this.sceneDebug) return;
     this.collisionBoxes.push({ x, y, width, height });
   }
 
   renderEmitterBox(x: number, y: number, size: number): void {
-    if (!this.debug) return;
+    if (!this.sceneDebug) return;
     this.emitterBoxes.push({ x, y, size });
   }
 }

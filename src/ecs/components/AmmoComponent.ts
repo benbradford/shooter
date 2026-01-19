@@ -2,14 +2,27 @@ import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { HudBarDataSource } from './HudBarComponent';
 
+export interface AmmoProps {
+  maxAmmo?: number;
+  refillRate?: number;
+  refillDelay?: number;
+}
+
 export class AmmoComponent implements Component, HudBarDataSource {
   entity!: Entity;
-  private currentAmmo: number = 20;
-  private readonly maxAmmo: number = 20;
-  private readonly refillRate: number = 10; // per second
-  private readonly refillDelay: number = 2000; // 2 seconds
+  private currentAmmo: number;
+  private readonly maxAmmo: number;
+  private readonly refillRate: number;
+  private readonly refillDelay: number;
   private lastFireTime: number = 0;
   private isOverheated: boolean = false;
+
+  constructor(props: AmmoProps = {}) {
+    this.maxAmmo = props.maxAmmo ?? 20;
+    this.currentAmmo = this.maxAmmo;
+    this.refillRate = props.refillRate ?? 10;
+    this.refillDelay = props.refillDelay ?? 2000;
+  }
 
   canFire(): boolean {
     return this.currentAmmo > 0 && !this.isOverheated;

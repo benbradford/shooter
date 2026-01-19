@@ -69,16 +69,36 @@ export function createEnemyEntity(scene: Phaser.Scene, x: number, y: number, gri
 ### Creating a New Component
 
 1. Create file in `src/ecs/components/`
-2. Implement Component interface:
+2. Define props interface for configurable values
+3. Implement Component interface with props-based constructor:
 
 ```typescript
 import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 
+// 1. Define props interface
+export interface MyComponentProps {
+  speed?: number;
+  duration?: number;
+  cooldown?: number;
+}
+
+// 2. Implement component with props
 export class MyComponent implements Component {
   entity!: Entity;
+  private readonly speed: number;
+  private readonly duration: number;
+  private readonly cooldown: number;
   
-  constructor(/* dependencies */) {}
+  constructor(
+    private readonly dependency: SomeOtherComponent,
+    props: MyComponentProps = {}
+  ) {
+    // Apply defaults
+    this.speed = props.speed ?? 300;
+    this.duration = props.duration ?? 1000;
+    this.cooldown = props.cooldown ?? 2000;
+  }
   
   update(delta: number): void {
     // Component logic
@@ -88,7 +108,13 @@ export class MyComponent implements Component {
     // Cleanup
   }
 }
+
+// 3. Usage: Easy to customize per entity
+new MyComponent(dependency)  // Defaults
+new MyComponent(dependency, { speed: 500, cooldown: 1000 })  // Custom
 ```
+
+**Key principle:** Think about what might vary between entities and pass it as props.
 
 3. Export from `src/ecs/index.ts`
 

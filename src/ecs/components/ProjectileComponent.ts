@@ -3,24 +3,38 @@ import type { Entity } from '../Entity';
 import { TransformComponent } from './TransformComponent';
 import type { Grid } from '../../utils/Grid';
 
+export interface ProjectileProps {
+  dirX: number;
+  dirY: number;
+  speed: number;
+  maxDistance: number;
+  grid: Grid;
+  blockedByWalls?: boolean;
+  startLayer?: number;
+  fromTransition?: boolean;
+}
+
 export class ProjectileComponent implements Component {
   entity!: Entity;
   private distanceTraveled: number = 0;
   private currentLayer: number;
   private readonly fromTransition: boolean;
+  private readonly dirX: number;
+  private readonly dirY: number;
+  private readonly speed: number;
+  private readonly maxDistance: number;
+  private readonly grid: Grid;
+  private readonly blockedByWalls: boolean;
 
-  constructor(
-    private readonly dirX: number,
-    private readonly dirY: number,
-    private readonly speed: number,
-    private readonly maxDistance: number,
-    private readonly grid: Grid,
-    private readonly blockedByWalls: boolean = true,
-    startLayer: number = 0,
-    fromTransition: boolean = false
-  ) {
-    this.currentLayer = startLayer;
-    this.fromTransition = fromTransition;
+  constructor(props: ProjectileProps) {
+    this.dirX = props.dirX;
+    this.dirY = props.dirY;
+    this.speed = props.speed;
+    this.maxDistance = props.maxDistance;
+    this.grid = props.grid;
+    this.blockedByWalls = props.blockedByWalls ?? true;
+    this.currentLayer = props.startLayer ?? 0;
+    this.fromTransition = props.fromTransition ?? false;
   }
 
   update(delta: number): void {

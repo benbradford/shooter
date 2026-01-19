@@ -4,45 +4,56 @@ import type { TransformComponent } from './TransformComponent';
 import type { InputComponent } from './InputComponent';
 import { Direction, dirFromDelta } from '../../constants/Direction';
 
+export interface WalkProps {
+  speed?: number;
+  accelerationTime?: number;
+  stopThreshold?: number;
+}
+
 export class WalkComponent implements Component {
   entity!: Entity;
-  public speed = 300;
+  public readonly speed: number;
   public lastDir: Direction = Direction.Down;
-  
+
   private velocityX = 0;
   private velocityY = 0;
-  private readonly accelerationTime = 300; // ms to reach full speed
-  private readonly stopThreshold = 50; // velocity below this snaps to zero
-  
+  private readonly accelerationTime: number;
+  private readonly stopThreshold: number;
+
   // Normalized direction vector for shooting
   public lastMoveX = 0;
   public lastMoveY = 1; // Default to down
 
   constructor(
     private readonly transformComp: TransformComponent,
-    private readonly inputComp: InputComponent
-  ) {}
+    private readonly inputComp: InputComponent,
+    props: WalkProps = {}
+  ) {
+    this.speed = props.speed ?? 300;
+    this.accelerationTime = props.accelerationTime ?? 300;
+    this.stopThreshold = props.stopThreshold ?? 50;
+  }
 
   update(delta: number): void {
     const movementInput = this.inputComp.getInputDelta();
     const facingInput = this.inputComp.getRawInputDelta();
-    
+
     // Update facing direction from raw input (ignores joystick deadzone)
     if (facingInput.dx !== 0 || facingInput.dy !== 0) {
       this.updateFacingDirection(facingInput.dx, facingInput.dy);
     }
-    
+
     // Calculate target velocity from deadzone-filtered input
     const targetVelocity = this.calculateTargetVelocity(movementInput.dx, movementInput.dy);
-    
+
     // Apply momentum (smooth acceleration/deceleration)
     this.applyMomentum(targetVelocity, delta);
-    
+
     // Snap to zero if no input and moving very slowly
     if (movementInput.dx === 0 && movementInput.dy === 0) {
       this.applyStopThreshold();
     }
-    
+
     // Apply velocity to position
     this.transformComp.x += this.velocityX * (delta / 1000);
     this.transformComp.y += this.velocityY * (delta / 1000);
@@ -59,7 +70,7 @@ export class WalkComponent implements Component {
     if (dx === 0 && dy === 0) {
       return { x: 0, y: 0 };
     }
-    
+
     const len = Math.sqrt(dx * dx + dy * dy);
     return {
       x: (dx / len) * this.speed,

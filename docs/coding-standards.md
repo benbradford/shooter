@@ -138,6 +138,68 @@ class Grid {
 
 ## Component Design Principles
 
+### Props-Based Configuration
+
+**ALWAYS use props objects for component configuration.** Think about what might vary between different entities and pass those values as props.
+
+**DO ✅**
+```typescript
+// Define props interface
+export interface WalkProps {
+  speed?: number;
+  accelerationTime?: number;
+  stopThreshold?: number;
+}
+
+// Use props in constructor
+export class WalkComponent implements Component {
+  private readonly speed: number;
+  private readonly accelerationTime: number;
+  private readonly stopThreshold: number;
+
+  constructor(
+    private readonly transformComp: TransformComponent,
+    private readonly inputComp: InputComponent,
+    props: WalkProps = {}
+  ) {
+    this.speed = props.speed ?? 300;
+    this.accelerationTime = props.accelerationTime ?? 300;
+    this.stopThreshold = props.stopThreshold ?? 50;
+  }
+}
+
+// Usage: Easy to customize per entity
+new WalkComponent(transform, input)  // Player with defaults
+new WalkComponent(transform, input, { speed: 450 })  // Fast enemy
+new WalkComponent(transform, input, { speed: 150, accelerationTime: 500 })  // Slow tank
+```
+
+**DON'T ❌**
+```typescript
+// Hardcoded values - not reusable
+class WalkComponent {
+  private readonly speed = 300;  // Can't change for different entities
+  private readonly accelerationTime = 300;
+}
+
+// Long parameter lists - hard to read
+constructor(
+  transform: TransformComponent,
+  input: InputComponent,
+  speed: number = 300,
+  accelerationTime: number = 300,
+  stopThreshold: number = 50,
+  friction: number = 0.8,
+  maxVelocity: number = 500
+) {}  // What does each number mean?
+```
+
+**Benefits:**
+- Named parameters (self-documenting)
+- Easy to add new options without breaking existing code
+- Same component works for player, enemies, NPCs
+- Clear what each value represents
+
 ### Single Responsibility
 
 Each component should do ONE thing:

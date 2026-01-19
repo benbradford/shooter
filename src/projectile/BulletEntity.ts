@@ -23,7 +23,16 @@ export function createBulletEntity(
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
   sprite.sprite.setDisplaySize(16, 16);
   
-  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true, layer, fromTransition));
+  entity.add(new ProjectileComponent({
+    dirX,
+    dirY,
+    speed: 800,
+    maxDistance: 700,
+    grid,
+    blockedByWalls: true,
+    startLayer: layer,
+    fromTransition
+  }));
   
   entity.setUpdateOrder([
     TransformComponent,
