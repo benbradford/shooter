@@ -34,7 +34,7 @@ export class PlayerWalkState implements IState {
 
     // Keep animation at full speed if there's input, otherwise scale with velocity
     if (dx !== 0 || dy !== 0) {
-      anim.animationSystem.setTimeScale(1.0);
+      anim.animationSystem.setTimeScale(1);
     } else {
       const velocityMagnitude = walk.getVelocityMagnitude();
       const speedRatio = velocityMagnitude / walk.speed;

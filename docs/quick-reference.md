@@ -135,33 +135,52 @@ for (let col = 5; col <= 10; col++) {
 
 - **G key** - Toggle grid debug visualization (enabled by default)
   - White lines: Grid cells
-  - Red cells: Non-walkable
-  - Green cells: Occupied by entities
-  - Blue boxes: Collision boxes
+  - Layer shading: Darker for higher layers, lighter for lower
+  - Blue overlay: Transition cells (staircases)
+  - Green overlay: Occupied by entities
+  
+- **C key** - Toggle scene debug visualization (disabled by default)
+  - Blue boxes: Entity collision boxes
   - Red boxes: Projectile emitter positions
 
-### Adding Projectiles
+- **E key** - Enter level editor mode (pauses game, reloads level)
 
-1. Create projectile entity factory in `src/projectile/`
-2. Add `ProjectileComponent` for movement, lifetime, and collision
-3. Track bullets in GameScene and filter destroyed ones
+### Managing Entities
+
+**Use EntityManager** - All entities are managed in one place:
 
 ```typescript
 // In GameScene
-private bullets: Entity[] = [];
+private entityManager!: EntityManager;
 
-update(delta: number) {
-  this.bullets = this.bullets.filter(bullet => {
-    if (bullet.isDestroyed) return false;
-    bullet.update(delta);
-    return true;
-  });
+async create() {
+  this.entityManager = new EntityManager();
+  
+  // Add entities
+  const player = this.entityManager.add(createPlayerEntity(...));
+  const joystick = this.entityManager.add(createJoystickEntity(this));
+  
+  // Add bullets in callbacks
+  onFire: (x, y, dirX, dirY) => {
+    const bullet = createBulletEntity(this, x, y, dirX, dirY, grid);
+    this.entityManager.add(bullet);
+  }
 }
 
-// Spawn bullet (blocked by walls)
-const bullet = createBulletEntity(this, x, y, dirX, dirY, grid);
-this.bullets.push(bullet);
+update(delta: number) {
+  // Update all entities at once
+  this.entityManager.update(delta);
+}
+
+// Query entities
+const player = this.entityManager.getFirst('player');
+const bullets = this.entityManager.getByType('bullet');
 ```
+
+**Benefits:**
+- No separate arrays for different entity types
+- Automatic cleanup of destroyed entities
+- Easy to query by type
 
 ### Projectile Wall Collision
 

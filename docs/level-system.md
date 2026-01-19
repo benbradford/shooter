@@ -25,22 +25,28 @@ interface LevelCell {
 
 ## Loading Levels
 
-### From Code (Synchronous)
+Levels are always loaded from JSON files asynchronously.
 
 ```typescript
-// In GameScene.create()
-const level = LevelLoader.load('default');
-```
-
-This returns the hardcoded default level immediately.
-
-### From JSON File (Async)
-
-```typescript
-// In GameScene.create() - make it async
+// In GameScene.create() - must be async
 async create() {
-  const level = await LevelLoader.loadFromFile(this, 'default');
-  // ... rest of setup
+  const level = await LevelLoader.load('default');
+  
+  // Initialize grid with level data
+  this.grid = new Grid(this, level.width, level.height, this.cellSize);
+  
+  // Apply level cells
+  for (const cell of level.cells) {
+    this.grid.setCell(cell.col, cell.row, {
+      layer: cell.layer,
+      isTransition: cell.isTransition
+    });
+  }
+  
+  // Use level player start position
+  const startX = this.cellSize * level.playerStart.x;
+  const startY = this.cellSize * level.playerStart.y;
+  // ... create player at startX, startY
 }
 ```
 
@@ -75,30 +81,7 @@ Place level JSON files in `public/levels/`:
 }
 ```
 
-### Helper Function for Rectangles
-
-When defining levels in code, use `createRect()` helper:
-
-```typescript
-// In LevelLoader.ts
-private static getMyLevel(): LevelData {
-  return {
-    width: 50,
-    height: 40,
-    playerStart: { x: 5, y: 5 },
-    cells: [
-      // Create a 5x5 pit area
-      ...this.createRect(10, 10, 15, 15, { layer: -1 }),
-      
-      // Transition cell
-      { col: 12, row: 9, layer: 0, isTransition: true },
-      
-      // Platform
-      ...this.createRect(20, 15, 25, 20, { layer: 1 }),
-    ]
-  };
-}
-```
+**Note:** The `createRect()` helper is available as a public static method on `LevelLoader` if you need to generate level data programmatically, but all levels should be stored as JSON files.
 
 ## Layer System
 
@@ -150,13 +133,25 @@ const startX = cellSize * level.playerStart.x;
 const startY = cellSize * level.playerStart.y;
 ```
 
+## How It Works
+
+1. **GameScene.create()** is async and calls `await LevelLoader.load('default')`
+2. **LevelLoader.load()** fetches `public/levels/default.json` via HTTP
+3. The JSON is parsed into a `LevelData` object
+4. Grid is initialized with `level.width` and `level.height`
+5. Each cell in `level.cells` is applied to the grid with `setCell()`
+6. Player spawns at `level.playerStart.x/y` (in cell coordinates, multiplied by cellSize)
+7. Camera bounds are set to `level.width * cellSize` by `level.height * cellSize`
+
+**Important:** Only cells specified in the `cells` array have special properties (layers, transitions). All other cells default to layer 0 and are walkable.
+
 ## Best Practices
 
-1. **Use JSON files for production levels** - easier to edit and version control
-2. **Use code for procedural/test levels** - when you need dynamic generation
-3. **Keep player start on layer 0** - unless you have a specific reason
-4. **Place transitions adjacent to platforms** - one cell away from the platform edge
-5. **Test layer transitions** - make sure player can reach all areas
+1. **Always use JSON files** - All levels should be in `public/levels/`
+2. **Keep player start on layer 0** - Unless you have a specific reason
+3. **Place transitions adjacent to platforms** - One cell away from the platform edge
+4. **Test layer transitions** - Make sure player can reach all areas
+5. **Use descriptive filenames** - `level1.json`, `boss-arena.json`, etc.
 
 ## Future Enhancements
 

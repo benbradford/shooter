@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { Grid } from "./utils/Grid";
 import { LevelLoader } from "./level/LevelLoader";
+import { EntityManager } from "./ecs/EntityManager";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
@@ -9,15 +10,12 @@ import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { GridPositionComponent } from "./ecs/components/GridPositionComponent";
 import { ProjectileEmitterComponent } from "./ecs/components/ProjectileEmitterComponent";
 import { preloadAssets } from "./assets/AssetLoader";
-import type { Entity } from "./ecs/Entity";
 
 export default class GameScene extends Phaser.Scene {
-  private player!: Entity;
-  private joystick!: Entity;
+  private entityManager!: EntityManager;
   private grid!: Grid;
-  private readonly cellSize: number = 128; // fixed size
-  private bullets: Entity[] = [];
-  private shells: Entity[] = [];
+  private readonly cellSize: number = 128;
+  private editorKey!: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super("game");
@@ -29,6 +27,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create() {
+    // Initialize entity manager
+    this.entityManager = new EntityManager();
+
     // Load level data
     const level = await LevelLoader.load('default');
 
@@ -46,33 +47,33 @@ export default class GameScene extends Phaser.Scene {
     this.grid.render();
 
     // Create joystick entity
-    this.joystick = createJoystickEntity(this);
+    const joystick = this.entityManager.add(createJoystickEntity(this));
 
     // Create the player entity at level start position
     const startX = this.cellSize * level.playerStart.x;
     const startY = this.cellSize * level.playerStart.y;
-    this.player = createPlayerEntity(
+    const player = this.entityManager.add(createPlayerEntity(
       this,
       startX,
       startY,
       this.grid,
       (x, y, dirX, dirY) => {
-        const gridPos = this.player.get(GridPositionComponent)!;
+        const gridPos = player.get(GridPositionComponent)!;
         const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
         const fromTransition = playerCell?.isTransition ?? false;
 
         const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid, gridPos.currentLayer, fromTransition);
-        this.bullets.push(bullet);
+        this.entityManager.add(bullet);
       },
       (x, y, direction, playerDirection) => {
         const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
-        this.shells.push(shell);
+        this.entityManager.add(shell);
       },
-      this.joystick
-    );
+      joystick
+    ));
 
     // Camera setup - follow the player's sprite
-    const spriteComp = this.player.get(SpriteComponent)!;
+    const spriteComp = player.get(SpriteComponent)!;
     this.cameras.main.setBounds(
       0,
       0,
@@ -81,43 +82,100 @@ export default class GameScene extends Phaser.Scene {
     );
     this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
 
-    // Optional: toggle debug grid with G is already handled in Grid constructor
+    // Editor mode toggle
+    this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.editorKey.on('down', () => {
+      if (this.scene.isActive()) {
+        this.enterEditorMode();
+      }
+    });
+  }
+
+  private async enterEditorMode(): Promise<void> {
+    // Pause this scene (stops updates but keeps rendering)
+    this.scene.pause();
+
+    // Reload the level
+    await this.reloadLevel();
+
+    // Launch editor scene on top
+    this.scene.launch('EditorScene');
+  }
+
+  private async reloadLevel(): Promise<void> {
+    // Destroy all entities
+    this.entityManager.destroyAll();
+
+    // Destroy old grid graphics
+    if (this.grid) {
+      this.grid.destroy();
+    }
+
+    // Reload and recreate everything
+    const level = await LevelLoader.load('default');
+
+    // Reinitialize grid
+    this.grid = new Grid(this, level.width, level.height, this.cellSize);
+    for (const cell of level.cells) {
+      this.grid.setCell(cell.col, cell.row, {
+        layer: cell.layer,
+        isTransition: cell.isTransition
+      });
+    }
+    this.grid.render();
+
+    // Recreate joystick
+    const joystick = this.entityManager.add(createJoystickEntity(this));
+
+    // Recreate player
+    const startX = this.cellSize * level.playerStart.x;
+    const startY = this.cellSize * level.playerStart.y;
+    const player = this.entityManager.add(createPlayerEntity(
+      this,
+      startX,
+      startY,
+      this.grid,
+      (x, y, dirX, dirY) => {
+        const gridPos = player.get(GridPositionComponent)!;
+        const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+        const fromTransition = playerCell?.isTransition ?? false;
+
+        const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid, gridPos.currentLayer, fromTransition);
+        this.entityManager.add(bullet);
+      },
+      (x, y, direction, playerDirection) => {
+        const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
+        this.entityManager.add(shell);
+      },
+      joystick
+    ));
+
+    // Update camera
+    const spriteComp = player.get(SpriteComponent)!;
+    this.cameras.main.setBounds(0, 0, level.width * this.cellSize, level.height * this.cellSize);
+    this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
   }
 
   update(_time: number, delta: number) {
     // Wait for async create to finish
-    if (!this.player || !this.joystick) return;
+    if (!this.entityManager || !this.grid) return;
 
-    // Update joystick
-    this.joystick.update(delta);
+    // Update all entities (automatically filters destroyed ones)
+    this.entityManager.update(delta);
 
-    // Update the player entity (all components)
-    this.player.update(delta);
-
-    // Update bullets and remove destroyed ones
-    this.bullets = this.bullets.filter(bullet => {
-      if (bullet.isDestroyed) {
-        return false;
+    // Debug: Draw emitter position for player
+    if (this.grid.sceneDebugEnabled) {
+      const player = this.entityManager.getFirst('player');
+      if (player) {
+        const emitter = player.get(ProjectileEmitterComponent);
+        if (emitter) {
+          const pos = emitter.getEmitterPosition();
+          this.grid.renderEmitterBox(pos.x, pos.y, 20);
+        }
       }
-      bullet.update(delta);
-      return true;
-    });
-
-    // Update shells and remove destroyed ones
-    this.shells = this.shells.filter(shell => {
-      if (shell.isDestroyed) {
-        return false;
-      }
-      shell.update(delta);
-      return true;
-    });
+    }
 
     // Re-render the grid (debug only)
     this.grid.render();
-
-    // Debug: Draw emitter position
-    const emitter = this.player.get(ProjectileEmitterComponent)!;
-    const pos = emitter.getEmitterPosition();
-    this.grid.renderEmitterBox(pos.x, pos.y, 20);
   }
 }

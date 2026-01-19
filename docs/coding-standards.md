@@ -15,6 +15,100 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 
 ---
 
+## Modern JavaScript Standards
+
+### Use Modern Math APIs
+
+**DO ✅**
+```typescript
+// Use Math.hypot for distance calculations
+const distance = Math.hypot(dx, dy);
+
+// Use Math.log10 for base-10 logarithms
+const result = Math.log10(x);
+```
+
+**DON'T ❌**
+```typescript
+// Don't use manual calculations
+const distance = Math.sqrt(dx * dx + dy * dy);
+
+// Don't use legacy logarithm expressions
+const result = Math.log(x) / Math.LN10;
+```
+
+### Use Number Static Methods
+
+**DO ✅**
+```typescript
+const num = Number.parseInt('42', 10);
+const float = Number.parseFloat('3.14');
+if (Number.isNaN(value)) { /* ... */ }
+if (Number.isFinite(value)) { /* ... */ }
+```
+
+**DON'T ❌**
+```typescript
+const num = parseInt('42', 10);
+const float = parseFloat('3.14');
+if (isNaN(value)) { /* ... */ }  // Coerces types unexpectedly
+if (isFinite(value)) { /* ... */ }
+```
+
+### Clean Number Literals
+
+**DO ✅**
+```typescript
+const scale = 1;
+const speed = 300;
+```
+
+**DON'T ❌**
+```typescript
+const scale = 1.0;  // Unnecessary decimal
+const speed = 300.;  // Trailing decimal point
+```
+
+### Avoid Negated Conditions with Else
+
+**DO ✅**
+```typescript
+if (isValid) {
+  processData();
+} else {
+  handleError();
+}
+```
+
+**DON'T ❌**
+```typescript
+if (!isValid) {  // Harder to read
+  handleError();
+} else {
+  processData();
+}
+```
+
+### Use for-of for Iterables
+
+**DO ✅**
+```typescript
+for (const entity of entities) {
+  entity.update(delta);
+}
+```
+
+**DON'T ❌**
+```typescript
+for (let i = 0; i < entities.length; i++) {
+  entities[i].update(delta);
+}
+```
+
+**Exception:** Use traditional for loop when you need the index or are modifying the array during iteration.
+
+---
+
 ## TypeScript Standards
 
 ### Imports

@@ -80,12 +80,12 @@ export class Grid {
   }
 
   setCell(col: number, row: number, data: Partial<CellData>) {
-    if (!this.cells[row] || !this.cells[row][col]) return;
+    if (!this.cells[row]?.[col]) return;
     this.cells[row][col] = { ...this.cells[row][col], ...data };
   }
 
   getCell(col: number, row: number) {
-    if (!this.cells[row] || !this.cells[row][col]) return null;
+    if (!this.cells[row]?.[col]) return null;
     return this.cells[row][col];
   }
 
@@ -134,8 +134,20 @@ export class Grid {
         const cell = this.cells[row][col];
 
         // Layer shading: darker for higher layers, lighter for lower layers
-        const layerAlpha = cell.layer < 0 ? 0.15 : (cell.layer > 0 ? 0.3 : 0.2);
-        const layerColor = cell.layer > 0 ? 0x000000 : (cell.layer < 0 ? 0xffffff : 0x808080);
+        let layerAlpha: number;
+        let layerColor: number;
+        
+        if (cell.layer < 0) {
+          layerAlpha = 0.15;
+          layerColor = 0xffffff;
+        } else if (cell.layer > 0) {
+          layerAlpha = 0.3;
+          layerColor = 0x000000;
+        } else {
+          layerAlpha = 0.2;
+          layerColor = 0x808080;
+        }
+        
         this.graphics.fillStyle(layerColor, layerAlpha);
         this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
 
@@ -189,5 +201,17 @@ export class Grid {
   renderEmitterBox(x: number, y: number, size: number): void {
     if (!this.sceneDebug) return;
     this.emitterBoxes.push({ x, y, size });
+  }
+
+  destroy(): void {
+    // Clear all occupants
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        this.cells[row][col].occupants.clear();
+      }
+    }
+    
+    // Destroy graphics object
+    this.graphics.destroy();
   }
 }

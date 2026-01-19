@@ -69,7 +69,7 @@ export class WalkComponent implements Component {
   }
 
   private updateFacingDirection(dx: number, dy: number): void {
-    const len = Math.sqrt(dx * dx + dy * dy);
+    const len = Math.hypot(dx, dy);
     this.lastDir = dirFromDelta(dx, dy);
     this.lastMoveX = dx / len;
     this.lastMoveY = dy / len;
@@ -80,7 +80,7 @@ export class WalkComponent implements Component {
       return { x: 0, y: 0 };
     }
 
-    const len = Math.sqrt(dx * dx + dy * dy);
+    const len = Math.hypot(dx, dy);
     return {
       x: (dx / len) * this.speed,
       y: (dy / len) * this.speed,
@@ -96,7 +96,7 @@ export class WalkComponent implements Component {
   }
 
   private applyStopThreshold(): void {
-    const magnitude = Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+    const magnitude = Math.hypot(this.velocityX, this.velocityY);
     if (magnitude < this.stopThreshold) {
       this.velocityX = 0;
       this.velocityY = 0;
@@ -110,6 +110,6 @@ export class WalkComponent implements Component {
   }
 
   getVelocityMagnitude(): number {
-    return Math.sqrt(this.velocityX * this.velocityX + this.velocityY * this.velocityY);
+    return Math.hypot(this.velocityX, this.velocityY);
   }
 }

@@ -10,6 +10,7 @@ export enum Direction {
   DownRight,
 }
 
+// eslint-disable-next-line complexity -- 8-direction logic is inherently complex
 export function dirFromDelta(dx: number, dy: number): Direction {
   if (dx === 0 && dy === 0) return Direction.None;
 

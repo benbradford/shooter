@@ -16,8 +16,8 @@ export class AnimationComponent implements Component {
     const frame = this.animationSystem.getFrame();
     if (frame !== undefined) {
       // Try to parse as number (sprite sheet frame), fallback to string (texture name)
-      const frameNum = parseInt(frame, 10);
-      this.spriteComp.setTexture(isNaN(frameNum) ? frame : frameNum);
+      const frameNum = Number.parseInt(frame, 10);
+      this.spriteComp.setTexture(Number.isNaN(frameNum) ? frame : frameNum);
     }
   }
 

@@ -6,7 +6,7 @@ export class CrosshairVisualsComponent implements Component {
   entity!: Entity;
   private sprite!: Phaser.GameObjects.Sprite;
   private readonly scale = 0.8;
-  private readonly pressedScale = 1.0;
+  private readonly pressedScale = 1;
 
   constructor(
     private readonly scene: Phaser.Scene,

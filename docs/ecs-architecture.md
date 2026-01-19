@@ -406,47 +406,93 @@ export function createDecorationEntity(scene: Phaser.Scene, x: number, y: number
 ## Entity Lifecycle
 
 1. **Create**: Call factory function (e.g., `createPlayerEntity()`)
-2. **Add to scene**: Entity components handle Phaser sprite creation
-3. **Update**: GameScene calls `entity.update(delta)` each frame
-4. **Destroy**: Call `entity.destroy()` to clean up
+2. **Add to EntityManager**: `entityManager.add(entity)`
+3. **Update**: EntityManager calls `entity.update(delta)` each frame
+4. **Destroy**: Call `entity.destroy()` or let it self-destruct
    - Removes sprites
    - Removes from grid occupancy
    - Calls `onDestroy()` on all components
+   - Automatically filtered out by EntityManager on next update
 
-## Entity Manager Pattern
+## Entity Manager
 
-Instead of tracking entities individually, use an EntityManager:
+**All entities are managed by a single EntityManager.** This replaces the old pattern of tracking entities in separate arrays.
+
+### EntityManager API
 
 ```typescript
 class EntityManager {
-  private entities: Entity[] = [];
+  // Add an entity
+  add(entity: Entity): Entity
   
-  add(entity: Entity): void {
-    this.entities.push(entity);
-  }
+  // Update all entities (call once per frame)
+  update(delta: number): void
   
-  remove(entity: Entity): void {
-    const index = this.entities.indexOf(entity);
-    if (index > -1) {
-      this.entities[index].destroy();
-      this.entities.splice(index, 1);
+  // Query entities by type
+  getByType(type: string): Entity[]
+  getFirst(type: string): Entity | undefined
+  
+  // Destroy all entities
+  destroyAll(): void
+  
+  // Get total count
+  get count(): number
+}
+```
+
+### Usage in GameScene
+
+```typescript
+export default class GameScene extends Phaser.Scene {
+  private entityManager!: EntityManager;
+  
+  async create() {
+    this.entityManager = new EntityManager();
+    
+    // Add entities
+    const joystick = this.entityManager.add(createJoystickEntity(this));
+    const player = this.entityManager.add(createPlayerEntity(this, x, y, grid, ...));
+    
+    // Bullets/shells added in callbacks
+    onFire: (x, y, dirX, dirY) => {
+      const bullet = createBulletEntity(this, x, y, dirX, dirY, grid);
+      this.entityManager.add(bullet);
     }
   }
   
-  update(delta: number): void {
-    // Filter out destroyed entities
-    this.entities = this.entities.filter(e => {
-      if (e.isDestroyed) return false;
-      e.update(delta);
-      return true;
-    });
-  }
-  
-  getEntitiesByType(type: string): Entity[] {
-    return this.entities.filter(e => e.id.startsWith(type));
+  update(delta: number) {
+    // Update all entities at once
+    this.entityManager.update(delta);
   }
 }
 ```
+
+### How It Works
+
+1. **Update loop**: Iterates through all entities and calls `entity.update(delta)`
+2. **Automatic cleanup**: After updating, filters out any entities marked as destroyed
+3. **Mid-update additions**: Entities added during the update cycle (like bullets) are preserved
+
+**Important:** The update loop is split into two phases:
+```typescript
+// Phase 1: Update all entities
+for (let i = 0; i < this.entities.length; i++) {
+  entity.update(delta);  // Bullets can be added here
+}
+
+// Phase 2: Remove destroyed entities
+this.entities = this.entities.filter(entity => !entity.isDestroyed);
+```
+
+This ensures entities added mid-update (like bullets fired during player update) are not lost.
+
+### Benefits
+
+- **Single source of truth**: All entities in one place
+- **No manual tracking**: No separate arrays for bullets, shells, enemies, etc.
+- **Automatic cleanup**: Destroyed entities removed automatically
+- **Easy queries**: Find entities by type with `getByType()` or `getFirst()`
+- **Scalable**: Add new entity types without modifying GameScene
 
 ## File Structure
 

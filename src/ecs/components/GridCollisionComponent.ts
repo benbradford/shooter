@@ -13,6 +13,7 @@ export class GridCollisionComponent implements Component {
 
   constructor(private readonly grid: Grid) {}
 
+  // eslint-disable-next-line complexity -- Layer-based movement validation requires many conditions
   private canMoveTo(fromCol: number, fromRow: number, toCol: number, toRow: number, _currentLayer: number): boolean {
     const fromCell = this.grid.getCell(fromCol, fromRow);
     const toCell = this.grid.getCell(toCol, toRow);
@@ -132,15 +133,15 @@ export class GridCollisionComponent implements Component {
         // X movement is ok, slide along X
         transform.y = this.previousY;
         walk?.resetVelocity(false, true);
-      } else if (!yOnlyBlocked) {
-        // Y movement is ok, slide along Y
-        transform.x = this.previousX;
-        walk?.resetVelocity(true, false);
-      } else {
+      } else if (yOnlyBlocked) {
         // Both blocked, revert completely
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
+      } else {
+        // Y movement is ok, slide along Y
+        transform.x = this.previousX;
+        walk?.resetVelocity(true, false);
       }
     }
 

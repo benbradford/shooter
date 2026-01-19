@@ -110,7 +110,7 @@ export function createPlayerEntity(
   // Projectile Emitter
   const emitterOffsets: Record<Direction, EmitterOffset> = {
     [Direction.Down]: { x: -16, y: 40 },
-    [Direction.Up]: { x: 12, y: -40 },
+    [Direction.Up]: { x: 10, y: -30 },
     [Direction.Left]: { x: -51, y: 0 },
     [Direction.Right]: { x: 43, y: 0 },
     [Direction.UpLeft]: { x: -25, y: -25 },

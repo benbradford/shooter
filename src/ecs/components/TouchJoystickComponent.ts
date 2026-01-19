@@ -53,7 +53,7 @@ export class TouchJoystickComponent implements Component {
       if (this.crosshairBounds) {
         const dx = pointer.x - this.crosshairBounds.x;
         const dy = pointer.y - this.crosshairBounds.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const distance = Math.hypot(dx, dy);
 
         if (distance <= this.crosshairBounds.radius) {
           this.isFirePressed = true;
@@ -66,7 +66,7 @@ export class TouchJoystickComponent implements Component {
         // Calculate position relative to start, clamped to max radius
         const dx = pointer.x - this.startX;
         const dy = pointer.y - this.startY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const distance = Math.hypot(dx, dy);
 
         if (distance > this.maxRadius) {
           // Clamp to circle boundary
@@ -102,7 +102,7 @@ export class TouchJoystickComponent implements Component {
 
     const dx = this.currentX - this.startX;
     const dy = this.currentY - this.startY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.hypot(dx, dy);
 
     if (distance < this.deadZoneDistance) {
       return { dx: 0, dy: 0 };
