@@ -3,6 +3,7 @@ import type { Entity } from '../Entity';
 import type { Grid } from '../../utils/Grid';
 import { TransformComponent } from './TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
+import { WalkComponent } from './WalkComponent';
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -28,8 +29,8 @@ export class GridCollisionComponent implements Component {
       
       // Can move up to same layer or layer+1
       if (movingUp && toCell.layer >= fromCell.layer && toCell.layer <= fromCell.layer + 1) return true;
-      // Can move down to layer-1 or lower
-      if (movingDown && toCell.layer < fromCell.layer) return true;
+      // Can move down to same layer or layer-1
+      if (movingDown && toCell.layer >= fromCell.layer - 1 && toCell.layer <= fromCell.layer) return true;
       
       return false;
     }
@@ -119,20 +120,27 @@ export class GridCollisionComponent implements Component {
       // Try Y movement only
       const yOnlyBlocked = this.checkCollision(this.previousX, newY, gridPos);
 
+      // Get WalkComponent to reset velocity when blocked
+      const walk = this.entity.get(WalkComponent);
+
       if (!xOnlyBlocked && !yOnlyBlocked) {
         // Both axes work individually, revert both (corner case)
         transform.x = this.previousX;
         transform.y = this.previousY;
+        walk?.resetVelocity(true, true);
       } else if (!xOnlyBlocked) {
         // X movement is ok, slide along X
         transform.y = this.previousY;
+        walk?.resetVelocity(false, true);
       } else if (!yOnlyBlocked) {
         // Y movement is ok, slide along Y
         transform.x = this.previousX;
+        walk?.resetVelocity(true, false);
       } else {
         // Both blocked, revert completely
         transform.x = this.previousX;
         transform.y = this.previousY;
+        walk?.resetVelocity(true, true);
       }
     }
 

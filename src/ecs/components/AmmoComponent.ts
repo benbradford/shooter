@@ -25,15 +25,16 @@ export class AmmoComponent implements Component, HudBarDataSource {
   }
 
   canFire(): boolean {
-    return this.currentAmmo > 0 && !this.isOverheated;
+    return this.currentAmmo >= 1 && !this.isOverheated;
   }
 
   consumeAmmo(): void {
-    if (this.currentAmmo > 0) {
+    if (this.currentAmmo >= 1) {
       this.currentAmmo--;
       this.lastFireTime = Date.now();
 
-      if (this.currentAmmo === 0) {
+      if (this.currentAmmo <= 0) {
+        this.currentAmmo = 0;
         this.isOverheated = true;
       }
     }

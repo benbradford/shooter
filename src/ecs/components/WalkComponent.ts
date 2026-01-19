@@ -5,9 +5,10 @@ import type { InputComponent } from './InputComponent';
 import { Direction, dirFromDelta } from '../../constants/Direction';
 
 export interface WalkProps {
-  speed?: number;
-  accelerationTime?: number;
-  stopThreshold?: number;
+  speed: number;
+  accelerationTime: number;
+  decelerationTime: number;
+  stopThreshold: number;
 }
 
 export class WalkComponent implements Component {
@@ -18,6 +19,7 @@ export class WalkComponent implements Component {
   private velocityX = 0;
   private velocityY = 0;
   private readonly accelerationTime: number;
+  private readonly decelerationTime: number;
   private readonly stopThreshold: number;
 
   // Normalized direction vector for shooting
@@ -27,11 +29,12 @@ export class WalkComponent implements Component {
   constructor(
     private readonly transformComp: TransformComponent,
     private readonly inputComp: InputComponent,
-    props: WalkProps = {}
+    props: WalkProps
   ) {
-    this.speed = props.speed ?? 300;
-    this.accelerationTime = props.accelerationTime ?? 300;
-    this.stopThreshold = props.stopThreshold ?? 50;
+    this.speed = props.speed;
+    this.accelerationTime = props.accelerationTime;
+    this.decelerationTime = props.decelerationTime;
+    this.stopThreshold = props.stopThreshold;
   }
 
   update(delta: number): void {
@@ -59,6 +62,12 @@ export class WalkComponent implements Component {
     this.transformComp.y += this.velocityY * (delta / 1000);
   }
 
+  // Called by GridCollisionComponent when movement is blocked
+  resetVelocity(resetX: boolean, resetY: boolean): void {
+    if (resetX) this.velocityX = 0;
+    if (resetY) this.velocityY = 0;
+  }
+
   private updateFacingDirection(dx: number, dy: number): void {
     const len = Math.sqrt(dx * dx + dy * dy);
     this.lastDir = dirFromDelta(dx, dy);
@@ -79,7 +88,9 @@ export class WalkComponent implements Component {
   }
 
   private applyMomentum(target: { x: number; y: number }, delta: number): void {
-    const lerpFactor = Math.min(1, delta / this.accelerationTime);
+    const isDecelerating = target.x === 0 && target.y === 0;
+    const timeToUse = isDecelerating ? this.decelerationTime : this.accelerationTime;
+    const lerpFactor = Math.min(1, delta / timeToUse);
     this.velocityX += (target.x - this.velocityX) * lerpFactor;
     this.velocityY += (target.y - this.velocityY) * lerpFactor;
   }

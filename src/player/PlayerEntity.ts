@@ -76,7 +76,12 @@ export function createPlayerEntity(
   input.setJoystick(joystickComp);
 
   // Walk
-  entity.add(new WalkComponent(transform, input));
+  entity.add(new WalkComponent(transform, input, {
+    speed: 500,
+    accelerationTime: 600,
+    decelerationTime: 200,
+    stopThreshold: 120
+  }));
 
   // Grid Position - collision box at bottom quarter of sprite
   const startCell = grid.worldToCell(x, y);
