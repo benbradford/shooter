@@ -30,17 +30,55 @@ The game uses a fixed-size grid for collision detection and entity placement:
 - **Grid dimensions**: 40x30 cells (configurable)
 - **Purpose**: Simplifies collision detection and spatial queries
 - **Scrolling**: Grid can be larger than visible screen; camera follows player
+- **Layer system**: Supports multi-level environments with transitions between layers
 
 ### Cell Properties
 
 Each grid cell tracks:
 ```typescript
 interface CellData {
-  walkable: boolean;              // Can entities move through this cell?
+  layer: number;                  // Vertical layer (-1 = pit, 0 = ground, 1 = platform, etc.)
+  isTransition: boolean;          // Is this a staircase/transition between layers?
   occupants: Set<Entity>;         // Which entities are in this cell
-  blocksProjectiles: boolean;     // Do projectiles stop here?
 }
 ```
+
+### Layer System
+
+The grid supports vertical layering for multi-level environments:
+
+**Layer Values:**
+- **Layer -1**: Pits, water, lower areas
+- **Layer 0**: Default ground level
+- **Layer 1**: Elevated platforms, upper floors
+- **Layer 2+**: Higher levels (if needed)
+
+**Movement Rules:**
+- Entities can only move to cells on the **same layer**
+- Layer changes only allowed through **transition cells**
+- Diagonal movement between different layers is blocked
+
+**Transition Cells (Staircases):**
+- Special cells that connect two adjacent layers
+- **Entry**: Only from top or bottom (vertical movement only)
+  - From above: Can enter when moving down
+  - From below: Can enter when moving up
+- **Exit**: Only up or down (no left/right movement)
+  - Up: Moves to layer+1
+  - Down: Moves to same layer or layer-1
+- **Restriction**: Cannot move left/right while in transition cell
+
+**Projectile Rules:**
+- Projectiles can hit cells at **same layer or lower**
+- **Transition cells don't block projectiles**
+- When projectile passes through transition cell, it gains access to layer+1
+- Example: Bullet fired from layer 0 → passes through transition → can now hit layer 1
+
+**Debug Visualization:**
+- **Darker shading**: Higher layers (layer 1+)
+- **Lighter shading**: Lower layers (layer -1)
+- **Blue overlay**: Transition cells
+- **Green overlay**: Occupied cells
 
 ### Grid API
 
@@ -67,27 +105,40 @@ class Grid {
 }
 ```
 
-### Setting Up Walls
+### Setting Up Layers
 
 ```typescript
-// Single wall
-this.grid.setCell(5, 5, { walkable: false, blocksProjectiles: true });
-
-// Row of walls
-for (let col = 5; col <= 10; col++) {
-  this.grid.setCell(col, 5, { walkable: false, blocksProjectiles: true });
+// Layer -1 (pit area)
+for (let col = 5; col <= 8; col++) {
+  for (let row = 5; row <= 7; row++) {
+    this.grid.setCell(col, row, { layer: -1 });
+  }
 }
 
-// Pit/water (blocks movement but not projectiles)
-this.grid.setCell(10, 10, { walkable: false, blocksProjectiles: false });
+// Layer 1 (elevated platform)
+for (let col = 15; col <= 20; col++) {
+  for (let row = 8; row <= 12; row++) {
+    this.grid.setCell(col, row, { layer: 1 });
+  }
+}
+
+// Transition cell (staircase) to access layer 1 platform
+this.grid.setCell(17, 13, { layer: 0, isTransition: true });
 ```
+
+**Key Points:**
+- Default cells are layer 0
+- Transition cells connect adjacent layers (e.g., layer 0 transition connects to layer 1)
+- Place transition cells adjacent to the platform they connect to
+- Entities must use transition cells to change layers
 
 ### Debug Visualization
 
 Press **G** key to toggle debug rendering:
 - **White grid lines**: Cell boundaries
-- **Red cells**: Non-walkable (`walkable: false`)
-- **Green cells**: Occupied by entities
+- **Layer shading**: Darker for higher layers, lighter for lower layers
+- **Blue overlay**: Transition cells (staircases)
+- **Green overlay**: Occupied by entities
 - **Blue boxes**: Entity collision boxes
 - **Red boxes**: Projectile emitter positions
 
@@ -136,25 +187,38 @@ Player moving diagonally up-right:
 
 ### GridCollisionComponent
 
-Handles all collision logic:
+Handles all collision logic including layer-based movement:
 
 ```typescript
 class GridCollisionComponent {
   update(delta: number): void {
     // 1. Get current and target positions
-    // 2. Calculate which cells are occupied
-    // 3. Check if target cells are walkable
+    // 2. Calculate which cells the collision box overlaps
+    // 3. Check layer-based movement rules for each cell
     // 4. Apply sliding collision if partially blocked
-    // 5. Update grid occupancy
+    // 5. Update grid occupancy and current layer
   }
 }
 ```
 
 **Features:**
-- Validates movement against `walkable` cells
+- Validates movement against layer rules
+- Enforces transition cell restrictions (vertical only)
 - Implements sliding collision
 - Updates grid occupancy automatically
+- Tracks entity's current layer
 - Handles multi-cell entities
+- Box-in-box collision detection (checks all overlapping cells)
+```
+
+**Features:**
+- Validates movement against layer rules
+- Enforces transition cell restrictions (vertical only)
+- Implements sliding collision
+- Updates grid occupancy automatically
+- Tracks entity's current layer
+- Handles multi-cell entities
+- Box-in-box collision detection (checks all overlapping cells)
 
 ### Collision Box Sizing Guidelines
 
@@ -194,21 +258,39 @@ class ProjectileComponent {
     speed: number,          // Pixels per second
     maxDistance: number,    // Max travel distance
     grid: Grid,             // Grid reference
-    blockedByWalls: boolean // Whether walls stop this projectile
+    blockedByWalls: boolean,// Whether walls stop this projectile
+    startLayer: number,     // Starting layer
+    fromTransition: boolean // Fired from transition cell?
   ) {}
 }
 ```
 
-### Wall Collision Behavior
+### Layer-Based Projectile Collision
 
-**Bullets** - Blocked by walls:
+**Basic Rules:**
+- Projectiles can hit cells at **same layer or lower**
+- **Transition cells don't block projectiles**
+- When projectile passes through transition cell, it gains access to **layer+1**
+
+**Examples:**
+
 ```typescript
-new ProjectileComponent(dirX, dirY, 800, 700, grid, true);
+// Bullet from layer 0 (blocked by layer 1)
+new ProjectileComponent(dirX, dirY, 800, 700, grid, true, 0, false);
+
+// Bullet from transition cell (can hit layer 0 and 1)
+new ProjectileComponent(dirX, dirY, 800, 700, grid, true, 0, true);
+
+// Grenade (flies over all layers)
+new ProjectileComponent(dirX, dirY, 600, 500, grid, false, 0, false);
 ```
 
-**Grenades** - Fly over walls:
+**Dynamic Layer Access:**
 ```typescript
-new ProjectileComponent(dirX, dirY, 600, 500, grid, false);
+// Bullet fired from layer 0
+// → Passes through transition cell at layer 0
+// → Gains access to layer 1
+// → Can now hit layer 1 targets
 ```
 
 **Implementation:**
@@ -218,12 +300,17 @@ update(delta: number): void {
   this.transform.x += this.dirX * this.speed * (delta / 1000);
   this.transform.y += this.dirY * this.speed * (delta / 1000);
   
+  const cell = this.grid.worldToCell(this.transform.x, this.transform.y);
+  const cellData = this.grid.getCell(cell.col, cell.row);
+  
+  // Upgrade layer access when passing through transition
+  if (cellData.isTransition) {
+    this.currentLayer = Math.max(this.currentLayer, cellData.layer + 1);
+  }
+  
   // Check collision if blockedByWalls is true
-  if (this.blockedByWalls) {
-    const cell = this.grid.worldToCell(this.transform.x, this.transform.y);
-    const cellData = this.grid.getCell(cell.col, cell.row);
-    
-    if (!cellData || cellData.blocksProjectiles) {
+  if (this.blockedByWalls && !cellData.isTransition) {
+    if (cellData.layer > this.currentLayer) {
       this.entity.destroy();
     }
   }
@@ -258,8 +345,8 @@ class GameScene extends Phaser.Scene {
     // 1. Create grid
     this.grid = new Grid(this, 40, 30, 64);
     
-    // 2. Set up walls
-    this.setupWalls();
+    // 2. Set up layers and transitions
+    this.setupLayers();
     
     // 3. Create joystick
     this.joystick = createJoystickEntity(this);
@@ -377,20 +464,35 @@ update(delta: number): void {
 
 ## Common Patterns
 
-### Adding Walls Programmatically
+### Setting Up Multi-Layer Environments
 
 ```typescript
-private setupWalls(): void {
-  // Border walls
-  for (let col = 0; col < this.grid.cols; col++) {
-    this.grid.setCell(col, 0, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(col, this.grid.rows - 1, { walkable: false, blocksProjectiles: true });
+private setupLayers(): void {
+  // Layer -1 (pit area)
+  for (let col = 5; col <= 8; col++) {
+    for (let row = 5; row <= 7; row++) {
+      this.grid.setCell(col, row, { layer: -1 });
+    }
   }
   
-  for (let row = 0; row < this.grid.rows; row++) {
-    this.grid.setCell(0, row, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(this.grid.cols - 1, row, { walkable: false, blocksProjectiles: true });
+  // Layer 1 (elevated platform)
+  for (let col = 15; col <= 20; col++) {
+    for (let row = 8; row <= 12; row++) {
+      this.grid.setCell(col, row, { layer: 1 });
+    }
   }
+  
+  // Transition cell (staircase) - place adjacent to platform
+  this.grid.setCell(17, 13, { layer: 0, isTransition: true });
+  
+  // Another platform with its own transition
+  for (let col = 25; col <= 28; col++) {
+    for (let row = 15; row <= 18; row++) {
+      this.grid.setCell(col, row, { layer: 1 });
+    }
+  }
+  this.grid.setCell(26, 19, { layer: 0, isTransition: true });
+}
   
   // Interior walls
   for (let col = 10; col <= 15; col++) {
@@ -399,24 +501,36 @@ private setupWalls(): void {
 }
 ```
 
-### Spawning Entities at Runtime
+### Spawning Entities at Specific Layers
 
 ```typescript
-spawnEnemy(col: number, row: number): void {
+spawnEnemy(col: number, row: number, layer: number): void {
   const { x, y } = this.grid.cellToWorld(col, row);
   const enemy = createEnemyEntity(this, x, y, this.grid);
+  
+  // Set initial layer
+  const gridPos = enemy.get(GridPositionComponent)!;
+  gridPos.currentLayer = layer;
+  
   this.enemies.push(enemy);
 }
 ```
 
-### Checking Line of Sight
+### Firing Projectiles with Layer Awareness
 
 ```typescript
-hasLineOfSight(fromX: number, fromY: number, toX: number, toY: number): boolean {
-  // Bresenham's line algorithm
-  // Check each cell along the line
-  // Return false if any cell blocks projectiles
-  // Return true if clear path
+private onFire(x: number, y: number, dirX: number, dirY: number): void {
+  const gridPos = this.player.get(GridPositionComponent)!;
+  const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+  const fromTransition = playerCell?.isTransition ?? false;
+  
+  const bullet = createBulletEntity(
+    this, x, y, dirX, dirY, 
+    this.grid, 
+    gridPos.currentLayer,  // Current layer
+    fromTransition         // Can hit layer+1 if from transition
+  );
+  this.bullets.push(bullet);
 }
 ```
 
@@ -425,7 +539,10 @@ hasLineOfSight(fromX: number, fromY: number, toX: number, toY: number): boolean 
 ## Summary
 
 The grid and collision systems provide:
+- **Layer-based environments**: Multi-level maps with vertical gameplay
+- **Transition cells**: Staircases connecting different layers
 - **Simple collision detection**: Cell-based checks are fast and predictable
+- **Box-in-box collision**: Accurate collision for all overlapping cells
 - **Flexible collision boxes**: Size and offset per entity type
 - **Sliding collision**: Natural movement along walls
 - **Multi-cell occupancy**: Large entities handled automatically

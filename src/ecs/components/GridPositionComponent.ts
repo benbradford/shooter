@@ -6,6 +6,7 @@ export class GridPositionComponent implements Component {
   
   public currentCell: { col: number; row: number };
   public previousCell: { col: number; row: number };
+  public currentLayer: number = 0;
   
   // Collision box offset from entity center
   public collisionBox: {

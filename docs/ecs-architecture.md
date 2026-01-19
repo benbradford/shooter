@@ -79,6 +79,39 @@ new GridCollisionComponent(grid)
 new StateMachineComponent(stateMachine)
 ```
 
+### Gameplay Systems
+
+**AmmoComponent** - Ammo tracking with overheat
+```typescript
+new AmmoComponent()
+// Properties: currentAmmo, maxAmmo, refillRate, refillDelay
+// Methods: canFire(), consumeAmmo(), isGunOverheated()
+```
+
+**OverheatSmokeComponent** - Visual feedback for overheated weapon
+```typescript
+new OverheatSmokeComponent(scene, ammoComponent, emitterOffsets)
+// Requires init() call after add()
+// Emits smoke particles when ammo reaches 0
+// Stops when fully refilled
+```
+
+**HealthComponent** - Health tracking
+```typescript
+new HealthComponent(maxHealth)
+// Implements HudBarDataSource for health bar display
+```
+
+**HudBarComponent** - Visual health/ammo bars
+```typescript
+new HudBarComponent(scene, [
+  { dataSource: health, offsetY: 70, fillColor: 0x00ff00 },
+  { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },
+])
+// Requires init() call after add()
+// Supports multiple bars in one component
+```
+
 ## Component Update Order
 
 **Critical**: Components update in the order specified by `setUpdateOrder()`.

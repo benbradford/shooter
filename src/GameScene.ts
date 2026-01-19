@@ -5,6 +5,7 @@ import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { createJoystickEntity } from "./hud/JoystickEntity";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
+import { GridPositionComponent } from "./ecs/components/GridPositionComponent";
 import { ProjectileEmitterComponent } from "./ecs/components/ProjectileEmitterComponent";
 import { preloadAssets } from "./assets/AssetLoader";
 import type { Entity } from "./ecs/Entity";
@@ -33,27 +34,35 @@ export default class GameScene extends Phaser.Scene {
     // Initialize grid
     this.grid = new Grid(this, gridWidth, gridHeight, this.cellSize);
 
-    // Add some walls
-    this.grid.setCell(5, 5, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(6, 5, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(7, 5, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(8, 5, { walkable: false, blocksProjectiles: true });
-
-    // Vertical wall
-    this.grid.setCell(12, 8, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(12, 9, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(12, 10, { walkable: false, blocksProjectiles: true });
-    this.grid.setCell(12, 11, { walkable: false, blocksProjectiles: true });
-
-    // Box of walls
-    for (let col = 15; col <= 18; col++) {
-      this.grid.setCell(col, 12, { walkable: false, blocksProjectiles: true });
-      this.grid.setCell(col, 15, { walkable: false, blocksProjectiles: true });
+    // Layer -1 (pit area)
+    for (let col = 5; col <= 8; col++) {
+      for (let row = 6; row <= 8; row++) {
+        this.grid.setCell(col, row, { layer: -1 });
+      }
     }
-    for (let row = 13; row <= 14; row++) {
-      this.grid.setCell(15, row, { walkable: false, blocksProjectiles: true });
-      this.grid.setCell(18, row, { walkable: false, blocksProjectiles: true });
+
+    // Transition to access layer -1 pit (above the pit)
+    this.grid.setCell(7, 5, { layer: 0, isTransition: true });
+
+    // Layer 1 (elevated platform)
+    for (let col = 15; col <= 20; col++) {
+      for (let row = 8; row <= 12; row++) {
+        this.grid.setCell(col, row, { layer: 1 });
+      }
     }
+
+    // Transition cell to access layer 1 platform (from below)
+    this.grid.setCell(17, 13, { layer: 0, isTransition: true });
+
+    // Another layer 1 area
+    for (let col = 25; col <= 28; col++) {
+      for (let row = 15; row <= 18; row++) {
+        this.grid.setCell(col, row, { layer: 1 });
+      }
+    }
+
+    // Transition cell for second platform
+    this.grid.setCell(26, 19, { layer: 0, isTransition: true });
 
     this.grid.render();
 
@@ -69,7 +78,11 @@ export default class GameScene extends Phaser.Scene {
       startY,
       this.grid,
       (x, y, dirX, dirY) => {
-        const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid);
+        const gridPos = this.player.get(GridPositionComponent)!;
+        const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+        const fromTransition = playerCell?.isTransition ?? false;
+        
+        const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid, gridPos.currentLayer, fromTransition);
         this.bullets.push(bullet);
       },
       (x, y, direction, playerDirection) => {

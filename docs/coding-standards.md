@@ -380,6 +380,93 @@ if (velocityMagnitude < 50) {  // What does 50 mean?
 }
 ```
 
+### Avoiding Duplicate Configuration
+
+**DON'T ❌**
+```typescript
+// Duplicate values in different components
+class TouchJoystickComponent {
+  private readonly maxRadius = 70;
+}
+
+class JoystickVisualsComponent {
+  private readonly outerRadius = 100;  // Different value!
+}
+```
+
+**DO ✅**
+```typescript
+// Single source of truth
+class TouchJoystickComponent {
+  public readonly maxRadius = 70;      // Owner of the value
+  public readonly innerRadius = 30;
+}
+
+class JoystickVisualsComponent {
+  constructor(private readonly joystick: TouchJoystickComponent) {}
+  
+  init(): void {
+    this.outerCircle = this.scene.add.circle(0, 0, this.joystick.maxRadius);
+    this.innerCircle = this.scene.add.circle(0, 0, this.joystick.innerRadius);
+  }
+}
+```
+
+**Why this matters:**
+- Configuration stays in sync
+- Clear ownership of values
+- Single place to update
+- No confusion about which value is correct
+
+### Components with init() Methods
+
+Some components need initialization after being added to an entity:
+
+**Pattern:**
+```typescript
+// In entity factory function
+const hudBars = entity.add(new HudBarComponent(scene, configs));
+hudBars.init();  // Must call init() after add()
+
+const overheatSmoke = entity.add(new OverheatSmokeComponent(scene, ammo, offsets));
+overheatSmoke.init();  // Must call init() after add()
+```
+
+**Why init() is needed:**
+- Component needs access to `this.entity` (set by `add()`)
+- Component creates Phaser game objects that need scene reference
+- Separation of construction from initialization
+
+**When to use init():**
+- Creating Phaser sprites, particles, or graphics
+- Setting up event listeners
+- Accessing other components on the entity
+
+### Circular Hit Detection
+
+For touch/click areas, use circular collision for natural feel:
+
+```typescript
+// Set bounds
+const radius = (this.sprite.width / 2) * this.scale;
+this.joystick.setCrosshairBounds(x, y, radius);
+
+// Check if touch is within circle
+const dx = pointer.x - this.crosshairBounds.x;
+const dy = pointer.y - this.crosshairBounds.y;
+const distance = Math.sqrt(dx * dx + dy * dy);
+
+if (distance <= this.crosshairBounds.radius) {
+  // Touch is inside circle
+}
+```
+
+**Benefits:**
+- More natural than rectangular hit boxes
+- Matches circular UI elements
+- Easy to calculate
+- Scales with sprite size
+
 ## ESLint Configuration
 
 Key rules enforced:

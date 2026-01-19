@@ -2,9 +2,9 @@ import Phaser from "phaser";
 import type { Entity } from "../ecs/Entity";
 
 export type CellData = {
-  walkable: boolean;
+  layer: number;
+  isTransition: boolean;
   occupants: Set<Entity>;
-  blocksProjectiles: boolean;
 };
 
 export class Grid {
@@ -33,9 +33,9 @@ export class Grid {
       this.cells[row] = [];
       for (let col = 0; col < width; col++) {
         this.cells[row][col] = { 
-          walkable: true, 
-          occupants: new Set(),
-          blocksProjectiles: false
+          layer: 0,
+          isTransition: false,
+          occupants: new Set()
         };
       }
     }
@@ -115,9 +115,15 @@ export class Grid {
         const y = row * this.cellSize;
         const cell = this.cells[row][col];
 
-        // Non-walkable cells in red
-        if (!cell.walkable) {
-          this.graphics.fillStyle(0xff0000, 0.3);
+        // Layer shading: darker for higher layers, lighter for lower layers
+        const layerAlpha = cell.layer < 0 ? 0.15 : (cell.layer > 0 ? 0.3 : 0.2);
+        const layerColor = cell.layer > 0 ? 0x000000 : (cell.layer < 0 ? 0xffffff : 0x808080);
+        this.graphics.fillStyle(layerColor, layerAlpha);
+        this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
+
+        // Transition cells in blue
+        if (cell.isTransition) {
+          this.graphics.fillStyle(0x0000ff, 0.4);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
 

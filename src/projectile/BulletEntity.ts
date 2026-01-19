@@ -10,7 +10,9 @@ export function createBulletEntity(
   y: number,
   dirX: number,
   dirY: number,
-  grid: Grid
+  grid: Grid,
+  layer: number = 0,
+  fromTransition: boolean = false
 ): Entity {
   const entity = new Entity('bullet');
   
@@ -21,7 +23,7 @@ export function createBulletEntity(
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
   sprite.sprite.setDisplaySize(16, 16);
   
-  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true));
+  entity.add(new ProjectileComponent(dirX, dirY, 800, 700, grid, true, layer, fromTransition));
   
   entity.setUpdateOrder([
     TransformComponent,

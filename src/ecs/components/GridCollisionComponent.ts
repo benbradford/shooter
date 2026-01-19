@@ -12,26 +12,96 @@ export class GridCollisionComponent implements Component {
 
   constructor(private readonly grid: Grid) {}
 
+  private canMoveTo(fromCol: number, fromRow: number, toCol: number, toRow: number, _currentLayer: number): boolean {
+    const fromCell = this.grid.getCell(fromCol, fromRow);
+    const toCell = this.grid.getCell(toCol, toRow);
+    
+    if (!fromCell || !toCell) return false;
+
+    // If in a transition cell, can only move up or down (not left/right)
+    if (fromCell.isTransition) {
+      const movingVertically = fromCol === toCol;
+      if (!movingVertically) return false;
+      
+      const movingUp = toRow < fromRow;
+      const movingDown = toRow > fromRow;
+      
+      // Can move up to same layer or layer+1
+      if (movingUp && toCell.layer >= fromCell.layer && toCell.layer <= fromCell.layer + 1) return true;
+      // Can move down to layer-1 or lower
+      if (movingDown && toCell.layer < fromCell.layer) return true;
+      
+      return false;
+    }
+
+    // If moving to a transition cell
+    if (toCell.isTransition) {
+      const movingVertically = fromCol === toCol;
+      if (!movingVertically) return false; // Can only enter from top or bottom
+      
+      // Can enter from same layer moving down (toRow > fromRow means moving down)
+      if (toRow > fromRow && fromCell.layer >= toCell.layer) return true;
+      
+      // Can enter from below moving up (toRow < fromRow means moving up)
+      if (toRow < fromRow && fromCell.layer <= toCell.layer) return true;
+      
+      return false;
+    }
+
+    // Normal cell to normal cell: must be same layer (no layer changes except via transition)
+    return toCell.layer === fromCell.layer;
+  }
+
   private checkCollision(x: number, y: number, gridPos: GridPositionComponent): boolean {
-    // Calculate collision box bounds at given position
+    // Calculate collision box bounds at new position
     const boxLeft = x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
     const boxTop = y + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
     const boxRight = boxLeft + gridPos.collisionBox.width;
     const boxBottom = boxTop + gridPos.collisionBox.height;
 
-    // Get all cells the collision box overlaps
+    // Calculate collision box bounds at previous position
+    const prevBoxLeft = this.previousX + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
+    const prevBoxTop = this.previousY + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
+    const prevBoxRight = prevBoxLeft + gridPos.collisionBox.width;
+    const prevBoxBottom = prevBoxTop + gridPos.collisionBox.height;
+
+    // Get all cells the collision box overlaps at new position
     const topLeftCell = this.grid.worldToCell(boxLeft, boxTop);
     const bottomRightCell = this.grid.worldToCell(boxRight - 1, boxBottom - 1);
 
-    // Check if any overlapping cell is not walkable
+    // Get all cells the collision box overlapped at previous position
+    const prevTopLeftCell = this.grid.worldToCell(prevBoxLeft, prevBoxTop);
+    const prevBottomRightCell = this.grid.worldToCell(prevBoxRight - 1, prevBoxBottom - 1);
+
+    // Check each cell the new collision box overlaps
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
-        const cellData = this.grid.getCell(col, row);
-        if (!cellData || !cellData.walkable) {
-          return true; // blocked
+        // Check if this cell was already occupied in previous frame
+        let wasOccupied = false;
+        for (let prevRow = prevTopLeftCell.row; prevRow <= prevBottomRightCell.row; prevRow++) {
+          for (let prevCol = prevTopLeftCell.col; prevCol <= prevBottomRightCell.col; prevCol++) {
+            if (prevCol === col && prevRow === row) {
+              wasOccupied = true;
+              break;
+            }
+          }
+          if (wasOccupied) break;
+        }
+
+        // If entering a new cell, check if movement is allowed
+        if (!wasOccupied) {
+          // Find which previous cell we're moving from (use center of previous box)
+          const prevCenterX = this.previousX + gridPos.collisionBox.offsetX;
+          const prevCenterY = this.previousY + gridPos.collisionBox.offsetY;
+          const fromCell = this.grid.worldToCell(prevCenterX, prevCenterY);
+          
+          if (!this.canMoveTo(fromCell.col, fromCell.row, col, row, gridPos.currentLayer)) {
+            return true; // blocked
+          }
         }
       }
     }
+
     return false; // not blocked
   }
 
@@ -103,9 +173,14 @@ export class GridCollisionComponent implements Component {
     // Update occupied cells set
     this.occupiedCells = newOccupiedCells;
 
-    // Update current cell to top-left of occupied region
+    // Update current cell and layer
     gridPos.previousCell = { ...gridPos.currentCell };
     gridPos.currentCell = topLeftCell;
+    
+    const currentCellData = this.grid.getCell(topLeftCell.col, topLeftCell.row);
+    if (currentCellData) {
+      gridPos.currentLayer = currentCellData.layer;
+    }
 
     // Store current position for next frame
     this.previousX = transform.x;

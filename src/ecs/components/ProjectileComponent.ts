@@ -6,6 +6,8 @@ import type { Grid } from '../../utils/Grid';
 export class ProjectileComponent implements Component {
   entity!: Entity;
   private distanceTraveled: number = 0;
+  private currentLayer: number;
+  private readonly fromTransition: boolean;
 
   constructor(
     private readonly dirX: number,
@@ -13,8 +15,13 @@ export class ProjectileComponent implements Component {
     private readonly speed: number,
     private readonly maxDistance: number,
     private readonly grid: Grid,
-    private readonly blockedByWalls: boolean = true
-  ) {}
+    private readonly blockedByWalls: boolean = true,
+    startLayer: number = 0,
+    fromTransition: boolean = false
+  ) {
+    this.currentLayer = startLayer;
+    this.fromTransition = fromTransition;
+  }
 
   update(delta: number): void {
     const transform = this.entity.get(TransformComponent)!;
@@ -25,13 +32,37 @@ export class ProjectileComponent implements Component {
     
     this.distanceTraveled += distance;
     
-    // Check collision with walls
+    // Check collision with walls (layer-based)
     const cell = this.grid.worldToCell(transform.x, transform.y);
     const cellData = this.grid.getCell(cell.col, cell.row);
     
-    if (this.blockedByWalls && (!cellData || cellData.blocksProjectiles)) {
+    if (!cellData) {
       this.entity.destroy();
       return;
+    }
+    
+    // If passing through transition cell, upgrade accessible layer
+    if (cellData.isTransition) {
+      this.currentLayer = Math.max(this.currentLayer, cellData.layer + 1);
+    }
+    
+    if (this.blockedByWalls) {
+      // Transition cells don't block projectiles
+      if (!cellData.isTransition) {
+        // If fired from transition, can hit layer or layer+1
+        if (this.fromTransition) {
+          if (cellData.layer > this.currentLayer + 1) {
+            this.entity.destroy();
+            return;
+          }
+        } else {
+          // Normal: can only hit same layer or lower
+          if (cellData.layer > this.currentLayer) {
+            this.entity.destroy();
+            return;
+          }
+        }
+      }
     }
     
     if (this.distanceTraveled >= this.maxDistance) {
