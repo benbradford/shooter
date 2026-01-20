@@ -8,7 +8,7 @@ import { ASSET_REGISTRY, type AssetKey } from './AssetRegistry';
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
   const keysToLoad: AssetKey[] = keys || ['player', 'bullet_default', 'bullet_default_shell', 'smoke', 'crosshair'];
-  
+  // TODO I would like it if we had additional preload of assets for those that are included in the scene (and any dependent assets on those, such as bullets / grenades etc.)
   keysToLoad.forEach((key: AssetKey) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const asset = ASSET_REGISTRY[key] as any;

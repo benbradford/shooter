@@ -82,6 +82,13 @@ npm run build                # Must pass with zero errors
 npx eslint src --ext .ts     # Must pass with zero errors
 ```
 
+**Level editing workflow:**
+- Press **E** in-game to open the level editor
+- Make changes to the grid (see [Level Editor docs](./docs/level-editor.md))
+- Click **Save** to download the level JSON
+- Run `./scripts/update-levels.sh` to copy from Downloads to project
+- Refresh browser to see changes
+
 ### Building for Production
 
 **Create production build:**
@@ -274,13 +281,16 @@ npx eslint src --ext .ts     # Code quality check - MUST pass
 ## Documentation
 
 ### Core Guides
-- **[Coding Standards](./docs/coding-standards.md)** - TypeScript best practices, component design principles, mandatory build/lint workflow
-- **[ECS Architecture](./docs/ecs-architecture.md)** - Entity-Component system, creating new entities, component library
-- **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, collision detection, scene setup
+- **[Coding Standards](./docs/coding-standards.md)** - TypeScript best practices, modern JavaScript standards, component design principles
+- **[ECS Architecture](./docs/ecs-architecture.md)** - Entity-Component system, EntityManager, creating new entities, component library
+- **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, layer-based collision, scene setup
 - **[Input Systems](./docs/input-systems.md)** - Joystick controls, keyboard input, touch firing
+- **[Level System](./docs/level-system.md)** - Loading levels from JSON, level data structure, creating levels
+- **[Level Editor](./docs/level-editor.md)** - Editor mode, scene overlay system, future features
 
 ### Quick Reference
 - **[Quick Reference](./docs/quick-reference.md)** - Common tasks, patterns, troubleshooting
+- **[Component Props Pattern](./docs/component-props-pattern.md)** - Props-based component configuration
 
 ---
 

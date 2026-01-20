@@ -8,8 +8,8 @@ export type CellData = {
 };
 
 export class Grid {
-  public readonly width: number; // columns
-  public readonly height: number; // rows
+  public width: number; // columns
+  public height: number; // rows
   public readonly cellSize: number;
   private readonly graphics: Phaser.GameObjects.Graphics;
   private gridDebug: boolean = true;
@@ -25,7 +25,7 @@ export class Grid {
     return this.sceneDebug;
   }
 
-  public readonly cells: CellData[][];
+  public cells: CellData[][];
 
   constructor(scene: Phaser.Scene, width: number, height: number, cellSize: number = 64) {
     this.width = width;
@@ -138,26 +138,29 @@ export class Grid {
         let layerColor: number;
         
         if (cell.layer < 0) {
-          layerAlpha = 0.15;
+          // Lower layers: lighter (white with low alpha)
+          layerAlpha = 0.25;
           layerColor = 0xffffff;
         } else if (cell.layer > 0) {
-          layerAlpha = 0.3;
+          // Higher layers: darker (black with higher alpha)
+          layerAlpha = 0.4;
           layerColor = 0x000000;
         } else {
-          layerAlpha = 0.2;
+          // Ground level: neutral gray
+          layerAlpha = 0.1;
           layerColor = 0x808080;
         }
         
         this.graphics.fillStyle(layerColor, layerAlpha);
         this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
 
-        // Transition cells in blue
+        // Transition cells in blue (override layer color)
         if (cell.isTransition) {
-          this.graphics.fillStyle(0x0000ff, 0.4);
+          this.graphics.fillStyle(0x0000ff, 0.5);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
 
-        // Occupied cells in green
+        // Occupied cells in green (overlay on top)
         if (cell.occupants.size > 0) {
           this.graphics.fillStyle(0x00ff00, 0.3);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
@@ -201,6 +204,20 @@ export class Grid {
   renderEmitterBox(x: number, y: number, size: number): void {
     if (!this.sceneDebug) return;
     this.emitterBoxes.push({ x, y, size });
+  }
+
+  removeRow(): void {
+    if (this.height <= 1) return;
+    this.cells.pop();
+    this.height--;
+  }
+
+  removeColumn(): void {
+    if (this.width <= 1) return;
+    for (let row = 0; row < this.height; row++) {
+      this.cells[row].pop();
+    }
+    this.width--;
   }
 
   destroy(): void {
