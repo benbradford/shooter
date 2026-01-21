@@ -13,7 +13,8 @@ export class Grid {
   public readonly cellSize: number;
   private readonly graphics: Phaser.GameObjects.Graphics;
   private gridDebug: boolean = true;
-  private sceneDebug: boolean = false;
+  private showOccupants: boolean = false;
+  private readonly sceneDebug: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
 
@@ -63,10 +64,10 @@ export class Grid {
       this.render();
     });
 
-    // Toggle scene debug with C
+    // Toggle occupant highlighting with C
     const keyC = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.C);
     keyC?.on("down", () => {
-      this.sceneDebug = !this.sceneDebug;
+      this.showOccupants = !this.showOccupants;
       this.render();
     });
   }
@@ -121,6 +122,14 @@ export class Grid {
     return cell ? cell.occupants : new Set();
   }
 
+  clearAllOccupants(): void {
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        this.cells[row][col].occupants.clear();
+      }
+    }
+  }
+
   /**
    * Render grid lines for debugging
    */
@@ -169,7 +178,7 @@ export class Grid {
         }
 
         // Occupied cells in green (overlay on top)
-        if (cell.occupants.size > 0) {
+        if (this.showOccupants && cell.occupants.size > 0) {
           this.graphics.fillStyle(0x00ff00, 0.3);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }

@@ -5,11 +5,14 @@ import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 import { KnockbackComponent } from '../ecs/components/KnockbackComponent';
 
+// Hit state configuration
+const HIT_DURATION = 1000; // milliseconds
+const HIT_FLASH_INTERVAL = 100; // milliseconds
+const HIT_TINT_COLOR = 0xff0000; // red
+
 export class RobotHitState implements IState {
   private readonly entity: Entity;
-  private readonly hitDuration: number = 1000; // 1 second (reduced from 2)
   private elapsed: number = 0;
-  private readonly flashInterval: number = 100; // Flash every 100ms
   private flashTimer: number = 0;
   private isRed: boolean = false;
 
@@ -24,7 +27,7 @@ export class RobotHitState implements IState {
 
     const sprite = this.entity.get(SpriteComponent);
     if (sprite) {
-      sprite.sprite.setTint(0xff0000); // Red tint
+      sprite.sprite.setTint(HIT_TINT_COLOR);
       this.isRed = true;
     }
   }
@@ -48,11 +51,11 @@ export class RobotHitState implements IState {
     if (!stateMachine || !sprite) return;
 
     // Flash red
-    if (this.flashTimer >= this.flashInterval) {
+    if (this.flashTimer >= HIT_FLASH_INTERVAL) {
       this.flashTimer = 0;
       this.isRed = !this.isRed;
       if (this.isRed) {
-        sprite.sprite.setTint(0xff0000);
+        sprite.sprite.setTint(HIT_TINT_COLOR);
       } else {
         sprite.sprite.clearTint();
       }
@@ -69,8 +72,8 @@ export class RobotHitState implements IState {
       return;
     }
 
-    // After 2 seconds, return to stalking
-    if (this.elapsed >= this.hitDuration) {
+    // After hit duration, return to stalking
+    if (this.elapsed >= HIT_DURATION) {
       stateMachine.stateMachine.enter('stalking');
     }
   }

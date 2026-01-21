@@ -1,6 +1,7 @@
-import type { IState } from '../utils/state/IState';
 import { EditorState } from './EditorState';
 import type EditorScene from '../EditorScene';
+import type { Entity } from '../ecs/Entity';
+import { TransformComponent } from '../ecs/components/TransformComponent';
 
 export class DefaultEditorState extends EditorState {
   private saveButton!: Phaser.GameObjects.Text;
@@ -12,13 +13,16 @@ export class DefaultEditorState extends EditorState {
     super(scene);
   }
 
-  onEnter(_prevState?: IState): void {
+  onEnter(): void {
     
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;
     const buttonSpacing = 120;
     const centerX = width / 2;
+
+    // Setup click handler for robot selection
+    this.scene.input.on('pointerdown', this.handleClick, this);
 
     // Save button
     this.saveButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY, 'Save', {
@@ -78,31 +82,8 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterGridMode();
     });
 
-    // Move button
-    const moveButton = this.scene.add.text(centerX + buttonSpacing, buttonY, 'Move', {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#333333',
-      padding: { x: 20, y: 10 }
-    });
-    moveButton.setOrigin(0.5);
-    moveButton.setScrollFactor(0);
-    moveButton.setInteractive({ useHandCursor: true });
-    moveButton.setDepth(1000);
-    this.buttons.push(moveButton);
-
-    moveButton.on('pointerover', () => {
-      moveButton.setBackgroundColor('#555555');
-    });
-    moveButton.on('pointerout', () => {
-      moveButton.setBackgroundColor('#333333');
-    });
-    moveButton.on('pointerdown', () => {
-      this.scene.enterMoveMode();
-    });
-
     // Resize button
-    const resizeButton = this.scene.add.text(centerX + buttonSpacing * 2, buttonY, 'Resize', {
+    const resizeButton = this.scene.add.text(centerX + buttonSpacing, buttonY, 'Resize', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -123,9 +104,33 @@ export class DefaultEditorState extends EditorState {
     resizeButton.on('pointerdown', () => {
       this.scene.enterResizeMode();
     });
+
+    // Log button
+    const logButton = this.scene.add.text(centerX + buttonSpacing * 2, buttonY, 'Log', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    logButton.setOrigin(0.5);
+    logButton.setScrollFactor(0);
+    logButton.setInteractive({ useHandCursor: true });
+    logButton.setDepth(1000);
+    this.buttons.push(logButton);
+
+    logButton.on('pointerover', () => {
+      logButton.setBackgroundColor('#555555');
+    });
+    logButton.on('pointerout', () => {
+      logButton.setBackgroundColor('#333333');
+    });
+    logButton.on('pointerdown', () => {
+      this.scene.logLevel();
+    });
   }
 
-  onExit(_nextState?: IState): void {
+  onExit(): void {
+    this.scene.input.off('pointerdown', this.handleClick, this);
     this.buttons.forEach(btn => btn.destroy());
     this.buttons = [];
   }
@@ -152,6 +157,47 @@ export class DefaultEditorState extends EditorState {
       this.saveButton.setColor('#666666');
       this.saveButton.setBackgroundColor('#222222');
       this.saveButton.disableInteractive();
+    }
+  }
+
+  private handleClick(): void {
+    const pointer = this.scene.input.activePointer;
+    
+    // Get world coordinates from GameScene camera
+    const gameScene = this.scene.scene.get('game') as Phaser.Scene & { 
+      entityManager: { getByType: (type: string) => Entity[] };
+      cameras: { main: Phaser.Cameras.Scene2D.Camera };
+      getPlayerEntity: () => Entity | null;
+    };
+    
+    const worldX = pointer.x + gameScene.cameras.main.scrollX;
+    const worldY = pointer.y + gameScene.cameras.main.scrollY;
+
+    // Check for player click
+    const player = gameScene.getPlayerEntity();
+    if (player) {
+      const transform = player.get(TransformComponent);
+      if (transform) {
+        const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+        if (distance < 64) {
+          this.scene.enterMoveMode(player);
+          return;
+        }
+      }
+    }
+
+    // Check for robot click
+    const robots = gameScene.entityManager.getByType('stalking_robot');
+
+    for (const robot of robots) {
+      const transform = robot.get(TransformComponent);
+      if (!transform) continue;
+
+      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+      if (distance < 64) { // Click radius
+        this.scene.enterEditRobotMode(robot);
+        return;
+      }
     }
   }
 }

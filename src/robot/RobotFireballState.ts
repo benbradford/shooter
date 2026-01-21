@@ -5,14 +5,16 @@ import { TransformComponent } from '../ecs/components/TransformComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 
+// Fireball state configuration
+const FIREBALL_ANIMATION_SPEED = 100; // milliseconds per frame
+const FIREBALL_TOTAL_FRAMES = 6;
+
 export class RobotFireballState implements IState {
-  private entity: Entity;
-  private playerEntity: Entity;
+  private readonly entity: Entity;
+  private readonly playerEntity: Entity;
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
-  private animationSpeed: number = 80; // ms per frame
   private animationTimer: number = 0;
-  private totalFrames: number = 6;
 
   constructor(entity: Entity, playerEntity: Entity) {
     this.entity = entity;
@@ -47,11 +49,11 @@ export class RobotFireballState implements IState {
     if (!stateMachine || !sprite) return;
 
     // Animate fireball
-    if (this.animationTimer >= this.animationSpeed) {
+    if (this.animationTimer >= FIREBALL_ANIMATION_SPEED) {
       this.animationTimer = 0;
       this.animationFrame++;
 
-      if (this.animationFrame >= this.totalFrames) {
+      if (this.animationFrame >= FIREBALL_TOTAL_FRAMES) {
         // Animation complete, return to stalking
         stateMachine.stateMachine.enter('stalking');
         return;

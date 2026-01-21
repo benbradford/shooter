@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 9,
-    "y": 9
+    "x": 8,
+    "y": 6
   },
   "cells": [
     {
@@ -1644,18 +1644,26 @@
   ],
   "robots": [
     {
-      "col": 12,
+      "col": 10,
       "row": 9,
-      "health": 100,
-      "speed": 100,
+      "health": 30,
+      "speed": 70,
       "waypoints": [
         {
-          "col": 12,
+          "col": 10,
           "row": 9
         },
         {
-          "col": 15,
+          "col": 14,
           "row": 9
+        },
+        {
+          "col": 14,
+          "row": 13
+        },
+        {
+          "col": 10,
+          "row": 13
         }
       ]
     }

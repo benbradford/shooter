@@ -9,10 +9,13 @@ import { LineOfSightComponent } from '../ecs/components/LineOfSightComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 
+// Patrol state configuration
+const WAYPOINT_REACHED_DISTANCE = 5;
+
 export class RobotPatrolState implements IState {
-  private entity: Entity;
-  private grid: Grid;
-  private playerEntity: Entity;
+  private readonly entity: Entity;
+  private readonly grid: Grid;
+  private readonly playerEntity: Entity;
 
   constructor(entity: Entity, grid: Grid, playerEntity: Entity) {
     this.entity = entity;
@@ -38,12 +41,6 @@ export class RobotPatrolState implements IState {
 
     if (!patrol || !transform || !gridPos || !los || !stateMachine || !sprite) return;
 
-    // Check line of sight to player
-    if (los.canSeeTarget(this.entity, this.playerEntity)) {
-      stateMachine.stateMachine.enter('alert');
-      return;
-    }
-
     // Get current waypoint
     const waypoint = patrol.getCurrentWaypoint();
     const targetX = waypoint.col * this.grid.cellSize + this.grid.cellSize / 2;
@@ -52,10 +49,10 @@ export class RobotPatrolState implements IState {
     // Calculate direction to waypoint
     const dx = targetX - transform.x;
     const dy = targetY - transform.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.hypot(dx, dy);
 
     // Reached waypoint?
-    if (distance < 5) {
+    if (distance < WAYPOINT_REACHED_DISTANCE) {
       patrol.nextWaypoint();
       return;
     }
@@ -72,6 +69,15 @@ export class RobotPatrolState implements IState {
     const direction = dirFromDelta(dirX, dirY);
     const frameIndex = this.getIdleFrameForDirection(direction);
     sprite.sprite.setFrame(frameIndex);
+
+    // Update line of sight facing angle
+    los.facingAngle = Math.atan2(dirY, dirX);
+
+    // Check line of sight to player
+    if (los.canSeeTarget(this.entity, this.playerEntity)) {
+      stateMachine.stateMachine.enter('alert');
+      return;
+    }
   }
 
   private getIdleFrameForDirection(direction: Direction): number {

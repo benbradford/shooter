@@ -43,6 +43,10 @@ export class EntityManager {
     this.entities = [];
   }
 
+  getAll(): Entity[] {
+    return [...this.entities];
+  }
+
   get count(): number {
     return this.entities.length;
   }

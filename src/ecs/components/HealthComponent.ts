@@ -3,16 +3,16 @@ import type { Entity } from '../Entity';
 import type { HudBarDataSource } from './HudBarComponent';
 
 export interface HealthProps {
-  maxHealth?: number;
+  maxHealth: number;
 }
 
 export class HealthComponent implements Component, HudBarDataSource {
   entity!: Entity;
   private currentHealth: number;
-  private readonly maxHealth: number;
+  private maxHealth: number;
 
-  constructor(props: HealthProps = {}) {
-    this.maxHealth = props.maxHealth ?? 100;
+  constructor(props: HealthProps) {
+    this.maxHealth = props.maxHealth;
     this.currentHealth = this.maxHealth;
   }
 
@@ -22,6 +22,11 @@ export class HealthComponent implements Component, HudBarDataSource {
 
   getMaxHealth(): number {
     return this.maxHealth;
+  }
+
+  setMaxHealth(value: number): void {
+    this.maxHealth = value;
+    this.currentHealth = Math.min(this.currentHealth, this.maxHealth);
   }
 
   getRatio(): number {
@@ -34,6 +39,11 @@ export class HealthComponent implements Component, HudBarDataSource {
 
   heal(amount: number): void {
     this.currentHealth = Math.min(this.maxHealth, this.currentHealth + amount);
+  }
+
+  setHealth(value: number): void {
+    this.currentHealth = Math.max(0, value);
+    this.maxHealth = Math.max(this.maxHealth, this.currentHealth);
   }
 
   update(_delta: number): void {

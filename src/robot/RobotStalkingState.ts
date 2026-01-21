@@ -7,15 +7,18 @@ import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
 import { PatrolComponent } from '../ecs/components/PatrolComponent';
 
+// Stalking state configuration
+const MIN_STALK_TIME = 2000; // milliseconds before can attack
+const ATTACK_RANGE = 500; // pixels
+const STALKING_SPEED_MULTIPLIER = 1.3;
+const ANIMATION_SPEED = 100; // milliseconds per frame
+
 export class RobotStalkingState implements IState {
-  private entity: Entity;
-  private playerEntity: Entity;
+  private readonly entity: Entity;
+  private readonly playerEntity: Entity;
   private stalkingTime: number = 0;
-  private minStalkTime: number = 2000; // 2 seconds
-  private attackRange: number = 300;
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
-  private animationSpeed: number = 100; // ms per frame
   private animationTimer: number = 0;
 
   constructor(entity: Entity, playerEntity: Entity) {
@@ -49,10 +52,10 @@ export class RobotStalkingState implements IState {
     // Calculate direction to player
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.hypot(dx, dy);
 
     // Check if should attack
-    if (distance <= this.attackRange && this.stalkingTime >= this.minStalkTime) {
+    if (distance <= ATTACK_RANGE && this.stalkingTime >= MIN_STALK_TIME) {
       stateMachine.stateMachine.enter('fireball');
       return;
     }
@@ -60,7 +63,7 @@ export class RobotStalkingState implements IState {
     // Move towards player
     const dirX = dx / distance;
     const dirY = dy / distance;
-    const moveSpeed = (patrol as PatrolComponent).speed * 2 * (delta / 1000); // 2x speed when stalking
+    const moveSpeed = (patrol as PatrolComponent).speed * STALKING_SPEED_MULTIPLIER * (delta / 1000);
 
     const newX = transform.x + dirX * moveSpeed;
     const newY = transform.y + dirY * moveSpeed;
@@ -79,7 +82,7 @@ export class RobotStalkingState implements IState {
     this.currentDirection = dirFromDelta(dirX, dirY);
 
     // Animate walk cycle
-    if (this.animationTimer >= this.animationSpeed) {
+    if (this.animationTimer >= ANIMATION_SPEED) {
       this.animationTimer = 0;
       this.animationFrame = (this.animationFrame + 1) % 8;
     }

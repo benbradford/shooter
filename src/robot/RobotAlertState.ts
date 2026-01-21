@@ -6,11 +6,18 @@ import { TransformComponent } from '../ecs/components/TransformComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 
+// Alert state configuration
+const ALERT_DURATION = 1000; // milliseconds
+const EXCLAMATION_OFFSET_Y = -120; // pixels above robot
+const EXCLAMATION_RISE_Y = -140; // final Y position
+const EXCLAMATION_SCALE = 4;
+const EXCLAMATION_DEPTH = 3;
+const EXCLAMATION_ANIMATION_DURATION = 300; // milliseconds
+
 export class RobotAlertState implements IState {
-  private entity: Entity;
-  private playerEntity: Entity;
-  private scene: Phaser.Scene;
-  private alertDuration: number = 1000; // 1 second
+  private readonly entity: Entity;
+  private readonly playerEntity: Entity;
+  private readonly scene: Phaser.Scene;
   private elapsed: number = 0;
   private exclamationSprite: Phaser.GameObjects.Sprite | null = null;
 
@@ -39,19 +46,19 @@ export class RobotAlertState implements IState {
     // Create exclamation sprite above robot
     this.exclamationSprite = this.scene.add.sprite(
       transform.x,
-      transform.y - 120, // Higher above robot head
+      transform.y + EXCLAMATION_OFFSET_Y,
       'exclamation'
     );
-    this.exclamationSprite.setScale(4); // 4x scale
-    this.exclamationSprite.setDepth(3); // Above robot
+    this.exclamationSprite.setScale(EXCLAMATION_SCALE);
+    this.exclamationSprite.setDepth(EXCLAMATION_DEPTH);
     this.exclamationSprite.setAlpha(0);
 
     // Animate exclamation rising
     this.scene.tweens.add({
       targets: this.exclamationSprite,
-      y: transform.y - 140,
+      y: transform.y + EXCLAMATION_RISE_Y,
       alpha: 1,
-      duration: 300,
+      duration: EXCLAMATION_ANIMATION_DURATION,
       ease: 'Back.easeOut',
     });
   }
@@ -73,12 +80,12 @@ export class RobotAlertState implements IState {
     if (this.exclamationSprite) {
       const transform = this.entity.get(TransformComponent);
       if (transform) {
-        this.exclamationSprite.setPosition(transform.x, transform.y - 140);
+        this.exclamationSprite.setPosition(transform.x, transform.y + EXCLAMATION_RISE_Y);
       }
     }
 
-    // After 1 second, transition to stalking
-    if (this.elapsed >= this.alertDuration) {
+    // After alert duration, transition to stalking
+    if (this.elapsed >= ALERT_DURATION) {
       stateMachine.stateMachine.enter('stalking');
     }
   }

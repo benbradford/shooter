@@ -22,6 +22,23 @@ import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import type { Grid } from '../utils/Grid';
 
+// Player configuration constants
+const PLAYER_SCALE = 2;
+const PLAYER_SPRITE_FRAME = 0; // Down idle
+const PLAYER_HITBOX = { offsetX: 0, offsetY: 32, width: 36, height: 32 };
+const PLAYER_WALK_SPEED = 500;
+const PLAYER_ACCELERATION_TIME = 800;
+const PLAYER_DECELERATION_TIME = 100;
+const PLAYER_STOP_THRESHOLD = 120;
+const PLAYER_MAX_HEALTH = 100;
+const PLAYER_MAX_AMMO = 20;
+const PLAYER_AMMO_REFILL_RATE = 12;
+const PLAYER_AMMO_REFILL_DELAY = 1000;
+const PLAYER_AMMO_OVERHEATED_DELAY = 4000;
+const PLAYER_FIRE_COOLDOWN = 200;
+const PLAYER_HEALTH_BAR_OFFSET_Y = 70;
+const PLAYER_AMMO_BAR_OFFSET_Y = 90;
+
 export function createPlayerEntity(
   scene: Phaser.Scene,
   x: number,
@@ -34,11 +51,11 @@ export function createPlayerEntity(
   const entity = new Entity('player');
 
   // Transform
-  const transform = entity.add(new TransformComponent(x, y, 0, 2));
+  const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
 
-  // Sprite - use frame 0 (down idle) from sprite sheet
+  // Sprite
   const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
-  sprite.sprite.setFrame(0);
+  sprite.sprite.setFrame(PLAYER_SPRITE_FRAME);
 
   // Animation System - map directions to sprite sheet rows
   // Sprite sheet layout: 4 cols (idle, walk1, walk2, walk3) x 8 rows (8 directions)
@@ -77,38 +94,34 @@ export function createPlayerEntity(
 
   // Walk
   entity.add(new WalkComponent(transform, input, {
-    speed: 500,
-    accelerationTime: 600,
-    decelerationTime: 200,
-    stopThreshold: 120
+    speed: PLAYER_WALK_SPEED,
+    accelerationTime: PLAYER_ACCELERATION_TIME,
+    decelerationTime: PLAYER_DECELERATION_TIME,
+    stopThreshold: PLAYER_STOP_THRESHOLD
   }));
 
-  // Grid Position - collision box at bottom quarter of sprite
+  // Grid Position
   const startCell = grid.worldToCell(x, y);
-  entity.add(new GridPositionComponent(
-    startCell.col,
-    startCell.row,
-    { offsetX: 0, offsetY: 32, width: 36, height: 32 }
-  ));
+  entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_HITBOX));
 
   // Grid Collision
   entity.add(new GridCollisionComponent(grid));
 
   // Health System
-  const health = entity.add(new HealthComponent());
+  const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH }));
 
   // Ammo System
   const ammo = entity.add(new AmmoComponent({
-    maxAmmo: 20,
-    refillRate: 12,
-    refillDelay: 1000,
-    overheatedRefillDelay: 4000
+    maxAmmo: PLAYER_MAX_AMMO,
+    refillRate: PLAYER_AMMO_REFILL_RATE,
+    refillDelay: PLAYER_AMMO_REFILL_DELAY,
+    overheatedRefillDelay: PLAYER_AMMO_OVERHEATED_DELAY
   }));
 
   // HUD Bars (both health and ammo)
   const hudBars = entity.add(new HudBarComponent(scene, [
-    { dataSource: health, offsetY: 70, fillColor: 0x00ff00 }, // Green health bar
-    { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },   // Blue ammo bar
+    { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y, fillColor: 0x00ff00 },
+    { dataSource: ammo, offsetY: PLAYER_AMMO_BAR_OFFSET_Y, fillColor: 0x0000ff },
   ]));
   hudBars.init();
 
@@ -129,7 +142,7 @@ export function createPlayerEntity(
     onFire,
     offsets: emitterOffsets,
     shouldFire: () => input.isFirePressed(),
-    cooldown: 200,
+    cooldown: PLAYER_FIRE_COOLDOWN,
     onShellEject,
     ammoComponent: ammo
   }));

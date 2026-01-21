@@ -18,6 +18,15 @@ import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
 import type { Grid } from '../utils/Grid';
 
+// Robot configuration constants
+const ROBOT_SCALE = 3;
+const ROBOT_SPRITE_FRAME = 0; // South idle
+const ROBOT_HITBOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
+const ROBOT_LINE_OF_SIGHT_RANGE = 800;
+const ROBOT_FIELD_OF_VIEW = Math.PI * 0.75;
+const ROBOT_KNOCKBACK_FRICTION = 8;
+const ROBOT_KNOCKBACK_DURATION = 500; // milliseconds
+
 export function createStalkingRobotEntity(
   scene: Phaser.Scene,
   x: number,
@@ -25,25 +34,21 @@ export function createStalkingRobotEntity(
   grid: Grid,
   playerEntity: Entity,
   waypoints: PatrolWaypoint[],
-  health: number = 100,
-  speed: number = 100
+  health: number,
+  speed: number
 ): Entity {
   const entity = new Entity('stalking_robot');
 
-  // Transform - 4x scale for robots (larger than player)
-  const transform = entity.add(new TransformComponent(x, y, 0, 3));
+  // Transform
+  const transform = entity.add(new TransformComponent(x, y, 0, ROBOT_SCALE));
 
-  // Sprite - use frame 0 (south idle) from sprite sheet
+  // Sprite
   const sprite = entity.add(new SpriteComponent(scene, 'floating_robot', transform));
-  sprite.sprite.setFrame(0);
+  sprite.sprite.setFrame(ROBOT_SPRITE_FRAME);
 
   // Grid position
   const startCell = grid.worldToCell(x, y);
-  entity.add(new GridPositionComponent(
-    startCell.col,
-    startCell.row,
-    { offsetX: 0, offsetY: 16, width: 32, height: 16 }
-  ));
+  entity.add(new GridPositionComponent(startCell.col, startCell.row, ROBOT_HITBOX));
 
   // Grid collision - check layers 1 and 2 (same as player)
   entity.add(new GridCollisionComponent(grid));
@@ -55,10 +60,14 @@ export function createStalkingRobotEntity(
   entity.add(new PatrolComponent(waypoints, speed));
 
   // Line of sight
-  entity.add(new LineOfSightComponent(500)); // 500 pixel range
+  entity.add(new LineOfSightComponent({
+    range: ROBOT_LINE_OF_SIGHT_RANGE,
+    grid,
+    fieldOfView: ROBOT_FIELD_OF_VIEW
+  }));
 
   // Knockback
-  entity.add(new KnockbackComponent(5, 2000)); // friction=5, duration=2s
+  entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION));
 
   // State machine
   const stateMachine = new StateMachine(

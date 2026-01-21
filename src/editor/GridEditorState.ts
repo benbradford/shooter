@@ -1,4 +1,3 @@
-import type { IState } from '../utils/state/IState';
 import { EditorState } from './EditorState';
 import type EditorScene from '../EditorScene';
 import type GameScene from '../GameScene';
@@ -22,7 +21,7 @@ export class GridEditorState extends EditorState {
     };
   }
 
-  onEnter(_prevState?: IState): void {
+  onEnter(): void {
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;
     const buttonSpacing = 100;
@@ -75,7 +74,7 @@ export class GridEditorState extends EditorState {
     });
   }
 
-  onExit(_nextState?: IState): void {
+  onExit(): void {
     this.buttons.forEach(btn => btn.destroy());
     this.buttons = [];
     this.selectionGraphics.destroy();

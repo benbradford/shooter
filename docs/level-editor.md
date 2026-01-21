@@ -1,10 +1,11 @@
 # Level Editor
 
-The level editor allows you to pause the game, navigate the map, and edit grid cells.
+The level editor allows you to pause the game, navigate the map, and edit grid cells and entities.
 
 ## Usage
 
 **Press 'E'** to enter editor mode:
+- Game resets to initial state (all entities at starting positions)
 - Game pauses (stops updating but keeps rendering)
 - Editor overlay appears with semi-transparent background
 - Changes persist across editor sessions until saved
@@ -15,25 +16,73 @@ The level editor allows you to pause the game, navigate the map, and edit grid c
 - Camera movement is unrestricted (not bounded to level size)
 - Camera stops following player while in editor
 
-## Editor Modes
+## Editor State System
 
-The editor uses a state machine with multiple modes:
+The editor uses a state machine with generic type support. Each state can accept typed data through props:
+
+```typescript
+interface IStateEnterProps<TData> {
+  prevState?: IState<TData>;
+  data?: TData;
+}
+```
+
+States can specify their data type and access it via `props.data` in `onEnter()`.
+
+## Editor Modes
 
 ### Default Mode
 
-The initial mode when entering the editor. Shows five buttons at the bottom:
+The initial mode when entering the editor. Shows buttons at the bottom and allows clicking entities:
 
+**Buttons:**
 - **Save** - Downloads level as JSON and logs to console
   - Greyed out when no changes made
-  - Only enabled when changes have been detected
   - Console shows full JSON for easy copy/paste
-  - Also downloads to ~/Downloads/default.json
-  - Instructions: Copy from console or run `./scripts/update-levels.sh`
+  - Downloads to ~/Downloads/default.json
+  - Run `./scripts/update-levels.sh` to update game
 - **Exit** - Returns to game (also ESC key)
-  - Restores camera bounds and player following
 - **Grid** - Enters grid editing mode
-- **Move** - Enters move mode for repositioning entities
 - **Resize** - Enters resize mode for adding/removing rows/columns
+
+**Entity Interaction:**
+- **Click Player** - Enters Move mode for player
+- **Click Robot** - Enters Edit Robot mode
+
+### Move Mode
+
+Allows dragging entities around the grid. Accepts `MoveEditorStateProps`:
+
+```typescript
+interface MoveEditorStateProps {
+  entity: Entity;           // Entity to move
+  returnState?: string;     // State to return to on Back (default: 'default')
+}
+```
+
+**Usage:**
+- Automatically starts dragging on enter
+- Click and drag to move entity to different cells
+- Release mouse to stop dragging
+- Click again to resume dragging
+- **Back** button returns to specified state (default or editRobot)
+
+**Entry Points:**
+- Click player in Default mode → Move player (returns to default)
+- Click robot in Edit Robot mode → Move robot (returns to editRobot)
+
+### Edit Robot Mode
+
+Edit robot properties (health, speed). Accepts `Entity | undefined`:
+
+**UI Panel (right side):**
+- Shows current health and speed values
+- **+10 / -10** buttons to adjust health (range: 1-1000)
+- **+10 / -10** buttons to adjust speed (range: 10-500)
+- **Back** button returns to Default mode
+
+**Interaction:**
+- Click robot again while selected → Enters Move mode for that robot
 
 ### Grid Mode
 

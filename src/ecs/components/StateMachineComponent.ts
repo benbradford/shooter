@@ -11,5 +11,11 @@ export class StateMachineComponent implements Component {
     this.stateMachine.update(delta);
   }
 
-  onDestroy(): void {}
+  onDestroy(): void {
+    // Exit current state to clean up (e.g., destroy exclamation sprites)
+    const currentState = this.stateMachine['currentState'];
+    if (currentState) {
+      currentState.onExit();
+    }
+  }
 }

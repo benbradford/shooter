@@ -4,13 +4,15 @@ import { Direction } from '../constants/Direction';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import type Phaser from 'phaser';
 
+// Death state configuration
+const DEATH_ANIMATION_SPEED = 100; // milliseconds per frame
+const DEATH_TOTAL_FRAMES = 7;
+
 export class RobotDeathState implements IState {
-  private entity: Entity;
-  private currentDirection: Direction = Direction.Down;
+  private readonly entity: Entity;
+  private readonly currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
-  private animationSpeed: number = 100; // ms per frame
   private animationTimer: number = 0;
-  private totalFrames: number = 7;
   private animationComplete: boolean = false;
   private scene!: Phaser.Scene;
 
@@ -33,7 +35,7 @@ export class RobotDeathState implements IState {
       this.scene.tweens.add({
         targets: sprite.sprite,
         alpha: 0,
-        duration: this.animationSpeed * this.totalFrames,
+        duration: DEATH_ANIMATION_SPEED * DEATH_TOTAL_FRAMES,
         ease: 'Linear',
       });
     }
@@ -52,11 +54,11 @@ export class RobotDeathState implements IState {
     if (!sprite) return;
 
     // Animate death
-    if (this.animationTimer >= this.animationSpeed) {
+    if (this.animationTimer >= DEATH_ANIMATION_SPEED) {
       this.animationTimer = 0;
       this.animationFrame++;
 
-      if (this.animationFrame >= this.totalFrames) {
+      if (this.animationFrame >= DEATH_TOTAL_FRAMES) {
         // Animation complete, mark for removal
         this.animationComplete = true;
         this.entity.markForRemoval();

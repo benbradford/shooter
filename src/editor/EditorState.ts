@@ -1,11 +1,11 @@
-import type { IState } from '../utils/state/IState';
+import type { IState, IStateEnterProps } from '../utils/state/IState';
 import type EditorScene from '../EditorScene';
 
-export abstract class EditorState implements IState {
+export abstract class EditorState<TData = void> implements IState<TData> {
   constructor(protected readonly scene: EditorScene) {}
 
-  abstract onEnter(prevState?: IState): void;
-  abstract onExit(nextState?: IState): void;
+  abstract onEnter(props?: IStateEnterProps<TData>): void;
+  abstract onExit(nextState?: IState<TData>): void;
   abstract onUpdate(delta: number): void;
 
   protected createBackButton(): Phaser.GameObjects.Text {

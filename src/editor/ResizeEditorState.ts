@@ -1,4 +1,3 @@
-import type { IState } from '../utils/state/IState';
 import { EditorState } from './EditorState';
 import type EditorScene from '../EditorScene';
 import type GameScene from '../GameScene';
@@ -14,7 +13,7 @@ export class ResizeEditorState extends EditorState {
     super(scene);
   }
 
-  onEnter(_prevState?: IState): void {
+  onEnter(): void {
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;
@@ -60,7 +59,7 @@ export class ResizeEditorState extends EditorState {
     this.scene.input.on('pointerdown', this.handleSelection, this);
   }
 
-  onExit(_nextState?: IState): void {
+  onExit(): void {
     this.buttons.forEach(btn => btn.destroy());
     this.buttons = [];
     this.sizeText.destroy();

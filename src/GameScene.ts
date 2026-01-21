@@ -3,6 +3,7 @@ import { Grid } from "./utils/Grid";
 import { LevelLoader } from "./level/LevelLoader";
 import type { LevelData } from "./level/LevelLoader";
 import { EntityManager } from "./ecs/EntityManager";
+import { Entity } from "./ecs/Entity";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
@@ -40,6 +41,20 @@ export default class GameScene extends Phaser.Scene {
 
     // Load level data
     this.levelData = await LevelLoader.load('default');
+
+    // Initialize the scene
+    this.initializeScene();
+
+    // Editor mode toggle
+    this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.editorKey.on('down', () => {
+      if (this.scene.isActive()) {
+        this.enterEditorMode();
+      }
+    });
+  }
+
+  private initializeScene(): void {
     const level = this.levelData;
 
     // Initialize grid
@@ -54,6 +69,43 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.grid.render();
+
+    // Camera setup
+    this.cameras.main.setBounds(
+      0,
+      0,
+      level.width * this.grid.cellSize,
+      level.height * this.grid.cellSize
+    );
+
+    // Spawn all entities
+    this.spawnEntities();
+  }
+
+  private async enterEditorMode(): Promise<void> {
+    // Reset the scene to initial state
+    this.resetScene();
+
+    // Pause this scene (stops updates but keeps rendering)
+    this.scene.pause();
+
+    // Launch editor scene on top
+    this.scene.launch('EditorScene');
+  }
+
+  private resetScene(): void {
+    // Destroy grid (clears occupants and graphics)
+    this.grid.destroy();
+
+    // Destroy all entities
+    this.entityManager.destroyAll();
+
+    // Reinitialize everything
+    this.initializeScene();
+  }
+
+  private spawnEntities(): void {
+    const level = this.levelData;
 
     // Create joystick entity
     const joystick = this.entityManager.add(createJoystickEntity(this));
@@ -81,26 +133,16 @@ export default class GameScene extends Phaser.Scene {
       joystick
     ));
 
-    // Camera setup - follow the player's sprite
+    // Camera follow player's sprite
     const spriteComp = player.get(SpriteComponent)!;
-    this.cameras.main.setBounds(
-      0,
-      0,
-      level.width * this.grid.cellSize,
-      level.height * this.grid.cellSize
-    );
-    // Snap camera to player immediately
     this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
     this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
 
     // Spawn robots from level data
     if (level.robots && level.robots.length > 0) {
-      console.log('Spawning robots:', level.robots.length);
       for (const robotData of level.robots) {
         const x = robotData.col * this.grid.cellSize + this.grid.cellSize / 2;
         const y = robotData.row * this.grid.cellSize + this.grid.cellSize / 2;
-        
-        console.log('Spawning robot at col:', robotData.col, 'row:', robotData.row, 'world:', x, y);
         
         const robot = createStalkingRobotEntity(
           this,
@@ -114,25 +156,7 @@ export default class GameScene extends Phaser.Scene {
         );
         this.entityManager.add(robot);
       }
-    } else {
-      console.log('No robots in level data');
     }
-
-    // Editor mode toggle
-    this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-    this.editorKey.on('down', () => {
-      if (this.scene.isActive()) {
-        this.enterEditorMode();
-      }
-    });
-  }
-
-  private async enterEditorMode(): Promise<void> {
-    // Pause this scene (stops updates but keeps rendering)
-    this.scene.pause();
-
-    // Launch editor scene on top (don't reload - keep current state)
-    this.scene.launch('EditorScene');
   }
 
   update(_time: number, delta: number): void {
@@ -173,50 +197,56 @@ export default class GameScene extends Phaser.Scene {
       if (!bulletTransform || !bulletSprite) continue;
 
       for (const robot of robots) {
-        if (robot.markedForRemoval) continue;
-
-        const robotTransform = robot.get(TransformComponent);
-        const robotSprite = robot.get(SpriteComponent);
-        const robotHealth = robot.get(HealthComponent);
-        const robotKnockback = robot.get(KnockbackComponent);
-        const robotStateMachine = robot.get(StateMachineComponent);
-
-        if (!robotTransform || !robotSprite || !robotHealth || !robotKnockback || !robotStateMachine) continue;
-
-        // Check collision (simple distance check)
-        const dx = bulletTransform.x - robotTransform.x;
-        const dy = bulletTransform.y - robotTransform.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 30) { // Hit radius
-          // Damage robot
-          robotHealth.takeDamage(10);
-
-          // Apply knockback
-          const bulletProjectile = bullet.get(ProjectileComponent);
-          if (bulletProjectile && robotKnockback) {
-            (robotKnockback as KnockbackComponent).applyKnockback(
-              bulletProjectile.dirX,
-              bulletProjectile.dirY,
-              200
-            );
-          }
-
-          // Transition to hit state
-          robotStateMachine.stateMachine.enter('hit');
-
-          // Transition to alert state if patrolling
-          const currentState = robotStateMachine.stateMachine.getCurrentKey();
-          if (currentState === 'patrol') {
-            robotStateMachine.stateMachine.enter('alert');
-          }
-
-          // Remove bullet
-          bullet.markForRemoval();
+        if (this.checkBulletHitRobot(bullet, bulletTransform, robot)) {
           break;
         }
       }
     }
+  }
+
+  private checkBulletHitRobot(bullet: Entity, bulletTransform: TransformComponent, robot: Entity): boolean {
+    if (robot.markedForRemoval) return false;
+
+    const robotTransform = robot.get(TransformComponent);
+    const robotSprite = robot.get(SpriteComponent);
+    const robotHealth = robot.get(HealthComponent);
+    const robotKnockback = robot.get(KnockbackComponent);
+    const robotStateMachine = robot.get(StateMachineComponent);
+
+    if (!robotTransform || !robotSprite || !robotHealth || !robotKnockback || !robotStateMachine) return false;
+
+    // Check collision
+    const dx = bulletTransform.x - robotTransform.x;
+    const dy = bulletTransform.y - robotTransform.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance >= 30) return false;
+
+    // Damage robot
+    robotHealth.takeDamage(10);
+
+    // Apply knockback
+    const bulletProjectile = bullet.get(ProjectileComponent);
+    if (bulletProjectile && robotKnockback) {
+      (robotKnockback as KnockbackComponent).applyKnockback(
+        bulletProjectile.dirX,
+        bulletProjectile.dirY,
+        200
+      );
+    }
+
+    // Transition to hit state
+    robotStateMachine.stateMachine.enter('hit');
+
+    // Transition to alert state if patrolling
+    const currentState = robotStateMachine.stateMachine.getCurrentKey();
+    if (currentState === 'patrol') {
+      robotStateMachine.stateMachine.enter('alert');
+    }
+
+    // Remove bullet
+    bullet.markForRemoval();
+    return true;
   }
 
   getGrid(): Grid {
@@ -230,6 +260,14 @@ export default class GameScene extends Phaser.Scene {
       return sprite ? sprite.sprite : null;
     }
     return null;
+  }
+
+  getPlayerEntity(): Entity | null {
+    return this.entityManager.getFirst('player') || null;
+  }
+
+  getEntities(): Entity[] {
+    return this.entityManager.getAll();
   }
 
   getPlayerStart(): { x: number; y: number } {

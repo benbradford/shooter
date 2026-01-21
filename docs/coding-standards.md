@@ -111,6 +111,65 @@ for (let i = 0; i < entities.length; i++) {
 
 ## TypeScript Standards
 
+### No Default Parameter Values
+
+**DO ✅**
+```typescript
+// Require all parameters explicitly
+interface HealthProps {
+  maxHealth: number;  // Required, no default
+}
+
+class HealthComponent {
+  constructor(props: HealthProps) {
+    this.maxHealth = props.maxHealth;
+  }
+}
+
+// Usage - explicit at call site
+new HealthComponent({ maxHealth: 100 });
+
+// Defaults at API boundaries only
+function enterMoveMode(entity?: Entity): void {
+  if (!entity) {
+    entity = getDefaultEntity();  // Explicit default at entry point
+  }
+  stateMachine.enter('move', entity);
+}
+```
+
+**DON'T ❌**
+```typescript
+// Don't use default parameter values
+interface HealthProps {
+  maxHealth?: number;  // Optional with implicit default
+}
+
+class HealthComponent {
+  constructor(props: HealthProps = {}) {
+    this.maxHealth = props.maxHealth ?? 100;  // Hidden default
+  }
+}
+
+// Don't use default values in function parameters
+function createEntity(health: number = 100) {  // Hidden default
+  // ...
+}
+
+// Don't use defaults deep in implementation
+class MoveState {
+  onEnter(entity?: Entity) {
+    this.entity = entity ?? getDefaultEntity();  // Hidden default
+  }
+}
+```
+
+**Rationale:**
+- Defaults hide behavior and make code harder to understand
+- Explicit values at call sites make intent clear
+- Defaults at API boundaries (public methods) are acceptable for convenience
+- Internal implementation should be strict and require what it needs
+
 ### Imports
 
 **DO ✅**
@@ -628,6 +687,56 @@ overheatSmoke.init();  // Must call init() after add()
 - Setting up event listeners
 - Accessing other components on the entity
 
+### Configuration Constants
+
+**Always define configuration values as constants at the top of the file.**
+
+**DO ✅**
+```typescript
+// At top of file
+const PLAYER_WALK_SPEED = 500;
+const PLAYER_MAX_HEALTH = 100;
+const PLAYER_FIRE_COOLDOWN = 200;
+const ALERT_DURATION = 1000;
+const EXCLAMATION_OFFSET_Y = -120;
+
+// Use in code
+entity.add(new WalkComponent(transform, input, {
+  speed: PLAYER_WALK_SPEED,
+  // ...
+}));
+
+if (this.elapsed >= ALERT_DURATION) {
+  stateMachine.enter('stalking');
+}
+```
+
+**DON'T ❌**
+```typescript
+// Hardcoded inline values
+entity.add(new WalkComponent(transform, input, {
+  speed: 500,  // What does 500 mean? Hard to find and change
+  // ...
+}));
+
+if (this.elapsed >= 1000) {  // Magic number
+  stateMachine.enter('stalking');
+}
+```
+
+**Benefits:**
+- Easy to find and tweak values
+- Self-documenting code
+- Single source of truth
+- Easier to balance gameplay
+- Clear what values are configurable
+
+**Where to place constants:**
+- Top of file, after imports
+- Use UPPER_SNAKE_CASE for naming
+- Group related constants together
+- Add comments for non-obvious values
+
 ### Circular Hit Detection
 
 For touch/click areas, use circular collision for natural feel:
@@ -667,7 +776,7 @@ Key rules enforced:
 3. **Decouple through callbacks** - make components reusable
 4. **Minimal dependencies** - only depend on what you need
 5. **Type safety** - never use `any`, use specific types
-6. **Named constants** - no magic numbers
+6. **Configuration constants** - define values at top of file, not inline
 7. **Private helpers** - break complex methods into focused functions
 8. **One component type per entity** - enforced at runtime
 9. **Shared UI patterns** - use base class methods (e.g., `createBackButton()`)

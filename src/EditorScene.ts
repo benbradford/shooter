@@ -2,14 +2,19 @@ import Phaser from "phaser";
 import type GameScene from "./GameScene";
 import type { Grid } from "./utils/Grid";
 import type { LevelData } from "./level/LevelLoader";
+import type { Entity } from "./ecs/Entity";
 import { StateMachine } from "./utils/state/StateMachine";
 import { DefaultEditorState } from "./editor/DefaultEditorState";
 import { GridEditorState } from "./editor/GridEditorState";
 import { ResizeEditorState } from "./editor/ResizeEditorState";
-import { MoveEditorState } from "./editor/MoveEditorState";
+import { MoveEditorState, type MoveEditorStateProps } from "./editor/MoveEditorState";
+import { EditRobotEditorState } from "./editor/EditRobotEditorState";
+import { PatrolComponent } from "./ecs/components/PatrolComponent";
+import { SpriteComponent } from "./ecs/components/SpriteComponent";
+import { HealthComponent } from "./ecs/components/HealthComponent";
 
 export default class EditorScene extends Phaser.Scene {
-  private stateMachine!: StateMachine;
+  private stateMachine!: StateMachine<void | Entity | MoveEditorStateProps>;
   private overlay!: Phaser.GameObjects.Rectangle;
   private title!: Phaser.GameObjects.Text;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -86,11 +91,12 @@ export default class EditorScene extends Phaser.Scene {
     });
 
     // Initialize state machine
-    this.stateMachine = new StateMachine({
+    this.stateMachine = new StateMachine<void | Entity | MoveEditorStateProps>({
       default: new DefaultEditorState(this),
       grid: new GridEditorState(this),
       resize: new ResizeEditorState(this),
-      move: new MoveEditorState(this)
+      move: new MoveEditorState(this),
+      editRobot: new EditRobotEditorState(this)
     }, 'default');
 
     // Event listeners
@@ -159,11 +165,40 @@ export default class EditorScene extends Phaser.Scene {
       }
     }
 
+    // Get robot data from entities
+    const robots: Array<{
+      col: number;
+      row: number;
+      health: number;
+      speed: number;
+      waypoints: Array<{ col: number; row: number }>;
+    }> = [];
+
+    const entities = gameScene.getEntities();
+    for (const entity of entities) {
+      const patrol = entity.get(PatrolComponent);
+      if (patrol) {
+        const sprite = entity.get(SpriteComponent);
+        const health = entity.get(HealthComponent);
+        if (sprite && health) {
+          const cell = grid.worldToCell(sprite.sprite.x, sprite.sprite.y);
+          robots.push({
+            col: cell.col,
+            row: cell.row,
+            health: health.getHealth(),
+            speed: patrol.speed,
+            waypoints: [...patrol.waypoints]
+          });
+        }
+      }
+    }
+
     return {
       width: grid.width,
       height: grid.height,
       playerStart: gameScene.getPlayerStart(),
-      cells
+      cells,
+      robots: robots.length > 0 ? robots : undefined
     };
   }
 
@@ -192,6 +227,14 @@ export default class EditorScene extends Phaser.Scene {
     console.log('To update the game, run: ./scripts/update-levels.sh');
   }
 
+  logLevel(): void {
+    const levelData = this.getCurrentLevelData();
+    const json = JSON.stringify(levelData, null, 2);
+    console.log('=== LEVEL JSON ===');
+    console.log(json);
+    console.log('=== END LEVEL JSON ===');
+  }
+
   enterDefaultMode(): void {
     this.stateMachine.enter('default');
   }
@@ -204,8 +247,22 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine.enter('resize');
   }
 
-  enterMoveMode(): void {
-    this.stateMachine.enter('move');
+  enterMoveMode(entity?: Entity, returnState?: string): void {
+    // Default to player if no entity provided
+    if (!entity) {
+      const gameScene = this.scene.get('game') as GameScene;
+      entity = gameScene.getPlayerEntity() || undefined;
+    }
+    
+    if (!entity) {
+      throw new Error('No entity available to move');
+    }
+    
+    this.stateMachine.enter('move', { entity, returnState });
+  }
+
+  enterEditRobotMode(robot?: Entity): void {
+    this.stateMachine.enter('editRobot', robot);
   }
 
   removeRow(row: number): void {
