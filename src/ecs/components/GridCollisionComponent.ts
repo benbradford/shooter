@@ -111,6 +111,12 @@ export class GridCollisionComponent implements Component {
     const transform = this.entity.get(TransformComponent)!;
     const gridPos = this.entity.get(GridPositionComponent)!;
 
+    // Initialize previous position on first update
+    if (this.previousX === 0 && this.previousY === 0) {
+      this.previousX = transform.x;
+      this.previousY = transform.y;
+    }
+
     const newX = transform.x;
     const newY = transform.y;
 

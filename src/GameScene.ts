@@ -51,8 +51,8 @@ export default class GameScene extends Phaser.Scene {
     const joystick = this.entityManager.add(createJoystickEntity(this));
 
     // Create the player entity at level start position
-    const startX = this.cellSize * level.playerStart.x;
-    const startY = this.cellSize * level.playerStart.y;
+    const startX = this.grid.cellSize * level.playerStart.x;
+    const startY = this.grid.cellSize * level.playerStart.y;
     const player = this.entityManager.add(createPlayerEntity(
       this,
       startX,
@@ -78,9 +78,11 @@ export default class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(
       0,
       0,
-      level.width * this.cellSize,
-      level.height * this.cellSize
+      level.width * this.grid.cellSize,
+      level.height * this.grid.cellSize
     );
+    // Snap camera to player immediately
+    this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
     this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
 
     // Editor mode toggle
@@ -141,10 +143,21 @@ export default class GameScene extends Phaser.Scene {
     if (player) {
       const transform = player.get(TransformComponent)!;
       return {
-        x: Math.round(transform.x / this.cellSize),
-        y: Math.round(transform.y / this.cellSize)
+        x: Math.round(transform.x / this.grid.cellSize),
+        y: Math.round(transform.y / this.grid.cellSize)
       };
     }
     return { x: 10, y: 10 }; // Default fallback
+  }
+
+  movePlayer(x: number, y: number): void {
+    const player = this.entityManager.getFirst('player');
+    if (player) {
+      const transform = player.get(TransformComponent)!;
+      const sprite = player.get(SpriteComponent)!;
+      transform.x = x;
+      transform.y = y;
+      sprite.sprite.setPosition(x, y);
+    }
   }
 }

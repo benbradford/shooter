@@ -574,6 +574,36 @@ class JoystickVisualsComponent {
 - Single place to update
 - No confusion about which value is correct
 
+### Shared UI Patterns in Editor
+
+**DO ✅**
+```typescript
+// In EditorState base class
+protected createBackButton(): Phaser.GameObjects.Text {
+  const height = this.scene.cameras.main.height;
+  const backButton = this.scene.add.text(100, height - 50, 'Back', {
+    fontSize: '24px',
+    color: '#ffffff',
+    backgroundColor: '#333333',
+    padding: { x: 20, y: 10 }
+  });
+  // ... setup interactions
+  return backButton;
+}
+
+// In GridEditorState, MoveEditorState, ResizeEditorState
+onEnter(): void {
+  this.backButton = this.createBackButton();  // Consistent position and style
+  // ... other UI
+}
+```
+
+**Benefits:**
+- Consistent positioning (lower-left corner)
+- Consistent styling
+- Single place to update
+- Less code duplication
+
 ### Components with init() Methods
 
 Some components need initialization after being added to an entity:
@@ -640,3 +670,5 @@ Key rules enforced:
 6. **Named constants** - no magic numbers
 7. **Private helpers** - break complex methods into focused functions
 8. **One component type per entity** - enforced at runtime
+9. **Shared UI patterns** - use base class methods (e.g., `createBackButton()`)
+10. **Grid cell size consistency** - always use `this.grid.cellSize`

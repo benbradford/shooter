@@ -1,11 +1,10 @@
 # ECS Architecture Guide
 
-This document explains the Entity-Component-System architecture and how to create new entities.
+This document explains the Entity-Component-System architecture and best practices for creating components.
 
 **Related Docs:**
-- [Coding Standards](./coding-standards.md) - TypeScript and component design principles
+- [Coding Standards](./coding-standards.md) - TypeScript best practices, modern JavaScript standards
 - [Quick Reference](./quick-reference.md) - Common tasks and patterns
-- [Input Systems](./input-systems.md) - Joystick and keyboard controls
 
 ---
 
@@ -24,97 +23,231 @@ This document explains the Entity-Component-System architecture and how to creat
 - **Flexibility**: Add/remove behavior by adding/removing components
 - **Clear dependencies**: Components declare what they need
 
-## Component Library
+## Component Design Principles
 
-### Core Components
+### 1. Think About Reusability First
 
-**TransformComponent** - Position, rotation, scale
+**Before creating a component, ask:**
+- Could this work for player, enemies, NPCs, turrets?
+- What values might vary between different entities?
+- Can I make this generic enough to reuse?
+
+**Example: WalkComponent**
 ```typescript
-new TransformComponent(x, y, rotation, scale)
+// ✅ Good: Works for any entity that moves
+class WalkComponent {
+  constructor(
+    private readonly transform: TransformComponent,
+    private readonly input: InputComponent,
+    props: WalkProps
+  ) {
+    this.speed = props.speed;
+    this.accelerationTime = props.accelerationTime;
+  }
+}
+
+// Usage:
+new WalkComponent(transform, input, { speed: 300 })  // Player
+new WalkComponent(transform, input, { speed: 450 })  // Fast enemy
+new WalkComponent(transform, input, { speed: 150 })  // Slow tank
 ```
 
-**SpriteComponent** - Visual representation
+### 2. Always Use Props for Configuration
+
+**All configurable values must be passed as props - never use defaults.**
+
+**DO ✅**
 ```typescript
-new SpriteComponent(scene, texture, transformComponent)
+export interface MyComponentProps {
+  speed: number;           // Required
+  duration: number;        // Required
+  cooldown: number;        // Required
+}
+
+export class MyComponent implements Component {
+  private readonly speed: number;
+  private readonly duration: number;
+  private readonly cooldown: number;
+  
+  constructor(
+    private readonly dependency: SomeComponent,
+    props: MyComponentProps
+  ) {
+    this.speed = props.speed;
+    this.duration = props.duration;
+    this.cooldown = props.cooldown;
+  }
+}
+
+// Usage: Explicit values
+new MyComponent(dep, { speed: 300, duration: 1000, cooldown: 2000 })
 ```
 
-**AnimationComponent** - Animation system integration
+**DON'T ❌**
 ```typescript
-new AnimationComponent(animationSystem, spriteComponent)
+// No defaults - forces explicit configuration
+export interface MyComponentProps {
+  speed?: number;  // ❌ Optional with default
+}
+
+constructor(props: MyComponentProps = {}) {
+  this.speed = props.speed ?? 300;  // ❌ Hidden default
+}
 ```
 
-### Movement Components
+**Why no defaults?**
+- Makes configuration explicit and visible
+- Prevents confusion about what values are actually used
+- Forces you to think about appropriate values per entity
+- Easier to see differences between entity types
 
-**InputComponent** - Keyboard and joystick input
+### 3. Single Responsibility
+
+Each component should do ONE thing:
+
+**DO ✅**
 ```typescript
-new InputComponent(scene)
-// Methods: getInputDelta(), getRawInputDelta(), isFirePressed()
+// InputComponent - ONLY handles input
+class InputComponent {
+  getInputDelta(): { dx: number; dy: number }
+  isFirePressed(): boolean
+}
+
+// WalkComponent - ONLY handles movement physics
+class WalkComponent {
+  update(delta: number): void  // Movement logic
+  isMoving(): boolean
+}
+
+// GridCollisionComponent - ONLY handles collision
+class GridCollisionComponent {
+  update(delta: number): void  // Collision detection
+}
 ```
 
-**WalkComponent** - Movement physics with momentum
+**DON'T ❌**
 ```typescript
-new WalkComponent(transformComponent, inputComponent)  // Defaults
-new WalkComponent(transformComponent, inputComponent, { speed: 400, accelerationTime: 200 })  // Custom
-// Props: speed, accelerationTime, stopThreshold
-// Properties: lastDir, lastMoveX, lastMoveY
-// Methods: isMoving(), getVelocityMagnitude()
+// Component doing too much
+class PlayerComponent {
+  handleInput()      // Should be InputComponent
+  updateMovement()   // Should be WalkComponent
+  updateAnimation()  // Should be AnimationComponent
+  checkCollision()   // Should be GridCollisionComponent
+}
 ```
 
-### Grid Integration Components
+### 4. Decouple Through Callbacks
 
-**GridPositionComponent** - Tracks entity's cell position and collision box
+Make components reusable by accepting callbacks instead of hardcoding behavior:
+
+**DO ✅**
 ```typescript
-new GridPositionComponent(col, row, collisionBox)
-// collisionBox: { offsetX, offsetY, width, height }
+// Reusable across player, enemies, turrets
+class ProjectileEmitterComponent {
+  constructor(props: {
+    onFire: (x, y, dirX, dirY) => void,
+    shouldFire: () => boolean,  // Callback decides when
+    cooldown: number
+  }) {}
+}
+
+// Player: shouldFire: () => input.isFirePressed()
+// Enemy: shouldFire: () => aiComponent.shouldAttack()
+// Turret: shouldFire: () => playerInRange && hasLineOfSight
 ```
 
-**GridCollisionComponent** - Validates movement, updates grid occupancy
+**DON'T ❌**
 ```typescript
-new GridCollisionComponent(grid)
-// Handles: collision detection, sliding, grid tracking
+// Hardcoded to player input
+class ProjectileEmitterComponent {
+  constructor(scene: Phaser.Scene) {
+    this.fireKey = scene.input.keyboard!.addKey(KeyCodes.SPACE);
+  }
+}
 ```
 
-### State Management
+### 5. Minimal Dependencies
 
-**StateMachineComponent** - Wraps StateMachine for entity states
+Only depend on what you actually need:
+
+**DO ✅**
 ```typescript
-new StateMachineComponent(stateMachine)
+class WalkComponent {
+  constructor(
+    private readonly transform: TransformComponent,
+    private readonly input: InputComponent,
+    props: WalkProps
+  ) {}
+}
 ```
 
-### Gameplay Systems
-
-**AmmoComponent** - Ammo tracking with overheat
+**DON'T ❌**
 ```typescript
-new AmmoComponent()  // Defaults: 20 ammo, 10/s refill, 2s delay
-new AmmoComponent({ maxAmmo: 30, refillRate: 15 })  // Custom
-// Props: maxAmmo, refillRate, refillDelay
-// Methods: canFire(), consumeAmmo(), isGunOverheated()
+class WalkComponent {
+  constructor(private readonly entity: Entity) {}  // Too broad
+  
+  update() {
+    const transform = this.entity.get(TransformComponent)!;  // Reaches in
+    const input = this.entity.get(InputComponent)!;
+  }
+}
 ```
 
-**OverheatSmokeComponent** - Visual feedback for overheated weapon
+### 6. Check for Existing Components First
+
+**Before creating a new component:**
+1. Check if an existing component can be extended
+2. Check if props can make an existing component work
+3. Only create new if truly different behavior needed
+
+**Example:**
 ```typescript
-new OverheatSmokeComponent(scene, ammoComponent, emitterOffsets)
-// Requires init() call after add()
-// Emits smoke particles when ammo reaches 0
-// Stops when fully refilled
+// Don't create FastWalkComponent, SlowWalkComponent, etc.
+// Just use WalkComponent with different props:
+new WalkComponent(transform, input, { speed: 450 })  // Fast
+new WalkComponent(transform, input, { speed: 150 })  // Slow
 ```
 
-**HealthComponent** - Health tracking
-```typescript
-new HealthComponent()  // Default: 100 health
-new HealthComponent({ maxHealth: 200 })  // Boss with 200 health
-// Props: maxHealth
-// Implements HudBarDataSource for health bar display
-```
+## Component Template
 
-**HudBarComponent** - Visual health/ammo bars
+Use this template when creating new components:
+
 ```typescript
-new HudBarComponent(scene, [
-  { dataSource: health, offsetY: 70, fillColor: 0x00ff00 },
-  { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },
-])
-// Requires init() call after add()
-// Supports multiple bars in one component
+import type { Component } from '../Component';
+import type { Entity } from '../Entity';
+
+// 1. Define props interface - all required, no defaults
+export interface MyComponentProps {
+  value1: number;
+  value2: number;
+  callback?: () => void;  // Only callbacks can be optional
+}
+
+// 2. Implement component
+export class MyComponent implements Component {
+  entity!: Entity;
+  private readonly value1: number;
+  private readonly value2: number;
+  private readonly callback?: () => void;
+  
+  constructor(
+    private readonly dependency: SomeComponent,
+    props: MyComponentProps
+  ) {
+    // Store props as readonly properties
+    this.value1 = props.value1;
+    this.value2 = props.value2;
+    this.callback = props.callback;
+  }
+  
+  update(delta: number): void {
+    // Component logic
+  }
+  
+  onDestroy(): void {
+    // Cleanup (remove listeners, destroy sprites, etc.)
+  }
+}
 ```
 
 ## Component Update Order
@@ -139,394 +272,123 @@ entity.setUpdateOrder([
 - GridCollision must update before StateMachine (so states see final position)
 - StateMachine must update before Animation (so animation changes apply)
 
-## Creating New Components
+## Entity Design
 
-### Props-Based Design Pattern
+### One Component Type Per Entity
 
-**When creating a new component, always think: "What might vary between different entities?"**
-
-Those values should be passed as props, not hardcoded.
-
-**Example: Creating a DashComponent**
-
+**DO ✅**
 ```typescript
-// 1. Define props interface with optional values
-export interface DashProps {
-  dashSpeed?: number;
-  dashDuration?: number;
-  dashCooldown?: number;
-  dashDistance?: number;
-}
-
-// 2. Use props in constructor with defaults
-export class DashComponent implements Component {
-  entity!: Entity;
-  private readonly dashSpeed: number;
-  private readonly dashDuration: number;
-  private readonly dashCooldown: number;
-  private readonly dashDistance: number;
-  private isDashing: boolean = false;
-  private cooldownRemaining: number = 0;
-
-  constructor(
-    private readonly transformComp: TransformComponent,
-    private readonly inputComp: InputComponent,
-    props: DashProps = {}
-  ) {
-    // Apply defaults using nullish coalescing
-    this.dashSpeed = props.dashSpeed ?? 800;
-    this.dashDuration = props.dashDuration ?? 200;
-    this.dashCooldown = props.dashCooldown ?? 1000;
-    this.dashDistance = props.dashDistance ?? 150;
-  }
-
-  update(delta: number): void {
-    // Component logic...
-  }
-
-  onDestroy(): void {}
-}
-
-// 3. Usage: Easy to customize per entity
-new DashComponent(transform, input)  // Player with defaults
-new DashComponent(transform, input, { dashSpeed: 1200, dashDistance: 250 })  // Fast enemy
-new DashComponent(transform, input, { dashCooldown: 500 })  // Frequent dasher
+entity.add(new HealthComponent());
+entity.add(new AmmoComponent());  // Different types - OK
 ```
 
-**Guidelines:**
-- All configurable values should be in props
-- All props should be optional with sensible defaults
-- Required dependencies (other components, scene) go as regular parameters
-- Use `readonly` for props that don't change after construction
+**DON'T ❌**
+```typescript
+entity.add(new HudBarComponent(health));
+entity.add(new HudBarComponent(ammo));  // ERROR: Duplicate type
+```
+
+**Solution**: Design components to handle multiple instances internally:
+```typescript
+entity.add(new HudBarComponent(scene, [
+  { dataSource: health, offsetY: 70, fillColor: 0x00ff00 },
+  { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },
+]));
+```
+
+### Class-Based Update Order
+
+**DO ✅**
+```typescript
+entity.setUpdateOrder([
+  TransformComponent,
+  SpriteComponent,
+  InputComponent,
+]);
+```
+
+**DON'T ❌**
+```typescript
+// Don't use instances
+entity.setUpdateOrder([
+  transform,
+  sprite,
+  input,
+]);
+```
 
 ## Creating New Entities
 
-### Example: Bullet (Simple Projectile)
+Use factory functions to create entities:
 
-**Requirements**:
-- Moves in a straight line
-- Destroyed on wall collision
-- Doesn't occupy grid cells
-
-**Implementation**:
 ```typescript
-export function createBulletEntity(
+export function createEnemyEntity(
   scene: Phaser.Scene,
   x: number,
   y: number,
-  dirX: number,
-  dirY: number,
   grid: Grid
 ): Entity {
-  const entity = new Entity('bullet');
+  const entity = new Entity('enemy');
   
-  const rotation = Math.atan2(dirY, dirX) + Math.PI / 2;
-  const transform = entity.add(new TransformComponent(x, y, rotation, 1));
-  const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
-  sprite.sprite.setDisplaySize(16, 16);
-  
-  entity.add(new ProjectileComponent({
-    dirX,
-    dirY,
-    speed: 800,
-    maxDistance: 700,
-    grid,
-    blockedByWalls: true
+  // Add components with explicit props
+  const transform = entity.add(new TransformComponent(x, y, 0, 2));
+  const sprite = entity.add(new SpriteComponent(scene, 'enemy', transform));
+  entity.add(new WalkComponent(transform, input, {
+    speed: 200,
+    accelerationTime: 400,
+    stopThreshold: 50
   }));
   
-  entity.setUpdateOrder([
-    TransformComponent,
-    ProjectileComponent,
-    SpriteComponent,
-  ]);
-  
-  return entity;
-}
-```
-
-### Example: Player (Complex Character)
-
-**Requirements**:
-- Keyboard and joystick input
-- Movement with momentum
-- Collision with walls
-- Animations (idle, walk)
-- Shooting
-- Health and ammo
-
-**Implementation**:
-```typescript
-export function createPlayerEntity(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  grid: Grid,
-  onFire: (x, y, dirX, dirY) => void,
-  onShellEject: (x, y, dir, playerDir) => void,
-  joystick: Entity
-): Entity {
-  const entity = new Entity('player');
-
-  // Core components
-  const transform = entity.add(new TransformComponent(x, y, 0, 2));
-  const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
-  
-  // Animation system
-  const animMap = createPlayerAnimations();
-  const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
-  entity.add(new AnimationComponent(animSystem, sprite));
-
-  // Input
-  const input = entity.add(new InputComponent(scene));
-  const joystickComp = joystick.get(TouchJoystickComponent)!;
-  input.setJoystick(joystickComp);
-
-  // Movement
-  entity.add(new WalkComponent(transform, input));
-
-  // Grid integration
-  const startCell = grid.worldToCell(x, y);
-  entity.add(new GridPositionComponent(
-    startCell.col,
-    startCell.row,
-    { offsetX: 0, offsetY: 32, width: 36, height: 32 }
-  ));
-  entity.add(new GridCollisionComponent(grid));
-
-  // Systems
-  const health = entity.add(new HealthComponent());
-  const ammo = entity.add(new AmmoComponent());
-  
-  entity.add(new HudBarComponent(scene, [
-    { dataSource: health, offsetY: 70, fillColor: 0x00ff00 },
-    { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },
-  ]));
-
-  // Shooting
-  entity.add(new ProjectileEmitterComponent(
-    scene,
-    onFire,
-    emitterOffsets,
-    () => input.isFirePressed(),
-    200,
-    onShellEject,
-    ammo
-  ));
-
-  // State machine
-  const stateMachine = new StateMachine({
-    idle: new PlayerIdleState(entity),
-    walk: new PlayerWalkState(entity),
-  }, 'idle');
-  entity.add(new StateMachineComponent(stateMachine));
-
-  // Update order
+  // Set update order
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
-    InputComponent,
     WalkComponent,
-    GridCollisionComponent,
-    HealthComponent,
-    AmmoComponent,
-    ProjectileEmitterComponent,
-    OverheatSmokeComponent,
-    HudBarComponent,
-    StateMachineComponent,
-    AnimationComponent,
-  ]);
-
-  grid.addOccupant(startCell.col, startCell.row, entity);
-  return entity;
-}
-```
-
-### Example: Static Decoration
-
-**Requirements**:
-- Doesn't move
-- Doesn't collide
-- Just visual
-
-**Implementation**:
-```typescript
-export function createDecorationEntity(scene: Phaser.Scene, x: number, y: number): Entity {
-  const entity = new Entity('decoration');
-  
-  const transform = entity.add(new TransformComponent(x, y, 0, 1));
-  entity.add(new SpriteComponent(scene, 'tree', transform));
-  
-  entity.setUpdateOrder([
-    TransformComponent,
-    SpriteComponent,
   ]);
   
   return entity;
 }
 ```
-
-## Grid Integration
-
-### When to Use GridPositionComponent + GridCollisionComponent
-
-**Use for**:
-- Player
-- Enemies
-- NPCs
-- Any entity that walks and collides with walls
-
-**Don't use for**:
-- Projectiles (they fly over, use custom collision)
-- Decorations (no collision needed)
-- Static turrets (don't move, manually set grid cell)
-- Visual effects (shell casings, smoke)
-
-### Collision Box Sizing
-
-**Small box (32x16)**: Fast-moving entities, tight corridors
-```typescript
-{ offsetX: 0, offsetY: 16, width: 32, height: 16 }
-```
-
-**Medium box (48x32)**: Standard characters
-```typescript
-{ offsetX: 0, offsetY: 16, width: 48, height: 32 }
-```
-
-**Large box (64x64)**: Big enemies, bosses
-```typescript
-{ offsetX: 0, offsetY: 0, width: 64, height: 64 }
-```
-
-**Offset guidelines**:
-- `offsetY > 0`: Push box down (feet collision)
-- `offsetY = 0`: Center box (full body collision)
-- `offsetX = 0`: Center horizontally (most common)
-
-## Entity Lifecycle
-
-1. **Create**: Call factory function (e.g., `createPlayerEntity()`)
-2. **Add to EntityManager**: `entityManager.add(entity)`
-3. **Update**: EntityManager calls `entity.update(delta)` each frame
-4. **Destroy**: Call `entity.destroy()` or let it self-destruct
-   - Removes sprites
-   - Removes from grid occupancy
-   - Calls `onDestroy()` on all components
-   - Automatically filtered out by EntityManager on next update
 
 ## Entity Manager
 
-**All entities are managed by a single EntityManager.** This replaces the old pattern of tracking entities in separate arrays.
-
-### EntityManager API
+**All entities are managed by a single EntityManager:**
 
 ```typescript
 class EntityManager {
-  // Add an entity
   add(entity: Entity): Entity
-  
-  // Update all entities (call once per frame)
   update(delta: number): void
-  
-  // Query entities by type
   getByType(type: string): Entity[]
   getFirst(type: string): Entity | undefined
-  
-  // Destroy all entities
   destroyAll(): void
-  
-  // Get total count
   get count(): number
 }
 ```
 
-### Usage in GameScene
-
+**Usage:**
 ```typescript
-export default class GameScene extends Phaser.Scene {
-  private entityManager!: EntityManager;
+// In GameScene
+private entityManager!: EntityManager;
+
+async create() {
+  this.entityManager = new EntityManager();
   
-  async create() {
-    this.entityManager = new EntityManager();
-    
-    // Add entities
-    const joystick = this.entityManager.add(createJoystickEntity(this));
-    const player = this.entityManager.add(createPlayerEntity(this, x, y, grid, ...));
-    
-    // Bullets/shells added in callbacks
-    onFire: (x, y, dirX, dirY) => {
-      const bullet = createBulletEntity(this, x, y, dirX, dirY, grid);
-      this.entityManager.add(bullet);
-    }
-  }
-  
-  update(delta: number) {
-    // Update all entities at once
-    this.entityManager.update(delta);
-  }
-}
-```
-
-### How It Works
-
-1. **Update loop**: Iterates through all entities and calls `entity.update(delta)`
-2. **Automatic cleanup**: After updating, filters out any entities marked as destroyed
-3. **Mid-update additions**: Entities added during the update cycle (like bullets) are preserved
-
-**Important:** The update loop is split into two phases:
-```typescript
-// Phase 1: Update all entities
-for (let i = 0; i < this.entities.length; i++) {
-  entity.update(delta);  // Bullets can be added here
+  const player = this.entityManager.add(createPlayerEntity(...));
+  const enemy = this.entityManager.add(createEnemyEntity(...));
 }
 
-// Phase 2: Remove destroyed entities
-this.entities = this.entities.filter(entity => !entity.isDestroyed);
-```
-
-This ensures entities added mid-update (like bullets fired during player update) are not lost.
-
-### Benefits
-
-- **Single source of truth**: All entities in one place
-- **No manual tracking**: No separate arrays for bullets, shells, enemies, etc.
-- **Automatic cleanup**: Destroyed entities removed automatically
-- **Easy queries**: Find entities by type with `getByType()` or `getFirst()`
-- **Scalable**: Add new entity types without modifying GameScene
-
-## File Structure
-
-```
-src/
-├── ecs/
-│   ├── Entity.ts
-│   ├── Component.ts
-│   ├── components/
-│   │   ├── TransformComponent.ts
-│   │   ├── SpriteComponent.ts
-│   │   ├── AnimationComponent.ts
-│   │   ├── InputComponent.ts
-│   │   ├── WalkComponent.ts
-│   │   ├── GridPositionComponent.ts
-│   │   ├── GridCollisionComponent.ts
-│   │   └── StateMachineComponent.ts
-│   └── index.ts
-├── player/
-│   ├── PlayerEntity.ts (factory function)
-│   ├── PlayerIdleState.ts
-│   └── PlayerWalkState.ts
-├── projectile/
-│   ├── BulletEntity.ts
-│   └── ShellCasingEntity.ts
-└── GameScene.ts
+update(delta: number) {
+  this.entityManager.update(delta);  // Updates all entities
+}
 ```
 
 ## Key Takeaways
 
-- **Composition over inheritance**: Build entities from components
-- **Update order matters**: Control component execution sequence
-- **Grid integration is optional**: Only for entities that need collision
-- **One component type per entity**: Enforced at runtime
-- **Class-based update order**: More maintainable than instance references
-- **Factory functions**: Create entities with `createXEntity()` pattern
-- **Clean up properly**: Call `entity.destroy()` to remove from grid and scene
+1. **Reusability first** - Think about how component can work for multiple entity types
+2. **No defaults** - All props required, explicit configuration
+3. **Single responsibility** - One component, one job
+4. **Decouple with callbacks** - Make components generic
+5. **Minimal dependencies** - Only depend on what you need
+6. **Check existing first** - Extend before creating new
+7. **Update order matters** - Control component execution sequence
+8. **One type per entity** - Enforced at runtime

@@ -9,7 +9,6 @@ import { Direction } from '../../constants/Direction';
 export class OverheatSmokeComponent implements Component {
   entity!: Entity;
   private particles!: Phaser.GameObjects.Particles.ParticleEmitter;
-  private wasOverheated: boolean = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -47,17 +46,8 @@ export class OverheatSmokeComponent implements Component {
     // Update particle system position
     this.particles.setPosition(emitX, emitY);
 
-    // Check if overheated (emit only when gun is overheated)
-    const isOverheated = this.ammoComponent.isGunOverheated();
-    if (isOverheated && !this.wasOverheated) {
-      // Start emitting smoke
-      this.particles.emitting = true;
-    } else if (!isOverheated && this.wasOverheated) {
-      // Stop emitting when fully reloaded
-      this.particles.emitting = false;
-    }
-
-    this.wasOverheated = isOverheated;
+    // Sync particle emitting with overheat state
+    this.particles.emitting = this.ammoComponent.isGunOverheated();
   }
 
   onDestroy(): void {

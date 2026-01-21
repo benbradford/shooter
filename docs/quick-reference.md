@@ -123,11 +123,11 @@ new MyComponent(dependency, { speed: 500, cooldown: 1000 })  // Custom
 In `GameScene.create()`:
 ```typescript
 // Single wall
-this.grid.setCell(5, 5, { walkable: false, blocksProjectiles: true });
+this.grid.setCell(5, 5, { layer: 1 });
 
 // Row of walls
 for (let col = 5; col <= 10; col++) {
-  this.grid.setCell(col, 5, { walkable: false, blocksProjectiles: true });
+  this.grid.setCell(col, 5, { layer: 1 });
 }
 ```
 
@@ -143,7 +143,10 @@ for (let col = 5; col <= 10; col++) {
   - Blue boxes: Entity collision boxes
   - Red boxes: Projectile emitter positions
 
-- **E key** - Enter level editor mode (pauses game, reloads level)
+- **E key** - Enter level editor mode
+  - Pauses game
+  - Allows editing grid cells, moving player, resizing grid
+  - Click Save to export level JSON (logs to console + downloads file)
 
 ### Managing Entities
 
@@ -188,13 +191,17 @@ Control whether projectiles are blocked by walls:
 
 ```typescript
 // Bullet - blocked by walls
-new ProjectileComponent(dirX, dirY, 800, 700, grid, true)
+new ProjectileComponent({
+  dirX, dirY, speed: 800, maxDistance: 700, grid,
+  blockedByWalls: true
+})
 
 // Grenade - flies over walls
-new ProjectileComponent(dirX, dirY, 600, 500, grid, false)
+new ProjectileComponent({
+  dirX, dirY, speed: 600, maxDistance: 500, grid,
+  blockedByWalls: false
+})
 ```
-
-The last parameter (`blockedByWalls`) determines if the projectile checks `grid.blocksProjectiles`.
 
 ### Making Components Reusable
 
@@ -210,15 +217,50 @@ class ProjectileEmitterComponent {
 
 // ✅ Good: Callback-based
 class ProjectileEmitterComponent {
-  constructor(
+  constructor(props: {
     scene: Phaser.Scene,
     onFire: (x, y, dirX, dirY) => void,
     offsets: Record<Direction, EmitterOffset>,
     shouldFire: () => boolean,  // Player: () => input.isFirePressed()
-    cooldown: number = 200      // Enemy: () => ai.shouldAttack()
-  ) {}
+    cooldown?: number           // Enemy: () => ai.shouldAttack()
+  }) {}
 }
 ```
+
+### Moving Player Start Position
+
+1. Press **E** to enter editor
+2. Click **Move** button
+3. Click and drag player to new position
+4. Click **Back** to return to main menu
+5. Click **Save** - JSON logged to console and downloaded
+6. Copy JSON from console and paste into `public/levels/default.json`
+7. Refresh browser
+
+**Important:** Always use `this.grid.cellSize` instead of hardcoded values when converting between world and cell coordinates.
+
+### Configuring Overheat System
+
+The overheat system locks the gun when ammo reaches 0 until fully reloaded:
+
+```typescript
+// In PlayerEntity.ts
+const ammo = entity.add(new AmmoComponent({
+  maxAmmo: 20,                    // Total ammo capacity
+  refillRate: 10,                 // Ammo per second refill rate
+  refillDelay: 2000,              // Normal delay before refilling (ms)
+  overheatedRefillDelay: 4000     // Longer delay when overheated (ms)
+}));
+```
+
+**Behavior:**
+- Fire normally when `currentAmmo > 0` and not overheated
+- Ammo hits 0 → Gun locks (can't fire even as ammo refills)
+- Wait `overheatedRefillDelay` ms → Start refilling
+- Ammo reaches max → Gun unlocks
+- Smoke particles emit while overheated
+
+**Key difference:** `overheatedRefillDelay` is longer than `refillDelay` to punish overheating.
 
 ## Project Structure Quick Reference
 
@@ -312,6 +354,117 @@ If `sprite.setDisplaySize()` doesn't work:
 **Physics-based motion:**
 - Use velocity + gravity, not sine waves
 - Sine waves loop forever; physics settles naturally
+
+### Player Spawning at Wrong Position
+
+**Symptom:** Player always spawns at (0, 0) or top-left corner, regardless of saved position in level JSON.
+
+**Cause:** `GridCollisionComponent` initializes `previousX` and `previousY` to (0, 0). On the first update frame, it thinks the player is moving from (0, 0) to the spawn position. If there are layer 1 walls between (0, 0) and the spawn point, the collision system blocks the "movement" and snaps the player back to (0, 0).
+
+**Solution:** `GridCollisionComponent.update()` now checks if `previousX === 0 && previousY === 0` on first frame and initializes them to the player's actual starting position. This prevents the phantom movement check.
+
+**Code:**
+```typescript
+// In GridCollisionComponent.update()
+if (this.previousX === 0 && this.previousY === 0) {
+  this.previousX = transform.x;
+  this.previousY = transform.y;
+}
+```
+
+### Editor Green Box in Wrong Position
+
+**Symptom:** In Move mode, green highlight box appears in top-right corner or doesn't scroll with camera.
+
+**Cause:** Highlight rectangle was created in EditorScene using `this.scene.add.rectangle()`. EditorScene is an overlay with `scrollFactor(0)` by default, so objects don't scroll with the camera.
+
+**Solution:** Create highlight rectangle in GameScene instead:
+```typescript
+// In MoveEditorState.onEnter()
+const gameScene = this.scene.scene.get('game') as GameScene;
+this.highlight = gameScene.add.rectangle(...);  // Not this.scene.add
+```
+
+This ensures the highlight scrolls with the world camera.
+
+### Player Hidden Behind Walls
+
+**Symptom:** Player appears to be in wrong position, but console logs show correct coordinates (e.g., 2560, 2560).
+
+**Cause:** Layer 1 cells are elevated platforms/walls that render with a darker overlay on top of everything. If the entire top of the map is layer 1, it creates a visual barrier that obscures the player even though they're at the correct position.
+
+**Solution:** Design levels so:
+- Player starts in open areas (layer 0 cells)
+- Layer 1 walls don't completely block view of playable areas
+- Use layer 1 for actual walls/obstacles, not as a full ceiling
+
+### Grid Cell Size Consistency
+
+**Symptom:** Player position calculations are wrong, or level doesn't load correctly.
+
+**Cause:** Using hardcoded `this.cellSize` instead of `this.grid.cellSize` when converting between world and cell coordinates.
+
+**Solution:** Always use `this.grid.cellSize`:
+```typescript
+// ✅ Correct
+const startX = this.grid.cellSize * level.playerStart.x;
+const cellX = Math.round(transform.x / this.grid.cellSize);
+
+// ❌ Wrong
+const startX = this.cellSize * level.playerStart.x;  // Hardcoded value
+const cellX = Math.round(transform.x / this.cellSize);
+```
+
+The grid's cellSize is the source of truth since it's initialized from the level data.
+
+### Overheat System Not Working
+
+**Symptom:** Can still fire when overheated, or smoke particles never stop.
+
+**Cause:** Multiple issues:
+1. `canFire()` was checking `currentAmmo >= 1` instead of `> 0`
+2. No overheat lock - gun could fire as soon as ammo started refilling
+3. Smoke particles checking ammo ratio instead of overheat flag
+
+**Solution:** 
+- Added `isOverheated` flag that locks gun until fully reloaded
+- `canFire()` checks both `currentAmmo > 0` and `!isOverheated`
+- Smoke particles sync directly with `isGunOverheated()`
+- Separate `overheatedRefillDelay` for longer penalty when overheated
+
+**Code:**
+```typescript
+// In AmmoComponent
+private isOverheated: boolean = false;
+
+canFire(): boolean {
+  return this.currentAmmo > 0 && !this.isOverheated;
+}
+
+consumeAmmo(): void {
+  if (this.currentAmmo > 0) {
+    this.currentAmmo -= 1;
+    if (this.currentAmmo <= 0) {
+      this.currentAmmo = 0;
+      this.isOverheated = true;  // Lock gun
+    }
+  }
+}
+
+update(delta: number): void {
+  const delay = this.isOverheated ? this.overheatedRefillDelay : this.refillDelay;
+  // ... refill logic
+  if (this.currentAmmo >= this.maxAmmo) {
+    this.isOverheated = false;  // Unlock gun
+  }
+}
+
+// In OverheatSmokeComponent
+update(_delta: number): void {
+  // Sync particles directly with overheat state
+  this.particles.emitting = this.ammoComponent.isGunOverheated();
+}
+```
 
 ## Visual Effects Best Practices
 

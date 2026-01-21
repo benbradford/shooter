@@ -6,6 +6,7 @@ import { StateMachine } from "./utils/state/StateMachine";
 import { DefaultEditorState } from "./editor/DefaultEditorState";
 import { GridEditorState } from "./editor/GridEditorState";
 import { ResizeEditorState } from "./editor/ResizeEditorState";
+import { MoveEditorState } from "./editor/MoveEditorState";
 
 export default class EditorScene extends Phaser.Scene {
   private stateMachine!: StateMachine;
@@ -88,7 +89,8 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine = new StateMachine({
       default: new DefaultEditorState(this),
       grid: new GridEditorState(this),
-      resize: new ResizeEditorState(this)
+      resize: new ResizeEditorState(this),
+      move: new MoveEditorState(this)
     }, 'default');
   }
 
@@ -163,6 +165,10 @@ export default class EditorScene extends Phaser.Scene {
     const levelData = this.getCurrentLevelData();
     const json = JSON.stringify(levelData, null, 2);
     
+    // Log to console for easy copy/paste
+    console.log('Level JSON (copy and paste into public/levels/default.json):');
+    console.log(json);
+    
     // Create download
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -190,6 +196,10 @@ export default class EditorScene extends Phaser.Scene {
 
   enterResizeMode(): void {
     this.stateMachine.enter('resize');
+  }
+
+  enterMoveMode(): void {
+    this.stateMachine.enter('move');
   }
 
   removeRow(row: number): void {

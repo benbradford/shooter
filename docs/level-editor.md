@@ -21,15 +21,18 @@ The editor uses a state machine with multiple modes:
 
 ### Default Mode
 
-The initial mode when entering the editor. Shows four buttons at the bottom:
+The initial mode when entering the editor. Shows five buttons at the bottom:
 
-- **Save** - Downloads level as JSON to ~/Downloads/default.json
+- **Save** - Downloads level as JSON and logs to console
   - Greyed out when no changes made
   - Only enabled when changes have been detected
-  - Console shows instructions: `./scripts/update-levels.sh`
+  - Console shows full JSON for easy copy/paste
+  - Also downloads to ~/Downloads/default.json
+  - Instructions: Copy from console or run `./scripts/update-levels.sh`
 - **Exit** - Returns to game (also ESC key)
   - Restores camera bounds and player following
 - **Grid** - Enters grid editing mode
+- **Move** - Enters move mode for repositioning entities
 - **Resize** - Enters resize mode for adding/removing rows/columns
 
 ### Grid Mode
@@ -65,6 +68,27 @@ Allows selecting and modifying individual grid cells using keyboard navigation.
 
 **Note:** TransUp and TransDown currently have the same effect (marking as transition). The distinction is for future functionality.
 
+### Move Mode
+
+Allows repositioning entities (currently player only) by dragging.
+
+**Usage:**
+1. Click and hold on the player sprite
+2. Drag to move - player follows mouse and snaps to grid cells
+3. Release to place player at new position
+4. Green highlight box shows current grid cell
+
+**Visual Feedback:**
+- Green highlight box (0x00ff00) shows player's grid cell
+- Box size matches grid cell size
+- Player moves in real-time as you drag
+- Position updates are saved when you click Save
+
+**Back Button:**
+- Returns to default mode
+
+**Important:** The player's start position is saved in the level JSON's `playerStart` field when you click Save in default mode.
+
 ### Resize Mode
 
 Allows selecting and removing rows or columns from the grid.
@@ -95,25 +119,32 @@ Allows selecting and removing rows or columns from the grid.
 **To save and update level files:**
 
 1. **In editor, click Save**
+   - Logs complete JSON to browser console
    - Downloads `default.json` to `~/Downloads/`
    - Browser console shows:
      ```
+     Level JSON (copy and paste into public/levels/default.json):
+     { ... full JSON ... }
      ✓ Level saved to ~/Downloads/default.json
      To update the game, run: ./scripts/update-levels.sh
      ```
 
-2. **Run the update script:**
+2. **Option A: Copy from console (fastest)**
+   - Open browser console (F12)
+   - Copy the JSON output
+   - Paste into `public/levels/default.json`
+   - Refresh browser
+
+3. **Option B: Use the update script**
    ```bash
    ./scripts/update-levels.sh
    ```
    - Copies `default.json` from Downloads to `public/levels/`
    - Also copies any other level files (`level1.json`, etc.)
    - Shows confirmation messages
+   - Refresh browser
 
-3. **Refresh browser**
-   - Level reloads with your changes
-
-**Note:** Browsers cannot directly write to the filesystem for security reasons. The download + script approach is the simplest solution without requiring a backend server.
+**Note:** Browsers cannot directly write to the filesystem for security reasons. The console output + manual paste is the fastest workflow.
 
 ## Architecture
 
@@ -133,8 +164,9 @@ The editor uses Phaser's scene overlay system:
 ### State Machine
 
 **EditorState** - Base class for all editor states
-- `DefaultEditorState` - Main menu with save/exit/grid/resize buttons
+- `DefaultEditorState` - Main menu with save/exit/grid/move/resize buttons
 - `GridEditorState` - Cell selection and editing with keyboard navigation
+- `MoveEditorState` - Entity repositioning with drag-and-drop
 - `ResizeEditorState` - Row/column selection and removal
 
 Each state manages its own UI elements and cleans up on exit.
@@ -150,7 +182,7 @@ The editor tracks changes by comparing the current grid state with the original 
 **In Editor:**
 - Camera stops following player
 - Camera bounds expanded to very large area (-10000 to 20000)
-- WASD moves camera freely in Default and Resize modes
+- WASD moves camera freely in Default, Move, and Resize modes
 - WASD moves selection (camera follows) in Grid mode
 
 **On Exit:**
@@ -163,6 +195,23 @@ The editor tracks changes by comparing the current grid state with the original 
 - Starts at center of grid
 - Keyboard navigation with auto-centering
 - Hold key for continuous movement (150ms delay between moves)
+
+### Entity Dragging (Move Mode)
+
+**Coordinate Conversion:**
+- Mouse position → World coordinates (accounting for camera scroll)
+- World coordinates → Grid cell
+- Grid cell → World center (cell top-left + cellSize/2)
+
+**Rendering:**
+- Highlight rectangle created in GameScene (not EditorScene)
+- This ensures it scrolls with the camera properly
+- EditorScene has scrollFactor(0) by default (UI overlay)
+
+**Position Updates:**
+- Updates both TransformComponent and Sprite directly
+- Sprite update needed because game is paused (update() not running)
+- Position saved to level JSON when clicking Save in default mode
 
 ### Row/Column Selection (Resize Mode)
 
@@ -180,12 +229,37 @@ Downloads a JSON file containing:
 
 Only cells that differ from defaults are saved to keep file size small.
 
+## Common Issues
+
+### Player Spawning at Wrong Position
+
+**Symptom:** Player always spawns at (0, 0) or top-left corner, regardless of saved position.
+
+**Cause:** GridCollisionComponent initializes `previousX` and `previousY` to (0, 0). On first update, it thinks the player is moving from (0, 0) to spawn position. If there are walls in between, it blocks the movement and snaps player back to (0, 0).
+
+**Solution:** GridCollisionComponent now initializes previous position to player's actual starting position on first frame.
+
+### Green Box in Wrong Position (Move Mode)
+
+**Symptom:** Green highlight box appears in top-right corner or doesn't align with grid.
+
+**Cause:** Highlight rectangle was created in EditorScene, which has `scrollFactor(0)` by default (UI overlay). It doesn't scroll with the camera.
+
+**Solution:** Highlight rectangle is now created in GameScene so it scrolls with the world.
+
+### Player Hidden Behind Walls
+
+**Symptom:** Player appears to be in wrong position, but logs show correct coordinates.
+
+**Cause:** Layer 1 walls are drawn on top and blocking the view. Player is at correct position, just obscured.
+
+**Solution:** Design levels so player starts in open areas (layer 0), not behind layer 1 walls.
+
 ## Future Features
 
 Planned additions to the editor:
 - Add rows/columns (not just remove)
 - Place/remove walls
-- Move player start position
 - Add enemy spawn points
 - Add item/pickup locations
 - Trigger zones
@@ -193,6 +267,7 @@ Planned additions to the editor:
 - Undo/redo
 - Multiple level support
 - Tilemap integration
+- Multi-entity selection and movement
 
 ## Adding New Editor Modes
 
@@ -227,6 +302,7 @@ export class MyEditorState extends EditorState {
 this.stateMachine = new StateMachine({
   default: new DefaultEditorState(this),
   grid: new GridEditorState(this),
+  move: new MoveEditorState(this),
   resize: new ResizeEditorState(this),
   myMode: new MyEditorState(this)  // Add here
 }, 'default');
@@ -249,3 +325,4 @@ enterMyMode(): void {
 - Clean up all UI elements in state.onExit()
 - Test that game works correctly after exiting editor
 - Changes persist across editor sessions until page reload
+- Always test player spawn position after moving in editor

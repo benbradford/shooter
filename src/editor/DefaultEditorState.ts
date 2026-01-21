@@ -20,7 +20,7 @@ export class DefaultEditorState extends EditorState {
     const centerX = width / 2;
 
     // Save button
-    this.saveButton = this.scene.add.text(centerX - buttonSpacing * 1.5, buttonY, 'Save', {
+    this.saveButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY, 'Save', {
       fontSize: '24px',
       color: '#666666',
       backgroundColor: '#222222',
@@ -32,7 +32,7 @@ export class DefaultEditorState extends EditorState {
     this.buttons.push(this.saveButton);
 
     // Exit button
-    this.exitButton = this.scene.add.text(centerX - buttonSpacing * 0.5, buttonY, 'Exit', {
+    this.exitButton = this.scene.add.text(centerX - buttonSpacing, buttonY, 'Exit', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -55,7 +55,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Grid button
-    this.gridButton = this.scene.add.text(centerX + buttonSpacing * 0.5, buttonY, 'Grid', {
+    this.gridButton = this.scene.add.text(centerX, buttonY, 'Grid', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -77,8 +77,31 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterGridMode();
     });
 
+    // Move button
+    const moveButton = this.scene.add.text(centerX + buttonSpacing, buttonY, 'Move', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    moveButton.setOrigin(0.5);
+    moveButton.setScrollFactor(0);
+    moveButton.setInteractive({ useHandCursor: true });
+    moveButton.setDepth(1000);
+    this.buttons.push(moveButton);
+
+    moveButton.on('pointerover', () => {
+      moveButton.setBackgroundColor('#555555');
+    });
+    moveButton.on('pointerout', () => {
+      moveButton.setBackgroundColor('#333333');
+    });
+    moveButton.on('pointerdown', () => {
+      this.scene.enterMoveMode();
+    });
+
     // Resize button
-    const resizeButton = this.scene.add.text(centerX + buttonSpacing * 1.5, buttonY, 'Resize', {
+    const resizeButton = this.scene.add.text(centerX + buttonSpacing * 2, buttonY, 'Resize', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',

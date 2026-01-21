@@ -19,31 +19,17 @@ export class ResizeEditorState extends EditorState {
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;
     const buttonSpacing = 120;
-    const startX = 100;
+    const startX = 200;
 
     // Highlight graphics
     this.highlightGraphics = this.scene.add.graphics();
     this.highlightGraphics.setDepth(998);
 
-    // Back button
-    const backButton = this.scene.add.text(startX, buttonY, 'Back', {
-      fontSize: '20px',
-      color: '#ffffff',
-      backgroundColor: '#333333',
-      padding: { x: 15, y: 8 }
-    });
-    backButton.setOrigin(0.5);
-    backButton.setScrollFactor(0);
-    backButton.setInteractive({ useHandCursor: true });
-    backButton.setDepth(1000);
-    this.buttons.push(backButton);
-
-    backButton.on('pointerover', () => backButton.setBackgroundColor('#555555'));
-    backButton.on('pointerout', () => backButton.setBackgroundColor('#333333'));
-    backButton.on('pointerdown', () => this.scene.enterDefaultMode());
+    // Back button (shared)
+    this.buttons.push(this.createBackButton());
 
     // Remove Row button
-    this.createButton(startX + buttonSpacing, buttonY, 'Remove Row', () => {
+    this.createButton(startX, buttonY, 'Remove Row', () => {
       if (this.selectedRow !== null) {
         this.scene.removeRow(this.selectedRow);
         this.selectedRow = null;
@@ -51,7 +37,7 @@ export class ResizeEditorState extends EditorState {
     });
 
     // Remove Column button
-    this.createButton(startX + buttonSpacing * 2, buttonY, 'Remove Col', () => {
+    this.createButton(startX + buttonSpacing, buttonY, 'Remove Col', () => {
       if (this.selectedCol !== null) {
         this.scene.removeColumn(this.selectedCol);
         this.selectedCol = null;

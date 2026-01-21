@@ -26,7 +26,7 @@ export class GridEditorState extends EditorState {
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;
     const buttonSpacing = 100;
-    const startX = 100;
+    const startX = 200;
 
     // Reset to center
     const grid = this.scene.getGrid();
@@ -49,32 +49,18 @@ export class GridEditorState extends EditorState {
       D: this.scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D)
     };
 
-    // Back button
-    const backButton = this.scene.add.text(startX, buttonY, 'Back', {
-      fontSize: '20px',
-      color: '#ffffff',
-      backgroundColor: '#333333',
-      padding: { x: 15, y: 8 }
-    });
-    backButton.setOrigin(0.5);
-    backButton.setScrollFactor(0);
-    backButton.setInteractive({ useHandCursor: true });
-    backButton.setDepth(1000);
-    this.buttons.push(backButton);
-
-    backButton.on('pointerover', () => backButton.setBackgroundColor('#555555'));
-    backButton.on('pointerout', () => backButton.setBackgroundColor('#333333'));
-    backButton.on('pointerdown', () => this.scene.enterDefaultMode());
+    // Back button (shared)
+    this.buttons.push(this.createBackButton());
 
     // Reset button
-    this.createButton(startX + buttonSpacing, buttonY, 'Reset', () => {
+    this.createButton(startX, buttonY, 'Reset', () => {
       this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { layer: 0, isTransition: false });
     });
 
     // Layer buttons
     const layers = [-2, -1, 0, 1, 2];
     layers.forEach((layer, i) => {
-      this.createButton(startX + buttonSpacing * (i + 2), buttonY, `Layer${layer}`, () => {
+      this.createButton(startX + buttonSpacing * (i + 1), buttonY, `Layer${layer}`, () => {
         this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { layer, isTransition: false });
       });
     });

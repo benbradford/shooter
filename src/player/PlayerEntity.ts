@@ -98,7 +98,12 @@ export function createPlayerEntity(
   const health = entity.add(new HealthComponent());
 
   // Ammo System
-  const ammo = entity.add(new AmmoComponent());
+  const ammo = entity.add(new AmmoComponent({
+    maxAmmo: 20,
+    refillRate: 12,
+    refillDelay: 1000,
+    overheatedRefillDelay: 4000
+  }));
 
   // HUD Bars (both health and ammo)
   const hudBars = entity.add(new HudBarComponent(scene, [
