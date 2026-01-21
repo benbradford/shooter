@@ -26,7 +26,7 @@ export class TouchJoystickComponent implements Component {
   constructor(private readonly scene: Phaser.Scene, props: TouchJoystickProps = {}) {
     this.maxRadius = props.maxRadius ?? 100;
     this.innerRadius = props.innerRadius ?? 60;
-    this.deadZoneDistance = props.deadZoneDistance ?? 60;
+    this.deadZoneDistance = props.deadZoneDistance ?? 30;
   }
 
   setCrosshairBounds(x: number, y: number, radius: number): void {

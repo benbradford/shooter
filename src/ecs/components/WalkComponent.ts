@@ -4,6 +4,9 @@ import type { TransformComponent } from './TransformComponent';
 import type { InputComponent } from './InputComponent';
 import { Direction, dirFromDelta } from '../../constants/Direction';
 
+// Walk configuration
+const FIRE_HOLD_THRESHOLD = 200; // milliseconds - hold fire this long to stop moving
+
 export interface WalkProps {
   speed: number;
   accelerationTime: number;
@@ -40,10 +43,19 @@ export class WalkComponent implements Component {
   update(delta: number): void {
     const movementInput = this.inputComp.getInputDelta();
     const facingInput = this.inputComp.getRawInputDelta();
+    const fireHeldTime = this.inputComp.getFireHeldTime();
 
     // Update facing direction from raw input (ignores joystick deadzone)
     if (facingInput.dx !== 0 || facingInput.dy !== 0) {
       this.updateFacingDirection(facingInput.dx, facingInput.dy);
+    }
+
+    // If fire held for threshold, stop movement but keep facing direction
+    if (fireHeldTime >= FIRE_HOLD_THRESHOLD) {
+      // Decelerate to stop
+      this.applyMomentum({ x: 0, y: 0 }, delta);
+      this.applyStopThreshold();
+      return;
     }
 
     // Calculate target velocity from deadzone-filtered input
@@ -60,6 +72,10 @@ export class WalkComponent implements Component {
     // Apply velocity to position
     this.transformComp.x += this.velocityX * (delta / 1000);
     this.transformComp.y += this.velocityY * (delta / 1000);
+  }
+
+  isMovementStopped(): boolean {
+    return this.inputComp.getFireHeldTime() >= FIRE_HOLD_THRESHOLD;
   }
 
   // Called by GridCollisionComponent when movement is blocked

@@ -5,7 +5,7 @@ import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import type Phaser from 'phaser';
 
 // Death state configuration
-const DEATH_ANIMATION_SPEED = 100; // milliseconds per frame
+const DEATH_ANIMATION_SPEED = 200; // milliseconds per frame
 const DEATH_TOTAL_FRAMES = 7;
 
 export class RobotDeathState implements IState {
@@ -30,7 +30,7 @@ export class RobotDeathState implements IState {
     if (sprite) {
       sprite.sprite.clearTint();
       this.scene = sprite.sprite.scene;
-      
+
       // Fade out during death animation
       this.scene.tweens.add({
         targets: sprite.sprite,

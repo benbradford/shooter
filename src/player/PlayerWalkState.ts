@@ -27,6 +27,16 @@ export class PlayerWalkState implements IState {
     const input = this.entity.get(InputComponent)!;
     const { dx, dy } = input.getInputDelta();
 
+    // If fire held, use idle animation
+    if (walk.isMovementStopped()) {
+      const idleKey = `idle_${walk.lastDir}`;
+      if (this.lastAnimKey !== idleKey) {
+        this.lastAnimKey = idleKey;
+        anim.animationSystem.play(idleKey);
+      }
+      return;
+    }
+
     if (dx === 0 && dy === 0 && !walk.isMoving()) {
       sm.stateMachine.enter('idle');
       return;

@@ -9,6 +9,7 @@ export class InputComponent implements Component {
   private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
   private readonly fireKey: Phaser.Input.Keyboard.Key;
   private joystick: TouchJoystickComponent | null = null;
+  private fireHeldTime: number = 0;
 
   constructor(scene: Phaser.Scene) {
     this.cursors = scene.input.keyboard!.createCursorKeys();
@@ -20,8 +21,13 @@ export class InputComponent implements Component {
     this.joystick = joystick;
   }
 
-  update(_delta: number): void {
-    // No-op: delta intentionally unused
+  update(delta: number): void {
+    // Track how long fire has been held
+    if (this.isFirePressed()) {
+      this.fireHeldTime += delta;
+    } else {
+      this.fireHeldTime = 0;
+    }
   }
 
   onDestroy(): void {}
@@ -73,5 +79,9 @@ export class InputComponent implements Component {
     
     // Fall back to keyboard
     return this.fireKey.isDown;
+  }
+
+  getFireHeldTime(): number {
+    return this.fireHeldTime;
   }
 }
