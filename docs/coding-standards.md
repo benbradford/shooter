@@ -89,6 +89,313 @@ if (!isValid) {  // Harder to read
 }
 ```
 
+### No Duplicate Conditional Branches
+
+**Never have identical code in multiple branches of a conditional.**
+
+**DO ✅**
+```typescript
+// Extract common code
+const result = calculateBase();
+if (condition) {
+  result.applySpecialLogic();
+}
+return result;
+
+// Or use different logic per branch
+if (type === 'player') {
+  return createPlayer();
+} else if (type === 'enemy') {
+  return createEnemy();
+} else {
+  return createNPC();
+}
+```
+
+**DON'T ❌**
+```typescript
+// Duplicate code in branches
+if (condition) {
+  const result = calculate();
+  return result;
+} else {
+  const result = calculate();  // Same as above!
+  return result;
+}
+
+// All branches do the same thing
+if (type === 'player') {
+  return defaultEntity();
+} else if (type === 'enemy') {
+  return defaultEntity();  // Why have the condition?
+} else {
+  return defaultEntity();
+}
+```
+
+**Why this matters:**
+- Duplicate branches indicate logic errors
+- Makes code harder to maintain
+- If branches are identical, the condition is meaningless
+- Violates DRY (Don't Repeat Yourself) principle
+
+### No Unnecessary Type Assertions
+
+**Only use type assertions when TypeScript cannot infer the type correctly.**
+
+**DO ✅**
+```typescript
+// Necessary - narrowing from unknown
+const data = JSON.parse(jsonString) as MyType;
+
+// Necessary - DOM element type
+const canvas = document.getElementById('game') as HTMLCanvasElement;
+
+// No assertion needed - type is already correct
+const health = entity.get(HealthComponent);
+if (health) {
+  health.takeDamage(10);
+}
+```
+
+**DON'T ❌**
+```typescript
+// Unnecessary - already the correct type
+const health = entity.get(HealthComponent);
+if (health) {
+  (health as HealthComponent).takeDamage(10);  // Redundant!
+}
+
+// Unnecessary - TypeScript already knows this
+const value: number = 42;
+const result = (value as number) + 10;  // Redundant!
+```
+
+**Why this matters:**
+- Clutters code with noise
+- Hides actual type information
+- May mask real type errors
+- Makes refactoring harder
+
+### Boolean Naming Convention
+
+**Always prefix boolean variables and methods with `is`, `has`, `should`, `will`, or `can`.**
+
+**DO ✅**
+```typescript
+// Variables
+const isVisible = true;
+const hasPermission = false;
+const shouldUpdate = true;
+const willComplete = false;
+const canMove = true;
+
+// Methods
+isFirePressed(): boolean
+hasInput(): boolean
+shouldRender(): boolean
+willCollide(): boolean
+canAttack(): boolean
+
+// Properties
+interface Config {
+  isEnabled: boolean;
+  hasFeature: boolean;
+}
+```
+
+**DON'T ❌**
+```typescript
+// Ambiguous names
+const visible = true;  // Is this a boolean or visibility level?
+const permission = false;  // Is this a boolean or permission object?
+const update = true;  // Is this a boolean or update function?
+
+// Methods without prefix
+pressed(): boolean  // Unclear return type
+input(): boolean
+render(): boolean
+```
+
+**Benefits:**
+- Immediately clear that value is boolean
+- Self-documenting code
+- Prevents confusion with other types
+- Consistent with TypeScript/JavaScript conventions
+
+### Include Units in Number Variable Names
+
+**MANDATORY: Always include the unit of measurement in variable names when applicable.**
+
+**This applies to:**
+- Constants (top of file)
+- Class fields/properties
+- Function parameters
+- Local variables with meaningful lifetime
+
+**DO ✅**
+```typescript
+// Constants - ALWAYS include units
+const ALERT_DURATION_MS = 1000;
+const PLAYER_SPEED_PX_PER_SEC = 500;
+const ATTACK_RANGE_PX = 300;
+const FIELD_OF_VIEW_RAD = Math.PI / 2;
+
+// Class fields - ALWAYS include units
+class Component {
+  private flashIntervalMs: number = 300;
+  private shakeSpeedMs: number = 100;
+  private offsetXPx: number = -120;
+}
+
+// Parameters - include units when not obvious
+function wait(durationMs: number): void { }
+function move(distancePx: number, speedPxPerSec: number): void { }
+
+// Local variables with meaningful lifetime
+const elapsedMs = Date.now() - startTimeMs;
+const distancePx = Math.hypot(dx, dy);
+```
+
+**DON'T ❌**
+```typescript
+// Missing units - WRONG!
+const ALERT_DURATION = 1000;  // Milliseconds? Seconds?
+const PLAYER_SPEED = 500;  // What unit?
+const ATTACK_RANGE = 300;  // Pixels? Meters?
+
+// Class fields without units - WRONG!
+class Component {
+  private flashInterval: number = 300;  // What unit?
+  private shakeSpeed: number = 100;  // What unit?
+}
+
+// Ambiguous parameters - WRONG!
+function wait(duration: number): void { }  // What unit?
+function move(distance: number, speed: number): void { }  // What units?
+```
+
+**Common unit suffixes:**
+```typescript
+// Time units
+const stalkingTimeMs = 2000;  // Milliseconds
+const animationTimerInSeconds = 1.5;  // Seconds
+const cooldownMs = 200;
+const durationInMinutes = 5;
+
+// Distance/size units
+const attackRangePx = 300;  // Pixels
+const radiusInMeters = 10;
+const offsetXPx = -120;
+
+// Speed/velocity units
+const speedPxPerSec = 500;  // Pixels per second
+const velocityMps = 9.8;  // Meters per second
+
+// Angles
+const fieldOfViewRad = Math.PI / 2;  // Radians
+const rotationDeg = 45;  // Degrees
+
+// Other units
+const healthPoints = 100;
+const damagePercent = 25;
+const weightKg = 5.5;
+```
+
+**DON'T ❌**
+```typescript
+// Ambiguous - what unit?
+const stalkingTime = 2000;  // Milliseconds? Seconds?
+const animationTimer = 1.5;  // Seconds? Frames?
+const cooldown = 200;  // What unit?
+const attackRange = 300;  // Pixels? Meters? Tiles?
+const speed = 500;  // Pixels per second? Meters per second?
+const fieldOfView = Math.PI / 2;  // Radians? Degrees?
+```
+
+**Common unit suffixes:**
+- Time: `Ms` (milliseconds), `InSeconds`, `InMinutes`, `InHours`
+- Distance: `Px` (pixels), `InMeters`, `InTiles`
+- Speed: `PxPerSec`, `Mps` (meters per second)
+- Angle: `Rad` (radians), `Deg` (degrees)
+- Other: `Points`, `Percent`, `Kg`, etc.
+
+**⚠️ CRITICAL: This is NOT optional!**
+- Every time you write a number variable, ask: "What unit is this?"
+- If it has a unit, add the suffix IMMEDIATELY
+- No exceptions for "obvious" cases - be explicit
+- Code review will reject PRs without unit suffixes
+
+**Benefits:**
+- Eliminates confusion about units
+- Prevents unit conversion bugs (mixing ms with seconds, etc.)
+- Self-documenting code
+- Makes math operations clearer
+- Easier to spot unit mismatches
+- Catches bugs at code review time instead of runtime
+
+### No Magic Numbers
+
+**MANDATORY: Never use literal numbers directly in code. Always define them as named constants.**
+
+**Magic numbers include:**
+- Thresholds and limits (0.3, 100, 500)
+- Multipliers and divisors (2, 0.5, 10)
+- Mathematical constants beyond Math.PI (360, 2π)
+- Array indices that have meaning (0 for "first", 1 for "second")
+- Any number that isn't immediately obvious
+
+**DO ✅**
+```typescript
+// Define ALL numbers as constants at top of file/class
+const SHAKE_LOW_THRESHOLD = 0.3; // 30% - shake when below this
+const SHAKE_FREQUENCY = 2; // full sine wave cycles
+const MAX_HEALTH = 100;
+const SPEED_MULTIPLIER = 2;
+const DEGREES_IN_CIRCLE = 360;
+const FIRST_WAYPOINT_INDEX = 0;
+
+// Use named constants in code
+if (ratio < SHAKE_LOW_THRESHOLD) {
+  const offset = Math.sin(progress * Math.PI * SHAKE_FREQUENCY);
+  health = Math.min(MAX_HEALTH, health + amount);
+  speed = baseSpeed * SPEED_MULTIPLIER;
+  angle = (angle + DEGREES_IN_CIRCLE) % DEGREES_IN_CIRCLE;
+  const waypoint = waypoints[FIRST_WAYPOINT_INDEX];
+}
+```
+
+**DON'T ❌**
+```typescript
+// Magic numbers inline - WRONG!
+if (ratio < 0.3) {  // What does 0.3 mean?
+  const offset = Math.sin(progress * Math.PI * 2);  // Why 2?
+  health = Math.min(100, health + amount);  // Why 100?
+  speed = baseSpeed * 2;  // Why 2?
+  angle = (angle + 360) % 360;  // Why 360?
+  const waypoint = waypoints[0];  // Why 0?
+}
+```
+
+**Only acceptable literal numbers:**
+- `0` and `1` for initialization, array bounds, or obvious math
+- `-1` for "not found" or "invalid index"
+- `Math.PI` (but not multiples like `2 * Math.PI`)
+- Powers of 2 in bit operations (but prefer named constants)
+
+**⚠️ CRITICAL: This is NOT optional!**
+- Every number you type should make you ask: "What does this represent?"
+- If it has meaning, it needs a name
+- No exceptions for "obvious" numbers like 2, 10, 100
+- Code review will reject PRs with magic numbers
+
+**Benefits:**
+- Self-documenting - name explains what the number means
+- Easy to change - modify in one place
+- Prevents typos - use the constant everywhere
+- Makes relationships clear - see all related values together
+- Easier to tune/balance - all config in one place
+
 ### Use for-of for Iterables
 
 **DO ✅**

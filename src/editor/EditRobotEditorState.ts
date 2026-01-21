@@ -307,7 +307,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     const patrol = this.selectedRobot.get(PatrolComponent);
     if (!patrol) return;
 
-    const gameScene = this.scene.scene.get('game') as Phaser.Scene;
+    const gameScene = this.scene.scene.get('game');
     const grid = this.scene.getGrid();
 
     patrol.waypoints.forEach((waypoint, index) => {

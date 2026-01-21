@@ -27,14 +27,16 @@ export default defineConfig([
       "@typescript-eslint/prefer-readonly": "warn",
       "@typescript-eslint/prefer-optional-chain": "warn",
       "@typescript-eslint/prefer-for-of": "warn",
+      "@typescript-eslint/no-unnecessary-type-assertion": "error",
       "no-nested-ternary": "warn",
       "complexity": ["warn", 15],
+      "no-dupe-else-if": "error",
+      "no-duplicate-case": "error",
+      "no-duplicate-imports": "error",
       "unicorn/prefer-modern-math-apis": "warn",
       "unicorn/no-zero-fractions": "warn",
       "unicorn/no-negated-condition": "warn",
-      "unicorn/prefer-number-properties": "warn",
-      "no-dupe-else-if": "error",
-      "no-duplicate-case": "error"
+      "unicorn/prefer-number-properties": "warn"
     }
   },
   tseslint.configs.recommended,

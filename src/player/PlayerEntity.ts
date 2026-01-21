@@ -26,18 +26,18 @@ import type { Grid } from '../utils/Grid';
 const PLAYER_SCALE = 2;
 const PLAYER_SPRITE_FRAME = 0; // Down idle
 const PLAYER_HITBOX = { offsetX: 0, offsetY: 32, width: 36, height: 32 };
-const PLAYER_WALK_SPEED = 300;
-const PLAYER_ACCELERATION_TIME = 300;
-const PLAYER_DECELERATION_TIME = 100;
+const PLAYER_WALK_SPEED_PX_PER_SEC = 300;
+const PLAYER_ACCELERATION_TIME_MS = 300;
+const PLAYER_DECELERATION_TIME_MS = 100;
 const PLAYER_STOP_THRESHOLD = 120;
 const PLAYER_MAX_HEALTH = 100;
 const PLAYER_MAX_AMMO = 50;
 const PLAYER_AMMO_REFILL_RATE = 20;
-const PLAYER_AMMO_REFILL_DELAY = 1000;
-const PLAYER_AMMO_OVERHEATED_DELAY = 4000;
-const PLAYER_FIRE_COOLDOWN = 120;
-const PLAYER_HEALTH_BAR_OFFSET_Y = 70;
-const PLAYER_AMMO_BAR_OFFSET_Y = 90;
+const PLAYER_AMMO_REFILL_DELAY_MS = 1000;
+const PLAYER_AMMO_OVERHEATED_DELAY_MS = 4000;
+const PLAYER_FIRE_COOLDOWN_MS = 120;
+const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 70;
+const PLAYER_AMMO_BAR_OFFSET_Y_PX = 90;
 
 export function createPlayerEntity(
   scene: Phaser.Scene,
@@ -94,9 +94,9 @@ export function createPlayerEntity(
 
   // Walk
   entity.add(new WalkComponent(transform, input, {
-    speed: PLAYER_WALK_SPEED,
-    accelerationTime: PLAYER_ACCELERATION_TIME,
-    decelerationTime: PLAYER_DECELERATION_TIME,
+    speed: PLAYER_WALK_SPEED_PX_PER_SEC,
+    accelerationTime: PLAYER_ACCELERATION_TIME_MS,
+    decelerationTime: PLAYER_DECELERATION_TIME_MS,
     stopThreshold: PLAYER_STOP_THRESHOLD
   }));
 
@@ -114,14 +114,14 @@ export function createPlayerEntity(
   const ammo = entity.add(new AmmoComponent({
     maxAmmo: PLAYER_MAX_AMMO,
     refillRate: PLAYER_AMMO_REFILL_RATE,
-    refillDelay: PLAYER_AMMO_REFILL_DELAY,
-    overheatedRefillDelay: PLAYER_AMMO_OVERHEATED_DELAY
+    refillDelay: PLAYER_AMMO_REFILL_DELAY_MS,
+    overheatedRefillDelay: PLAYER_AMMO_OVERHEATED_DELAY_MS
   }));
 
   // HUD Bars (both health and ammo)
   const hudBars = entity.add(new HudBarComponent(scene, [
-    { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y, fillColor: 0x00ff00 },
-    { dataSource: ammo, offsetY: PLAYER_AMMO_BAR_OFFSET_Y, fillColor: 0x0000ff },
+    { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y_PX, fillColor: 0x00ff00 },
+    { dataSource: ammo, offsetY: PLAYER_AMMO_BAR_OFFSET_Y_PX, fillColor: 0x0000ff, redOutlineOnLow: true, shakeOnLow: true },
   ]));
   hudBars.init();
 
@@ -142,7 +142,7 @@ export function createPlayerEntity(
     onFire,
     offsets: emitterOffsets,
     shouldFire: () => input.isFirePressed(),
-    cooldown: PLAYER_FIRE_COOLDOWN,
+    cooldown: PLAYER_FIRE_COOLDOWN_MS,
     onShellEject,
     ammoComponent: ammo
   }));

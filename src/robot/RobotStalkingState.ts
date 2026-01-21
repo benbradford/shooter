@@ -10,7 +10,7 @@ import { PatrolComponent } from '../ecs/components/PatrolComponent';
 // Stalking state configuration
 const MIN_STALK_TIME = 2000; // milliseconds before can attack
 const ATTACK_RANGE = 500; // pixels
-const STALKING_SPEED_MULTIPLIER = 1.3;
+const STALKING_SPEED_MULTIPLIER = 1.5;
 const ANIMATION_SPEED = 100; // milliseconds per frame
 
 export class RobotStalkingState implements IState {
@@ -63,7 +63,7 @@ export class RobotStalkingState implements IState {
     // Move towards player
     const dirX = dx / distance;
     const dirY = dy / distance;
-    const moveSpeed = (patrol as PatrolComponent).speed * STALKING_SPEED_MULTIPLIER * (delta / 1000);
+    const moveSpeed = patrol.speed * STALKING_SPEED_MULTIPLIER * (delta / 1000);
 
     const newX = transform.x + dirX * moveSpeed;
     const newY = transform.y + dirY * moveSpeed;

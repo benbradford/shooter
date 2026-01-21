@@ -5,7 +5,7 @@ import type { InputComponent } from './InputComponent';
 import { Direction, dirFromDelta } from '../../constants/Direction';
 
 // Walk configuration
-const FIRE_HOLD_THRESHOLD = 200; // milliseconds - hold fire this long to stop moving
+const FIRE_HOLD_THRESHOLD_MS = 200; // milliseconds - hold fire this long to stop moving
 
 export interface WalkProps {
   speed: number;
@@ -51,7 +51,7 @@ export class WalkComponent implements Component {
     }
 
     // If fire held for threshold, stop movement but keep facing direction
-    if (fireHeldTime >= FIRE_HOLD_THRESHOLD) {
+    if (fireHeldTime >= FIRE_HOLD_THRESHOLD_MS) {
       // Decelerate to stop
       this.applyMomentum({ x: 0, y: 0 }, delta);
       this.applyStopThreshold();
@@ -75,7 +75,7 @@ export class WalkComponent implements Component {
   }
 
   isMovementStopped(): boolean {
-    return this.inputComp.getFireHeldTime() >= FIRE_HOLD_THRESHOLD;
+    return this.inputComp.getFireHeldTime() >= FIRE_HOLD_THRESHOLD_MS;
   }
 
   // Called by GridCollisionComponent when movement is blocked

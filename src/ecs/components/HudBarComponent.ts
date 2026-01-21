@@ -10,6 +10,8 @@ interface BarConfig {
   dataSource: HudBarDataSource;
   offsetY: number;
   fillColor: number;
+  redOutlineOnLow?: boolean; // Optional: outline turns red as ratio decreases
+  shakeOnLow?: boolean; // Optional: shake when ratio is low
 }
 
 export class HudBarComponent implements Component {
@@ -24,8 +26,15 @@ export class HudBarComponent implements Component {
     offsetY: number;
     fillColor: number;
     flashTimer: number;
+    redOutlineOnLow: boolean;
+    shakeOnLow: boolean;
+    shakeTimer: number;
   }> = [];
-  private readonly flashInterval: number = 300;
+  private readonly flashIntervalMs: number = 300;
+  private readonly shakeSpeedMs: number = 100; // milliseconds per shake cycle
+  private readonly shakeAmountPx: number = 2; // pixels
+  private readonly shakeLowThreshold: number = 0.3; // 30% - shake when below this ratio
+  private readonly shakeFrequency: number = 2; // full sine wave cycles per shake
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -72,6 +81,9 @@ export class HudBarComponent implements Component {
         offsetY: config.offsetY,
         fillColor: config.fillColor,
         flashTimer: 0,
+        redOutlineOnLow: config.redOutlineOnLow ?? false,
+        shakeOnLow: config.shakeOnLow ?? false,
+        shakeTimer: 0,
       });
     }
   }
@@ -82,8 +94,18 @@ export class HudBarComponent implements Component {
     for (const bar of this.bars) {
       const ratio = bar.dataSource.getRatio();
       
-      const barX = transform.x;
+      let barX = transform.x;
       const barY = transform.y + bar.offsetY;
+      
+      // Shake if enabled and ratio is low
+      if (bar.shakeOnLow && ratio < this.shakeLowThreshold && ratio > 0) {
+        bar.shakeTimer += delta;
+        const shakeProgress = (bar.shakeTimer % this.shakeSpeedMs) / this.shakeSpeedMs;
+        const shakeOffset = Math.sin(shakeProgress * Math.PI * this.shakeFrequency) * this.shakeAmountPx;
+        barX += shakeOffset;
+      } else {
+        bar.shakeTimer = 0;
+      }
       
       // Update positions (centered)
       bar.background.setPosition(barX, barY);
@@ -95,10 +117,21 @@ export class HudBarComponent implements Component {
       const fillX = barX - this.barWidth / 2 + fillWidth / 2;
       bar.fill.setPosition(fillX, barY);
       
+      // Update outline color if redOutlineOnLow is enabled
+      if (bar.redOutlineOnLow) {
+        // Interpolate from white (full) to red (empty)
+        // ratio 1.0 = white (0xffffff), ratio 0.0 = red (0xff0000)
+        const red = 255;
+        const green = Math.floor(255 * ratio);
+        const blue = Math.floor(255 * ratio);
+        const color = (red << 16) | (green << 8) | blue;
+        bar.outline.setStrokeStyle(2, color);
+      }
+      
       // Flash when empty (ratio at 0)
       if (ratio === 0) {
         bar.flashTimer += delta;
-        if (bar.flashTimer >= this.flashInterval) {
+        if (bar.flashTimer >= this.flashIntervalMs) {
           bar.flashTimer = 0;
           // Toggle visibility
           const isVisible = bar.outline.visible;

@@ -12,18 +12,18 @@ export class Grid {
   public height: number; // rows
   public readonly cellSize: number;
   private readonly graphics: Phaser.GameObjects.Graphics;
-  private gridDebug: boolean = true;
-  private showOccupants: boolean = false;
-  private readonly sceneDebug: boolean = false;
+  private isGridDebugEnabled: boolean = true;
+  private isShowingOccupants: boolean = false;
+  private readonly isSceneDebugEnabled: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
 
   public get gridDebugEnabled(): boolean {
-    return this.gridDebug;
+    return this.isGridDebugEnabled;
   }
 
   public get sceneDebugEnabled(): boolean {
-    return this.sceneDebug;
+    return this.isSceneDebugEnabled;
   }
 
   public get rows(): number {
@@ -60,14 +60,14 @@ export class Grid {
     // Toggle grid debug with G
     const keyG = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
     keyG?.on("down", () => {
-      this.gridDebug = !this.gridDebug;
+      this.isGridDebugEnabled = !this.isGridDebugEnabled;
       this.render();
     });
 
     // Toggle occupant highlighting with C
     const keyC = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.C);
     keyC?.on("down", () => {
-      this.showOccupants = !this.showOccupants;
+      this.isShowingOccupants = !this.isShowingOccupants;
       this.render();
     });
   }
@@ -136,9 +136,9 @@ export class Grid {
   render() {
     this.graphics.clear();
 
-    if (!this.gridDebug) {
+    if (!this.isGridDebugEnabled) {
       // Still draw scene debug elements even if grid is off
-      if (this.sceneDebug) {
+      if (this.isSceneDebugEnabled) {
         this.renderSceneDebug();
       }
       return;
@@ -178,7 +178,7 @@ export class Grid {
         }
 
         // Occupied cells in green (overlay on top)
-        if (this.showOccupants && cell.occupants.size > 0) {
+        if (this.isShowingOccupants && cell.occupants.size > 0) {
           this.graphics.fillStyle(0x00ff00, 0.3);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
@@ -190,7 +190,7 @@ export class Grid {
     }
 
     // Draw scene debug elements if enabled
-    if (this.sceneDebug) {
+    if (this.isSceneDebugEnabled) {
       this.renderSceneDebug();
     }
   }
@@ -214,12 +214,12 @@ export class Grid {
   }
 
   renderCollisionBox(x: number, y: number, width: number, height: number): void {
-    if (!this.sceneDebug) return;
+    if (!this.isSceneDebugEnabled) return;
     this.collisionBoxes.push({ x, y, width, height });
   }
 
   renderEmitterBox(x: number, y: number, size: number): void {
-    if (!this.sceneDebug) return;
+    if (!this.isSceneDebugEnabled) return;
     this.emitterBoxes.push({ x, y, size });
   }
 

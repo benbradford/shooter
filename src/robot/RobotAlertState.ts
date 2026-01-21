@@ -7,18 +7,18 @@ import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 
 // Alert state configuration
-const ALERT_DURATION = 1000; // milliseconds
-const EXCLAMATION_OFFSET_Y = -120; // pixels above robot
-const EXCLAMATION_RISE_Y = -140; // final Y position
+const ALERT_DURATION_MS = 1000; // milliseconds
+const EXCLAMATION_OFFSET_Y_PX = -120; // pixels above robot
+const EXCLAMATION_RISE_Y_PX = -140; // final Y position
 const EXCLAMATION_SCALE = 4;
 const EXCLAMATION_DEPTH = 3;
-const EXCLAMATION_ANIMATION_DURATION = 300; // milliseconds
+const EXCLAMATION_ANIMATION_DURATION_MS = 300; // milliseconds
 
 export class RobotAlertState implements IState {
   private readonly entity: Entity;
   private readonly playerEntity: Entity;
   private readonly scene: Phaser.Scene;
-  private elapsed: number = 0;
+  private elapsedMs: number = 0;
   private exclamationSprite: Phaser.GameObjects.Sprite | null = null;
 
   constructor(entity: Entity, scene: Phaser.Scene, playerEntity: Entity) {
@@ -28,7 +28,7 @@ export class RobotAlertState implements IState {
   }
 
   onEnter(): void {
-    this.elapsed = 0;
+    this.elapsedMs = 0;
 
     const transform = this.entity.get(TransformComponent);
     const playerTransform = this.playerEntity.get(TransformComponent);
@@ -46,7 +46,7 @@ export class RobotAlertState implements IState {
     // Create exclamation sprite above robot
     this.exclamationSprite = this.scene.add.sprite(
       transform.x,
-      transform.y + EXCLAMATION_OFFSET_Y,
+      transform.y + EXCLAMATION_OFFSET_Y_PX,
       'exclamation'
     );
     this.exclamationSprite.setScale(EXCLAMATION_SCALE);
@@ -56,9 +56,9 @@ export class RobotAlertState implements IState {
     // Animate exclamation rising
     this.scene.tweens.add({
       targets: this.exclamationSprite,
-      y: transform.y + EXCLAMATION_RISE_Y,
+      y: transform.y + EXCLAMATION_RISE_Y_PX,
       alpha: 1,
-      duration: EXCLAMATION_ANIMATION_DURATION,
+      duration: EXCLAMATION_ANIMATION_DURATION_MS,
       ease: 'Back.easeOut',
     });
   }
@@ -71,7 +71,7 @@ export class RobotAlertState implements IState {
   }
 
   onUpdate(delta: number): void {
-    this.elapsed += delta;
+    this.elapsedMs += delta;
 
     const stateMachine = this.entity.get(StateMachineComponent);
     if (!stateMachine) return;
@@ -80,12 +80,12 @@ export class RobotAlertState implements IState {
     if (this.exclamationSprite) {
       const transform = this.entity.get(TransformComponent);
       if (transform) {
-        this.exclamationSprite.setPosition(transform.x, transform.y + EXCLAMATION_RISE_Y);
+        this.exclamationSprite.setPosition(transform.x, transform.y + EXCLAMATION_RISE_Y_PX);
       }
     }
 
     // After alert duration, transition to stalking
-    if (this.elapsed >= ALERT_DURATION) {
+    if (this.elapsedMs >= ALERT_DURATION_MS) {
       stateMachine.stateMachine.enter('stalking');
     }
   }

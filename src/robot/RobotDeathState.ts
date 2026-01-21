@@ -10,7 +10,7 @@ const DEATH_TOTAL_FRAMES = 7;
 
 export class RobotDeathState implements IState {
   private readonly entity: Entity;
-  private readonly currentDirection: Direction = Direction.Down;
+  private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
   private animationTimer: number = 0;
   private animationComplete: boolean = false;
@@ -25,9 +25,24 @@ export class RobotDeathState implements IState {
     this.animationTimer = 0;
     this.animationComplete = false;
 
-    // Use current direction (could be enhanced later to track from previous state)
+    // Get current facing direction from sprite frame
     const sprite = this.entity.get(SpriteComponent);
     if (sprite) {
+      const currentFrame = sprite.sprite.frame.name;
+      const frameNum = Number.parseInt(currentFrame, 10);
+      
+      // Determine direction from current frame
+      // Idle frames: 0-7 (8 directions)
+      // Walk frames: 8-71 (8 directions × 8 frames)
+      if (frameNum < 8) {
+        // Idle frame
+        this.currentDirection = this.getDirectionFromIdleFrame(frameNum);
+      } else if (frameNum < 72) {
+        // Walk frame
+        const dirIndex = Math.floor((frameNum - 8) / 8);
+        this.currentDirection = this.getDirectionFromIndex(dirIndex);
+      }
+      
       sprite.sprite.clearTint();
       this.scene = sprite.sprite.scene;
 
@@ -87,5 +102,33 @@ export class RobotDeathState implements IState {
     };
     const dirIndex = directionMap[direction] || 0;
     return 72 + (dirIndex * 7) + frame;
+  }
+
+  private getDirectionFromIdleFrame(frame: number): Direction {
+    const directions = [
+      Direction.Down,
+      Direction.Up,
+      Direction.Left,
+      Direction.Right,
+      Direction.UpLeft,
+      Direction.UpRight,
+      Direction.DownLeft,
+      Direction.DownRight,
+    ];
+    return directions[frame] || Direction.Down;
+  }
+
+  private getDirectionFromIndex(index: number): Direction {
+    const directions = [
+      Direction.Down,
+      Direction.Up,
+      Direction.Left,
+      Direction.Right,
+      Direction.UpLeft,
+      Direction.UpRight,
+      Direction.DownLeft,
+      Direction.DownRight,
+    ];
+    return directions[index] || Direction.Down;
   }
 }

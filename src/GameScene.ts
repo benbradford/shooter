@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { Grid } from "./utils/Grid";
-import { LevelLoader } from "./level/LevelLoader";
-import type { LevelData } from "./level/LevelLoader";
+import { LevelLoader, type LevelData } from "./level/LevelLoader";
 import { EntityManager } from "./ecs/EntityManager";
 import { Entity } from "./ecs/Entity";
 import { createPlayerEntity } from "./player/PlayerEntity";
@@ -215,6 +214,10 @@ export default class GameScene extends Phaser.Scene {
 
     if (!robotTransform || !robotSprite || !robotHealth || !robotKnockback || !robotStateMachine) return false;
 
+    // Don't hit robots that are already dead/dying
+    const currentState = robotStateMachine.stateMachine.getCurrentKey();
+    if (currentState === 'death') return false;
+
     // Check collision
     const dx = bulletTransform.x - robotTransform.x;
     const dy = bulletTransform.y - robotTransform.y;
@@ -228,7 +231,7 @@ export default class GameScene extends Phaser.Scene {
     // Apply knockback
     const bulletProjectile = bullet.get(ProjectileComponent);
     if (bulletProjectile && robotKnockback) {
-      (robotKnockback as KnockbackComponent).applyKnockback(
+      robotKnockback.applyKnockback(
         bulletProjectile.dirX,
         bulletProjectile.dirY,
         200
@@ -239,7 +242,6 @@ export default class GameScene extends Phaser.Scene {
     robotStateMachine.stateMachine.enter('hit');
 
     // Transition to alert state if patrolling
-    const currentState = robotStateMachine.stateMachine.getCurrentKey();
     if (currentState === 'patrol') {
       robotStateMachine.stateMachine.enter('alert');
     }
