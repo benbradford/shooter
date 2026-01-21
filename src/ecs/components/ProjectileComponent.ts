@@ -19,8 +19,8 @@ export class ProjectileComponent implements Component {
   private distanceTraveled: number = 0;
   private currentLayer: number;
   private readonly fromTransition: boolean;
-  private readonly dirX: number;
-  private readonly dirY: number;
+  public readonly dirX: number;
+  public readonly dirY: number;
   private readonly speed: number;
   private readonly maxDistance: number;
   private readonly grid: Grid;

@@ -5,6 +5,14 @@ export interface LevelCell {
   isTransition?: boolean;
 }
 
+export interface LevelRobot {
+  col: number;
+  row: number;
+  health: number;
+  speed: number;
+  waypoints: Array<{ col: number; row: number }>;
+}
+
 export interface LevelData {
   width: number;
   height: number;
@@ -13,6 +21,7 @@ export interface LevelData {
     y: number;
   };
   cells: LevelCell[];
+  robots?: LevelRobot[];
 }
 
 export class LevelLoader {

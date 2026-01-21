@@ -25,6 +25,14 @@ export class Grid {
     return this.sceneDebug;
   }
 
+  public get rows(): number {
+    return this.height;
+  }
+
+  public get cols(): number {
+    return this.width;
+  }
+
   public cells: CellData[][];
 
   constructor(scene: Phaser.Scene, width: number, height: number, cellSize: number = 64) {

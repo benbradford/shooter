@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 10,
-    "y": 10
+    "x": 9,
+    "y": 9
   },
   "cells": [
     {
@@ -293,11 +293,6 @@
       "isTransition": true
     },
     {
-      "col": 8,
-      "row": 6,
-      "layer": -1
-    },
-    {
       "col": 39,
       "row": 6,
       "layer": 1
@@ -338,11 +333,6 @@
       "layer": -1
     },
     {
-      "col": 8,
-      "row": 7,
-      "layer": -1
-    },
-    {
       "col": 39,
       "row": 7,
       "layer": 1
@@ -379,11 +369,6 @@
     },
     {
       "col": 7,
-      "row": 8,
-      "layer": -1
-    },
-    {
-      "col": 8,
       "row": 8,
       "layer": -1
     },
@@ -1655,6 +1640,24 @@
       "col": 39,
       "row": 29,
       "layer": 1
+    }
+  ],
+  "robots": [
+    {
+      "col": 12,
+      "row": 9,
+      "health": 100,
+      "speed": 100,
+      "waypoints": [
+        {
+          "col": 12,
+          "row": 9
+        },
+        {
+          "col": 15,
+          "row": 9
+        }
+      ]
     }
   ]
 }

@@ -22,6 +22,10 @@ export class EntityManager {
       entity.update(delta);
     }
     
+    // Remove marked entities
+    const toRemove = this.entities.filter(entity => entity.markedForRemoval);
+    toRemove.forEach(entity => this.remove(entity));
+    
     // Remove destroyed entities (do this after all updates)
     this.entities = this.entities.filter(entity => !entity.isDestroyed);
   }

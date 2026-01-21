@@ -4,6 +4,7 @@ export class Entity {
   private readonly components: Map<string, Component> = new Map();
   private updateOrder: Component[] = [];
   public isDestroyed: boolean = false;
+  public markedForRemoval: boolean = false;
 
   constructor(public readonly id: string) {}
 
@@ -47,5 +48,9 @@ export class Entity {
     this.components.forEach(component => component.onDestroy());
     this.components.clear();
     this.updateOrder = [];
+  }
+
+  markForRemoval(): void {
+    this.markedForRemoval = true;
   }
 }

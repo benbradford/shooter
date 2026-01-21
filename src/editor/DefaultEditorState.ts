@@ -13,6 +13,7 @@ export class DefaultEditorState extends EditorState {
   }
 
   onEnter(_prevState?: IState): void {
+    
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;

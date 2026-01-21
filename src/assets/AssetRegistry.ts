@@ -17,6 +17,17 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  floating_robot: {
+    key: 'floating_robot',
+    path: 'assets/floating_robot/floating-robot-spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  exclamation: {
+    key: 'exclamation',
+    path: 'assets/floating_robot/exclamation.png',
+    type: 'image' as const,
+  },
   bullet_default: {
     key: 'bullet_default',
     path: 'assets/player/bullet_default.png',

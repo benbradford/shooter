@@ -92,6 +92,12 @@ export default class EditorScene extends Phaser.Scene {
       resize: new ResizeEditorState(this),
       move: new MoveEditorState(this)
     }, 'default');
+
+    // Event listeners
+    this.events.on('changeEditorState', (stateName: string) => {
+      this.stateMachine.enter(stateName);
+    });
+
   }
 
   update(_time: number, delta: number): void {
