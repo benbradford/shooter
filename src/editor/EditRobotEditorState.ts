@@ -7,12 +7,15 @@ import { TransformComponent } from '../ecs/components/TransformComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 import { PatrolComponent } from '../ecs/components/PatrolComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
+import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
 
 export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private selectedRobot: Entity | null = null;
   private uiContainer: Phaser.GameObjects.Container | null = null;
   private healthText: Phaser.GameObjects.Text | null = null;
   private speedText: Phaser.GameObjects.Text | null = null;
+  private fireballSpeedText: Phaser.GameObjects.Text | null = null;
+  private fireballDurationText: Phaser.GameObjects.Text | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
   private draggingWaypointIndex: number | null = null;
 
@@ -155,12 +158,12 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     this.uiContainer = this.scene.add.container(x, y);
     this.uiContainer.setScrollFactor(0);
 
-    // Background panel
-    const bg = this.scene.add.rectangle(0, 0, 240, 380, 0x000000, 0.8);
+    // Background panel (taller to fit fireball properties)
+    const bg = this.scene.add.rectangle(0, 0, 240, 520, 0x000000, 0.8);
     this.uiContainer.add(bg);
 
     // Title
-    const title = this.scene.add.text(0, -130, 'Edit Robot', {
+    const title = this.scene.add.text(0, -220, 'Edit Robot', {
       fontSize: '20px',
       color: '#ffffff',
       fontStyle: 'bold'
@@ -168,62 +171,98 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     this.uiContainer.add(title);
 
     // Instructions
-    const instructions = this.scene.add.text(0, -100, 'Click a robot to edit', {
+    const instructions = this.scene.add.text(0, -190, 'Click a robot to edit', {
       fontSize: '14px',
       color: '#aaaaaa'
     }).setOrigin(0.5);
     this.uiContainer.add(instructions);
 
     // Health label and value
-    const healthLabel = this.scene.add.text(-100, -50, 'Health:', {
+    const healthLabel = this.scene.add.text(-100, -140, 'Health:', {
       fontSize: '16px',
       color: '#ffffff'
     });
     this.uiContainer.add(healthLabel);
 
-    this.healthText = this.scene.add.text(50, -50, '100', {
+    this.healthText = this.scene.add.text(50, -140, '100', {
       fontSize: '16px',
       color: '#00ff00'
     });
     this.uiContainer.add(this.healthText);
 
     // Health buttons
-    const healthMinus = this.createButton(-100, -20, '-10', () => this.adjustHealth(-10));
-    const healthPlus = this.createButton(-40, -20, '+10', () => this.adjustHealth(10));
+    const healthMinus = this.createButton(-100, -110, '-10', () => this.adjustHealth(-10));
+    const healthPlus = this.createButton(-40, -110, '+10', () => this.adjustHealth(10));
     this.uiContainer.add([healthMinus, healthPlus]);
 
     // Speed label and value
-    const speedLabel = this.scene.add.text(-100, 20, 'Speed:', {
+    const speedLabel = this.scene.add.text(-100, -70, 'Speed:', {
       fontSize: '16px',
       color: '#ffffff'
     });
     this.uiContainer.add(speedLabel);
 
-    this.speedText = this.scene.add.text(50, 20, '100', {
+    this.speedText = this.scene.add.text(50, -70, '100', {
       fontSize: '16px',
       color: '#00ffff'
     });
     this.uiContainer.add(this.speedText);
 
     // Speed buttons
-    const speedMinus = this.createButton(-100, 50, '-10', () => this.adjustSpeed(-10));
-    const speedPlus = this.createButton(-40, 50, '+10', () => this.adjustSpeed(10));
+    const speedMinus = this.createButton(-100, -40, '-10', () => this.adjustSpeed(-10));
+    const speedPlus = this.createButton(-40, -40, '+10', () => this.adjustSpeed(10));
     this.uiContainer.add([speedMinus, speedPlus]);
 
+    // Fireball Speed label and value
+    const fireballSpeedLabel = this.scene.add.text(-100, 0, 'FB Speed:', {
+      fontSize: '16px',
+      color: '#ffffff'
+    });
+    this.uiContainer.add(fireballSpeedLabel);
+
+    this.fireballSpeedText = this.scene.add.text(50, 0, '300', {
+      fontSize: '16px',
+      color: '#ff8800'
+    });
+    this.uiContainer.add(this.fireballSpeedText);
+
+    // Fireball Speed buttons
+    const fbSpeedMinus = this.createButton(-100, 30, '-50', () => this.adjustFireballSpeed(-50));
+    const fbSpeedPlus = this.createButton(-40, 30, '+50', () => this.adjustFireballSpeed(50));
+    this.uiContainer.add([fbSpeedMinus, fbSpeedPlus]);
+
+    // Fireball Duration label and value
+    const fireballDurationLabel = this.scene.add.text(-100, 70, 'FB Duration:', {
+      fontSize: '16px',
+      color: '#ffffff'
+    });
+    this.uiContainer.add(fireballDurationLabel);
+
+    this.fireballDurationText = this.scene.add.text(50, 70, '2000', {
+      fontSize: '16px',
+      color: '#ff8800'
+    });
+    this.uiContainer.add(this.fireballDurationText);
+
+    // Fireball Duration buttons
+    const fbDurationMinus = this.createButton(-100, 100, '-100', () => this.adjustFireballDuration(-100));
+    const fbDurationPlus = this.createButton(-40, 100, '+100', () => this.adjustFireballDuration(100));
+    this.uiContainer.add([fbDurationMinus, fbDurationPlus]);
+
     // Back button
-    const backButton = this.createButton(0, 120, 'Back', () => {
+    const backButton = this.createButton(0, 170, 'Back', () => {
       this.scene.enterDefaultMode();
     });
     this.uiContainer.add(backButton);
 
     // Add Waypoint button
-    const addWaypointButton = this.createButton(0, 160, 'Add Waypoint', () => {
+    const addWaypointButton = this.createButton(0, 210, 'Add Waypoint', () => {
       this.addWaypoint();
     });
     this.uiContainer.add(addWaypointButton);
 
     // Delete Waypoint button
-    const deleteWaypointButton = this.createButton(0, 200, 'Delete Waypoint', () => {
+    const deleteWaypointButton = this.createButton(0, 250, 'Delete Waypoint', () => {
       this.deleteWaypoint();
     });
     this.uiContainer.add(deleteWaypointButton);
@@ -254,10 +293,11 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
   }
 
   private updateUI(): void {
-    if (!this.selectedRobot || !this.healthText || !this.speedText) return;
+    if (!this.selectedRobot || !this.healthText || !this.speedText || !this.fireballSpeedText || !this.fireballDurationText) return;
 
     const health = this.selectedRobot.get(HealthComponent);
     const patrol = this.selectedRobot.get(PatrolComponent);
+    const fireballProps = this.selectedRobot.get(FireballPropertiesComponent);
 
     if (health) {
       this.healthText.setText(health.getHealth().toString());
@@ -265,6 +305,11 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
 
     if (patrol) {
       this.speedText.setText(patrol.speed.toString());
+    }
+
+    if (fireballProps) {
+      this.fireballSpeedText.setText(fireballProps.speed.toString());
+      this.fireballDurationText.setText(fireballProps.duration.toString());
     }
   }
 
@@ -289,6 +334,26 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     }
   }
 
+  private adjustFireballSpeed(delta: number): void {
+    if (!this.selectedRobot) return;
+
+    const fireballProps = this.selectedRobot.get(FireballPropertiesComponent);
+    if (fireballProps) {
+      fireballProps.speed = Math.max(50, Math.min(1000, fireballProps.speed + delta));
+      this.updateUI();
+    }
+  }
+
+  private adjustFireballDuration(delta: number): void {
+    if (!this.selectedRobot) return;
+
+    const fireballProps = this.selectedRobot.get(FireballPropertiesComponent);
+    if (fireballProps) {
+      fireballProps.duration = Math.max(500, Math.min(10000, fireballProps.duration + delta));
+      this.updateUI();
+    }
+  }
+
   private destroyUI(): void {
     if (this.uiContainer) {
       this.uiContainer.destroy();
@@ -296,6 +361,8 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     }
     this.healthText = null;
     this.speedText = null;
+    this.fireballSpeedText = null;
+    this.fireballDurationText = null;
   }
 
   private renderWaypoints(): void {

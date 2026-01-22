@@ -4,7 +4,6 @@ import { Direction, dirFromDelta } from '../constants/Direction';
 import { TransformComponent } from '../ecs/components/TransformComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
 import { PatrolComponent } from '../ecs/components/PatrolComponent';
 
 // Stalking state configuration
@@ -44,7 +43,6 @@ export class RobotStalkingState implements IState {
     const playerTransform = this.playerEntity.get(TransformComponent);
     const stateMachine = this.entity.get(StateMachineComponent);
     const sprite = this.entity.get(SpriteComponent);
-    const gridCollision = this.entity.get(GridCollisionComponent);
     const patrol = this.entity.get(PatrolComponent);
 
     if (!transform || !playerTransform || !stateMachine || !sprite || !patrol) return;
@@ -68,15 +66,11 @@ export class RobotStalkingState implements IState {
     const newX = transform.x + dirX * moveSpeed;
     const newY = transform.y + dirY * moveSpeed;
 
-    // Check collision - simplified for now
-    if (gridCollision) {
-      // Just apply movement - collision detection can be enhanced later
-      transform.x = newX;
-      transform.y = newY;
-    } else {
-      transform.x = newX;
-      transform.y = newY;
-    }
+
+    // Just apply movement - collision detection can be enhanced later
+    transform.x = newX;
+    transform.y = newY;
+
 
     // Update direction
     this.currentDirection = dirFromDelta(dirX, dirY);

@@ -53,6 +53,17 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/crosshair.png',
     type: 'image' as const,
   },
+  fireball: {
+    key: 'fireball',
+    path: 'assets/floating_robot/fireball-spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 64, frameHeight: 64 }
+  },
+  fire: {
+    key: 'fire',
+    path: 'assets/floating_robot/fire.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

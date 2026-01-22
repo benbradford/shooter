@@ -9,6 +9,7 @@ import { HealthComponent } from '../ecs/components/HealthComponent';
 import { PatrolComponent, type PatrolWaypoint } from '../ecs/components/PatrolComponent';
 import { LineOfSightComponent } from '../ecs/components/LineOfSightComponent';
 import { KnockbackComponent } from '../ecs/components/KnockbackComponent';
+import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
 import { StateMachine } from '../utils/state/StateMachine';
 import { RobotPatrolState } from './RobotPatrolState';
 import { RobotAlertState } from './RobotAlertState';
@@ -35,7 +36,9 @@ export function createStalkingRobotEntity(
   playerEntity: Entity,
   waypoints: PatrolWaypoint[],
   health: number,
-  speed: number
+  speed: number,
+  fireballSpeed: number,
+  fireballDuration: number
 ): Entity {
   const entity = new Entity('stalking_robot');
 
@@ -69,13 +72,16 @@ export function createStalkingRobotEntity(
   // Knockback
   entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION));
 
+  // Fireball properties
+  entity.add(new FireballPropertiesComponent(fireballSpeed, fireballDuration));
+
   // State machine
   const stateMachine = new StateMachine(
     {
       patrol: new RobotPatrolState(entity, grid, playerEntity),
       alert: new RobotAlertState(entity, scene, playerEntity),
       stalking: new RobotStalkingState(entity, playerEntity),
-      fireball: new RobotFireballState(entity, playerEntity),
+      fireball: new RobotFireballState(entity, scene, playerEntity),
       hit: new RobotHitState(entity),
       death: new RobotDeathState(entity),
     },

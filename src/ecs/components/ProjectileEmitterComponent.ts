@@ -15,9 +15,9 @@ export interface ProjectileEmitterProps {
   onFire: (x: number, y: number, dirX: number, dirY: number) => void;
   offsets: Record<Direction, EmitterOffset>;
   shouldFire: () => boolean;
-  cooldown?: number;
-  onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
-  ammoComponent?: AmmoComponent;
+  cooldown: number;
+  onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
+  ammoComponent: AmmoComponent;
 }
 
 export class ProjectileEmitterComponent implements Component {
@@ -28,9 +28,9 @@ export class ProjectileEmitterComponent implements Component {
   private readonly offsets: Record<Direction, EmitterOffset>;
   private readonly shouldFire: () => boolean;
   private readonly cooldown: number;
-  private readonly onShellEject?: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
-  private readonly ammoComponent?: AmmoComponent;
-  
+  private readonly onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
+  private readonly ammoComponent: AmmoComponent;
+
   constructor(props: ProjectileEmitterProps) {
     this.scene = props.scene;
     this.onFire = props.onFire;
@@ -59,22 +59,22 @@ export class ProjectileEmitterComponent implements Component {
     const transform = this.entity.get(TransformComponent)!;
     const walk = this.entity.get(WalkComponent)!;
     const direction = walk.lastDir;
-    
+
     const offset = this.offsets[direction];
     const emitX = transform.x + offset.x;
     const emitY = transform.y + offset.y;
-    
+
     // Use actual movement direction instead of discrete sprite direction
     const dirX = walk.lastMoveX;
     const dirY = walk.lastMoveY;
-    
+
     this.onFire(emitX, emitY, dirX, dirY);
-    
+
     // Consume ammo
     if (this.ammoComponent) {
       this.ammoComponent.consumeAmmo();
     }
-    
+
     // Eject shell casing
     if (this.onShellEject) {
       const shellDir = [Direction.Left, Direction.UpLeft, Direction.DownLeft].includes(direction)

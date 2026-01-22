@@ -12,6 +12,7 @@ import { EditRobotEditorState } from "./editor/EditRobotEditorState";
 import { PatrolComponent } from "./ecs/components/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { HealthComponent } from "./ecs/components/HealthComponent";
+import { FireballPropertiesComponent } from "./ecs/components/FireballPropertiesComponent";
 
 export default class EditorScene extends Phaser.Scene {
   private stateMachine!: StateMachine<void | Entity | MoveEditorStateProps>;
@@ -172,6 +173,8 @@ export default class EditorScene extends Phaser.Scene {
       health: number;
       speed: number;
       waypoints: Array<{ col: number; row: number }>;
+      fireballSpeed: number;
+      fireballDuration: number;
     }> = [];
 
     const entities = gameScene.getEntities();
@@ -180,14 +183,17 @@ export default class EditorScene extends Phaser.Scene {
       if (patrol) {
         const sprite = entity.get(SpriteComponent);
         const health = entity.get(HealthComponent);
-        if (sprite && health) {
+        const fireballProps = entity.get(FireballPropertiesComponent);
+        if (sprite && health && fireballProps) {
           const cell = grid.worldToCell(sprite.sprite.x, sprite.sprite.y);
           robots.push({
             col: cell.col,
             row: cell.row,
             health: health.getHealth(),
             speed: patrol.speed,
-            waypoints: [...patrol.waypoints]
+            waypoints: [...patrol.waypoints],
+            fireballSpeed: fireballProps.speed,
+            fireballDuration: fireballProps.duration
           });
         }
       }

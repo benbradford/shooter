@@ -151,7 +151,9 @@ export default class GameScene extends Phaser.Scene {
           player,
           robotData.waypoints,
           robotData.health,
-          robotData.speed
+          robotData.speed,
+          robotData.fireballSpeed,
+          robotData.fireballDuration
         );
         this.entityManager.add(robot);
       }

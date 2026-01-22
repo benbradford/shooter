@@ -11,6 +11,8 @@ export interface LevelRobot {
   health: number;
   speed: number;
   waypoints: Array<{ col: number; row: number }>;
+  fireballSpeed: number;
+  fireballDuration: number;
 }
 
 export interface LevelData {
