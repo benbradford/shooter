@@ -19,3 +19,6 @@ export { OverheatSmokeComponent } from './components/OverheatSmokeComponent';
 export { TouchJoystickComponent } from './components/TouchJoystickComponent';
 export { JoystickVisualsComponent } from './components/JoystickVisualsComponent';
 export { CrosshairVisualsComponent } from './components/CrosshairVisualsComponent';
+export { AnimatedSpriteComponent } from './components/AnimatedSpriteComponent';
+export { PulsingScaleComponent } from './components/PulsingScaleComponent';
+export { ParticleTrailComponent } from './components/ParticleTrailComponent';

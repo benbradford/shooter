@@ -1,5 +1,6 @@
 import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
+import type { Grid } from '../utils/Grid';
 import { Direction, dirFromDelta } from '../constants/Direction';
 import { TransformComponent } from '../ecs/components/TransformComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
@@ -103,7 +104,6 @@ export class RobotFireballState implements IState {
 
     if (!transform || !playerTransform || !fireballProps) return;
 
-    // Calculate direction to player
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const distance = Math.hypot(dx, dy);
@@ -113,13 +113,22 @@ export class RobotFireballState implements IState {
     const dirX = dx / distance;
     const dirY = dy / distance;
 
-    // Calculate max distance from duration
     const maxDistance = fireballProps.speed * (fireballProps.duration / 1000);
 
-    // Get offset for current direction
     const offset = FIREBALL_OFFSETS[this.currentDirection];
 
-    // Create fireball entity
+    const gameScene = this.scene as Phaser.Scene & {
+      entityManager?: { add: (entity: Entity) => void };
+      getGrid?: () => Grid;
+    };
+
+    if (!gameScene.entityManager || !gameScene.getGrid) return;
+
+    const grid = gameScene.getGrid();
+    const robotCell = grid.worldToCell(transform.x, transform.y);
+    const robotCellData = grid.getCell(robotCell.col, robotCell.row);
+    const robotLayer = robotCellData?.layer ?? 0;
+
     const fireball = createFireballEntity(
       this.scene,
       transform.x + offset.x,
@@ -127,16 +136,12 @@ export class RobotFireballState implements IState {
       dirX,
       dirY,
       fireballProps.speed,
-      maxDistance
+      maxDistance,
+      grid,
+      robotLayer
     );
 
-    // Add to scene's entity manager
-    const gameScene = this.scene as Phaser.Scene & {
-      entityManager?: { add: (entity: Entity) => void };
-    };
-    if (gameScene.entityManager) {
-      gameScene.entityManager.add(fireball);
-    }
+    gameScene.entityManager.add(fireball);
   }
 
   private getFireballFrameForDirection(direction: Direction, frame: number): number {

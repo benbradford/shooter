@@ -24,7 +24,7 @@ import type { Grid } from '../utils/Grid';
 // Robot configuration constants
 const ROBOT_SCALE = 3;
 const ROBOT_SPRITE_FRAME = 0; // South idle
-const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
+const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 50, width: 32, height: 16 };
 const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -22, offsetY: -40, width: 48, height: 85 };
 const ROBOT_LINE_OF_SIGHT_RANGE = 800;
 const ROBOT_FIELD_OF_VIEW = Math.PI * 0.75;
@@ -53,7 +53,7 @@ export function createStalkingRobotEntity(
   const sprite = entity.add(new SpriteComponent(scene, 'floating_robot', transform));
   sprite.sprite.setFrame(ROBOT_SPRITE_FRAME);
 
-  const shadow = entity.add(new ShadowComponent(scene));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 2, offsetX: 0, offsetY: 60 }));
   shadow.init();
 
   const startCell = grid.worldToCell(x, y);

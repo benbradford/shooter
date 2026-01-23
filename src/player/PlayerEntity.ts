@@ -16,6 +16,7 @@ import { HudBarComponent } from '../ecs/components/HudBarComponent';
 import { OverheatSmokeComponent } from '../ecs/components/OverheatSmokeComponent';
 import { CollisionComponent } from '../ecs/components/CollisionComponent';
 import { DamageComponent } from '../ecs/components/DamageComponent';
+import { ShadowComponent } from '../ecs/components/ShadowComponent';
 import { Animation } from '../animation/Animation';
 import { AnimationSystem } from '../animation/AnimationSystem';
 import { Direction } from '../constants/Direction';
@@ -57,6 +58,9 @@ export function createPlayerEntity(
 
   const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
   sprite.sprite.setFrame(PLAYER_SPRITE_FRAME);
+
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 2, offsetX: -5, offsetY: 43 }));
+  shadow.init();
 
   // Sprite sheet layout: 4 cols (idle, walk1, walk2, walk3) x 8 rows (8 directions)
   // Row 0: Down, Row 1: Up, Row 2: Left, Row 3: Right
@@ -170,6 +174,7 @@ export function createPlayerEntity(
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
+    ShadowComponent,
     InputComponent,
     WalkComponent,
     GridCollisionComponent,

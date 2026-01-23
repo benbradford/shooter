@@ -319,14 +319,24 @@ const ammo = entity.add(new AmmoComponent({
 
 ```
 src/
+├── animation/           # Animation system (Animation, AnimationSystem)
 ├── assets/              # Asset registry and loader
 ├── constants/           # Shared constants (Direction, etc.)
 ├── ecs/                 # ECS framework
-│   └── components/      # All reusable components
-├── animation/           # Animation system
+│   ├── components/      # All reusable components
+│   ├── Component.ts     # Component interface
+│   ├── Entity.ts        # Entity class
+│   └── EntityManager.ts # Entity lifecycle management
+├── editor/              # Level editor states and UI
+├── hud/                 # HUD entities (joystick, etc.)
+├── level/               # Level loading system
 ├── player/              # Player entity and states
-├── projectile/          # Projectile entities (bullets, etc.)
+├── projectile/          # Projectile entities (bullets, fireballs, shells)
+├── robot/               # Robot enemy entity and states
+├── systems/             # Game systems (CollisionSystem)
 ├── utils/               # Grid, StateMachine, etc.
+│   └── state/           # State machine interfaces
+├── EditorScene.ts       # Level editor scene
 ├── GameScene.ts         # Main game scene
 └── main.ts              # Entry point
 ```
