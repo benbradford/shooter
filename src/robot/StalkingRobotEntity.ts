@@ -78,7 +78,7 @@ export function createStalkingRobotEntity(
     {
       patrol: new RobotPatrolState(entity, grid, playerEntity),
       alert: new RobotAlertState(entity, scene, playerEntity),
-      stalking: new RobotStalkingState(entity, playerEntity),
+      stalking: new RobotStalkingState(entity, playerEntity, grid),
       fireball: new RobotFireballState(entity, scene, playerEntity),
       hit: new RobotHitState(entity),
       death: new RobotDeathState(entity),

@@ -174,14 +174,14 @@ export function createYourEnemyEntity(
 
 **Update LevelLoader.ts:**
 ```typescript
-export interface LevelEnemy {
-  type: string; // 'robot', 'turret', etc.
+export interface LevelRobot {
   col: number;
   row: number;
   health: number;
   speed: number;
   waypoints: Array<{ col: number; row: number }>;
-  // Add enemy-specific properties as needed
+  fireballSpeed: number;
+  fireballDuration: number;
 }
 
 export interface LevelData {
@@ -189,45 +189,37 @@ export interface LevelData {
   height: number;
   playerStart: { x: number; y: number };
   cells: Array<{ col: number; row: number; layer: number }>;
-  enemies?: LevelEnemy[]; // Optional array of enemies
+  robots?: LevelRobot[]; // Optional array of robots
 }
 ```
+
+**Note:** Currently only robots are supported. To add other enemy types, you would need to create a generic `LevelEnemy` interface with a `type` field and type-specific properties.
 
 **Update GameScene.ts:**
 ```typescript
 // In create() after loading level
-if (level.enemies && level.enemies.length > 0) {
-  for (const enemyData of level.enemies) {
-    const x = enemyData.col * this.grid.cellSize + this.grid.cellSize / 2;
-    const y = enemyData.row * this.grid.cellSize + this.grid.cellSize / 2;
+if (level.robots && level.robots.length > 0) {
+  for (const robotData of level.robots) {
+    const x = robotData.col * this.grid.cellSize + this.grid.cellSize / 2;
+    const y = robotData.row * this.grid.cellSize + this.grid.cellSize / 2;
     
-    let enemy: Entity;
-    switch (enemyData.type) {
-      case 'robot':
-        enemy = createStalkingRobotEntity(
-          this, x, y, this.grid, player,
-          enemyData.waypoints, enemyData.health, enemyData.speed
-        );
-        break;
-      case 'turret':
-        enemy = createTurretEntity(
-          this, x, y, this.grid, player,
-          enemyData.health
-        );
-        break;
-      default:
-        console.warn('Unknown enemy type:', enemyData.type);
-        continue;
-    }
+    const robot = createStalkingRobotEntity(
+      this, x, y, this.grid, player,
+      robotData.waypoints,
+      robotData.health,
+      robotData.speed,
+      robotData.fireballSpeed,
+      robotData.fireballDuration
+    );
     
-    this.entityManager.add(enemy);
+    this.entityManager.add(robot);
   }
 }
 ```
 
 ### 6. Add to Level JSON
 
-**Example level with enemies:**
+**Example level with robots:**
 ```json
 {
   "width": 40,
@@ -237,9 +229,8 @@ if (level.enemies && level.enemies.length > 0) {
     "y": 9
   },
   "cells": [...],
-  "enemies": [
+  "robots": [
     {
-      "type": "robot",
       "col": 12,
       "row": 9,
       "health": 100,
@@ -247,15 +238,9 @@ if (level.enemies && level.enemies.length > 0) {
       "waypoints": [
         { "col": 12, "row": 9 },
         { "col": 15, "row": 9 }
-      ]
-    },
-    {
-      "type": "turret",
-      "col": 20,
-      "row": 15,
-      "health": 50,
-      "speed": 0,
-      "waypoints": []
+      ],
+      "fireballSpeed": 400,
+      "fireballDuration": 2000
     }
   ]
 }

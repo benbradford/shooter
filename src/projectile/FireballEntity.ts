@@ -44,7 +44,7 @@ export function createFireballEntity(
     speed,
     maxDistance,
     grid,
-    blockedByWalls: false,
+    blockedByWalls: true,
     startLayer,
     fromTransition: false
   }));

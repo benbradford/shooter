@@ -27,22 +27,29 @@ npx eslint src --ext .ts  # Check code quality
 
 ### Adding a Shadow to an Entity
 
-Shadows are handled by the reusable `ShadowComponent`:
+Shadows are handled by the reusable `ShadowComponent`. All shadow properties must be explicitly provided:
 
 ```typescript
 import { ShadowComponent } from '../ecs/components/ShadowComponent';
 
 // In entity factory function
-const shadow = entity.add(new ShadowComponent(scene));
+const shadow = entity.add(new ShadowComponent(scene, {
+  scale: 2,        // Shadow size (required)
+  offsetX: 0,      // Horizontal offset from entity (required)
+  offsetY: 50      // Vertical offset from entity (required)
+}));
 shadow.init();  // Must call init() after add()
 ```
 
+**Common shadow configurations:**
+- Player: `{ scale: 2, offsetX: -5, offsetY: 43 }`
+- Robot: `{ scale: 2, offsetX: 0, offsetY: 60 }`
+- Fireball: `{ scale: 1.4, offsetX: 0, offsetY: 50 }`
+
 The shadow:
-- Renders 50px below the entity
 - Uses the `shadow` texture from `assets/generic/shadow.png`
 - Automatically follows the entity's position
 - Renders at depth -1 (behind everything)
-- Scale is 2x by default
 
 **Note:** Always call `shadow.init()` after adding the component to the entity.
 

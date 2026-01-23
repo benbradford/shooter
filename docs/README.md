@@ -31,7 +31,13 @@ Quick reference for navigating the Dodging Bullets documentation.
    - Transition cells (staircases)
    - Scene setup and camera
 
-5. **[Collision System](./collision-system.md)** - Entity-to-entity collision
+5. **[Pathfinding](./pathfinding.md)** - A* pathfinding system
+   - Navigating around walls
+   - Layer-aware pathfinding
+   - Transition cell usage
+   - Performance and best practices
+
+6. **[Collision System](./collision-system.md)** - Entity-to-entity collision
    - CollisionComponent and tags
    - AABB collision detection
    - Separation from grid collision
@@ -39,7 +45,7 @@ Quick reference for navigating the Dodging Bullets documentation.
 
 ## Input and Controls
 
-6. **[Input Systems](./input-systems.md)** - Player controls
+7. **[Input Systems](./input-systems.md)** - Player controls
    - Touch joystick (movement)
    - Crosshair button (firing)
    - Keyboard controls
@@ -47,12 +53,12 @@ Quick reference for navigating the Dodging Bullets documentation.
 
 ## Level Design
 
-7. **[Level System](./level-system.md)** - Loading levels from JSON
+8. **[Level System](./level-system.md)** - Loading levels from JSON
    - Level data structure
    - Layer system
    - Player spawn points
 
-8. **[Level Editor](./level-editor.md)** - In-game level editor
+9. **[Level Editor](./level-editor.md)** - In-game level editor
    - Editor modes (default, grid, move, resize, edit robot)
    - Saving workflow
    - State machine architecture
@@ -60,19 +66,19 @@ Quick reference for navigating the Dodging Bullets documentation.
 
 ## Adding Content
 
-9. **[Adding Enemies](./adding-enemies.md)** - Complete enemy implementation guide
+10. **[Adding Enemies](./adding-enemies.md)** - Complete enemy implementation guide
    - Asset preparation
    - Component creation
    - State machine setup
    - Level integration
 
-10. **[Component Props Pattern](./component-props-pattern.md)** - Props-based configuration
+11. **[Component Props Pattern](./component-props-pattern.md)** - Props-based configuration
     - Refactored components
     - Benefits and usage examples
 
 ## Asset Documentation
 
-11. **[Floating Robot Spritesheet](./floating-robot-spritesheet.md)** - Robot sprite layout
+12. **[Floating Robot Spritesheet](./floating-robot-spritesheet.md)** - Robot sprite layout
     - Frame layout and indices
     - Animation structure
     - Regeneration script

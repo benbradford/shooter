@@ -5,30 +5,44 @@ import { TransformComponent } from '../ecs/components/TransformComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { PatrolComponent } from '../ecs/components/PatrolComponent';
+import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
+import { Pathfinder } from '../utils/Pathfinder';
+import type { Grid } from '../utils/Grid';
 
 // Stalking state configuration
 const MIN_STALK_TIME = 2000; // milliseconds before can attack
 const ATTACK_RANGE = 500; // pixels
 const STALKING_SPEED_MULTIPLIER = 1.5;
 const ANIMATION_SPEED = 100; // milliseconds per frame
+const PATH_RECALC_INTERVAL = 500; // milliseconds between path recalculations
 
 export class RobotStalkingState implements IState {
   private readonly entity: Entity;
   private readonly playerEntity: Entity;
+  private readonly grid: Grid;
+  private readonly pathfinder: Pathfinder;
   private stalkingTime: number = 0;
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
   private animationTimer: number = 0;
+  private path: Array<{ col: number; row: number }> | null = null;
+  private pathRecalcTimer: number = 0;
+  private currentPathIndex: number = 0;
 
-  constructor(entity: Entity, playerEntity: Entity) {
+  constructor(entity: Entity, playerEntity: Entity, grid: Grid) {
     this.entity = entity;
     this.playerEntity = playerEntity;
+    this.grid = grid;
+    this.pathfinder = new Pathfinder(grid);
   }
 
   onEnter(): void {
     this.stalkingTime = 0;
     this.animationFrame = 0;
     this.animationTimer = 0;
+    this.path = null;
+    this.pathRecalcTimer = 0;
+    this.currentPathIndex = 0;
   }
 
   onExit(): void {
@@ -38,50 +52,112 @@ export class RobotStalkingState implements IState {
   onUpdate(delta: number): void {
     this.stalkingTime += delta;
     this.animationTimer += delta;
+    this.pathRecalcTimer += delta;
 
     const transform = this.entity.get(TransformComponent);
     const playerTransform = this.playerEntity.get(TransformComponent);
     const stateMachine = this.entity.get(StateMachineComponent);
     const sprite = this.entity.get(SpriteComponent);
     const patrol = this.entity.get(PatrolComponent);
+    const gridPos = this.entity.get(GridPositionComponent);
 
-    if (!transform || !playerTransform || !stateMachine || !sprite || !patrol) return;
+    if (!transform || !playerTransform || !stateMachine || !sprite || !patrol || !gridPos) return;
 
-    // Calculate direction to player
-    const dx = playerTransform.x - transform.x;
-    const dy = playerTransform.y - transform.y;
-    const distance = Math.hypot(dx, dy);
-
-    // Check if should attack
-    if (distance <= ATTACK_RANGE && this.stalkingTime >= MIN_STALK_TIME) {
+    if (this.shouldAttack(transform, playerTransform)) {
       stateMachine.stateMachine.enter('fireball');
       return;
     }
 
-    // Move towards player
+    this.updatePath(transform, playerTransform, gridPos);
+    this.moveAlongPath(transform, patrol, delta);
+    this.updateAnimation(sprite);
+  }
+
+  private shouldAttack(transform: TransformComponent, playerTransform: TransformComponent): boolean {
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distance = Math.hypot(dx, dy);
+    return distance <= ATTACK_RANGE && this.stalkingTime >= MIN_STALK_TIME;
+  }
+
+  private updatePath(transform: TransformComponent, playerTransform: TransformComponent, gridPos: GridPositionComponent): void {
+    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL || this.path === null) {
+      this.pathRecalcTimer = 0;
+      const robotCell = this.grid.worldToCell(transform.x, transform.y);
+      const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+      
+      this.path = this.pathfinder.findPath(
+        robotCell.col,
+        robotCell.row,
+        playerCell.col,
+        playerCell.row,
+        gridPos.currentLayer
+      );
+      this.currentPathIndex = 0;
+    }
+  }
+
+  private moveAlongPath(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
+    if (this.path && this.path.length > 1) {
+      this.followPath(transform, patrol, delta);
+    } else {
+      this.moveDirectly(transform, patrol, delta);
+    }
+  }
+
+  private followPath(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
+    if (this.currentPathIndex === 0) {
+      this.currentPathIndex = 1;
+    }
+
+    const targetNode = this.path![this.currentPathIndex];
+    const targetWorld = this.grid.cellToWorld(targetNode.col, targetNode.row);
+    const targetX = targetWorld.x + this.grid.cellSize / 2;
+    const targetY = targetWorld.y + this.grid.cellSize / 2;
+
+    const dirX = targetX - transform.x;
+    const dirY = targetY - transform.y;
+    const distToTarget = Math.hypot(dirX, dirY);
+
+    if (distToTarget < 10) {
+      this.currentPathIndex++;
+      if (this.currentPathIndex >= this.path!.length) {
+        this.path = null;
+      }
+    } else {
+      const normalizedDirX = dirX / distToTarget;
+      const normalizedDirY = dirY / distToTarget;
+      const moveSpeed = patrol.speed * STALKING_SPEED_MULTIPLIER * (delta / 1000);
+
+      transform.x += normalizedDirX * moveSpeed;
+      transform.y += normalizedDirY * moveSpeed;
+
+      this.currentDirection = dirFromDelta(normalizedDirX, normalizedDirY);
+    }
+  }
+
+  private moveDirectly(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
+    const playerTransform = this.playerEntity.get(TransformComponent)!;
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distance = Math.hypot(dx, dy);
+
     const dirX = dx / distance;
     const dirY = dy / distance;
     const moveSpeed = patrol.speed * STALKING_SPEED_MULTIPLIER * (delta / 1000);
 
-    const newX = transform.x + dirX * moveSpeed;
-    const newY = transform.y + dirY * moveSpeed;
+    transform.x += dirX * moveSpeed;
+    transform.y += dirY * moveSpeed;
 
-
-    // Just apply movement - collision detection can be enhanced later
-    transform.x = newX;
-    transform.y = newY;
-
-
-    // Update direction
     this.currentDirection = dirFromDelta(dirX, dirY);
+  }
 
-    // Animate walk cycle
+  private updateAnimation(sprite: SpriteComponent): void {
     if (this.animationTimer >= ANIMATION_SPEED) {
       this.animationTimer = 0;
       this.animationFrame = (this.animationFrame + 1) % 8;
     }
 
-    // Set sprite frame (walk animation)
     const frameIndex = this.getWalkFrameForDirection(this.currentDirection, this.animationFrame);
     sprite.sprite.setFrame(frameIndex);
   }
