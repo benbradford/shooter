@@ -14,8 +14,7 @@ import { AddRobotEditorState } from "./editor/AddRobotEditorState";
 import { TextureEditorState } from "./editor/TextureEditorState";
 import { PatrolComponent } from "./ecs/components/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
-import { HealthComponent } from "./ecs/components/HealthComponent";
-import { FireballPropertiesComponent } from "./ecs/components/FireballPropertiesComponent";
+import { RobotDifficultyComponent } from "./ecs/components/RobotDifficultyComponent";
 import { TransformComponent } from "./ecs/components/TransformComponent";
 
 export default class EditorScene extends Phaser.Scene {
@@ -118,9 +117,9 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine.update(delta);
     this.handleCameraMovement(delta);
     
-    // Render cell coordinates in editor
-    const grid = this.getGrid();
-    grid.renderCellCoordinates();
+    // Render cell coordinates in editor (commented out - causes lag)
+    // const grid = this.getGrid();
+    // grid.renderCellCoordinates();
   }
 
   private handleCameraMovement(delta: number): void {
@@ -182,11 +181,8 @@ export default class EditorScene extends Phaser.Scene {
     const robots: Array<{
       col: number;
       row: number;
-      health: number;
-      speed: number;
+      difficulty: 'easy' | 'medium' | 'hard';
       waypoints: Array<{ col: number; row: number }>;
-      fireballSpeed: number;
-      fireballDuration: number;
     }> = [];
 
     const entityManager = gameScene.getEntityManager();
@@ -195,18 +191,14 @@ export default class EditorScene extends Phaser.Scene {
       const patrol = entity.get(PatrolComponent);
       if (patrol) {
         const sprite = entity.get(SpriteComponent);
-        const health = entity.get(HealthComponent);
-        const fireballProps = entity.get(FireballPropertiesComponent);
-        if (sprite && health && fireballProps) {
+        const difficultyComp = entity.get(RobotDifficultyComponent);
+        if (sprite && difficultyComp) {
           const cell = grid.worldToCell(sprite.sprite.x, sprite.sprite.y);
           robots.push({
             col: cell.col,
             row: cell.row,
-            health: health.getHealth(),
-            speed: patrol.speed,
-            waypoints: [...patrol.waypoints],
-            fireballSpeed: fireballProps.speed,
-            fireballDuration: fireballProps.duration
+            difficulty: difficultyComp.difficulty as 'easy' | 'medium' | 'hard',
+            waypoints: [...patrol.waypoints]
           });
         }
       }

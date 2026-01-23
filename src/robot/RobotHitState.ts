@@ -5,18 +5,19 @@ import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 
 // Hit state configuration
-const HIT_DURATION_MS = 1000; // milliseconds
 const HIT_FLASH_INTERVAL_MS = 100; // milliseconds
-const HIT_TINT_COLOR = 0xff0000; // red
+const HIT_TINT_COLOR = 0xff8888; // lighter red
 
 export class RobotHitState implements IState {
   private readonly entity: Entity;
+  private readonly hitDuration: number;
   private elapsedMs: number = 0;
   private flashTimerMs: number = 0;
   private isRed: boolean = false;
 
-  constructor(entity: Entity) {
+  constructor(entity: Entity, hitDuration: number) {
     this.entity = entity;
+    this.hitDuration = hitDuration;
   }
 
   onEnter(): void {
@@ -66,7 +67,7 @@ export class RobotHitState implements IState {
     }
 
     // After hit duration, return to stalking
-    if (this.elapsedMs >= HIT_DURATION_MS) {
+    if (this.elapsedMs >= this.hitDuration) {
       stateMachine.stateMachine.enter('stalking');
     }
   }

@@ -6,10 +6,10 @@ import { CollisionComponent } from '../ecs/components/CollisionComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import type { Grid } from '../utils/Grid';
+import { BULLET_DISPLAY_SIZE } from './ProjectileConfig';
 
 const BULLET_DAMAGE = 10;
 const BULLET_COLLISION_BOX = { offsetX: -2, offsetY: -2, width: 4, height: 4 };
-
 export interface CreateBulletProps {
   scene: Phaser.Scene;
   x: number;
@@ -29,9 +29,9 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
   // Calculate rotation from direction (add 90 degrees since bullet texture is vertical)
   const rotation = Math.atan2(dirY, dirX) + Math.PI / 2;
   
-  const transform = entity.add(new TransformComponent(x, y, rotation, 1));
+  const transform = entity.add(new TransformComponent(x, y, rotation, BULLET_DISPLAY_SIZE / 16));
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
-  sprite.sprite.setDisplaySize(16, 16);
+  sprite.sprite.setDisplaySize(16, 16); // Base size, scaled by transform
   
   entity.add(new ProjectileComponent({
     dirX,

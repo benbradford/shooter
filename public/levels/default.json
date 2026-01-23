@@ -1646,8 +1646,7 @@
     {
       "col": 10,
       "row": 9,
-      "health": 70,
-      "speed": 140,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 10,
@@ -1665,15 +1664,12 @@
           "col": 10,
           "row": 13
         }
-      ],
-      "fireballSpeed": 350,
-      "fireballDuration": 2300
+      ]
     },
     {
       "col": 3,
       "row": 8,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 3,
@@ -1691,9 +1687,7 @@
           "col": 2,
           "row": 8
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     }
   ]
 }

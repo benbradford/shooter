@@ -3,6 +3,7 @@ import { TransformComponent } from '../ecs/components/TransformComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { ShellCasingComponent } from '../ecs/components/ShellCasingComponent';
 import { Direction } from '../constants/Direction';
+import { SHELL_SCALE } from './ProjectileConfig';
 
 export function createShellCasingEntity(
   scene: Phaser.Scene,
@@ -13,7 +14,7 @@ export function createShellCasingEntity(
 ): Entity {
   const entity = new Entity('shell_casing');
 
-  const transform = entity.add(new TransformComponent(playerX, playerY, 0, 0.5));  // Scale 0.5 = half size
+  const transform = entity.add(new TransformComponent(playerX, playerY, 0, SHELL_SCALE));
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default_shell', transform));
   
   // Set depth based on player facing direction

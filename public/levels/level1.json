@@ -2411,8 +2411,7 @@
     {
       "col": 4,
       "row": 12,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "easy",
       "waypoints": [
         {
           "col": 2,
@@ -2422,15 +2421,12 @@
           "col": 6,
           "row": 12
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 5,
       "row": 11,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "hard",
       "waypoints": [
         {
           "col": 2,
@@ -2440,15 +2436,12 @@
           "col": 8,
           "row": 11
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 1,
       "row": 9,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 1,
@@ -2458,15 +2451,12 @@
           "col": 1,
           "row": 11
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 8,
       "row": 9,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 8,
@@ -2476,15 +2466,12 @@
           "col": 8,
           "row": 11
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 18,
       "row": 3,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 17,
@@ -2494,15 +2481,12 @@
           "col": 19,
           "row": 3
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 21,
       "row": 3,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 20,
@@ -2512,15 +2496,12 @@
           "col": 22,
           "row": 3
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 15,
       "row": 1,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 15,
@@ -2530,15 +2511,12 @@
           "col": 15,
           "row": 7
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 4,
       "row": 1,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 3,
@@ -2548,15 +2526,12 @@
           "col": 5,
           "row": 1
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 7,
       "row": 1,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 6,
@@ -2566,15 +2541,12 @@
           "col": 8,
           "row": 1
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 10,
       "row": 5,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 10,
@@ -2592,15 +2564,12 @@
           "col": 14,
           "row": 5
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 17,
       "row": 16,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 14,
@@ -2610,15 +2579,12 @@
           "col": 17,
           "row": 16
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     },
     {
       "col": 22,
       "row": 15,
-      "health": 100,
-      "speed": 100,
+      "difficulty": "medium",
       "waypoints": [
         {
           "col": 19,
@@ -2636,9 +2602,7 @@
           "col": 22,
           "row": 16
         }
-      ],
-      "fireballSpeed": 300,
-      "fireballDuration": 2000
+      ]
     }
   ]
 }

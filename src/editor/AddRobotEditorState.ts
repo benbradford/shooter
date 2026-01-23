@@ -98,6 +98,7 @@ export class AddRobotEditorState extends EditorState {
       { col: col + 1, row }
     ];
 
+    // Default to medium difficulty
     const robot = createStalkingRobotEntity({
       scene: gameScene,
       x,
@@ -105,10 +106,7 @@ export class AddRobotEditorState extends EditorState {
       grid,
       playerEntity: player,
       waypoints,
-      health: 100,
-      speed: 100,
-      fireballSpeed: 300,
-      fireballDuration: 2000
+      difficulty: 'medium'
     });
 
     entityManager.add(robot);

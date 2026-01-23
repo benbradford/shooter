@@ -9,11 +9,8 @@ export interface LevelCell {
 export interface LevelRobot {
   col: number;
   row: number;
-  health: number;
-  speed: number;
+  difficulty: 'easy' | 'medium' | 'hard';
   waypoints: Array<{ col: number; row: number }>;
-  fireballSpeed: number;
-  fireballDuration: number;
 }
 
 export interface LevelData {

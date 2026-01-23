@@ -10,7 +10,6 @@ import { Pathfinder } from '../utils/Pathfinder';
 import type { Grid } from '../utils/Grid';
 
 // Stalking state configuration
-const MIN_STALK_TIME_MS = 2000;
 const ATTACK_RANGE_PX = 500;
 const MIN_DISTANCE_PX = 150;
 const STALKING_SPEED_MULTIPLIER = 1.5;
@@ -22,6 +21,7 @@ export class RobotStalkingState implements IState {
   private readonly playerEntity: Entity;
   private readonly grid: Grid;
   private readonly pathfinder: Pathfinder;
+  private readonly fireballDelayTime: number;
   private stalkingTime: number = 0;
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
@@ -30,11 +30,12 @@ export class RobotStalkingState implements IState {
   private pathRecalcTimer: number = 0;
   private currentPathIndex: number = 0;
 
-  constructor(entity: Entity, playerEntity: Entity, grid: Grid) {
+  constructor(entity: Entity, playerEntity: Entity, grid: Grid, fireballDelayTime: number) {
     this.entity = entity;
     this.playerEntity = playerEntity;
     this.grid = grid;
     this.pathfinder = new Pathfinder(grid);
+    this.fireballDelayTime = fireballDelayTime;
   }
 
   onEnter(): void {
@@ -84,7 +85,7 @@ export class RobotStalkingState implements IState {
   }
 
   private shouldAttack(distance: number): boolean {
-    return distance <= ATTACK_RANGE_PX && this.stalkingTime >= MIN_STALK_TIME_MS;
+    return distance <= ATTACK_RANGE_PX && this.stalkingTime >= this.fireballDelayTime;
   }
 
   private updatePath(transform: TransformComponent, playerTransform: TransformComponent, gridPos: GridPositionComponent): void {

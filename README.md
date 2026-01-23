@@ -291,6 +291,7 @@ npx eslint src --ext .ts     # Code quality check - MUST pass
 - **[Level System](./docs/level-system.md)** - Loading levels from JSON, level data structure, creating levels
 - **[Level Editor](./docs/level-editor.md)** - Editor mode, scene overlay system, future features
 - **[Adding Enemies](./docs/adding-enemies.md)** - Complete guide for implementing new enemy types with state machines and components
+- **[Screen Scaling and HUD](./docs/screen-scaling-and-hud.md)** - Critical quirks for screen scaling, coordinate systems, HUD positioning, Android compatibility
 
 ### Quick Reference
 - **[Quick Reference](./docs/quick-reference.md)** - Common tasks, patterns, troubleshooting

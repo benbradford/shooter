@@ -2,6 +2,7 @@ import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { AimJoystickComponent } from './AimJoystickComponent';
 import { ControlModeComponent } from './ControlModeComponent';
+import { TOUCH_CONTROLS_SCALE } from '../../main';
 
 export class AimJoystickVisualsComponent implements Component {
   entity!: Entity;
@@ -17,13 +18,13 @@ export class AimJoystickVisualsComponent implements Component {
   ) {}
 
   init(): void {
-    this.outerCircle = this.scene.add.circle(0, 0, this.aimJoystick.maxRadius, 0x0000ff, 0.1);
-    this.outerCircle.setStrokeStyle(3, 0x0000ff, 0.8);
+    this.outerCircle = this.scene.add.circle(0, 0, this.aimJoystick.maxRadius * TOUCH_CONTROLS_SCALE, 0x0000ff, 0.1);
+    this.outerCircle.setStrokeStyle(3 * TOUCH_CONTROLS_SCALE, 0x0000ff, 0.8);
     this.outerCircle.setScrollFactor(0);
     this.outerCircle.setDepth(2000);
     this.outerCircle.setVisible(false);
 
-    this.innerCircle = this.scene.add.circle(0, 0, this.aimJoystick.innerRadius, 0x0000ff, 0.8);
+    this.innerCircle = this.scene.add.circle(0, 0, this.aimJoystick.innerRadius * TOUCH_CONTROLS_SCALE, 0x0000ff, 0.8);
     this.innerCircle.setScrollFactor(0);
     this.innerCircle.setDepth(2001);
     this.innerCircle.setVisible(false);
@@ -56,11 +57,10 @@ export class AimJoystickVisualsComponent implements Component {
       this.outerCircle.setPosition(state.startX, state.startY);
       this.innerCircle.setPosition(state.currentX, state.currentY);
     } else {
-      // Use last position, or default if never touched
-      if (!this.initialized) {
-        this.lastX = displayWidth * 0.85;
-        this.lastY = displayHeight * 0.75;
-        this.initialized = true;
+      // Use last position, or recalculate default until touched
+      if (!this.initialized || this.lastX === 0) {
+        this.lastX = displayWidth * 0.95;
+        this.lastY = displayHeight * 0.95;
       }
       this.outerCircle.setPosition(this.lastX, this.lastY);
       this.innerCircle.setPosition(this.lastX, this.lastY);

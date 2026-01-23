@@ -7,6 +7,7 @@ import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { createJoystickEntity } from "./hud/JoystickEntity";
 import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
+import type { RobotDifficulty } from "./robot/RobotDifficulty";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { GridPositionComponent } from "./ecs/components/GridPositionComponent";
 import { preloadAssets } from "./assets/AssetLoader";
@@ -157,10 +158,7 @@ export default class GameScene extends Phaser.Scene {
           grid: this.grid,
           playerEntity: player,
           waypoints: robotData.waypoints,
-          health: robotData.health,
-          speed: robotData.speed,
-          fireballSpeed: robotData.fireballSpeed,
-          fireballDuration: robotData.fireballDuration
+          difficulty: robotData.difficulty as RobotDifficulty
         });
         this.entityManager.add(robot);
       }

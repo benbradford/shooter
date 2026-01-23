@@ -43,6 +43,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/smoke.png',
     type: 'image' as const,
   },
+  robot_hit_particle: {
+    key: 'robot_hit_particle',
+    path: 'assets/floating_robot/hit_texture.png',
+    type: 'image' as const,
+  },
   target: {
     key: 'target',
     path: 'assets/player/target.png',

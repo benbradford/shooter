@@ -13,6 +13,8 @@ import { FireballPropertiesComponent } from '../ecs/components/FireballPropertie
 import { CollisionComponent } from '../ecs/components/CollisionComponent';
 import { ShadowComponent } from '../ecs/components/ShadowComponent';
 import { ProjectileComponent } from '../ecs/components/ProjectileComponent';
+import { RobotDifficultyComponent } from '../ecs/components/RobotDifficultyComponent';
+import { RobotHitParticlesComponent } from '../ecs/components/RobotHitParticlesComponent';
 import { StateMachine } from '../utils/state/StateMachine';
 import { RobotPatrolState } from './RobotPatrolState';
 import { RobotAlertState } from './RobotAlertState';
@@ -22,6 +24,7 @@ import { RobotFireballState } from './RobotFireballState';
 import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
 import type { Grid } from '../utils/Grid';
+import { getRobotDifficultyConfig, type RobotDifficulty } from './RobotDifficulty';
 
 // Robot configuration constants
 const ROBOT_SCALE = 3;
@@ -42,14 +45,15 @@ export interface CreateStalkingRobotProps {
   grid: Grid;
   playerEntity: Entity;
   waypoints: PatrolWaypoint[];
-  health: number;
-  speed: number;
-  fireballSpeed: number;
-  fireballDuration: number;
+  difficulty: RobotDifficulty;
 }
 
 export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Entity {
-  const { scene, x, y, grid, playerEntity, waypoints, health, speed, fireballSpeed, fireballDuration } = props;
+  const { scene, x, y, grid, playerEntity, waypoints, difficulty } = props;
+  
+  // Get all config from difficulty
+  const config = getRobotDifficultyConfig(difficulty);
+  
   const entity = new Entity('stalking_robot');
   entity.tags.add('enemy');
 
@@ -66,9 +70,9 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
 
   entity.add(new GridCollisionComponent(grid));
 
-  entity.add(new HealthComponent({ maxHealth: health }));
+  entity.add(new HealthComponent({ maxHealth: config.health }));
 
-  entity.add(new PatrolComponent(waypoints, speed));
+  entity.add(new PatrolComponent(waypoints, config.speed));
 
   entity.add(new LineOfSightComponent({
     range: ROBOT_LINE_OF_SIGHT_RANGE,
@@ -78,15 +82,20 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
 
   entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION_MS));
 
-  entity.add(new FireballPropertiesComponent(fireballSpeed, fireballDuration));
+  entity.add(new FireballPropertiesComponent(config.fireballSpeed, config.fireballDuration));
+  
+  entity.add(new RobotDifficultyComponent(difficulty));
+  
+  entity.add(new RobotHitParticlesComponent(scene));
+  
   const stateMachine = new StateMachine(
     {
       patrol: new RobotPatrolState(entity, grid, playerEntity),
       alert: new RobotAlertState(entity, scene, playerEntity),
-      stalking: new RobotStalkingState(entity, playerEntity, grid),
+      stalking: new RobotStalkingState(entity, playerEntity, grid, config.fireballDelayTime),
       retreat: new RobotRetreatState(entity, playerEntity),
       fireball: new RobotFireballState(entity, scene, playerEntity),
-      hit: new RobotHitState(entity),
+      hit: new RobotHitState(entity, config.hitDuration),
       death: new RobotDeathState(entity),
     },
     'patrol'
@@ -99,14 +108,21 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
+
         const healthComp = entity.get(HealthComponent);
         if (healthComp) {
           healthComp.takeDamage(ROBOT_BULLET_DAMAGE);
         }
 
+        // Emit hit particles
+        const hitParticles = entity.get(RobotHitParticlesComponent);
+        const projectile = other.get(ProjectileComponent);
+        if (hitParticles && projectile) {
+          hitParticles.emitHitParticles(projectile.dirX, projectile.dirY);
+        }
+
         // Apply knockback from projectile's direction (normalized)
         const knockback = entity.get(KnockbackComponent);
-        const projectile = other.get(ProjectileComponent);
         if (knockback && projectile) {
           const length = Math.hypot(projectile.dirX, projectile.dirY);
           const normalizedDirX = projectile.dirX / length;
@@ -114,8 +130,8 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
           knockback.applyKnockback(normalizedDirX, normalizedDirY, ROBOT_KNOCKBACK_FORCE_PX_PER_SEC);
         }
 
-        // Enter hit state (or reset if already in hit state)
         const currentState = stateMachineComp.stateMachine.getCurrentKey();
+        // Enter hit state (or reset if already in hit state)
         if (currentState === 'hit') {
           stateMachineComp.stateMachine.enter('stalking');
         }
@@ -132,6 +148,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     GridPositionComponent,
     GridCollisionComponent,
     LineOfSightComponent,
+    RobotHitParticlesComponent,
     StateMachineComponent,
   ]);
 
