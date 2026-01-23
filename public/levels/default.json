@@ -1668,6 +1668,32 @@
       ],
       "fireballSpeed": 350,
       "fireballDuration": 2300
+    },
+    {
+      "col": 3,
+      "row": 8,
+      "health": 100,
+      "speed": 100,
+      "waypoints": [
+        {
+          "col": 3,
+          "row": 8
+        },
+        {
+          "col": 3,
+          "row": 11
+        },
+        {
+          "col": 2,
+          "row": 11
+        },
+        {
+          "col": 2,
+          "row": 8
+        }
+      ],
+      "fireballSpeed": 300,
+      "fireballDuration": 2000
     }
   ]
 }

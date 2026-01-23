@@ -25,7 +25,9 @@ export default class GameScene extends Phaser.Scene {
   private grid!: Grid;
   private readonly cellSize: number = 128;
   private editorKey!: Phaser.Input.Keyboard.Key;
+  private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
+  private currentLevelName: string = 'level1';
 
   constructor() {
     super("game");
@@ -41,7 +43,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.collisionSystem = new CollisionSystem(this);
 
-    this.levelData = await LevelLoader.load('default');
+    this.levelData = await LevelLoader.load(this.currentLevelName);
 
     this.initializeScene();
 
@@ -49,6 +51,13 @@ export default class GameScene extends Phaser.Scene {
     this.editorKey.on('down', () => {
       if (this.scene.isActive()) {
         this.enterEditorMode();
+      }
+    });
+
+    this.levelKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.L);
+    this.levelKey.on('down', () => {
+      if (this.scene.isActive()) {
+        this.showLevelSelector();
       }
     });
   }
@@ -61,7 +70,8 @@ export default class GameScene extends Phaser.Scene {
     for (const cell of level.cells) {
       this.grid.setCell(cell.col, cell.row, {
         layer: cell.layer,
-        isTransition: cell.isTransition
+        isTransition: cell.isTransition,
+        backgroundTexture: cell.backgroundTexture
       });
     }
 
@@ -290,5 +300,51 @@ export default class GameScene extends Phaser.Scene {
 
   getLevelData(): LevelData {
     return this.levelData;
+  }
+
+  addRobot(col: number, row: number): Entity {
+    const x = col * this.grid.cellSize + this.grid.cellSize / 2;
+    const y = row * this.grid.cellSize + this.grid.cellSize / 2;
+
+    const player = this.entityManager.getFirst('player');
+    if (!player) {
+      throw new Error('Player not found');
+    }
+
+    const waypoints = [
+      { col: col - 1, row },
+      { col: col + 1, row }
+    ];
+
+    const robot = createStalkingRobotEntity(
+      this,
+      x,
+      y,
+      this.grid,
+      player,
+      waypoints,
+      100,
+      100,
+      300,
+      2000
+    );
+
+    this.entityManager.add(robot);
+    return robot;
+  }
+
+  private showLevelSelector(): void {
+    this.scene.pause();
+    this.scene.launch('LevelSelectorScene');
+  }
+
+  async loadLevel(levelName: string): Promise<void> {
+    this.currentLevelName = levelName;
+    this.levelData = await LevelLoader.load(levelName);
+    this.resetScene();
+  }
+
+  getCurrentLevelName(): string {
+    return this.currentLevelName;
   }
 }

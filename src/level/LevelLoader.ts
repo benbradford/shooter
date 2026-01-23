@@ -3,6 +3,7 @@ export interface LevelCell {
   row: number;
   layer?: number;
   isTransition?: boolean;
+  backgroundTexture?: string;
 }
 
 export interface LevelRobot {

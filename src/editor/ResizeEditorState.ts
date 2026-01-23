@@ -13,7 +13,7 @@ export class ResizeEditorState extends EditorState {
     const height = this.scene.cameras.main.height;
     const buttonY = height - 50;
     const buttonSpacing = 120;
-    const startX = 200;
+    const startX = 220;
 
     // Highlight graphics
     this.highlightGraphics = this.scene.add.graphics();
@@ -22,8 +22,18 @@ export class ResizeEditorState extends EditorState {
     // Back button (shared)
     this.buttons.push(this.createBackButton());
 
+    // Add Row button
+    this.createButton(startX, buttonY, 'Add Row', () => {
+      this.scene.addRow();
+    });
+
+    // Add Column button
+    this.createButton(startX + buttonSpacing, buttonY, 'Add Col', () => {
+      this.scene.addColumn();
+    });
+
     // Remove Row button
-    this.createButton(startX, buttonY, 'Remove Row', () => {
+    this.createButton(startX + buttonSpacing * 2, buttonY, 'Remove Row', () => {
       if (this.selectedRow !== null) {
         this.scene.removeRow(this.selectedRow);
         this.selectedRow = null;
@@ -31,7 +41,7 @@ export class ResizeEditorState extends EditorState {
     });
 
     // Remove Column button
-    this.createButton(startX + buttonSpacing, buttonY, 'Remove Col', () => {
+    this.createButton(startX + buttonSpacing * 3, buttonY, 'Remove Col', () => {
       if (this.selectedCol !== null) {
         this.scene.removeColumn(this.selectedCol);
         this.selectedCol = null;

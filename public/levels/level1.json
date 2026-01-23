@@ -1,0 +1,1109 @@
+{
+  "width": 24,
+  "height": 20,
+  "playerStart": {
+    "x": 5,
+    "y": 18
+  },
+  "cells": [
+    {
+      "col": 0,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 6,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 7,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 8,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 9,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 10,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 11,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 12,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 13,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 15,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 17,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 18,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 19,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 20,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 21,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 22,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 0,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 1,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 1,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 1,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 2,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 2,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 3,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 3,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 4,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 4,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "layer": 1
+    },
+    {
+      "col": 9,
+      "row": 5,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 5,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 5,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "layer": 1
+    },
+    {
+      "col": 9,
+      "row": 6,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 6,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 6,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "layer": 1
+    },
+    {
+      "col": 9,
+      "row": 7,
+      "layer": 1
+    },
+    {
+      "col": 12,
+      "row": 7,
+      "layer": -1
+    },
+    {
+      "col": 13,
+      "row": 7,
+      "layer": -1
+    },
+    {
+      "col": 16,
+      "row": 7,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 7,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 1
+    },
+    {
+      "col": 9,
+      "row": 8,
+      "layer": 1
+    },
+    {
+      "col": 12,
+      "row": 8,
+      "layer": -1
+    },
+    {
+      "col": 13,
+      "row": 8,
+      "layer": -1
+    },
+    {
+      "col": 23,
+      "row": 8,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 9,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 9,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 9,
+      "layer": 1
+    },
+    {
+      "col": 12,
+      "row": 9,
+      "layer": -1
+    },
+    {
+      "col": 13,
+      "row": 9,
+      "layer": -1
+    },
+    {
+      "col": 23,
+      "row": 9,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 10,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 2,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 3,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 4,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 5,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 6,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 7,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 8,
+      "row": 10,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 9,
+      "row": 10,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 10,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 11,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 11,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 11,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 11,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 12,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 12,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 12,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 12,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 13,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 2,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 3,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 4,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 5,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 6,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 7,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 8,
+      "row": 13,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 9,
+      "row": 13,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 13,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 14,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 14,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 14,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 14,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 15,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 10,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 11,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 12,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 13,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 14,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 15,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 17,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 2,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 3,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 4,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 5,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 6,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 7,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 8,
+      "row": 16,
+      "backgroundTexture": "dungeon_floor02"
+    },
+    {
+      "col": 9,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 10,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 11,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 17,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 10,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 11,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 2,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 3,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 4,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 5,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 6,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 7,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 8,
+      "row": 18,
+      "backgroundTexture": "dungeon_floor01"
+    },
+    {
+      "col": 9,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 10,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 11,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 0,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 1,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 2,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 3,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 4,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 5,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 6,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 7,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 8,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 9,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 10,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 11,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 12,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 13,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 14,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 15,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 16,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 17,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 18,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 19,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 20,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 21,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 22,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 23,
+      "row": 19,
+      "layer": 1
+    }
+  ],
+  "robots": [
+    {
+      "col": 4,
+      "row": 12,
+      "health": 100,
+      "speed": 100,
+      "waypoints": [
+        {
+          "col": 2,
+          "row": 12
+        },
+        {
+          "col": 6,
+          "row": 12
+        }
+      ],
+      "fireballSpeed": 300,
+      "fireballDuration": 2000
+    },
+    {
+      "col": 5,
+      "row": 11,
+      "health": 100,
+      "speed": 100,
+      "waypoints": [
+        {
+          "col": 2,
+          "row": 11
+        },
+        {
+          "col": 8,
+          "row": 11
+        }
+      ],
+      "fireballSpeed": 300,
+      "fireballDuration": 2000
+    },
+    {
+      "col": 1,
+      "row": 9,
+      "health": 100,
+      "speed": 100,
+      "waypoints": [
+        {
+          "col": 1,
+          "row": 7
+        },
+        {
+          "col": 1,
+          "row": 11
+        }
+      ],
+      "fireballSpeed": 300,
+      "fireballDuration": 2000
+    },
+    {
+      "col": 8,
+      "row": 9,
+      "health": 100,
+      "speed": 100,
+      "waypoints": [
+        {
+          "col": 8,
+          "row": 7
+        },
+        {
+          "col": 8,
+          "row": 11
+        }
+      ],
+      "fireballSpeed": 300,
+      "fireballDuration": 2000
+    }
+  ]
+}

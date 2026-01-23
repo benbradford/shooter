@@ -9,6 +9,9 @@ import { GridEditorState } from "./editor/GridEditorState";
 import { ResizeEditorState } from "./editor/ResizeEditorState";
 import { MoveEditorState, type MoveEditorStateProps } from "./editor/MoveEditorState";
 import { EditRobotEditorState } from "./editor/EditRobotEditorState";
+import { AddEditorState } from "./editor/AddEditorState";
+import { AddRobotEditorState } from "./editor/AddRobotEditorState";
+import { TextureEditorState } from "./editor/TextureEditorState";
 import { PatrolComponent } from "./ecs/components/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { HealthComponent } from "./ecs/components/HealthComponent";
@@ -97,7 +100,10 @@ export default class EditorScene extends Phaser.Scene {
       grid: new GridEditorState(this),
       resize: new ResizeEditorState(this),
       move: new MoveEditorState(this),
-      editRobot: new EditRobotEditorState(this)
+      editRobot: new EditRobotEditorState(this),
+      add: new AddEditorState(this),
+      addRobot: new AddRobotEditorState(this),
+      texture: new TextureEditorState(this)
     }, 'default');
 
     // Event listeners
@@ -136,7 +142,7 @@ export default class EditorScene extends Phaser.Scene {
     return gameScene.getGrid();
   }
 
-  setCellData(col: number, row: number, data: { layer?: number; isTransition?: boolean }): void {
+  setCellData(col: number, row: number, data: { layer?: number; isTransition?: boolean; backgroundTexture?: string }): void {
     const grid = this.getGrid();
     grid.setCell(col, row, data);
     grid.render(); // Force re-render to show changes
@@ -155,12 +161,13 @@ export default class EditorScene extends Phaser.Scene {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (cell && (cell.layer !== 0 || cell.isTransition)) {
+        if (cell && (cell.layer !== 0 || cell.isTransition || cell.backgroundTexture)) {
           cells.push({
             col,
             row,
             layer: cell.layer === 0 ? undefined : cell.layer,
-            isTransition: cell.isTransition ? cell.isTransition : undefined
+            isTransition: cell.isTransition ? cell.isTransition : undefined,
+            backgroundTexture: cell.backgroundTexture
           });
         }
       }
@@ -239,6 +246,13 @@ export default class EditorScene extends Phaser.Scene {
     console.log('=== LEVEL JSON ===');
     console.log(json);
     console.log('=== END LEVEL JSON ===');
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(json).then(() => {
+      console.log('✓ Level JSON copied to clipboard');
+    }).catch(err => {
+      console.error('Failed to copy to clipboard:', err);
+    });
   }
 
   enterDefaultMode(): void {
@@ -269,6 +283,18 @@ export default class EditorScene extends Phaser.Scene {
 
   enterEditRobotMode(robot?: Entity): void {
     this.stateMachine.enter('editRobot', robot);
+  }
+
+  enterAddMode(): void {
+    this.stateMachine.enter('add');
+  }
+
+  enterAddRobotMode(): void {
+    this.stateMachine.enter('addRobot');
+  }
+
+  enterTextureMode(): void {
+    this.stateMachine.enter('texture');
   }
 
   removeRow(row: number): void {
@@ -312,6 +338,18 @@ export default class EditorScene extends Phaser.Scene {
     
     // Remove last column by resizing
     grid.removeColumn();
+    grid.render();
+  }
+
+  addRow(): void {
+    const grid = this.getGrid();
+    grid.addRow();
+    grid.render();
+  }
+
+  addColumn(): void {
+    const grid = this.getGrid();
+    grid.addColumn();
     grid.render();
   }
 

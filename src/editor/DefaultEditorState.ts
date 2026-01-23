@@ -20,7 +20,7 @@ export class DefaultEditorState extends EditorState {
     this.scene.input.on('pointerdown', this.handleClick, this);
 
     // Save button
-    this.saveButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY, 'Save', {
+    this.saveButton = this.scene.add.text(centerX - buttonSpacing * 2.5, buttonY, 'Save', {
       fontSize: '24px',
       color: '#666666',
       backgroundColor: '#222222',
@@ -32,7 +32,7 @@ export class DefaultEditorState extends EditorState {
     this.buttons.push(this.saveButton);
 
     // Exit button
-    this.exitButton = this.scene.add.text(centerX - buttonSpacing, buttonY, 'Exit', {
+    this.exitButton = this.scene.add.text(centerX - buttonSpacing * 1.5, buttonY, 'Exit', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -55,7 +55,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Grid button
-    this.gridButton = this.scene.add.text(centerX, buttonY, 'Grid', {
+    this.gridButton = this.scene.add.text(centerX - buttonSpacing * 0.5, buttonY, 'Grid', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -77,8 +77,54 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterGridMode();
     });
 
+    // Add button
+    const addButton = this.scene.add.text(centerX + buttonSpacing * 0.5, buttonY, 'Add', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    addButton.setOrigin(0.5);
+    addButton.setScrollFactor(0);
+    addButton.setInteractive({ useHandCursor: true });
+    addButton.setDepth(1000);
+    this.buttons.push(addButton);
+
+    addButton.on('pointerover', () => {
+      addButton.setBackgroundColor('#555555');
+    });
+    addButton.on('pointerout', () => {
+      addButton.setBackgroundColor('#333333');
+    });
+    addButton.on('pointerdown', () => {
+      this.scene.enterAddMode();
+    });
+
+    // Texture button
+    const textureButton = this.scene.add.text(centerX + buttonSpacing * 1.5, buttonY, 'Texture', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    textureButton.setOrigin(0.5);
+    textureButton.setScrollFactor(0);
+    textureButton.setInteractive({ useHandCursor: true });
+    textureButton.setDepth(1000);
+    this.buttons.push(textureButton);
+
+    textureButton.on('pointerover', () => {
+      textureButton.setBackgroundColor('#555555');
+    });
+    textureButton.on('pointerout', () => {
+      textureButton.setBackgroundColor('#333333');
+    });
+    textureButton.on('pointerdown', () => {
+      this.scene.enterTextureMode();
+    });
+
     // Resize button
-    const resizeButton = this.scene.add.text(centerX + buttonSpacing, buttonY, 'Resize', {
+    const resizeButton = this.scene.add.text(centerX + buttonSpacing * 2.5, buttonY, 'Resize', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -101,7 +147,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Log button
-    const logButton = this.scene.add.text(centerX + buttonSpacing * 2, buttonY, 'Log', {
+    const logButton = this.scene.add.text(centerX + buttonSpacing * 3.5, buttonY, 'Log', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',

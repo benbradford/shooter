@@ -69,6 +69,16 @@ export const ASSET_REGISTRY = {
     path: 'assets/generic/shadow.png',
     type: 'image' as const,
   },
+  dungeon_floor01: {
+    key: 'dungeon_floor01',
+    path: 'assets/dungeon/dungeon_floor01.png',
+    type: 'image' as const,
+  },
+  dungeon_floor02: {
+    key: 'dungeon_floor02',
+    path: 'assets/dungeon/dungeon_floor02.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

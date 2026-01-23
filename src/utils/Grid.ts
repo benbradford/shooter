@@ -6,6 +6,7 @@ export type CellData = {
   layer: number;
   isTransition: boolean;
   occupants: Set<Entity>;
+  backgroundTexture?: string;
 };
 
 export class Grid {
@@ -13,6 +14,8 @@ export class Grid {
   public height: number; // rows
   public readonly cellSize: number;
   private readonly graphics: Phaser.GameObjects.Graphics;
+  private readonly scene: Phaser.Scene;
+  private readonly backgroundSprites: Map<string, Phaser.GameObjects.Image> = new Map();
   private isGridDebugEnabled: boolean = true;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
@@ -38,6 +41,7 @@ export class Grid {
   public cells: CellData[][];
 
   constructor(scene: Phaser.Scene, width: number, height: number, cellSize: number = 64) {
+    this.scene = scene;
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
@@ -97,7 +101,38 @@ export class Grid {
 
   setCell(col: number, row: number, data: Partial<CellData>) {
     if (!this.cells[row]?.[col]) return;
-    this.cells[row][col] = { ...this.cells[row][col], ...data };
+    
+    const cell = this.cells[row][col];
+    const oldTexture = cell.backgroundTexture;
+    
+    this.cells[row][col] = { ...cell, ...data };
+    
+    // Handle background texture changes
+    if (data.backgroundTexture !== undefined) {
+      const key = `${col},${row}`;
+      
+      // Remove old sprite if texture changed
+      if (oldTexture !== data.backgroundTexture) {
+        const oldSprite = this.backgroundSprites.get(key);
+        if (oldSprite) {
+          oldSprite.destroy();
+          this.backgroundSprites.delete(key);
+        }
+      }
+      
+      // Add new sprite if texture is set
+      if (data.backgroundTexture) {
+        const worldPos = this.cellToWorld(col, row);
+        const sprite = this.scene.add.image(
+          worldPos.x + this.cellSize / 2,
+          worldPos.y + this.cellSize / 2,
+          data.backgroundTexture
+        );
+        sprite.setDisplaySize(this.cellSize, this.cellSize);
+        sprite.setDepth(-100);
+        this.backgroundSprites.set(key, sprite);
+      }
+    }
   }
 
   getCell(col: number, row: number) {
@@ -230,6 +265,30 @@ export class Grid {
     this.emitterBoxes.push({ x, y, size });
   }
 
+  addRow(): void {
+    const newRow: CellData[] = [];
+    for (let col = 0; col < this.width; col++) {
+      newRow.push({
+        layer: 0,
+        isTransition: false,
+        occupants: new Set()
+      });
+    }
+    this.cells.push(newRow);
+    this.height++;
+  }
+
+  addColumn(): void {
+    for (let row = 0; row < this.height; row++) {
+      this.cells[row].push({
+        layer: 0,
+        isTransition: false,
+        occupants: new Set()
+      });
+    }
+    this.width++;
+  }
+
   removeRow(): void {
     if (this.height <= 1) return;
     this.cells.pop();
@@ -251,6 +310,10 @@ export class Grid {
         this.cells[row][col].occupants.clear();
       }
     }
+    
+    // Destroy background sprites
+    this.backgroundSprites.forEach(sprite => sprite.destroy());
+    this.backgroundSprites.clear();
     
     // Destroy graphics object
     this.graphics.destroy();
