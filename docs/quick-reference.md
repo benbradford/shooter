@@ -39,6 +39,10 @@ export const ASSET_REGISTRY = {
   },
 };
 ```
+3. Add to `src/assets/AssetLoader.ts` default assets list:
+```typescript
+const keysToLoad: AssetKey[] = keys || ['player', 'floating_robot', ..., 'enemy'];
+```
 
 ### Creating a New Entity Type
 

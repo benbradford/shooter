@@ -1648,8 +1648,6 @@
       "row": 9,
       "health": 30,
       "speed": 70,
-      "fireballSpeed": 300,
-      "fireballDuration": 2000,
       "waypoints": [
         {
           "col": 10,
@@ -1667,7 +1665,9 @@
           "col": 10,
           "row": 13
         }
-      ]
+      ],
+      "fireballSpeed": 350,
+      "fireballDuration": 2300
     }
   ]
 }

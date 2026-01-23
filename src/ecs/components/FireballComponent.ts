@@ -4,7 +4,6 @@ import type { Entity } from '../Entity';
 import { TransformComponent } from './TransformComponent';
 import { SpriteComponent } from './SpriteComponent';
 import { HealthComponent } from './HealthComponent';
-import type { Grid } from '../../utils/Grid';
 
 // Fireball configuration constants
 const FIREBALL_DAMAGE = 10;
@@ -12,10 +11,14 @@ const FIREBALL_ANIMATION_FRAME_RATE = 10; // frames per second
 const FIREBALL_SCALE_AMPLITUDE = 0.1; // 10% scale variation
 const FIREBALL_SCALE_FREQUENCY = 4; // cycles per second
 const FIREBALL_HIT_RADIUS = 32; // collision radius in pixels
+const FIREBALL_BASE_SCALE = 2;
+const SHADOW_OFFSET_Y_PX = 50; // pixels below fireball
+const SHADOW_SCALE = 1.4;
 const PARTICLE_LIFETIME_MS = 1000; // 1 second
 const PARTICLE_SPEED_MIN = 20;
 const PARTICLE_SPEED_MAX = 60;
-const PARTICLE_EMIT_FREQUENCY = 50; // milliseconds between particle bursts
+const PARTICLE_EMIT_FREQUENCY_MS = 50; // milliseconds between particle bursts
+const PARTICLE_BURST_COUNT = 3; // particles per burst
 const PARTICLE_SCALE_START = 0.03;
 const PARTICLE_SCALE_END = 0;
 
@@ -27,9 +30,8 @@ export class FireballComponent implements Component {
   private readonly speed: number;
   private readonly maxDistance: number;
   private readonly playerEntity: Entity;
-  private readonly grid: Grid;
   private distanceTraveled: number = 0;
-  private baseScale: number = 3;
+  private baseScale: number = FIREBALL_BASE_SCALE;
   private scaleTimer: number = 0;
   private particles: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
   private readonly animationFrames: number[] = [0, 1, 2];
@@ -37,6 +39,7 @@ export class FireballComponent implements Component {
   private animationTimer: number = 0;
   private animationDirection: number = 1; // 1 = forward, -1 = backward
   private particleTimer: number = 0;
+  private shadow: Phaser.GameObjects.Sprite | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -44,8 +47,7 @@ export class FireballComponent implements Component {
     dirY: number,
     speed: number,
     maxDistance: number,
-    playerEntity: Entity,
-    grid: Grid
+    playerEntity: Entity
   ) {
     this.scene = scene;
     this.dirX = dirX;
@@ -53,7 +55,6 @@ export class FireballComponent implements Component {
     this.speed = speed;
     this.maxDistance = maxDistance;
     this.playerEntity = playerEntity;
-    this.grid = grid;
   }
 
   init(): void {
@@ -62,6 +63,11 @@ export class FireballComponent implements Component {
     if (!transform || !sprite) return;
 
     this.baseScale = transform.scale;
+
+    // Create shadow sprite
+    this.shadow = this.scene.add.sprite(transform.x, transform.y + SHADOW_OFFSET_Y_PX, 'fireball_shadow');
+    this.shadow.setScale(SHADOW_SCALE);
+    this.shadow.setDepth(-1);
 
     // Create particle emitter
     this.particles = this.scene.add.particles(transform.x, transform.y, 'fire', {
@@ -89,14 +95,19 @@ export class FireballComponent implements Component {
     transform.y += moveY;
     this.distanceTraveled += Math.hypot(moveX, moveY);
 
+    // Update shadow position
+    if (this.shadow) {
+      this.shadow.setPosition(transform.x, transform.y + SHADOW_OFFSET_Y_PX);
+    }
+
     // Update particle position
     if (this.particles) {
       this.particles.setPosition(transform.x, transform.y);
 
       // Emit particles periodically
       this.particleTimer += delta;
-      if (this.particleTimer >= PARTICLE_EMIT_FREQUENCY) {
-        this.particles.explode(3);
+      if (this.particleTimer >= PARTICLE_EMIT_FREQUENCY_MS) {
+        this.particles.explode(PARTICLE_BURST_COUNT);
         this.particleTimer = 0;
       }
     }
@@ -154,6 +165,10 @@ export class FireballComponent implements Component {
     if (this.particles) {
       this.particles.destroy();
       this.particles = null;
+    }
+    if (this.shadow) {
+      this.shadow.destroy();
+      this.shadow = null;
     }
   }
 }

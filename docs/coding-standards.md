@@ -344,6 +344,15 @@ const fieldOfView = Math.PI / 2;  // Radians? Degrees?
 - Mathematical constants beyond Math.PI (360, 2π)
 - Array indices that have meaning (0 for "first", 1 for "second")
 - Any number that isn't immediately obvious
+- **Offsets and positions (50, -120, 16)**
+- **Counts and quantities (3, 5, 10)**
+
+**⚠️ CRITICAL RULE: If you type a number in code, STOP and ask yourself:**
+1. **"What does this number represent?"**
+2. **"Could someone want to change this value?"**
+3. **"Will this number be used in multiple places?"**
+
+**If the answer to ANY of these is YES, it MUST be a constant.**
 
 **DO ✅**
 ```typescript
@@ -354,6 +363,8 @@ const MAX_HEALTH = 100;
 const SPEED_MULTIPLIER = 2;
 const DEGREES_IN_CIRCLE = 360;
 const FIRST_WAYPOINT_INDEX = 0;
+const SHADOW_OFFSET_Y_PX = 50; // pixels below sprite
+const PARTICLE_BURST_COUNT = 3; // particles per burst
 
 // Use named constants in code
 if (ratio < SHAKE_LOW_THRESHOLD) {
@@ -362,6 +373,8 @@ if (ratio < SHAKE_LOW_THRESHOLD) {
   speed = baseSpeed * SPEED_MULTIPLIER;
   angle = (angle + DEGREES_IN_CIRCLE) % DEGREES_IN_CIRCLE;
   const waypoint = waypoints[FIRST_WAYPOINT_INDEX];
+  shadow.y = sprite.y + SHADOW_OFFSET_Y_PX;
+  particles.explode(PARTICLE_BURST_COUNT);
 }
 ```
 
@@ -374,6 +387,8 @@ if (ratio < 0.3) {  // What does 0.3 mean?
   speed = baseSpeed * 2;  // Why 2?
   angle = (angle + 360) % 360;  // Why 360?
   const waypoint = waypoints[0];  // Why 0?
+  shadow.y = sprite.y + 50;  // Why 50?
+  particles.explode(3);  // Why 3?
 }
 ```
 
@@ -386,8 +401,9 @@ if (ratio < 0.3) {  // What does 0.3 mean?
 **⚠️ CRITICAL: This is NOT optional!**
 - Every number you type should make you ask: "What does this represent?"
 - If it has meaning, it needs a name
-- No exceptions for "obvious" numbers like 2, 10, 100
+- No exceptions for "obvious" numbers like 2, 10, 100, 50
 - Code review will reject PRs with magic numbers
+- **AI assistants: You MUST add constants for ALL numbers. No excuses.**
 
 **Benefits:**
 - Self-documenting - name explains what the number means

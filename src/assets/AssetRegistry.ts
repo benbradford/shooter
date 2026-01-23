@@ -64,6 +64,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/floating_robot/fire.png',
     type: 'image' as const,
   },
+  fireball_shadow: {
+    key: 'fireball_shadow',
+    path: 'assets/floating_robot/fireball_shadow.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

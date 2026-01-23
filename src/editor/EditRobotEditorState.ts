@@ -153,7 +153,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private createUI(): void {
     const camera = this.scene.cameras.main;
     const x = camera.width - 250;
-    const y = 100;
+    const y = 150;
 
     this.uiContainer = this.scene.add.container(x, y);
     this.uiContainer.setScrollFactor(0);

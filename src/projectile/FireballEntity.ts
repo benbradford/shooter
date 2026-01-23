@@ -3,7 +3,6 @@ import { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/TransformComponent';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { FireballComponent } from '../ecs/components/FireballComponent';
-import type { Grid } from '../utils/Grid';
 
 // Fireball configuration
 const FIREBALL_SCALE = 1;
@@ -16,8 +15,7 @@ export function createFireballEntity(
   dirY: number,
   speed: number,
   maxDistance: number,
-  playerEntity: Entity,
-  grid: Grid
+  playerEntity: Entity
 ): Entity {
   const entity = new Entity('fireball');
 
@@ -28,7 +26,7 @@ export function createFireballEntity(
   entity.add(new SpriteComponent(scene, 'fireball', transform));
 
   // Fireball behavior
-  const fireballComp = entity.add(new FireballComponent(scene, dirX, dirY, speed, maxDistance, playerEntity, grid));
+  const fireballComp = entity.add(new FireballComponent(scene, dirX, dirY, speed, maxDistance, playerEntity));
   fireballComp.init();
 
   return entity;

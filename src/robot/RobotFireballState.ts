@@ -7,9 +7,28 @@ import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
 import { createFireballEntity } from '../projectile/FireballEntity';
 
+interface FireballOffset {
+  x: number;
+  y: number;
+}
+
 // Fireball state configuration
 const FIREBALL_ANIMATION_SPEED_MS = 100; // milliseconds per frame
 const FIREBALL_TOTAL_FRAMES = 6;
+const FIREBALL_LAUNCH_FRAME = 4; // frame number to launch fireball
+
+// Fireball launch offsets per direction
+const FIREBALL_OFFSETS: Record<Direction, FireballOffset> = {
+  [Direction.None]: { x: 0, y: 0 },
+  [Direction.Down]: { x: 0, y: 20 },
+  [Direction.Up]: { x: 0, y: -20 },
+  [Direction.Left]: { x: -20, y: 0 },
+  [Direction.Right]: { x: 20, y: 0 },
+  [Direction.UpLeft]: { x: -15, y: -15 },
+  [Direction.UpRight]: { x: 15, y: -15 },
+  [Direction.DownLeft]: { x: -15, y: 15 },
+  [Direction.DownRight]: { x: 15, y: 15 },
+};
 
 export class RobotFireballState implements IState {
   private readonly entity: Entity;
@@ -18,6 +37,7 @@ export class RobotFireballState implements IState {
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
   private animationTimer: number = 0;
+  private hasLaunchedFireball: boolean = false;
 
   constructor(entity: Entity, scene: Phaser.Scene, playerEntity: Entity) {
     this.entity = entity;
@@ -28,6 +48,7 @@ export class RobotFireballState implements IState {
   onEnter(): void {
     this.animationFrame = 0;
     this.animationTimer = 0;
+    this.hasLaunchedFireball = false;
 
     const transform = this.entity.get(TransformComponent);
     const playerTransform = this.playerEntity.get(TransformComponent);
@@ -57,9 +78,14 @@ export class RobotFireballState implements IState {
       this.animationTimer = 0;
       this.animationFrame++;
 
-      if (this.animationFrame >= FIREBALL_TOTAL_FRAMES) {
-        // Animation complete, launch fireball and return to stalking
+      // Launch fireball on specific frame
+      if (this.animationFrame === FIREBALL_LAUNCH_FRAME && !this.hasLaunchedFireball) {
         this.launchFireball();
+        this.hasLaunchedFireball = true;
+      }
+
+      if (this.animationFrame >= FIREBALL_TOTAL_FRAMES) {
+        // Animation complete, return to stalking
         stateMachine.stateMachine.enter('stalking');
         return;
       }
@@ -90,11 +116,14 @@ export class RobotFireballState implements IState {
     // Calculate max distance from duration
     const maxDistance = fireballProps.speed * (fireballProps.duration / 1000);
 
+    // Get offset for current direction
+    const offset = FIREBALL_OFFSETS[this.currentDirection];
+
     // Create fireball entity
     const fireball = createFireballEntity(
       this.scene,
-      transform.x,
-      transform.y,
+      transform.x + offset.x,
+      transform.y + offset.y,
       dirX,
       dirY,
       fireballProps.speed,
