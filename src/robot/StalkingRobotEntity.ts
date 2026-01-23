@@ -33,18 +33,21 @@ const ROBOT_KNOCKBACK_DURATION = 500; // milliseconds
 const ROBOT_BULLET_DAMAGE = 10;
 const ROBOT_KNOCKBACK_FORCE = 200;
 
-export function createStalkingRobotEntity(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  grid: Grid,
-  playerEntity: Entity,
-  waypoints: PatrolWaypoint[],
-  health: number,
-  speed: number,
-  fireballSpeed: number,
-  fireballDuration: number
-): Entity {
+export interface CreateStalkingRobotProps {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  grid: Grid;
+  playerEntity: Entity;
+  waypoints: PatrolWaypoint[];
+  health: number;
+  speed: number;
+  fireballSpeed: number;
+  fireballDuration: number;
+}
+
+export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Entity {
+  const { scene, x, y, grid, playerEntity, waypoints, health, speed, fireballSpeed, fireballDuration } = props;
   const entity = new Entity('stalking_robot');
   entity.tags.add('enemy');
 

@@ -50,7 +50,7 @@ export default class GameScene extends Phaser.Scene {
     this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.editorKey.on('down', () => {
       if (this.scene.isActive()) {
-        this.enterEditorMode();
+        void this.enterEditorMode();
       }
     });
 
@@ -120,7 +120,16 @@ export default class GameScene extends Phaser.Scene {
         const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
         const fromTransition = playerCell?.isTransition ?? false;
 
-        const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid, gridPos.currentLayer, fromTransition);
+        const bullet = createBulletEntity({
+          scene: this,
+          x,
+          y,
+          dirX,
+          dirY,
+          grid: this.grid,
+          layer: gridPos.currentLayer,
+          fromTransition
+        });
         this.entityManager.add(bullet);
       },
       (x, y, direction, playerDirection) => {
@@ -141,18 +150,18 @@ export default class GameScene extends Phaser.Scene {
         const x = robotData.col * this.grid.cellSize + this.grid.cellSize / 2;
         const y = robotData.row * this.grid.cellSize + this.grid.cellSize / 2;
         
-        const robot = createStalkingRobotEntity(
-          this,
+        const robot = createStalkingRobotEntity({
+          scene: this,
           x,
           y,
-          this.grid,
-          player,
-          robotData.waypoints,
-          robotData.health,
-          robotData.speed,
-          robotData.fireballSpeed,
-          robotData.fireballDuration
-        );
+          grid: this.grid,
+          playerEntity: player,
+          waypoints: robotData.waypoints,
+          health: robotData.health,
+          speed: robotData.speed,
+          fireballSpeed: robotData.fireballSpeed,
+          fireballDuration: robotData.fireballDuration
+        });
         this.entityManager.add(robot);
       }
     }
@@ -316,18 +325,18 @@ export default class GameScene extends Phaser.Scene {
       { col: col + 1, row }
     ];
 
-    const robot = createStalkingRobotEntity(
-      this,
+    const robot = createStalkingRobotEntity({
+      scene: this,
       x,
       y,
-      this.grid,
-      player,
+      grid: this.grid,
+      playerEntity: player,
       waypoints,
-      100,
-      100,
-      300,
-      2000
-    );
+      health: 100,
+      speed: 100,
+      fireballSpeed: 300,
+      fireballDuration: 2000
+    });
 
     this.entityManager.add(robot);
     return robot;

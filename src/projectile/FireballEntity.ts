@@ -20,17 +20,20 @@ const FIREBALL_ANIMATION_FPS = 10;
 const FIREBALL_SCALE_AMPLITUDE = 0.1;
 const FIREBALL_SCALE_FREQUENCY = 4;
 
-export function createFireballEntity(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  dirX: number,
-  dirY: number,
-  speed: number,
-  maxDistance: number,
-  grid: Grid,
-  startLayer: number
-): Entity {
+export interface CreateFireballProps {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  dirX: number;
+  dirY: number;
+  speed: number;
+  maxDistance: number;
+  grid: Grid;
+  startLayer: number;
+}
+
+export function createFireballEntity(props: CreateFireballProps): Entity {
+  const { scene, x, y, dirX, dirY, speed, maxDistance, grid, startLayer } = props;
   const entity = new Entity('fireball');
   entity.tags.add('enemy_projectile');
 

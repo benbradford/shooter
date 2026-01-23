@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { TouchJoystickComponent } from './TouchJoystickComponent';
+import type { AimJoystickComponent } from './AimJoystickComponent';
+import type { ControlModeComponent } from './ControlModeComponent';
 
 export class InputComponent implements Component {
   entity!: Entity;
@@ -9,6 +11,8 @@ export class InputComponent implements Component {
   private readonly keys: Record<string, Phaser.Input.Keyboard.Key>;
   private readonly fireKey: Phaser.Input.Keyboard.Key;
   private joystick: TouchJoystickComponent | null = null;
+  private aimJoystick: AimJoystickComponent | null = null;
+  private controlMode: ControlModeComponent | null = null;
   private fireHeldTime: number = 0;
 
   constructor(scene: Phaser.Scene) {
@@ -19,6 +23,14 @@ export class InputComponent implements Component {
 
   setJoystick(joystick: TouchJoystickComponent): void {
     this.joystick = joystick;
+  }
+
+  setAimJoystick(aimJoystick: AimJoystickComponent): void {
+    this.aimJoystick = aimJoystick;
+  }
+
+  setControlMode(controlMode: ControlModeComponent): void {
+    this.controlMode = controlMode;
   }
 
   update(delta: number): void {
@@ -66,18 +78,42 @@ export class InputComponent implements Component {
     return this.getInputDelta();
   }
 
+  /** Get aim direction (mode 2 only) */
+  getAimDelta(): { dx: number; dy: number } {
+    if (this.aimJoystick && this.controlMode?.getMode() === 2) {
+      return this.aimJoystick.getAimDelta();
+    }
+    return { dx: 0, dy: 0 };
+  }
+
+  /** Check if actively aiming (mode 2 only) */
+  isAiming(): boolean {
+    if (this.aimJoystick && this.controlMode?.getMode() === 2) {
+      return this.aimJoystick.isAiming();
+    }
+    return false;
+  }
+
   hasInput(): boolean {
     const { dx, dy } = this.getRawInputDelta();
     return dx !== 0 || dy !== 0;
   }
 
   isFirePressed(): boolean {
-    // Check joystick fire button first
-    if (this.joystick?.isFireButtonPressed()) {
-      return true;
+    const mode = this.controlMode?.getMode() ?? 1;
+
+    if (mode === 1) {
+      // Mode 1: Crosshair button or keyboard
+      if (this.joystick?.isFireButtonPressed()) {
+        return true;
+      }
+      return this.fireKey.isDown;
     }
     
-    // Fall back to keyboard
+    // Mode 2: Aim joystick or keyboard
+    if (this.aimJoystick?.isAiming()) {
+      return true;
+    }
     return this.fireKey.isDown;
   }
 

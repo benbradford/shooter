@@ -10,6 +10,8 @@ import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
 import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
 import { ProjectileEmitterComponent, type EmitterOffset } from '../ecs/components/ProjectileEmitterComponent';
 import { TouchJoystickComponent } from '../ecs/components/TouchJoystickComponent';
+import { AimJoystickComponent } from '../ecs/components/AimJoystickComponent';
+import { ControlModeComponent } from '../ecs/components/ControlModeComponent';
 import { AmmoComponent } from '../ecs/components/AmmoComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 import { HudBarComponent } from '../ecs/components/HudBarComponent';
@@ -94,12 +96,20 @@ export function createPlayerEntity(
   const joystickComp = joystick.get(TouchJoystickComponent)!;
   input.setJoystick(joystickComp);
 
-  entity.add(new WalkComponent(transform, input, {
+  const aimJoystickComp = joystick.get(AimJoystickComponent)!;
+  input.setAimJoystick(aimJoystickComp);
+
+  const controlModeComp = joystick.get(ControlModeComponent)!;
+  input.setControlMode(controlModeComp);
+  entity.add(controlModeComp); // Add to player entity for update order
+
+  const walk = entity.add(new WalkComponent(transform, input, {
     speed: PLAYER_WALK_SPEED_PX_PER_SEC,
     accelerationTime: PLAYER_ACCELERATION_TIME_MS,
     decelerationTime: PLAYER_DECELERATION_TIME_MS,
     stopThreshold: PLAYER_STOP_THRESHOLD
   }));
+  walk.setControlMode(controlModeComp);
 
   const startCell = grid.worldToCell(x, y);
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_GRID_COLLISION_BOX));
@@ -175,6 +185,7 @@ export function createPlayerEntity(
     TransformComponent,
     SpriteComponent,
     ShadowComponent,
+    ControlModeComponent,
     InputComponent,
     WalkComponent,
     GridCollisionComponent,

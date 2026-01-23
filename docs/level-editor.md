@@ -43,7 +43,10 @@ The initial mode when entering the editor. Shows buttons at the bottom and allow
   - Run `./scripts/update-levels.sh` to update game
 - **Exit** - Returns to game (also ESC key)
 - **Grid** - Enters grid editing mode
+- **Add** - Enters add mode to place new entities
+- **Texture** - Enters texture mode to paint background textures
 - **Resize** - Enters resize mode for adding/removing rows/columns
+- **Log** - Logs level JSON to console and copies to clipboard
 
 **Entity Interaction:**
 - **Click Player** - Enters Move mode for player
@@ -117,6 +120,37 @@ Allows selecting and modifying individual grid cells using keyboard navigation.
 
 **Note:** TransUp and TransDown currently have the same effect (marking as transition). The distinction is for future functionality.
 
+### Texture Mode
+
+Allows painting background textures onto grid cells.
+
+**UI Panel (right side):**
+- Shows available textures with 60x60 previews
+- Currently includes:
+  - `dungeon_floor01` - Stone floor texture
+  - `dungeon_floor02` - Alternate stone floor texture
+- **Clear** button - Removes texture from cells
+
+**Usage:**
+1. Click a texture in the panel to select it (highlights green)
+2. Click any grid cell to apply the selected texture
+3. Click "Clear" to deselect, then click cells to remove textures
+4. **Back** button returns to default mode
+
+**Visual Feedback:**
+- Selected texture has green background
+- Textures render at depth -100 (behind all entities)
+- Textures are scaled to fit cell size (128x128)
+- Changes appear immediately
+
+**Adding New Textures:**
+1. Add texture file to `public/assets/dungeon/`
+2. Register in `src/assets/AssetRegistry.ts`
+3. Add to default assets in `src/assets/AssetLoader.ts`
+4. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`
+
+**Note:** Background textures are saved in the level JSON and persist across sessions.
+
 ### Move Mode
 
 Allows repositioning entities (currently player only) by dragging.
@@ -150,6 +184,8 @@ Allows selecting and removing rows or columns from the grid.
 
 **Controls:**
 - **Back** - Return to default mode
+- **Add Row** - Adds a new row at the bottom (all cells layer 0)
+- **Add Col** - Adds a new column at the right (all cells layer 0)
 - **Remove Row** - Removes selected row, shifts subsequent rows up
 - **Remove Col** - Removes selected column, shifts subsequent columns left
 - **Grid size display** - Top-right corner shows current dimensions (e.g., "Grid: 40x30")

@@ -1,6 +1,7 @@
 import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { TouchJoystickComponent } from './TouchJoystickComponent';
+import { ControlModeComponent } from './ControlModeComponent';
 
 export class CrosshairVisualsComponent implements Component {
   entity!: Entity;
@@ -37,6 +38,16 @@ export class CrosshairVisualsComponent implements Component {
   }
 
   update(_delta: number): void {
+    const controlMode = this.entity.get(ControlModeComponent);
+    const mode = controlMode?.getMode() ?? 1;
+
+    // Only show in mode 1
+    if (mode !== 1) {
+      this.sprite.setVisible(false);
+      return;
+    }
+
+    this.sprite.setVisible(true);
     const isPressed = this.joystick.isFireButtonPressed();
     
     if (isPressed) {

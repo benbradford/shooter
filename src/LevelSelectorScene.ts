@@ -53,7 +53,7 @@ export default class LevelSelectorScene extends Phaser.Scene {
         button.setBackgroundColor('#333333');
       });
       button.on('pointerdown', () => {
-        this.selectLevel(levelName);
+        void this.selectLevel(levelName);
       });
     });
 

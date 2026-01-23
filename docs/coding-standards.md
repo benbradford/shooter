@@ -71,6 +71,69 @@ const frame = IDLE_FRAME_OFFSET + directionIndex;
 
 ## Modern JavaScript Standards
 
+### Limit Function Parameters
+
+**Functions should not have more than 7 parameters. Use props objects instead.**
+
+**DO ✅**
+```typescript
+// Define props interface
+export interface CreateBulletProps {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  dirX: number;
+  dirY: number;
+  grid: Grid;
+  layer?: number;
+  fromTransition?: boolean;
+}
+
+// Use props object
+export function createBulletEntity(props: CreateBulletProps): Entity {
+  const { scene, x, y, dirX, dirY, grid, layer = 0, fromTransition = false } = props;
+  // ...
+}
+
+// Usage: Named parameters, self-documenting
+createBulletEntity({
+  scene: this,
+  x: 100,
+  y: 200,
+  dirX: 1,
+  dirY: 0,
+  grid: this.grid,
+  layer: 0,
+  fromTransition: false
+});
+```
+
+**DON'T ❌**
+```typescript
+// Too many parameters - hard to read and maintain
+export function createBulletEntity(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  dirX: number,
+  dirY: number,
+  grid: Grid,
+  layer: number = 0,
+  fromTransition: boolean = false
+): Entity {
+  // ...
+}
+
+// Usage: What does each parameter mean?
+createBulletEntity(this, 100, 200, 1, 0, this.grid, 0, false);
+```
+
+**Benefits:**
+- Named parameters (self-documenting)
+- Easy to add new options without breaking existing code
+- Optional parameters with defaults
+- Clear what each value represents at call site
+
 ### Use Modern Math APIs
 
 **DO ✅**

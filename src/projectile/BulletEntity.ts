@@ -10,16 +10,19 @@ import type { Grid } from '../utils/Grid';
 const BULLET_DAMAGE = 10;
 const BULLET_COLLISION_BOX = { offsetX: -2, offsetY: -2, width: 4, height: 4 };
 
-export function createBulletEntity(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  dirX: number,
-  dirY: number,
-  grid: Grid,
-  layer: number = 0,
-  fromTransition: boolean = false
-): Entity {
+export interface CreateBulletProps {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  dirX: number;
+  dirY: number;
+  grid: Grid;
+  layer?: number;
+  fromTransition?: boolean;
+}
+
+export function createBulletEntity(props: CreateBulletProps): Entity {
+  const { scene, x, y, dirX, dirY, grid, layer = 0, fromTransition = false } = props;
   const entity = new Entity('bullet');
   entity.tags.add('player_projectile');
   

@@ -129,17 +129,17 @@ export class RobotFireballState implements IState {
     const robotCellData = grid.getCell(robotCell.col, robotCell.row);
     const robotLayer = robotCellData?.layer ?? 0;
 
-    const fireball = createFireballEntity(
-      this.scene,
-      transform.x + offset.x,
-      transform.y + offset.y,
+    const fireball = createFireballEntity({
+      scene: this.scene,
+      x: transform.x + offset.x,
+      y: transform.y + offset.y,
       dirX,
       dirY,
-      fireballProps.speed,
+      speed: fireballProps.speed,
       maxDistance,
       grid,
-      robotLayer
-    );
+      startLayer: robotLayer
+    });
 
     gameScene.entityManager.add(fireball);
   }

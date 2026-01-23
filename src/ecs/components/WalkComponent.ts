@@ -2,10 +2,11 @@ import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import type { TransformComponent } from './TransformComponent';
 import type { InputComponent } from './InputComponent';
+import type { ControlModeComponent } from './ControlModeComponent';
 import { Direction, dirFromDelta } from '../../constants/Direction';
 
 // Walk configuration
-const FIRE_HOLD_THRESHOLD_MS = 200; // milliseconds - hold fire this long to stop moving
+const FIRE_HOLD_THRESHOLD_MS = 200; // milliseconds - hold fire this long to stop moving (mode 1 only)
 
 export interface WalkProps {
   speed: number;
@@ -24,6 +25,8 @@ export class WalkComponent implements Component {
   private readonly accelerationTime: number;
   private readonly decelerationTime: number;
   private readonly stopThreshold: number;
+  private controlMode: ControlModeComponent | null = null;
+  private wasAiming: boolean = false;
 
   // Normalized direction vector for shooting
   public lastMoveX = 0;
@@ -40,22 +43,23 @@ export class WalkComponent implements Component {
     this.stopThreshold = props.stopThreshold;
   }
 
+  setControlMode(controlMode: ControlModeComponent): void {
+    this.controlMode = controlMode;
+  }
+
   update(delta: number): void {
+    const mode = this.controlMode?.getMode() ?? 1;
     const movementInput = this.inputComp.getInputDelta();
     const facingInput = this.inputComp.getRawInputDelta();
     const fireHeldTime = this.inputComp.getFireHeldTime();
 
-    // Update facing direction from raw input (ignores joystick deadzone)
-    if (facingInput.dx !== 0 || facingInput.dy !== 0) {
-      this.updateFacingDirection(facingInput.dx, facingInput.dy);
-    }
-
-    // If fire held for threshold, stop movement but keep facing direction
-    if (fireHeldTime >= FIRE_HOLD_THRESHOLD_MS) {
-      // Decelerate to stop
-      this.applyMomentum({ x: 0, y: 0 }, delta);
-      this.applyStopThreshold();
-      return;
+    if (mode === 1) {
+      this.updateMode1(facingInput, fireHeldTime, delta);
+      if (fireHeldTime >= FIRE_HOLD_THRESHOLD_MS) {
+        return;
+      }
+    } else {
+      this.updateMode2(facingInput);
     }
 
     // Calculate target velocity from deadzone-filtered input
@@ -74,8 +78,45 @@ export class WalkComponent implements Component {
     this.transformComp.y += this.velocityY * (delta / 1000);
   }
 
+  private updateMode1(facingInput: { dx: number; dy: number }, fireHeldTime: number, delta: number): void {
+    // Mode 1: Original behavior - stop moving when firing
+    if (facingInput.dx !== 0 || facingInput.dy !== 0) {
+      this.updateFacingDirection(facingInput.dx, facingInput.dy);
+    }
+
+    if (fireHeldTime >= FIRE_HOLD_THRESHOLD_MS) {
+      this.applyMomentum({ x: 0, y: 0 }, delta);
+      this.applyStopThreshold();
+    }
+  }
+
+  private updateMode2(facingInput: { dx: number; dy: number }): void {
+    // Mode 2: Aiming overrides facing, movement continues
+    const aimDelta = this.inputComp.getAimDelta();
+    const isAiming = this.inputComp.isAiming();
+
+    // Track when aiming stops to start cooldown
+    if (this.wasAiming && !isAiming) {
+      this.controlMode!.startAimStopCooldown();
+    }
+    this.wasAiming = isAiming;
+
+    if (isAiming && (aimDelta.dx !== 0 || aimDelta.dy !== 0)) {
+      // Aiming overrides facing direction
+      this.updateFacingDirection(aimDelta.dx, aimDelta.dy);
+    } else if (!isAiming && !this.controlMode!.isInAimStopCooldown() && (facingInput.dx !== 0 || facingInput.dy !== 0)) {
+      // Not aiming and cooldown expired - face movement direction
+      this.updateFacingDirection(facingInput.dx, facingInput.dy);
+    }
+    // During cooldown or no input, keep current facing direction
+  }
+
   isMovementStopped(): boolean {
-    return this.inputComp.getFireHeldTime() >= FIRE_HOLD_THRESHOLD_MS;
+    const mode = this.controlMode?.getMode() ?? 1;
+    if (mode === 1) {
+      return this.inputComp.getFireHeldTime() >= FIRE_HOLD_THRESHOLD_MS;
+    }
+    return false; // Mode 2 never stops movement when firing
   }
 
   // Called by GridCollisionComponent when movement is blocked
