@@ -77,6 +77,8 @@ export default class GameScene extends Phaser.Scene {
       level.height * this.grid.cellSize
     );
 
+    this.cameras.main.setZoom(1.0);
+
     this.spawnEntities();
 
     // Camera follow player's sprite

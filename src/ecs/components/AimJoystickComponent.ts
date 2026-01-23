@@ -15,7 +15,7 @@ export class AimJoystickComponent implements Component {
   private currentY: number = 0;
   public readonly maxRadius: number;
   public readonly innerRadius: number;
-  private pointer: Phaser.Input.Pointer | null = null;
+  private pointerId: number = -1;
 
   constructor(private readonly scene: Phaser.Scene, props: AimJoystickProps = {}) {
     this.maxRadius = props.maxRadius ?? 100;
@@ -27,19 +27,19 @@ export class AimJoystickComponent implements Component {
       const screenWidth = this.scene.cameras.main.width;
       const screenHeight = this.scene.cameras.main.height;
 
-      // Check if in lower-right quadrant (aiming)
-      if (pointer.x > screenWidth / 2 && pointer.y > screenHeight / 2) {
+      // Check if in lower-right quadrant (aiming) and not already tracking a pointer
+      if (pointer.x > screenWidth / 2 && pointer.y > screenHeight / 2 && this.pointerId === -1) {
         this.isActive = true;
         this.startX = pointer.x;
         this.startY = pointer.y;
         this.currentX = pointer.x;
         this.currentY = pointer.y;
-        this.pointer = pointer;
+        this.pointerId = pointer.id;
       }
     });
 
     this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (this.isActive && pointer === this.pointer) {
+      if (this.isActive && pointer.id === this.pointerId) {
         const dx = pointer.x - this.startX;
         const dy = pointer.y - this.startY;
         const distance = Math.hypot(dx, dy);
@@ -56,9 +56,9 @@ export class AimJoystickComponent implements Component {
     });
 
     this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (pointer === this.pointer) {
+      if (pointer.id === this.pointerId) {
         this.isActive = false;
-        this.pointer = null;
+        this.pointerId = -1;
       }
     });
   }

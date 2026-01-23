@@ -17,10 +17,11 @@ export class TouchJoystickComponent implements Component {
   public readonly maxRadius: number;
   public readonly innerRadius: number;
   private readonly deadZoneDistance: number;
-  private pointer: Phaser.Input.Pointer | null = null;
+  private pointerId: number = -1;
 
   // Fire button state
   private isFirePressed: boolean = false;
+  private firePointerId: number = -1;
   private crosshairBounds: { x: number; y: number; radius: number } | null = null;
 
   constructor(private readonly scene: Phaser.Scene, props: TouchJoystickProps = {}) {
@@ -36,34 +37,39 @@ export class TouchJoystickComponent implements Component {
   init(): void {
     // Listen for pointer down in lower-left quadrant (movement)
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      const screenWidth = this.scene.cameras.main.width;
-      const screenHeight = this.scene.cameras.main.height;
+      // Use display size (screen pixels) - pointer.x/y are in screen pixels when using UI camera
+      const displayWidth = this.scene.scale.displaySize.width;
+      const displayHeight = this.scene.scale.displaySize.height;
+      
+      const screenWidth = displayWidth;
+      const screenHeight = displayHeight;
 
       // Check if in lower-left quadrant (movement)
-      if (pointer.x < screenWidth / 2 && pointer.y > screenHeight / 2) {
+      if (pointer.x < screenWidth / 2 && pointer.y > screenHeight / 2 && this.pointerId === -1) {
         this.isActive = true;
         this.startX = pointer.x;
         this.startY = pointer.y;
         this.currentX = pointer.x;
         this.currentY = pointer.y;
-        this.pointer = pointer;
+        this.pointerId = pointer.id;
       }
 
       // Check if touching crosshair (fire)
-      if (this.crosshairBounds) {
+      if (this.crosshairBounds && this.firePointerId === -1) {
         const dx = pointer.x - this.crosshairBounds.x;
         const dy = pointer.y - this.crosshairBounds.y;
         const distance = Math.hypot(dx, dy);
 
         if (distance <= this.crosshairBounds.radius) {
           this.isFirePressed = true;
+          this.firePointerId = pointer.id;
         }
       }
     });
 
     this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (this.isActive && pointer === this.pointer) {
-        // Calculate position relative to start, clamped to max radius
+      if (this.isActive && pointer.id === this.pointerId) {
+        // Use pointer.x/y directly (screen pixels)
         const dx = pointer.x - this.startX;
         const dy = pointer.y - this.startY;
         const distance = Math.hypot(dx, dy);
@@ -81,13 +87,15 @@ export class TouchJoystickComponent implements Component {
     });
 
     this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (pointer === this.pointer) {
+      if (pointer.id === this.pointerId) {
         this.isActive = false;
-        this.pointer = null;
+        this.pointerId = -1;
       }
 
-      // Release fire button
-      this.isFirePressed = false;
+      if (pointer.id === this.firePointerId) {
+        this.isFirePressed = false;
+        this.firePointerId = -1;
+      }
     });
   }
 
