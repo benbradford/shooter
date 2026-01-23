@@ -3,6 +3,7 @@ import type { Entity } from '../ecs/Entity';
 import { Direction } from '../constants/Direction';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { CollisionComponent } from '../ecs/components/CollisionComponent';
+import { RobotHitParticlesComponent } from '../ecs/components/RobotHitParticlesComponent';
 import type Phaser from 'phaser';
 
 // Death state configuration
@@ -25,6 +26,12 @@ export class RobotDeathState implements IState {
     this.animationFrame = 0;
     this.animationTimer = 0;
     this.animationComplete = false;
+
+    // Emit death particle burst
+    const hitParticles = this.entity.get(RobotHitParticlesComponent);
+    if (hitParticles) {
+      hitParticles.emitDeathParticles();
+    }
 
     // Remove collision component so bullets pass through
     this.entity.remove(CollisionComponent);
