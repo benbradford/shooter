@@ -41,11 +41,11 @@ export default class GameScene extends Phaser.Scene {
   async create() {
     this.entityManager = new EntityManager();
 
-    this.collisionSystem = new CollisionSystem(this);
-
     this.levelData = await LevelLoader.load(this.currentLevelName);
 
     this.initializeScene();
+
+    this.collisionSystem = new CollisionSystem(this, this.grid);
 
     this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.editorKey.on('down', () => {

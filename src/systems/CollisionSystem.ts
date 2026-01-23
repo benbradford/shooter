@@ -1,14 +1,18 @@
 import type { Entity } from '../ecs/Entity';
 import { CollisionComponent } from '../ecs/components/CollisionComponent';
 import { TransformComponent } from '../ecs/components/TransformComponent';
+import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
+import type { Grid } from '../utils/Grid';
 
 export class CollisionSystem {
   private readonly scene: Phaser.Scene;
+  private readonly grid: Grid;
   private debugGraphics: Phaser.GameObjects.Graphics | null = null;
   private debugEnabled: boolean = false;
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, grid: Grid) {
     this.scene = scene;
+    this.grid = grid;
   }
 
   setDebugEnabled(enabled: boolean): void {
@@ -28,11 +32,23 @@ export class CollisionSystem {
     // Get entities with collision component
     const collidables = entities.filter(e => e.has(CollisionComponent) && !e.markedForRemoval);
 
-    // Check each pair once
-    for (let i = 0; i < collidables.length; i++) {
-      const entityA = collidables[i];
+    // Use spatial partitioning for entities with GridPositionComponent
+    const gridEntities: Entity[] = [];
+    const nonGridEntities: Entity[] = [];
+
+    for (const entity of collidables) {
+      if (entity.has(GridPositionComponent)) {
+        gridEntities.push(entity);
+      } else {
+        nonGridEntities.push(entity);
+      }
+    }
+
+    // Check grid entities against nearby cells only
+    for (const entityA of gridEntities) {
       const collisionA = entityA.get(CollisionComponent)!;
       const transformA = entityA.get(TransformComponent);
+      const gridPosA = entityA.get(GridPositionComponent)!;
       if (!transformA) continue;
 
       // Debug render collision box
@@ -40,22 +56,80 @@ export class CollisionSystem {
         this.renderCollisionBox(transformA, collisionA);
       }
 
-      for (let j = i + 1; j < collidables.length; j++) {
-        const entityB = collidables[j];
+      // Get nearby cells (current cell + 8 neighbors)
+      const nearbyCells = this.getNearbyCells(gridPosA.currentCell.col, gridPosA.currentCell.row);
+      const nearbyEntities = new Set<Entity>();
+
+      for (const cell of nearbyCells) {
+        const cellData = this.grid.getCell(cell.col, cell.row);
+        if (cellData) {
+          for (const occupant of cellData.occupants) {
+            if (occupant !== entityA && !occupant.markedForRemoval) {
+              nearbyEntities.add(occupant);
+            }
+          }
+        }
+      }
+
+      // Check collisions with nearby entities
+      for (const entityB of nearbyEntities) {
+        if (!entityB.has(CollisionComponent)) continue;
+
         const collisionB = entityB.get(CollisionComponent)!;
         const transformB = entityB.get(TransformComponent);
         if (!transformB) continue;
 
-        // Check if they should collide
         if (!this.shouldCollide(entityA, entityB, collisionA, collisionB)) continue;
 
-        // Check if boxes overlap
         if (this.boxesOverlap(transformA, collisionA, transformB, collisionB)) {
           collisionA.onHit(entityB);
           collisionB.onHit(entityA);
         }
       }
     }
+
+    // Check non-grid entities against all collidables (fallback for projectiles without grid position)
+    for (const entityA of nonGridEntities) {
+      const collisionA = entityA.get(CollisionComponent)!;
+      const transformA = entityA.get(TransformComponent);
+      if (!transformA) continue;
+
+      if (this.debugEnabled && this.debugGraphics) {
+        this.renderCollisionBox(transformA, collisionA);
+      }
+
+      for (const entityB of collidables) {
+        if (entityA === entityB) continue;
+
+        const collisionB = entityB.get(CollisionComponent)!;
+        const transformB = entityB.get(TransformComponent);
+        if (!transformB) continue;
+
+        if (!this.shouldCollide(entityA, entityB, collisionA, collisionB)) continue;
+
+        if (this.boxesOverlap(transformA, collisionA, transformB, collisionB)) {
+          collisionA.onHit(entityB);
+          collisionB.onHit(entityA);
+        }
+      }
+    }
+  }
+
+  private getNearbyCells(col: number, row: number): Array<{ col: number; row: number }> {
+    const cells: Array<{ col: number; row: number }> = [];
+    
+    // Current cell + 8 neighbors
+    for (let dc = -1; dc <= 1; dc++) {
+      for (let dr = -1; dr <= 1; dr++) {
+        const c = col + dc;
+        const r = row + dr;
+        if (c >= 0 && c < this.grid.cols && r >= 0 && r < this.grid.rows) {
+          cells.push({ col: c, row: r });
+        }
+      }
+    }
+    
+    return cells;
   }
 
   private shouldCollide(
