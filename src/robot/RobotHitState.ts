@@ -3,7 +3,6 @@ import type { Entity } from '../ecs/Entity';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
 import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
-import { KnockbackComponent } from '../ecs/components/KnockbackComponent';
 
 // Hit state configuration
 const HIT_DURATION_MS = 1000; // milliseconds
@@ -46,7 +45,6 @@ export class RobotHitState implements IState {
     const stateMachine = this.entity.get(StateMachineComponent);
     const sprite = this.entity.get(SpriteComponent);
     const health = this.entity.get(HealthComponent);
-    const knockback = this.entity.get(KnockbackComponent);
 
     if (!stateMachine || !sprite) return;
 
@@ -59,11 +57,6 @@ export class RobotHitState implements IState {
       } else {
         sprite.sprite.clearTint();
       }
-    }
-
-    // Update knockback
-    if (knockback) {
-      knockback.update(delta);
     }
 
     // Check if dead

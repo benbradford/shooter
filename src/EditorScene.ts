@@ -16,6 +16,7 @@ import { PatrolComponent } from "./ecs/components/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
 import { HealthComponent } from "./ecs/components/HealthComponent";
 import { FireballPropertiesComponent } from "./ecs/components/FireballPropertiesComponent";
+import { TransformComponent } from "./ecs/components/TransformComponent";
 
 export default class EditorScene extends Phaser.Scene {
   private stateMachine!: StateMachine<void | Entity | MoveEditorStateProps>;
@@ -184,7 +185,8 @@ export default class EditorScene extends Phaser.Scene {
       fireballDuration: number;
     }> = [];
 
-    const entities = gameScene.getEntities();
+    const entityManager = gameScene.getEntityManager();
+    const entities = entityManager.getAll();
     for (const entity of entities) {
       const patrol = entity.get(PatrolComponent);
       if (patrol) {
@@ -206,10 +208,19 @@ export default class EditorScene extends Phaser.Scene {
       }
     }
 
+    const player = entityManager.getFirst('player');
+    const playerTransform = player?.get(TransformComponent);
+    const playerStart = playerTransform 
+      ? {
+          x: Math.round(playerTransform.x / grid.cellSize),
+          y: Math.round(playerTransform.y / grid.cellSize)
+        }
+      : { x: 10, y: 10 };
+
     return {
       width: grid.width,
       height: grid.height,
-      playerStart: gameScene.getPlayerStart(),
+      playerStart,
       cells,
       robots: robots.length > 0 ? robots : undefined
     };
@@ -271,7 +282,8 @@ export default class EditorScene extends Phaser.Scene {
     // Default to player if no entity provided
     if (!entity) {
       const gameScene = this.scene.get('game') as GameScene;
-      entity = gameScene.getPlayerEntity() || undefined;
+      const entityManager = gameScene.getEntityManager();
+      entity = entityManager.getFirst('player') || undefined;
     }
     
     if (!entity) {
@@ -364,9 +376,13 @@ export default class EditorScene extends Phaser.Scene {
     }
     
     // Resume following player
-    const player = gameScene.getPlayer();
+    const entityManager = gameScene.getEntityManager();
+    const player = entityManager.getFirst('player');
     if (player) {
-      camera.startFollow(player, true, 0.1, 0.1);
+      const sprite = player.get(SpriteComponent);
+      if (sprite) {
+        camera.startFollow(sprite.sprite, true, 0.1, 0.1);
+      }
     }
     
     this.scene.resume('game');

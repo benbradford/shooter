@@ -2,20 +2,13 @@ import Phaser from "phaser";
 import { Grid } from "./utils/Grid";
 import { LevelLoader, type LevelData } from "./level/LevelLoader";
 import { EntityManager } from "./ecs/EntityManager";
-import { Entity } from "./ecs/Entity";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { createJoystickEntity } from "./hud/JoystickEntity";
 import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
 import { SpriteComponent } from "./ecs/components/SpriteComponent";
-import { TransformComponent } from "./ecs/components/TransformComponent";
 import { GridPositionComponent } from "./ecs/components/GridPositionComponent";
-import { ProjectileEmitterComponent } from "./ecs/components/ProjectileEmitterComponent";
-import { HealthComponent } from "./ecs/components/HealthComponent";
-import { KnockbackComponent } from "./ecs/components/KnockbackComponent";
-import { StateMachineComponent } from "./ecs/components/StateMachineComponent";
-import { ProjectileComponent } from "./ecs/components/ProjectileComponent";
 import { preloadAssets } from "./assets/AssetLoader";
 import { CollisionSystem } from "./systems/CollisionSystem";
 
@@ -85,6 +78,14 @@ export default class GameScene extends Phaser.Scene {
     );
 
     this.spawnEntities();
+
+    // Camera follow player's sprite
+    const player = this.entityManager.getFirst('player');
+    if (player) {
+      const spriteComp = player.get(SpriteComponent)!;
+      this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
+      this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
+    }
   }
 
   private async enterEditorMode(): Promise<void> {
@@ -139,17 +140,14 @@ export default class GameScene extends Phaser.Scene {
       joystick
     ));
 
-    // Camera follow player's sprite
-    const spriteComp = player.get(SpriteComponent)!;
-    this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
-    this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
+
 
     // Spawn robots from level data
     if (level.robots && level.robots.length > 0) {
       for (const robotData of level.robots) {
         const x = robotData.col * this.grid.cellSize + this.grid.cellSize / 2;
         const y = robotData.row * this.grid.cellSize + this.grid.cellSize / 2;
-        
+
         const robot = createStalkingRobotEntity({
           scene: this,
           x,
@@ -177,169 +175,20 @@ export default class GameScene extends Phaser.Scene {
     // Check collisions
     this.collisionSystem.update(this.entityManager.getAll());
 
-    // Check bullet-robot collisions
-    this.checkBulletRobotCollisions();
-
-    // Debug: Draw emitter position for player
-    if (this.grid.sceneDebugEnabled) {
-      const player = this.entityManager.getFirst('player');
-      if (player) {
-        const emitter = player.get(ProjectileEmitterComponent);
-        if (emitter) {
-          const pos = emitter.getEmitterPosition();
-          this.grid.renderEmitterBox(pos.x, pos.y, 20);
-        }
-      }
-    }
-
     // Re-render the grid (debug only)
-    this.grid.render();
-  }
-
-  private checkBulletRobotCollisions(): void {
-    const bullets = this.entityManager.getByType('bullet');
-    const robots = this.entityManager.getByType('stalking_robot');
-
-    for (const bullet of bullets) {
-      if (bullet.markedForRemoval) continue;
-
-      const bulletTransform = bullet.get(TransformComponent);
-      const bulletSprite = bullet.get(SpriteComponent);
-      if (!bulletTransform || !bulletSprite) continue;
-
-      for (const robot of robots) {
-        if (this.checkBulletHitRobot(bullet, bulletTransform, robot)) {
-          break;
-        }
-      }
-    }
-  }
-
-  private checkBulletHitRobot(bullet: Entity, bulletTransform: TransformComponent, robot: Entity): boolean {
-    if (robot.markedForRemoval) return false;
-
-    const robotTransform = robot.get(TransformComponent);
-    const robotSprite = robot.get(SpriteComponent);
-    const robotHealth = robot.get(HealthComponent);
-    const robotKnockback = robot.get(KnockbackComponent);
-    const robotStateMachine = robot.get(StateMachineComponent);
-
-    if (!robotTransform || !robotSprite || !robotHealth || !robotKnockback || !robotStateMachine) return false;
-
-    // Don't hit robots that are already dead/dying
-    const currentState = robotStateMachine.stateMachine.getCurrentKey();
-    if (currentState === 'death') return false;
-
-    // Check collision
-    const dx = bulletTransform.x - robotTransform.x;
-    const dy = bulletTransform.y - robotTransform.y;
-    const distance = Math.hypot(dx, dy);
-
-    if (distance >= 30) return false;
-
-    // Damage robot
-    robotHealth.takeDamage(10);
-
-    // Apply knockback
-    const bulletProjectile = bullet.get(ProjectileComponent);
-    if (bulletProjectile && robotKnockback) {
-      robotKnockback.applyKnockback(
-        bulletProjectile.dirX,
-        bulletProjectile.dirY,
-        200
-      );
-    }
-
-    // Transition to hit state
-    robotStateMachine.stateMachine.enter('hit');
-
-    // Transition to alert state if patrolling
-    if (currentState === 'patrol') {
-      robotStateMachine.stateMachine.enter('alert');
-    }
-
-    // Remove bullet
-    bullet.markForRemoval();
-    return true;
+    this.grid.render(this.entityManager);
   }
 
   getGrid(): Grid {
     return this.grid;
   }
 
-  getPlayer(): Phaser.GameObjects.Sprite | null {
-    const player = this.entityManager.getFirst('player');
-    if (player) {
-      const sprite = player.get(SpriteComponent);
-      return sprite ? sprite.sprite : null;
-    }
-    return null;
-  }
-
-  getPlayerEntity(): Entity | null {
-    return this.entityManager.getFirst('player') || null;
-  }
-
-  getEntities(): Entity[] {
-    return this.entityManager.getAll();
-  }
-
-  getPlayerStart(): { x: number; y: number } {
-    const player = this.entityManager.getFirst('player');
-    if (player) {
-      const transform = player.get(TransformComponent)!;
-      return {
-        x: Math.round(transform.x / this.grid.cellSize),
-        y: Math.round(transform.y / this.grid.cellSize)
-      };
-    }
-    return { x: 10, y: 10 }; // Default fallback
-  }
-
-  movePlayer(x: number, y: number): void {
-    const player = this.entityManager.getFirst('player');
-    if (player) {
-      const transform = player.get(TransformComponent)!;
-      const sprite = player.get(SpriteComponent)!;
-      transform.x = x;
-      transform.y = y;
-      sprite.sprite.setPosition(x, y);
-    }
+  getEntityManager(): EntityManager {
+    return this.entityManager;
   }
 
   getLevelData(): LevelData {
     return this.levelData;
-  }
-
-  addRobot(col: number, row: number): Entity {
-    const x = col * this.grid.cellSize + this.grid.cellSize / 2;
-    const y = row * this.grid.cellSize + this.grid.cellSize / 2;
-
-    const player = this.entityManager.getFirst('player');
-    if (!player) {
-      throw new Error('Player not found');
-    }
-
-    const waypoints = [
-      { col: col - 1, row },
-      { col: col + 1, row }
-    ];
-
-    const robot = createStalkingRobotEntity({
-      scene: this,
-      x,
-      y,
-      grid: this.grid,
-      playerEntity: player,
-      waypoints,
-      health: 100,
-      speed: 100,
-      fireballSpeed: 300,
-      fireballDuration: 2000
-    });
-
-    this.entityManager.add(robot);
-    return robot;
   }
 
   private showLevelSelector(): void {

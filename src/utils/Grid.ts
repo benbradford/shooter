@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import type { Entity } from "../ecs/Entity";
 import type GameScene from "../GameScene";
+import type { EntityManager } from "../ecs/EntityManager";
+import { ProjectileEmitterComponent } from "../ecs/components/ProjectileEmitterComponent";
 
 export type CellData = {
   layer: number;
@@ -175,13 +177,13 @@ export class Grid {
   /**
    * Render grid lines for debugging
    */
-  render() {
+  render(entityManager?: EntityManager) {
     this.graphics.clear();
 
     if (!this.isGridDebugEnabled) {
       // Still draw scene debug elements even if grid is off
       if (this.isSceneDebugEnabled) {
-        this.renderSceneDebug();
+        this.renderSceneDebug(entityManager);
       }
       return;
     }
@@ -233,11 +235,11 @@ export class Grid {
 
     // Draw scene debug elements if enabled
     if (this.isSceneDebugEnabled) {
-      this.renderSceneDebug();
+      this.renderSceneDebug(entityManager);
     }
   }
 
-  private renderSceneDebug(): void {
+  private renderSceneDebug(entityManager?: EntityManager): void {
     // Draw collision boxes
     this.collisionBoxes.forEach(box => {
       this.graphics.lineStyle(2, 0x0000ff, 1);
@@ -249,6 +251,19 @@ export class Grid {
       this.graphics.fillStyle(0xff0000, 0.5);
       this.graphics.fillRect(box.x - box.size / 2, box.y - box.size / 2, box.size, box.size);
     });
+
+    // Draw player emitter position if entityManager provided
+    if (entityManager) {
+      const player = entityManager.getFirst('player');
+      if (player) {
+        const emitter = player.get(ProjectileEmitterComponent);
+        if (emitter) {
+          const pos = emitter.getEmitterPosition();
+          this.graphics.fillStyle(0xff0000, 0.5);
+          this.graphics.fillRect(pos.x - 10, pos.y - 10, 20, 20);
+        }
+      }
+    }
 
     // Clear for next frame
     this.collisionBoxes = [];

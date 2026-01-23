@@ -30,6 +30,16 @@ export class Entity {
     return this.components.has(componentClass.name);
   }
 
+  remove(componentClass: new (...args: never[]) => Component): void {
+    const name = componentClass.name;
+    const component = this.components.get(name);
+    if (component) {
+      component.onDestroy();
+      this.components.delete(name);
+      this.updateOrder = this.updateOrder.filter(c => c !== component);
+    }
+  }
+
   update(delta: number): void {
     this.updateOrder.forEach(component => component.update(delta));
   }

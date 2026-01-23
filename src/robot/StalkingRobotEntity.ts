@@ -12,6 +12,7 @@ import { KnockbackComponent } from '../ecs/components/KnockbackComponent';
 import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
 import { CollisionComponent } from '../ecs/components/CollisionComponent';
 import { ShadowComponent } from '../ecs/components/ShadowComponent';
+import { ProjectileComponent } from '../ecs/components/ProjectileComponent';
 import { StateMachine } from '../utils/state/StateMachine';
 import { RobotPatrolState } from './RobotPatrolState';
 import { RobotAlertState } from './RobotAlertState';
@@ -26,12 +27,12 @@ const ROBOT_SCALE = 3;
 const ROBOT_SPRITE_FRAME = 0; // South idle
 const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 50, width: 32, height: 16 };
 const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -22, offsetY: -40, width: 48, height: 85 };
-const ROBOT_LINE_OF_SIGHT_RANGE = 800;
+const ROBOT_LINE_OF_SIGHT_RANGE = 500;
 const ROBOT_FIELD_OF_VIEW = Math.PI * 0.75;
-const ROBOT_KNOCKBACK_FRICTION = 8;
-const ROBOT_KNOCKBACK_DURATION = 500; // milliseconds
+const ROBOT_KNOCKBACK_FRICTION = 0.85;
+const ROBOT_KNOCKBACK_DURATION_MS = 300;
 const ROBOT_BULLET_DAMAGE = 10;
-const ROBOT_KNOCKBACK_FORCE = 200;
+const ROBOT_KNOCKBACK_FORCE_PX_PER_SEC = 500;
 
 export interface CreateStalkingRobotProps {
   scene: Phaser.Scene;
@@ -74,7 +75,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     fieldOfView: ROBOT_FIELD_OF_VIEW
   }));
 
-  const knockback = entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION));
+  entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION_MS));
 
   entity.add(new FireballPropertiesComponent(fireballSpeed, fireballDuration));
   const stateMachine = new StateMachine(
@@ -101,22 +102,36 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
           healthComp.takeDamage(ROBOT_BULLET_DAMAGE);
         }
 
-        // Apply knockback from bullet direction
-        const bulletTransform = other.get(TransformComponent);
-        const robotTransform = entity.get(TransformComponent);
-        if (bulletTransform && robotTransform && knockback) {
-          const dx = robotTransform.x - bulletTransform.x;
-          const dy = robotTransform.y - bulletTransform.y;
-          const distance = Math.hypot(dx, dy);
-          if (distance > 0) {
-            knockback.applyKnockback(dx / distance, dy / distance, ROBOT_KNOCKBACK_FORCE);
-          }
+        // Apply knockback from projectile's direction (normalized)
+        const knockback = entity.get(KnockbackComponent);
+        const projectile = other.get(ProjectileComponent);
+        if (knockback && projectile) {
+          const length = Math.hypot(projectile.dirX, projectile.dirY);
+          const normalizedDirX = projectile.dirX / length;
+          const normalizedDirY = projectile.dirY / length;
+          knockback.applyKnockback(normalizedDirX, normalizedDirY, ROBOT_KNOCKBACK_FORCE_PX_PER_SEC);
         }
 
+        // Enter hit state (or reset if already in hit state)
+        const currentState = stateMachineComp.stateMachine.getCurrentKey();
+        if (currentState === 'hit') {
+          stateMachineComp.stateMachine.enter('stalking');
+        }
         stateMachineComp.stateMachine.enter('hit');
       }
     }
   }));
+
+  entity.setUpdateOrder([
+    TransformComponent,
+    SpriteComponent,
+    ShadowComponent,
+    KnockbackComponent,
+    GridPositionComponent,
+    GridCollisionComponent,
+    LineOfSightComponent,
+    StateMachineComponent,
+  ]);
 
   return entity;
 }

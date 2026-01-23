@@ -1,5 +1,7 @@
 import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
+import { createStalkingRobotEntity } from '../robot/StalkingRobotEntity';
+import type GameScene from '../GameScene';
 
 const ROBOT_SPRITE_FRAME = 0;
 const ROBOT_SCALE = 4;
@@ -65,10 +67,7 @@ export class AddRobotEditorState extends EditorState {
   private handlePointerDown(pointer: Phaser.Input.Pointer): void {
     if (!this.ghostSprite) return;
 
-    const gameScene = this.scene.scene.get('game') as Phaser.Scene & {
-      cameras: { main: Phaser.Cameras.Scene2D.Camera };
-      addRobot: (col: number, row: number) => Entity;
-    };
+    const gameScene = this.scene.scene.get('game') as GameScene;
     const grid = this.scene.getGrid();
     const camera = gameScene.cameras.main;
 
@@ -77,8 +76,42 @@ export class AddRobotEditorState extends EditorState {
 
     const cell = grid.worldToCell(worldX, worldY);
 
-    const robot = gameScene.addRobot(cell.col, cell.row);
+    const robot = this.addRobot(gameScene, cell.col, cell.row);
 
     this.scene.enterEditRobotMode(robot);
+  }
+
+  private addRobot(gameScene: GameScene, col: number, row: number): Entity {
+    const grid = this.scene.getGrid();
+    const entityManager = gameScene.getEntityManager();
+    
+    const x = col * grid.cellSize + grid.cellSize / 2;
+    const y = row * grid.cellSize + grid.cellSize / 2;
+
+    const player = entityManager.getFirst('player');
+    if (!player) {
+      throw new Error('Player not found');
+    }
+
+    const waypoints = [
+      { col: col - 1, row },
+      { col: col + 1, row }
+    ];
+
+    const robot = createStalkingRobotEntity({
+      scene: gameScene,
+      x,
+      y,
+      grid,
+      playerEntity: player,
+      waypoints,
+      health: 100,
+      speed: 100,
+      fireballSpeed: 300,
+      fireballDuration: 2000
+    });
+
+    entityManager.add(robot);
+    return robot;
   }
 }

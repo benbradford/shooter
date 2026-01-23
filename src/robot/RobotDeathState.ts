@@ -2,6 +2,7 @@ import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import { Direction } from '../constants/Direction';
 import { SpriteComponent } from '../ecs/components/SpriteComponent';
+import { CollisionComponent } from '../ecs/components/CollisionComponent';
 import type Phaser from 'phaser';
 
 // Death state configuration
@@ -24,6 +25,9 @@ export class RobotDeathState implements IState {
     this.animationFrame = 0;
     this.animationTimer = 0;
     this.animationComplete = false;
+
+    // Remove collision component so bullets pass through
+    this.entity.remove(CollisionComponent);
 
     // Get current facing direction from sprite frame
     const sprite = this.entity.get(SpriteComponent);

@@ -1,5 +1,4 @@
 import { EditorState } from './EditorState';
-import type { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/TransformComponent';
 
 export class DefaultEditorState extends EditorState {
@@ -206,16 +205,16 @@ export class DefaultEditorState extends EditorState {
     
     // Get world coordinates from GameScene camera
     const gameScene = this.scene.scene.get('game') as Phaser.Scene & { 
-      entityManager: { getByType: (type: string) => Entity[] };
+      getEntityManager: () => import('../ecs/EntityManager').EntityManager;
       cameras: { main: Phaser.Cameras.Scene2D.Camera };
-      getPlayerEntity: () => Entity | null;
     };
     
     const worldX = pointer.x + gameScene.cameras.main.scrollX;
     const worldY = pointer.y + gameScene.cameras.main.scrollY;
 
     // Check for player click
-    const player = gameScene.getPlayerEntity();
+    const entityManager = gameScene.getEntityManager();
+    const player = entityManager.getFirst('player');
     if (player) {
       const transform = player.get(TransformComponent);
       if (transform) {
@@ -228,7 +227,7 @@ export class DefaultEditorState extends EditorState {
     }
 
     // Check for robot click
-    const robots = gameScene.entityManager.getByType('stalking_robot');
+    const robots = entityManager.getByType('stalking_robot');
 
     for (const robot of robots) {
       const transform = robot.get(TransformComponent);
