@@ -17,6 +17,7 @@ import { StateMachine } from '../utils/state/StateMachine';
 import { RobotPatrolState } from './RobotPatrolState';
 import { RobotAlertState } from './RobotAlertState';
 import { RobotStalkingState } from './RobotStalkingState';
+import { RobotRetreatState } from './RobotRetreatState';
 import { RobotFireballState } from './RobotFireballState';
 import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
@@ -83,6 +84,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
       patrol: new RobotPatrolState(entity, grid, playerEntity),
       alert: new RobotAlertState(entity, scene, playerEntity),
       stalking: new RobotStalkingState(entity, playerEntity, grid),
+      retreat: new RobotRetreatState(entity, playerEntity),
       fireball: new RobotFireballState(entity, scene, playerEntity),
       hit: new RobotHitState(entity),
       death: new RobotDeathState(entity),

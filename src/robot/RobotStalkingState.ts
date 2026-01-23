@@ -10,11 +10,12 @@ import { Pathfinder } from '../utils/Pathfinder';
 import type { Grid } from '../utils/Grid';
 
 // Stalking state configuration
-const MIN_STALK_TIME = 2000; // milliseconds before can attack
-const ATTACK_RANGE = 500; // pixels
+const MIN_STALK_TIME_MS = 2000;
+const ATTACK_RANGE_PX = 500;
+const MIN_DISTANCE_PX = 150;
 const STALKING_SPEED_MULTIPLIER = 1.5;
-const ANIMATION_SPEED = 100; // milliseconds per frame
-const PATH_RECALC_INTERVAL = 500; // milliseconds between path recalculations
+const ANIMATION_SPEED_MS = 100;
+const PATH_RECALC_INTERVAL_MS = 500;
 
 export class RobotStalkingState implements IState {
   private readonly entity: Entity;
@@ -63,7 +64,16 @@ export class RobotStalkingState implements IState {
 
     if (!transform || !playerTransform || !stateMachine || !sprite || !patrol || !gridPos) return;
 
-    if (this.shouldAttack(transform, playerTransform)) {
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance < MIN_DISTANCE_PX) {
+      stateMachine.stateMachine.enter('retreat');
+      return;
+    }
+
+    if (this.shouldAttack(distance)) {
       stateMachine.stateMachine.enter('fireball');
       return;
     }
@@ -73,19 +83,16 @@ export class RobotStalkingState implements IState {
     this.updateAnimation(sprite);
   }
 
-  private shouldAttack(transform: TransformComponent, playerTransform: TransformComponent): boolean {
-    const dx = playerTransform.x - transform.x;
-    const dy = playerTransform.y - transform.y;
-    const distance = Math.hypot(dx, dy);
-    return distance <= ATTACK_RANGE && this.stalkingTime >= MIN_STALK_TIME;
+  private shouldAttack(distance: number): boolean {
+    return distance <= ATTACK_RANGE_PX && this.stalkingTime >= MIN_STALK_TIME_MS;
   }
 
   private updatePath(transform: TransformComponent, playerTransform: TransformComponent, gridPos: GridPositionComponent): void {
-    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL || this.path === null) {
+    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL_MS || this.path === null) {
       this.pathRecalcTimer = 0;
       const robotCell = this.grid.worldToCell(transform.x, transform.y);
       const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
-      
+
       this.path = this.pathfinder.findPath(
         robotCell.col,
         robotCell.row,
@@ -153,7 +160,7 @@ export class RobotStalkingState implements IState {
   }
 
   private updateAnimation(sprite: SpriteComponent): void {
-    if (this.animationTimer >= ANIMATION_SPEED) {
+    if (this.animationTimer >= ANIMATION_SPEED_MS) {
       this.animationTimer = 0;
       this.animationFrame = (this.animationFrame + 1) % 8;
     }
