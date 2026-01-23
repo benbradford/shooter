@@ -15,6 +15,60 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 
 ---
 
+## Comments
+
+### No Redundant Comments
+
+**Comments should only explain WHY, not WHAT. The code itself should be self-documenting.**
+
+**DON'T ❌**
+```typescript
+// Shadow
+const shadow = entity.add(new ShadowComponent(scene));
+shadow.init();
+
+// Grid position
+const startCell = grid.worldToCell(x, y);
+entity.add(new GridPositionComponent(startCell.col, startCell.row, ROBOT_GRID_COLLISION_BOX));
+
+// Health
+entity.add(new HealthComponent({ maxHealth: health }));
+
+// Patrol
+entity.add(new PatrolComponent(waypoints, speed));
+```
+
+**DO ✅**
+```typescript
+// No comments needed - code is self-explanatory
+const shadow = entity.add(new ShadowComponent(scene));
+shadow.init();
+
+const startCell = grid.worldToCell(x, y);
+entity.add(new GridPositionComponent(startCell.col, startCell.row, ROBOT_GRID_COLLISION_BOX));
+entity.add(new HealthComponent({ maxHealth: health }));
+entity.add(new PatrolComponent(waypoints, speed));
+```
+
+**When to use comments:**
+```typescript
+// ✅ Explains surprising behavior
+// Must init() after add() because component needs entity reference
+shadow.init();
+
+// ✅ Explains non-obvious logic
+// Knockback uses higher friction than player to prevent robots sliding too far
+entity.add(new KnockbackComponent(0.92, 500));
+
+// ✅ Explains workaround or limitation
+// Phaser doesn't support rotation on sprite sheets, so we pre-render all 8 directions
+const frame = IDLE_FRAME_OFFSET + directionIndex;
+```
+
+**Rule of thumb:** If you can delete the comment and the code is still clear, delete it.
+
+---
+
 ## Modern JavaScript Standards
 
 ### Use Modern Math APIs
@@ -138,6 +192,81 @@ if (type === 'player') {
 - Makes code harder to maintain
 - If branches are identical, the condition is meaningless
 - Violates DRY (Don't Repeat Yourself) principle
+
+### No Lonely If Statements
+
+**Don't use if as the only statement in an else block - use else if instead.**
+
+**DO ✅**
+```typescript
+if (condition1) {
+  doSomething();
+} else if (condition2) {
+  doSomethingElse();
+}
+
+// Or flatten the logic
+if (!condition1 && condition2) {
+  doSomethingElse();
+}
+```
+
+**DON'T ❌**
+```typescript
+if (condition1) {
+  doSomething();
+} else {
+  if (condition2) {  // Lonely if - use else if instead
+    doSomethingElse();
+  }
+}
+```
+
+**Why this matters:**
+- Reduces nesting depth
+- Makes code more readable
+- Standard pattern in most style guides
+
+### No Useless Constructors
+
+**Don't create constructors that only call super() with the same parameters.**
+
+**DO ✅**
+```typescript
+// No constructor needed - parent constructor is sufficient
+export class MyState extends EditorState {
+  private data: string = '';
+  
+  onEnter(): void {
+    // Implementation
+  }
+}
+
+// Constructor only needed if you do additional work
+export class MyState extends EditorState {
+  private data: string;
+  
+  constructor(scene: EditorScene, initialData: string) {
+    super(scene);
+    this.data = initialData;  // Additional initialization
+  }
+}
+```
+
+**DON'T ❌**
+```typescript
+// Useless constructor - just calls super with same params
+export class MyState extends EditorState {
+  constructor(scene: EditorScene) {
+    super(scene);  // Does nothing extra
+  }
+}
+```
+
+**Why this matters:**
+- Reduces boilerplate code
+- Parent constructor is called automatically
+- Only add constructor if you need to do additional work
 
 ### No Unnecessary Type Assertions
 

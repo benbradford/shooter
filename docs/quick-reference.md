@@ -25,6 +25,27 @@ npm run build        # Build for production
 npx eslint src --ext .ts  # Check code quality
 ```
 
+### Adding a Shadow to an Entity
+
+Shadows are handled by the reusable `ShadowComponent`:
+
+```typescript
+import { ShadowComponent } from '../ecs/components/ShadowComponent';
+
+// In entity factory function
+const shadow = entity.add(new ShadowComponent(scene));
+shadow.init();  // Must call init() after add()
+```
+
+The shadow:
+- Renders 50px below the entity
+- Uses the `shadow` texture from `assets/generic/shadow.png`
+- Automatically follows the entity's position
+- Renders at depth -1 (behind everything)
+- Scale is 2x by default
+
+**Note:** Always call `shadow.init()` after adding the component to the entity.
+
 ### Adding a New Asset
 
 1. Add sprite sheet to `public/assets/`
@@ -141,10 +162,10 @@ for (let col = 5; col <= 10; col++) {
   - White lines: Grid cells
   - Layer shading: Darker for higher layers, lighter for lower
   - Blue overlay: Transition cells (staircases)
-  - Green overlay: Occupied by entities
   
-- **C key** - Toggle scene debug visualization (disabled by default)
-  - Blue boxes: Entity collision boxes
+- **C key** - Toggle collision debug visualization (disabled by default)
+  - Black boxes: Entity collision boxes (CollisionComponent)
+  - Blue boxes: Grid collision boxes (GridPositionComponent)
   - Red boxes: Projectile emitter positions
 
 - **E key** - Enter level editor mode
@@ -159,24 +180,23 @@ for (let col = 5; col <= 10; col++) {
 ```typescript
 // In GameScene
 private entityManager!: EntityManager;
+private collisionSystem!: CollisionSystem;
 
 async create() {
   this.entityManager = new EntityManager();
+  this.collisionSystem = new CollisionSystem(this);
   
   // Add entities
   const player = this.entityManager.add(createPlayerEntity(...));
   const joystick = this.entityManager.add(createJoystickEntity(this));
-  
-  // Add bullets in callbacks
-  onFire: (x, y, dirX, dirY) => {
-    const bullet = createBulletEntity(this, x, y, dirX, dirY, grid);
-    this.entityManager.add(bullet);
-  }
 }
 
 update(delta: number) {
-  // Update all entities at once
+  // Update all entities
   this.entityManager.update(delta);
+  
+  // Check collisions
+  this.collisionSystem.update(this.entityManager.getAll());
 }
 
 // Query entities
@@ -188,6 +208,7 @@ const bullets = this.entityManager.getByType('bullet');
 - No separate arrays for different entity types
 - Automatic cleanup of destroyed entities
 - Easy to query by type
+- Centralized collision detection
 
 ### Projectile Wall Collision
 
@@ -206,6 +227,34 @@ new ProjectileComponent({
   blockedByWalls: false
 })
 ```
+
+### Entity Collision Detection
+
+Use `CollisionComponent` for entity-to-entity collision:
+
+```typescript
+// Add to entity
+entity.tags.add('player_projectile');
+entity.add(new DamageComponent(10));
+entity.add(new CollisionComponent({
+  box: { offsetX: -2, offsetY: -2, width: 4, height: 4 },
+  collidesWith: ['enemy'],
+  onHit: (other) => {
+    const health = other.get(HealthComponent);
+    const damage = entity.get(DamageComponent);
+    if (health && damage) {
+      health.takeDamage(damage.damage);
+    }
+    entity.destroy();
+  }
+}));
+```
+
+**Key points:**
+- Use `tags` to identify entity types
+- `DamageComponent` stores damage value
+- Collision boxes are separate from grid collision boxes
+- Press **C** to toggle collision box debug rendering (black outlines)
 
 ### Making Components Reusable
 

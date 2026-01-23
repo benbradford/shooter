@@ -127,8 +127,7 @@ export class RobotFireballState implements IState {
       dirX,
       dirY,
       fireballProps.speed,
-      maxDistance,
-      this.playerEntity
+      maxDistance
     );
 
     // Add to scene's entity manager

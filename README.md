@@ -283,6 +283,7 @@ npx eslint src --ext .ts     # Code quality check - MUST pass
 ### Core Guides
 - **[Coding Standards](./docs/coding-standards.md)** - TypeScript best practices, modern JavaScript standards, component design principles
 - **[ECS Architecture](./docs/ecs-architecture.md)** - Entity-Component system, EntityManager, creating new entities, component library
+- **[Collision System](./docs/collision-system.md)** - Entity collision detection, tags, collision boxes, damage system
 - **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, layer-based collision, scene setup
 - **[Input Systems](./docs/input-systems.md)** - Joystick controls, keyboard input, touch firing
 - **[Level System](./docs/level-system.md)** - Loading levels from JSON, level data structure, creating levels

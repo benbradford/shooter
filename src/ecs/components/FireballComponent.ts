@@ -3,14 +3,13 @@ import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 import { TransformComponent } from './TransformComponent';
 import { SpriteComponent } from './SpriteComponent';
-import { HealthComponent } from './HealthComponent';
 
 // Fireball configuration constants
 const FIREBALL_DAMAGE = 10;
 const FIREBALL_ANIMATION_FRAME_RATE = 10; // frames per second
 const FIREBALL_SCALE_AMPLITUDE = 0.1; // 10% scale variation
 const FIREBALL_SCALE_FREQUENCY = 4; // cycles per second
-const FIREBALL_HIT_RADIUS = 32; // collision radius in pixels
+const FIREBALL_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
 const FIREBALL_BASE_SCALE = 2;
 const SHADOW_OFFSET_Y_PX = 50; // pixels below fireball
 const SHADOW_SCALE = 1.4;
@@ -22,6 +21,8 @@ const PARTICLE_BURST_COUNT = 3; // particles per burst
 const PARTICLE_SCALE_START = 0.03;
 const PARTICLE_SCALE_END = 0;
 
+export { FIREBALL_DAMAGE, FIREBALL_COLLISION_BOX };
+
 export class FireballComponent implements Component {
   entity!: Entity;
   private readonly scene: Phaser.Scene;
@@ -29,7 +30,6 @@ export class FireballComponent implements Component {
   private readonly dirY: number;
   private readonly speed: number;
   private readonly maxDistance: number;
-  private readonly playerEntity: Entity;
   private distanceTraveled: number = 0;
   private baseScale: number = FIREBALL_BASE_SCALE;
   private scaleTimer: number = 0;
@@ -46,15 +46,13 @@ export class FireballComponent implements Component {
     dirX: number,
     dirY: number,
     speed: number,
-    maxDistance: number,
-    playerEntity: Entity
+    maxDistance: number
   ) {
     this.scene = scene;
     this.dirX = dirX;
     this.dirY = dirY;
     this.speed = speed;
     this.maxDistance = maxDistance;
-    this.playerEntity = playerEntity;
   }
 
   init(): void {
@@ -65,7 +63,7 @@ export class FireballComponent implements Component {
     this.baseScale = transform.scale;
 
     // Create shadow sprite
-    this.shadow = this.scene.add.sprite(transform.x, transform.y + SHADOW_OFFSET_Y_PX, 'fireball_shadow');
+    this.shadow = this.scene.add.sprite(transform.x, transform.y + SHADOW_OFFSET_Y_PX, 'shadow');
     this.shadow.setScale(SHADOW_SCALE);
     this.shadow.setDepth(-1);
 
@@ -136,24 +134,6 @@ export class FireballComponent implements Component {
     const scalePhase = (this.scaleTimer / 1000) * FIREBALL_SCALE_FREQUENCY * Math.PI * 2;
     const scaleFactor = 1 + Math.sin(scalePhase) * FIREBALL_SCALE_AMPLITUDE;
     transform.scale = this.baseScale * scaleFactor;
-
-    // Check collision with player
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    if (playerTransform) {
-      const distance = Math.hypot(
-        playerTransform.x - transform.x,
-        playerTransform.y - transform.y
-      );
-
-      if (distance <= FIREBALL_HIT_RADIUS) {
-        const playerHealth = this.playerEntity.get(HealthComponent);
-        if (playerHealth) {
-          playerHealth.takeDamage(FIREBALL_DAMAGE);
-        }
-        this.entity.destroy();
-        return;
-      }
-    }
 
     // Check max distance
     if (this.distanceTraveled >= this.maxDistance) {

@@ -5,6 +5,7 @@ export class Entity {
   private updateOrder: Component[] = [];
   public isDestroyed: boolean = false;
   public markedForRemoval: boolean = false;
+  public readonly tags: Set<string> = new Set();
 
   constructor(public readonly id: string) {}
 

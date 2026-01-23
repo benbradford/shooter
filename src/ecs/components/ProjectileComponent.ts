@@ -63,18 +63,14 @@ export class ProjectileComponent implements Component {
     if (this.blockedByWalls) {
       // Transition cells don't block projectiles
       if (!cellData.isTransition) {
-        // If fired from transition, can hit layer or layer+1
         if (this.fromTransition) {
           if (cellData.layer > this.currentLayer + 1) {
             this.entity.destroy();
             return;
           }
-        } else {
-          // Normal: can only hit same layer or lower
-          if (cellData.layer > this.currentLayer) {
-            this.entity.destroy();
-            return;
-          }
+        } else if (cellData.layer > this.currentLayer) {
+          this.entity.destroy();
+          return;
         }
       }
     }

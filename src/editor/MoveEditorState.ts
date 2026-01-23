@@ -1,5 +1,4 @@
 import { EditorState } from './EditorState';
-import type EditorScene from '../EditorScene';
 import type GameScene from '../GameScene';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../utils/state/IState';
@@ -17,10 +16,6 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
   private highlight!: Phaser.GameObjects.Rectangle;
   private entity: Entity | null = null;
   private returnState: string = 'default';
-
-  constructor(scene: EditorScene) {
-    super(scene);
-  }
 
   onEnter(props?: IStateEnterProps<MoveEditorStateProps>): void {
     // Get entity and return state from props

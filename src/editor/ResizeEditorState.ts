@@ -1,5 +1,4 @@
 import { EditorState } from './EditorState';
-import type EditorScene from '../EditorScene';
 import type GameScene from '../GameScene';
 
 export class ResizeEditorState extends EditorState {
@@ -8,10 +7,6 @@ export class ResizeEditorState extends EditorState {
   private selectedRow: number | null = null;
   private selectedCol: number | null = null;
   private highlightGraphics!: Phaser.GameObjects.Graphics;
-
-  constructor(scene: EditorScene) {
-    super(scene);
-  }
 
   onEnter(): void {
     const width = this.scene.cameras.main.width;

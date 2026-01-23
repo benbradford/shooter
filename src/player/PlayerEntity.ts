@@ -14,6 +14,8 @@ import { AmmoComponent } from '../ecs/components/AmmoComponent';
 import { HealthComponent } from '../ecs/components/HealthComponent';
 import { HudBarComponent } from '../ecs/components/HudBarComponent';
 import { OverheatSmokeComponent } from '../ecs/components/OverheatSmokeComponent';
+import { CollisionComponent } from '../ecs/components/CollisionComponent';
+import { DamageComponent } from '../ecs/components/DamageComponent';
 import { Animation } from '../animation/Animation';
 import { AnimationSystem } from '../animation/AnimationSystem';
 import { Direction } from '../constants/Direction';
@@ -25,7 +27,8 @@ import type { Grid } from '../utils/Grid';
 // Player configuration constants
 const PLAYER_SCALE = 2;
 const PLAYER_SPRITE_FRAME = 0; // Down idle
-const PLAYER_HITBOX = { offsetX: 0, offsetY: 32, width: 36, height: 32 };
+const PLAYER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 48, height: 32 }; // For grid/wall collision
+const PLAYER_ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -40, width: 36, height: 75 }; // For projectile collision
 const PLAYER_WALK_SPEED_PX_PER_SEC = 300;
 const PLAYER_ACCELERATION_TIME_MS = 300;
 const PLAYER_DECELERATION_TIME_MS = 100;
@@ -50,14 +53,11 @@ export function createPlayerEntity(
 ): Entity {
   const entity = new Entity('player');
 
-  // Transform
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
 
-  // Sprite
   const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
   sprite.sprite.setFrame(PLAYER_SPRITE_FRAME);
 
-  // Animation System - map directions to sprite sheet rows
   // Sprite sheet layout: 4 cols (idle, walk1, walk2, walk3) x 8 rows (8 directions)
   // Row 0: Down, Row 1: Up, Row 2: Left, Row 3: Right
   // Row 4: UpLeft, Row 5: UpRight, Row 6: DownLeft, Row 7: DownRight
@@ -85,14 +85,11 @@ export function createPlayerEntity(
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
 
-  // Input
   const input = entity.add(new InputComponent(scene));
 
-  // Connect joystick to input
   const joystickComp = joystick.get(TouchJoystickComponent)!;
   input.setJoystick(joystickComp);
 
-  // Walk
   entity.add(new WalkComponent(transform, input, {
     speed: PLAYER_WALK_SPEED_PX_PER_SEC,
     accelerationTime: PLAYER_ACCELERATION_TIME_MS,
@@ -100,17 +97,13 @@ export function createPlayerEntity(
     stopThreshold: PLAYER_STOP_THRESHOLD
   }));
 
-  // Grid Position
   const startCell = grid.worldToCell(x, y);
-  entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_HITBOX));
+  entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_GRID_COLLISION_BOX));
 
-  // Grid Collision
   entity.add(new GridCollisionComponent(grid));
 
-  // Health System
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH }));
 
-  // Ammo System
   const ammo = entity.add(new AmmoComponent({
     maxAmmo: PLAYER_MAX_AMMO,
     refillRate: PLAYER_AMMO_REFILL_RATE,
@@ -118,14 +111,12 @@ export function createPlayerEntity(
     overheatedRefillDelay: PLAYER_AMMO_OVERHEATED_DELAY_MS
   }));
 
-  // HUD Bars (both health and ammo)
   const hudBars = entity.add(new HudBarComponent(scene, [
     { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y_PX, fillColor: 0x00ff00 },
     { dataSource: ammo, offsetY: PLAYER_AMMO_BAR_OFFSET_Y_PX, fillColor: 0x0000ff, redOutlineOnLow: true, shakeOnLow: true },
   ]));
   hudBars.init();
 
-  // Projectile Emitter
   const emitterOffsets: Record<Direction, EmitterOffset> = {
     [Direction.Down]: { x: -16, y: 40 },
     [Direction.Up]: { x: 10, y: -30 },
@@ -147,11 +138,10 @@ export function createPlayerEntity(
     ammoComponent: ammo
   }));
 
-  // Overheat Smoke Effect
   const overheatSmoke = entity.add(new OverheatSmokeComponent(scene, ammo, emitterOffsets));
   overheatSmoke.init();
 
-  // State Machine (added after Animation so onEnter can access it)
+  // Added after Animation so onEnter can access it
   const stateMachine = new StateMachine(
     {
       idle: new PlayerIdleState(entity),
@@ -161,13 +151,29 @@ export function createPlayerEntity(
   );
   entity.add(new StateMachineComponent(stateMachine));
 
-  // Set update order with component instances
+  entity.tags.add('player');
+  entity.add(new CollisionComponent({
+    box: PLAYER_ENTITY_COLLISION_BOX,
+    collidesWith: ['enemy_projectile', 'enemy'],
+    onHit: (other) => {
+      if (other.tags.has('enemy_projectile')) {
+        const damage = other.get(DamageComponent);
+        if (damage) {
+          health.takeDamage(damage.damage);
+        }
+        other.destroy();
+      }
+    }
+  }));
+
+  // Component instances for update order
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
     InputComponent,
     WalkComponent,
     GridCollisionComponent,
+    CollisionComponent,
     HealthComponent,
     AmmoComponent,
     ProjectileEmitterComponent,
@@ -177,7 +183,6 @@ export function createPlayerEntity(
     AnimationComponent,
   ]);
 
-  // Add to grid
   grid.addOccupant(startCell.col, startCell.row, entity);
 
   return entity;

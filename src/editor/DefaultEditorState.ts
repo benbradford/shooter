@@ -1,5 +1,4 @@
 import { EditorState } from './EditorState';
-import type EditorScene from '../EditorScene';
 import type { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/TransformComponent';
 
@@ -8,10 +7,6 @@ export class DefaultEditorState extends EditorState {
   private exitButton!: Phaser.GameObjects.Text;
   private gridButton!: Phaser.GameObjects.Text;
   private buttons: Phaser.GameObjects.Text[] = [];
-
-  constructor(scene: EditorScene) {
-    super(scene);
-  }
 
   onEnter(): void {
     

@@ -111,7 +111,7 @@ export class GridCollisionComponent implements Component {
     const transform = this.entity.get(TransformComponent)!;
     const gridPos = this.entity.get(GridPositionComponent)!;
 
-    // Initialize previous position on first update
+    // Prevents phantom movement check from (0,0) to spawn position on first frame
     if (this.previousX === 0 && this.previousY === 0) {
       this.previousX = transform.x;
       this.previousY = transform.y;
@@ -120,48 +120,37 @@ export class GridCollisionComponent implements Component {
     const newX = transform.x;
     const newY = transform.y;
 
-    // Check if new position is blocked
     if (this.checkCollision(newX, newY, gridPos)) {
-      // Try X movement only
       const xOnlyBlocked = this.checkCollision(newX, this.previousY, gridPos);
-      // Try Y movement only
       const yOnlyBlocked = this.checkCollision(this.previousX, newY, gridPos);
 
-      // Get WalkComponent to reset velocity when blocked
       const walk = this.entity.get(WalkComponent);
 
       if (!xOnlyBlocked && !yOnlyBlocked) {
-        // Both axes work individually, revert both (corner case)
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
       } else if (!xOnlyBlocked) {
-        // X movement is ok, slide along X
         transform.y = this.previousY;
         walk?.resetVelocity(false, true);
       } else if (yOnlyBlocked) {
-        // Both blocked, revert completely
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
       } else {
-        // Y movement is ok, slide along Y
         transform.x = this.previousX;
         walk?.resetVelocity(true, false);
       }
     }
 
-    // Calculate collision box bounds at final position
     const boxLeft = transform.x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
     const boxTop = transform.y + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
     const boxRight = boxLeft + gridPos.collisionBox.width;
     const boxBottom = boxTop + gridPos.collisionBox.height;
 
-    // Get all cells the collision box overlaps
     const topLeftCell = this.grid.worldToCell(boxLeft, boxTop);
     const bottomRightCell = this.grid.worldToCell(boxRight - 1, boxBottom - 1);
 
-    // Build new set of occupied cells
     const newOccupiedCells = new Set<string>();
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
@@ -169,7 +158,6 @@ export class GridCollisionComponent implements Component {
       }
     }
 
-    // Remove from cells no longer occupied
     this.occupiedCells.forEach(key => {
       if (!newOccupiedCells.has(key)) {
         const [col, row] = key.split(',').map(Number);
@@ -177,7 +165,6 @@ export class GridCollisionComponent implements Component {
       }
     });
 
-    // Add to newly occupied cells
     newOccupiedCells.forEach(key => {
       if (!this.occupiedCells.has(key)) {
         const [col, row] = key.split(',').map(Number);
@@ -185,10 +172,8 @@ export class GridCollisionComponent implements Component {
       }
     });
 
-    // Update occupied cells set
     this.occupiedCells = newOccupiedCells;
 
-    // Update current cell and layer
     gridPos.previousCell = { ...gridPos.currentCell };
     gridPos.currentCell = topLeftCell;
     
@@ -197,16 +182,13 @@ export class GridCollisionComponent implements Component {
       gridPos.currentLayer = currentCellData.layer;
     }
 
-    // Store current position for next frame
     this.previousX = transform.x;
     this.previousY = transform.y;
 
-    // Render collision box for debug (will be drawn after grid.render())
     this.grid.renderCollisionBox(boxLeft, boxTop, gridPos.collisionBox.width, gridPos.collisionBox.height);
   }
 
   onDestroy(): void {
-    // Remove from all occupied cells
     this.occupiedCells.forEach(key => {
       const [col, row] = key.split(',').map(Number);
       this.grid.removeOccupant(col, row, this.entity);

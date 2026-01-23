@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import type { Entity } from "../ecs/Entity";
+import type GameScene from "../GameScene";
 
 export type CellData = {
   layer: number;
@@ -14,7 +15,7 @@ export class Grid {
   private readonly graphics: Phaser.GameObjects.Graphics;
   private isGridDebugEnabled: boolean = true;
   private isShowingOccupants: boolean = false;
-  private readonly isSceneDebugEnabled: boolean = false;
+  private isSceneDebugEnabled: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
 
@@ -64,11 +65,17 @@ export class Grid {
       this.render();
     });
 
-    // Toggle occupant highlighting with C
+    // Toggle occupant highlighting and collision boxes with C
     const keyC = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.C);
     keyC?.on("down", () => {
       this.isShowingOccupants = !this.isShowingOccupants;
+      this.isSceneDebugEnabled = !this.isSceneDebugEnabled;
       this.render();
+      // Toggle collision debug in GameScene
+      const gameScene = scene as GameScene;
+      if (gameScene.collisionSystem) {
+        gameScene.collisionSystem.setDebugEnabled(this.isSceneDebugEnabled);
+      }
     });
   }
 
@@ -177,11 +184,11 @@ export class Grid {
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
 
-        // Occupied cells in green (overlay on top)
-        if (this.isShowingOccupants && cell.occupants.size > 0) {
-          this.graphics.fillStyle(0x00ff00, 0.3);
-          this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-        }
+        // Occupied cells in green (overlay on top) - COMMENTED OUT FOR DEBUG
+        // if (this.isShowingOccupants && cell.occupants.size > 0) {
+        //   this.graphics.fillStyle(0x00ff00, 0.3);
+        //   this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
+        // }
 
         // Draw cell outline
         this.graphics.lineStyle(1, 0xffffff, 0.3);

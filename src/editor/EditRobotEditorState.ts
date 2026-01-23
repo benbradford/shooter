@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { EditorState } from './EditorState';
-import type EditorScene from '../EditorScene';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../utils/state/IState';
 import { TransformComponent } from '../ecs/components/TransformComponent';
@@ -18,10 +17,6 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private fireballDurationText: Phaser.GameObjects.Text | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
   private draggingWaypointIndex: number | null = null;
-
-  constructor(scene: EditorScene) {
-    super(scene);
-  }
 
   onEnter(props?: IStateEnterProps<Entity | undefined>): void {
     this.createUI();

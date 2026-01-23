@@ -17,9 +17,11 @@ import { KnockbackComponent } from "./ecs/components/KnockbackComponent";
 import { StateMachineComponent } from "./ecs/components/StateMachineComponent";
 import { ProjectileComponent } from "./ecs/components/ProjectileComponent";
 import { preloadAssets } from "./assets/AssetLoader";
+import { CollisionSystem } from "./systems/CollisionSystem";
 
 export default class GameScene extends Phaser.Scene {
   private entityManager!: EntityManager;
+  public collisionSystem!: CollisionSystem;
   private grid!: Grid;
   private readonly cellSize: number = 128;
   private editorKey!: Phaser.Input.Keyboard.Key;
@@ -35,16 +37,14 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create() {
-    // Initialize entity manager
     this.entityManager = new EntityManager();
 
-    // Load level data
+    this.collisionSystem = new CollisionSystem(this);
+
     this.levelData = await LevelLoader.load('default');
 
-    // Initialize the scene
     this.initializeScene();
 
-    // Editor mode toggle
     this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.editorKey.on('down', () => {
       if (this.scene.isActive()) {
@@ -56,10 +56,8 @@ export default class GameScene extends Phaser.Scene {
   private initializeScene(): void {
     const level = this.levelData;
 
-    // Initialize grid
     this.grid = new Grid(this, level.width, level.height, this.cellSize);
 
-    // Apply level cells
     for (const cell of level.cells) {
       this.grid.setCell(cell.col, cell.row, {
         layer: cell.layer,
@@ -69,7 +67,6 @@ export default class GameScene extends Phaser.Scene {
 
     this.grid.render();
 
-    // Camera setup
     this.cameras.main.setBounds(
       0,
       0,
@@ -77,39 +74,30 @@ export default class GameScene extends Phaser.Scene {
       level.height * this.grid.cellSize
     );
 
-    // Spawn all entities
     this.spawnEntities();
   }
 
   private async enterEditorMode(): Promise<void> {
-    // Reset the scene to initial state
     this.resetScene();
 
-    // Pause this scene (stops updates but keeps rendering)
     this.scene.pause();
 
-    // Launch editor scene on top
     this.scene.launch('EditorScene');
   }
 
   private resetScene(): void {
-    // Destroy grid (clears occupants and graphics)
     this.grid.destroy();
 
-    // Destroy all entities
     this.entityManager.destroyAll();
 
-    // Reinitialize everything
     this.initializeScene();
   }
 
   private spawnEntities(): void {
     const level = this.levelData;
 
-    // Create joystick entity
     const joystick = this.entityManager.add(createJoystickEntity(this));
 
-    // Create the player entity at level start position
     const startX = this.grid.cellSize * level.playerStart.x;
     const startY = this.grid.cellSize * level.playerStart.y;
     const player = this.entityManager.add(createPlayerEntity(
@@ -166,6 +154,9 @@ export default class GameScene extends Phaser.Scene {
 
     // Update all entities (automatically filters destroyed ones)
     this.entityManager.update(delta);
+
+    // Check collisions
+    this.collisionSystem.update(this.entityManager.getAll());
 
     // Check bullet-robot collisions
     this.checkBulletRobotCollisions();
