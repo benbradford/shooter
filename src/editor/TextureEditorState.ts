@@ -129,8 +129,9 @@ export class TextureEditorState extends EditorState {
     const cell = grid.worldToCell(worldX, worldY);
 
     if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
+      // If selectedTexture is null, explicitly set to undefined to clear
       this.scene.setCellData(cell.col, cell.row, {
-        backgroundTexture: this.selectedTexture || undefined
+        backgroundTexture: this.selectedTexture === null ? undefined : this.selectedTexture
       });
     }
   }

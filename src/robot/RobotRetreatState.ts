@@ -47,7 +47,7 @@ export class RobotRetreatState implements IState {
     const distance = Math.hypot(dx, dy);
 
     if (distance >= SAFE_DISTANCE_PX) {
-      stateMachine.stateMachine.enter('stalking');
+      stateMachine.stateMachine.enter('fireball');
       return;
     }
 

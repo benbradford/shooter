@@ -77,8 +77,6 @@ export default class GameScene extends Phaser.Scene {
       level.height * this.grid.cellSize
     );
 
-    this.cameras.main.setZoom(1.0);
-
     this.spawnEntities();
 
     // Camera follow player's sprite
@@ -92,6 +90,8 @@ export default class GameScene extends Phaser.Scene {
 
   private async enterEditorMode(): Promise<void> {
     this.resetScene();
+
+    this.grid.setGridDebugEnabled(true); // Enable grid in editor
 
     this.scene.pause();
 

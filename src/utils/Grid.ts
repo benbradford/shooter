@@ -18,7 +18,7 @@ export class Grid {
   private readonly graphics: Phaser.GameObjects.Graphics;
   private readonly scene: Phaser.Scene;
   private readonly backgroundSprites: Map<string, Phaser.GameObjects.Image> = new Map();
-  private isGridDebugEnabled: boolean = true;
+  private isGridDebugEnabled: boolean = false;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
@@ -30,6 +30,11 @@ export class Grid {
 
   public get sceneDebugEnabled(): boolean {
     return this.isSceneDebugEnabled;
+  }
+
+  public setGridDebugEnabled(enabled: boolean): void {
+    this.isGridDebugEnabled = enabled;
+    this.render();
   }
 
   public get rows(): number {
@@ -236,6 +241,29 @@ export class Grid {
     // Draw scene debug elements if enabled
     if (this.isSceneDebugEnabled) {
       this.renderSceneDebug(entityManager);
+    }
+  }
+
+  renderCellCoordinates(): void {
+    // Only render in editor - add small text labels showing col,row
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        const x = col * this.cellSize + 2;
+        const y = row * this.cellSize + 10;
+        
+        this.graphics.fillStyle(0xffffff, 0.5);
+        this.graphics.fillRect(x, y - 8, 30, 10);
+        
+        // Draw text using graphics (simple, no Text objects needed)
+        const text = this.scene.add.text(x + 1, y - 7, `${col},${row}`, {
+          fontSize: '8px',
+          color: '#000000'
+        });
+        text.setDepth(10001);
+        
+        // Destroy after one frame (we redraw each frame)
+        this.scene.time.delayedCall(0, () => text.destroy());
+      }
     }
   }
 

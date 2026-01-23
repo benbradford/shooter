@@ -117,6 +117,10 @@ export default class EditorScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.stateMachine.update(delta);
     this.handleCameraMovement(delta);
+    
+    // Render cell coordinates in editor
+    const grid = this.getGrid();
+    grid.renderCellCoordinates();
   }
 
   private handleCameraMovement(delta: number): void {

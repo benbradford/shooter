@@ -18,8 +18,8 @@ export class AimJoystickComponent implements Component {
   private pointerId: number = -1;
 
   constructor(private readonly scene: Phaser.Scene, props: AimJoystickProps = {}) {
-    this.maxRadius = props.maxRadius ?? 100;
-    this.innerRadius = props.innerRadius ?? 60;
+    this.maxRadius = props.maxRadius ?? 150;
+    this.innerRadius = props.innerRadius ?? 80;
   }
 
   init(): void {

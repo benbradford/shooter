@@ -25,8 +25,8 @@ export class TouchJoystickComponent implements Component {
   private crosshairBounds: { x: number; y: number; radius: number } | null = null;
 
   constructor(private readonly scene: Phaser.Scene, props: TouchJoystickProps = {}) {
-    this.maxRadius = props.maxRadius ?? 100;
-    this.innerRadius = props.innerRadius ?? 60;
+    this.maxRadius = props.maxRadius ?? 150;
+    this.innerRadius = props.innerRadius ?? 80;
     this.deadZoneDistance = props.deadZoneDistance ?? 30;
   }
 
@@ -44,8 +44,8 @@ export class TouchJoystickComponent implements Component {
       const screenWidth = displayWidth;
       const screenHeight = displayHeight;
 
-      // Check if in lower-left quadrant (movement)
-      if (pointer.x < screenWidth / 2 && pointer.y > screenHeight / 2 && this.pointerId === -1) {
+      // Check if in lower-left area (movement) - expanded area
+      if (pointer.x < screenWidth * 0.6 && pointer.y > screenHeight * 0.3 && this.pointerId === -1) {
         this.isActive = true;
         this.startX = pointer.x;
         this.startY = pointer.y;

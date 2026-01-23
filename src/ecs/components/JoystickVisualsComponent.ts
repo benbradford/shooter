@@ -6,6 +6,9 @@ export class JoystickVisualsComponent implements Component {
   entity!: Entity;
   private outerCircle!: Phaser.GameObjects.Arc;
   private innerCircle!: Phaser.GameObjects.Arc;
+  private lastX: number = 0;
+  private lastY: number = 0;
+  private initialized: boolean = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -30,18 +33,29 @@ export class JoystickVisualsComponent implements Component {
 
   update(_delta: number): void {
     const state = this.joystick.getJoystickState();
+    const displayWidth = this.scene.scale.displaySize.width;
+    const displayHeight = this.scene.scale.displaySize.height;
+
+    // Always show circles
+    this.outerCircle.setVisible(true);
+    this.innerCircle.setVisible(true);
 
     if (state.active) {
-      // Show and position circles
-      this.outerCircle.setVisible(true);
-      this.innerCircle.setVisible(true);
-
+      // Position at touch location and remember it
+      this.lastX = state.startX;
+      this.lastY = state.startY;
+      this.initialized = true;
       this.outerCircle.setPosition(state.startX, state.startY);
       this.innerCircle.setPosition(state.currentX, state.currentY);
     } else {
-      // Hide circles
-      this.outerCircle.setVisible(false);
-      this.innerCircle.setVisible(false);
+      // Use last position, or default if never touched
+      if (!this.initialized) {
+        this.lastX = displayWidth * 0.15;
+        this.lastY = displayHeight * 0.75;
+        this.initialized = true;
+      }
+      this.outerCircle.setPosition(this.lastX, this.lastY);
+      this.innerCircle.setPosition(this.lastX, this.lastY);
     }
   }
 
