@@ -7,6 +7,14 @@ WIP hosted on https://dodging-bullets.netlify.app/
 
 ---
 
+**Development:**
+
+Use
+```
+kiro-cli chat --agent .kiro/agents/dodging-bullets.md
+```
+to start a kiro session with context on the project
+
 ## Setup Instructions
 
 ### Prerequisites

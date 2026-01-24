@@ -1,0 +1,11 @@
+{
+  "name": "dodging-bullets",
+  "description": "Specialized agent for Dodging Bullets game - 2D top-down shooter with Phaser and TypeScript ECS architecture",
+  "tools": ["@builtin"],
+  "resources": [
+    "file://README.md",
+    "file://docs/**/*.md",
+    "file://src/ecs/index.ts"
+  ],
+  "prompt": "file://dodging-bullets.md"
+}
