@@ -12,6 +12,7 @@ import { EditRobotEditorState } from "./editor/EditRobotEditorState";
 import { AddEditorState } from "./editor/AddEditorState";
 import { AddRobotEditorState } from "./editor/AddRobotEditorState";
 import { TextureEditorState } from "./editor/TextureEditorState";
+import { VignetteEditorState } from "./editor/VignetteEditorState";
 import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { RobotDifficultyComponent } from "./ecs/components/ai/RobotDifficultyComponent";
@@ -20,7 +21,6 @@ import { EntityManager } from "./ecs/EntityManager";
 
 export default class EditorScene extends Phaser.Scene {
   private stateMachine!: StateMachine<void | Entity | MoveEditorStateProps>;
-  private overlay!: Phaser.GameObjects.Rectangle;
   private title!: Phaser.GameObjects.Text;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
@@ -56,19 +56,6 @@ export default class EditorScene extends Phaser.Scene {
     
     // Store for restoration
     this.registry.set('editorOriginalBounds', originalBounds);
-
-    // Semi-transparent overlay
-    this.overlay = this.add.rectangle(
-      0,
-      0,
-      this.cameras.main.width,
-      this.cameras.main.height,
-      0x000000,
-      0.3
-    );
-    this.overlay.setOrigin(0, 0);
-    this.overlay.setScrollFactor(0);
-    this.overlay.setDepth(900);
 
     // Title
     const centerX = this.cameras.main.width / 2;
@@ -107,7 +94,8 @@ export default class EditorScene extends Phaser.Scene {
       editRobot: new EditRobotEditorState(this),
       add: new AddEditorState(this),
       addRobot: new AddRobotEditorState(this),
-      texture: new TextureEditorState(this)
+      texture: new TextureEditorState(this),
+      vignette: new VignetteEditorState(this)
     }, 'default');
 
     // Event listeners
@@ -241,7 +229,8 @@ export default class EditorScene extends Phaser.Scene {
       height: grid.height,
       playerStart,
       cells,
-      robots: robots.length > 0 ? robots : undefined
+      robots: robots.length > 0 ? robots : undefined,
+      vignette: gameScene.getLevelData().vignette
     };
   }
 
@@ -382,6 +371,10 @@ export default class EditorScene extends Phaser.Scene {
     const grid = this.getGrid();
     grid.addColumn();
     grid.render();
+  }
+
+  enterVignetteMode(): void {
+    this.stateMachine.enter('vignette');
   }
 
   exitEditor(): void {

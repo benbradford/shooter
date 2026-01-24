@@ -13,6 +13,12 @@ export interface LevelRobot {
   waypoints: Array<{ col: number; row: number }>;
 }
 
+export interface VignetteConfig {
+  alpha: number;
+  tint: number;
+  blendMode: number;
+}
+
 export interface LevelData {
   width: number;
   height: number;
@@ -22,6 +28,7 @@ export interface LevelData {
   };
   cells: LevelCell[];
   robots?: LevelRobot[];
+  vignette?: VignetteConfig;
 }
 
 export class LevelLoader {

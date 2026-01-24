@@ -145,6 +145,29 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterResizeMode();
     });
 
+    // Vignette button
+    const vignetteButton = this.scene.add.text(centerX - buttonSpacing * 3.5, buttonY - 80, 'Vignette', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    vignetteButton.setOrigin(0.5);
+    vignetteButton.setScrollFactor(0);
+    vignetteButton.setInteractive({ useHandCursor: true });
+    vignetteButton.setDepth(1000);
+    this.buttons.push(vignetteButton);
+
+    vignetteButton.on('pointerover', () => {
+      vignetteButton.setBackgroundColor('#555555');
+    });
+    vignetteButton.on('pointerout', () => {
+      vignetteButton.setBackgroundColor('#333333');
+    });
+    vignetteButton.on('pointerdown', () => {
+      this.scene.enterVignetteMode();
+    });
+
     // Log button
     const logButton = this.scene.add.text(centerX + buttonSpacing * 3.5, buttonY, 'Log', {
       fontSize: '24px',

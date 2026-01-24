@@ -22,6 +22,7 @@ export default class GameScene extends Phaser.Scene {
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
   private currentLevelName: string = 'level1';
+  private vignette?: Phaser.GameObjects.Image;
 
   constructor() {
     super("game");
@@ -94,14 +95,18 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Add vignette overlay
-    const vignette = this.add.image(0, 0, 'vignette');
-    vignette.setOrigin(0, 0);
-    vignette.setScrollFactor(0);
-    vignette.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
-    vignette.setDepth(10000);
-    vignette.setAlpha(0.8);
-    vignette.setBlendMode(Phaser.BlendModes.MULTIPLY);
-    vignette.setTint(0xbb8888);
+    if (this.vignette) {
+      this.vignette.destroy();
+    }
+    const vignetteConfig = level.vignette || { alpha: 0.6, tint: 0x000000, blendMode: Phaser.BlendModes.MULTIPLY };
+    this.vignette = this.add.image(0, 0, 'vignette');
+    this.vignette.setOrigin(0, 0);
+    this.vignette.setScrollFactor(0);
+    this.vignette.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+    this.vignette.setDepth(10000);
+    this.vignette.setAlpha(vignetteConfig.alpha);
+    this.vignette.setTint(vignetteConfig.tint);
+    this.vignette.setBlendMode(vignetteConfig.blendMode);
   }
 
   private enterEditorMode(): void {
@@ -205,6 +210,14 @@ export default class GameScene extends Phaser.Scene {
 
   getLevelData(): LevelData {
     return this.levelData;
+  }
+
+  updateVignette(): void {
+    if (this.vignette && this.levelData.vignette) {
+      this.vignette.setAlpha(this.levelData.vignette.alpha);
+      this.vignette.setTint(this.levelData.vignette.tint);
+      this.vignette.setBlendMode(this.levelData.vignette.blendMode);
+    }
   }
 
   private showLevelSelector(): void {

@@ -30,6 +30,12 @@ export class HitFlashComponent implements Component {
     const sprite = this.entity.get(SpriteComponent);
     if (!sprite) return;
 
+    // Stop flashing after duration
+    if (this.elapsedMs >= this.durationMs) {
+      this.stop();
+      return;
+    }
+
     // Flash red
     if (this.flashTimerMs >= HIT_FLASH_INTERVAL_MS) {
       this.flashTimerMs = 0;
@@ -39,11 +45,6 @@ export class HitFlashComponent implements Component {
       } else {
         sprite.sprite.clearTint();
       }
-    }
-
-    // Stop flashing after duration
-    if (this.elapsedMs >= this.durationMs) {
-      this.stop();
     }
   }
 
