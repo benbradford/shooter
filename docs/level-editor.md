@@ -1,8 +1,77 @@
-# Level Editor
+# Level System and Editor
+
+This document covers the level data structure, loading system, and in-game editor.
+
+## Level Data Structure
+
+```typescript
+interface LevelData {
+  width: number;          // Grid width in cells
+  height: number;         // Grid height in cells
+  playerStart: {
+    x: number;            // Player start X in cells
+    y: number;            // Player start Y in cells
+  };
+  cells: LevelCell[];     // Array of special cells
+  robots?: LevelRobot[];  // Optional robot enemies
+  bugBases?: LevelBugBase[]; // Optional bug spawners
+  vignette?: VignetteConfig; // Optional screen overlay
+}
+
+interface LevelCell {
+  col: number;            // Column position
+  row: number;            // Row position
+  layer?: number;         // Layer (-1 = pit, 0 = ground, 1 = platform)
+  isTransition?: boolean; // Is this a staircase?
+}
+```
+
+## Loading Levels
+
+Levels are loaded from JSON files in `public/levels/`:
+
+```typescript
+// In GameScene.create() - must be async
+async create() {
+  const level = await LevelLoader.load('default');
+  
+  // Initialize grid with level data
+  this.grid = new Grid(this, level.width, level.height, this.cellSize);
+  
+  // Apply level cells
+  for (const cell of level.cells) {
+    this.grid.setCell(cell.col, cell.row, {
+      layer: cell.layer,
+      isTransition: cell.isTransition
+    });
+  }
+  
+  // Use level player start position
+  const startX = this.cellSize * level.playerStart.x;
+  const startY = this.cellSize * level.playerStart.y;
+  // ... create player at startX, startY
+}
+```
+
+### Layer System
+
+**Layer Values:**
+- **-1**: Pits, water, lower areas
+- **0**: Default ground level (default for all cells)
+- **1**: Elevated platforms, upper floors
+- **2+**: Higher levels
+
+**Transition Cells:**
+- Connect adjacent layers (e.g., layer 0 transition connects to layer 1)
+- Only allow vertical movement (up/down)
+- Don't block projectiles
+- Must be placed adjacent to the platform they connect to
+
+## Level Editor
 
 The level editor allows you to pause the game, navigate the map, and edit grid cells and entities.
 
-## Usage
+### Usage
 
 **Press 'E'** to enter editor mode:
 - Game resets to initial state (all entities at starting positions)

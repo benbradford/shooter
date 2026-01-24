@@ -5,9 +5,11 @@ import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { KnockbackComponent } from '../ecs/components/movement/KnockbackComponent';
 import { BugHopComponent } from '../ecs/components/movement/BugHopComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
 import type { Grid } from '../utils/Grid';
 
 const FRAME_DURATION_MS = 125;
+const ATTACK_RANGE_PX = 128;
 
 export class BugChaseState implements IState {
   private readonly entity: Entity;
@@ -50,10 +52,19 @@ export class BugChaseState implements IState {
       return;
     }
 
-    if (!this.isMovingToCell) {
-      const dx = playerTransform.x - transform.x;
-      const dy = playerTransform.y - transform.y;
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distanceToPlayer = Math.hypot(dx, dy);
 
+    if (distanceToPlayer <= ATTACK_RANGE_PX) {
+      const stateMachine = this.entity.get(StateMachineComponent);
+      if (stateMachine) {
+        stateMachine.stateMachine.enter('attack');
+      }
+      return;
+    }
+
+    if (!this.isMovingToCell) {
       let targetCol = gridPos.currentCell.col;
       let targetRow = gridPos.currentCell.row;
 

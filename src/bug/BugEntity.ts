@@ -14,6 +14,7 @@ import { StateMachineComponent } from '../ecs/components/core/StateMachineCompon
 import { ProjectileComponent } from '../ecs/components/combat/ProjectileComponent';
 import { StateMachine } from '../utils/state/StateMachine';
 import { BugChaseState } from './BugChaseState';
+import { BugAttackState } from './BugAttackState';
 import type { Grid } from '../utils/Grid';
 
 const BUG_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
@@ -57,7 +58,8 @@ export function createBugEntity(
   entity.add(new DamageComponent(10));
 
   const stateMachine = new StateMachine({
-    chase: new BugChaseState(entity, playerEntity, grid, speed)
+    chase: new BugChaseState(entity, playerEntity, grid, speed),
+    attack: new BugAttackState(entity, playerEntity, scene)
   }, 'chase');
   entity.add(new StateMachineComponent(stateMachine));
 

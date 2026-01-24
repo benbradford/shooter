@@ -51,14 +51,15 @@ Quick reference for navigating the Dodging Bullets documentation.
    - Keyboard controls
    - Momentum-based movement
 
+8. **[Screen Scaling and HUD](./screen-scaling-and-hud.md)** - Critical quirks
+   - Screen scaling, coordinate systems
+   - HUD positioning
+   - Android compatibility
+
 ## Level Design
 
-8. **[Level System](./level-system.md)** - Loading levels from JSON
-   - Level data structure
-   - Layer system
-   - Player spawn points
-
 9. **[Level Editor](./level-editor.md)** - In-game level editor
+   - Level data structure and loading
    - Editor modes (default, grid, move, resize, edit robot)
    - Saving workflow
    - State machine architecture
@@ -79,16 +80,11 @@ Quick reference for navigating the Dodging Bullets documentation.
    - Editor integration
    - Common pitfalls and solutions
 
-12. **[Component Props Pattern](./component-props-pattern.md)** - Props-based configuration
-    - Refactored components
-    - Benefits and usage examples
-
-## Asset Documentation
-
-12. **[Floating Robot Spritesheet](./floating-robot-spritesheet.md)** - Robot sprite layout
-    - Frame layout and indices
-    - Animation structure
-    - Regeneration script
+12. **[Visual Effects](./visual-effects.md)** - Hit flashes, particles, shadows
+    - HitFlashComponent usage
+    - Particle system patterns
+    - Shadow component
+    - Combining effects
 
 ## Key Concepts
 

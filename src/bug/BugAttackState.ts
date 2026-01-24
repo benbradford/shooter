@@ -1,0 +1,116 @@
+import type { IState } from '../utils/state/IState';
+import type { Entity } from '../ecs/Entity';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+
+const LEAP_DURATION_MS = 400;
+const LEAP_HEIGHT_PX = 80;
+const COOLDOWN_MS = 1000;
+
+export class BugAttackState implements IState {
+  private readonly entity: Entity;
+  private readonly playerEntity: Entity;
+  private readonly scene: Phaser.Scene;
+  private elapsedMs = 0;
+  private startX = 0;
+  private startY = 0;
+  private targetX = 0;
+  private targetY = 0;
+  private lastAttackTime = 0;
+
+  constructor(entity: Entity, playerEntity: Entity, scene: Phaser.Scene) {
+    this.entity = entity;
+    this.playerEntity = playerEntity;
+    this.scene = scene;
+  }
+
+  onEnter(): void {
+    const currentTime = Date.now();
+    if (currentTime - this.lastAttackTime < COOLDOWN_MS) {
+      const stateMachine = this.entity.get(StateMachineComponent);
+      if (stateMachine) {
+        stateMachine.stateMachine.enter('chase');
+      }
+      return;
+    }
+
+    const transform = this.entity.get(TransformComponent);
+    const playerTransform = this.playerEntity.get(TransformComponent);
+    const sprite = this.entity.get(SpriteComponent);
+    if (!transform || !playerTransform || !sprite) return;
+
+    this.startX = transform.x;
+    this.startY = transform.y;
+    this.targetX = playerTransform.x;
+    this.targetY = playerTransform.y;
+    this.elapsedMs = 0;
+    this.lastAttackTime = currentTime;
+
+    const dx = this.targetX - this.startX;
+    const dy = this.targetY - this.startY;
+    let baseFrame = 0;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      baseFrame = dx > 0 ? 12 : 8;
+    } else {
+      baseFrame = dy > 0 ? 0 : 4;
+    }
+    sprite.sprite.setFrame(baseFrame);
+  }
+
+  onExit(): void {}
+
+  onUpdate(delta: number): void {
+    this.elapsedMs += delta;
+
+    const transform = this.entity.get(TransformComponent);
+    const sprite = this.entity.get(SpriteComponent);
+    if (!transform || !sprite) return;
+
+    const progress = Math.min(this.elapsedMs / LEAP_DURATION_MS, 1);
+    
+    transform.x = this.startX + (this.targetX - this.startX) * progress;
+    transform.y = this.startY + (this.targetY - this.startY) * progress;
+
+    const arc = Math.sin(progress * Math.PI);
+    const offsetY = -arc * LEAP_HEIGHT_PX;
+    sprite.sprite.setY(transform.y + offsetY);
+
+    const scale = 2 * (1 + arc * 0.5);
+    sprite.sprite.setScale(scale);
+
+    if (progress >= 1) {
+      sprite.sprite.setY(transform.y);
+      sprite.sprite.setScale(2);
+
+      const playerTransform = this.playerEntity.get(TransformComponent);
+      if (playerTransform) {
+        const distance = Math.hypot(transform.x - playerTransform.x, transform.y - playerTransform.y);
+        if (distance < 64) {
+          const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
+            speed: { min: 100, max: 200 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 0.8, end: 0 },
+            alpha: { start: 1, end: 0 },
+            lifespan: 600,
+            frequency: 10,
+            tint: [0x00ff00, 0xffff00],
+            blendMode: 'ADD'
+          });
+          emitter.setDepth(1000);
+          this.scene.time.delayedCall(200, () => emitter.stop());
+          this.scene.time.delayedCall(800, () => emitter.destroy());
+
+          // Damage player logic here
+
+          this.entity.destroy();
+        } else {
+          const stateMachine = this.entity.get(StateMachineComponent);
+          if (stateMachine) {
+            stateMachine.stateMachine.enter('chase');
+          }
+        }
+      }
+    }
+  }
+}

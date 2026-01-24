@@ -35,16 +35,16 @@ export class BaseExplosionComponent implements Component {
         alpha: { start: 1, end: 0 },
         lifespan: 700,
         frequency: 10,
-        tint: [0x000000, 0xff0000, 0xffffff],
+        tint: [0x000000, 0xff0000, 0xff0000, 0xff0000, 0xffffff],
         blendMode: 'NORMAL'
       });
 
       emitter.setDepth(1000);
-      
+
       this.scene.time.delayedCall(300, () => {
         emitter.stop();
       });
-      
+
       this.scene.time.delayedCall(1000, () => {
         emitter.destroy();
       });

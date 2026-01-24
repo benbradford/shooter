@@ -4,6 +4,7 @@ import type { Grid } from '../../../utils/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
 import { WalkComponent } from './WalkComponent';
+import { GridCellBlocker } from './GridCellBlocker';
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -35,6 +36,13 @@ export class GridCollisionComponent implements Component {
     const toCell = this.grid.getCell(toCol, toRow);
     
     if (!fromCell || !toCell) return false;
+
+    // Check if target cell has any occupants with GridCellBlocker
+    for (const occupant of toCell.occupants) {
+      if (occupant.get(GridCellBlocker)) {
+        return false;
+      }
+    }
 
     // If in a transition cell, can only move up or down (not left/right)
     if (fromCell.isTransition) {
