@@ -72,7 +72,14 @@ Quick reference for navigating the Dodging Bullets documentation.
    - State machine setup
    - Level integration
 
-11. **[Component Props Pattern](./component-props-pattern.md)** - Props-based configuration
+11. **[Spawner Entities](./spawner-entities.md)** - Creating entities that spawn other entities
+   - Spawner component design
+   - Spawned entity movement (GridPositionComponent critical)
+   - Difficulty system
+   - Editor integration
+   - Common pitfalls and solutions
+
+12. **[Component Props Pattern](./component-props-pattern.md)** - Props-based configuration
     - Refactored components
     - Benefits and usage examples
 

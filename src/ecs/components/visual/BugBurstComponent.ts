@@ -19,7 +19,7 @@ export class BugBurstComponent implements Component {
     const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
       speed: { min: 50, max: 120 },
       angle: { min: 0, max: 360 },
-      scale: { start: 0.6, end: 0 },
+      scale: { start: 1, end: 0 },
       alpha: { start: 1, end: 0 },
       lifespan: 500,
       frequency: 10,

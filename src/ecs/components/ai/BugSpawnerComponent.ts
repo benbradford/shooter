@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 
-const ACTIVATION_RANGE_PX = 400;
+const ACTIVATION_RANGE_PX = 750;
 const MAX_BUGS = 6;
 
 export class BugSpawnerComponent implements Component {

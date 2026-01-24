@@ -1,0 +1,463 @@
+# Spawner Entities Guide
+
+This guide covers creating entities that spawn other entities (like bug bases that spawn bugs).
+
+## Overview
+
+Spawner entities are stationary entities that periodically spawn mobile enemies. Examples:
+- Bug base spawns bugs
+- Turret spawns projectiles
+- Portal spawns enemies
+
+## Key Components
+
+### 1. Spawner Component
+
+The spawner component handles spawn timing and tracking:
+
+```typescript
+export class BugSpawnerComponent implements Component {
+  private timeSinceLastSpawnMs: number = 0;
+  private activeBugs: Set<Entity> = new Set();
+  
+  constructor(
+    private readonly spawnIntervalMs: number,
+    private readonly maxBugs: number,
+    private readonly activationRangePx: number
+  ) {}
+  
+  update(delta: number): void {
+    // Check if player is in range
+    // Check if max bugs not reached
+    // Spawn if interval elapsed
+  }
+}
+```
+
+**Critical:** Track spawned entities in a Set and remove them when destroyed.
+
+### 2. Spawned Entity Registration
+
+**Problem:** Spawned entities move but don't update their grid position.
+
+**Solution:** Register spawned entities with the spawner so they can be tracked:
+
+```typescript
+// In spawner component
+onSpawnBug: (bug: Entity) => {
+  this.activeBugs.add(bug);
+  
+  // Listen for destruction
+  bug.onDestroy = () => {
+    this.activeBugs.delete(bug);
+  };
+}
+
+// In GameScene
+const bugBase = createBugBaseEntity({
+  // ...
+  onSpawnBug: (bug) => {
+    this.entityManager.add(bug); // Add to entity manager
+  }
+});
+```
+
+### 3. Spawned Entity Movement
+
+**Problem:** Bugs spawn but don't move - they just sit at spawn position.
+
+**Root Cause:** Missing `GridPositionComponent` or not in update order.
+
+**Solution:** Ensure spawned entities have proper movement components:
+
+```typescript
+export function createBugEntity(props: CreateBugProps): Entity {
+  const entity = new Entity('bug');
+  
+  // Transform
+  entity.add(new TransformComponent(x, y, 0, scale));
+  
+  // Grid position - CRITICAL for movement
+  const startCell = grid.worldToCell(x, y);
+  entity.add(new GridPositionComponent(
+    startCell.col,
+    startCell.row,
+    BUG_GRID_COLLISION_BOX
+  ));
+  
+  // State machine with movement states
+  const stateMachine = new StateMachine({
+    hop: new BugHopState(entity, spawnCol, spawnRow, grid),
+    chase: new BugChaseState(entity, playerEntity, grid, speed)
+  }, 'hop');
+  
+  entity.add(new StateMachineComponent(stateMachine));
+  
+  // Update order - GridPositionComponent must be included
+  entity.setUpdateOrder([
+    TransformComponent,
+    SpriteComponent,
+    AnimatedSpriteComponent,
+    ShadowComponent,
+    GridPositionComponent,  // CRITICAL
+    StateMachineComponent
+  ]);
+  
+  return entity;
+}
+```
+
+**Key Points:**
+- `GridPositionComponent` must be in update order
+- State machine must have movement logic
+- Transform alone is not enough - grid position tracks cell occupancy
+
+## Difficulty System
+
+### Difficulty Presets
+
+Use difficulty presets instead of individual parameters:
+
+```typescript
+// Define presets
+export const BUG_BASE_DIFFICULTY_CONFIG = {
+  easy: {
+    baseHealth: 100,
+    bugHealth: 20,
+    bugSpeed: 100,
+    spawnIntervalMs: 4000
+  },
+  medium: {
+    baseHealth: 150,
+    bugHealth: 30,
+    bugSpeed: 150,
+    spawnIntervalMs: 3000
+  },
+  hard: {
+    baseHealth: 200,
+    bugHealth: 40,
+    bugSpeed: 200,
+    spawnIntervalMs: 2000
+  }
+} as const;
+
+export type BugBaseDifficulty = keyof typeof BUG_BASE_DIFFICULTY_CONFIG;
+```
+
+### Difficulty Component
+
+Store difficulty on the entity:
+
+```typescript
+export class BugBaseDifficultyComponent implements Component {
+  entity!: Entity;
+  difficulty: BugBaseDifficulty;
+  
+  constructor(difficulty: BugBaseDifficulty = 'medium') {
+    this.difficulty = difficulty;
+  }
+  
+  update(_delta: number): void {}
+  onDestroy(): void {}
+}
+```
+
+### Using Difficulty
+
+```typescript
+// In entity factory
+const config = getBugBaseDifficultyConfig(difficulty);
+
+entity.add(new HealthComponent({ maxHealth: config.baseHealth }));
+entity.add(new BugSpawnerComponent(
+  config.spawnIntervalMs,
+  MAX_BUGS,
+  ACTIVATION_RANGE_PX
+));
+
+// When spawning bugs
+const bug = createBugEntity({
+  // ...
+  health: config.bugHealth,
+  speed: config.bugSpeed
+});
+```
+
+## Editor Integration
+
+### 1. Add Entity State
+
+Create a state for placing the entity:
+
+```typescript
+export class AddBugBaseEditorState extends EditorState {
+  private ghostSprite: Phaser.GameObjects.Sprite | null = null;
+  
+  onEnter(): void {
+    const gameScene = this.scene.scene.get('game');
+    const grid = this.scene.getGrid();
+    
+    // Create ghost sprite
+    this.ghostSprite = gameScene.add.sprite(0, 0, 'bug_base', 0);
+    this.ghostSprite.setDisplaySize(grid.cellSize, grid.cellSize);
+    this.ghostSprite.setAlpha(0.6);
+    this.ghostSprite.setDepth(1000);
+    
+    // Register events
+    this.scene.input.on('pointermove', this.handlePointerMove, this);
+    this.scene.input.on('pointerdown', this.handlePointerDown, this);
+  }
+  
+  private handlePointerMove(pointer: Phaser.Input.Pointer): void {
+    // Snap ghost sprite to grid
+  }
+  
+  private handlePointerDown(pointer: Phaser.Input.Pointer): void {
+    // Place entity and enter edit mode
+  }
+}
+```
+
+**Key Points:**
+- Use `setDisplaySize(grid.cellSize, grid.cellSize)` not `setScale()`
+- Ghost sprite should follow mouse and snap to grid
+- Only place on click, not on enter
+
+### 2. Edit Entity State
+
+Create a state for editing entity properties:
+
+```typescript
+export class EditBugBaseEditorState extends EditorState {
+  private bugBase: Entity | null = null;
+  
+  onEnter(props?: any): void {
+    this.bugBase = props?.data ?? null;
+    
+    // Create difficulty buttons
+    this.createDifficultyButtons();
+    
+    // Register click to move
+    this.scene.input.on('pointerdown', this.handlePointerDown, this);
+  }
+  
+  private handlePointerDown(): void {
+    // Check if clicked on entity
+    // Enter move mode if clicked
+    const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+    if (distance < 64) {
+      this.scene.enterMoveMode(this.bugBase, 'editBugBase');
+    }
+  }
+  
+  onExit(): void {
+    // Unregister events
+    this.scene.input.off('pointerdown', this.handlePointerDown, this);
+  }
+}
+```
+
+**Critical:** Register and unregister `pointerdown` event for drag-to-move functionality.
+
+### 3. Default State Integration
+
+Add click detection in default state:
+
+```typescript
+// In DefaultEditorState.handlePointerDown()
+const bugBases = gameScene.entityManager.getByType('bug_base');
+for (const bugBase of bugBases) {
+  const transform = bugBase.get(TransformComponent);
+  if (!transform) continue;
+  
+  const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+  if (distance < 64) {
+    this.scene.enterEditBugBaseMode(bugBase);
+    return;
+  }
+}
+```
+
+### 4. Level Data Integration
+
+Add to level data structure:
+
+```typescript
+export interface LevelBugBase {
+  col: number;
+  row: number;
+  difficulty: BugBaseDifficulty;
+}
+
+export interface LevelData {
+  // ...
+  bugBases?: LevelBugBase[];
+}
+```
+
+Add extraction method in EditorScene:
+
+```typescript
+// In EditorScene.ts
+import { BugBaseDifficultyComponent } from "./bug/BugBaseDifficultyComponent";
+import type { LevelBugBase } from "./level/LevelLoader";
+
+private extractBugBases(entityManager: EntityManager, grid: Grid): LevelBugBase[] {
+  const bugBases: LevelBugBase[] = [];
+  const bugBaseEntities = entityManager.getByType('bug_base');
+  
+  for (const bugBase of bugBaseEntities) {
+    const transform = bugBase.get(TransformComponent);
+    const difficulty = bugBase.get(BugBaseDifficultyComponent);
+    
+    if (transform) {
+      const col = Math.round(transform.x / grid.cellSize);
+      const row = Math.round(transform.y / grid.cellSize);
+      
+      bugBases.push({
+        col,
+        row,
+        difficulty: difficulty?.difficulty ?? 'medium'
+      });
+    }
+  }
+  return bugBases;
+}
+
+// In getCurrentLevelData()
+private getCurrentLevelData(): LevelData {
+  // ...
+  const bugBases = this.extractBugBases(entityManager, grid);
+  
+  return {
+    // ...
+    bugBases: bugBases.length > 0 ? bugBases : undefined,
+  };
+}
+```
+
+Load in GameScene:
+
+```typescript
+if (level.bugBases && level.bugBases.length > 0) {
+  for (const baseData of level.bugBases) {
+    const x = baseData.col * this.grid.cellSize + this.grid.cellSize / 2;
+    const y = baseData.row * this.grid.cellSize + this.grid.cellSize / 2;
+    
+    const bugBase = createBugBaseEntity({
+      scene: this,
+      col: baseData.col,
+      row: baseData.row,
+      grid: this.grid,
+      playerEntity: player,
+      onSpawnBug: (bug) => this.entityManager.add(bug),
+      difficulty: baseData.difficulty
+    });
+    
+    this.entityManager.add(bugBase);
+  }
+}
+```
+
+## Common Pitfalls
+
+### Spawned Entities Don't Move
+
+**Symptoms:**
+- Bugs spawn but stay at spawn position
+- No errors in console
+
+**Causes:**
+1. Missing `GridPositionComponent`
+2. `GridPositionComponent` not in update order
+3. State machine has no movement logic
+4. Transform updates but grid position doesn't
+
+**Solution:**
+- Add `GridPositionComponent` to entity
+- Include in `setUpdateOrder()`
+- Ensure state machine updates transform AND grid position
+
+### Editor Ghost Sprite Wrong Size
+
+**Symptoms:**
+- Ghost sprite too small or too large
+- Doesn't match cell size
+
+**Cause:**
+- Using `setScale()` instead of `setDisplaySize()`
+
+**Solution:**
+```typescript
+this.ghostSprite.setDisplaySize(grid.cellSize, grid.cellSize);
+```
+
+### Can't Drag Entity in Edit Mode
+
+**Symptoms:**
+- Clicking entity in edit mode does nothing
+- Can't move entity to new position
+
+**Cause:**
+- `pointerdown` event not registered in edit state
+
+**Solution:**
+```typescript
+onEnter(): void {
+  this.scene.input.on('pointerdown', this.handlePointerDown, this);
+}
+
+onExit(): void {
+  this.scene.input.off('pointerdown', this.handlePointerDown, this);
+}
+```
+
+### Particles Don't Fade
+
+**Symptoms:**
+- Particles appear and disappear instantly
+- No smooth fade out
+
+**Cause:**
+- Using `quantity` instead of `frequency`
+
+**Solution:**
+```typescript
+const emitter = scene.add.particles(x, y, 'texture', {
+  frequency: 10,  // Not quantity
+  alpha: { start: 1, end: 0 },
+  lifespan: 500
+});
+
+// Stop emitting after duration
+scene.time.delayedCall(200, () => emitter.stop());
+
+// Destroy after particles fade
+scene.time.delayedCall(700, () => emitter.destroy());
+```
+
+## Checklist for New Spawner Entity
+
+- [ ] Create spawner component with max count tracking
+- [ ] Create spawned entity with `GridPositionComponent`
+- [ ] Include `GridPositionComponent` in update order
+- [ ] Register spawned entities with entity manager
+- [ ] Track spawned entities in Set and clean up on destroy
+- [ ] Define difficulty presets
+- [ ] Create difficulty component
+- [ ] Create add entity editor state with ghost sprite
+- [ ] Create edit entity editor state with difficulty buttons
+- [ ] Register `pointerdown` event in edit state for drag-to-move
+- [ ] Add click detection in default editor state
+- [ ] Add to level data structure (interface in LevelLoader.ts)
+- [ ] Add extraction method in EditorScene.ts
+- [ ] Call extraction method in getCurrentLevelData()
+- [ ] Load from level JSON in GameScene
+- [ ] Test spawning, movement, difficulty, and editor
+- [ ] Test save/load cycle (place entity, save, reload level)
+
+## Related Documentation
+
+- [Adding Enemies](./adding-enemies.md) - General enemy creation guide
+- [ECS Architecture](./ecs-architecture.md) - Component system overview
+- [Level Editor](./level-editor.md) - Editor system details

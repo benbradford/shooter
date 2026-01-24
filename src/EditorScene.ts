@@ -18,6 +18,8 @@ import { VignetteEditorState } from "./editor/VignetteEditorState";
 import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { RobotDifficultyComponent } from "./ecs/components/ai/RobotDifficultyComponent";
+import { BugBaseDifficultyComponent } from "./bug/BugBaseDifficultyComponent";
+import type { LevelBugBase } from "./level/LevelLoader";
 import { TransformComponent } from "./ecs/components/core/TransformComponent";
 import { EntityManager } from "./ecs/EntityManager";
 
@@ -211,6 +213,28 @@ export default class EditorScene extends Phaser.Scene {
     return robots;
   }
 
+  private extractBugBases(entityManager: EntityManager, grid: Grid): LevelBugBase[] {
+    const bugBases: LevelBugBase[] = [];
+    const bugBaseEntities = entityManager.getByType('bug_base');
+    
+    for (const bugBase of bugBaseEntities) {
+      const transform = bugBase.get(TransformComponent);
+      const difficulty = bugBase.get(BugBaseDifficultyComponent);
+      
+      if (transform) {
+        const col = Math.round(transform.x / grid.cellSize);
+        const row = Math.round(transform.y / grid.cellSize);
+        
+        bugBases.push({
+          col,
+          row,
+          difficulty: difficulty?.difficulty ?? 'medium'
+        });
+      }
+    }
+    return bugBases;
+  }
+
   private getCurrentLevelData(): LevelData {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
@@ -218,6 +242,7 @@ export default class EditorScene extends Phaser.Scene {
 
     const cells = this.extractGridCells(grid);
     const robots = this.extractRobots(entityManager, grid);
+    const bugBases = this.extractBugBases(entityManager, grid);
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
@@ -234,6 +259,7 @@ export default class EditorScene extends Phaser.Scene {
       playerStart,
       cells,
       robots: robots.length > 0 ? robots : undefined,
+      bugBases: bugBases.length > 0 ? bugBases : undefined,
       vignette: gameScene.getLevelData().vignette
     };
   }
