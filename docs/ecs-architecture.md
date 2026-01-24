@@ -258,16 +258,18 @@ export class MyComponent implements Component {
 ```typescript
 entity.setUpdateOrder([
   TransformComponent,      // 1. Base position
-  SpriteComponent,         // 2. Sync sprite with transform
-  InputComponent,          // 3. Read input
-  WalkComponent,           // 4. Calculate new position
-  GridCollisionComponent,  // 5. Validate and adjust position
-  StateMachineComponent,   // 6. Update state based on movement
-  AnimationComponent,      // 7. Update animation frames
+  HitFlashComponent,       // 2. Modify sprite tint (before sprite renders)
+  SpriteComponent,         // 3. Sync sprite with transform
+  InputComponent,          // 4. Read input
+  WalkComponent,           // 5. Calculate new position
+  GridCollisionComponent,  // 6. Validate and adjust position
+  StateMachineComponent,   // 7. Update state based on movement
+  AnimationComponent,      // 8. Update animation frames
 ]);
 ```
 
 **Why this order matters**:
+- HitFlashComponent must update BEFORE SpriteComponent (modifies tint)
 - Walk must update before GridCollision (so collision sees new position)
 - GridCollision must update before StateMachine (so states see final position)
 - StateMachine must update before Animation (so animation changes apply)

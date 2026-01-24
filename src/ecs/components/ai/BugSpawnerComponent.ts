@@ -59,7 +59,7 @@ export class BugSpawnerComponent implements Component {
           
           const validDirections = directions.filter(dir => {
             const cell = this.grid.getCell(dir.col, dir.row);
-            return cell && cell.layer === baseLayer;
+            return cell?.layer === baseLayer;
           });
           
           if (validDirections.length > 0) {

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import type GameScene from "./GameScene";
 import type { Grid } from "./utils/Grid";
-import type { LevelData } from "./level/LevelLoader";
+import type { LevelData, LevelBugBase } from "./level/LevelLoader";
 import type { Entity } from "./ecs/Entity";
 import { StateMachine } from "./utils/state/StateMachine";
 import { DefaultEditorState } from "./editor/DefaultEditorState";
@@ -19,7 +19,6 @@ import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { RobotDifficultyComponent } from "./ecs/components/ai/RobotDifficultyComponent";
 import { BugBaseDifficultyComponent } from "./bug/BugBaseDifficultyComponent";
-import type { LevelBugBase } from "./level/LevelLoader";
 import { TransformComponent } from "./ecs/components/core/TransformComponent";
 import { EntityManager } from "./ecs/EntityManager";
 

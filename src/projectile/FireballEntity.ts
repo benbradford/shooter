@@ -48,7 +48,23 @@ export function createFireballEntity(props: CreateFireballProps): Entity {
     grid,
     blockedByWalls: true,
     startLayer,
-    fromTransition: false
+    fromTransition: false,
+    scene,
+    onWallHit: (x, y) => {
+      const emitter = scene.add.particles(x, y, 'fire', {
+        speed: { min: 80, max: 150 },
+        angle: { min: 0, max: 360 },
+        scale: { start: 0.05, end: 0 },
+        alpha: { start: 1, end: 0 },
+        tint: [0xffffff, 0xff8800, 0xff0000],
+        lifespan: 400,
+        frequency: 3,
+        blendMode: 'ADD'
+      });
+      emitter.setDepth(1000);
+      scene.time.delayedCall(100, () => emitter.stop());
+      scene.time.delayedCall(500, () => emitter.destroy());
+    }
   }));
 
   entity.add(new AnimatedSpriteComponent({

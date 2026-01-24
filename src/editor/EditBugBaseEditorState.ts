@@ -9,8 +9,8 @@ export class EditBugBaseEditorState extends EditorState {
   private bugBase: Entity | null = null;
   private buttons: Array<Phaser.GameObjects.Container | Phaser.GameObjects.Text> = [];
 
-  onEnter(props?: any): void {
-    this.bugBase = props?.data ?? null;
+  onEnter(props?: { data?: unknown }): void {
+    this.bugBase = (props?.data as Entity) ?? null;
     if (!this.bugBase) {
       this.scene.enterDefaultMode();
       return;
@@ -41,8 +41,10 @@ export class EditBugBaseEditorState extends EditorState {
       });
       
       if (isSelected) {
-        const bg = btn.getAt(0) as Phaser.GameObjects.Rectangle;
-        bg.setFillStyle(0x00ff00);
+        const bg = btn.getAt(0);
+        if (bg instanceof Phaser.GameObjects.Rectangle) {
+          bg.setFillStyle(0x00ff00);
+        }
       }
       
       this.buttons.push(btn);

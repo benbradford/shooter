@@ -3,6 +3,8 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import type { Grid } from '../../../utils/Grid';
 
+const GRACE_DISTANCE_PX = 64;
+
 export interface ProjectileProps {
   dirX: number;
   dirY: number;
@@ -12,6 +14,8 @@ export interface ProjectileProps {
   blockedByWalls?: boolean;
   startLayer?: number;
   fromTransition?: boolean;
+  scene?: Phaser.Scene;
+  onWallHit?: (x: number, y: number) => void;
 }
 
 export class ProjectileComponent implements Component {
@@ -25,6 +29,8 @@ export class ProjectileComponent implements Component {
   private readonly maxDistance: number;
   private readonly grid: Grid;
   private readonly blockedByWalls: boolean;
+  private readonly scene?: Phaser.Scene;
+  private readonly onWallHit?: (x: number, y: number) => void;
 
   constructor(props: ProjectileProps) {
     this.dirX = props.dirX;
@@ -35,6 +41,8 @@ export class ProjectileComponent implements Component {
     this.blockedByWalls = props.blockedByWalls ?? true;
     this.currentLayer = props.startLayer ?? 0;
     this.fromTransition = props.fromTransition ?? false;
+    this.scene = props.scene;
+    this.onWallHit = props.onWallHit;
   }
 
   update(delta: number): void {
@@ -62,17 +70,37 @@ export class ProjectileComponent implements Component {
       this.currentLayer = Math.max(this.currentLayer, cellData.layer + 1);
     }
     
-    if (this.blockedByWalls) {
-      // Transition cells don't block projectiles
+    if (this.blockedByWalls && this.distanceTraveled >= GRACE_DISTANCE_PX) {
       if (!cellData.isTransition) {
-        if (this.fromTransition) {
-          if (cellData.layer > this.currentLayer + 1) {
+        const shouldBlock = this.fromTransition 
+          ? cellData.layer > this.currentLayer + 1
+          : cellData.layer > this.currentLayer;
+        
+        if (shouldBlock) {
+          const cellWorld = this.grid.cellToWorld(cell.col, cell.row);
+          const cellBottomY = cellWorld.y + this.grid.cellSize;
+          const bottomThreshold = cellBottomY - (this.grid.cellSize * 0.2);
+          
+          if (transform.y < bottomThreshold) {
+            if (this.onWallHit) {
+              this.onWallHit(transform.x, transform.y);
+            } else if (this.scene) {
+              const emitter = this.scene.add.particles(transform.x, transform.y, 'smoke', {
+                speed: { min: 40, max: 100 },
+                angle: { min: 0, max: 360 },
+                scale: { start: 0.8, end: 0 },
+                alpha: { start: 1, end: 0 },
+                lifespan: 300,
+                quantity: 8,
+                tint: 0xffff00,
+                blendMode: 'ADD'
+              });
+              emitter.setDepth(1000);
+              this.scene.time.delayedCall(300, () => emitter.destroy());
+            }
             this.entity.destroy();
             return;
           }
-        } else if (cellData.layer > this.currentLayer) {
-          this.entity.destroy();
-          return;
         }
       }
     }

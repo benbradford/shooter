@@ -145,6 +145,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
 
   entity.setUpdateOrder([
     TransformComponent,
+    HitFlashComponent,
     SpriteComponent,
     ShadowComponent,
     KnockbackComponent,
@@ -152,7 +153,6 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     GridCollisionComponent,
     LineOfSightComponent,
     RobotHitParticlesComponent,
-    HitFlashComponent,
     StateMachineComponent,
   ]);
 

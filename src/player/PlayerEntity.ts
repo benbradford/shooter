@@ -125,7 +125,7 @@ export function createPlayerEntity(
 
   entity.add(new GridCollisionComponent(grid));
 
-  const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH }));
+  const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
 
   const ammo = entity.add(new AmmoComponent({
     maxAmmo: PLAYER_MAX_AMMO,

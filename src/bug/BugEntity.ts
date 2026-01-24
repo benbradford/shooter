@@ -20,18 +20,22 @@ import type { Grid } from '../utils/Grid';
 const BUG_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
 const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
+const BUG_DAMAGE = 10;
 
-export function createBugEntity(
-  scene: Phaser.Scene,
-  col: number,
-  row: number,
-  grid: Grid,
-  playerEntity: Entity,
-  spawnCol: number,
-  spawnRow: number,
-  health: number,
-  speed: number
-): Entity {
+export interface CreateBugProps {
+  scene: Phaser.Scene;
+  col: number;
+  row: number;
+  grid: Grid;
+  playerEntity: Entity;
+  spawnCol: number;
+  spawnRow: number;
+  health: number;
+  speed: number;
+}
+
+export function createBugEntity(props: CreateBugProps): Entity {
+  const { scene, col, row, grid, playerEntity, spawnCol, spawnRow, health, speed } = props;
   const entity = new Entity('bug');
   entity.tags.add('enemy');
 
@@ -49,9 +53,9 @@ export function createBugEntity(
   shadow.init();
 
   entity.add(new GridPositionComponent(col, row, BUG_COLLISION_BOX));
-  
+
   const bugHealth = entity.add(new HealthComponent({ maxHealth: health }));
-  entity.add(new HitFlashComponent());
+  entity.add(new HitFlashComponent(0x00ff00));
   entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS));
   entity.add(new BugHopComponent());
   entity.add(new BugBurstComponent(scene));
@@ -92,9 +96,11 @@ export function createBugEntity(
 
         scene.time.delayedCall(0, () => other.destroy());
       } else if (other.tags.has('player')) {
+        entity.remove(CollisionComponent);
+        
         const playerHealth = other.get(HealthComponent);
         if (playerHealth) {
-          playerHealth.takeDamage(10);
+          playerHealth.takeDamage(BUG_DAMAGE);
         }
 
         const burst = entity.get(BugBurstComponent);
@@ -116,13 +122,13 @@ export function createBugEntity(
 
   entity.setUpdateOrder([
     TransformComponent,
+    HitFlashComponent,
     SpriteComponent,
     ShadowComponent,
     GridPositionComponent,
     KnockbackComponent,
     BugHopComponent,
     StateMachineComponent,
-    HitFlashComponent,
     CollisionComponent
   ]);
 

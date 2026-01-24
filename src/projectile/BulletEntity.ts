@@ -41,7 +41,8 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
     grid,
     blockedByWalls: true,
     startLayer: layer,
-    fromTransition
+    fromTransition,
+    scene
   }));
 
   entity.add(new CollisionComponent({
@@ -55,7 +56,7 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
         }
         
         const stateMachine = other.get(StateMachineComponent);
-        if (stateMachine && stateMachine.stateMachine.hasState('hit')) {
+        if (stateMachine?.stateMachine.hasState('hit')) {
           stateMachine.stateMachine.enter('hit');
         }
         

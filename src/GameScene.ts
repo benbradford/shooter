@@ -208,17 +208,17 @@ export default class GameScene extends Phaser.Scene {
             const basePos = this.grid.worldToCell(transform.x, transform.y);
             const config = getBugBaseDifficultyConfig(difficultyComp.difficulty);
             
-            const bug = createBugEntity(
-              this,
-              basePos.col,
-              basePos.row,
-              this.grid,
-              player,
+            const bug = createBugEntity({
+              scene: this,
+              col: basePos.col,
+              row: basePos.row,
+              grid: this.grid,
+              playerEntity: player,
               spawnCol,
               spawnRow,
-              config.bugHealth,
-              config.bugSpeed
-            );
+              health: config.bugHealth,
+              speed: config.bugSpeed
+            });
             this.entityManager.add(bug);
             
             const spawner = base.get(BugSpawnerComponent);

@@ -9,7 +9,7 @@ npm run build                # MUST pass with zero errors
 npx eslint src --ext .ts     # MUST pass with zero errors
 ```
 
-**No exceptions. Every code change must build and lint successfully before considering work complete.**
+**Both commands must complete with zero errors before considering work complete. Warnings must be reviewed and addressed or documented as acceptable.**
 
 *Note: `npm run dev` is optional if you already have the dev server running in another terminal.*
 

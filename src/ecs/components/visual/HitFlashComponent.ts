@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../core/SpriteComponent';
 
 const HIT_FLASH_INTERVAL_MS = 100;
-const HIT_TINT_COLOR = 0xff8888; // lighter red
+const DEFAULT_HIT_TINT_COLOR = 0xff0000; // red
 
 export class HitFlashComponent implements Component {
   entity!: Entity;
@@ -12,6 +12,11 @@ export class HitFlashComponent implements Component {
   private active: boolean = false;
   private durationMs: number = 0;
   private elapsedMs: number = 0;
+  private readonly tintColor: number;
+
+  constructor(tintColor: number = DEFAULT_HIT_TINT_COLOR) {
+    this.tintColor = tintColor;
+  }
 
   init(): void {
     // Nothing to initialize
@@ -41,7 +46,7 @@ export class HitFlashComponent implements Component {
       this.flashTimerMs = 0;
       this.isRed = !this.isRed;
       if (this.isRed) {
-        sprite.sprite.setTint(HIT_TINT_COLOR);
+        sprite.sprite.setTint(this.tintColor);
       } else {
         sprite.sprite.clearTint();
       }
@@ -57,7 +62,7 @@ export class HitFlashComponent implements Component {
 
     const sprite = this.entity.get(SpriteComponent);
     if (sprite) {
-      sprite.sprite.setTint(HIT_TINT_COLOR);
+      sprite.sprite.setTint(this.tintColor);
       this.isRed = true;
     }
   }
