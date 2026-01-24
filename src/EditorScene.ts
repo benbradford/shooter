@@ -12,10 +12,11 @@ import { EditRobotEditorState } from "./editor/EditRobotEditorState";
 import { AddEditorState } from "./editor/AddEditorState";
 import { AddRobotEditorState } from "./editor/AddRobotEditorState";
 import { TextureEditorState } from "./editor/TextureEditorState";
-import { PatrolComponent } from "./ecs/components/PatrolComponent";
-import { SpriteComponent } from "./ecs/components/SpriteComponent";
-import { RobotDifficultyComponent } from "./ecs/components/RobotDifficultyComponent";
-import { TransformComponent } from "./ecs/components/TransformComponent";
+import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
+import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
+import { RobotDifficultyComponent } from "./ecs/components/ai/RobotDifficultyComponent";
+import { TransformComponent } from "./ecs/components/core/TransformComponent";
+import { EntityManager } from "./ecs/EntityManager";
 
 export default class EditorScene extends Phaser.Scene {
   private stateMachine!: StateMachine<void | Entity | MoveEditorStateProps>;
@@ -81,18 +82,21 @@ export default class EditorScene extends Phaser.Scene {
     this.title.setDepth(1000);
 
     // Setup input
-    this.cursors = this.input.keyboard!.createCursorKeys();
-    this.wasd = {
-      W: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      A: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      S: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      D: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D)
-    };
+    const keyboard = this.input.keyboard;
+    if (keyboard) {
+      this.cursors = keyboard.createCursorKeys();
+      this.wasd = {
+        W: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+        A: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        S: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+        D: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+      };
 
-    // ESC to exit
-    this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.ESC).on('down', () => {
-      this.exitEditor();
-    });
+      // ESC to exit
+      keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC).on('down', () => {
+        this.exitEditor();
+      });
+    }
 
     // Initialize state machine
     this.stateMachine = new StateMachine<void | Entity | MoveEditorStateProps>({
@@ -157,11 +161,14 @@ export default class EditorScene extends Phaser.Scene {
     return current !== this.originalLevelData;
   }
 
-  private getCurrentLevelData(): LevelData {
-    const grid = this.getGrid();
-    const gameScene = this.scene.get('game') as GameScene;
+  private extractGridCells(grid: Grid): Array<{
+    col: number;
+    row: number;
+    layer?: number;
+    isTransition?: boolean;
+    backgroundTexture?: string;
+  }> {
     const cells = [];
-
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
@@ -176,8 +183,15 @@ export default class EditorScene extends Phaser.Scene {
         }
       }
     }
+    return cells;
+  }
 
-    // Get robot data from entities
+  private extractRobots(entityManager: EntityManager, grid: Grid): Array<{
+    col: number;
+    row: number;
+    difficulty: 'easy' | 'medium' | 'hard';
+    waypoints: Array<{ col: number; row: number }>;
+  }> {
     const robots: Array<{
       col: number;
       row: number;
@@ -185,7 +199,6 @@ export default class EditorScene extends Phaser.Scene {
       waypoints: Array<{ col: number; row: number }>;
     }> = [];
 
-    const entityManager = gameScene.getEntityManager();
     const entities = entityManager.getAll();
     for (const entity of entities) {
       const patrol = entity.get(PatrolComponent);
@@ -203,6 +216,16 @@ export default class EditorScene extends Phaser.Scene {
         }
       }
     }
+    return robots;
+  }
+
+  private getCurrentLevelData(): LevelData {
+    const grid = this.getGrid();
+    const gameScene = this.scene.get('game') as GameScene;
+    const entityManager = gameScene.getEntityManager();
+
+    const cells = this.extractGridCells(grid);
+    const robots = this.extractRobots(entityManager, grid);
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);

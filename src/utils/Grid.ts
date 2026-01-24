@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { Entity } from "../ecs/Entity";
 import type GameScene from "../GameScene";
 import type { EntityManager } from "../ecs/EntityManager";
-import { ProjectileEmitterComponent } from "../ecs/components/ProjectileEmitterComponent";
+import { ProjectileEmitterComponent } from "../ecs/components/combat/ProjectileEmitterComponent";
 
 export type CellData = {
   layer: number;

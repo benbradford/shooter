@@ -1,9 +1,9 @@
 import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import { Direction } from '../constants/Direction';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { CollisionComponent } from '../ecs/components/CollisionComponent';
-import { RobotHitParticlesComponent } from '../ecs/components/RobotHitParticlesComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { RobotHitParticlesComponent } from '../ecs/components/visual/RobotHitParticlesComponent';
 import type Phaser from 'phaser';
 
 // Death state configuration

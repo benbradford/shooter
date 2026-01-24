@@ -2,9 +2,9 @@ import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import { dirFromDelta } from '../constants/Direction';
 import type Phaser from 'phaser';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
 
 // Alert state configuration
 const ALERT_DURATION_MS = 1000; // milliseconds

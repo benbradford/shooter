@@ -1,9 +1,9 @@
 import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
-import { WalkComponent } from '../ecs/components/WalkComponent';
-import { AnimationComponent } from '../ecs/components/AnimationComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { InputComponent } from '../ecs/components/InputComponent';
+import { WalkComponent } from '../ecs/components/movement/WalkComponent';
+import { AnimationComponent } from '../ecs/components/core/AnimationComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { InputComponent } from '../ecs/components/input/InputComponent';
 
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
@@ -11,8 +11,10 @@ export class PlayerWalkState implements IState {
   constructor(private readonly entity: Entity) {}
 
   onEnter(): void {
-    const walk = this.entity.get(WalkComponent)!;
-    const anim = this.entity.get(AnimationComponent)!;
+    const walk = this.entity.get(WalkComponent);
+    const anim = this.entity.get(AnimationComponent);
+    if (!walk || !anim) return;
+    
     this.lastAnimKey = `walk_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
   }
@@ -21,10 +23,12 @@ export class PlayerWalkState implements IState {
 
   onUpdate(_delta: number): void {
     // No-op: delta intentionally unused
-    const walk = this.entity.get(WalkComponent)!;
-    const anim = this.entity.get(AnimationComponent)!;
-    const sm = this.entity.get(StateMachineComponent)!;
-    const input = this.entity.get(InputComponent)!;
+    const walk = this.entity.get(WalkComponent);
+    const anim = this.entity.get(AnimationComponent);
+    const sm = this.entity.get(StateMachineComponent);
+    const input = this.entity.get(InputComponent);
+    if (!walk || !anim || !sm || !input) return;
+    
     const { dx, dy } = input.getInputDelta();
 
     // If fire held, use idle animation

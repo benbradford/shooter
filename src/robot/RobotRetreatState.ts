@@ -1,10 +1,10 @@
 import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import { Direction, dirFromDelta } from '../constants/Direction';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { PatrolComponent } from '../ecs/components/PatrolComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 
 const SAFE_DISTANCE_PX = 220;
 const RETREAT_SPEED_MULTIPLIER = 1.75;

@@ -1,10 +1,10 @@
 import { Entity } from '../ecs/Entity';
-import { TouchJoystickComponent } from '../ecs/components/TouchJoystickComponent';
-import { JoystickVisualsComponent } from '../ecs/components/JoystickVisualsComponent';
-import { CrosshairVisualsComponent } from '../ecs/components/CrosshairVisualsComponent';
-import { AimJoystickComponent } from '../ecs/components/AimJoystickComponent';
-import { AimJoystickVisualsComponent } from '../ecs/components/AimJoystickVisualsComponent';
-import { ControlModeComponent } from '../ecs/components/ControlModeComponent';
+import { TouchJoystickComponent } from '../ecs/components/input/TouchJoystickComponent';
+import { JoystickVisualsComponent } from '../ecs/components/ui/JoystickVisualsComponent';
+import { CrosshairVisualsComponent } from '../ecs/components/ui/CrosshairVisualsComponent';
+import { AimJoystickComponent } from '../ecs/components/input/AimJoystickComponent';
+import { AimJoystickVisualsComponent } from '../ecs/components/ui/AimJoystickVisualsComponent';
+import { ControlModeComponent } from '../ecs/components/input/ControlModeComponent';
 
 export function createJoystickEntity(scene: Phaser.Scene): Entity {
   const entity = new Entity('joystick');

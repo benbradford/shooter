@@ -1,10 +1,10 @@
 import { Entity } from '../ecs/Entity';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { ProjectileComponent } from '../ecs/components/ProjectileComponent';
-import { CollisionComponent } from '../ecs/components/CollisionComponent';
-import { HealthComponent } from '../ecs/components/HealthComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { ProjectileComponent } from '../ecs/components/combat/ProjectileComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { HealthComponent } from '../ecs/components/core/HealthComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
 import type { Grid } from '../utils/Grid';
 import { BULLET_DISPLAY_SIZE } from './ProjectileConfig';
 

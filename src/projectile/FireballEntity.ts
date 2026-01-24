@@ -1,15 +1,14 @@
-import Phaser from 'phaser';
 import { Entity } from '../ecs/Entity';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { ProjectileComponent } from '../ecs/components/ProjectileComponent';
-import { AnimatedSpriteComponent } from '../ecs/components/AnimatedSpriteComponent';
-import { PulsingScaleComponent } from '../ecs/components/PulsingScaleComponent';
-import { ParticleTrailComponent } from '../ecs/components/ParticleTrailComponent';
-import { ShadowComponent } from '../ecs/components/ShadowComponent';
-import { CollisionComponent } from '../ecs/components/CollisionComponent';
-import { HealthComponent } from '../ecs/components/HealthComponent';
-import { DamageComponent } from '../ecs/components/DamageComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { ProjectileComponent } from '../ecs/components/combat/ProjectileComponent';
+import { AnimatedSpriteComponent } from '../ecs/components/core/AnimatedSpriteComponent';
+import { PulsingScaleComponent } from '../ecs/components/visual/PulsingScaleComponent';
+import { ParticleTrailComponent } from '../ecs/components/visual/ParticleTrailComponent';
+import { ShadowComponent } from '../ecs/components/core/ShadowComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { HealthComponent } from '../ecs/components/core/HealthComponent';
+import { DamageComponent } from '../ecs/components/core/DamageComponent';
 import type { Grid } from '../utils/Grid';
 
 const FIREBALL_SCALE = 1;
@@ -91,7 +90,38 @@ export function createFireballEntity(props: CreateFireballProps): Entity {
         if (health && damage) {
           health.takeDamage(damage.damage);
         }
-        entity.destroy();
+
+        // Create explosion particle effect
+        const transform = entity.get(TransformComponent);
+        if (transform) {
+          const emitter = scene.add.particles(transform.x, transform.y, 'fire', {
+            speed: { min: 80, max: 150 },
+            angle: { min: 0, max: 360 },
+            scale: { start: 0.05, end: 0 },
+            alpha: { start: 1, end: 0 },
+            tint: [0xffffff, 0xff8800, 0xff0000],  // white, orange, red
+            lifespan: 400,
+            frequency: 3,
+            blendMode: 'ADD'
+          });
+
+          emitter.setDepth(1000);
+
+          // Stop emitting after 100ms
+          scene.time.delayedCall(100, () => {
+            emitter.stop();
+          });
+
+          // Destroy after particles fade
+          scene.time.delayedCall(500, () => {
+            emitter.destroy();
+          });
+        }
+
+        // Don't destroy immediately - let player collision handler run first
+        scene.time.delayedCall(0, () => {
+          entity.destroy();
+        });
       }
     }
   }));

@@ -1,20 +1,21 @@
 import Phaser from 'phaser';
 import { Entity } from '../ecs/Entity';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
-import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
-import { HealthComponent } from '../ecs/components/HealthComponent';
-import { PatrolComponent, type PatrolWaypoint } from '../ecs/components/PatrolComponent';
-import { LineOfSightComponent } from '../ecs/components/LineOfSightComponent';
-import { KnockbackComponent } from '../ecs/components/KnockbackComponent';
-import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
-import { CollisionComponent } from '../ecs/components/CollisionComponent';
-import { ShadowComponent } from '../ecs/components/ShadowComponent';
-import { ProjectileComponent } from '../ecs/components/ProjectileComponent';
-import { RobotDifficultyComponent } from '../ecs/components/RobotDifficultyComponent';
-import { RobotHitParticlesComponent } from '../ecs/components/RobotHitParticlesComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
+import { GridCollisionComponent } from '../ecs/components/movement/GridCollisionComponent';
+import { HealthComponent } from '../ecs/components/core/HealthComponent';
+import { PatrolComponent, type PatrolWaypoint } from '../ecs/components/ai/PatrolComponent';
+import { LineOfSightComponent } from '../ecs/components/combat/LineOfSightComponent';
+import { KnockbackComponent } from '../ecs/components/movement/KnockbackComponent';
+import { FireballPropertiesComponent } from '../ecs/components/ai/FireballPropertiesComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { ShadowComponent } from '../ecs/components/core/ShadowComponent';
+import { ProjectileComponent } from '../ecs/components/combat/ProjectileComponent';
+import { RobotDifficultyComponent } from '../ecs/components/ai/RobotDifficultyComponent';
+import { RobotHitParticlesComponent } from '../ecs/components/visual/RobotHitParticlesComponent';
+import { HitFlashComponent } from '../ecs/components/visual/HitFlashComponent';
 import { StateMachine } from '../utils/state/StateMachine';
 import { RobotPatrolState } from './RobotPatrolState';
 import { RobotAlertState } from './RobotAlertState';
@@ -88,6 +89,8 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
   
   entity.add(new RobotHitParticlesComponent(scene));
   
+  entity.add(new HitFlashComponent());
+  
   const stateMachine = new StateMachine(
     {
       patrol: new RobotPatrolState(entity, grid, playerEntity),
@@ -149,6 +152,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     GridCollisionComponent,
     LineOfSightComponent,
     RobotHitParticlesComponent,
+    HitFlashComponent,
     StateMachineComponent,
   ]);
 

@@ -626,6 +626,145 @@ for (let i = 0; i < entities.length; i++) {
 
 ## TypeScript Standards
 
+### No Non-Null Assertions
+
+**Avoid using non-null assertions (`!`) - use proper null checks instead.**
+
+**DO ✅**
+```typescript
+// Check for null/undefined before using
+const transform = entity.get(TransformComponent);
+if (!transform) return;
+
+transform.x += velocity.x;
+
+// Or use optional chaining
+const health = entity.get(HealthComponent);
+if (health) {
+  health.takeDamage(10);
+}
+
+// Multiple components
+const transform = entity.get(TransformComponent);
+const sprite = entity.get(SpriteComponent);
+if (!transform || !sprite) return;
+
+// Use them safely
+sprite.sprite.setPosition(transform.x, transform.y);
+```
+
+**DON'T ❌**
+```typescript
+// Non-null assertion - assumes component exists
+const transform = entity.get(TransformComponent)!;
+transform.x += velocity.x;  // Crashes if component missing
+
+// Chained non-null assertions
+const health = this.entity.get(HealthComponent)!;
+health.takeDamage(10);
+
+// Keyboard non-null assertion
+this.cursors = scene.input.keyboard!.createCursorKeys();
+```
+
+**Why this matters:**
+- Non-null assertions bypass TypeScript's safety checks
+- Code crashes at runtime if assumption is wrong
+- Proper null checks make code more robust
+- Early returns prevent cascading errors
+- Makes component dependencies explicit
+
+**When non-null assertions are acceptable:**
+- Never in production code
+- Only in tests where you control the setup
+- Only when you've just added the component in the same function
+
+**Pattern for keyboard input:**
+```typescript
+// DO ✅
+const keyboard = scene.input.keyboard;
+if (keyboard) {
+  this.cursors = keyboard.createCursorKeys();
+  this.fireKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+}
+
+// DON'T ❌
+this.cursors = scene.input.keyboard!.createCursorKeys();
+this.fireKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+```
+
+### Use Class Fields Instead of Constructor Assignment
+
+**Declare class properties as fields when they don't depend on constructor parameters.**
+
+**DO ✅**
+```typescript
+class MyComponent {
+  // Properties declared as fields
+  private elapsedTime = 0;
+  private isActive = false;
+  private items: string[] = [];
+  
+  // Only use constructor for parameters
+  constructor(private readonly scene: Phaser.Scene) {}
+}
+```
+
+**DON'T ❌**
+```typescript
+class MyComponent {
+  private elapsedTime: number;
+  private isActive: boolean;
+  private items: string[];
+  
+  constructor(private readonly scene: Phaser.Scene) {
+    // Don't assign in constructor if not using parameters
+    this.elapsedTime = 0;
+    this.isActive = false;
+    this.items = [];
+  }
+}
+```
+
+**Why this matters:**
+- Cleaner, more readable code
+- Follows modern JavaScript standards
+- Reduces boilerplate
+- Makes property declarations immediately visible
+- Aligns with class field syntax in ES2022+
+
+**When to use constructor:**
+```typescript
+// DO ✅ - Uses constructor parameter
+class MyComponent {
+  private readonly maxValue: number;
+  
+  constructor(maxValue: number) {
+    this.maxValue = maxValue;
+  }
+}
+
+// DO ✅ - Needs computation
+class MyComponent {
+  private readonly halfSize: number;
+  
+  constructor(size: number) {
+    this.halfSize = size / 2;
+  }
+}
+
+// DON'T ❌ - No parameter needed
+class MyComponent {
+  private count: number;
+  
+  constructor() {
+    this.count = 0;  // Should be: private count = 0;
+  }
+}
+```
+
+**Rule enforced by:** `unicorn/prefer-class-fields`
+
 ### No Default Parameter Values
 
 **DO ✅**

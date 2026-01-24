@@ -40,13 +40,16 @@ export class GridEditorState extends EditorState {
     this.selectionGraphics.setDepth(999);
 
     // Setup keyboard input
-    this.cursors = this.scene.input.keyboard!.createCursorKeys();
-    this.wasd = {
-      W: this.scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-      A: this.scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-      S: this.scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-      D: this.scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D)
-    };
+    const keyboard = this.scene.input.keyboard;
+    if (keyboard) {
+      this.cursors = keyboard.createCursorKeys();
+      this.wasd = {
+        W: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
+        A: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+        S: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+        D: keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D)
+      };
+    }
 
     // Back button (shared)
     this.buttons.push(this.createBackButton());

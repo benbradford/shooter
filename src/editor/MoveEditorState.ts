@@ -2,8 +2,8 @@ import { EditorState } from './EditorState';
 import type GameScene from '../GameScene';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../utils/state/IState';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 
 export interface MoveEditorStateProps {
   entity: Entity;

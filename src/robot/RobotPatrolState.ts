@@ -2,12 +2,12 @@ import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import { Direction, dirFromDelta } from '../constants/Direction';
 import type { Grid } from '../utils/Grid';
-import { PatrolComponent } from '../ecs/components/PatrolComponent';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
-import { LineOfSightComponent } from '../ecs/components/LineOfSightComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
+import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
+import { LineOfSightComponent } from '../ecs/components/combat/LineOfSightComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 
 // Patrol state configuration
 const WAYPOINT_REACHED_DISTANCE = 5;

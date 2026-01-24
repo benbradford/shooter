@@ -1,7 +1,7 @@
 import { Entity } from '../ecs/Entity';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { ShellCasingComponent } from '../ecs/components/ShellCasingComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { ShellCasingComponent } from '../ecs/components/visual/ShellCasingComponent';
 import { Direction } from '../constants/Direction';
 import { SHELL_SCALE } from './ProjectileConfig';
 

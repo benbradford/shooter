@@ -1,11 +1,11 @@
 import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import { Direction, dirFromDelta } from '../constants/Direction';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { PatrolComponent } from '../ecs/components/PatrolComponent';
-import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { Pathfinder } from '../utils/Pathfinder';
 import type { Grid } from '../utils/Grid';
 
@@ -118,7 +118,9 @@ export class RobotStalkingState implements IState {
       this.currentPathIndex = 1;
     }
 
-    const targetNode = this.path![this.currentPathIndex];
+    if (!this.path) return;
+
+    const targetNode = this.path[this.currentPathIndex];
     const targetWorld = this.grid.cellToWorld(targetNode.col, targetNode.row);
     const targetX = targetWorld.x + this.grid.cellSize / 2;
     const targetY = targetWorld.y + this.grid.cellSize / 2;
@@ -129,7 +131,7 @@ export class RobotStalkingState implements IState {
 
     if (distToTarget < 10) {
       this.currentPathIndex++;
-      if (this.currentPathIndex >= this.path!.length) {
+      if (this.currentPathIndex >= this.path.length) {
         this.path = null;
       }
     } else {
@@ -145,7 +147,9 @@ export class RobotStalkingState implements IState {
   }
 
   private moveDirectly(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
-    const playerTransform = this.playerEntity.get(TransformComponent)!;
+    const playerTransform = this.playerEntity.get(TransformComponent);
+    if (!playerTransform) return;
+    
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const distance = Math.hypot(dx, dy);

@@ -8,8 +8,8 @@ import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { createJoystickEntity } from "./hud/JoystickEntity";
 import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
 import type { RobotDifficulty } from "./robot/RobotDifficulty";
-import { SpriteComponent } from "./ecs/components/SpriteComponent";
-import { GridPositionComponent } from "./ecs/components/GridPositionComponent";
+import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
+import { GridPositionComponent } from "./ecs/components/movement/GridPositionComponent";
 import { preloadAssets } from "./assets/AssetLoader";
 import { CollisionSystem } from "./systems/CollisionSystem";
 
@@ -41,19 +41,22 @@ export default class GameScene extends Phaser.Scene {
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
 
-    this.editorKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-    this.editorKey.on('down', () => {
-      if (this.scene.isActive()) {
-        void this.enterEditorMode();
-      }
-    });
+    const keyboard = this.input.keyboard;
+    if (keyboard) {
+      this.editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+      this.editorKey.on('down', () => {
+        if (this.scene.isActive()) {
+          this.enterEditorMode();
+        }
+      });
 
-    this.levelKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.L);
-    this.levelKey.on('down', () => {
-      if (this.scene.isActive()) {
-        this.showLevelSelector();
-      }
-    });
+      this.levelKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
+      this.levelKey.on('down', () => {
+        if (this.scene.isActive()) {
+          this.showLevelSelector();
+        }
+      });
+    }
   }
 
   private initializeScene(): void {
@@ -83,13 +86,25 @@ export default class GameScene extends Phaser.Scene {
     // Camera follow player's sprite
     const player = this.entityManager.getFirst('player');
     if (player) {
-      const spriteComp = player.get(SpriteComponent)!;
-      this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
-      this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
+      const spriteComp = player.get(SpriteComponent);
+      if (spriteComp) {
+        this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
+        this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
+      }
     }
+
+    // Add vignette overlay
+    const vignette = this.add.image(0, 0, 'vignette');
+    vignette.setOrigin(0, 0);
+    vignette.setScrollFactor(0);
+    vignette.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+    vignette.setDepth(10000);
+    vignette.setAlpha(0.8);
+    vignette.setBlendMode(Phaser.BlendModes.MULTIPLY);
+    vignette.setTint(0xbb8888);
   }
 
-  private async enterEditorMode(): Promise<void> {
+  private enterEditorMode(): void {
     this.resetScene();
 
     this.grid.setGridDebugEnabled(true); // Enable grid in editor
@@ -120,7 +135,8 @@ export default class GameScene extends Phaser.Scene {
       startY,
       this.grid,
       (x, y, dirX, dirY) => {
-        const gridPos = player.get(GridPositionComponent)!;
+        const gridPos = player.get(GridPositionComponent);
+        if (!gridPos) return;
         const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
         const fromTransition = playerCell?.isTransition ?? false;
 

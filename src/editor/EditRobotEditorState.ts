@@ -2,13 +2,13 @@ import Phaser from 'phaser';
 import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../utils/state/IState';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { PatrolComponent } from '../ecs/components/PatrolComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { RobotDifficultyComponent } from '../ecs/components/RobotDifficultyComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { RobotDifficultyComponent } from '../ecs/components/ai/RobotDifficultyComponent';
 import { getRobotDifficultyConfig, type RobotDifficulty } from '../robot/RobotDifficulty';
-import { HealthComponent } from '../ecs/components/HealthComponent';
-import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
+import { HealthComponent } from '../ecs/components/core/HealthComponent';
+import { FireballPropertiesComponent } from '../ecs/components/ai/FireballPropertiesComponent';
 
 export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private selectedRobot: Entity | null = null;

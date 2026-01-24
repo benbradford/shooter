@@ -1,24 +1,25 @@
 import Phaser from 'phaser';
 import { Entity } from '../ecs/Entity';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { AnimationComponent } from '../ecs/components/AnimationComponent';
-import { InputComponent } from '../ecs/components/InputComponent';
-import { WalkComponent } from '../ecs/components/WalkComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
-import { GridCollisionComponent } from '../ecs/components/GridCollisionComponent';
-import { ProjectileEmitterComponent, type EmitterOffset } from '../ecs/components/ProjectileEmitterComponent';
-import { TouchJoystickComponent } from '../ecs/components/TouchJoystickComponent';
-import { AimJoystickComponent } from '../ecs/components/AimJoystickComponent';
-import { ControlModeComponent } from '../ecs/components/ControlModeComponent';
-import { AmmoComponent } from '../ecs/components/AmmoComponent';
-import { HealthComponent } from '../ecs/components/HealthComponent';
-import { HudBarComponent } from '../ecs/components/HudBarComponent';
-import { OverheatSmokeComponent } from '../ecs/components/OverheatSmokeComponent';
-import { CollisionComponent } from '../ecs/components/CollisionComponent';
-import { DamageComponent } from '../ecs/components/DamageComponent';
-import { ShadowComponent } from '../ecs/components/ShadowComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { AnimationComponent } from '../ecs/components/core/AnimationComponent';
+import { InputComponent } from '../ecs/components/input/InputComponent';
+import { WalkComponent } from '../ecs/components/movement/WalkComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
+import { GridCollisionComponent } from '../ecs/components/movement/GridCollisionComponent';
+import { ProjectileEmitterComponent, type EmitterOffset } from '../ecs/components/combat/ProjectileEmitterComponent';
+import { TouchJoystickComponent } from '../ecs/components/input/TouchJoystickComponent';
+import { AimJoystickComponent } from '../ecs/components/input/AimJoystickComponent';
+import { ControlModeComponent } from '../ecs/components/input/ControlModeComponent';
+import { AmmoComponent } from '../ecs/components/combat/AmmoComponent';
+import { HealthComponent } from '../ecs/components/core/HealthComponent';
+import { HudBarComponent } from '../ecs/components/ui/HudBarComponent';
+import { OverheatSmokeComponent } from '../ecs/components/visual/OverheatSmokeComponent';
+import { HitFlashComponent } from '../ecs/components/visual/HitFlashComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { DamageComponent } from '../ecs/components/core/DamageComponent';
+import { ShadowComponent } from '../ecs/components/core/ShadowComponent';
 import { Animation } from '../animation/Animation';
 import { AnimationSystem } from '../animation/AnimationSystem';
 import { Direction } from '../constants/Direction';
@@ -37,7 +38,7 @@ const PLAYER_ACCELERATION_TIME_MS = 300;
 const PLAYER_DECELERATION_TIME_MS = 100;
 const PLAYER_STOP_THRESHOLD = 120;
 const PLAYER_MAX_HEALTH = 100;
-const PLAYER_MAX_AMMO = 250;
+const PLAYER_MAX_AMMO = 100;
 const PLAYER_AMMO_REFILL_RATE = 20;
 const PLAYER_AMMO_REFILL_DELAY_MS = 1000;
 const PLAYER_AMMO_OVERHEATED_DELAY_MS = 4000;
@@ -93,15 +94,21 @@ export function createPlayerEntity(
 
   const input = entity.add(new InputComponent(scene));
 
-  const joystickComp = joystick.get(TouchJoystickComponent)!;
-  input.setJoystick(joystickComp);
+  const joystickComp = joystick.get(TouchJoystickComponent);
+  if (joystickComp) {
+    input.setJoystick(joystickComp);
+  }
 
-  const aimJoystickComp = joystick.get(AimJoystickComponent)!;
-  input.setAimJoystick(aimJoystickComp);
+  const aimJoystickComp = joystick.get(AimJoystickComponent);
+  if (aimJoystickComp) {
+    input.setAimJoystick(aimJoystickComp);
+  }
 
-  const controlModeComp = joystick.get(ControlModeComponent)!;
-  input.setControlMode(controlModeComp);
-  entity.add(controlModeComp); // Add to player entity for update order
+  const controlModeComp = joystick.get(ControlModeComponent);
+  if (controlModeComp) {
+    input.setControlMode(controlModeComp);
+    entity.add(controlModeComp); // Add to player entity for update order
+  }
 
   const walk = entity.add(new WalkComponent(transform, input, {
     speed: PLAYER_WALK_SPEED_PX_PER_SEC,
@@ -109,7 +116,9 @@ export function createPlayerEntity(
     decelerationTime: PLAYER_DECELERATION_TIME_MS,
     stopThreshold: PLAYER_STOP_THRESHOLD
   }));
-  walk.setControlMode(controlModeComp);
+  if (controlModeComp) {
+    walk.setControlMode(controlModeComp);
+  }
 
   const startCell = grid.worldToCell(x, y);
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_GRID_COLLISION_BOX));
@@ -155,6 +164,8 @@ export function createPlayerEntity(
   const overheatSmoke = entity.add(new OverheatSmokeComponent(scene, ammo, emitterOffsets));
   overheatSmoke.init();
 
+  entity.add(new HitFlashComponent());
+
   // Added after Animation so onEnter can access it
   const stateMachine = new StateMachine(
     {
@@ -175,7 +186,10 @@ export function createPlayerEntity(
         if (damage) {
           health.takeDamage(damage.damage);
         }
-        other.destroy();
+        const hitFlash = entity.get(HitFlashComponent);
+        if (hitFlash) {
+          hitFlash.flash(300);
+        }
       }
     }
   }));
@@ -194,6 +208,7 @@ export function createPlayerEntity(
     AmmoComponent,
     ProjectileEmitterComponent,
     OverheatSmokeComponent,
+    HitFlashComponent,
     HudBarComponent,
     StateMachineComponent,
     AnimationComponent,

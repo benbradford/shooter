@@ -2,10 +2,10 @@ import type { IState } from '../utils/state/IState';
 import type { Entity } from '../ecs/Entity';
 import type { Grid } from '../utils/Grid';
 import { Direction, dirFromDelta } from '../constants/Direction';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { StateMachineComponent } from '../ecs/components/StateMachineComponent';
-import { SpriteComponent } from '../ecs/components/SpriteComponent';
-import { FireballPropertiesComponent } from '../ecs/components/FireballPropertiesComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { FireballPropertiesComponent } from '../ecs/components/ai/FireballPropertiesComponent';
 import { createFireballEntity } from '../projectile/FireballEntity';
 
 interface FireballOffset {

@@ -54,7 +54,8 @@ export default defineConfig([
       "unicorn/prefer-modern-math-apis": "warn",
       "unicorn/no-zero-fractions": "warn",
       "unicorn/no-negated-condition": "warn",
-      "unicorn/prefer-number-properties": "warn"
+      "unicorn/prefer-number-properties": "warn",
+      "unicorn/prefer-class-fields": "error"
     }
   },
   tseslint.configs.recommended,

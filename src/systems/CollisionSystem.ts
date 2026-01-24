@@ -1,7 +1,7 @@
 import type { Entity } from '../ecs/Entity';
-import { CollisionComponent } from '../ecs/components/CollisionComponent';
-import { TransformComponent } from '../ecs/components/TransformComponent';
-import { GridPositionComponent } from '../ecs/components/GridPositionComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import type { Grid } from '../utils/Grid';
 
 export class CollisionSystem {
@@ -23,6 +23,7 @@ export class CollisionSystem {
     }
   }
 
+  // eslint-disable-next-line complexity -- Collision detection requires nested loops and multiple condition checks
   update(entities: Entity[]): void {
     // Clear debug graphics
     if (this.debugGraphics) {
@@ -46,10 +47,10 @@ export class CollisionSystem {
 
     // Check grid entities against nearby cells only
     for (const entityA of gridEntities) {
-      const collisionA = entityA.get(CollisionComponent)!;
+      const collisionA = entityA.get(CollisionComponent);
       const transformA = entityA.get(TransformComponent);
-      const gridPosA = entityA.get(GridPositionComponent)!;
-      if (!transformA) continue;
+      const gridPosA = entityA.get(GridPositionComponent);
+      if (!collisionA || !transformA || !gridPosA) continue;
 
       // Debug render collision box
       if (this.debugEnabled && this.debugGraphics) {
@@ -62,22 +63,20 @@ export class CollisionSystem {
 
       for (const cell of nearbyCells) {
         const cellData = this.grid.getCell(cell.col, cell.row);
-        if (cellData) {
-          for (const occupant of cellData.occupants) {
-            if (occupant !== entityA && !occupant.markedForRemoval) {
-              nearbyEntities.add(occupant);
-            }
+        if (!cellData) continue;
+        
+        for (const occupant of cellData.occupants) {
+          if (occupant !== entityA && !occupant.markedForRemoval) {
+            nearbyEntities.add(occupant);
           }
         }
       }
 
       // Check collisions with nearby entities
       for (const entityB of nearbyEntities) {
-        if (!entityB.has(CollisionComponent)) continue;
-
-        const collisionB = entityB.get(CollisionComponent)!;
+        const collisionB = entityB.get(CollisionComponent);
         const transformB = entityB.get(TransformComponent);
-        if (!transformB) continue;
+        if (!collisionB || !transformB) continue;
 
         if (!this.shouldCollide(entityA, entityB, collisionA, collisionB)) continue;
 
@@ -90,9 +89,9 @@ export class CollisionSystem {
 
     // Check non-grid entities against all collidables (fallback for projectiles without grid position)
     for (const entityA of nonGridEntities) {
-      const collisionA = entityA.get(CollisionComponent)!;
+      const collisionA = entityA.get(CollisionComponent);
       const transformA = entityA.get(TransformComponent);
-      if (!transformA) continue;
+      if (!collisionA || !transformA) continue;
 
       if (this.debugEnabled && this.debugGraphics) {
         this.renderCollisionBox(transformA, collisionA);
@@ -101,9 +100,9 @@ export class CollisionSystem {
       for (const entityB of collidables) {
         if (entityA === entityB) continue;
 
-        const collisionB = entityB.get(CollisionComponent)!;
+        const collisionB = entityB.get(CollisionComponent);
         const transformB = entityB.get(TransformComponent);
-        if (!transformB) continue;
+        if (!collisionB || !transformB) continue;
 
         if (!this.shouldCollide(entityA, entityB, collisionA, collisionB)) continue;
 

@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { TransformComponent } from '../ecs/components/TransformComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
 
 export class DefaultEditorState extends EditorState {
   private saveButton!: Phaser.GameObjects.Text;
