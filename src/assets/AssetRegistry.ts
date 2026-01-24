@@ -89,6 +89,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/dungeon/dungeon_floor02.png',
     type: 'image' as const,
   },
+  wooden_floor01: {
+    key: 'wooden_floor01',
+    path: 'assets/wooden/wooden_floor01.png',
+    type: 'image' as const,
+  },
   bug: {
     key: 'bug',
     path: 'assets/bug/bug-spritesheet.png',

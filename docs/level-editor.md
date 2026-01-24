@@ -213,10 +213,25 @@ Allows painting background textures onto grid cells.
 - Changes appear immediately
 
 **Adding New Textures:**
-1. Add texture file to `public/assets/dungeon/`
-2. Register in `src/assets/AssetRegistry.ts`
-3. Add to default assets in `src/assets/AssetLoader.ts`
-4. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`
+1. Add texture file to `public/assets/{category}/` (e.g., `dungeon/`, `wooden/`)
+2. Resize to 128x128 pixels: `sips -z 128 128 path/to/texture.png`
+3. Register in `src/assets/AssetRegistry.ts`:
+   ```typescript
+   your_texture: {
+     key: 'your_texture',
+     path: 'assets/category/your_texture.png',
+     type: 'image' as const,
+   },
+   ```
+4. Add to default assets in `src/assets/AssetLoader.ts`:
+   ```typescript
+   const keysToLoad: AssetKey[] = keys || [..., 'your_texture'];
+   ```
+5. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`:
+   ```typescript
+   const AVAILABLE_TEXTURES = ['dungeon_floor01', 'dungeon_floor02', 'your_texture'];
+   ```
+6. Run `npm run build && npx eslint src --ext .ts`
 
 **Note:** Background textures are saved in the level JSON and persist across sessions.
 

@@ -50,7 +50,7 @@ export class BugChaseState implements IState {
 
     if (this.shouldAttack(transform, playerTransform)) return;
 
-    this.updatePath(transform, playerTransform);
+    this.updatePath(delta, transform, playerTransform);
     this.updateMovement(delta, transform, gridPos, sprite);
   }
 
@@ -90,8 +90,8 @@ export class BugChaseState implements IState {
     return false;
   }
 
-  private updatePath(transform: TransformComponent, playerTransform: TransformComponent): void {
-    this.pathRecalcTimer += this.pathRecalcTimer;
+  private updatePath(delta: number, transform: TransformComponent, playerTransform: TransformComponent): void {
+    this.pathRecalcTimer += delta;
     if (this.pathRecalcTimer < PATH_RECALC_INTERVAL_MS && this.path !== null) return;
 
     this.pathRecalcTimer = 0;

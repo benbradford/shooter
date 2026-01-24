@@ -2,7 +2,7 @@
   "languages": {
     "typescript": {
       "name": "typescript-language-server",
-      "command": "typescript-language-server",
+      "command": "./node_modules/.bin/typescript-language-server",
       "args": [
         "--stdio"
       ],

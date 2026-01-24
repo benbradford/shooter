@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../GameScene';
 
-const AVAILABLE_TEXTURES = ['dungeon_floor01', 'dungeon_floor02'];
+const AVAILABLE_TEXTURES = ['dungeon_floor01', 'dungeon_floor02', 'wooden_floor01'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
