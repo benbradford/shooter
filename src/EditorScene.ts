@@ -9,8 +9,10 @@ import { GridEditorState } from "./editor/GridEditorState";
 import { ResizeEditorState } from "./editor/ResizeEditorState";
 import { MoveEditorState, type MoveEditorStateProps } from "./editor/MoveEditorState";
 import { EditRobotEditorState } from "./editor/EditRobotEditorState";
+import { EditBugBaseEditorState } from "./editor/EditBugBaseEditorState";
 import { AddEditorState } from "./editor/AddEditorState";
 import { AddRobotEditorState } from "./editor/AddRobotEditorState";
+import { AddBugBaseEditorState } from "./editor/AddBugBaseEditorState";
 import { TextureEditorState } from "./editor/TextureEditorState";
 import { VignetteEditorState } from "./editor/VignetteEditorState";
 import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
@@ -92,8 +94,10 @@ export default class EditorScene extends Phaser.Scene {
       resize: new ResizeEditorState(this),
       move: new MoveEditorState(this),
       editRobot: new EditRobotEditorState(this),
+      editBugBase: new EditBugBaseEditorState(this),
       add: new AddEditorState(this),
       addRobot: new AddRobotEditorState(this),
+      addBugBase: new AddBugBaseEditorState(this),
       texture: new TextureEditorState(this),
       vignette: new VignetteEditorState(this)
     }, 'default');
@@ -311,6 +315,14 @@ export default class EditorScene extends Phaser.Scene {
 
   enterAddRobotMode(): void {
     this.stateMachine.enter('addRobot');
+  }
+
+  enterAddBugBaseMode(): void {
+    this.stateMachine.enter('addBugBase');
+  }
+
+  enterEditBugBaseMode(bugBase: Entity): void {
+    this.stateMachine.enter('editBugBase', bugBase);
   }
 
   enterTextureMode(): void {

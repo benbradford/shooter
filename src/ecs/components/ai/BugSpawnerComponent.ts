@@ -1,0 +1,67 @@
+import type { Component } from '../../Component';
+import type { Entity } from '../../Entity';
+import { TransformComponent } from '../core/TransformComponent';
+import { GridPositionComponent } from '../movement/GridPositionComponent';
+
+const ACTIVATION_RANGE_PX = 400;
+const MAX_BUGS = 6;
+
+export class BugSpawnerComponent implements Component {
+  entity!: Entity;
+  private isActive = false;
+  private spawnTimer = 0;
+  private readonly onSpawn: (col: number, row: number) => void;
+  private readonly playerEntity: Entity;
+  private readonly spawnIntervalMs: number;
+  private activeBugs: Set<Entity> = new Set();
+
+  constructor(playerEntity: Entity, onSpawn: (col: number, row: number) => void, spawnIntervalMs: number) {
+    this.playerEntity = playerEntity;
+    this.onSpawn = onSpawn;
+    this.spawnIntervalMs = spawnIntervalMs;
+  }
+
+  registerBug(bug: Entity): void {
+    this.activeBugs.add(bug);
+  }
+
+  update(delta: number): void {
+    this.activeBugs = new Set([...this.activeBugs].filter(bug => !bug.isDestroyed));
+
+    const transform = this.entity.get(TransformComponent);
+    const playerTransform = this.playerEntity.get(TransformComponent);
+    if (!transform || !playerTransform) return;
+
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distance = Math.hypot(dx, dy);
+
+    if (!this.isActive && distance < ACTIVATION_RANGE_PX) {
+      this.isActive = true;
+    }
+
+    if (this.isActive && this.activeBugs.size < MAX_BUGS) {
+      this.spawnTimer += delta;
+      if (this.spawnTimer >= this.spawnIntervalMs) {
+        this.spawnTimer = 0;
+        const gridPos = this.entity.get(GridPositionComponent);
+        if (gridPos) {
+          const directions = [
+            { col: gridPos.currentCell.col, row: gridPos.currentCell.row - 1 },
+            { col: gridPos.currentCell.col, row: gridPos.currentCell.row + 1 },
+            { col: gridPos.currentCell.col - 1, row: gridPos.currentCell.row },
+            { col: gridPos.currentCell.col + 1, row: gridPos.currentCell.row }
+          ];
+          const target = directions[Math.floor(Math.random() * directions.length)];
+          this.onSpawn(target.col, target.row);
+        }
+      }
+    }
+  }
+
+  activate(): void {
+    this.isActive = true;
+  }
+
+  onDestroy(): void {}
+}

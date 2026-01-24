@@ -13,6 +13,12 @@ export interface LevelRobot {
   waypoints: Array<{ col: number; row: number }>;
 }
 
+export interface LevelBugBase {
+  col: number;
+  row: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
 export interface VignetteConfig {
   alpha: number;
   tint: number;
@@ -28,6 +34,7 @@ export interface LevelData {
   };
   cells: LevelCell[];
   robots?: LevelRobot[];
+  bugBases?: LevelBugBase[];
   vignette?: VignetteConfig;
 }
 

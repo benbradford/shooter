@@ -55,11 +55,10 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
         }
         
         const stateMachine = other.get(StateMachineComponent);
-        if (stateMachine) {
+        if (stateMachine && stateMachine.stateMachine.hasState('hit')) {
           stateMachine.stateMachine.enter('hit');
         }
         
-        // Destroy on next frame after all collision callbacks complete
         scene.time.delayedCall(0, () => entity.destroy());
       }
     }

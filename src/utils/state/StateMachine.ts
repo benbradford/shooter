@@ -31,4 +31,8 @@ export class StateMachine<TData = void> {
   getCurrentKey() {
     return this.currentKey;
   }
+
+  hasState(key: string): boolean {
+    return this.states.has(key);
+  }
 }

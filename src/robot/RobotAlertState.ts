@@ -10,7 +10,7 @@ import { StateMachineComponent } from '../ecs/components/core/StateMachineCompon
 const ALERT_DURATION_MS = 1000; // milliseconds
 const EXCLAMATION_OFFSET_Y_PX = -120; // pixels above robot
 const EXCLAMATION_RISE_Y_PX = -140; // final Y position
-const EXCLAMATION_SCALE = 4;
+const EXCLAMATION_SCALE = 2;
 const EXCLAMATION_DEPTH = 3;
 const EXCLAMATION_ANIMATION_DURATION_MS = 300; // milliseconds
 

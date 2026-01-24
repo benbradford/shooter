@@ -257,8 +257,22 @@ export class DefaultEditorState extends EditorState {
       if (!transform) continue;
 
       const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-      if (distance < 64) { // Click radius
+      if (distance < 64) {
         this.scene.enterEditRobotMode(robot);
+        return;
+      }
+    }
+
+    // Check for bug base click
+    const bugBases = entityManager.getByType('bug_base');
+
+    for (const bugBase of bugBases) {
+      const transform = bugBase.get(TransformComponent);
+      if (!transform) continue;
+
+      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+      if (distance < 64) {
+        this.scene.enterEditBugBaseMode(bugBase);
         return;
       }
     }

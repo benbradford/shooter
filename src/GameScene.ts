@@ -7,9 +7,15 @@ import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { createJoystickEntity } from "./hud/JoystickEntity";
 import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
+import { createBugBaseEntity } from "./bug/BugBaseEntity";
+import { createBugEntity } from "./bug/BugEntity";
+import { BugSpawnerComponent } from "./ecs/components/ai/BugSpawnerComponent";
+import { BugBaseDifficultyComponent } from "./bug/BugBaseDifficultyComponent";
+import { getBugBaseDifficultyConfig } from "./bug/BugBaseDifficulty";
 import type { RobotDifficulty } from "./robot/RobotDifficulty";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "./ecs/components/movement/GridPositionComponent";
+import { TransformComponent } from "./ecs/components/core/TransformComponent";
 import { preloadAssets } from "./assets/AssetLoader";
 import { CollisionSystem } from "./systems/CollisionSystem";
 
@@ -182,6 +188,47 @@ export default class GameScene extends Phaser.Scene {
           difficulty: robotData.difficulty as RobotDifficulty
         });
         this.entityManager.add(robot);
+      }
+    }
+
+    // Spawn bug bases from level data
+    if (level.bugBases && level.bugBases.length > 0) {
+      for (const baseData of level.bugBases) {
+        const base = createBugBaseEntity(
+          this,
+          baseData.col,
+          baseData.row,
+          this.grid,
+          player,
+          (spawnCol, spawnRow) => {
+            const transform = base.get(TransformComponent);
+            const difficultyComp = base.get(BugBaseDifficultyComponent);
+            if (!transform || !difficultyComp) return;
+            
+            const basePos = this.grid.worldToCell(transform.x, transform.y);
+            const config = getBugBaseDifficultyConfig(difficultyComp.difficulty);
+            
+            const bug = createBugEntity(
+              this,
+              basePos.col,
+              basePos.row,
+              this.grid,
+              player,
+              spawnCol,
+              spawnRow,
+              config.bugHealth,
+              config.bugSpeed
+            );
+            this.entityManager.add(bug);
+            
+            const spawner = base.get(BugSpawnerComponent);
+            if (spawner) {
+              spawner.registerBug(bug);
+            }
+          },
+          baseData.difficulty
+        );
+        this.entityManager.add(base);
       }
     }
   }

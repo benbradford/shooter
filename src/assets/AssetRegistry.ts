@@ -89,6 +89,17 @@ export const ASSET_REGISTRY = {
     path: 'assets/dungeon/dungeon_floor02.png',
     type: 'image' as const,
   },
+  bug: {
+    key: 'bug',
+    path: 'assets/bug/bug-spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  bug_base: {
+    key: 'bug_base',
+    path: 'assets/bug/base.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

@@ -33,6 +33,28 @@ export class AddEditorState extends EditorState {
     robotButton.on('pointerdown', () => {
       this.scene.enterAddRobotMode();
     });
+
+    const bugBaseButton = this.scene.add.text(centerX, centerY + 60, 'Bug Base', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    bugBaseButton.setOrigin(0.5);
+    bugBaseButton.setScrollFactor(0);
+    bugBaseButton.setInteractive({ useHandCursor: true });
+    bugBaseButton.setDepth(1000);
+    this.buttons.push(bugBaseButton);
+
+    bugBaseButton.on('pointerover', () => {
+      bugBaseButton.setBackgroundColor('#555555');
+    });
+    bugBaseButton.on('pointerout', () => {
+      bugBaseButton.setBackgroundColor('#333333');
+    });
+    bugBaseButton.on('pointerdown', () => {
+      this.scene.enterAddBugBaseMode();
+    });
   }
 
   onExit(): void {
