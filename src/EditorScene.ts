@@ -221,12 +221,11 @@ export default class EditorScene extends Phaser.Scene {
       const difficulty = bugBase.get(BugBaseDifficultyComponent);
       
       if (transform) {
-        const col = Math.round(transform.x / grid.cellSize);
-        const row = Math.round(transform.y / grid.cellSize);
+        const cell = grid.worldToCell(transform.x, transform.y);
         
         bugBases.push({
-          col,
-          row,
+          col: cell.col,
+          row: cell.row,
           difficulty: difficulty?.difficulty ?? 'medium'
         });
       }

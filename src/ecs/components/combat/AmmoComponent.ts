@@ -67,6 +67,10 @@ export class AmmoComponent implements Component, HudBarDataSource {
     return this.getAmmoRatio();
   }
 
+  isBarOverheated(): boolean {
+    return this.isOverheated;
+  }
+
   isGunOverheated(): boolean {
     return this.isOverheated;
   }

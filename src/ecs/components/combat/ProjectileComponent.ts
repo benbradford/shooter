@@ -3,8 +3,6 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import type { Grid } from '../../../utils/Grid';
 
-const GRACE_DISTANCE_PX = 64;
-
 export interface ProjectileProps {
   dirX: number;
   dirY: number;
@@ -50,64 +48,76 @@ export class ProjectileComponent implements Component {
     if (!transform) return;
 
     const distance = this.speed * (delta / 1000);
-    
+
     transform.x += this.dirX * distance;
     transform.y += this.dirY * distance;
-    
+
     this.distanceTraveled += distance;
-    
+
     // Check collision with walls (layer-based)
     const cell = this.grid.worldToCell(transform.x, transform.y);
     const cellData = this.grid.getCell(cell.col, cell.row);
-    
+
     if (!cellData) {
       this.entity.destroy();
       return;
     }
-    
+
     // If passing through transition cell, upgrade accessible layer
     if (cellData.isTransition) {
       this.currentLayer = Math.max(this.currentLayer, cellData.layer + 1);
     }
-    
-    if (this.blockedByWalls && this.distanceTraveled >= GRACE_DISTANCE_PX) {
-      if (!cellData.isTransition) {
-        const shouldBlock = this.fromTransition 
-          ? cellData.layer > this.currentLayer + 1
-          : cellData.layer > this.currentLayer;
-        
-        if (shouldBlock) {
-          const cellWorld = this.grid.cellToWorld(cell.col, cell.row);
-          const cellBottomY = cellWorld.y + this.grid.cellSize;
-          const bottomThreshold = cellBottomY - (this.grid.cellSize * 0.2);
-          
-          if (transform.y < bottomThreshold) {
-            if (this.onWallHit) {
-              this.onWallHit(transform.x, transform.y);
-            } else if (this.scene) {
-              const emitter = this.scene.add.particles(transform.x, transform.y, 'smoke', {
-                speed: { min: 40, max: 100 },
-                angle: { min: 0, max: 360 },
-                scale: { start: 0.8, end: 0 },
-                alpha: { start: 1, end: 0 },
-                lifespan: 300,
-                quantity: 8,
-                tint: 0xffff00,
-                blendMode: 'ADD'
-              });
-              emitter.setDepth(1000);
-              this.scene.time.delayedCall(300, () => emitter.destroy());
-            }
-            this.entity.destroy();
-            return;
-          }
-        }
-      }
+
+    if (this.shouldCheckWallCollision(cellData)) {
+      this.handleWallCollision(transform, cell);
+      return;
     }
-    
+
     if (this.distanceTraveled >= this.maxDistance) {
       this.entity.destroy();
     }
+  }
+
+  private shouldCheckWallCollision(cellData: { layer: number; isTransition: boolean }): boolean {
+    if (!this.blockedByWalls || cellData.isTransition) return false;
+
+    const shouldBlock = this.fromTransition
+      ? cellData.layer > this.currentLayer + 1
+      : cellData.layer > this.currentLayer;
+
+    return shouldBlock;
+  }
+
+  private handleWallCollision(transform: TransformComponent, cell: { col: number; row: number }): void {
+    const cellWorld = this.grid.cellToWorld(cell.col, cell.row);
+    const cellBottomY = cellWorld.y + this.grid.cellSize;
+    const bottomThreshold = cellBottomY - (this.grid.cellSize * 0.2);
+
+    if (transform.y >= bottomThreshold) return;
+
+    if (this.onWallHit) {
+      this.onWallHit(transform.x, transform.y);
+    } else if (this.scene) {
+      this.createWallHitParticles(transform.x, transform.y);
+    }
+    this.entity.destroy();
+  }
+
+  private createWallHitParticles(x: number, y: number): void {
+    if (!this.scene) return;
+
+    const emitter = this.scene.add.particles(x, y, 'smoke', {
+      speed: { min: 300, max: 500 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 1.5, end: 0 },
+      alpha: { start: 1, end: 0 },
+      lifespan: 100,
+      quantity: 10,
+      tint: [0xffff00, 0xff5500],
+      blendMode: 'ADD'
+    });
+    emitter.setDepth(1000);
+    this.scene.time.delayedCall(300, () => emitter.destroy());
   }
 
   onDestroy(): void {}

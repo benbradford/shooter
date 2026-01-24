@@ -4,6 +4,7 @@ import { TransformComponent } from '../core/TransformComponent';
 
 export interface HudBarDataSource {
   getRatio(): number;
+  isBarOverheated?(): boolean;
 }
 
 interface BarConfig {
@@ -118,6 +119,14 @@ export class HudBarComponent implements Component {
       bar.fill.setSize(fillWidth, this.barHeight);
       const fillX = barX - this.barWidth / 2 + fillWidth / 2;
       bar.fill.setPosition(fillX, barY);
+      
+      // Check if overheated and change fill color
+      const isOverheated = bar.dataSource.isBarOverheated?.() ?? false;
+      if (isOverheated && ratio < 1) {
+        bar.fill.setFillStyle(0xff0000); // Red when overheated
+      } else {
+        bar.fill.setFillStyle(bar.fillColor); // Normal color
+      }
       
       // Update outline color if redOutlineOnLow is enabled
       if (bar.redOutlineOnLow) {

@@ -322,6 +322,45 @@ const ammo = entity.add(new AmmoComponent({
 
 **Key difference:** `overheatedRefillDelay` is longer than `refillDelay` to punish overheating.
 
+### Health Regeneration
+
+Player health regenerates automatically after not taking damage:
+
+```typescript
+// In PlayerEntity.ts
+const health = entity.add(new HealthComponent({ 
+  maxHealth: 100, 
+  enableRegen: true  // Enable auto-regen
+}));
+```
+
+**Behavior:**
+- After 3 seconds without damage, health regens at 20 HP/sec
+- Taking damage resets the 3-second timer
+- Only enabled for player (enemies don't regen)
+
+### Hit Flash Effect
+
+Entities flash when taking damage. Color can be customized:
+
+```typescript
+// Red flash (default - for robots, player, etc.)
+entity.add(new HitFlashComponent());
+
+// Green flash (for bugs with red/black sprites)
+entity.add(new HitFlashComponent(0x00ff00));
+```
+
+**Critical:** HitFlashComponent must be BEFORE SpriteComponent in update order:
+```typescript
+entity.setUpdateOrder([
+  TransformComponent,
+  HitFlashComponent,  // BEFORE SpriteComponent
+  SpriteComponent,
+  // ...
+]);
+```
+
 ## Project Structure Quick Reference
 
 ```
