@@ -18,6 +18,8 @@ export class Grid {
   private readonly graphics: Phaser.GameObjects.Graphics;
   private readonly scene: Phaser.Scene;
   private readonly backgroundSprites: Map<string, Phaser.GameObjects.Image> = new Map();
+  private readonly layer1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+  private readonly layerNeg1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private isGridDebugEnabled: boolean = false;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
@@ -111,8 +113,90 @@ export class Grid {
     
     const cell = this.cells[row][col];
     const oldTexture = cell.backgroundTexture;
+    const oldLayer = cell.layer;
     
     this.cells[row][col] = { ...cell, ...data };
+    
+    // Handle layer rendering
+    if (data.layer !== undefined) {
+      const key = `${col},${row}`;
+      
+      if (oldLayer !== data.layer) {
+        const oldLayer1Sprite = this.layer1Sprites.get(key);
+        if (oldLayer1Sprite) {
+          oldLayer1Sprite.destroy();
+          this.layer1Sprites.delete(key);
+        }
+        
+        const oldLayerNeg1Sprite = this.layerNeg1Sprites.get(key);
+        if (oldLayerNeg1Sprite) {
+          oldLayerNeg1Sprite.destroy();
+          this.layerNeg1Sprites.delete(key);
+        }
+      }
+      
+      if (data.layer === 1) {
+        const texKey = `layer1_${col}_${row}`;
+        
+        if (!this.scene.textures.exists(texKey)) {
+          const canvas = this.scene.textures.createCanvas(texKey, this.cellSize, this.cellSize);
+          const ctx = canvas?.context;
+          if (ctx) {
+            const centerX = this.cellSize / 2;
+            const centerY = this.cellSize / 2;
+            const maxRadius = Math.hypot(centerX, centerY);
+            
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
+            gradient.addColorStop(0, 'rgba(40, 40, 50, 0.9)');
+            gradient.addColorStop(0.5, 'rgba(25, 25, 35, 0.95)');
+            gradient.addColorStop(1, 'rgba(15, 15, 25, 1)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, this.cellSize, this.cellSize);
+            canvas?.refresh();
+          }
+        }
+        
+        const worldPos = this.cellToWorld(col, row);
+        const sprite = this.scene.add.image(
+          worldPos.x + this.cellSize / 2,
+          worldPos.y + this.cellSize / 2,
+          texKey
+        );
+        sprite.setDepth(-50);
+        this.layer1Sprites.set(key, sprite as unknown as Phaser.GameObjects.Rectangle);
+      } else if (data.layer === -1) {
+        const texKey = `layerNeg1_${col}_${row}`;
+        
+        if (!this.scene.textures.exists(texKey)) {
+          const canvas = this.scene.textures.createCanvas(texKey, this.cellSize, this.cellSize);
+          const ctx = canvas?.context;
+          if (ctx) {
+            const centerX = this.cellSize / 2;
+            const centerY = this.cellSize / 2;
+            const maxRadius = Math.hypot(centerX, centerY);
+            
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
+            gradient.addColorStop(0, 'rgba(180, 180, 180, 0.6)');
+            gradient.addColorStop(0.5, 'rgba(140, 140, 140, 0.7)');
+            gradient.addColorStop(1, 'rgba(100, 100, 100, 0.8)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, this.cellSize, this.cellSize);
+            canvas?.refresh();
+          }
+        }
+        
+        const worldPos = this.cellToWorld(col, row);
+        const sprite = this.scene.add.image(
+          worldPos.x + this.cellSize / 2,
+          worldPos.y + this.cellSize / 2,
+          texKey
+        );
+        sprite.setDepth(-50);
+        this.layerNeg1Sprites.set(key, sprite as unknown as Phaser.GameObjects.Rectangle);
+      }
+    }
     
     // Handle background texture changes
     if (data.backgroundTexture !== undefined) {
@@ -199,20 +283,17 @@ export class Grid {
         const y = row * this.cellSize;
         const cell = this.cells[row][col];
 
-        // Layer shading: darker for higher layers, lighter for lower layers
+        // Layer shading for debug mode only
         let layerAlpha: number;
         let layerColor: number;
         
         if (cell.layer < 0) {
-          // Lower layers: lighter (white with low alpha)
           layerAlpha = 0.25;
           layerColor = 0xffffff;
         } else if (cell.layer > 0) {
-          // Higher layers: darker (black with higher alpha)
           layerAlpha = 0.4;
           layerColor = 0x000000;
         } else {
-          // Ground level: neutral gray
           layerAlpha = 0.1;
           layerColor = 0x808080;
         }
