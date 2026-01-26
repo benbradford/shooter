@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { HudBarDataSource } from '../ui/HudBarComponent';
 
-export interface AmmoProps {
+export type AmmoProps = {
   maxAmmo: number;
   refillRate: number;
   refillDelay: number;
@@ -75,5 +75,4 @@ export class AmmoComponent implements Component, HudBarDataSource {
     return this.isOverheated;
   }
 
-  onDestroy(): void {}
 }

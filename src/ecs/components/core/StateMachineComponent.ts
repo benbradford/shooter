@@ -12,10 +12,9 @@ export class StateMachineComponent implements Component {
   }
 
   onDestroy(): void {
-    // Exit current state to clean up (e.g., destroy exclamation sprites)
     const currentState = this.stateMachine['currentState'];
     if (currentState) {
-      currentState.onExit();
+      currentState.onExit?.();
     }
   }
 }

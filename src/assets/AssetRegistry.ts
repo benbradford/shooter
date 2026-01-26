@@ -1,6 +1,6 @@
 export type AssetType = 'spritesheet' | 'image' | 'audio';
 
-export interface AssetDefinition {
+export type AssetDefinition = {
   readonly key: string;
   readonly path: string;
   readonly type: AssetType;

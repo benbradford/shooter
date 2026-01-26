@@ -21,5 +21,4 @@ export class AnimationComponent implements Component {
     }
   }
 
-  onDestroy(): void {}
 }

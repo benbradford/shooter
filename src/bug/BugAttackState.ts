@@ -59,7 +59,10 @@ export class BugAttackState implements IState {
     sprite.sprite.setFrame(baseFrame);
   }
 
-  onExit(): void {}
+
+  onExit(): void {
+    // No cleanup needed
+  }
 
   onUpdate(delta: number): void {
     this.elapsedMs += delta;
@@ -68,7 +71,7 @@ export class BugAttackState implements IState {
     const sprite = this.entity.require(SpriteComponent);
 
     const progress = Math.min(this.elapsedMs / LEAP_DURATION_MS, 1);
-    
+
     transform.x = this.startX + (this.targetX - this.startX) * progress;
     transform.y = this.startY + (this.targetY - this.startY) * progress;
 

@@ -17,15 +17,15 @@ export class StateMachine<TData = void> {
     const next = this.states.get(key);
     if (!next) throw new Error(`State ${key} does not exist`);
 
-    this.currentState?.onExit(next);
+    this.currentState?.onExit?.(next);
     const prev = this.currentState;
     this.currentState = next;
     this.currentKey = key;
-    this.currentState.onEnter({ prevState: prev, data });
+    this.currentState.onEnter?.({ prevState: prev, data });
   }
 
   update(delta: number) {
-    this.currentState?.onUpdate(delta);
+    this.currentState?.onUpdate?.(delta);
   }
 
   getCurrentKey() {

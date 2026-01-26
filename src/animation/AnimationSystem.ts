@@ -1,7 +1,7 @@
 import { Animation } from "./Animation";
 import { Direction } from "../constants/Direction";
 
-export interface AnimDirProp {
+export type AnimDirProp = {
   name: "idle" | "walk";
   direction: Direction;
 }

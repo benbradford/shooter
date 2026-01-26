@@ -30,5 +30,4 @@ export class GridPositionComponent implements Component {
     // No-op: delta intentionally unused
   }
 
-  onDestroy(): void {}
 }

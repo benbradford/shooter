@@ -10,7 +10,9 @@ export class BugBurstComponent implements Component {
     this.scene = scene;
   }
 
-  update(_delta: number): void {}
+  update?(_delta: number): void {
+    // No update needed - triggered by burst()
+  }
 
   burst(): void {
     const transform = this.entity.require(TransformComponent);
@@ -37,5 +39,4 @@ export class BugBurstComponent implements Component {
     });
   }
 
-  onDestroy(): void {}
 }

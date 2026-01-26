@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
-export interface PulsingScaleComponentProps {
+export type PulsingScaleComponentProps = {
   baseScale: number;
   amplitude: number;
   frequency: number;
@@ -30,5 +30,4 @@ export class PulsingScaleComponent implements Component {
     transform.scale = this.baseScale * scaleFactor;
   }
 
-  onDestroy(): void {}
 }

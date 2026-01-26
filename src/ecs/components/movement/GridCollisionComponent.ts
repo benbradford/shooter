@@ -34,7 +34,7 @@ export class GridCollisionComponent implements Component {
   private canMoveTo(fromCol: number, fromRow: number, toCol: number, toRow: number, _currentLayer: number): boolean {
     const fromCell = this.grid.getCell(fromCol, fromRow);
     const toCell = this.grid.getCell(toCol, toRow);
-    
+
     if (!fromCell || !toCell) return false;
 
     // Check if target cell has any occupants with GridCellBlocker
@@ -48,15 +48,15 @@ export class GridCollisionComponent implements Component {
     if (fromCell.isTransition) {
       const movingVertically = fromCol === toCol;
       if (!movingVertically) return false;
-      
+
       const movingUp = toRow < fromRow;
       const movingDown = toRow > fromRow;
-      
+
       // Can move up to same layer or layer+1
       if (movingUp && toCell.layer >= fromCell.layer && toCell.layer <= fromCell.layer + 1) return true;
       // Can move down to same layer or layer-1
       if (movingDown && toCell.layer >= fromCell.layer - 1 && toCell.layer <= fromCell.layer) return true;
-      
+
       return false;
     }
 
@@ -64,13 +64,13 @@ export class GridCollisionComponent implements Component {
     if (toCell.isTransition) {
       const movingVertically = fromCol === toCol;
       if (!movingVertically) return false; // Can only enter from top or bottom
-      
+
       // Can enter from same layer moving down (toRow > fromRow means moving down)
       if (toRow > fromRow && fromCell.layer >= toCell.layer) return true;
-      
+
       // Can enter from below moving up (toRow < fromRow means moving up)
       if (toRow < fromRow && fromCell.layer <= toCell.layer) return true;
-      
+
       return false;
     }
 
@@ -111,7 +111,7 @@ export class GridCollisionComponent implements Component {
           const prevCenterX = this.previousX + gridPos.collisionBox.offsetX;
           const prevCenterY = this.previousY + gridPos.collisionBox.offsetY;
           const fromCell = this.grid.worldToCell(prevCenterX, prevCenterY);
-          
+
           if (!this.canMoveTo(fromCell.col, fromCell.row, col, row, gridPos.currentLayer)) {
             return true; // blocked
           }
@@ -122,7 +122,6 @@ export class GridCollisionComponent implements Component {
     return false; // not blocked
   }
 
-  // eslint-disable-next-line complexity -- Grid collision requires checking multiple cell states and transitions
   update(_delta: number): void {
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
@@ -191,7 +190,7 @@ export class GridCollisionComponent implements Component {
 
     gridPos.previousCell = { ...gridPos.currentCell };
     gridPos.currentCell = topLeftCell;
-    
+
     const currentCellData = this.grid.getCell(topLeftCell.col, topLeftCell.row);
     if (currentCellData) {
       gridPos.currentLayer = currentCellData.layer;

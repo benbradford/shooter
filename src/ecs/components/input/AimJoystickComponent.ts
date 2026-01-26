@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
-export interface AimJoystickProps {
+export type AimJoystickProps = {
   maxRadius: number;
   innerRadius: number;
 }

@@ -15,5 +15,4 @@ export class TransformComponent implements Component {
     // No-op: delta intentionally unused
   }
 
-  onDestroy(): void {}
 }

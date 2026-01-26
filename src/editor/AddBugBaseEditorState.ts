@@ -99,7 +99,9 @@ export class AddBugBaseEditorState extends EditorState {
       row,
       grid,
       player,
-      () => {},
+      (_spawnCol, _spawnRow) => {
+        // Bug spawning handled by BugSpawnerComponent
+      },
       'medium'
     );
 

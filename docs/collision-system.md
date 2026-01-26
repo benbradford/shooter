@@ -82,7 +82,7 @@ entity.add(new CollisionComponent({
   onHit: (other) => {
     if (other.tags.has('enemy')) {
       // Damage the enemy
-      other.get(HealthComponent)?.takeDamage(BULLET_DAMAGE);
+      other.require(HealthComponent).takeDamage(BULLET_DAMAGE);
       
       // Trigger enemy state
       other.get(StateMachineComponent)?.stateMachine.enter('hit');
@@ -98,18 +98,19 @@ entity.add(new CollisionComponent({
   collidesWith: ['player_projectile'],
   onHit: (other) => {
     if (other.tags.has('player_projectile')) {
+      // Read projectile data (safe - bullet destruction is delayed)
+      const projectile = other.require(ProjectileComponent);
+      const dirX = projectile.dirX;
+      const dirY = projectile.dirY;
+      
       // Take damage
       health.takeDamage(ROBOT_BULLET_DAMAGE);
       
-      // Read projectile data before it's destroyed
-      const projectile = other.get(ProjectileComponent);
-      if (knockback && projectile) {
-        const length = Math.hypot(projectile.dirX, projectile.dirY);
-        knockback.applyKnockback(
-          projectile.dirX / length,
-          projectile.dirY / length,
-          KNOCKBACK_FORCE
-        );
+      // Apply knockback
+      const knockback = entity.get(KnockbackComponent);
+      if (knockback) {
+        const length = Math.hypot(dirX, dirY);
+        knockback.applyKnockback(dirX / length, dirY / length, KNOCKBACK_FORCE);
       }
       
       // Enter hit state
@@ -137,55 +138,6 @@ onHit: (other) => {
   entity.destroy(); // Destroys before other callback runs
 }
 ```
-
-### Handling Dead/Inactive Entities
-
-When an entity should no longer participate in collisions (death, disabled, etc.), **remove the CollisionComponent**:
-
-```typescript
-// In death state
-onEnter(): void {
-  // Remove collision component completely
-  this.entity.remove(CollisionComponent);
-  
-  // Now bullets pass through without triggering any callbacks
-}
-```
-
-**Why remove instead of checking state in callback:**
-- CollisionSystem won't even detect the collision
-- No callbacks fire at all
-- Bullets don't destroy themselves
-- Clean and efficient
-
-**Bad Pattern (Don't Do This):**
-```typescript
-// ❌ Checking state in callback
-onHit: (other) => {
-  if (currentState === 'death') return; // Still fires callback, bullet still destroys
-}
-
-// ❌ Disabling with a flag
-collision.enabled = false; // Callback still fires, just returns early
-```
-
-### Removing Components
-
-Entities support removing components at runtime:
-
-```typescript
-// Remove a component
-entity.remove(CollisionComponent);
-entity.remove(KnockbackComponent);
-
-// Component is destroyed and removed from update order
-// Entity continues functioning without it
-```
-
-**When to remove components:**
-- Death states (remove CollisionComponent)
-- Temporary effects ending (remove KnockbackComponent after duration)
-- State transitions that fundamentally change behavior
 
 ### Timing and Frame Delays
 

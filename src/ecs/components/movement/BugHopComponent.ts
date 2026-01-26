@@ -77,5 +77,4 @@ export class BugHopComponent implements Component {
     return this.isHopping;
   }
 
-  onDestroy(): void {}
 }

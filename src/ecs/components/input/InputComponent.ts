@@ -45,7 +45,6 @@ export class InputComponent implements Component {
     }
   }
 
-  onDestroy(): void {}
 
   /** Get input with deadzone applied (for movement) */
   getInputDelta(): { dx: number; dy: number } {

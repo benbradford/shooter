@@ -10,7 +10,7 @@ import { BULLET_DISPLAY_SIZE } from './ProjectileConfig';
 
 const BULLET_DAMAGE = 10;
 const BULLET_COLLISION_BOX = { offsetX: -2, offsetY: -2, width: 4, height: 4 };
-export interface CreateBulletProps {
+export type CreateBulletProps = {
   scene: Phaser.Scene;
   x: number;
   y: number;

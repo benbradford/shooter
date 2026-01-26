@@ -5,7 +5,7 @@ import type { IStateEnterProps } from '../utils/state/IState';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 
-export interface MoveEditorStateProps {
+export type MoveEditorStateProps = {
   entity: Entity;
   returnState?: string;
 }

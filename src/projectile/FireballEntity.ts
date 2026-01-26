@@ -36,7 +36,7 @@ function createFireballBurst(scene: Phaser.Scene, x: number, y: number): void {
   scene.time.delayedCall(500, () => emitter.destroy());
 }
 
-export interface CreateFireballProps {
+export type CreateFireballProps = {
   scene: Phaser.Scene;
   x: number;
   y: number;

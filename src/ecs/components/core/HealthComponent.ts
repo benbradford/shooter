@@ -5,7 +5,7 @@ import type { HudBarDataSource } from '../ui/HudBarComponent';
 const REGEN_DELAY_MS = 3000;
 const REGEN_RATE_PER_SEC = 20;
 
-export interface HealthProps {
+export type HealthProps = {
   maxHealth: number;
   enableRegen?: boolean;
 }
@@ -65,5 +65,4 @@ export class HealthComponent implements Component, HudBarDataSource {
     }
   }
 
-  onDestroy(): void {}
 }

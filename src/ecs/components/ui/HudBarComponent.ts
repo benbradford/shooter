@@ -2,12 +2,12 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
-export interface HudBarDataSource {
+export type HudBarDataSource = {
   getRatio(): number;
   isBarOverheated?(): boolean;
 }
 
-interface BarConfig {
+type BarConfig = {
   dataSource: HudBarDataSource;
   offsetY: number;
   fillColor: number;

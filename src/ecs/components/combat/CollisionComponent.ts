@@ -1,14 +1,14 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
-export interface CollisionBox {
+export type CollisionBox = {
   offsetX: number;
   offsetY: number;
   width: number;
   height: number;
 }
 
-export interface CollisionComponentProps {
+export type CollisionComponentProps = {
   box: CollisionBox;
   collidesWith: string[];
   onHit: (other: Entity) => void;
@@ -34,5 +34,4 @@ export class CollisionComponent implements Component {
     // Collision detection handled by CollisionSystem
   }
 
-  onDestroy(): void {}
 }

@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type { BackgroundConfig } from '../level/LevelLoader';
 
-interface ColorPickerProps {
+type ColorPickerProps = {
   colorKey: keyof BackgroundConfig;
   currentColor: string;
   onColorSelected: (color: string) => void;
@@ -185,5 +185,4 @@ export class ColorPickerEditorState extends EditorState {
     this.buttons = [];
   }
 
-  onUpdate(_delta: number): void {}
 }

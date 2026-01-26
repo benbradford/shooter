@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import type { Grid } from '../../../utils/Grid';
 
-export interface ProjectileProps {
+export type ProjectileProps = {
   dirX: number;
   dirY: number;
   speed: number;
@@ -124,5 +124,4 @@ export class ProjectileComponent implements Component {
     this.scene.time.delayedCall(300, () => emitter.destroy());
   }
 
-  onDestroy(): void {}
 }

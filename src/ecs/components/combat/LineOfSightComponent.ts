@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import type { Grid } from '../../../utils/Grid';
 
-interface LineOfSightProps {
+type LineOfSightProps = {
   range: number;
   grid: Grid;
   fieldOfView: number; // In radians

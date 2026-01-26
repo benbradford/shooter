@@ -44,5 +44,4 @@ export class ControlModeComponent implements Component {
     return this.aimStopTime > 0;
   }
 
-  onDestroy(): void {}
 }

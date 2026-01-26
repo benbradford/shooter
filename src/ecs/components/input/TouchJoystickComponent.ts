@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
-export interface TouchJoystickProps {
+export type TouchJoystickProps = {
   maxRadius: number;
   innerRadius: number;
   deadZoneDistance: number;

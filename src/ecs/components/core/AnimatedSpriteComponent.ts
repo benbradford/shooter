@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { SpriteComponent } from './SpriteComponent';
 
-export interface AnimatedSpriteComponentProps {
+export type AnimatedSpriteComponentProps = {
   frames: number[];
   frameRate: number;
 }
@@ -42,5 +42,4 @@ export class AnimatedSpriteComponent implements Component {
     }
   }
 
-  onDestroy(): void {}
 }

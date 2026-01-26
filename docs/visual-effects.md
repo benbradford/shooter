@@ -59,66 +59,106 @@ onExit(): void {
 
 ## Particle Effects
 
-Particle effects are owned by entities as components and follow the entity's transform.
+Particle effects can be created using callbacks in ProjectileComponent or directly in collision handlers.
 
-### Creating Particle Components
+### Using ProjectileComponent Callbacks
+
+For projectiles that should create effects when hitting walls or reaching max distance:
 
 ```typescript
-export class HitParticlesComponent implements Component {
-  entity!: Entity;
-  private scene: Phaser.Scene;
-  private activeEmitters: Phaser.GameObjects.Particles.ParticleEmitter[] = [];
+entity.add(new ProjectileComponent({
+  dirX,
+  dirY,
+  speed: 400,
+  maxDistance: 2000,
+  grid,
+  blockedByWalls: true,
+  startLayer: 0,
+  fromTransition: false,
+  scene,
+  onWallHit: (x, y) => createBurstEffect(scene, x, y),
+  onMaxDistance: (x, y) => createBurstEffect(scene, x, y)
+}));
 
-  constructor(scene: Phaser.Scene) {
-    this.scene = scene;
-  }
+function createBurstEffect(scene: Phaser.Scene, x: number, y: number): void {
+  const emitter = scene.add.particles(x, y, 'fire', {
+    speed: { min: 80, max: 150 },
+    angle: { min: 0, max: 360 },
+    scale: { start: 0.05, end: 0 },
+    alpha: { start: 1, end: 0 },
+    tint: [0xffffff, 0xff8800, 0xff0000],
+    lifespan: 400,
+    frequency: 3,
+    blendMode: 'ADD'
+  });
 
-  update(_delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
-
-    this.activeEmitters.forEach(emitter => {
-      if (emitter.active) {
-        emitter.setPosition(transform.x, transform.y);
-      }
-    });
-  }
-
-  emitHitParticles(bulletDirX: number, bulletDirY: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
-
-    const angle = Math.atan2(bulletDirY, bulletDirX) * 180 / Math.PI;
-    
-    const emitter = this.scene.add.particles(transform.x, transform.y, 'particle_texture', {
-      speed: { min: 80, max: 200 },
-      angle: { min: angle - 45, max: angle + 45 },
-      scale: { start: 0.8, end: 0 },
-      alpha: { start: 1, end: 0 },
-      lifespan: 800,
-      frequency: 20,
-      blendMode: 'ADD'
-    });
-    
-    emitter.setDepth(1000);
-    this.activeEmitters.push(emitter);
-    
-    this.scene.time.delayedCall(200, () => emitter.stop());
-    this.scene.time.delayedCall(1000, () => {
-      const index = this.activeEmitters.indexOf(emitter);
-      if (index > -1) {
-        this.activeEmitters.splice(index, 1);
-      }
-      emitter.destroy();
-    });
-  }
-
-  onDestroy(): void {
-    this.activeEmitters.forEach(emitter => emitter.destroy());
-    this.activeEmitters = [];
-  }
+  emitter.setDepth(1000);
+  scene.time.delayedCall(100, () => emitter.stop());
+  scene.time.delayedCall(500, () => emitter.destroy());
 }
 ```
+
+### Using Collision Handlers
+
+For effects when hitting specific entity types:
+
+```typescript
+entity.add(new CollisionComponent({
+  collidesWith: ['player'],
+  onHit: (other) => {
+    if (other.tags.has('player')) {
+      const transform = entity.require(TransformComponent);
+      createBurstEffect(scene, transform.x, transform.y);
+      scene.time.delayedCall(0, () => entity.destroy());
+    }
+  }
+}));
+```
+
+### Sharing Effect Code
+
+Extract particle effects into shared functions to avoid duplication:
+
+```typescript
+// At top of file
+function createFireballBurst(scene: Phaser.Scene, x: number, y: number): void {
+  const emitter = scene.add.particles(x, y, 'fire', {
+    speed: { min: 80, max: 150 },
+    angle: { min: 0, max: 360 },
+    scale: { start: 0.05, end: 0 },
+    alpha: { start: 1, end: 0 },
+    tint: [0xffffff, 0xff8800, 0xff0000],
+    lifespan: 400,
+    frequency: 3,
+    blendMode: 'ADD'
+  });
+
+  emitter.setDepth(1000);
+  scene.time.delayedCall(100, () => emitter.stop());
+  scene.time.delayedCall(500, () => emitter.destroy());
+}
+
+// Use in multiple places
+entity.add(new ProjectileComponent({
+  // ...
+  onWallHit: (x, y) => createFireballBurst(scene, x, y),
+  onMaxDistance: (x, y) => createFireballBurst(scene, x, y)
+}));
+
+entity.add(new CollisionComponent({
+  onHit: (other) => {
+    const transform = entity.require(TransformComponent);
+    createFireballBurst(scene, transform.x, transform.y);
+    scene.time.delayedCall(0, () => entity.destroy());
+  }
+}));
+```
+
+**Benefits:**
+- Single source of truth for effect appearance
+- Easy to tweak effect parameters
+- No code duplication
+- Consistent effects across all destruction scenarios
 
 ### Particle Configuration
 
@@ -190,30 +230,22 @@ scene.time.delayedCall(1000, () => emitter.destroy());
 
 ### Key Concepts
 
-**Particle ownership:**
-- Particles owned by the entity they're attached to
-- Ensures particles follow entity transform
-- Proper cleanup when entity destroyed
-
-**Following entity transform:**
-```typescript
-update(_delta: number): void {
-  const transform = this.entity.get(TransformComponent);
-  if (!transform) return;
-
-  this.activeEmitters.forEach(emitter => {
-    if (emitter.active) {
-      emitter.setPosition(transform.x, transform.y);
-    }
-  });
-}
-```
+**Callback-based particle effects:**
+- Use ProjectileComponent callbacks (`onWallHit`, `onMaxDistance`)
+- Use CollisionComponent callbacks (`onHit`)
+- Extract shared effect functions to avoid duplication
+- No need for particle components in most cases
 
 **Smooth fade-out:**
 1. Use `frequency` instead of `quantity` for continuous emission
-2. Emit for short duration (200ms)
+2. Emit for short duration (100-200ms)
 3. Stop emission but let existing particles fade
 4. Each particle has its own lifespan with alpha fade
+
+**Cleanup:**
+- Particles created in callbacks are owned by the scene
+- Use `scene.time.delayedCall()` to stop and destroy emitters
+- No manual tracking needed for one-shot effects
 
 ### Blend Modes
 

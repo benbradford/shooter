@@ -1,7 +1,6 @@
-// Robot difficulty presets
-export type RobotDifficulty = 'easy' | 'medium' | 'hard';
+import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 
-export interface RobotDifficultyConfig {
+export type RobotDifficultyConfig = {
   health: number;
   speed: number;
   fireballDelayTime: number;
@@ -10,7 +9,7 @@ export interface RobotDifficultyConfig {
   hitDuration: number;
 }
 
-export const ROBOT_DIFFICULTY_PRESETS: Record<RobotDifficulty, RobotDifficultyConfig> = {
+export const ROBOT_DIFFICULTY_PRESETS: Record<EnemyDifficulty, RobotDifficultyConfig> = {
   easy: {
     health: 40,
     speed: 90,
@@ -37,6 +36,6 @@ export const ROBOT_DIFFICULTY_PRESETS: Record<RobotDifficulty, RobotDifficultyCo
   },
 };
 
-export function getRobotDifficultyConfig(difficulty: RobotDifficulty): RobotDifficultyConfig {
+export function getRobotDifficultyConfig(difficulty: EnemyDifficulty): RobotDifficultyConfig {
   return ROBOT_DIFFICULTY_PRESETS[difficulty];
 }

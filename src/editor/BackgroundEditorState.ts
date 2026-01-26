@@ -26,14 +26,14 @@ export class BackgroundEditorState extends EditorState {
   private isInitialized: boolean = false;
 
   onEnter(): void {
-    if (!this.isInitialized) {
+    if (this.isInitialized) {
+      this.updateColorDisplays();
+    } else {
       const gameScene = this.scene.scene.get('game') as GameScene;
       const levelData = gameScene.getLevelData();
       this.config = { ...DEFAULT_CONFIG, ...(levelData.background || {}) };
       this.createUI();
       this.isInitialized = true;
-    } else {
-      this.updateColorDisplays();
     }
   }
 
@@ -197,6 +197,4 @@ export class BackgroundEditorState extends EditorState {
     this.colorValueTexts.clear();
     this.isInitialized = false;
   }
-
-  onUpdate(_delta: number): void {}
 }

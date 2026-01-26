@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 
-export interface ParticleTrailComponentProps {
+export type ParticleTrailComponentProps = {
   scene: Phaser.Scene;
   texture: string;
   speedMin: number;

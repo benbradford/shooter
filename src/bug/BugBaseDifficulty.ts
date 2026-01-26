@@ -1,13 +1,13 @@
-export type BugBaseDifficulty = 'easy' | 'medium' | 'hard';
+import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 
-interface BugBaseDifficultyConfig {
+type BugBaseDifficultyConfig = {
   baseHealth: number;
   bugHealth: number;
   bugSpeed: number;
   spawnIntervalMs: number;
 }
 
-const DIFFICULTY_CONFIGS: Record<BugBaseDifficulty, BugBaseDifficultyConfig> = {
+const DIFFICULTY_CONFIGS: Record<EnemyDifficulty, BugBaseDifficultyConfig> = {
   easy: {
     baseHealth: 200,
     bugHealth: 20,
@@ -28,6 +28,6 @@ const DIFFICULTY_CONFIGS: Record<BugBaseDifficulty, BugBaseDifficultyConfig> = {
   }
 };
 
-export function getBugBaseDifficultyConfig(difficulty: BugBaseDifficulty): BugBaseDifficultyConfig {
+export function getBugBaseDifficultyConfig(difficulty: EnemyDifficulty): BugBaseDifficultyConfig {
   return DIFFICULTY_CONFIGS[difficulty];
 }

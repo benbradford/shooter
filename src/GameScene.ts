@@ -12,7 +12,7 @@ import { createBugEntity } from "./bug/BugEntity";
 import { BugSpawnerComponent } from "./ecs/components/ai/BugSpawnerComponent";
 import { DifficultyComponent } from "./ecs/components/ai/DifficultyComponent";
 import { getBugBaseDifficultyConfig } from "./bug/BugBaseDifficulty";
-import type { RobotDifficulty } from "./robot/RobotDifficulty";
+import type { EnemyDifficulty } from "./constants/EnemyDifficulty";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "./ecs/components/movement/GridPositionComponent";
 import { TransformComponent } from "./ecs/components/core/TransformComponent";
@@ -168,7 +168,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private varyColor(hexColor: string | undefined, variationPercent: number): { r: number; g: number; b: number } {
-    if (!hexColor || hexColor.length !== 7) {
+    if (hexColor?.length !== 7) {
       return { r: 150, g: 150, b: 150 };
     }
 
@@ -304,7 +304,7 @@ export default class GameScene extends Phaser.Scene {
           grid: this.grid,
           playerEntity: player,
           waypoints: robotData.waypoints,
-          difficulty: robotData.difficulty as RobotDifficulty
+          difficulty: robotData.difficulty as EnemyDifficulty
         });
         this.entityManager.add(robot);
       }

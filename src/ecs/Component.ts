@@ -1,6 +1,6 @@
 import type { Entity } from './Entity';
 
-export interface Component {
+export type Component = {
   entity: Entity;
   update?(delta: number): void;
   onDestroy?(): void;

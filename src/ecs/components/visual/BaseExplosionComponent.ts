@@ -12,7 +12,9 @@ export class BaseExplosionComponent implements Component {
     this.cellSize = cellSize;
   }
 
-  update(_delta: number): void {}
+  update?(_delta: number): void {
+    // No update needed - triggered by explode()
+  }
 
   explode(): void {
     const transform = this.entity.require(TransformComponent);
@@ -50,5 +52,4 @@ export class BaseExplosionComponent implements Component {
     });
   }
 
-  onDestroy(): void {}
 }

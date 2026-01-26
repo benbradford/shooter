@@ -6,7 +6,9 @@ export abstract class EditorState<TData = void> implements IState<TData> {
 
   abstract onEnter(props?: IStateEnterProps<TData>): void;
   abstract onExit(nextState?: IState<TData>): void;
-  abstract onUpdate(delta: number): void;
+  onUpdate?(_delta: number): void {
+    // Override if needed
+  }
 
   protected createBackButton(): Phaser.GameObjects.Text {
     const height = this.scene.cameras.main.height;

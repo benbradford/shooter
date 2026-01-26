@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
-export interface PatrolWaypoint {
+export type PatrolWaypoint = {
   col: number;
   row: number;
 }

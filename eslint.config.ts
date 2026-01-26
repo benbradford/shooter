@@ -21,7 +21,9 @@ export default defineConfig([
         "error",
         {
           "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_"
+          "varsIgnorePattern": "^_",
+          "caughtErrors": "all",
+          "caughtErrorsIgnorePattern": "^_"
         }
       ],
       "@typescript-eslint/prefer-readonly": "warn",
@@ -35,6 +37,10 @@ export default defineConfig([
       "@typescript-eslint/no-misused-promises": "error",
       "@typescript-eslint/require-await": "warn",
       "@typescript-eslint/no-non-null-assertion": "warn",
+      "@typescript-eslint/no-empty-function": "error",
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "@typescript-eslint/no-unnecessary-condition": "warn",
+      "no-dupe-else-if": "error",
       "no-else-return": "error",
       "no-lonely-if": "error",
       "no-nested-ternary": "warn",

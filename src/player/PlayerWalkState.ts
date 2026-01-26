@@ -18,7 +18,6 @@ export class PlayerWalkState implements IState {
     anim.animationSystem.play(this.lastAnimKey);
   }
 
-  onExit(): void {}
 
   onUpdate(_delta: number): void {
     // No-op: delta intentionally unused

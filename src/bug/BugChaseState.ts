@@ -36,9 +36,7 @@ export class BugChaseState implements IState {
     this.pathfinder = new Pathfinder(grid);
   }
 
-  onEnter(): void {}
 
-  onExit(): void {}
 
   onUpdate(delta: number): void {
     if (this.shouldSkipUpdate()) return;

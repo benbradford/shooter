@@ -3,6 +3,7 @@ import type GameScene from "./GameScene";
 import type { Grid } from "./utils/Grid";
 import type { LevelData, LevelBugBase } from "./level/LevelLoader";
 import type { Entity } from "./ecs/Entity";
+import type { EnemyDifficulty } from "./constants/EnemyDifficulty";
 import { StateMachine } from "./utils/state/StateMachine";
 import { DefaultEditorState } from "./editor/DefaultEditorState";
 import { GridEditorState } from "./editor/GridEditorState";
@@ -42,10 +43,10 @@ export default class EditorScene extends Phaser.Scene {
     // Get GameScene camera and stop following player
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
-    
+
     // Stop following player
     camera.stopFollow();
-    
+
     // Store original bounds
     const grid = this.getGrid();
     const originalBounds = {
@@ -54,10 +55,10 @@ export default class EditorScene extends Phaser.Scene {
       width: grid.width * grid.cellSize,
       height: grid.height * grid.cellSize
     };
-    
+
     // Remove bounds for editor (set to very large area)
     camera.setBounds(-10000, -10000, 20000, 20000);
-    
+
     // Store for restoration
     this.registry.set('editorOriginalBounds', originalBounds);
 
@@ -116,7 +117,7 @@ export default class EditorScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.stateMachine.update(delta);
     this.handleCameraMovement(delta);
-    
+
     // Render cell coordinates in editor (commented out - causes lag)
     // const grid = this.getGrid();
     // grid.renderCellCoordinates();
@@ -185,13 +186,13 @@ export default class EditorScene extends Phaser.Scene {
   private extractRobots(entityManager: EntityManager, grid: Grid): Array<{
     col: number;
     row: number;
-    difficulty: 'easy' | 'medium' | 'hard';
+    difficulty: EnemyDifficulty;
     waypoints: Array<{ col: number; row: number }>;
   }> {
     const robots: Array<{
       col: number;
       row: number;
-      difficulty: 'easy' | 'medium' | 'hard';
+      difficulty: EnemyDifficulty;
       waypoints: Array<{ col: number; row: number }>;
     }> = [];
 
@@ -206,7 +207,7 @@ export default class EditorScene extends Phaser.Scene {
           robots.push({
             col: cell.col,
             row: cell.row,
-            difficulty: difficultyComp.difficulty as 'easy' | 'medium' | 'hard',
+            difficulty: difficultyComp.difficulty as EnemyDifficulty,
             waypoints: [...patrol.waypoints]
           });
         }
@@ -218,14 +219,14 @@ export default class EditorScene extends Phaser.Scene {
   private extractBugBases(entityManager: EntityManager, grid: Grid): LevelBugBase[] {
     const bugBases: LevelBugBase[] = [];
     const bugBaseEntities = entityManager.getByType('bug_base');
-    
+
     for (const bugBase of bugBaseEntities) {
       const transform = bugBase.get(TransformComponent);
       const difficulty = bugBase.get(DifficultyComponent);
-      
+
       if (transform) {
         const cell = grid.worldToCell(transform.x, transform.y);
-        
+
         bugBases.push({
           col: cell.col,
           row: cell.row,
@@ -247,7 +248,7 @@ export default class EditorScene extends Phaser.Scene {
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
-    const playerStart = playerTransform 
+    const playerStart = playerTransform
       ? {
           x: Math.round(playerTransform.x / grid.cellSize),
           y: Math.round(playerTransform.y / grid.cellSize)
@@ -269,11 +270,11 @@ export default class EditorScene extends Phaser.Scene {
   saveLevel(): void {
     const levelData = this.getCurrentLevelData();
     const json = JSON.stringify(levelData, null, 2);
-    
+
     // Log to console for easy copy/paste
     console.log('Level JSON (copy and paste into public/levels/default.json):');
     console.log(json);
-    
+
     // Create download
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -285,7 +286,7 @@ export default class EditorScene extends Phaser.Scene {
 
     // Update original data
     this.originalLevelData = JSON.stringify(levelData);
-    
+
     // Log instructions
     console.log('✓ Level saved to ~/Downloads/default.json');
     console.log('To update the game, run: ./scripts/update-levels.sh');
@@ -297,7 +298,7 @@ export default class EditorScene extends Phaser.Scene {
     console.log('=== LEVEL JSON ===');
     console.log(json);
     console.log('=== END LEVEL JSON ===');
-    
+
     // Copy to clipboard
     navigator.clipboard.writeText(json).then(() => {
       console.log('✓ Level JSON copied to clipboard');
@@ -325,11 +326,11 @@ export default class EditorScene extends Phaser.Scene {
       const entityManager = gameScene.getEntityManager();
       entity = entityManager.getFirst('player') || undefined;
     }
-    
+
     if (!entity) {
       throw new Error('No entity available to move');
     }
-    
+
     this.stateMachine.enter('move', { entity, returnState });
   }
 
@@ -360,7 +361,7 @@ export default class EditorScene extends Phaser.Scene {
   removeRow(row: number): void {
     const grid = this.getGrid();
     if (row < 0 || row >= grid.height || grid.height <= 10) return;
-    
+
     // Shift all rows after this one up
     for (let r = row; r < grid.height - 1; r++) {
       for (let c = 0; c < grid.width; c++) {
@@ -373,7 +374,7 @@ export default class EditorScene extends Phaser.Scene {
         }
       }
     }
-    
+
     // Remove last row by resizing
     grid.removeRow();
     grid.render();
@@ -382,7 +383,7 @@ export default class EditorScene extends Phaser.Scene {
   removeColumn(col: number): void {
     const grid = this.getGrid();
     if (col < 0 || col >= grid.width || grid.width <= 10) return;
-    
+
     // Shift all columns after this one left
     for (let c = col; c < grid.width - 1; c++) {
       for (let r = 0; r < grid.height; r++) {
@@ -395,7 +396,7 @@ export default class EditorScene extends Phaser.Scene {
         }
       }
     }
-    
+
     // Remove last column by resizing
     grid.removeColumn();
     grid.render();
@@ -430,11 +431,11 @@ export default class EditorScene extends Phaser.Scene {
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
     const bounds = this.registry.get('editorOriginalBounds') as { x: number; y: number; width: number; height: number };
-    
+
     if (bounds) {
       camera.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
     }
-    
+
     // Resume following player
     const entityManager = gameScene.getEntityManager();
     const player = entityManager.getFirst('player');
@@ -444,7 +445,7 @@ export default class EditorScene extends Phaser.Scene {
         camera.startFollow(sprite.sprite, true, 0.1, 0.1);
       }
     }
-    
+
     this.scene.resume('game');
     this.scene.stop();
   }

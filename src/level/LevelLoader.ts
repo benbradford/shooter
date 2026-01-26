@@ -1,4 +1,4 @@
-export interface LevelCell {
+export type LevelCell = {
   col: number;
   row: number;
   layer?: number;
@@ -6,26 +6,26 @@ export interface LevelCell {
   backgroundTexture?: string;
 }
 
-export interface LevelRobot {
+export type LevelRobot = {
   col: number;
   row: number;
   difficulty: 'easy' | 'medium' | 'hard';
   waypoints: Array<{ col: number; row: number }>;
 }
 
-export interface LevelBugBase {
+export type LevelBugBase = {
   col: number;
   row: number;
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
-export interface VignetteConfig {
+export type VignetteConfig = {
   alpha: number;
   tint: number;
   blendMode: number;
 }
 
-export interface BackgroundConfig {
+export type BackgroundConfig = {
   centerColor: string;
   midColor: string;
   edgeColor: string;
@@ -41,7 +41,7 @@ export interface BackgroundConfig {
   circleThickness: number;
 }
 
-export interface LevelData {
+export type LevelData = {
   width: number;
   height: number;
   playerStart: {

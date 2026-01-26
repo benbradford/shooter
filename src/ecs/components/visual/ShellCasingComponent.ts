@@ -108,5 +108,4 @@ export class ShellCasingComponent implements Component {
     }
   }
   
-  onDestroy(): void {}
 }

@@ -5,12 +5,12 @@ import { WalkComponent } from '../movement/WalkComponent';
 import { Direction } from '../../../constants/Direction';
 import type { AmmoComponent } from './AmmoComponent';
 
-export interface EmitterOffset {
+export type EmitterOffset = {
   x: number;
   y: number;
 }
 
-export interface ProjectileEmitterProps {
+export type ProjectileEmitterProps = {
   scene: Phaser.Scene;
   onFire: (x: number, y: number, dirX: number, dirY: number) => void;
   offsets: Record<Direction, EmitterOffset>;
@@ -97,5 +97,4 @@ export class ProjectileEmitterComponent implements Component {
     };
   }
 
-  onDestroy(): void {}
 }

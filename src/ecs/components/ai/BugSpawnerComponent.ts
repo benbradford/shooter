@@ -74,5 +74,4 @@ export class BugSpawnerComponent implements Component {
     this.isActive = true;
   }
 
-  onDestroy(): void {}
 }

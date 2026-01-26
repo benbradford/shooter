@@ -18,7 +18,6 @@ export class PlayerIdleState implements IState {
     anim.animationSystem.play(`idle_${this.lastDir}`);
   }
 
-  onExit(): void {}
 
   onUpdate(_delta: number): void {
     // No-op: delta intentionally unused

@@ -22,7 +22,7 @@ const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
 const BUG_DAMAGE = 10;
 
-export interface CreateBugProps {
+export type CreateBugProps = {
   scene: Phaser.Scene;
   col: number;
   row: number;
@@ -80,10 +80,13 @@ export function createBugEntity(props: CreateBugProps): Entity {
         }
 
         const projectile = other.require(ProjectileComponent);
+        const dirX = projectile.dirX;
+        const dirY = projectile.dirY;
+        
         const knockback = entity.get(KnockbackComponent);
         if (knockback) {
-          const length = Math.hypot(projectile.dirX, projectile.dirY);
-          knockback.applyKnockback(projectile.dirX / length, projectile.dirY / length, 200);
+          const length = Math.hypot(dirX, dirY);
+          knockback.applyKnockback(dirX / length, dirY / length, 200);
         }
 
         if (bugHealth.getHealth() <= 0) {

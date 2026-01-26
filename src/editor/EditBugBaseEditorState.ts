@@ -3,7 +3,8 @@ import type { Entity } from '../ecs/Entity';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
-import { getBugBaseDifficultyConfig, type BugBaseDifficulty } from '../bug/BugBaseDifficulty';
+import { getBugBaseDifficultyConfig } from '../bug/BugBaseDifficulty';
+import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 
 export class EditBugBaseEditorState extends EditorState {
   private bugBase: Entity | null = null;
@@ -29,8 +30,8 @@ export class EditBugBaseEditorState extends EditorState {
     const centerX = width / 2;
     const startY = 200;
 
-    const difficulties: BugBaseDifficulty[] = ['easy', 'medium', 'hard'];
-    const difficultyComp = this.bugBase?.get(DifficultyComponent<BugBaseDifficulty>);
+    const difficulties: EnemyDifficulty[] = ['easy', 'medium', 'hard'];
+    const difficultyComp = this.bugBase?.get(DifficultyComponent<EnemyDifficulty>);
 
     difficulties.forEach((diff, index) => {
       const y = startY + index * 60;
@@ -51,10 +52,10 @@ export class EditBugBaseEditorState extends EditorState {
     });
   }
 
-  private setDifficulty(difficulty: BugBaseDifficulty): void {
+  private setDifficulty(difficulty: EnemyDifficulty): void {
     if (!this.bugBase) return;
 
-    const difficultyComp = this.bugBase.get(DifficultyComponent<BugBaseDifficulty>);
+    const difficultyComp = this.bugBase.get(DifficultyComponent<EnemyDifficulty>);
     if (difficultyComp) {
       difficultyComp.difficulty = difficulty;
       const config = getBugBaseDifficultyConfig(difficulty);
@@ -99,7 +100,6 @@ export class EditBugBaseEditorState extends EditorState {
     this.buttons = [];
   }
 
-  onUpdate(_delta: number): void {}
 
   handlePointerDown(): void {
     if (!this.bugBase) return;

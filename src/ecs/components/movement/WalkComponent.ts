@@ -8,7 +8,7 @@ import { Direction, dirFromDelta } from '../../../constants/Direction';
 // Walk configuration
 const FIRE_HOLD_THRESHOLD_MS = 200; // milliseconds - hold fire this long to stop moving (mode 1 only)
 
-export interface WalkProps {
+export type WalkProps = {
   speed: number;
   accelerationTime: number;
   decelerationTime: number;
@@ -160,7 +160,6 @@ export class WalkComponent implements Component {
     }
   }
 
-  onDestroy(): void {}
 
   isMoving(): boolean {
     return Math.abs(this.velocityX) > 1 || Math.abs(this.velocityY) > 1;

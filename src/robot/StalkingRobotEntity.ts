@@ -25,7 +25,8 @@ import { RobotFireballState } from './RobotFireballState';
 import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
 import type { Grid } from '../utils/Grid';
-import { getRobotDifficultyConfig, type RobotDifficulty } from './RobotDifficulty';
+import { getRobotDifficultyConfig } from './RobotDifficulty';
+import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 
 // Robot configuration constants
 const ROBOT_SCALE = 3;
@@ -39,14 +40,14 @@ const ROBOT_KNOCKBACK_DURATION_MS = 300;
 const ROBOT_BULLET_DAMAGE = 10;
 const ROBOT_KNOCKBACK_FORCE_PX_PER_SEC = 500;
 
-export interface CreateStalkingRobotProps {
+export type CreateStalkingRobotProps = {
   scene: Phaser.Scene;
   x: number;
   y: number;
   grid: Grid;
   playerEntity: Entity;
   waypoints: PatrolWaypoint[];
-  difficulty: RobotDifficulty;
+  difficulty: EnemyDifficulty;
 }
 
 export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Entity {
@@ -85,7 +86,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
 
   entity.add(new FireballPropertiesComponent(config.fireballSpeed, config.fireballDuration));
   
-  entity.add(new DifficultyComponent<RobotDifficulty>(difficulty));
+  entity.add(new DifficultyComponent<EnemyDifficulty>(difficulty));
   
   entity.add(new RobotHitParticlesComponent(scene));
   

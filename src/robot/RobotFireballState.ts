@@ -8,7 +8,7 @@ import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 import { FireballPropertiesComponent } from '../ecs/components/ai/FireballPropertiesComponent';
 import { createFireballEntity } from '../projectile/FireballEntity';
 
-interface FireballOffset {
+type FireballOffset = {
   x: number;
   y: number;
 }

@@ -3,7 +3,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from './TransformComponent';
 
-export interface ShadowComponentProps {
+export type ShadowComponentProps = {
   scale: number;
   offsetX: number;
   offsetY: number;

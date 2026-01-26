@@ -1,6 +1,6 @@
 import type { Grid } from './Grid';
 
-interface PathNode {
+type PathNode = {
   col: number;
   row: number;
   layer: number; // Current layer at this node
