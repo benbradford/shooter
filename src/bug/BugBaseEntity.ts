@@ -9,7 +9,7 @@ import { HitFlashComponent } from '../ecs/components/visual/HitFlashComponent';
 import { BugSpawnerComponent } from '../ecs/components/ai/BugSpawnerComponent';
 import { BaseExplosionComponent } from '../ecs/components/visual/BaseExplosionComponent';
 import { GridCellBlocker } from '../ecs/components/movement/GridCellBlocker';
-import { BugBaseDifficultyComponent } from './BugBaseDifficultyComponent';
+import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
 import { getBugBaseDifficultyConfig, type BugBaseDifficulty } from './BugBaseDifficulty';
 import type { Grid } from '../utils/Grid';
 
@@ -47,7 +47,7 @@ export function createBugBaseEntity(
   entity.add(new HitFlashComponent());
   entity.add(new BaseExplosionComponent(scene, grid.cellSize));
   entity.add(new BugSpawnerComponent(playerEntity, onSpawnBug, config.spawnIntervalMs, grid));
-  entity.add(new BugBaseDifficultyComponent(difficulty));
+  entity.add(new DifficultyComponent<BugBaseDifficulty>(difficulty));
 
   entity.add(new CollisionComponent({
     box: BASE_ENTITY_COLLISION_BOX,
@@ -87,7 +87,7 @@ export function createBugBaseEntity(
     GridCellBlocker,
     BugSpawnerComponent,
     HitFlashComponent,
-    BugBaseDifficultyComponent,
+    DifficultyComponent,
     CollisionComponent
   ]);
 

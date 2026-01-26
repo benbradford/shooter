@@ -13,7 +13,7 @@ import { FireballPropertiesComponent } from '../ecs/components/ai/FireballProper
 import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
 import { ShadowComponent } from '../ecs/components/core/ShadowComponent';
 import { ProjectileComponent } from '../ecs/components/combat/ProjectileComponent';
-import { RobotDifficultyComponent } from '../ecs/components/ai/RobotDifficultyComponent';
+import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
 import { RobotHitParticlesComponent } from '../ecs/components/visual/RobotHitParticlesComponent';
 import { HitFlashComponent } from '../ecs/components/visual/HitFlashComponent';
 import { StateMachine } from '../utils/state/StateMachine';
@@ -85,7 +85,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
 
   entity.add(new FireballPropertiesComponent(config.fireballSpeed, config.fireballDuration));
   
-  entity.add(new RobotDifficultyComponent(difficulty));
+  entity.add(new DifficultyComponent<RobotDifficulty>(difficulty));
   
   entity.add(new RobotHitParticlesComponent(scene));
   

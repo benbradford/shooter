@@ -23,3 +23,4 @@ export { CrosshairVisualsComponent } from './components/ui/CrosshairVisualsCompo
 export { AnimatedSpriteComponent } from './components/core/AnimatedSpriteComponent';
 export { PulsingScaleComponent } from './components/visual/PulsingScaleComponent';
 export { ParticleTrailComponent } from './components/visual/ParticleTrailComponent';
+export { DifficultyComponent } from './components/ai/DifficultyComponent';

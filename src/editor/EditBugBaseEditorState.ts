@@ -2,7 +2,7 @@ import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
-import { BugBaseDifficultyComponent } from '../bug/BugBaseDifficultyComponent';
+import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
 import { getBugBaseDifficultyConfig, type BugBaseDifficulty } from '../bug/BugBaseDifficulty';
 
 export class EditBugBaseEditorState extends EditorState {
@@ -30,7 +30,7 @@ export class EditBugBaseEditorState extends EditorState {
     const startY = 200;
 
     const difficulties: BugBaseDifficulty[] = ['easy', 'medium', 'hard'];
-    const difficultyComp = this.bugBase?.get(BugBaseDifficultyComponent);
+    const difficultyComp = this.bugBase?.get(DifficultyComponent<BugBaseDifficulty>);
 
     difficulties.forEach((diff, index) => {
       const y = startY + index * 60;
@@ -54,7 +54,7 @@ export class EditBugBaseEditorState extends EditorState {
   private setDifficulty(difficulty: BugBaseDifficulty): void {
     if (!this.bugBase) return;
 
-    const difficultyComp = this.bugBase.get(BugBaseDifficultyComponent);
+    const difficultyComp = this.bugBase.get(DifficultyComponent<BugBaseDifficulty>);
     if (difficultyComp) {
       difficultyComp.difficulty = difficulty;
       const config = getBugBaseDifficultyConfig(difficulty);

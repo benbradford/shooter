@@ -10,7 +10,7 @@ import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
 import { createBugBaseEntity } from "./bug/BugBaseEntity";
 import { createBugEntity } from "./bug/BugEntity";
 import { BugSpawnerComponent } from "./ecs/components/ai/BugSpawnerComponent";
-import { BugBaseDifficultyComponent } from "./bug/BugBaseDifficultyComponent";
+import { DifficultyComponent } from "./ecs/components/ai/DifficultyComponent";
 import { getBugBaseDifficultyConfig } from "./bug/BugBaseDifficulty";
 import type { RobotDifficulty } from "./robot/RobotDifficulty";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
@@ -321,7 +321,7 @@ export default class GameScene extends Phaser.Scene {
           player,
           (spawnCol, spawnRow) => {
             const transform = base.get(TransformComponent);
-            const difficultyComp = base.get(BugBaseDifficultyComponent);
+            const difficultyComp = base.get(DifficultyComponent);
             if (!transform || !difficultyComp) return;
 
             const basePos = this.grid.worldToCell(transform.x, transform.y);

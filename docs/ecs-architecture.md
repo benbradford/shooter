@@ -240,13 +240,20 @@ export class MyComponent implements Component {
     this.callback = props.callback;
   }
   
-  update(delta: number): void {
-    // Component logic
+  // Only implement methods you need - both are optional
+  update?(delta: number): void {
+    // Component logic (omit if pure data)
   }
   
-  onDestroy(): void {
-    // Cleanup (remove listeners, destroy sprites, etc.)
+  onDestroy?(): void {
+    // Cleanup (omit if no cleanup needed)
   }
+}
+
+// Data-only component example (no methods needed):
+export class DifficultyComponent<T extends string> implements Component {
+  entity!: Entity;
+  constructor(public difficulty: T) {}
 }
 ```
 

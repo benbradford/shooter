@@ -34,14 +34,14 @@ export class Entity {
     const name = componentClass.name;
     const component = this.components.get(name);
     if (component) {
-      component.onDestroy();
+      component.onDestroy?.();
       this.components.delete(name);
       this.updateOrder = this.updateOrder.filter(c => c !== component);
     }
   }
 
   update(delta: number): void {
-    this.updateOrder.forEach(component => component.update(delta));
+    this.updateOrder.forEach(component => component.update?.(delta));
   }
 
   setUpdateOrder(componentClasses: Array<new (...args: never[]) => Component>): void {
@@ -56,7 +56,7 @@ export class Entity {
 
   destroy(): void {
     this.isDestroyed = true;
-    this.components.forEach(component => component.onDestroy());
+    this.components.forEach(component => component.onDestroy?.());
     this.components.clear();
     this.updateOrder = [];
   }

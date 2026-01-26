@@ -19,8 +19,7 @@ import { BackgroundEditorState } from "./editor/BackgroundEditorState";
 import { ColorPickerEditorState } from "./editor/ColorPickerEditorState";
 import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
-import { RobotDifficultyComponent } from "./ecs/components/ai/RobotDifficultyComponent";
-import { BugBaseDifficultyComponent } from "./bug/BugBaseDifficultyComponent";
+import { DifficultyComponent } from "./ecs/components/ai/DifficultyComponent";
 import { TransformComponent } from "./ecs/components/core/TransformComponent";
 import { EntityManager } from "./ecs/EntityManager";
 
@@ -201,7 +200,7 @@ export default class EditorScene extends Phaser.Scene {
       const patrol = entity.get(PatrolComponent);
       if (patrol) {
         const sprite = entity.get(SpriteComponent);
-        const difficultyComp = entity.get(RobotDifficultyComponent);
+        const difficultyComp = entity.get(DifficultyComponent);
         if (sprite && difficultyComp) {
           const cell = grid.worldToCell(sprite.sprite.x, sprite.sprite.y);
           robots.push({
@@ -222,7 +221,7 @@ export default class EditorScene extends Phaser.Scene {
     
     for (const bugBase of bugBaseEntities) {
       const transform = bugBase.get(TransformComponent);
-      const difficulty = bugBase.get(BugBaseDifficultyComponent);
+      const difficulty = bugBase.get(DifficultyComponent);
       
       if (transform) {
         const cell = grid.worldToCell(transform.x, transform.y);

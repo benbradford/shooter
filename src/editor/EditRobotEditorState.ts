@@ -5,7 +5,7 @@ import type { IStateEnterProps } from '../utils/state/IState';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
-import { RobotDifficultyComponent } from '../ecs/components/ai/RobotDifficultyComponent';
+import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
 import { getRobotDifficultyConfig, type RobotDifficulty } from '../robot/RobotDifficulty';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { FireballPropertiesComponent } from '../ecs/components/ai/FireballPropertiesComponent';
@@ -237,7 +237,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private updateUI(): void {
     if (!this.selectedRobot || !this.difficultyText) return;
 
-    const difficultyComp = this.selectedRobot.get(RobotDifficultyComponent);
+    const difficultyComp = this.selectedRobot.get(DifficultyComponent<RobotDifficulty>);
     if (difficultyComp) {
       this.difficultyText.setText(difficultyComp.difficulty.toUpperCase());
       
@@ -250,7 +250,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private setDifficulty(difficulty: RobotDifficulty): void {
     if (!this.selectedRobot) return;
 
-    const difficultyComp = this.selectedRobot.get(RobotDifficultyComponent);
+    const difficultyComp = this.selectedRobot.get(DifficultyComponent<RobotDifficulty>);
     if (difficultyComp) {
       difficultyComp.difficulty = difficulty;
       
