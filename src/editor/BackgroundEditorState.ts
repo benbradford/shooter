@@ -31,7 +31,7 @@ export class BackgroundEditorState extends EditorState {
     } else {
       const gameScene = this.scene.scene.get('game') as GameScene;
       const levelData = gameScene.getLevelData();
-      this.config = { ...DEFAULT_CONFIG, ...(levelData.background || {}) };
+      this.config = { ...DEFAULT_CONFIG, ...levelData.background };
       this.createUI();
       this.isInitialized = true;
     }

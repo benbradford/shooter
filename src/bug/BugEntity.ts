@@ -79,7 +79,9 @@ export function createBugEntity(props: CreateBugProps): Entity {
           hitFlash.flash(300);
         }
 
-        const projectile = other.require(ProjectileComponent);
+        const projectile = other.get(ProjectileComponent);
+        if (!projectile) return;
+        
         const dirX = projectile.dirX;
         const dirY = projectile.dirY;
         

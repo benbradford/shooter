@@ -26,6 +26,7 @@ export default defineConfig([
           "caughtErrorsIgnorePattern": "^_"
         }
       ],
+      "no-unused-vars": "off",
       "@typescript-eslint/prefer-readonly": "warn",
       "@typescript-eslint/prefer-optional-chain": "warn",
       "@typescript-eslint/prefer-for-of": "warn",
@@ -39,7 +40,6 @@ export default defineConfig([
       "@typescript-eslint/no-non-null-assertion": "warn",
       "@typescript-eslint/no-empty-function": "error",
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-      "@typescript-eslint/no-unnecessary-condition": "warn",
       "no-dupe-else-if": "error",
       "no-else-return": "error",
       "no-lonely-if": "error",
@@ -61,7 +61,8 @@ export default defineConfig([
       "unicorn/no-zero-fractions": "warn",
       "unicorn/no-negated-condition": "warn",
       "unicorn/prefer-number-properties": "warn",
-      "unicorn/prefer-class-fields": "error"
+      "unicorn/prefer-class-fields": "error",
+      "unicorn/no-useless-fallback-in-spread": "error"
     }
   },
   tseslint.configs.recommended,

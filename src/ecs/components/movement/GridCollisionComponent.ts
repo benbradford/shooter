@@ -141,17 +141,16 @@ export class GridCollisionComponent implements Component {
       const walk = this.entity.get(WalkComponent);
 
       if (!xOnlyBlocked && !yOnlyBlocked) {
+        // Both blocked - reset to previous position
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
-      } else if (!xOnlyBlocked) {
+      } else if (yOnlyBlocked) {
+        // Only Y blocked - allow X movement
         transform.y = this.previousY;
         walk?.resetVelocity(false, true);
-      } else if (yOnlyBlocked) {
-        transform.x = this.previousX;
-        transform.y = this.previousY;
-        walk?.resetVelocity(true, true);
-      } else {
+      } else if (xOnlyBlocked) {
+        // Only X blocked - allow Y movement
         transform.x = this.previousX;
         walk?.resetVelocity(true, false);
       }

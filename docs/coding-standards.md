@@ -604,6 +604,109 @@ if (ratio < 0.3) {  // What does 0.3 mean?
 - Makes relationships clear - see all related values together
 - Easier to tune/balance - all config in one place
 
+### No Unused Assignments
+
+**Never assign a value to a variable that is immediately overwritten before being read.**
+
+**DON'T ❌**
+```typescript
+let baseFrame = SPRITE_FRAME_DOWN;  // Unused - immediately overwritten
+if (Math.abs(dx) > Math.abs(dy)) {
+  baseFrame = dx > 0 ? SPRITE_FRAME_RIGHT : SPRITE_FRAME_LEFT;
+} else {
+  baseFrame = dy > 0 ? SPRITE_FRAME_DOWN : SPRITE_FRAME_UP;
+}
+```
+
+**DO ✅**
+```typescript
+// Declare without initialization
+let baseFrame: number;
+if (Math.abs(dx) > Math.abs(dy)) {
+  baseFrame = dx > 0 ? SPRITE_FRAME_RIGHT : SPRITE_FRAME_LEFT;
+} else {
+  baseFrame = dy > 0 ? SPRITE_FRAME_DOWN : SPRITE_FRAME_UP;
+}
+
+// Or use single expression
+const isHorizontal = Math.abs(dx) > Math.abs(dy);
+let baseFrame: number;
+if (isHorizontal) {
+  baseFrame = dx > 0 ? SPRITE_FRAME_RIGHT : SPRITE_FRAME_LEFT;
+} else {
+  baseFrame = dy > 0 ? SPRITE_FRAME_DOWN : SPRITE_FRAME_UP;
+}
+```
+
+**Why this matters:**
+- Wastes computation
+- Misleads readers about intent
+- May hide logic errors
+- Reduces code clarity
+
+### No Unnecessary Fallbacks in Spread
+
+**Don't use fallback objects when spreading - spreading `undefined` or `null` is safe.**
+
+**DON'T ❌**
+```typescript
+const config = { ...DEFAULT_CONFIG, ...(data.options || {}) };
+const merged = { ...base, ...(override ?? {}) };
+```
+
+**DO ✅**
+```typescript
+const config = { ...DEFAULT_CONFIG, ...data.options };
+const merged = { ...base, ...override };
+```
+
+**Why this matters:**
+- Spreading `undefined` or `null` in objects is safe - no error thrown
+- Fallback creates unnecessary empty object
+- Adds code bloat and reduces readability
+- Small performance cost
+
+**Rule enforced by:** `unicorn/no-useless-fallback-in-spread`
+
+### Avoid Duplicate Branch Implementations
+
+**If two branches in a conditional have identical implementations, combine them.**
+
+**DON'T ❌**
+```typescript
+if (!xBlocked && !yBlocked) {
+  reset();
+  stop();
+} else if (xBlocked) {
+  slideY();
+} else if (yBlocked) {
+  reset();  // Duplicate of first branch
+  stop();
+} else {
+  slideX();
+}
+```
+
+**DO ✅**
+```typescript
+if ((!xBlocked && !yBlocked) || yBlocked) {
+  reset();
+  stop();
+} else if (xBlocked) {
+  slideY();
+} else {
+  slideX();
+}
+```
+
+**Why this matters:**
+- Reduces code duplication
+- Makes logic clearer
+- Easier to maintain
+- May indicate logic error
+
+**Note:** ESLint doesn't catch this - requires manual review or SonarQube
+
 ### Use for-of for Iterables
 
 **DO ✅**
@@ -830,6 +933,46 @@ class MoveState {
 - Optional props with `?:` that have implicit defaults
 - `entity.get()` with early return instead of `entity.require()`
 - Silent failures that hide missing components
+
+### Use Type Aliases Instead of Interfaces
+
+**Always use `type` instead of `interface` for type definitions.**
+
+**DO ✅**
+```typescript
+export type MyComponentProps = {
+  speed: number;
+  duration: number;
+};
+
+export type LevelData = {
+  width: number;
+  height: number;
+  cells: CellData[];
+};
+```
+
+**DON'T ❌**
+```typescript
+export interface MyComponentProps {  // Use type instead
+  speed: number;
+  duration: number;
+}
+
+export interface LevelData {  // Use type instead
+  width: number;
+  height: number;
+  cells: CellData[];
+}
+```
+
+**Why this matters:**
+- Consistent codebase style
+- Types are more flexible (can represent unions, intersections, primitives)
+- Interfaces have subtle differences that can cause confusion
+- TypeScript team recommends types for most cases
+
+**Rule enforced by:** `@typescript-eslint/consistent-type-definitions`
 
 ### Imports
 
@@ -1426,9 +1569,14 @@ if (distance <= this.crosshairBounds.radius) {
 ## ESLint Configuration
 
 Key rules enforced:
-- `@typescript-eslint/no-unused-vars`: Allows `_` prefix for unused parameters
+- `@typescript-eslint/no-unused-vars`: Allows `_` prefix for unused parameters, catches unused assignments
 - `@typescript-eslint/no-explicit-any`: Disallows `any` type
 - `@typescript-eslint/prefer-readonly`: Suggests readonly for immutable properties
+- `@typescript-eslint/no-empty-function`: Disallows empty functions (use comments if intentionally empty)
+- `@typescript-eslint/consistent-type-definitions`: Enforces `type` over `interface`
+- `unicorn/no-useless-fallback-in-spread`: Prevents unnecessary `|| {}` in object spreads
+- `unicorn/prefer-class-fields`: Enforces class field syntax over constructor assignment
+- `no-nested-ternary`: Warns about nested ternary expressions (use if-else instead)
 
 ## Summary
 

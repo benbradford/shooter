@@ -47,11 +47,11 @@ export class BugAttackState implements IState {
     this.targetY = playerTransform.y;
     this.elapsedMs = 0;
     this.lastAttackTime = currentTime;
-
     const dx = this.targetX - this.startX;
     const dy = this.targetY - this.startY;
-    let baseFrame = SPRITE_FRAME_DOWN;
-    if (Math.abs(dx) > Math.abs(dy)) {
+    const isHorizontal = Math.abs(dx) > Math.abs(dy);
+    let baseFrame: number;
+    if (isHorizontal) {
       baseFrame = dx > 0 ? SPRITE_FRAME_RIGHT : SPRITE_FRAME_LEFT;
     } else {
       baseFrame = dy > 0 ? SPRITE_FRAME_DOWN : SPRITE_FRAME_UP;
