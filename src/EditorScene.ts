@@ -15,6 +15,8 @@ import { AddRobotEditorState } from "./editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "./editor/AddBugBaseEditorState";
 import { TextureEditorState } from "./editor/TextureEditorState";
 import { VignetteEditorState } from "./editor/VignetteEditorState";
+import { BackgroundEditorState } from "./editor/BackgroundEditorState";
+import { ColorPickerEditorState } from "./editor/ColorPickerEditorState";
 import { PatrolComponent } from "./ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { RobotDifficultyComponent } from "./ecs/components/ai/RobotDifficultyComponent";
@@ -100,7 +102,9 @@ export default class EditorScene extends Phaser.Scene {
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
       texture: new TextureEditorState(this),
-      vignette: new VignetteEditorState(this)
+      vignette: new VignetteEditorState(this),
+      background: new BackgroundEditorState(this),
+      colorPicker: new ColorPickerEditorState(this)
     }, 'default');
 
     // Event listeners
@@ -258,7 +262,8 @@ export default class EditorScene extends Phaser.Scene {
       cells,
       robots: robots.length > 0 ? robots : undefined,
       bugBases: bugBases.length > 0 ? bugBases : undefined,
-      vignette: gameScene.getLevelData().vignette
+      vignette: gameScene.getLevelData().vignette,
+      background: gameScene.getLevelData().background
     };
   }
 
@@ -411,6 +416,14 @@ export default class EditorScene extends Phaser.Scene {
 
   enterVignetteMode(): void {
     this.stateMachine.enter('vignette');
+  }
+
+  enterBackgroundMode(): void {
+    this.stateMachine.enter('background');
+  }
+
+  enterColorPickerMode(data: { colorKey: string; currentColor: string; onColorSelected: (color: string) => void }): void {
+    this.stateMachine.enter('colorPicker', data as never);
   }
 
   exitEditor(): void {

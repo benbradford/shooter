@@ -168,6 +168,29 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterVignetteMode();
     });
 
+    // Background button
+    const backgroundButton = this.scene.add.text(centerX - buttonSpacing * 2.5, buttonY - 80, 'Background', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    backgroundButton.setOrigin(0.5);
+    backgroundButton.setScrollFactor(0);
+    backgroundButton.setInteractive({ useHandCursor: true });
+    backgroundButton.setDepth(1000);
+    this.buttons.push(backgroundButton);
+
+    backgroundButton.on('pointerover', () => {
+      backgroundButton.setBackgroundColor('#555555');
+    });
+    backgroundButton.on('pointerout', () => {
+      backgroundButton.setBackgroundColor('#333333');
+    });
+    backgroundButton.on('pointerdown', () => {
+      this.scene.enterBackgroundMode();
+    });
+
     // Log button
     const logButton = this.scene.add.text(centerX + buttonSpacing * 3.5, buttonY, 'Log', {
       fontSize: '24px',

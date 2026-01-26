@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Grid } from "./utils/Grid";
-import { LevelLoader, type LevelData } from "./level/LevelLoader";
+import { LevelLoader, type LevelData, type BackgroundConfig } from "./level/LevelLoader";
 import { EntityManager } from "./ecs/EntityManager";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
@@ -30,7 +30,6 @@ export default class GameScene extends Phaser.Scene {
   private currentLevelName: string = 'level1';
   private vignette?: Phaser.GameObjects.Image;
   private backgroundImage?: Phaser.GameObjects.Image;
-  private currentGradientStyle: number = 9;
 
   constructor() {
     super("game");
@@ -67,230 +66,123 @@ export default class GameScene extends Phaser.Scene {
           this.showLevelSelector();
         }
       });
-      
-      for (let i = 3; i <= 9; i++) {
-        const keyCode = Phaser.Input.Keyboard.KeyCodes[`ONE` as keyof typeof Phaser.Input.Keyboard.KeyCodes] + (i - 1);
-        const key = keyboard.addKey(keyCode);
-        key.on('down', () => {
-          if (this.scene.isActive()) {
-            this.currentGradientStyle = i;
-            this.createGradientBackground();
-          }
-        });
-      }
     }
   }
 
   private createGradientBackground(): void {
     const width = this.levelData.width * this.cellSize;
     const height = this.levelData.height * this.cellSize;
-    
+
     if (this.textures.exists('gradient')) {
       this.textures.remove('gradient');
     }
-    
+
     const canvas = this.textures.createCanvas('gradient', width, height);
     const ctx = canvas?.context;
     if (!ctx) return;
-    
-    this.applyGradientStyle(ctx, width, height);
-    
+
+    this.createStarfieldPattern(ctx, width, height);
+
     canvas?.refresh();
-    
+
     if (this.backgroundImage) {
       this.backgroundImage.destroy();
     }
-    
+
     this.backgroundImage = this.add.image(0, 0, 'gradient');
     this.backgroundImage.setOrigin(0, 0);
     this.backgroundImage.setDepth(-1000);
-  }
-
-  private applyGradientStyle(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const maxRadius = Math.hypot(centerX, centerY);
-    let gradient;
-    
-    switch (this.currentGradientStyle) {
-      case 1:
-        gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-        gradient.addColorStop(0, '#a0a0a0');
-        gradient.addColorStop(1, '#1a2e1a');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-        break;
-        
-      case 2:
-        gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-        gradient.addColorStop(0, '#ff00ff');
-        gradient.addColorStop(0.3, '#00ffff');
-        gradient.addColorStop(0.6, '#ffff00');
-        gradient.addColorStop(1, '#000000');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-        break;
-        
-      case 3:
-        this.createNoisyRadialPattern(ctx, width, height);
-        break;
-        
-      case 4:
-        gradient = ctx.createLinearGradient(0, 0, 0, height);
-        gradient.addColorStop(0, '#ff0000');
-        gradient.addColorStop(0.2, '#ff00ff');
-        gradient.addColorStop(0.4, '#0000ff');
-        gradient.addColorStop(0.6, '#00ffff');
-        gradient.addColorStop(0.8, '#00ff00');
-        gradient.addColorStop(1, '#ffff00');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-        break;
-        
-      case 5:
-        this.createRandomLinearPattern(ctx, width, height);
-        break;
-        
-      case 6:
-        this.createSpotlightPattern(ctx, width, height);
-        break;
-        
-      case 7:
-        this.createGridPattern(ctx, width, height);
-        break;
-        
-      case 8:
-        gradient = ctx.createLinearGradient(0, 0, width, 0);
-        for (let i = 0; i <= 1; i += 0.1) {
-          gradient.addColorStop(i, `hsl(${i * 360}, 100%, 50%)`);
-        }
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-        break;
-        
-      case 9:
-        this.createStarfieldPattern(ctx, width, height);
-        break;
-        
-      default:
-        gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-        gradient.addColorStop(0, '#a0a0a0');
-        gradient.addColorStop(1, '#1a2e1a');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-    }
-  }
-
-  private createNoisyRadialPattern(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    for (let i = 0; i < 200; i++) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const size = Math.random() * 100 + 50;
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, size);
-      grad.addColorStop(0, `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.3)`);
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-    }
-  }
-
-  private createRandomLinearPattern(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, width, height);
-    for (let i = 0; i < 20; i++) {
-      const x1 = Math.random() * width;
-      const y1 = Math.random() * height;
-      const x2 = Math.random() * width;
-      const y2 = Math.random() * height;
-      const grad = ctx.createLinearGradient(x1, y1, x2, y2);
-      grad.addColorStop(0, `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.4)`);
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-    }
-  }
-
-  private createSpotlightPattern(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, width, height);
-    for (let i = 0; i < 100; i++) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, Math.random() * 200);
-      grad.addColorStop(0, '#ffffff');
-      grad.addColorStop(1, '#000000');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, width, height);
-    }
-  }
-
-  private createGridPattern(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    for (let x = 0; x < width; x += 100) {
-      for (let y = 0; y < height; y += 100) {
-        const grad = ctx.createRadialGradient(x, y, 0, x, y, 100);
-        grad.addColorStop(0, `hsl(${Math.random()*360}, 100%, 50%)`);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, height);
-      }
-    }
   }
 
   private createStarfieldPattern(ctx: CanvasRenderingContext2D, width: number, height: number): void {
     const centerX = width / 2;
     const centerY = height / 2;
     const maxRadius = Math.hypot(centerX, centerY);
-    
+
+    const defaults = {
+      centerColor: '#5a6a5a',
+      midColor: '#3a4a3a',
+      edgeColor: '#2a3a2a',
+      outerColor: '#1a2a1a',
+      crackCount: 8,
+      circleCount: 100,
+      crackColor: '#c8ffc8',
+      crackVariation: 20,
+      crackThickness: 1,
+      crackLength: 30,
+      circleColor: '#e0e0e0',
+      circleVariation: 30,
+      circleThickness: 1
+    };
+
+    const config = { ...defaults, ...this.levelData.background };
+
     const bgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-    bgGradient.addColorStop(0, '#4a4a4a');
-    bgGradient.addColorStop(0.4, '#2a3a2a');
-    bgGradient.addColorStop(0.7, '#1a2a1a');
-    bgGradient.addColorStop(1, '#0a1a0a');
+    bgGradient.addColorStop(0, config.centerColor);
+    bgGradient.addColorStop(0.4, config.midColor);
+    bgGradient.addColorStop(0.7, config.edgeColor);
+    bgGradient.addColorStop(1, config.outerColor);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, width, height);
-    
-    for (let i = 0; i < 8; i++) {
+
+    for (let i = 0; i < config.crackCount; i++) {
       const startX = Math.random() * width;
       const startY = Math.random() * height;
       const segments = Math.floor(Math.random() * 5) + 3;
-      
-      ctx.strokeStyle = `rgba(150,200,150,${Math.random() * 0.2 + 0.1})`;
-      ctx.lineWidth = 1;
+
+      const color = this.varyColor(config.crackColor, config.crackVariation);
+      ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${Math.random() * 0.2 + 0.1})`;
+      ctx.lineWidth = config.crackThickness;
       ctx.beginPath();
       ctx.moveTo(startX, startY);
-      
+
       let x = startX;
       let y = startY;
+      let currentAngle = Math.random() * Math.PI * 2;
+
       for (let j = 0; j < segments; j++) {
-        x += (Math.random() - 0.5) * 80;
-        y += (Math.random() - 0.5) * 80;
+        const angleChange = (Math.random() - 0.5) * (90 * Math.PI / 180);
+        currentAngle += angleChange;
+
+        const distance = config.crackLength * (0.5 + Math.random());
+        x += Math.cos(currentAngle) * distance;
+        y += Math.sin(currentAngle) * distance;
         ctx.lineTo(x, y);
       }
       ctx.stroke();
     }
-    
-    for (let i = 0; i < 100; i++) {
+
+    for (let i = 0; i < config.circleCount; i++) {
       const x = Math.random() * width;
       const y = Math.random() * height;
       const radius = Math.random() * 8 + 1;
       const brightness = Math.random() * 0.3 + 0.1;
-      
-      const colorChoice = Math.random();
-      let color;
-      if (colorChoice < 0.7) {
-        color = `rgba(150,150,150,${brightness})`;
-      } else if (colorChoice < 0.85) {
-        color = `rgba(120,160,120,${brightness})`;
-      } else {
-        color = `rgba(100,130,100,${brightness})`;
-      }
-      
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
+
+      const color = this.varyColor(config.circleColor, config.circleVariation);
+      ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${brightness})`;
+      ctx.lineWidth = config.circleThickness;
       ctx.beginPath();
       ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.stroke();
     }
+  }
+
+  private varyColor(hexColor: string | undefined, variationPercent: number): { r: number; g: number; b: number } {
+    if (!hexColor || hexColor.length !== 7) {
+      return { r: 150, g: 150, b: 150 };
+    }
+
+    const r = Number.parseInt(hexColor.slice(1, 3), 16);
+    const g = Number.parseInt(hexColor.slice(3, 5), 16);
+    const b = Number.parseInt(hexColor.slice(5, 7), 16);
+
+    const brightnessMultiplier = 1 + (Math.random() - 0.5) * 2 * (variationPercent / 100);
+
+    return {
+      r: Math.max(0, Math.min(255, Math.round(r * brightnessMultiplier))),
+      g: Math.max(0, Math.min(255, Math.round(g * brightnessMultiplier))),
+      b: Math.max(0, Math.min(255, Math.round(b * brightnessMultiplier)))
+    };
   }
 
   private initializeScene(): void {
@@ -431,10 +323,10 @@ export default class GameScene extends Phaser.Scene {
             const transform = base.get(TransformComponent);
             const difficultyComp = base.get(BugBaseDifficultyComponent);
             if (!transform || !difficultyComp) return;
-            
+
             const basePos = this.grid.worldToCell(transform.x, transform.y);
             const config = getBugBaseDifficultyConfig(difficultyComp.difficulty);
-            
+
             const bug = createBugEntity({
               scene: this,
               col: basePos.col,
@@ -447,7 +339,7 @@ export default class GameScene extends Phaser.Scene {
               speed: config.bugSpeed
             });
             this.entityManager.add(bug);
-            
+
             const spawner = base.get(BugSpawnerComponent);
             if (spawner) {
               spawner.registerBug(bug);
@@ -492,6 +384,11 @@ export default class GameScene extends Phaser.Scene {
       this.vignette.setTint(this.levelData.vignette.tint);
       this.vignette.setBlendMode(this.levelData.vignette.blendMode);
     }
+  }
+
+  updateBackground(config: BackgroundConfig): void {
+    this.levelData.background = config;
+    this.createGradientBackground();
   }
 
   private showLevelSelector(): void {

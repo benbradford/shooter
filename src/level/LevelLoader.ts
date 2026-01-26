@@ -25,6 +25,22 @@ export interface VignetteConfig {
   blendMode: number;
 }
 
+export interface BackgroundConfig {
+  centerColor: string;
+  midColor: string;
+  edgeColor: string;
+  outerColor: string;
+  crackCount: number;
+  circleCount: number;
+  crackColor: string;
+  crackVariation: number;
+  crackThickness: number;
+  crackLength: number;
+  circleColor: string;
+  circleVariation: number;
+  circleThickness: number;
+}
+
 export interface LevelData {
   width: number;
   height: number;
@@ -36,6 +52,7 @@ export interface LevelData {
   robots?: LevelRobot[];
   bugBases?: LevelBugBase[];
   vignette?: VignetteConfig;
+  background?: BackgroundConfig;
 }
 
 export class LevelLoader {
