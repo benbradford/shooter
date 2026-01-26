@@ -56,9 +56,8 @@ export class ProjectileEmitterComponent implements Component {
   }
 
   private fire(): void {
-    const transform = this.entity.get(TransformComponent);
-    const walk = this.entity.get(WalkComponent);
-    if (!transform || !walk) return;
+    const transform = this.entity.require(TransformComponent);
+    const walk = this.entity.require(WalkComponent);
 
     const direction = walk.lastDir;
 
@@ -66,7 +65,6 @@ export class ProjectileEmitterComponent implements Component {
     const emitX = transform.x + offset.x;
     const emitY = transform.y + offset.y;
 
-    // Use actual movement direction instead of discrete sprite direction
     const dirX = walk.lastMoveX;
     const dirY = walk.lastMoveY;
 

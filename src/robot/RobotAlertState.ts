@@ -30,13 +30,10 @@ export class RobotAlertState implements IState {
   onEnter(): void {
     this.elapsedMs = 0;
 
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    const sprite = this.entity.get(SpriteComponent);
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
-    if (!transform || !playerTransform || !sprite) return;
-
-    // Face towards player
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const direction = dirFromDelta(dx, dy);
@@ -73,18 +70,13 @@ export class RobotAlertState implements IState {
   onUpdate(delta: number): void {
     this.elapsedMs += delta;
 
-    const stateMachine = this.entity.get(StateMachineComponent);
-    if (!stateMachine) return;
+    const stateMachine = this.entity.require(StateMachineComponent);
 
-    // Keep exclamation above robot
     if (this.exclamationSprite) {
-      const transform = this.entity.get(TransformComponent);
-      if (transform) {
-        this.exclamationSprite.setPosition(transform.x, transform.y + EXCLAMATION_RISE_Y_PX);
-      }
+      const transform = this.entity.require(TransformComponent);
+      this.exclamationSprite.setPosition(transform.x, transform.y + EXCLAMATION_RISE_Y_PX);
     }
 
-    // After alert duration, transition to stalking
     if (this.elapsedMs >= ALERT_DURATION_MS) {
       stateMachine.stateMachine.enter('stalking');
     }

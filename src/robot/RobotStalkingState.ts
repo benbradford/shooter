@@ -56,14 +56,12 @@ export class RobotStalkingState implements IState {
     this.animationTimer += delta;
     this.pathRecalcTimer += delta;
 
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    const stateMachine = this.entity.get(StateMachineComponent);
-    const sprite = this.entity.get(SpriteComponent);
-    const patrol = this.entity.get(PatrolComponent);
-    const gridPos = this.entity.get(GridPositionComponent);
-
-    if (!transform || !playerTransform || !stateMachine || !sprite || !patrol || !gridPos) return;
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const stateMachine = this.entity.require(StateMachineComponent);
+    const sprite = this.entity.require(SpriteComponent);
+    const patrol = this.entity.require(PatrolComponent);
+    const gridPos = this.entity.require(GridPositionComponent);
 
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;

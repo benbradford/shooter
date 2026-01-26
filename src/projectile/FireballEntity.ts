@@ -19,6 +19,23 @@ const FIREBALL_ANIMATION_FPS = 10;
 const FIREBALL_SCALE_AMPLITUDE = 0.1;
 const FIREBALL_SCALE_FREQUENCY = 4;
 
+function createFireballBurst(scene: Phaser.Scene, x: number, y: number): void {
+  const emitter = scene.add.particles(x, y, 'fire', {
+    speed: { min: 80, max: 150 },
+    angle: { min: 0, max: 360 },
+    scale: { start: 0.05, end: 0 },
+    alpha: { start: 1, end: 0 },
+    tint: [0xffffff, 0xff8800, 0xff0000],
+    lifespan: 400,
+    frequency: 3,
+    blendMode: 'ADD'
+  });
+
+  emitter.setDepth(1000);
+  scene.time.delayedCall(100, () => emitter.stop());
+  scene.time.delayedCall(500, () => emitter.destroy());
+}
+
 export interface CreateFireballProps {
   scene: Phaser.Scene;
   x: number;
@@ -50,21 +67,8 @@ export function createFireballEntity(props: CreateFireballProps): Entity {
     startLayer,
     fromTransition: false,
     scene,
-    onWallHit: (x, y) => {
-      const emitter = scene.add.particles(x, y, 'fire', {
-        speed: { min: 80, max: 150 },
-        angle: { min: 0, max: 360 },
-        scale: { start: 0.05, end: 0 },
-        alpha: { start: 1, end: 0 },
-        tint: [0xffffff, 0xff8800, 0xff0000],
-        lifespan: 400,
-        frequency: 3,
-        blendMode: 'ADD'
-      });
-      emitter.setDepth(1000);
-      scene.time.delayedCall(100, () => emitter.stop());
-      scene.time.delayedCall(500, () => emitter.destroy());
-    }
+    onWallHit: (x, y) => createFireballBurst(scene, x, y),
+    onMaxDistance: (x, y) => createFireballBurst(scene, x, y)
   }));
 
   entity.add(new AnimatedSpriteComponent({
@@ -101,43 +105,14 @@ export function createFireballEntity(props: CreateFireballProps): Entity {
     collidesWith: ['player'],
     onHit: (other) => {
       if (other.tags.has('player')) {
-        const health = other.get(HealthComponent);
-        const damage = entity.get(DamageComponent);
-        if (health && damage) {
-          health.takeDamage(damage.damage);
-        }
+        const health = other.require(HealthComponent);
+        const damage = entity.require(DamageComponent);
+        health.takeDamage(damage.damage);
 
-        // Create explosion particle effect
-        const transform = entity.get(TransformComponent);
-        if (transform) {
-          const emitter = scene.add.particles(transform.x, transform.y, 'fire', {
-            speed: { min: 80, max: 150 },
-            angle: { min: 0, max: 360 },
-            scale: { start: 0.05, end: 0 },
-            alpha: { start: 1, end: 0 },
-            tint: [0xffffff, 0xff8800, 0xff0000],  // white, orange, red
-            lifespan: 400,
-            frequency: 3,
-            blendMode: 'ADD'
-          });
+        const transform = entity.require(TransformComponent);
+        createFireballBurst(scene, transform.x, transform.y);
 
-          emitter.setDepth(1000);
-
-          // Stop emitting after 100ms
-          scene.time.delayedCall(100, () => {
-            emitter.stop();
-          });
-
-          // Destroy after particles fade
-          scene.time.delayedCall(500, () => {
-            emitter.destroy();
-          });
-        }
-
-        // Don't destroy immediately - let player collision handler run first
-        scene.time.delayedCall(0, () => {
-          entity.destroy();
-        });
+        scene.time.delayedCall(0, () => entity.destroy());
       }
     }
   }));

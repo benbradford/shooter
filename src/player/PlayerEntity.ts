@@ -182,10 +182,9 @@ export function createPlayerEntity(
     collidesWith: ['enemy_projectile', 'enemy'],
     onHit: (other) => {
       if (other.tags.has('enemy_projectile')) {
-        const damage = other.get(DamageComponent);
-        if (damage) {
-          health.takeDamage(damage.damage);
-        }
+        const damage = other.require(DamageComponent);
+        health.takeDamage(damage.damage);
+        
         const hitFlash = entity.get(HitFlashComponent);
         if (hitFlash) {
           hitFlash.flash(300);

@@ -11,9 +11,8 @@ export class PlayerWalkState implements IState {
   constructor(private readonly entity: Entity) {}
 
   onEnter(): void {
-    const walk = this.entity.get(WalkComponent);
-    const anim = this.entity.get(AnimationComponent);
-    if (!walk || !anim) return;
+    const walk = this.entity.require(WalkComponent);
+    const anim = this.entity.require(AnimationComponent);
     
     this.lastAnimKey = `walk_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
@@ -23,11 +22,10 @@ export class PlayerWalkState implements IState {
 
   onUpdate(_delta: number): void {
     // No-op: delta intentionally unused
-    const walk = this.entity.get(WalkComponent);
-    const anim = this.entity.get(AnimationComponent);
-    const sm = this.entity.get(StateMachineComponent);
-    const input = this.entity.get(InputComponent);
-    if (!walk || !anim || !sm || !input) return;
+    const walk = this.entity.require(WalkComponent);
+    const anim = this.entity.require(AnimationComponent);
+    const sm = this.entity.require(StateMachineComponent);
+    const input = this.entity.require(InputComponent);
     
     const { dx, dy } = input.getInputDelta();
 

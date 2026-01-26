@@ -628,70 +628,71 @@ for (let i = 0; i < entities.length; i++) {
 
 ### No Non-Null Assertions
 
-**Avoid using non-null assertions (`!`) - use proper null checks instead.**
+**Never use non-null assertions (`!`) - use `entity.require()` or proper null checks instead.**
 
 **DO ✅**
 ```typescript
-// Check for null/undefined before using
-const transform = entity.get(TransformComponent);
-if (!transform) return;
-
+// Use require() for mandatory components (throws if missing)
+const transform = entity.require(TransformComponent);
+const sprite = entity.require(SpriteComponent);
 transform.x += velocity.x;
 
-// Or use optional chaining
-const health = entity.get(HealthComponent);
-if (health) {
-  health.takeDamage(10);
+// Use get() + null check ONLY for truly optional components
+const knockback = entity.get(KnockbackComponent);  // May not exist
+if (knockback) {
+  knockback.apply(dirX, dirY);
 }
-
-// Multiple components
-const transform = entity.get(TransformComponent);
-const sprite = entity.get(SpriteComponent);
-if (!transform || !sprite) return;
-
-// Use them safely
-sprite.sprite.setPosition(transform.x, transform.y);
 ```
 
 **DON'T ❌**
 ```typescript
-// Non-null assertion - assumes component exists
+// Non-null assertion - bypasses type safety
 const transform = entity.get(TransformComponent)!;
-transform.x += velocity.x;  // Crashes if component missing
+transform.x += velocity.x;
 
-// Chained non-null assertions
-const health = this.entity.get(HealthComponent)!;
-health.takeDamage(10);
+// get() + early return for mandatory components
+const transform = entity.get(TransformComponent);
+if (!transform) return;  // Should use require()
+```
 
-// Keyboard non-null assertion
-this.cursors = scene.input.keyboard!.createCursorKeys();
+**When to use each:**
+- `entity.require()` - Component is mandatory for this entity type
+- `entity.get()` - Component is truly optional (may not exist)
+  - Examples: `KnockbackComponent`, `HitFlashComponent` (temporary)
+  - Examples: Optional features, temporary effects
+- Never use `!` - Bypasses safety
+
+**Special case - Collision handlers:**
+When accessing components on the OTHER entity in a collision handler, the entity might be destroyed by its own collision handler first. In this case, use `require()` and ensure projectiles delay their destruction:
+
+```typescript
+// Projectile collision handler - delay destruction
+entity.add(new CollisionComponent({
+  collidesWith: ['enemy'],
+  onHit: (other) => {
+    // Apply damage, effects, etc.
+    scene.time.delayedCall(0, () => entity.destroy());  // Delay to next frame
+  }
+}));
+
+// Target collision handler - safe to use require()
+entity.add(new CollisionComponent({
+  collidesWith: ['player_projectile'],
+  onHit: (other) => {
+    const projectile = other.require(ProjectileComponent);  // Safe - not destroyed yet
+    const dirX = projectile.dirX;
+    const dirY = projectile.dirY;
+    // Use projectile data...
+  }
+}));
 ```
 
 **Why this matters:**
-- Non-null assertions bypass TypeScript's safety checks
-- Code crashes at runtime if assumption is wrong
-- Proper null checks make code more robust
-- Early returns prevent cascading errors
+- `require()` fails fast with clear error messages
+- Bugs caught immediately in development
+- No silent failures that hide issues
 - Makes component dependencies explicit
-
-**When non-null assertions are acceptable:**
-- Never in production code
-- Only in tests where you control the setup
-- Only when you've just added the component in the same function
-
-**Pattern for keyboard input:**
-```typescript
-// DO ✅
-const keyboard = scene.input.keyboard;
-if (keyboard) {
-  this.cursors = keyboard.createCursorKeys();
-  this.fireKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-}
-
-// DON'T ❌
-this.cursors = scene.input.keyboard!.createCursorKeys();
-this.fireKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-```
+- Delayed destruction ensures all collision handlers can access data
 
 ### Use Class Fields Instead of Constructor Assignment
 
@@ -823,6 +824,12 @@ class MoveState {
 - Explicit values at call sites make intent clear
 - Defaults at API boundaries (public methods) are acceptable for convenience
 - Internal implementation should be strict and require what it needs
+
+**Common violations to watch for:**
+- `props.value ?? defaultValue` in constructors
+- Optional props with `?:` that have implicit defaults
+- `entity.get()` with early return instead of `entity.require()`
+- Silent failures that hide missing components
 
 ### Imports
 

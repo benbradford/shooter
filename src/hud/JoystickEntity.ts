@@ -9,7 +9,11 @@ import { ControlModeComponent } from '../ecs/components/input/ControlModeCompone
 export function createJoystickEntity(scene: Phaser.Scene): Entity {
   const entity = new Entity('joystick');
 
-  const joystick = entity.add(new TouchJoystickComponent(scene));
+  const joystick = entity.add(new TouchJoystickComponent(scene, {
+    maxRadius: 150,
+    innerRadius: 80,
+    deadZoneDistance: 30
+  }));
   joystick.init();
 
   const visuals = entity.add(new JoystickVisualsComponent(scene, joystick));
@@ -18,7 +22,10 @@ export function createJoystickEntity(scene: Phaser.Scene): Entity {
   const crosshair = entity.add(new CrosshairVisualsComponent(scene, joystick));
   crosshair.init();
 
-  const aimJoystick = entity.add(new AimJoystickComponent(scene));
+  const aimJoystick = entity.add(new AimJoystickComponent(scene, {
+    maxRadius: 150,
+    innerRadius: 80
+  }));
   aimJoystick.init();
 
   const aimVisuals = entity.add(new AimJoystickVisualsComponent(scene, aimJoystick));

@@ -124,11 +124,9 @@ export class GridCollisionComponent implements Component {
 
   // eslint-disable-next-line complexity -- Grid collision requires checking multiple cell states and transitions
   update(_delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    const gridPos = this.entity.get(GridPositionComponent);
-    if (!transform || !gridPos) return;
+    const transform = this.entity.require(TransformComponent);
+    const gridPos = this.entity.require(GridPositionComponent);
 
-    // Prevents phantom movement check from (0,0) to spawn position on first frame
     if (this.previousX === 0 && this.previousY === 0) {
       this.previousX = transform.x;
       this.previousY = transform.y;

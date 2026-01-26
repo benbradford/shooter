@@ -61,10 +61,8 @@ export function createBugBaseEntity(
           hitFlash.flash(300);
         }
 
-        const spawner = entity.get(BugSpawnerComponent);
-        if (spawner) {
-          spawner.activate();
-        }
+        const spawner = entity.require(BugSpawnerComponent);
+        spawner.activate();
 
         if (health.getHealth() <= 0) {
           const explosion = entity.get(BaseExplosionComponent);

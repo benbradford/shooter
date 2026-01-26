@@ -148,35 +148,17 @@ export class Grid {
         rect.setDepth(-50);
         this.layer1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
       } else if (data.layer === -1) {
-        const texKey = `layerNeg1_${col}_${row}`;
-        
-        if (!this.scene.textures.exists(texKey)) {
-          const canvas = this.scene.textures.createCanvas(texKey, this.cellSize, this.cellSize);
-          const ctx = canvas?.context;
-          if (ctx) {
-            const centerX = this.cellSize / 2;
-            const centerY = this.cellSize / 2;
-            const maxRadius = Math.hypot(centerX, centerY);
-            
-            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-            gradient.addColorStop(0, 'rgba(180, 180, 180, 0.6)');
-            gradient.addColorStop(0.5, 'rgba(140, 140, 140, 0.7)');
-            gradient.addColorStop(1, 'rgba(100, 100, 100, 0.8)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, this.cellSize, this.cellSize);
-            canvas?.refresh();
-          }
-        }
-        
         const worldPos = this.cellToWorld(col, row);
-        const sprite = this.scene.add.image(
+        const rect = this.scene.add.rectangle(
           worldPos.x + this.cellSize / 2,
           worldPos.y + this.cellSize / 2,
-          texKey
+          this.cellSize,
+          this.cellSize,
+          0xaaaaaa,
+          0.25
         );
-        sprite.setDepth(-50);
-        this.layerNeg1Sprites.set(key, sprite as unknown as Phaser.GameObjects.Rectangle);
+        rect.setDepth(-50);
+        this.layerNeg1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
       }
     }
     

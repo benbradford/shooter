@@ -2,8 +2,8 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
 export interface AimJoystickProps {
-  maxRadius?: number;
-  innerRadius?: number;
+  maxRadius: number;
+  innerRadius: number;
 }
 
 export class AimJoystickComponent implements Component {
@@ -17,9 +17,9 @@ export class AimJoystickComponent implements Component {
   public readonly innerRadius: number;
   private pointerId: number = -1;
 
-  constructor(private readonly scene: Phaser.Scene, props: AimJoystickProps = {}) {
-    this.maxRadius = props.maxRadius ?? 150;
-    this.innerRadius = props.innerRadius ?? 80;
+  constructor(private readonly scene: Phaser.Scene, props: AimJoystickProps) {
+    this.maxRadius = props.maxRadius;
+    this.innerRadius = props.innerRadius;
   }
 
   init(): void {

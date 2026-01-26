@@ -43,11 +43,9 @@ export class HudBarComponent implements Component {
   ) {}
 
   init(): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
     
     for (const config of this.configs) {
-      // Background (black)
       const background = this.scene.add.rectangle(
         transform.x,
         transform.y + config.offsetY,
@@ -91,8 +89,7 @@ export class HudBarComponent implements Component {
   }
 
   update(delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
     
     for (const bar of this.bars) {
       const ratio = bar.dataSource.getRatio();

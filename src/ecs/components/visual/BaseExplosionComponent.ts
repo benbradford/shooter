@@ -15,8 +15,7 @@ export class BaseExplosionComponent implements Component {
   update(_delta: number): void {}
 
   explode(): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     const halfCell = this.cellSize / 2;
     const positions = [

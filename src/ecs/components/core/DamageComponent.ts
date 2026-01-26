@@ -9,7 +9,4 @@ export class DamageComponent implements Component {
     this.damage = damage;
   }
 
-  update(_delta: number): void {}
-
-  onDestroy(): void {}
 }

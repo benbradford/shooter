@@ -19,9 +19,8 @@ export class BugHopComponent implements Component {
   private targetRow = 0;
 
   hop(targetX: number, targetY: number, targetCol: number, targetRow: number): void {
-    const transform = this.entity.get(TransformComponent);
-    const sprite = this.entity.get(SpriteComponent);
-    if (!transform || !sprite) return;
+    const transform = this.entity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     this.isHopping = true;
     this.hopTimer = 0;
@@ -46,9 +45,8 @@ export class BugHopComponent implements Component {
   update(delta: number): void {
     if (!this.isHopping) return;
 
-    const transform = this.entity.get(TransformComponent);
-    const sprite = this.entity.get(SpriteComponent);
-    if (!transform || !sprite) return;
+    const transform = this.entity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     this.hopTimer += delta;
     const progress = Math.min(this.hopTimer / HOP_DURATION_MS, 1);

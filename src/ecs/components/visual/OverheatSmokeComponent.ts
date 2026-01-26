@@ -34,18 +34,15 @@ export class OverheatSmokeComponent implements Component {
   }
 
   update(_delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    const walk = this.entity.get(WalkComponent);
-    if (!transform || !walk) return;
+    const transform = this.entity.require(TransformComponent);
+    const walk = this.entity.require(WalkComponent);
 
     const direction = walk.lastDir;
 
-    // Get gun barrel position
     const offset = this.offsets[direction];
     const emitX = transform.x + offset.x;
     const emitY = transform.y + offset.y;
 
-    // Update particle system position
     this.particles.setPosition(emitX, emitY);
 
     // Sync particle emitting with overheat state

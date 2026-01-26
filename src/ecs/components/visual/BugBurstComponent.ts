@@ -13,8 +13,7 @@ export class BugBurstComponent implements Component {
   update(_delta: number): void {}
 
   burst(): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
       speed: { min: 50, max: 120 },

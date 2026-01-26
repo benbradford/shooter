@@ -21,8 +21,7 @@ export class AnimatedSpriteComponent implements Component {
   }
 
   update(delta: number): void {
-    const sprite = this.entity.get(SpriteComponent);
-    if (!sprite) return;
+    const sprite = this.entity.require(SpriteComponent);
 
     this.animationTimer += delta;
     const frameDuration = 1000 / this.frameRate;

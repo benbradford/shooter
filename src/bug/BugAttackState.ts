@@ -7,6 +7,10 @@ import { StateMachineComponent } from '../ecs/components/core/StateMachineCompon
 const LEAP_DURATION_MS = 400;
 const LEAP_HEIGHT_PX = 80;
 const COOLDOWN_MS = 1000;
+const SPRITE_FRAME_DOWN = 0;
+const SPRITE_FRAME_UP = 4;
+const SPRITE_FRAME_LEFT = 8;
+const SPRITE_FRAME_RIGHT = 12;
 
 export class BugAttackState implements IState {
   private readonly entity: Entity;
@@ -28,17 +32,14 @@ export class BugAttackState implements IState {
   onEnter(): void {
     const currentTime = Date.now();
     if (currentTime - this.lastAttackTime < COOLDOWN_MS) {
-      const stateMachine = this.entity.get(StateMachineComponent);
-      if (stateMachine) {
-        stateMachine.stateMachine.enter('chase');
-      }
+      const stateMachine = this.entity.require(StateMachineComponent);
+      stateMachine.stateMachine.enter('chase');
       return;
     }
 
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    const sprite = this.entity.get(SpriteComponent);
-    if (!transform || !playerTransform || !sprite) return;
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     this.startX = transform.x;
     this.startY = transform.y;
@@ -49,11 +50,11 @@ export class BugAttackState implements IState {
 
     const dx = this.targetX - this.startX;
     const dy = this.targetY - this.startY;
-    let baseFrame = 0;
+    let baseFrame = SPRITE_FRAME_DOWN;
     if (Math.abs(dx) > Math.abs(dy)) {
-      baseFrame = dx > 0 ? 12 : 8;
+      baseFrame = dx > 0 ? SPRITE_FRAME_RIGHT : SPRITE_FRAME_LEFT;
     } else {
-      baseFrame = dy > 0 ? 0 : 4;
+      baseFrame = dy > 0 ? SPRITE_FRAME_DOWN : SPRITE_FRAME_UP;
     }
     sprite.sprite.setFrame(baseFrame);
   }
@@ -63,9 +64,8 @@ export class BugAttackState implements IState {
   onUpdate(delta: number): void {
     this.elapsedMs += delta;
 
-    const transform = this.entity.get(TransformComponent);
-    const sprite = this.entity.get(SpriteComponent);
-    if (!transform || !sprite) return;
+    const transform = this.entity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     const progress = Math.min(this.elapsedMs / LEAP_DURATION_MS, 1);
     

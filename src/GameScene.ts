@@ -320,9 +320,8 @@ export default class GameScene extends Phaser.Scene {
           this.grid,
           player,
           (spawnCol, spawnRow) => {
-            const transform = base.get(TransformComponent);
-            const difficultyComp = base.get(DifficultyComponent);
-            if (!transform || !difficultyComp) return;
+            const transform = base.require(TransformComponent);
+            const difficultyComp = base.require(DifficultyComponent);
 
             const basePos = this.grid.worldToCell(transform.x, transform.y);
             const config = getBugBaseDifficultyConfig(difficultyComp.difficulty);

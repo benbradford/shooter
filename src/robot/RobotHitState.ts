@@ -33,18 +33,14 @@ export class RobotHitState implements IState {
   onUpdate(delta: number): void {
     this.elapsedMs += delta;
 
-    const stateMachine = this.entity.get(StateMachineComponent);
-    const health = this.entity.get(HealthComponent);
+    const stateMachine = this.entity.require(StateMachineComponent);
+    const health = this.entity.require(HealthComponent);
 
-    if (!stateMachine) return;
-
-    // Check if dead
-    if (health && health.getHealth() <= 0) {
+    if (health.getHealth() <= 0) {
       stateMachine.stateMachine.enter('death');
       return;
     }
 
-    // After hit duration, return to stalking
     if (this.elapsedMs >= this.hitDuration) {
       stateMachine.stateMachine.enter('stalking');
     }

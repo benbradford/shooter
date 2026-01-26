@@ -4,7 +4,6 @@ import { Direction, dirFromDelta } from '../constants/Direction';
 import type { Grid } from '../utils/Grid';
 import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
-import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { LineOfSightComponent } from '../ecs/components/combat/LineOfSightComponent';
 import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
@@ -32,14 +31,11 @@ export class RobotPatrolState implements IState {
   }
 
   onUpdate(delta: number): void {
-    const patrol = this.entity.get(PatrolComponent);
-    const transform = this.entity.get(TransformComponent);
-    const gridPos = this.entity.get(GridPositionComponent);
-    const los = this.entity.get(LineOfSightComponent);
-    const stateMachine = this.entity.get(StateMachineComponent);
-    const sprite = this.entity.get(SpriteComponent);
-
-    if (!patrol || !transform || !gridPos || !los || !stateMachine || !sprite) return;
+    const patrol = this.entity.require(PatrolComponent);
+    const transform = this.entity.require(TransformComponent);
+    const los = this.entity.require(LineOfSightComponent);
+    const stateMachine = this.entity.require(StateMachineComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     // Get current waypoint
     const waypoint = patrol.getCurrentWaypoint();

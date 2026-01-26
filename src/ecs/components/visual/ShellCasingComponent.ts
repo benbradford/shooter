@@ -37,14 +37,11 @@ export class ShellCasingComponent implements Component {
       this.rotationSpeed *= -1;  // Anticlockwise for left
     }
   }
-  
   update(delta: number): void {
     this.elapsedTime += delta;
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
     
     if (this.phase === 'flying' || this.phase === 'bouncing') {
-      // Apply gravity to vertical velocity
       this.velocityY += this.gravity * delta;
       
       // Update position based on velocity

@@ -70,8 +70,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private checkWaypointClick(pointer: Phaser.Input.Pointer): boolean {
     if (!this.selectedRobot) return false;
 
-    const patrol = this.selectedRobot.get(PatrolComponent);
-    if (!patrol) return false;
+    const patrol = this.selectedRobot.require(PatrolComponent);
 
     const gameScene = this.scene.scene.get('game') as Phaser.Scene & {
       cameras: { main: Phaser.Cameras.Scene2D.Camera };
@@ -113,29 +112,23 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     const worldX = pointer.x + gameScene.cameras.main.scrollX;
     const worldY = pointer.y + gameScene.cameras.main.scrollY;
 
-    // If we already have a selected robot, check if clicking on it again to move it
     if (this.selectedRobot) {
-      const transform = this.selectedRobot.get(TransformComponent);
-      if (transform) {
-        const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-        if (distance < 64) {
-          // Clicking on selected robot - enter move mode with return to editRobot
-          this.scene.enterMoveMode(this.selectedRobot, 'editRobot');
-          return;
-        }
+      const transform = this.selectedRobot.require(TransformComponent);
+      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+      if (distance < 64) {
+        this.scene.enterMoveMode(this.selectedRobot, 'editRobot');
+        return;
       }
     }
 
-    // Otherwise, select a robot
     const robots = gameScene.entityManager.getByType('stalking_robot');
 
     for (const robot of robots) {
-      const transform = robot.get(TransformComponent);
-      if (!transform) continue;
+      const transform = robot.require(TransformComponent);
 
       const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
       
-      if (distance < 64) { // Click radius
+      if (distance < 64) {
         this.selectedRobot = robot;
         this.updateUI();
         this.renderWaypoints();
@@ -254,25 +247,18 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     if (difficultyComp) {
       difficultyComp.difficulty = difficulty;
       
-      // Update robot stats based on new difficulty
       const config = getRobotDifficultyConfig(difficulty);
       
-      const health = this.selectedRobot.get(HealthComponent);
-      if (health) {
-        health.setMaxHealth(config.health);
-        health.heal(config.health);
-      }
+      const health = this.selectedRobot.require(HealthComponent);
+      health.setMaxHealth(config.health);
+      health.heal(config.health);
       
-      const patrol = this.selectedRobot.get(PatrolComponent);
-      if (patrol) {
-        patrol.speed = config.speed;
-      }
+      const patrol = this.selectedRobot.require(PatrolComponent);
+      patrol.speed = config.speed;
       
-      const fireballProps = this.selectedRobot.get(FireballPropertiesComponent);
-      if (fireballProps) {
-        fireballProps.speed = config.fireballSpeed;
-        fireballProps.duration = config.fireballDuration;
-      }
+      const fireballProps = this.selectedRobot.require(FireballPropertiesComponent);
+      fireballProps.speed = config.fireballSpeed;
+      fireballProps.duration = config.fireballDuration;
       
       this.updateUI();
     }

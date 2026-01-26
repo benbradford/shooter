@@ -16,9 +16,7 @@ export class RobotHitParticlesComponent implements Component {
   }
 
   update(_delta: number): void {
-    // Update emitter positions to follow robot
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     this.activeEmitters.forEach(emitter => {
       if (emitter.active) {
@@ -28,8 +26,7 @@ export class RobotHitParticlesComponent implements Component {
   }
 
   emitHitParticles(bulletDirX: number, bulletDirY: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     const angle = Math.atan2(bulletDirY, bulletDirX) * 180 / Math.PI;
 
@@ -63,8 +60,7 @@ export class RobotHitParticlesComponent implements Component {
   }
 
   emitDeathParticles(): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
       speed: { min: 120, max: 200 },

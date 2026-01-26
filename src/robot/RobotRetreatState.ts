@@ -9,6 +9,7 @@ import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 const SAFE_DISTANCE_PX = 220;
 const RETREAT_SPEED_MULTIPLIER = 1.75;
 const ANIMATION_SPEED_MS = 100;
+const WALK_ANIMATION_FRAME_COUNT = 8;
 
 export class RobotRetreatState implements IState {
   private readonly entity: Entity;
@@ -34,13 +35,11 @@ export class RobotRetreatState implements IState {
   onUpdate(delta: number): void {
     this.animationTimer += delta;
 
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    const stateMachine = this.entity.get(StateMachineComponent);
-    const sprite = this.entity.get(SpriteComponent);
-    const patrol = this.entity.get(PatrolComponent);
-
-    if (!transform || !playerTransform || !stateMachine || !sprite || !patrol) return;
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const stateMachine = this.entity.require(StateMachineComponent);
+    const sprite = this.entity.require(SpriteComponent);
+    const patrol = this.entity.require(PatrolComponent);
 
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
@@ -65,11 +64,11 @@ export class RobotRetreatState implements IState {
   private updateAnimation(sprite: SpriteComponent): void {
     if (this.animationTimer >= ANIMATION_SPEED_MS) {
       this.animationTimer = 0;
-      this.animationFrame = (this.animationFrame + 1) % 8;
+      this.animationFrame = (this.animationFrame + 1) % WALK_ANIMATION_FRAME_COUNT;
     }
 
     const directionIndex = this.currentDirection;
-    const frameIndex = 8 + directionIndex * 8 + this.animationFrame;
+    const frameIndex = WALK_ANIMATION_FRAME_COUNT + directionIndex * WALK_ANIMATION_FRAME_COUNT + this.animationFrame;
     sprite.sprite.setFrame(frameIndex);
   }
 }

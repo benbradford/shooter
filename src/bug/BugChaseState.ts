@@ -43,10 +43,7 @@ export class BugChaseState implements IState {
   onUpdate(delta: number): void {
     if (this.shouldSkipUpdate()) return;
 
-    const components = this.getRequiredComponents();
-    if (!components) return;
-
-    const { transform, playerTransform, gridPos, sprite } = components;
+    const { transform, playerTransform, gridPos, sprite } = this.getRequiredComponents();
 
     if (this.shouldAttack(transform, playerTransform)) return;
 
@@ -63,14 +60,10 @@ export class BugChaseState implements IState {
   }
 
   private getRequiredComponents() {
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    const gridPos = this.entity.get(GridPositionComponent);
-    const sprite = this.entity.get(SpriteComponent);
-
-    if (!transform || !playerTransform || !gridPos || !sprite) {
-      return null;
-    }
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const gridPos = this.entity.require(GridPositionComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     return { transform, playerTransform, gridPos, sprite };
   }

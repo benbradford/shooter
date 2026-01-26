@@ -36,10 +36,8 @@ export class KnockbackComponent implements Component {
 
     this.elapsed += delta;
 
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
-    // Apply velocity directly to transform
     transform.x += this.velocityX * (delta / 1000);
     transform.y += this.velocityY * (delta / 1000);
 

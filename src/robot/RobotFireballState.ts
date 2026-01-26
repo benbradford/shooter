@@ -51,12 +51,9 @@ export class RobotFireballState implements IState {
     this.animationTimer = 0;
     this.hasLaunchedFireball = false;
 
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
 
-    if (!transform || !playerTransform) return;
-
-    // Calculate direction to player
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     this.currentDirection = dirFromDelta(dx, dy);
@@ -69,10 +66,8 @@ export class RobotFireballState implements IState {
   onUpdate(delta: number): void {
     this.animationTimer += delta;
 
-    const stateMachine = this.entity.get(StateMachineComponent);
-    const sprite = this.entity.get(SpriteComponent);
-
-    if (!stateMachine || !sprite) return;
+    const stateMachine = this.entity.require(StateMachineComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
     // Animate fireball
     if (this.animationTimer >= FIREBALL_ANIMATION_SPEED_MS) {
@@ -98,11 +93,9 @@ export class RobotFireballState implements IState {
   }
 
   private launchFireball(): void {
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    const fireballProps = this.entity.get(FireballPropertiesComponent);
-
-    if (!transform || !playerTransform || !fireballProps) return;
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const fireballProps = this.entity.require(FireballPropertiesComponent);
 
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;

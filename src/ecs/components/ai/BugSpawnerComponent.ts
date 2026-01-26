@@ -31,9 +31,8 @@ export class BugSpawnerComponent implements Component {
   update(delta: number): void {
     this.activeBugs = new Set([...this.activeBugs].filter(bug => !bug.isDestroyed));
 
-    const transform = this.entity.get(TransformComponent);
-    const playerTransform = this.playerEntity.get(TransformComponent);
-    if (!transform || !playerTransform) return;
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
 
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;

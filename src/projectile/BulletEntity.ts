@@ -50,10 +50,8 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
     collidesWith: ['enemy'],
     onHit: (other) => {
       if (other.tags.has('enemy')) {
-        const health = other.get(HealthComponent);
-        if (health) {
-          health.takeDamage(BULLET_DAMAGE);
-        }
+        const health = other.require(HealthComponent);
+        health.takeDamage(BULLET_DAMAGE);
         
         const stateMachine = other.get(StateMachineComponent);
         if (stateMachine?.stateMachine.hasState('hit')) {

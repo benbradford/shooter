@@ -9,11 +9,12 @@ export interface ProjectileProps {
   speed: number;
   maxDistance: number;
   grid: Grid;
-  blockedByWalls?: boolean;
-  startLayer?: number;
-  fromTransition?: boolean;
+  blockedByWalls: boolean;
+  startLayer: number;
+  fromTransition: boolean;
   scene?: Phaser.Scene;
   onWallHit?: (x: number, y: number) => void;
+  onMaxDistance?: (x: number, y: number) => void;
 }
 
 export class ProjectileComponent implements Component {
@@ -29,6 +30,7 @@ export class ProjectileComponent implements Component {
   private readonly blockedByWalls: boolean;
   private readonly scene?: Phaser.Scene;
   private readonly onWallHit?: (x: number, y: number) => void;
+  private readonly onMaxDistance?: (x: number, y: number) => void;
 
   constructor(props: ProjectileProps) {
     this.dirX = props.dirX;
@@ -36,16 +38,16 @@ export class ProjectileComponent implements Component {
     this.speed = props.speed;
     this.maxDistance = props.maxDistance;
     this.grid = props.grid;
-    this.blockedByWalls = props.blockedByWalls ?? true;
-    this.currentLayer = props.startLayer ?? 0;
-    this.fromTransition = props.fromTransition ?? false;
+    this.blockedByWalls = props.blockedByWalls;
+    this.currentLayer = props.startLayer;
+    this.fromTransition = props.fromTransition;
     this.scene = props.scene;
     this.onWallHit = props.onWallHit;
+    this.onMaxDistance = props.onMaxDistance;
   }
 
   update(delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     const distance = this.speed * (delta / 1000);
 
@@ -74,6 +76,8 @@ export class ProjectileComponent implements Component {
     }
 
     if (this.distanceTraveled >= this.maxDistance) {
+      const transform = this.entity.require(TransformComponent);
+      this.onMaxDistance?.(transform.x, transform.y);
       this.entity.destroy();
     }
   }

@@ -22,8 +22,7 @@ export class PulsingScaleComponent implements Component {
   }
 
   update(delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     this.scaleTimer += delta;
     const scalePhase = (this.scaleTimer / 1000) * this.frequency * Math.PI * 2;

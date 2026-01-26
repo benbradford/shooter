@@ -112,29 +112,27 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
 
-        const healthComp = entity.get(HealthComponent);
-        if (healthComp) {
-          healthComp.takeDamage(ROBOT_BULLET_DAMAGE);
-        }
+        const projectile = other.require(ProjectileComponent);
+        const dirX = projectile.dirX;
+        const dirY = projectile.dirY;
 
-        // Emit hit particles
+        const healthComp = entity.require(HealthComponent);
+        healthComp.takeDamage(ROBOT_BULLET_DAMAGE);
+
         const hitParticles = entity.get(RobotHitParticlesComponent);
-        const projectile = other.get(ProjectileComponent);
-        if (hitParticles && projectile) {
-          hitParticles.emitHitParticles(projectile.dirX, projectile.dirY);
+        if (hitParticles) {
+          hitParticles.emitHitParticles(dirX, dirY);
         }
 
-        // Apply knockback from projectile's direction (normalized)
         const knockback = entity.get(KnockbackComponent);
-        if (knockback && projectile) {
-          const length = Math.hypot(projectile.dirX, projectile.dirY);
-          const normalizedDirX = projectile.dirX / length;
-          const normalizedDirY = projectile.dirY / length;
+        if (knockback) {
+          const length = Math.hypot(dirX, dirY);
+          const normalizedDirX = dirX / length;
+          const normalizedDirY = dirY / length;
           knockback.applyKnockback(normalizedDirX, normalizedDirY, ROBOT_KNOCKBACK_FORCE_PX_PER_SEC);
         }
 
         const currentState = stateMachineComp.stateMachine.getCurrentKey();
-        // Enter hit state (or reset if already in hit state)
         if (currentState === 'hit') {
           stateMachineComp.stateMachine.enter('stalking');
         }

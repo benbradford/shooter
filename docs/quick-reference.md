@@ -396,9 +396,15 @@ export class MyState implements IState {
   constructor(private readonly entity: Entity) {}
   
   onUpdate(_delta: number): void {
-    const transform = this.entity.get(TransformComponent)!;
-    const sprite = this.entity.get(SpriteComponent)!;
-    // Use components
+    // Use require() for mandatory components (throws if missing)
+    const transform = this.entity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
+    
+    // Use get() for optional components (returns undefined if missing)
+    const knockback = this.entity.get(KnockbackComponent);
+    if (knockback) {
+      knockback.apply(dirX, dirY);
+    }
   }
 }
 ```

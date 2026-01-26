@@ -11,9 +11,8 @@ export class PlayerIdleState implements IState {
   constructor(private readonly entity: Entity) {}
 
   onEnter(): void {
-    const walk = this.entity.get(WalkComponent);
-    const anim = this.entity.get(AnimationComponent);
-    if (!walk || !anim) return;
+    const walk = this.entity.require(WalkComponent);
+    const anim = this.entity.require(AnimationComponent);
     
     this.lastDir = walk.lastDir;
     anim.animationSystem.play(`idle_${this.lastDir}`);
@@ -23,9 +22,8 @@ export class PlayerIdleState implements IState {
 
   onUpdate(_delta: number): void {
     // No-op: delta intentionally unused
-    const walk = this.entity.get(WalkComponent);
-    const anim = this.entity.get(AnimationComponent);
-    if (!walk || !anim) return;
+    const walk = this.entity.require(WalkComponent);
+    const anim = this.entity.require(AnimationComponent);
     
     // Update idle direction if it changed (from input in WalkComponent)
     if (walk.lastDir !== this.lastDir) {

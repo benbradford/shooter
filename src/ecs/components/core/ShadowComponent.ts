@@ -25,8 +25,7 @@ export class ShadowComponent implements Component {
   }
 
   init(): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform) return;
+    const transform = this.entity.require(TransformComponent);
 
     this.shadow = this.scene.add.sprite(transform.x + this.offsetX, transform.y + this.offsetY, 'shadow');
     this.shadow.setScale(this.scale);
@@ -34,8 +33,8 @@ export class ShadowComponent implements Component {
   }
 
   update(_delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform || !this.shadow) return;
+    const transform = this.entity.require(TransformComponent);
+    if (!this.shadow) return;
 
     this.shadow.setPosition(transform.x + this.offsetX, transform.y + this.offsetY);
   }

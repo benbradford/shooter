@@ -79,9 +79,9 @@ export function createBugEntity(props: CreateBugProps): Entity {
           hitFlash.flash(300);
         }
 
-        const projectile = other.get(ProjectileComponent);
+        const projectile = other.require(ProjectileComponent);
         const knockback = entity.get(KnockbackComponent);
-        if (projectile && knockback) {
+        if (knockback) {
           const length = Math.hypot(projectile.dirX, projectile.dirY);
           knockback.applyKnockback(projectile.dirX / length, projectile.dirY / length, 200);
         }
@@ -94,19 +94,18 @@ export function createBugEntity(props: CreateBugProps): Entity {
           scene.time.delayedCall(100, () => entity.destroy());
         }
 
-        scene.time.delayedCall(0, () => other.destroy());
+        other.destroy();
       } else if (other.tags.has('player')) {
         entity.remove(CollisionComponent);
         
-        const playerHealth = other.get(HealthComponent);
-        if (playerHealth) {
-          playerHealth.takeDamage(BUG_DAMAGE);
-        }
+        const playerHealth = other.require(HealthComponent);
+        playerHealth.takeDamage(BUG_DAMAGE);
 
         const burst = entity.get(BugBurstComponent);
         if (burst) {
           burst.burst();
         }
+        entity.isDestroyed = true;
         scene.time.delayedCall(100, () => entity.destroy());
       }
     }

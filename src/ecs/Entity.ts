@@ -26,6 +26,14 @@ export class Entity {
     return this.components.get(componentClass.name) as T | undefined;
   }
 
+  require<T extends Component>(componentClass: new (...args: never[]) => T): T {
+    const component = this.get(componentClass);
+    if (!component) {
+      throw new Error(`Entity ${this.id} missing required component ${componentClass.name}`);
+    }
+    return component;
+  }
+
   has(componentClass: new (...args: never[]) => Component): boolean {
     return this.components.has(componentClass.name);
   }
@@ -41,7 +49,12 @@ export class Entity {
   }
 
   update(delta: number): void {
-    this.updateOrder.forEach(component => component.update?.(delta));
+    if (this.isDestroyed) return;
+    
+    for (const component of this.updateOrder) {
+      if (this.isDestroyed) break;
+      component.update?.(delta);
+    }
   }
 
   setUpdateOrder(componentClasses: Array<new (...args: never[]) => Component>): void {

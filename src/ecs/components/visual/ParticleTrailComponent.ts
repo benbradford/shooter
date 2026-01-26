@@ -44,9 +44,8 @@ export class ParticleTrailComponent implements Component {
   }
 
   init(): void {
-    const transform = this.entity.get(TransformComponent);
+    const transform = this.entity.require(TransformComponent);
     const sprite = this.entity.get(SpriteComponent);
-    if (!transform) return;
 
     if (!this.particles) {
       this.particles = this.scene.add.particles(transform.x, transform.y, 'fire', {
@@ -66,8 +65,8 @@ export class ParticleTrailComponent implements Component {
   }
 
   update(delta: number): void {
-    const transform = this.entity.get(TransformComponent);
-    if (!transform || !this.particles) return;
+    const transform = this.entity.require(TransformComponent);
+    if (!this.particles) return;
 
     this.particles.setPosition(transform.x, transform.y);
 
