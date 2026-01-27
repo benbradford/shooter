@@ -3,11 +3,11 @@ import type { Entity } from '../../Entity';
 
 export class GridPositionComponent implements Component {
   entity!: Entity;
-  
+
   public currentCell: { col: number; row: number };
   public previousCell: { col: number; row: number };
   public currentLayer: number = 0;
-  
+
   // Collision box offset from entity center
   public collisionBox: {
     offsetX: number;
@@ -24,10 +24,6 @@ export class GridPositionComponent implements Component {
     this.currentCell = { col, row };
     this.previousCell = { col, row };
     this.collisionBox = collisionBox;
-  }
-
-  update(_delta: number): void {
-    // No-op: delta intentionally unused
   }
 
 }

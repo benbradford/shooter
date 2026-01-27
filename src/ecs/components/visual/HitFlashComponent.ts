@@ -18,10 +18,6 @@ export class HitFlashComponent implements Component {
     this.tintColor = tintColor;
   }
 
-  init(): void {
-    // Nothing to initialize
-  }
-
   onDestroy(): void {
     this.stop();
   }

@@ -66,10 +66,6 @@ export class TextureEditorState extends EditorState {
     this.textureButtons = [];
   }
 
-  onUpdate(_delta: number): void {
-    // No update logic needed
-  }
-
   private createTextureButton(x: number, y: number, textureName: string): Phaser.GameObjects.Container {
     const container = this.scene.add.container(x, y);
     container.setScrollFactor(0);

@@ -10,10 +10,6 @@ export class BugBurstComponent implements Component {
     this.scene = scene;
   }
 
-  update?(_delta: number): void {
-    // No update needed - triggered by burst()
-  }
-
   burst(): void {
     const transform = this.entity.require(TransformComponent);
 
@@ -29,11 +25,11 @@ export class BugBurstComponent implements Component {
     });
 
     emitter.setDepth(1000);
-    
+
     this.scene.time.delayedCall(250, () => {
       emitter.stop();
     });
-    
+
     this.scene.time.delayedCall(750, () => {
       emitter.destroy();
     });

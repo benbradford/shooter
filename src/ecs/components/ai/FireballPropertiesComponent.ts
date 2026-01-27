@@ -11,11 +11,4 @@ export class FireballPropertiesComponent implements Component {
     this.duration = duration;
   }
 
-  update(_delta: number): void {
-    // No update logic needed - just stores data
-  }
-
-  onDestroy(): void {
-    // No cleanup needed
-  }
 }

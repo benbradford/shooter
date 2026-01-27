@@ -62,7 +62,4 @@ export class AddEditorState extends EditorState {
     this.buttons = [];
   }
 
-  onUpdate(_delta: number): void {
-    // No update logic needed
-  }
 }

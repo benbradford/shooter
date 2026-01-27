@@ -11,8 +11,4 @@ export class TransformComponent implements Component {
     public scale: number = 1
   ) {}
 
-  update(_delta: number): void {
-    // No-op: delta intentionally unused
-  }
-
 }

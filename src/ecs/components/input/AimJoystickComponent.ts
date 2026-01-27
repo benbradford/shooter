@@ -63,10 +63,6 @@ export class AimJoystickComponent implements Component {
     });
   }
 
-  update(_delta: number): void {
-    // No update logic needed - state is read by visuals component
-  }
-
   getAimDelta(): { dx: number; dy: number } {
     if (!this.isActive) {
       return { dx: 0, dy: 0 };

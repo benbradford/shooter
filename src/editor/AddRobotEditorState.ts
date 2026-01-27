@@ -12,7 +12,7 @@ export class AddRobotEditorState extends EditorState {
 
   onEnter(): void {
     const gameScene = this.scene.scene.get('game');
-    
+
     this.ghostSprite = gameScene.add.sprite(0, 0, 'floating_robot', ROBOT_SPRITE_FRAME);
     this.ghostSprite.setScale(ROBOT_SCALE);
     this.ghostSprite.setAlpha(0.6);
@@ -27,20 +27,16 @@ export class AddRobotEditorState extends EditorState {
   onExit(): void {
     this.scene.input.off('pointermove', this.handlePointerMove, this);
     this.scene.input.off('pointerdown', this.handlePointerDown, this);
-    
+
     if (this.ghostSprite) {
       this.ghostSprite.destroy();
       this.ghostSprite = null;
     }
-    
+
     if (this.backButton) {
       this.backButton.destroy();
       this.backButton = null;
     }
-  }
-
-  onUpdate(_delta: number): void {
-    // No update logic needed
   }
 
   private handlePointerMove(pointer: Phaser.Input.Pointer): void {
@@ -57,7 +53,7 @@ export class AddRobotEditorState extends EditorState {
 
     const cell = grid.worldToCell(worldX, worldY);
     const cellWorld = grid.cellToWorld(cell.col, cell.row);
-    
+
     const centerX = cellWorld.x + grid.cellSize / 2;
     const centerY = cellWorld.y + grid.cellSize / 2;
 
@@ -84,7 +80,7 @@ export class AddRobotEditorState extends EditorState {
   private addRobot(gameScene: GameScene, col: number, row: number): Entity {
     const grid = this.scene.getGrid();
     const entityManager = gameScene.getEntityManager();
-    
+
     const x = col * grid.cellSize + grid.cellSize / 2;
     const y = row * grid.cellSize + grid.cellSize / 2;
 

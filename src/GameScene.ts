@@ -23,7 +23,7 @@ export default class GameScene extends Phaser.Scene {
   private entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
   private grid!: Grid;
-  private readonly cellSize: number = 128;
+  private readonly cellSize: number = 64;
   private editorKey!: Phaser.Input.Keyboard.Key;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;

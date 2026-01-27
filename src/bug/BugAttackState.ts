@@ -59,11 +59,6 @@ export class BugAttackState implements IState {
     sprite.sprite.setFrame(baseFrame);
   }
 
-
-  onExit(): void {
-    // No cleanup needed
-  }
-
   onUpdate(delta: number): void {
     this.elapsedMs += delta;
 

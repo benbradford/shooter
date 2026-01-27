@@ -31,7 +31,7 @@ export class VignetteEditorState extends EditorState {
   onEnter(): void {
     const gameScene = this.scene.scene.get('game') as GameScene;
     const level = gameScene.getLevelData();
-    
+
     this.alpha = level.vignette?.alpha ?? 0.6;
     this.tint = level.vignette?.tint ?? 0x000000;
     this.blendMode = level.vignette?.blendMode ?? Phaser.BlendModes.MULTIPLY;
@@ -136,7 +136,7 @@ export class VignetteEditorState extends EditorState {
     this.previewVignette.destroy();
     this.buttons.forEach(btn => btn.destroy());
     this.buttons = [];
-    
+
     const gameScene = this.scene.scene.get('game') as GameScene;
     const level = gameScene.getLevelData();
     level.vignette = {
@@ -144,13 +144,9 @@ export class VignetteEditorState extends EditorState {
       tint: this.tint,
       blendMode: this.blendMode
     };
-    
+
     // Update the actual game vignette immediately
     gameScene.updateVignette();
-  }
-
-  onUpdate(_delta: number): void {
-    // No-op
   }
 
   private createButton(x: number, y: number, text: string, onClick: () => void): Phaser.GameObjects.Text {
