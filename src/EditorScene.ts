@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import type GameScene from "./GameScene";
+import type HudScene from "./HudScene";
 import type { Grid } from "./utils/Grid";
 import type { LevelData, LevelBugBase } from "./level/LevelLoader";
 import type { Entity } from "./ecs/Entity";
@@ -427,7 +428,6 @@ export default class EditorScene extends Phaser.Scene {
   }
 
   exitEditor(): void {
-    // Restore camera bounds and following
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
     const bounds = this.registry.get('editorOriginalBounds') as { x: number; y: number; width: number; height: number };
@@ -436,7 +436,6 @@ export default class EditorScene extends Phaser.Scene {
       camera.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
     }
 
-    // Resume following player
     const entityManager = gameScene.getEntityManager();
     const player = entityManager.getFirst('player');
     if (player) {
@@ -445,6 +444,9 @@ export default class EditorScene extends Phaser.Scene {
         camera.startFollow(sprite.sprite, true, 0.1, 0.1);
       }
     }
+
+    const hudScene = this.scene.get('HudScene') as HudScene;
+    hudScene.setEditorActive(false);
 
     this.scene.resume('game');
     this.scene.stop();

@@ -2,10 +2,10 @@ import Phaser from "phaser";
 import { Grid } from "./utils/Grid";
 import { LevelLoader, type LevelData, type BackgroundConfig } from "./level/LevelLoader";
 import { EntityManager } from "./ecs/EntityManager";
+import type HudScene from "./HudScene";
 import { createPlayerEntity } from "./player/PlayerEntity";
 import { createBulletEntity } from "./projectile/BulletEntity";
 import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
-import { createJoystickEntity } from "./hud/JoystickEntity";
 import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
 import { createBugBaseEntity } from "./bug/BugBaseEntity";
 import { createBugEntity } from "./bug/BugEntity";
@@ -23,7 +23,7 @@ export default class GameScene extends Phaser.Scene {
   private entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
   private grid!: Grid;
-  private readonly cellSize: number = 64;
+  private readonly cellSize: number = 32;
   private editorKey!: Phaser.Input.Keyboard.Key;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
@@ -32,7 +32,7 @@ export default class GameScene extends Phaser.Scene {
   private backgroundImage?: Phaser.GameObjects.Image;
 
   constructor() {
-    super("game");
+    super({ key: "game", active: true });
   }
 
   preload() {
@@ -41,6 +41,14 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create() {
+    // Wait for HudScene to be ready
+    if (!this.scene.isActive('HudScene')) {
+      this.scene.launch('HudScene');
+      await new Promise<void>(resolve => {
+        this.scene.get('HudScene').events.once('create', () => resolve());
+      });
+    }
+
     this.entityManager = new EntityManager();
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
@@ -219,15 +227,19 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    // Set camera zoom - HUD scene is separate so this won't affect touch
+    this.cameras.main.setZoom(0.75);
+
     // Add vignette overlay
     if (this.vignette) {
       this.vignette.destroy();
     }
     const vignetteConfig = level.vignette || { alpha: 0.6, tint: 0x000000, blendMode: Phaser.BlendModes.MULTIPLY };
-    this.vignette = this.add.image(0, 0, 'vignette');
-    this.vignette.setOrigin(0, 0);
+    const zoom = this.cameras.main.zoom;
+    this.vignette = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'vignette');
+    this.vignette.setOrigin(0.5, 0.5);
     this.vignette.setScrollFactor(0);
-    this.vignette.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+    this.vignette.setDisplaySize(this.cameras.main.width / zoom, this.cameras.main.height / zoom);
     this.vignette.setDepth(10000);
     this.vignette.setAlpha(vignetteConfig.alpha);
     this.vignette.setTint(vignetteConfig.tint);
@@ -237,7 +249,10 @@ export default class GameScene extends Phaser.Scene {
   private enterEditorMode(): void {
     this.resetScene();
 
-    this.grid.setGridDebugEnabled(true); // Enable grid in editor
+    this.grid.setGridDebugEnabled(true);
+
+    const hudScene = this.scene.get('HudScene') as HudScene;
+    hudScene.setEditorActive(true);
 
     this.scene.pause();
 
@@ -255,7 +270,8 @@ export default class GameScene extends Phaser.Scene {
   private spawnEntities(): void {
     const level = this.levelData;
 
-    const joystick = this.entityManager.add(createJoystickEntity(this));
+    const hudScene = this.scene.get('HudScene') as HudScene;
+    const joystick = hudScene.getJoystickEntity();
 
     const startX = this.grid.cellSize * level.playerStart.x;
     const startY = this.grid.cellSize * level.playerStart.y;

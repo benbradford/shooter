@@ -37,7 +37,6 @@ export class TouchJoystickComponent implements Component {
   init(): void {
     // Listen for pointer down in lower-left quadrant (movement)
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      // Use display size (screen pixels) - pointer.x/y are in screen pixels when using UI camera
       const displayWidth = this.scene.scale.displaySize.width;
       const displayHeight = this.scene.scale.displaySize.height;
       
@@ -69,13 +68,11 @@ export class TouchJoystickComponent implements Component {
 
     this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       if (this.isActive && pointer.id === this.pointerId) {
-        // Use pointer.x/y directly (screen pixels)
         const dx = pointer.x - this.startX;
         const dy = pointer.y - this.startY;
         const distance = Math.hypot(dx, dy);
 
         if (distance > this.maxRadius) {
-          // Clamp to circle boundary
           const angle = Math.atan2(dy, dx);
           this.currentX = this.startX + Math.cos(angle) * this.maxRadius;
           this.currentY = this.startY + Math.sin(angle) * this.maxRadius;
