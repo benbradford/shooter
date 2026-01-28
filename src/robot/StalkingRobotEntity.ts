@@ -33,7 +33,7 @@ import { SPRITE_SCALE } from '../constants/GameConstants';
 
 const ROBOT_SCALE = 3 * SPRITE_SCALE;
 const ROBOT_SPRITE_FRAME = 0; // South idle
-const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 50, width: 32, height: 16 };
+const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 16 };
 const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -22, offsetY: -40, width: 48, height: 85 };
 const ROBOT_LINE_OF_SIGHT_RANGE = 500;
 const ROBOT_FIELD_OF_VIEW = Math.PI * 0.75;

@@ -11,6 +11,26 @@ The `Pathfinder` class uses the A* algorithm to find the shortest path between t
 - Transition cells (staircases that connect layers)
 - Wall obstacles (higher layer cells are impassable)
 
+### Key Concepts
+
+**Transition Cells are Layer-Agnostic:**
+- If EITHER the current cell OR target cell is a transition, all layer checks are bypassed
+- Transitions act as "connectors" between layers
+- Movement to/from transitions is always allowed (pathfinder handles this automatically)
+
+**Wall Edges:**
+- Layer 1 cells with layer 0 directly below them are "wall edges"
+- Robots (`allowLayerChanges=false`) cannot path through wall edges
+- Bugs (`allowLayerChanges=true`) can path through wall edges horizontally/upward, but not downward
+
+**Critical: Collision Box Size**
+- The pathfinder finds valid paths, but `GridCollisionComponent` validates actual movement
+- If an entity's collision box is too large, it may overlap cells adjacent to the path
+- This causes GridCollisionComponent to block movement even though the path is valid
+- **Solution:** Keep collision boxes small enough that they don't overlap adjacent cells
+- **Rule of thumb:** Grid collision box height should be ≤ 50% of cell size to avoid overlapping cells above/below
+- **Example:** For 64px cells, use height ≤ 32px and position it in the middle/top of the sprite
+
 ## Usage
 
 ### Basic Setup
@@ -270,6 +290,46 @@ if (this.path) {
   console.log('No path found');
 }
 ```
+
+## Common Issues
+
+### Robot Gets Stuck Near Wall Edges
+
+**Symptom:** Pathfinder finds valid path, but robot can't follow it. Robot appears stuck trying to move through valid cells.
+
+**Cause:** Robot's collision box is too large and overlaps wall edge cells below the intended path. When the robot moves from cell A to cell B, its collision box spans both B and the cell below B. If the cell below B is a wall edge (layer 1 with layer 0 below), GridCollisionComponent blocks the movement.
+
+**Solution:** Reduce the collision box's offsetY or height so it doesn't overlap cells below:
+
+```typescript
+// Before (overlaps cells below)
+const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 50, width: 32, height: 16 };
+
+// After (doesn't overlap cells below)
+const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 16 };
+```
+
+**Rule of thumb:** For 64px cells, keep collision box height ≤ 32px and position it in the middle or top half of the sprite.
+
+### Path Doesn't Include Transitions
+
+**Symptom:** No path found between layers, even though transitions exist.
+
+**Cause:** 
+- No transition cells connecting the layers
+- Transition cells not properly marked in level data
+
+**Solution:** 
+- Add transition cells in level editor
+- Verify transition cells have `isTransition: true` in level JSON
+
+### Path Goes Through Walls
+
+**Symptom:** Path includes cells that should be blocked.
+
+**Cause:** Cells not properly marked as layer 1 in level data.
+
+**Solution:** Check level JSON and ensure walls are layer 1.
 
 ## Future Enhancements
 

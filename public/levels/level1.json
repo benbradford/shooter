@@ -859,9 +859,9 @@
   ],
   "bugBases": [
     {
-      "col": 19,
-      "row": 16,
-      "difficulty": "hard"
+      "col": 25,
+      "row": 19,
+      "difficulty": "easy"
     }
   ],
   "vignette": {

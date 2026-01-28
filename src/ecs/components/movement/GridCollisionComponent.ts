@@ -58,17 +58,14 @@ export class GridCollisionComponent implements Component {
     if (fromCell.isTransition) {
       const movingVertically = fromCol === toCol;
 
-      // Allow horizontal movement only to other transition cells
       if (!movingVertically) {
-        return toCell.isTransition;
+        return toCell.isTransition || toCell.layer === fromCell.layer;
       }
 
       const movingUp = toRow < fromRow;
       const movingDown = toRow > fromRow;
 
-      // Can move up to same layer or layer+1
       if (movingUp && toCell.layer >= fromCell.layer && toCell.layer <= fromCell.layer + 1) return true;
-      // Can move down to same layer or layer-1
       if (movingDown && toCell.layer >= fromCell.layer - 1 && toCell.layer <= fromCell.layer) return true;
 
       return false;

@@ -51,8 +51,7 @@ export class Pathfinder {
 
       const current = openSet[currentIndex];
 
-      const currentCell = this.grid.getCell(current.col, current.row);
-      if (current.col === goalCol && current.row === goalRow && currentCell && !currentCell.isTransition) {
+      if (current.col === goalCol && current.row === goalRow) {
         return this.reconstructPath(current);
       }
 
@@ -126,8 +125,8 @@ export class Pathfinder {
   private getValidNeighbor(
     currentCell: { layer: number; isTransition: boolean },
     targetCell: { layer: number; isTransition: boolean; occupants: Set<unknown> },
-    dir: { col: number; row: number },
-    currentLayer: number,
+    _dir: { col: number; row: number },
+    _currentLayer: number,
     newCol: number,
     newRow: number,
     allowLayerChanges: boolean
@@ -139,59 +138,22 @@ export class Pathfinder {
       }
     }
 
-    const isVerticalMove = dir.col === 0;
-    const movingUp = dir.row < 0;
-    const movingDown = dir.row > 0;
-
-    if (currentCell.isTransition) {
-      return this.getNeighborFromTransition(targetCell, isVerticalMove, movingUp, movingDown, currentLayer, newCol, newRow);
-    }
-
-    if (targetCell.isTransition) {
-      return this.getNeighborToTransition(isVerticalMove, movingUp, movingDown, currentLayer, targetCell.layer, newCol, newRow);
-    }
-
-    if (allowLayerChanges) {
+    if (targetCell.isTransition || currentCell.isTransition) {
       return { col: newCol, row: newRow, layer: targetCell.layer };
     }
 
-    if (targetCell.layer === currentLayer) {
-      return { col: newCol, row: newRow, layer: currentLayer };
+    if (targetCell.layer === 1) {
+      const cellBelow = this.grid.getCell(newCol, newRow + 1);
+      if (cellBelow && cellBelow.layer === 0 && !allowLayerChanges) {
+        return null;
+      }
     }
 
-    return null;
-  }
-
-  private getNeighborFromTransition(
-    targetCell: { layer: number },
-    isVerticalMove: boolean,
-    _movingUp: boolean,
-    _movingDown: boolean,
-    entityLayer: number,
-    newCol: number,
-    newRow: number
-  ): { col: number; row: number; layer: number } | null {
-    if (!isVerticalMove) return null;
-
-    // From transition, can move to layer-1, layer, or layer+1
-    if (targetCell.layer >= entityLayer - 1 && targetCell.layer <= entityLayer + 1) {
-      return { col: newCol, row: newRow, layer: targetCell.layer };
+    if (currentCell.layer !== targetCell.layer && !allowLayerChanges) {
+      return null;
     }
 
-    return null;
-  }
-
-  private getNeighborToTransition(
-    _isVerticalMove: boolean,
-    _movingUp: boolean,
-    _movingDown: boolean,
-    _currentLayer: number,
-    targetCellLayer: number,
-    newCol: number,
-    newRow: number
-  ): { col: number; row: number; layer: number } | null {
-    // Transition cells can be entered from any direction (GridCollisionComponent line 76-78)
-    return { col: newCol, row: newRow, layer: targetCellLayer };
+    return { col: newCol, row: newRow, layer: targetCell.layer };
   }
 
   private reconstructPath(node: PathNode): Array<{ col: number; row: number }> {
