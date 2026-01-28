@@ -5,6 +5,8 @@ import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
 import { WalkComponent } from './WalkComponent';
 import { GridCellBlocker } from './GridCellBlocker';
+import { BugHopComponent } from './BugHopComponent';
+import { StateMachineComponent } from '../core/StateMachineComponent';
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -47,7 +49,7 @@ export class GridCollisionComponent implements Component {
     // Block movement into layer 1 cells that have layer 0 below (unless transition or coming from transition)
     if (toCell.layer === 1 && !toCell.isTransition && !fromCell.isTransition) {
       const cellBelow = this.grid.getCell(toCol, toRow + 1);
-      if (cellBelow && cellBelow.layer === 0) {
+      if (cellBelow?.layer === 0) {
         return false;
       }
     }
@@ -55,7 +57,7 @@ export class GridCollisionComponent implements Component {
     // If in a transition cell, restrict horizontal movement
     if (fromCell.isTransition) {
       const movingVertically = fromCol === toCol;
-      
+
       // Allow horizontal movement only to other transition cells
       if (!movingVertically) {
         return toCell.isTransition;
@@ -125,57 +127,38 @@ export class GridCollisionComponent implements Component {
     return false; // not blocked
   }
 
-  // eslint-disable-next-line complexity -- Layer-based movement validation requires many conditions
-  private canMoveTo(fromCol: number, fromRow: number, toCol: number, toRow: number, _currentLayer: number): boolean {
-    const fromCell = this.grid.getCell(fromCol, fromRow);
-    const toCell = this.grid.getCell(toCol, toRow);
-
-    if (!fromCell || !toCell) return false;
-
-    // Check if target cell has any occupants with GridCellBlocker
-    for (const occupant of toCell.occupants) {
-      if (occupant.get(GridCellBlocker)) {
-        return false;
-      }
-    }
-
-    // Block movement into layer 1 cells that have layer 0 below (unless transition)
-    if (toCell.layer === 1 && !toCell.isTransition) {
-      const cellBelow = this.grid.getCell(toCol, toRow + 1);
-      if (cellBelow && cellBelow.layer === 0) {
-        return false;
-      }
-    }
-
-    // Transition cells can be entered from any direction
-    if (toCell.isTransition) {
-      return true;
-    }
-
-    // If in a transition cell
-    if (fromCell.isTransition) {
-      const movingHorizontally = fromRow === toRow;
-      
-      // Horizontal movement only allowed to other transition cells
-      if (movingHorizontally) {
-        return toCell.isTransition;
-      }
-      
-      // Vertical movement allowed to any layer
-      return true;
-    }
-
-    // Normal movement: must be same layer
-    return toCell.layer === fromCell.layer;
-  }
-
   update(_delta: number): void {
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
 
+    const hop = this.entity.get(BugHopComponent);
+    if (hop?.isActive()) {
+      this.previousX = transform.x;
+      this.previousY = transform.y;
+      return;
+    }
+
+    const stateMachine = this.entity.get(StateMachineComponent);
+    if (stateMachine?.stateMachine.getCurrentKey() === 'attack') {
+      this.previousX = transform.x;
+      this.previousY = transform.y;
+      return;
+    }
+
     if (this.previousX === 0 && this.previousY === 0) {
       this.previousX = transform.x;
       this.previousY = transform.y;
+    }
+
+    const hopJustEnded = hop && !hop.isActive() && hop.justEnded();
+    if (hopJustEnded) {
+      this.previousX = transform.x;
+      this.previousY = transform.y;
+      const cell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+      if (cell) {
+        gridPos.currentLayer = cell.layer;
+      }
+      return;
     }
 
     const newX = transform.x;
@@ -238,7 +221,7 @@ export class GridCollisionComponent implements Component {
     gridPos.currentCell = topLeftCell;
 
     const currentCellData = this.grid.getCell(topLeftCell.col, topLeftCell.row);
-    if (currentCellData) {
+    if (currentCellData && !currentCellData.isTransition) {
       gridPos.currentLayer = currentCellData.layer;
     }
 

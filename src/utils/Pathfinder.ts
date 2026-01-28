@@ -1,4 +1,5 @@
 import type { Grid } from './Grid';
+import { GridCellBlocker } from '../ecs/components/movement/GridCellBlocker';
 
 type PathNode = {
   col: number;
@@ -22,7 +23,8 @@ export class Pathfinder {
     startRow: number,
     goalCol: number,
     goalRow: number,
-    currentLayer: number
+    currentLayer: number,
+    allowLayerChanges: boolean = false
   ): Array<{ col: number; row: number }> | null {
     const openSet: PathNode[] = [];
     const closedSet = new Set<string>();
@@ -57,7 +59,7 @@ export class Pathfinder {
       openSet.splice(currentIndex, 1);
       closedSet.add(`${current.col},${current.row},${current.layer}`);
 
-      const neighbors = this.getNeighbors(current.col, current.row, current.layer);
+      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges);
       for (const neighbor of neighbors) {
         const key = `${neighbor.col},${neighbor.row},${neighbor.layer}`;
         if (closedSet.has(key)) continue;
@@ -94,7 +96,7 @@ export class Pathfinder {
     return Math.abs(col1 - col2) + Math.abs(row1 - row2);
   }
 
-  private getNeighbors(col: number, row: number, currentLayer: number): Array<{ col: number; row: number; layer: number }> {
+  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean): Array<{ col: number; row: number; layer: number }> {
     const neighbors: Array<{ col: number; row: number; layer: number }> = [];
     const currentCell = this.grid.getCell(col, row);
     if (!currentCell) return neighbors;
@@ -112,7 +114,7 @@ export class Pathfinder {
       const targetCell = this.grid.getCell(newCol, newRow);
       if (!targetCell) continue;
 
-      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow);
+      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges);
       if (neighbor) {
         neighbors.push(neighbor);
       }
@@ -123,12 +125,20 @@ export class Pathfinder {
 
   private getValidNeighbor(
     currentCell: { layer: number; isTransition: boolean },
-    targetCell: { layer: number; isTransition: boolean },
+    targetCell: { layer: number; isTransition: boolean; occupants: Set<unknown> },
     dir: { col: number; row: number },
     currentLayer: number,
     newCol: number,
-    newRow: number
+    newRow: number,
+    allowLayerChanges: boolean
   ): { col: number; row: number; layer: number } | null {
+    for (const occupant of targetCell.occupants) {
+      const entity = occupant as { get?: (type: typeof GridCellBlocker) => unknown };
+      if (entity.get?.(GridCellBlocker)) {
+        return null;
+      }
+    }
+
     const isVerticalMove = dir.col === 0;
     const movingUp = dir.row < 0;
     const movingDown = dir.row > 0;
@@ -141,6 +151,10 @@ export class Pathfinder {
       return this.getNeighborToTransition(isVerticalMove, movingUp, movingDown, currentLayer, targetCell.layer, newCol, newRow);
     }
 
+    if (allowLayerChanges) {
+      return { col: newCol, row: newRow, layer: targetCell.layer };
+    }
+
     if (targetCell.layer === currentLayer) {
       return { col: newCol, row: newRow, layer: currentLayer };
     }
@@ -151,19 +165,16 @@ export class Pathfinder {
   private getNeighborFromTransition(
     targetCell: { layer: number },
     isVerticalMove: boolean,
-    movingUp: boolean,
-    movingDown: boolean,
+    _movingUp: boolean,
+    _movingDown: boolean,
     entityLayer: number,
     newCol: number,
     newRow: number
   ): { col: number; row: number; layer: number } | null {
     if (!isVerticalMove) return null;
 
-    if (movingUp && targetCell.layer >= entityLayer && targetCell.layer <= entityLayer + 1) {
-      return { col: newCol, row: newRow, layer: targetCell.layer };
-    }
-
-    if (movingDown && targetCell.layer >= entityLayer - 1 && targetCell.layer <= entityLayer) {
+    // From transition, can move to layer-1, layer, or layer+1
+    if (targetCell.layer >= entityLayer - 1 && targetCell.layer <= entityLayer + 1) {
       return { col: newCol, row: newRow, layer: targetCell.layer };
     }
 
@@ -171,25 +182,16 @@ export class Pathfinder {
   }
 
   private getNeighborToTransition(
-    isVerticalMove: boolean,
-    movingUp: boolean,
-    movingDown: boolean,
-    currentLayer: number,
+    _isVerticalMove: boolean,
+    _movingUp: boolean,
+    _movingDown: boolean,
+    _currentLayer: number,
     targetCellLayer: number,
     newCol: number,
     newRow: number
   ): { col: number; row: number; layer: number } | null {
-    if (!isVerticalMove) return null;
-
-    if (movingDown && currentLayer >= targetCellLayer) {
-      return { col: newCol, row: newRow, layer: targetCellLayer };
-    }
-
-    if (movingUp && currentLayer <= targetCellLayer) {
-      return { col: newCol, row: newRow, layer: targetCellLayer };
-    }
-
-    return null;
+    // Transition cells can be entered from any direction (GridCollisionComponent line 76-78)
+    return { col: newCol, row: newRow, layer: targetCellLayer };
   }
 
   private reconstructPath(node: PathNode): Array<{ col: number; row: number }> {

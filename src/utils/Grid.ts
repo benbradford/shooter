@@ -244,19 +244,19 @@ export class Grid {
         if (cell.layer === 1 && cell.isTransition) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
-          
+
           // Draw steps in bottom 80% (full width, no gradient)
           const numSteps = 5;
           const startY = y + (this.cellSize * 0.2);
           const stepHeight = (this.cellSize * 0.8) / numSteps;
-          
+
           for (let step = 0; step < numSteps; step++) {
             const stepY = startY + step * stepHeight;
-            
+
             // Step tread (horizontal surface)
             this.graphics.fillStyle(LAYER1_FILL_COLOR, 1);
             this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
-            
+
             // Step front (horizontal line)
             this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
             this.graphics.strokeLineShape(new Phaser.Geom.Line(
@@ -275,10 +275,6 @@ export class Grid {
         if (cell.layer === 1) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
-          const brickDepth = 12;
-          const brickWidth = this.cellSize / 3;
-          const brickSpacing = 2;
-          const edgeLineThickness = 2;
           const edgeThickness = 8;
 
           this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
@@ -335,7 +331,7 @@ export class Grid {
                   // Fill brick
                   this.graphics.fillStyle(LAYER1_BRICK_FILL_COLOR, 1);
                   this.graphics.fillRect(startX, currentY, endX - startX, brickHeight);
-                  
+
                   // Outline brick
                   this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
                   this.graphics.strokeRect(startX, currentY, endX - startX, brickHeight);
@@ -381,7 +377,7 @@ export class Grid {
           }
 
           // Diagonal shadow on bottom-right cell (if layer 0)
-          if (col < this.width - 1 && row < this.height - 1 && 
+          if (col < this.width - 1 && row < this.height - 1 &&
               this.cells[row + 1][col + 1].layer === 0 &&
               this.cells[row][col + 1].layer === 0 &&
               this.cells[row + 1][col].layer === 0) {

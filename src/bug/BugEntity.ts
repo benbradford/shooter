@@ -4,6 +4,7 @@ import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 import { ShadowComponent } from '../ecs/components/core/ShadowComponent';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
+import { GridCollisionComponent } from '../ecs/components/movement/GridCollisionComponent';
 import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
 import { DamageComponent } from '../ecs/components/core/DamageComponent';
 import { HitFlashComponent } from '../ecs/components/visual/HitFlashComponent';
@@ -17,7 +18,8 @@ import { BugChaseState } from './BugChaseState';
 import { BugAttackState } from './BugAttackState';
 import type { Grid } from '../utils/Grid';
 
-const BUG_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
+const BUG_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 32, height: 32 };
+const BUG_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
 const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
 const BUG_DAMAGE = 10;
@@ -56,7 +58,8 @@ export function createBugEntity(props: CreateBugProps): Entity {
   const shadow = entity.add(new ShadowComponent(scene, { scale: 1.5, offsetX: 0, offsetY: 10 }));
   shadow.init();
 
-  entity.add(new GridPositionComponent(col, row, BUG_COLLISION_BOX));
+  entity.add(new GridPositionComponent(col, row, BUG_GRID_COLLISION_BOX));
+  entity.add(new GridCollisionComponent(grid));
 
   const bugHealth = entity.add(new HealthComponent({ maxHealth: health }));
   entity.add(new HitFlashComponent(0x00ff00));
@@ -72,7 +75,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
   entity.add(new StateMachineComponent(stateMachine));
 
   entity.add(new CollisionComponent({
-    box: BUG_COLLISION_BOX,
+    box: BUG_ENTITY_COLLISION_BOX,
     collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
@@ -134,8 +137,9 @@ export function createBugEntity(props: CreateBugProps): Entity {
     SpriteComponent,
     ShadowComponent,
     GridPositionComponent,
-    KnockbackComponent,
     BugHopComponent,
+    GridCollisionComponent,
+    KnockbackComponent,
     StateMachineComponent,
     CollisionComponent
   ]);

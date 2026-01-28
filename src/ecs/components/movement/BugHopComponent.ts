@@ -10,6 +10,7 @@ const HOP_HEIGHT_PX = 30;
 export class BugHopComponent implements Component {
   entity!: Entity;
   private isHopping = false;
+  private wasHopping = false;
   private hopTimer = 0;
   private startX = 0;
   private startY = 0;
@@ -43,6 +44,8 @@ export class BugHopComponent implements Component {
   }
 
   update(delta: number): void {
+    this.wasHopping = this.isHopping;
+    
     if (!this.isHopping) return;
 
     const transform = this.entity.require(TransformComponent);
@@ -75,6 +78,10 @@ export class BugHopComponent implements Component {
 
   isActive(): boolean {
     return this.isHopping;
+  }
+
+  justEnded(): boolean {
+    return this.wasHopping && !this.isHopping;
   }
 
 }

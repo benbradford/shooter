@@ -11,7 +11,7 @@ WIP hosted on https://dodging-bullets.netlify.app/
 
 Use
 ```
-kiro-cli chat --agent .kiro/agents/dodging-bullets.md
+kiro-cli chat --agent dodging-bullets
 ```
 to start a kiro session with context on the project
 

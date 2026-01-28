@@ -22,6 +22,7 @@ export class BugAttackState implements IState {
   private targetX = 0;
   private targetY = 0;
   private lastAttackTime = 0;
+  private isLeaping = false;
 
   constructor(entity: Entity, playerEntity: Entity, scene: Phaser.Scene) {
     this.entity = entity;
@@ -47,6 +48,8 @@ export class BugAttackState implements IState {
     this.targetY = playerTransform.y;
     this.elapsedMs = 0;
     this.lastAttackTime = currentTime;
+    this.isLeaping = true;
+    
     const dx = this.targetX - this.startX;
     const dy = this.targetY - this.startY;
     const isHorizontal = Math.abs(dx) > Math.abs(dy);
@@ -57,6 +60,14 @@ export class BugAttackState implements IState {
       baseFrame = dy > 0 ? SPRITE_FRAME_DOWN : SPRITE_FRAME_UP;
     }
     sprite.sprite.setFrame(baseFrame);
+  }
+
+  onExit(): void {
+    this.isLeaping = false;
+  }
+
+  isActive(): boolean {
+    return this.isLeaping;
   }
 
   onUpdate(delta: number): void {
@@ -78,6 +89,7 @@ export class BugAttackState implements IState {
     sprite.sprite.setScale(scale);
 
     if (progress >= 1) {
+      this.isLeaping = false;
       sprite.sprite.setY(transform.y);
       sprite.sprite.setScale(2);
 
