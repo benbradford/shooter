@@ -33,7 +33,7 @@ import { SPRITE_SCALE } from '../constants/GameConstants';
 
 const PLAYER_SCALE = 2 * SPRITE_SCALE;
 const PLAYER_SPRITE_FRAME = 0; // Down idle
-const PLAYER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 48, height: 32 }; // For grid/wall collision
+const PLAYER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 34, height: 24 }; // For grid/wall collision
 const PLAYER_ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -40, width: 36, height: 75 }; // For projectile collision
 const PLAYER_WALK_SPEED_PX_PER_SEC = 300;
 const PLAYER_ACCELERATION_TIME_MS = 300;

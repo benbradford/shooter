@@ -237,6 +237,37 @@ export class Grid {
   render(entityManager?: EntityManager) {
     this.graphics.clear();
 
+    // Draw transition cell steps
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        const cell = this.cells[row][col];
+        if (cell.layer === 1 && cell.isTransition) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          
+          // Draw steps in bottom 80% (full width, no gradient)
+          const numSteps = 5;
+          const startY = y + (this.cellSize * 0.2);
+          const stepHeight = (this.cellSize * 0.8) / numSteps;
+          
+          for (let step = 0; step < numSteps; step++) {
+            const stepY = startY + step * stepHeight;
+            
+            // Step tread (horizontal surface)
+            this.graphics.fillStyle(LAYER1_FILL_COLOR, 1);
+            this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
+            
+            // Step front (horizontal line)
+            this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              x, stepY,
+              x + this.cellSize, stepY
+            ));
+          }
+        }
+      }
+    }
+
     // Always draw layer 1 edges
     for (let row = 0; row < this.height; row++) {
       for (let col = 0; col < this.width; col++) {
@@ -276,8 +307,8 @@ export class Grid {
             ));
           }
 
-          // Bottom edge - brick pattern
-          if (row < this.height - 1 && this.cells[row + 1][col].layer === 0) {
+          // Bottom edge - brick pattern (skip if current cell is transition)
+          if (row < this.height - 1 && this.cells[row + 1][col].layer === 0 && !cell.isTransition) {
             const topBarY = y + (this.cellSize * 0.2);
 
             // Draw horizontal line at top (20% down)

@@ -44,10 +44,22 @@ export class GridCollisionComponent implements Component {
       }
     }
 
-    // If in a transition cell, can only move up or down (not left/right)
+    // Block movement into layer 1 cells that have layer 0 below (unless transition or coming from transition)
+    if (toCell.layer === 1 && !toCell.isTransition && !fromCell.isTransition) {
+      const cellBelow = this.grid.getCell(toCol, toRow + 1);
+      if (cellBelow && cellBelow.layer === 0) {
+        return false;
+      }
+    }
+
+    // If in a transition cell, restrict horizontal movement
     if (fromCell.isTransition) {
       const movingVertically = fromCol === toCol;
-      if (!movingVertically) return false;
+      
+      // Allow horizontal movement only to other transition cells
+      if (!movingVertically) {
+        return toCell.isTransition;
+      }
 
       const movingUp = toRow < fromRow;
       const movingDown = toRow > fromRow;
@@ -60,18 +72,9 @@ export class GridCollisionComponent implements Component {
       return false;
     }
 
-    // If moving to a transition cell
+    // If moving to a transition cell, allow from any direction
     if (toCell.isTransition) {
-      const movingVertically = fromCol === toCol;
-      if (!movingVertically) return false; // Can only enter from top or bottom
-
-      // Can enter from same layer moving down (toRow > fromRow means moving down)
-      if (toRow > fromRow && fromCell.layer >= toCell.layer) return true;
-
-      // Can enter from below moving up (toRow < fromRow means moving up)
-      if (toRow < fromRow && fromCell.layer <= toCell.layer) return true;
-
-      return false;
+      return true;
     }
 
     // Normal cell to normal cell: must be same layer (no layer changes except via transition)
@@ -120,6 +123,50 @@ export class GridCollisionComponent implements Component {
     }
 
     return false; // not blocked
+  }
+
+  // eslint-disable-next-line complexity -- Layer-based movement validation requires many conditions
+  private canMoveTo(fromCol: number, fromRow: number, toCol: number, toRow: number, _currentLayer: number): boolean {
+    const fromCell = this.grid.getCell(fromCol, fromRow);
+    const toCell = this.grid.getCell(toCol, toRow);
+
+    if (!fromCell || !toCell) return false;
+
+    // Check if target cell has any occupants with GridCellBlocker
+    for (const occupant of toCell.occupants) {
+      if (occupant.get(GridCellBlocker)) {
+        return false;
+      }
+    }
+
+    // Block movement into layer 1 cells that have layer 0 below (unless transition)
+    if (toCell.layer === 1 && !toCell.isTransition) {
+      const cellBelow = this.grid.getCell(toCol, toRow + 1);
+      if (cellBelow && cellBelow.layer === 0) {
+        return false;
+      }
+    }
+
+    // Transition cells can be entered from any direction
+    if (toCell.isTransition) {
+      return true;
+    }
+
+    // If in a transition cell
+    if (fromCell.isTransition) {
+      const movingHorizontally = fromRow === toRow;
+      
+      // Horizontal movement only allowed to other transition cells
+      if (movingHorizontally) {
+        return toCell.isTransition;
+      }
+      
+      // Vertical movement allowed to any layer
+      return true;
+    }
+
+    // Normal movement: must be same layer
+    return toCell.layer === fromCell.layer;
   }
 
   update(_delta: number): void {

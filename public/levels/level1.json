@@ -7,6 +7,141 @@
   },
   "cells": [
     {
+      "col": 36,
+      "row": 14,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 14,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 14,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 15,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 16,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 17,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 18,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 19,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 20,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 20,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 20,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 21,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 21,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 21,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 22,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 22,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 22,
+      "layer": 1
+    },
+    {
       "col": 0,
       "row": 23,
       "layer": 1
@@ -117,6 +252,66 @@
       "layer": 1
     },
     {
+      "col": 27,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 28,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 29,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 30,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 31,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 32,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 33,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 34,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 35,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 23,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 23,
+      "layer": 1
+    },
+    {
       "col": 0,
       "row": 24,
       "layer": 1
@@ -227,6 +422,66 @@
       "layer": 1
     },
     {
+      "col": 27,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 28,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 29,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 30,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 31,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 32,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 33,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 34,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 35,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 24,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 24,
+      "layer": 1
+    },
+    {
       "col": 0,
       "row": 25,
       "layer": 1
@@ -333,6 +588,66 @@
     },
     {
       "col": 21,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 27,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 28,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 29,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 30,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 31,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 32,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 33,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 34,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 35,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 25,
+      "layer": 1
+    },
+    {
+      "col": 38,
       "row": 25,
       "layer": 1
     },
@@ -421,7 +736,8 @@
     {
       "col": 16,
       "row": 26,
-      "layer": 1
+      "layer": 1,
+      "isTransition": true
     },
     {
       "col": 17,
@@ -447,6 +763,98 @@
       "col": 21,
       "row": 26,
       "layer": 1
+    },
+    {
+      "col": 27,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 28,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 29,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 30,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 31,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 32,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 33,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 34,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 35,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 36,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 37,
+      "row": 26,
+      "layer": 1
+    },
+    {
+      "col": 38,
+      "row": 26,
+      "layer": 1
+    }
+  ],
+  "robots": [
+    {
+      "col": 11,
+      "row": 25,
+      "difficulty": "medium",
+      "waypoints": [
+        {
+          "col": 9,
+          "row": 23
+        },
+        {
+          "col": 11,
+          "row": 23
+        }
+      ]
+    },
+    {
+      "col": 3,
+      "row": 29,
+      "difficulty": "medium",
+      "waypoints": [
+        {
+          "col": 3,
+          "row": 27
+        },
+        {
+          "col": 3,
+          "row": 31
+        }
+      ]
     }
   ],
   "bugBases": [
