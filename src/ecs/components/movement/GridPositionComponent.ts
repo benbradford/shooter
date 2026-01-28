@@ -1,5 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
+import type { CollisionBox } from '../combat/CollisionComponent';
 
 export class GridPositionComponent implements Component {
   entity!: Entity;
@@ -8,18 +9,12 @@ export class GridPositionComponent implements Component {
   public previousCell: { col: number; row: number };
   public currentLayer: number = 0;
 
-  // Collision box offset from entity center
-  public collisionBox: {
-    offsetX: number;
-    offsetY: number;
-    width: number;
-    height: number;
-  };
+  public collisionBox: CollisionBox;
 
   constructor(
     col: number,
     row: number,
-    collisionBox = { offsetX: 0, offsetY: 16, width: 32, height: 16 }
+    collisionBox: CollisionBox
   ) {
     this.currentCell = { col, row };
     this.previousCell = { col, row };

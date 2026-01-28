@@ -22,6 +22,10 @@ const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
 const BUG_DAMAGE = 10;
 
+import { SPRITE_SCALE } from '../constants/GameConstants';
+
+const BUG_SCALE = 2 * SPRITE_SCALE;
+
 export type CreateBugProps = {
   scene: Phaser.Scene;
   col: number;
@@ -43,10 +47,10 @@ export function createBugEntity(props: CreateBugProps): Entity {
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
-  const transform = entity.add(new TransformComponent(x, y, 0, 2));
+  const transform = entity.add(new TransformComponent(x, y, 0, BUG_SCALE));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug', transform));
-  sprite.sprite.setScale(2);
+  sprite.sprite.setScale(BUG_SCALE);
   sprite.sprite.setDepth(10);
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 1.5, offsetX: 0, offsetY: 10 }));

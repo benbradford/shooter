@@ -337,6 +337,13 @@
       "layer": 1
     }
   ],
+  "bugBases": [
+    {
+      "col": 19,
+      "row": 16,
+      "difficulty": "hard"
+    }
+  ],
   "vignette": {
     "alpha": 0.4999999999999996,
     "tint": 4465152,

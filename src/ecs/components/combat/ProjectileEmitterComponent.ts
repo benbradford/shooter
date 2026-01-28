@@ -4,6 +4,7 @@ import { TransformComponent } from '../core/TransformComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { Direction } from '../../../constants/Direction';
 import type { AmmoComponent } from './AmmoComponent';
+import type { InputComponent } from '../input/InputComponent';
 
 export type EmitterOffset = {
   x: number;
@@ -18,6 +19,7 @@ export type ProjectileEmitterProps = {
   cooldown: number;
   onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
   ammoComponent: AmmoComponent;
+  inputComponent?: InputComponent;
 }
 
 export class ProjectileEmitterComponent implements Component {
@@ -30,6 +32,7 @@ export class ProjectileEmitterComponent implements Component {
   private readonly cooldown: number;
   private readonly onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
   private readonly ammoComponent: AmmoComponent;
+  private readonly inputComponent?: InputComponent;
 
   constructor(props: ProjectileEmitterProps) {
     this.scene = props.scene;
@@ -39,6 +42,7 @@ export class ProjectileEmitterComponent implements Component {
     this.cooldown = props.cooldown ?? 200;
     this.onShellEject = props.onShellEject;
     this.ammoComponent = props.ammoComponent;
+    this.inputComponent = props.inputComponent;
   }
 
   update(_delta: number): void {
@@ -59,14 +63,16 @@ export class ProjectileEmitterComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const walk = this.entity.require(WalkComponent);
 
+    // Use auto-aim if available, otherwise use facing direction
+    const autoAim = this.inputComponent?.getAutoAimDirection();
+    const dirX = autoAim?.dx ?? walk.lastMoveX;
+    const dirY = autoAim?.dy ?? walk.lastMoveY;
+
     const direction = walk.lastDir;
 
     const offset = this.offsets[direction];
     const emitX = transform.x + offset.x;
     const emitY = transform.y + offset.y;
-
-    const dirX = walk.lastMoveX;
-    const dirY = walk.lastMoveY;
 
     this.onFire(emitX, emitY, dirX, dirY);
 

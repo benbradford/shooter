@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from '../input/TouchJoystickComponent';
-import { TOUCH_CONTROLS_SCALE } from '../../../main';
+import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
 export class JoystickVisualsComponent implements Component {
   entity!: Entity;

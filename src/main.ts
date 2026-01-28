@@ -4,10 +4,6 @@ import EditorScene from "./EditorScene";
 import LevelSelectorScene from "./LevelSelectorScene";
 import HudScene from "./HudScene";
 
-// Touch controls scale - adjust this to make joysticks bigger/smaller
-// 1.0 = normal, 1.5 = 50% bigger, 0.75 = 25% smaller
-export const TOUCH_CONTROLS_SCALE = 0.75;
-
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 1100,

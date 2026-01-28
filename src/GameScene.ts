@@ -13,6 +13,7 @@ import { BugSpawnerComponent } from "./ecs/components/ai/BugSpawnerComponent";
 import { DifficultyComponent } from "./ecs/components/ai/DifficultyComponent";
 import { getBugBaseDifficultyConfig } from "./bug/BugBaseDifficulty";
 import type { EnemyDifficulty } from "./constants/EnemyDifficulty";
+import { CELL_SIZE, CAMERA_ZOOM } from "./constants/GameConstants";
 import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "./ecs/components/movement/GridPositionComponent";
 import { TransformComponent } from "./ecs/components/core/TransformComponent";
@@ -23,7 +24,7 @@ export default class GameScene extends Phaser.Scene {
   private entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
   private grid!: Grid;
-  private readonly cellSize: number = 32;
+  private readonly cellSize: number = CELL_SIZE;
   private editorKey!: Phaser.Input.Keyboard.Key;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
@@ -228,13 +229,13 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Set camera zoom - HUD scene is separate so this won't affect touch
-    this.cameras.main.setZoom(0.75);
+    this.cameras.main.setZoom(CAMERA_ZOOM);
 
     // Add vignette overlay
     if (this.vignette) {
       this.vignette.destroy();
     }
-    const vignetteConfig = level.vignette || { alpha: 0.6, tint: 0x000000, blendMode: Phaser.BlendModes.MULTIPLY };
+    const vignetteConfig = level.vignette ?? { alpha: 0.6, tint: 0x000000, blendMode: Phaser.BlendModes.MULTIPLY };
     const zoom = this.cameras.main.zoom;
     this.vignette = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'vignette');
     this.vignette.setOrigin(0.5, 0.5);
@@ -275,12 +276,12 @@ export default class GameScene extends Phaser.Scene {
 
     const startX = this.grid.cellSize * level.playerStart.x;
     const startY = this.grid.cellSize * level.playerStart.y;
-    const player = this.entityManager.add(createPlayerEntity(
-      this,
-      startX,
-      startY,
-      this.grid,
-      (x, y, dirX, dirY) => {
+    const player = this.entityManager.add(createPlayerEntity({
+      scene: this,
+      x: startX,
+      y: startY,
+      grid: this.grid,
+      onFire: (x, y, dirX, dirY) => {
         const gridPos = player.get(GridPositionComponent);
         if (!gridPos) return;
         const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
@@ -298,12 +299,13 @@ export default class GameScene extends Phaser.Scene {
         });
         this.entityManager.add(bullet);
       },
-      (x, y, direction, playerDirection) => {
+      onShellEject: (x, y, direction, playerDirection) => {
         const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
         this.entityManager.add(shell);
       },
-      joystick
-    ));
+      joystick,
+      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug'))
+    }));
 
 
 

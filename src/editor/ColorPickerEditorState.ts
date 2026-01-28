@@ -21,7 +21,7 @@ export class ColorPickerEditorState extends EditorState {
 
   onEnter(props?: unknown): void {
     this.props = (props as { data?: ColorPickerProps })?.data;
-    this.selectedColor = this.props?.currentColor || '#ffffff';
+    this.selectedColor = this.props?.currentColor ?? '#ffffff';
     this.createColorWheel();
   }
 

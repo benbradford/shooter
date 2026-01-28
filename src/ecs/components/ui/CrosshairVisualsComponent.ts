@@ -2,12 +2,13 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from '../input/TouchJoystickComponent';
 import { ControlModeComponent } from '../input/ControlModeComponent';
+import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
 export class CrosshairVisualsComponent implements Component {
   entity!: Entity;
   private sprite!: Phaser.GameObjects.Sprite;
-  private readonly scale = 0.8;
-  private readonly pressedScale = 1;
+  private readonly scale = TOUCH_CONTROLS_SCALE;
+  private readonly pressedScale = TOUCH_CONTROLS_SCALE * 1.3;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -49,7 +50,7 @@ export class CrosshairVisualsComponent implements Component {
 
     this.sprite.setVisible(true);
     const isPressed = this.joystick.isFireButtonPressed();
-    
+
     if (isPressed) {
       // Scale up and tint blue when pressed
       this.sprite.setScale(this.pressedScale);

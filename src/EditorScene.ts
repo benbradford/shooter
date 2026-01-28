@@ -325,7 +325,7 @@ export default class EditorScene extends Phaser.Scene {
     if (!entity) {
       const gameScene = this.scene.get('game') as GameScene;
       const entityManager = gameScene.getEntityManager();
-      entity = entityManager.getFirst('player') || undefined;
+      entity = entityManager.getFirst('player') ?? undefined;
     }
 
     if (!entity) {

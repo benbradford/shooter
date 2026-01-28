@@ -233,8 +233,68 @@ export class Grid {
   render(entityManager?: EntityManager) {
     this.graphics.clear();
 
+    // Always draw layer 1 edges
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        const cell = this.cells[row][col];
+        if (cell.layer === 1) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          const edgeThickness = 8;
+          this.graphics.lineStyle(edgeThickness, 0x808080, 1);
+
+          // Right edge
+          if (col < this.width - 1 && this.cells[row][col + 1].layer === 0) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              x + this.cellSize, y,
+              x + this.cellSize, y + this.cellSize
+            ));
+          }
+
+          // Left edge
+          if (col > 0 && this.cells[row][col - 1].layer === 0) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              x, y,
+              x, y + this.cellSize
+            ));
+          }
+
+          // Top edge
+          if (row > 0 && this.cells[row - 1][col].layer === 0) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              x, y,
+              x + this.cellSize, y
+            ));
+          }
+
+          // Bottom edge - vertical lines if layer 0 below
+          if (row < this.height - 1 && this.cells[row + 1][col].layer === 0) {
+            const lineSpacing = 12;
+            const lineThickness = 4;
+            const topBarY = y + (this.cellSize * 0.2);
+            
+            this.graphics.lineStyle(lineThickness, 0x808080, 1);
+            
+            // Draw vertical lines
+            for (let lineX = x; lineX <= x + this.cellSize; lineX += lineSpacing) {
+              this.graphics.strokeLineShape(new Phaser.Geom.Line(
+                lineX, y,
+                lineX, y + this.cellSize
+              ));
+            }
+            
+            // Draw horizontal line at top of vertical lines (20% down)
+            this.graphics.lineStyle(edgeThickness, 0x808080, 1);
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              x, topBarY,
+              x + this.cellSize, topBarY
+            ));
+          }
+        }
+      }
+    }
+
     if (!this.isGridDebugEnabled) {
-      // Still draw scene debug elements even if grid is off
       if (this.isSceneDebugEnabled) {
         this.renderSceneDebug(entityManager);
       }
@@ -247,7 +307,6 @@ export class Grid {
         const y = row * this.cellSize;
         const cell = this.cells[row][col];
 
-        // Layer shading for debug mode only
         let layerAlpha: number;
         let layerColor: number;
         
@@ -265,25 +324,16 @@ export class Grid {
         this.graphics.fillStyle(layerColor, layerAlpha);
         this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
 
-        // Transition cells in blue (override layer color)
         if (cell.isTransition) {
           this.graphics.fillStyle(0x0000ff, 0.5);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
 
-        // Occupied cells in green (overlay on top) - COMMENTED OUT FOR DEBUG
-        // if (this.isShowingOccupants && cell.occupants.size > 0) {
-        //   this.graphics.fillStyle(0x00ff00, 0.3);
-        //   this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-        // }
-
-        // Draw cell outline
         this.graphics.lineStyle(1, 0xffffff, 0.3);
-        this.graphics.strokeRect(x + 0.5, y + 0.5, this.cellSize, this.cellSize); // 0.5 for crisp lines
+        this.graphics.strokeRect(x + 0.5, y + 0.5, this.cellSize, this.cellSize);
       }
     }
 
-    // Draw scene debug elements if enabled
     if (this.isSceneDebugEnabled) {
       this.renderSceneDebug(entityManager);
     }

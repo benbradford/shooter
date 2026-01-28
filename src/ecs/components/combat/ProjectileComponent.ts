@@ -95,7 +95,7 @@ export class ProjectileComponent implements Component {
   private handleWallCollision(transform: TransformComponent, cell: { col: number; row: number }): void {
     const cellWorld = this.grid.cellToWorld(cell.col, cell.row);
     const cellBottomY = cellWorld.y + this.grid.cellSize;
-    const bottomThreshold = cellBottomY - (this.grid.cellSize * 0.2);
+    const bottomThreshold = cellBottomY - (this.grid.cellSize * 0.8);
 
     if (transform.y >= bottomThreshold) return;
 

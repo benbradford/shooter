@@ -4,6 +4,8 @@ import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from './TouchJoystickComponent';
 import type { AimJoystickComponent } from './AimJoystickComponent';
 import type { ControlModeComponent } from './ControlModeComponent';
+import type { Grid } from '../../../utils/Grid';
+import { TransformComponent } from '../core/TransformComponent';
 
 export class InputComponent implements Component {
   entity!: Entity;
@@ -14,14 +16,18 @@ export class InputComponent implements Component {
   private aimJoystick: AimJoystickComponent | null = null;
   private controlMode: ControlModeComponent | null = null;
   private fireHeldTime: number = 0;
+  private readonly grid: Grid;
+  private readonly getEnemies: () => Entity[];
 
-  constructor(scene: Phaser.Scene) {
+  constructor(scene: Phaser.Scene, grid: Grid, getEnemies: () => Entity[]) {
     const keyboard = scene.input.keyboard;
     if (keyboard) {
       this.cursors = keyboard.createCursorKeys();
       this.keys = keyboard.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
       this.fireKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     }
+    this.grid = grid;
+    this.getEnemies = getEnemies;
   }
 
   setJoystick(joystick: TouchJoystickComponent): void {
@@ -128,5 +134,62 @@ export class InputComponent implements Component {
 
   getFireHeldTime(): number {
     return this.fireHeldTime;
+  }
+
+  /** Get auto-aim direction to nearest visible enemy (mode 1 only) */
+  getAutoAimDirection(): { dx: number; dy: number } | null {
+    const mode = this.controlMode?.getMode() ?? 1;
+    if (mode !== 1) return null;
+
+    const playerTransform = this.entity.get(TransformComponent);
+    if (!playerTransform) return null;
+
+    const enemies = this.getEnemies();
+    let nearestEnemy: Entity | null = null;
+    let nearestDistance = Infinity;
+
+    for (const enemy of enemies) {
+      const enemyTransform = enemy.get(TransformComponent);
+      if (!enemyTransform) continue;
+
+      const dx = enemyTransform.x - playerTransform.x;
+      const dy = enemyTransform.y - playerTransform.y;
+      const distance = Math.hypot(dx, dy);
+
+      if (distance < nearestDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y)) {
+        nearestDistance = distance;
+        nearestEnemy = enemy;
+      }
+    }
+
+    if (nearestEnemy) {
+      const enemyTransform = nearestEnemy.require(TransformComponent);
+      const dx = enemyTransform.x - playerTransform.x;
+      const dy = enemyTransform.y - playerTransform.y;
+      const length = Math.hypot(dx, dy);
+      return { dx: dx / length, dy: dy / length };
+    }
+
+    return null;
+  }
+
+  private hasLineOfSight(x1: number, y1: number, x2: number, y2: number): boolean {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const distance = Math.hypot(dx, dy);
+    const steps = Math.ceil(distance / (this.grid.cellSize / 2));
+
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const x = x1 + dx * t;
+      const y = y1 + dy * t;
+      const cell = this.grid.worldToCell(x, y);
+      const cellData = this.grid.getCell(cell.col, cell.row);
+      if (cellData && cellData.layer === 1) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

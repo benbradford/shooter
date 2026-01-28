@@ -47,17 +47,15 @@ export class ParticleTrailComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const sprite = this.entity.get(SpriteComponent);
 
-    if (!this.particles) {
-      this.particles = this.scene.add.particles(transform.x, transform.y, 'fire', {
-        speed: { min: 20, max: 60 },
-        angle: { min: 0, max: 360 },
-        scale: { start: 0.03, end: 0 },
-        alpha: { start: 1, end: 0 },
-        lifespan: 1000,
-        frequency: -1,
-        blendMode: 'ADD'
-      });
-    }
+    this.particles ??= this.scene.add.particles(transform.x, transform.y, 'fire', {
+      speed: { min: 20, max: 60 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 0.03, end: 0 },
+      alpha: { start: 1, end: 0 },
+      lifespan: 1000,
+      frequency: -1,
+      blendMode: 'ADD'
+    });
 
     if (sprite) {
       this.particles.setDepth(sprite.sprite.depth);

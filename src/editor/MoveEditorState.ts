@@ -24,7 +24,7 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
     }
 
     this.entity = props.data.entity;
-    this.returnState = props.data.returnState || 'default';
+    this.returnState = props.data.returnState ?? 'default';
 
     // Create custom back button
     const height = this.scene.cameras.main.height;

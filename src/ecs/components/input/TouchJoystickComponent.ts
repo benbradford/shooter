@@ -35,16 +35,11 @@ export class TouchJoystickComponent implements Component {
   }
 
   init(): void {
-    // Listen for pointer down in lower-left quadrant (movement)
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      const displayWidth = this.scene.scale.displaySize.width;
-      const displayHeight = this.scene.scale.displaySize.height;
-      
-      const screenWidth = displayWidth;
-      const screenHeight = displayHeight;
+      const screenWidth = this.scene.cameras.main.width;
 
-      // Check if in lower-left area (movement) - expanded area
-      if (pointer.x < screenWidth * 0.6 && pointer.y > screenHeight * 0.3 && this.pointerId === -1) {
+      // Only register movement touches on left half of screen
+      if (pointer.x < screenWidth * 0.5 && this.pointerId === -1) {
         this.isActive = true;
         this.startX = pointer.x;
         this.startY = pointer.y;
@@ -53,7 +48,7 @@ export class TouchJoystickComponent implements Component {
         this.pointerId = pointer.id;
       }
 
-      // Check if touching crosshair (fire)
+      // Check if touching crosshair (fire) - no left side restriction
       if (this.crosshairBounds && this.firePointerId === -1) {
         const dx = pointer.x - this.crosshairBounds.x;
         const dy = pointer.y - this.crosshairBounds.y;

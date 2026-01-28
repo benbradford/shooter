@@ -5,7 +5,7 @@ export type ControlMode = 1 | 2;
 
 export class ControlModeComponent implements Component {
   entity!: Entity;
-  private mode: ControlMode = 2;
+  private mode: ControlMode = 1;
   private aimStopTime: number = 0;
   private readonly aimStopCooldownMs: number = 1000;
 

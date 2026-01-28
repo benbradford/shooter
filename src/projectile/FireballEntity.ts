@@ -11,7 +11,9 @@ import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { DamageComponent } from '../ecs/components/core/DamageComponent';
 import type { Grid } from '../utils/Grid';
 
-const FIREBALL_SCALE = 1;
+import { SPRITE_SCALE } from '../constants/GameConstants';
+
+const FIREBALL_SCALE = 1 * SPRITE_SCALE;
 const FIREBALL_DAMAGE = 10;
 const FIREBALL_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
 const FIREBALL_ANIMATION_FRAMES = [0, 1, 2];

@@ -29,7 +29,9 @@ import { PlayerWalkState } from './PlayerWalkState';
 import type { Grid } from '../utils/Grid';
 
 // Player configuration constants
-const PLAYER_SCALE = 2;
+import { SPRITE_SCALE } from '../constants/GameConstants';
+
+const PLAYER_SCALE = 2 * SPRITE_SCALE;
 const PLAYER_SPRITE_FRAME = 0; // Down idle
 const PLAYER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 48, height: 32 }; // For grid/wall collision
 const PLAYER_ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -40, width: 36, height: 75 }; // For projectile collision
@@ -46,15 +48,19 @@ const PLAYER_FIRE_COOLDOWN_MS = 180;
 const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 70;
 const PLAYER_AMMO_BAR_OFFSET_Y_PX = 90;
 
-export function createPlayerEntity(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  grid: Grid,
-  onFire: (x: number, y: number, dirX: number, dirY: number) => void,
-  onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void,
-  joystick: Entity
-): Entity {
+export type CreatePlayerEntityProps = {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  grid: Grid;
+  onFire: (x: number, y: number, dirX: number, dirY: number) => void;
+  onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
+  joystick: Entity;
+  getEnemies: () => Entity[];
+}
+
+export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
+  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -92,7 +98,7 @@ export function createPlayerEntity(
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
 
-  const input = entity.add(new InputComponent(scene));
+  const input = entity.add(new InputComponent(scene, grid, getEnemies));
 
   const joystickComp = joystick.get(TouchJoystickComponent);
   if (joystickComp) {
@@ -158,7 +164,8 @@ export function createPlayerEntity(
     shouldFire: () => input.isFirePressed(),
     cooldown: PLAYER_FIRE_COOLDOWN_MS,
     onShellEject,
-    ammoComponent: ammo
+    ammoComponent: ammo,
+    inputComponent: input
   }));
 
   const overheatSmoke = entity.add(new OverheatSmokeComponent(scene, ammo, emitterOffsets));

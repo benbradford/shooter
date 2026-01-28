@@ -5,9 +5,6 @@ import type { InputComponent } from '../input/InputComponent';
 import type { ControlModeComponent } from '../input/ControlModeComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
-// Walk configuration
-const FIRE_HOLD_THRESHOLD_MS = 200; // milliseconds - hold fire this long to stop moving (mode 1 only)
-
 export type WalkProps = {
   speed: number;
   accelerationTime: number;
@@ -51,13 +48,9 @@ export class WalkComponent implements Component {
     const mode = this.controlMode?.getMode() ?? 1;
     const movementInput = this.inputComp.getInputDelta();
     const facingInput = this.inputComp.getRawInputDelta();
-    const fireHeldTime = this.inputComp.getFireHeldTime();
 
     if (mode === 1) {
-      this.updateMode1(facingInput, fireHeldTime, delta);
-      if (fireHeldTime >= FIRE_HOLD_THRESHOLD_MS) {
-        return;
-      }
+      this.updateMode1(facingInput);
     } else {
       this.updateMode2(facingInput);
     }
@@ -78,16 +71,25 @@ export class WalkComponent implements Component {
     this.transformComp.y += this.velocityY * (delta / 1000);
   }
 
-  private updateMode1(facingInput: { dx: number; dy: number }, fireHeldTime: number, delta: number): void {
-    // Mode 1: Original behavior - stop moving when firing
-    if (facingInput.dx !== 0 || facingInput.dy !== 0) {
+  private updateMode1(facingInput: { dx: number; dy: number }): void {
+    // Mode 1: Auto-aim overrides facing when firing
+    const autoAim = this.inputComp.getAutoAimDirection();
+    const isFiring = this.inputComp.isFirePressed();
+
+    // Track when firing stops to start cooldown
+    if (this.wasAiming && !isFiring && this.controlMode) {
+      this.controlMode.startAimStopCooldown();
+    }
+    this.wasAiming = isFiring;
+
+    if (isFiring && autoAim) {
+      // Auto-aim overrides facing direction
+      this.updateFacingDirection(autoAim.dx, autoAim.dy);
+    } else if (!isFiring && this.controlMode && !this.controlMode.isInAimStopCooldown() && (facingInput.dx !== 0 || facingInput.dy !== 0)) {
+      // Not firing and cooldown expired - face movement direction
       this.updateFacingDirection(facingInput.dx, facingInput.dy);
     }
-
-    if (fireHeldTime >= FIRE_HOLD_THRESHOLD_MS) {
-      this.applyMomentum({ x: 0, y: 0 }, delta);
-      this.applyStopThreshold();
-    }
+    // During cooldown or no input, keep current facing direction
   }
 
   private updateMode2(facingInput: { dx: number; dy: number }): void {
@@ -112,11 +114,7 @@ export class WalkComponent implements Component {
   }
 
   isMovementStopped(): boolean {
-    const mode = this.controlMode?.getMode() ?? 1;
-    if (mode === 1) {
-      return this.inputComp.getFireHeldTime() >= FIRE_HOLD_THRESHOLD_MS;
-    }
-    return false; // Mode 2 never stops movement when firing
+    return false; // Never stop movement when firing
   }
 
   // Called by GridCollisionComponent when movement is blocked
@@ -125,7 +123,7 @@ export class WalkComponent implements Component {
     if (resetY) this.velocityY = 0;
   }
 
-  private updateFacingDirection(dx: number, dy: number): void {
+  updateFacingDirection(dx: number, dy: number): void {
     const len = Math.hypot(dx, dy);
     this.lastDir = dirFromDelta(dx, dy);
     this.lastMoveX = dx / len;
