@@ -72,7 +72,8 @@ export class WalkComponent implements Component {
   }
 
   private updateMode1(facingInput: { dx: number; dy: number }): void {
-    // Mode 1: Auto-aim overrides facing when firing
+    // Mode 1: Manual aim > Auto-aim > Movement direction
+    const manualAim = this.inputComp.getManualAimDirection();
     const autoAim = this.inputComp.getAutoAimDirection();
     const isFiring = this.inputComp.isFirePressed();
 
@@ -82,7 +83,10 @@ export class WalkComponent implements Component {
     }
     this.wasAiming = isFiring;
 
-    if (isFiring && autoAim) {
+    if (isFiring && manualAim) {
+      // Manual aim overrides everything
+      this.updateFacingDirection(manualAim.dx, manualAim.dy);
+    } else if (isFiring && autoAim) {
       // Auto-aim overrides facing direction
       this.updateFacingDirection(autoAim.dx, autoAim.dy);
     } else if (isFiring && !autoAim && (facingInput.dx !== 0 || facingInput.dy !== 0)) {

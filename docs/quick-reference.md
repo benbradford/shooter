@@ -98,6 +98,69 @@ export function createEnemyEntity(scene: Phaser.Scene, x: number, y: number, gri
 }
 ```
 
+### Entity Positioning and Collision Boxes
+
+**Key Principle:** Derive all values from `grid.cellSize` to minimize magic numbers.
+
+**Two Types of Collision Boxes:**
+1. **Grid Collision Box** - For wall/grid collision (used by GridPositionComponent)
+   - Offset is relative to cell's top-left corner
+   - Use `offsetX: 0, offsetY: 0` and adjust entity position instead
+2. **Entity Collision Box** - For entity-to-entity collision (used by CollisionComponent)
+   - Offset is relative to entity center
+   - Use negative offsets to center: `-size / 2`
+
+**Pattern for Grid-Based Entities:**
+```typescript
+// Calculate collision size as percentage of cell
+const COLLISION_SIZE = grid.cellSize * 0.75;  // 75% of cell
+
+// Grid collision box - starts at entity position
+const GRID_COLLISION_BOX = { 
+  offsetX: 0, 
+  offsetY: 0, 
+  width: COLLISION_SIZE, 
+  height: COLLISION_SIZE 
+};
+
+// Entity collision box - centered around sprite
+const ENTITY_COLLISION_BOX = { 
+  offsetX: -COLLISION_SIZE / 2, 
+  offsetY: -COLLISION_SIZE / 2, 
+  width: COLLISION_SIZE, 
+  height: COLLISION_SIZE 
+};
+
+// Position sprite at cell center
+const worldPos = grid.cellToWorld(col, row);
+const spriteX = worldPos.x + grid.cellSize / 2;
+const spriteY = worldPos.y + grid.cellSize / 2;
+
+// Calculate sprite scale from cell size
+const SPRITE_WIDTH_PX = 153;  // Original sprite width
+const scale = grid.cellSize / SPRITE_WIDTH_PX;
+
+// Adjust sprite origin to account for collision box offset
+const collisionOffset = (grid.cellSize - COLLISION_SIZE) / 2;
+sprite.setOrigin(
+  0.5 - collisionOffset / grid.cellSize, 
+  0.5 - collisionOffset / grid.cellSize
+);
+```
+
+**Why This Works:**
+- Sprite appears centered in cell visually
+- Grid collision box is properly positioned for wall detection
+- Entity collision box is centered for accurate hit detection
+- Changing `grid.cellSize` automatically adjusts everything
+- Only one value to tune: the collision size percentage (0.75)
+
+**Common Collision Sizes:**
+- 100% of cell: `grid.cellSize * 1.0` (fills entire cell)
+- 75% of cell: `grid.cellSize * 0.75` (centered with padding)
+- 50% of cell: `grid.cellSize * 0.5` (small, centered)
+
+
 ### Creating a New Component
 
 1. Create file in `src/ecs/components/`
@@ -360,6 +423,39 @@ entity.setUpdateOrder([
   // ...
 ]);
 ```
+
+### Touch Joystick Visual Components
+
+The game uses two visual joystick components for touch controls:
+
+**JoystickVisualsComponent (Movement):**
+- Outer circle: 150px radius, grey outline
+- Inner circle: 80px radius, grey outline
+- Arrows sprite: Shows directional arrows, follows drag
+- Alpha: 1.0 when active, 0.3 when inactive
+- Appears at touch location on left half of screen
+- Persists at last position when not touching
+
+**AimJoystickVisualsComponent (Aiming):**
+- Outer circle: 150px radius, blue outline
+- Crosshair sprite: Scaled to 50%, centered in auto-aim, follows drag in manual aim
+- Alpha: 1.0 when active, 0.3 when inactive
+- Appears at touch location on right half of screen
+- Persists at last position when not aiming
+- Crosshair returns to center when releasing
+
+**Key Constants:**
+```typescript
+const TOUCH_CONTROLS_SCALE = 2.5;  // Scale factor for all touch UI
+const MANUAL_AIM_THRESHOLD_PX = 70; // Distance to trigger manual aim
+const PLAYER_BULLET_MAX_DISTANCE_PX = 700; // Auto-aim range
+```
+
+**Visual Component Pattern:**
+- All HUD elements use `setScrollFactor(0)` to fix to camera
+- High depth (2000+) to render on top
+- Use `displaySize` for percentage-based positioning
+- Recalculate positions every frame until first interaction (Android fix)
 
 ## Project Structure Quick Reference
 

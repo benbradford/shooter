@@ -105,6 +105,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/bug/base.png',
     type: 'image' as const,
   },
+  arrows: {
+    key: 'arrows',
+    path: 'assets/player/arrows.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

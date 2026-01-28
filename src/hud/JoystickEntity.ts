@@ -24,7 +24,8 @@ export function createJoystickEntity(scene: Phaser.Scene): Entity {
 
   const aimJoystick = entity.add(new AimJoystickComponent(scene, {
     maxRadius: 150,
-    innerRadius: 80
+    innerRadius: 80,
+    manualAimThreshold: 70
   }));
   aimJoystick.init();
 

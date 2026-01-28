@@ -38,12 +38,23 @@ The joystick system provides touch/mouse-based movement controls for the player.
   - `getRawInputDelta()` - Without deadzone (for facing direction)
 
 **JoystickVisualsComponent**
-- Renders the joystick UI
-- Outer circle: larger radius, yellow outline, transparent fill
-- Inner circle: smaller radius, yellow filled
+- Renders the movement joystick UI
+- Outer circle: larger radius (150px), grey outline, transparent fill
+- Inner circle: smaller radius (80px), grey outline, transparent fill
+- Arrows sprite: Shows directional arrows, follows drag position
 - Fixed to camera (scrollFactor = 0)
 - High depth (2000+) to stay on top
 - Automatically shows/hides based on joystick state
+- Alpha: 1.0 when active, 0.3 when inactive
+
+**AimJoystickVisualsComponent**
+- Renders the aim joystick UI
+- Outer circle: larger radius (150px), blue outline, transparent fill
+- Crosshair sprite: Scaled to 50%, stays centered in auto-aim, follows drag in manual aim
+- Fixed to camera (scrollFactor = 0)
+- High depth (2000+) to stay on top
+- Persists at last position when not aiming (0.3 alpha)
+- Crosshair returns to center when releasing aim
 
 ### Integration
 
@@ -188,11 +199,59 @@ Both update from raw input, ensuring instant response to player intent.
 
 ---
 
-## Fire Button System
+## Control Modes
+
+The game has two control modes that can be toggled:
+
+### Control Mode 1: Auto-Aim with Manual Override
+
+**Movement:**
+- Touch left half of screen → Movement joystick appears at touch location
+- Drag to move in any direction
+- Outer circle (grey) and inner circle with arrows sprite
+- Inner circle follows drag, arrows show movement direction
+
+**Aiming/Firing:**
+- Touch right half of screen → Aim joystick appears at touch location
+- **Auto-aim (default)**: Crosshair stays centered, automatically aims at nearest visible enemy within range (700px)
+- **Manual aim**: Drag crosshair to outer circle edge (70px from center) to override auto-aim
+- Outer circle (blue) and crosshair sprite in center
+- Player faces auto-aim target or manual aim direction while firing
+- After releasing, joystick stays visible at last position with reduced alpha (0.3)
+
+**Auto-Aim System:**
+- Finds nearest enemy within bullet max distance (700px)
+- Checks line of sight (blocked by layer 1 walls)
+- Player automatically faces and fires at target
+- Falls back to movement direction if no target found
+- Manual aim overrides auto-aim when dragged beyond threshold
+
+**Manual Aim Threshold:**
+- Drag distance > 70px → Enters manual aim mode
+- Drag distance ≤ 70px → Returns to auto-aim mode
+- Smooth transition between modes
+
+### Control Mode 2: Dual Joystick
+
+**Movement:**
+- Touch left half of screen → Movement joystick (same as mode 1)
+
+**Aiming/Firing:**
+- Touch right half of screen → Aim joystick appears at touch location
+- Always manual aim (no auto-aim)
+- Drag to aim in any direction
+- Player faces aim direction while aiming
+- After releasing, joystick stays visible at last position with reduced alpha (0.3)
+
+---
+
+## Fire Button System (Legacy - Mode 1 Only)
 
 ### Crosshair Component
 
 **CrosshairVisualsComponent** renders a crosshair sprite in the lower-right area of the screen that acts as a fire button.
+
+**Note:** In current implementation, crosshair is hidden in mode 1 (replaced by aim joystick). Only used in mode 2 as fallback.
 
 **Features:**
 - Positioned at 85% screen width, 65% screen height

@@ -1,14 +1,12 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from '../input/TouchJoystickComponent';
-import { ControlModeComponent } from '../input/ControlModeComponent';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
 export class CrosshairVisualsComponent implements Component {
   entity!: Entity;
   private sprite!: Phaser.GameObjects.Sprite;
   private readonly scale = TOUCH_CONTROLS_SCALE;
-  private readonly pressedScale = TOUCH_CONTROLS_SCALE * 1.3;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -39,27 +37,8 @@ export class CrosshairVisualsComponent implements Component {
   }
 
   update(_delta: number): void {
-    const controlMode = this.entity.get(ControlModeComponent);
-    const mode = controlMode?.getMode() ?? 1;
-
-    // Only show in mode 1
-    if (mode !== 1) {
-      this.sprite.setVisible(false);
-      return;
-    }
-
-    this.sprite.setVisible(true);
-    const isPressed = this.joystick.isFireButtonPressed();
-
-    if (isPressed) {
-      // Scale up and tint blue when pressed
-      this.sprite.setScale(this.pressedScale);
-      this.sprite.setTint(0x6666ff); // Bright blue tint
-    } else {
-      // Normal state
-      this.sprite.setScale(this.scale);
-      this.sprite.clearTint();
-    }
+    // Hide crosshair in mode 1 (using aim joystick instead)
+    this.sprite.setVisible(false);
   }
 
   onDestroy(): void {

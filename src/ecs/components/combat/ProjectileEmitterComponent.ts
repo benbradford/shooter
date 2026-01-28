@@ -63,10 +63,11 @@ export class ProjectileEmitterComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const walk = this.entity.require(WalkComponent);
 
-    // Use auto-aim if available, otherwise use facing direction
+    // Priority: Manual aim > Auto-aim > Facing direction
+    const manualAim = this.inputComponent?.getManualAimDirection();
     const autoAim = this.inputComponent?.getAutoAimDirection();
-    const dirX = autoAim?.dx ?? walk.lastMoveX;
-    const dirY = autoAim?.dy ?? walk.lastMoveY;
+    const dirX = manualAim?.dx ?? autoAim?.dx ?? walk.lastMoveX;
+    const dirY = manualAim?.dy ?? autoAim?.dy ?? walk.lastMoveY;
 
     const direction = walk.lastDir;
 

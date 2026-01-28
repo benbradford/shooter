@@ -4,6 +4,10 @@ import type GameScene from "../GameScene";
 import type { EntityManager } from "../ecs/EntityManager";
 import { ProjectileEmitterComponent } from "../ecs/components/combat/ProjectileEmitterComponent";
 
+const LAYER1_FILL_COLOR = 0x4a4a5e;
+const LAYER1_EDGE_COLOR = 0x2a2a3e;
+const LAYER1_BRICK_FILL_COLOR = 0x3a3a4e;
+
 export type CellData = {
   layer: number;
   isTransition: boolean;
@@ -60,7 +64,7 @@ export class Grid {
     for (let row = 0; row < height; row++) {
       this.cells[row] = [];
       for (let col = 0; col < width; col++) {
-        this.cells[row][col] = { 
+        this.cells[row][col] = {
           layer: 0,
           isTransition: false,
           occupants: new Set()
@@ -110,31 +114,31 @@ export class Grid {
 
   setCell(col: number, row: number, data: Partial<CellData>) {
     if (!this.cells[row]?.[col]) return;
-    
+
     const cell = this.cells[row][col];
     const oldTexture = cell.backgroundTexture;
     const oldLayer = cell.layer;
-    
+
     this.cells[row][col] = { ...cell, ...data };
-    
+
     // Handle layer rendering
     if (data.layer !== undefined) {
       const key = `${col},${row}`;
-      
+
       if (oldLayer !== data.layer) {
         const oldLayer1Sprite = this.layer1Sprites.get(key);
         if (oldLayer1Sprite) {
           oldLayer1Sprite.destroy();
           this.layer1Sprites.delete(key);
         }
-        
+
         const oldLayerNeg1Sprite = this.layerNeg1Sprites.get(key);
         if (oldLayerNeg1Sprite) {
           oldLayerNeg1Sprite.destroy();
           this.layerNeg1Sprites.delete(key);
         }
       }
-      
+
       if (data.layer === 1) {
         const worldPos = this.cellToWorld(col, row);
         const rect = this.scene.add.rectangle(
@@ -142,7 +146,7 @@ export class Grid {
           worldPos.y + this.cellSize / 2,
           this.cellSize,
           this.cellSize,
-          0x1a1a2e,
+          LAYER1_FILL_COLOR,
           0.9
         );
         rect.setDepth(-50);
@@ -161,11 +165,11 @@ export class Grid {
         this.layerNeg1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
       }
     }
-    
+
     // Handle background texture changes
     if (data.backgroundTexture !== undefined) {
       const key = `${col},${row}`;
-      
+
       // Remove old sprite if texture changed
       if (oldTexture !== data.backgroundTexture) {
         const oldSprite = this.backgroundSprites.get(key);
@@ -174,7 +178,7 @@ export class Grid {
           this.backgroundSprites.delete(key);
         }
       }
-      
+
       // Add new sprite if texture is set
       if (data.backgroundTexture) {
         const worldPos = this.cellToWorld(col, row);
@@ -240,8 +244,13 @@ export class Grid {
         if (cell.layer === 1) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
+          const brickDepth = 12;
+          const brickWidth = this.cellSize / 3;
+          const brickSpacing = 2;
+          const edgeLineThickness = 2;
           const edgeThickness = 8;
-          this.graphics.lineStyle(edgeThickness, 0x808080, 1);
+
+          this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
 
           // Right edge
           if (col < this.width - 1 && this.cells[row][col + 1].layer === 0) {
@@ -267,28 +276,97 @@ export class Grid {
             ));
           }
 
-          // Bottom edge - vertical lines if layer 0 below
+          // Bottom edge - brick pattern
           if (row < this.height - 1 && this.cells[row + 1][col].layer === 0) {
-            const lineSpacing = 12;
-            const lineThickness = 4;
             const topBarY = y + (this.cellSize * 0.2);
-            
-            this.graphics.lineStyle(lineThickness, 0x808080, 1);
-            
-            // Draw vertical lines
-            for (let lineX = x; lineX <= x + this.cellSize; lineX += lineSpacing) {
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(
-                lineX, y,
-                lineX, y + this.cellSize
-              ));
-            }
-            
-            // Draw horizontal line at top of vertical lines (20% down)
-            this.graphics.lineStyle(edgeThickness, 0x808080, 1);
+
+            // Draw horizontal line at top (20% down)
+            this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
             this.graphics.strokeLineShape(new Phaser.Geom.Line(
               x, topBarY,
               x + this.cellSize, topBarY
             ));
+
+            // Draw brick pattern in bottom 80%
+            const brickHeight = 10;
+            const brickWidth = this.cellSize / 3;
+            let currentY = topBarY + 4;
+            let rowIndex = 0;
+
+            while (currentY + brickHeight <= y + this.cellSize) {
+              const offset = (rowIndex % 2) * (brickWidth / 2);
+
+              for (let brickX = x - offset; brickX < x + this.cellSize + brickWidth; brickX += brickWidth) {
+                const startX = Math.max(x, brickX);
+                const endX = Math.min(x + this.cellSize, brickX + brickWidth - 2);
+
+                if (startX < endX) {
+                  // Fill brick
+                  this.graphics.fillStyle(LAYER1_BRICK_FILL_COLOR, 1);
+                  this.graphics.fillRect(startX, currentY, endX - startX, brickHeight);
+                  
+                  // Outline brick
+                  this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
+                  this.graphics.strokeRect(startX, currentY, endX - startX, brickHeight);
+                }
+              }
+
+              currentY += brickHeight + 2;
+              rowIndex++;
+            }
+          }
+        }
+      }
+    }
+
+    // Draw shadows on right and bottom cells adjacent to layer 1
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        const cell = this.cells[row][col];
+        if (cell.layer === 1) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          const shadowWidth = 24;
+          const shadowSteps = 8;
+
+          // Shadow on right cell (if layer 0)
+          if (col < this.width - 1 && this.cells[row][col + 1].layer === 0) {
+            for (let i = 0; i < shadowSteps; i++) {
+              const alpha = 0.4 * (1 - i / shadowSteps);
+              const stepWidth = shadowWidth / shadowSteps;
+              this.graphics.fillStyle(0x000000, alpha);
+              this.graphics.fillRect(x + this.cellSize + i * stepWidth, y, stepWidth, this.cellSize);
+            }
+          }
+
+          // Shadow on bottom cell (if layer 0)
+          if (row < this.height - 1 && this.cells[row + 1][col].layer === 0) {
+            for (let i = 0; i < shadowSteps; i++) {
+              const alpha = 0.4 * (1 - i / shadowSteps);
+              const stepHeight = shadowWidth / shadowSteps;
+              this.graphics.fillStyle(0x000000, alpha);
+              this.graphics.fillRect(x, y + this.cellSize + i * stepHeight, this.cellSize, stepHeight);
+            }
+          }
+
+          // Diagonal shadow on bottom-right cell (if layer 0)
+          if (col < this.width - 1 && row < this.height - 1 && 
+              this.cells[row + 1][col + 1].layer === 0 &&
+              this.cells[row][col + 1].layer === 0 &&
+              this.cells[row + 1][col].layer === 0) {
+            for (let i = 0; i < shadowSteps; i++) {
+              for (let j = 0; j < shadowSteps; j++) {
+                const alpha = 0.4 * (1 - Math.max(i, j) / shadowSteps);
+                const stepSize = shadowWidth / shadowSteps;
+                this.graphics.fillStyle(0x000000, alpha);
+                this.graphics.fillRect(
+                  x + this.cellSize + i * stepSize,
+                  y + this.cellSize + j * stepSize,
+                  stepSize,
+                  stepSize
+                );
+              }
+            }
           }
         }
       }
@@ -309,7 +387,7 @@ export class Grid {
 
         let layerAlpha: number;
         let layerColor: number;
-        
+
         if (cell.layer < 0) {
           layerAlpha = 0.25;
           layerColor = 0xffffff;
@@ -320,7 +398,7 @@ export class Grid {
           layerAlpha = 0.1;
           layerColor = 0x808080;
         }
-        
+
         this.graphics.fillStyle(layerColor, layerAlpha);
         this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
 
@@ -345,17 +423,17 @@ export class Grid {
       for (let col = 0; col < this.width; col++) {
         const x = col * this.cellSize + 2;
         const y = row * this.cellSize + 10;
-        
+
         this.graphics.fillStyle(0xffffff, 0.5);
         this.graphics.fillRect(x, y - 8, 30, 10);
-        
+
         // Draw text using graphics (simple, no Text objects needed)
         const text = this.scene.add.text(x + 1, y - 7, `${col},${row}`, {
           fontSize: '8px',
           color: '#000000'
         });
         text.setDepth(10001);
-        
+
         // Destroy after one frame (we redraw each frame)
         this.scene.time.delayedCall(0, () => text.destroy());
       }
@@ -448,11 +526,11 @@ export class Grid {
         this.cells[row][col].occupants.clear();
       }
     }
-    
+
     // Destroy background sprites
     this.backgroundSprites.forEach(sprite => sprite.destroy());
     this.backgroundSprites.clear();
-    
+
     // Destroy graphics object
     this.graphics.destroy();
   }

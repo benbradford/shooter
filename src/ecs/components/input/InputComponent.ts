@@ -120,7 +120,10 @@ export class InputComponent implements Component {
     const mode = this.controlMode?.getMode() ?? 1;
 
     if (mode === 1) {
-      // Mode 1: Crosshair button or keyboard
+      // Mode 1: Aim joystick or crosshair button or keyboard
+      if (this.aimJoystick?.isAiming()) {
+        return true;
+      }
       if (this.joystick?.isFireButtonPressed()) {
         return true;
       }
@@ -136,6 +139,18 @@ export class InputComponent implements Component {
 
   getFireHeldTime(): number {
     return this.fireHeldTime;
+  }
+
+  getManualAimDirection(): { dx: number; dy: number } | null {
+    if (!this.aimJoystick?.isInManualAimMode()) {
+      return null;
+    }
+    const aimDelta = this.aimJoystick.getAimDelta();
+    if (aimDelta.dx === 0 && aimDelta.dy === 0) {
+      return null;
+    }
+    const length = Math.hypot(aimDelta.dx, aimDelta.dy);
+    return { dx: aimDelta.dx / length, dy: aimDelta.dy / length };
   }
 
   /** Get auto-aim direction to nearest visible enemy (mode 1 only) */

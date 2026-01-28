@@ -4,6 +4,7 @@ import type { Entity } from '../../Entity';
 export type AimJoystickProps = {
   maxRadius: number;
   innerRadius: number;
+  manualAimThreshold: number;
 }
 
 export class AimJoystickComponent implements Component {
@@ -15,11 +16,14 @@ export class AimJoystickComponent implements Component {
   private currentY: number = 0;
   public readonly maxRadius: number;
   public readonly innerRadius: number;
+  private readonly manualAimThreshold: number;
   private pointerId: number = -1;
+  private isManualAim: boolean = false;
 
   constructor(private readonly scene: Phaser.Scene, props: AimJoystickProps) {
     this.maxRadius = props.maxRadius;
     this.innerRadius = props.innerRadius;
+    this.manualAimThreshold = props.manualAimThreshold;
   }
 
   init(): void {
@@ -27,9 +31,14 @@ export class AimJoystickComponent implements Component {
       const screenWidth = this.scene.cameras.main.width;
       const screenHeight = this.scene.cameras.main.height;
 
-      // Check if in lower-right quadrant (aiming) and not already tracking a pointer
-      if (pointer.x > screenWidth / 2 && pointer.y > screenHeight / 2 && this.pointerId === -1) {
+      // Mode 1: Activate anywhere on right half
+      // Mode 2: Activate only in lower-right quadrant
+      const isRightHalf = pointer.x > screenWidth / 2;
+      const isLowerRight = pointer.x > screenWidth / 2 && pointer.y > screenHeight / 2;
+      
+      if ((isRightHalf || isLowerRight) && this.pointerId === -1) {
         this.isActive = true;
+        this.isManualAim = false;
         this.startX = pointer.x;
         this.startY = pointer.y;
         this.currentX = pointer.x;
@@ -44,10 +53,22 @@ export class AimJoystickComponent implements Component {
         const dy = pointer.y - this.startY;
         const distance = Math.hypot(dx, dy);
 
-        if (distance > this.maxRadius) {
+        // Enter manual aim when dragged beyond threshold
+        if (distance > this.manualAimThreshold) {
+          this.isManualAim = true;
+        }
+        
+        // Resume auto-aim when dragged back within threshold
+        if (distance <= this.manualAimThreshold) {
+          this.isManualAim = false;
+        }
+
+        // Clamp to keep inner circle within outer circle
+        const maxDistance = this.maxRadius - this.innerRadius;
+        if (distance > maxDistance) {
           const angle = Math.atan2(dy, dx);
-          this.currentX = this.startX + Math.cos(angle) * this.maxRadius;
-          this.currentY = this.startY + Math.sin(angle) * this.maxRadius;
+          this.currentX = this.startX + Math.cos(angle) * maxDistance;
+          this.currentY = this.startY + Math.sin(angle) * maxDistance;
         } else {
           this.currentX = pointer.x;
           this.currentY = pointer.y;
@@ -58,6 +79,7 @@ export class AimJoystickComponent implements Component {
     this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
       if (pointer.id === this.pointerId) {
         this.isActive = false;
+        this.isManualAim = false;
         this.pointerId = -1;
       }
     });
@@ -81,13 +103,18 @@ export class AimJoystickComponent implements Component {
     return this.isActive;
   }
 
-  getJoystickState(): { active: boolean; startX: number; startY: number; currentX: number; currentY: number } {
+  isInManualAimMode(): boolean {
+    return this.isManualAim;
+  }
+
+  getJoystickState(): { active: boolean; startX: number; startY: number; currentX: number; currentY: number; isManualAim: boolean } {
     return {
       active: this.isActive,
       startX: this.startX,
       startY: this.startY,
-      currentX: this.currentX,
-      currentY: this.currentY,
+      currentX: this.isManualAim ? this.currentX : this.startX,
+      currentY: this.isManualAim ? this.currentY : this.startY,
+      isManualAim: this.isManualAim,
     };
   }
 
