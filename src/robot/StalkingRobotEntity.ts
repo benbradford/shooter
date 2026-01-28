@@ -33,7 +33,7 @@ import { SPRITE_SCALE } from '../constants/GameConstants';
 
 const ROBOT_SCALE = 3 * SPRITE_SCALE;
 const ROBOT_SPRITE_FRAME = 0; // South idle
-const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 16 };
+const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 32, height: 32 };
 const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -22, offsetY: -40, width: 48, height: 85 };
 const ROBOT_LINE_OF_SIGHT_RANGE = 500;
 const ROBOT_FIELD_OF_VIEW = Math.PI * 0.75;
@@ -54,10 +54,10 @@ export type CreateStalkingRobotProps = {
 
 export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Entity {
   const { scene, x, y, grid, playerEntity, waypoints, difficulty } = props;
-  
+
   // Get all config from difficulty
   const config = getRobotDifficultyConfig(difficulty);
-  
+
   const entity = new Entity('stalking_robot');
   entity.tags.add('enemy');
 
@@ -70,7 +70,13 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
   shadow.init();
 
   const startCell = grid.worldToCell(x, y);
-  entity.add(new GridPositionComponent(startCell.col, startCell.row, ROBOT_GRID_COLLISION_BOX));
+  const gridPos = entity.add(new GridPositionComponent(startCell.col, startCell.row, ROBOT_GRID_COLLISION_BOX));
+
+  // Set initial layer based on spawn cell
+  const spawnCell = grid.getCell(startCell.col, startCell.row);
+  if (spawnCell) {
+    gridPos.currentLayer = spawnCell.layer;
+  }
 
   entity.add(new GridCollisionComponent(grid));
 
@@ -87,13 +93,13 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
   entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION_MS));
 
   entity.add(new FireballPropertiesComponent(config.fireballSpeed, config.fireballDuration));
-  
+
   entity.add(new DifficultyComponent<EnemyDifficulty>(difficulty));
-  
+
   entity.add(new RobotHitParticlesComponent(scene));
-  
+
   entity.add(new HitFlashComponent());
-  
+
   const stateMachine = new StateMachine(
     {
       patrol: new RobotPatrolState(entity, grid, playerEntity),

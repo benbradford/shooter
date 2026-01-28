@@ -104,61 +104,42 @@ export function createEnemyEntity(scene: Phaser.Scene, x: number, y: number, gri
 
 **Two Types of Collision Boxes:**
 1. **Grid Collision Box** - For wall/grid collision (used by GridPositionComponent)
-   - Offset is relative to cell's top-left corner
-   - Use `offsetX: 0, offsetY: 0` and adjust entity position instead
+   - Offset is relative to entity center (transform position)
+   - **CRITICAL:** Must be centered (`offsetX: 0`) to prevent layer crossing issues
+   - Height should be ≤ 50% of cell size to avoid overlapping adjacent cells
 2. **Entity Collision Box** - For entity-to-entity collision (used by CollisionComponent)
    - Offset is relative to entity center
    - Use negative offsets to center: `-size / 2`
 
 **Pattern for Grid-Based Entities:**
 ```typescript
-// Calculate collision size as percentage of cell
-const COLLISION_SIZE = grid.cellSize * 0.75;  // 75% of cell
-
-// Grid collision box - starts at entity position
+// Grid collision box - MUST be centered on entity
 const GRID_COLLISION_BOX = { 
-  offsetX: 0, 
-  offsetY: 0, 
-  width: COLLISION_SIZE, 
-  height: COLLISION_SIZE 
+  offsetX: 0,      // CRITICAL: Must be 0 (centered)
+  offsetY: 16,     // Adjust vertical position as needed
+  width: 32,       // Keep small (≤ 50% of cell size)
+  height: 16       // Keep small (≤ 50% of cell size)
 };
 
 // Entity collision box - centered around sprite
 const ENTITY_COLLISION_BOX = { 
-  offsetX: -COLLISION_SIZE / 2, 
-  offsetY: -COLLISION_SIZE / 2, 
-  width: COLLISION_SIZE, 
-  height: COLLISION_SIZE 
+  offsetX: -24,    // Negative to center
+  offsetY: -24, 
+  width: 48, 
+  height: 48 
 };
-
-// Position sprite at cell center
-const worldPos = grid.cellToWorld(col, row);
-const spriteX = worldPos.x + grid.cellSize / 2;
-const spriteY = worldPos.y + grid.cellSize / 2;
-
-// Calculate sprite scale from cell size
-const SPRITE_WIDTH_PX = 153;  // Original sprite width
-const scale = grid.cellSize / SPRITE_WIDTH_PX;
-
-// Adjust sprite origin to account for collision box offset
-const collisionOffset = (grid.cellSize - COLLISION_SIZE) / 2;
-sprite.setOrigin(
-  0.5 - collisionOffset / grid.cellSize, 
-  0.5 - collisionOffset / grid.cellSize
-);
 ```
 
-**Why This Works:**
-- Sprite appears centered in cell visually
-- Grid collision box is properly positioned for wall detection
-- Entity collision box is centered for accurate hit detection
-- Changing `grid.cellSize` automatically adjusts everything
-- Only one value to tune: the collision size percentage (0.75)
+**Why Centered Grid Collision Box:**
+- Prevents entity center from crossing layer boundaries when pushed
+- Avoids getting stuck at layer corners
+- Ensures `currentLayer` stays accurate during knockback
+- Robot example: `{ offsetX: 0, offsetY: 32, width: 32, height: 16 }`
 
 **Common Collision Sizes:**
-- 100% of cell: `grid.cellSize * 1.0` (fills entire cell)
-- 75% of cell: `grid.cellSize * 0.75` (centered with padding)
-- 50% of cell: `grid.cellSize * 0.5` (small, centered)
+- Small (robot): `width: 32, height: 16` (50% of 64px cell)
+- Medium (player): `width: 48, height: 32` (75% width, 50% height)
+- Large (boss): `width: 64, height: 64` (100% of cell)
 
 
 ### Creating a New Component

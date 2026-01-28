@@ -45,7 +45,7 @@ export class BugHopComponent implements Component {
 
   update(delta: number): void {
     this.wasHopping = this.isHopping;
-    
+
     if (!this.isHopping) return;
 
     const transform = this.entity.require(TransformComponent);
@@ -67,7 +67,7 @@ export class BugHopComponent implements Component {
       sprite.sprite.setDepth(10);
       transform.x = this.targetX;
       transform.y = this.targetY;
-      
+
       const gridPos = this.entity.get(GridPositionComponent);
       if (gridPos) {
         gridPos.currentCell.col = this.targetCol;

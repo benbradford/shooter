@@ -21,14 +21,14 @@ const FIREBALL_LAUNCH_FRAME = 4; // frame number to launch fireball
 // Fireball launch offsets per direction
 const FIREBALL_OFFSETS: Record<Direction, FireballOffset> = {
   [Direction.None]: { x: 0, y: 0 },
-  [Direction.Down]: { x: 0, y: 20 },
+  [Direction.Down]: { x: 0, y: 40 },
   [Direction.Up]: { x: 0, y: -20 },
   [Direction.Left]: { x: -20, y: 0 },
   [Direction.Right]: { x: 20, y: 0 },
   [Direction.UpLeft]: { x: -15, y: -15 },
   [Direction.UpRight]: { x: 15, y: -15 },
-  [Direction.DownLeft]: { x: -15, y: 15 },
-  [Direction.DownRight]: { x: 15, y: 15 },
+  [Direction.DownLeft]: { x: -15, y: 35 },
+  [Direction.DownRight]: { x: 15, y: 35 },
 };
 
 export class RobotFireballState implements IState {

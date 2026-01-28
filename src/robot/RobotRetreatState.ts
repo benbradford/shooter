@@ -17,6 +17,7 @@ export class RobotRetreatState implements IState {
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
   private animationTimer: number = 0;
+  private stuckTimer: number = 0;
 
   constructor(entity: Entity, playerEntity: Entity) {
     this.entity = entity;
@@ -26,6 +27,7 @@ export class RobotRetreatState implements IState {
   onEnter(): void {
     this.animationFrame = 0;
     this.animationTimer = 0;
+    this.stuckTimer = 0;
   }
 
   onExit(): void {
@@ -54,8 +56,22 @@ export class RobotRetreatState implements IState {
     const retreatDirY = -dy / distance;
 
     const speed = patrol.speed * RETREAT_SPEED_MULTIPLIER;
+    const prevX = transform.x;
+    const prevY = transform.y;
+    
     transform.x += retreatDirX * speed * (delta / 1000);
     transform.y += retreatDirY * speed * (delta / 1000);
+
+    // If stuck (position didn't change much), accumulate stuck time
+    if (Math.abs(transform.x - prevX) < 1 && Math.abs(transform.y - prevY) < 1) {
+      this.stuckTimer += delta;
+      if (this.stuckTimer > 500) {
+        stateMachine.stateMachine.enter('stalking');
+        return;
+      }
+    } else {
+      this.stuckTimer = 0;
+    }
 
     this.currentDirection = dirFromDelta(retreatDirX, retreatDirY);
     this.updateAnimation(sprite);

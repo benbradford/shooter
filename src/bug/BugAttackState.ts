@@ -4,8 +4,8 @@ import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
 
-const LEAP_DURATION_MS = 400;
-const LEAP_HEIGHT_PX = 80;
+const LEAP_DURATION_MS = 700;
+const LEAP_HEIGHT_PX = 30;
 const COOLDOWN_MS = 1000;
 const SPRITE_FRAME_DOWN = 0;
 const SPRITE_FRAME_UP = 4;
@@ -49,7 +49,7 @@ export class BugAttackState implements IState {
     this.elapsedMs = 0;
     this.lastAttackTime = currentTime;
     this.isLeaping = true;
-    
+
     const dx = this.targetX - this.startX;
     const dy = this.targetY - this.startY;
     const isHorizontal = Math.abs(dx) > Math.abs(dy);
@@ -84,9 +84,6 @@ export class BugAttackState implements IState {
     const arc = Math.sin(progress * Math.PI);
     const offsetY = -arc * LEAP_HEIGHT_PX;
     sprite.sprite.setY(transform.y + offsetY);
-
-    const scale = 2 * (1 + arc * 0.5);
-    sprite.sprite.setScale(scale);
 
     if (progress >= 1) {
       this.isLeaping = false;

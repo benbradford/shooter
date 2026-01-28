@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
+import { GridPositionComponent } from '../movement/GridPositionComponent';
 import type { Grid } from '../../../utils/Grid';
 
 type LineOfSightProps = {
@@ -28,6 +29,8 @@ export class LineOfSightComponent implements Component {
   canSeeTarget(entity: Entity, target: Entity): boolean {
     const transform = entity.get(TransformComponent);
     const targetTransform = target.get(TransformComponent);
+    const entityGridPos = entity.get(GridPositionComponent);
+    const targetGridPos = target.get(GridPositionComponent);
     
     if (!transform || !targetTransform) return false;
 
@@ -47,15 +50,22 @@ export class LineOfSightComponent implements Component {
     
     if (Math.abs(angleDiff) > this.fieldOfView / 2) return false;
 
+    // Get entity layers (default to 0 if no GridPositionComponent)
+    const entityLayer = entityGridPos?.currentLayer ?? 0;
+    const targetLayer = targetGridPos?.currentLayer ?? 0;
+
     // Raycast from entity to target
-    return this.raycast(transform.x, transform.y, targetTransform.x, targetTransform.y);
+    return this.raycast(transform.x, transform.y, targetTransform.x, targetTransform.y, entityLayer, targetLayer);
   }
 
-  private raycast(x1: number, y1: number, x2: number, y2: number): boolean {
+  private raycast(x1: number, y1: number, x2: number, y2: number, entityLayer: number, targetLayer: number): boolean {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const distance = Math.hypot(dx, dy);
     const steps = Math.ceil(distance / (this.grid.cellSize / 2));
+
+    // Get the lower of the two entity layers
+    const minLayer = Math.min(entityLayer, targetLayer);
 
     for (let i = 1; i < steps; i++) {
       const t = i / steps;
@@ -66,8 +76,9 @@ export class LineOfSightComponent implements Component {
       const row = Math.floor(y / this.grid.cellSize);
       const cell = this.grid.getCell(col, row);
 
-      if (cell && cell.layer > 0) {
-        return false; // Wall blocks line of sight
+      // Block line of sight only if cell layer is higher than both entities
+      if (cell && cell.layer > minLayer) {
+        return false;
       }
     }
 

@@ -18,8 +18,8 @@ import { BugChaseState } from './BugChaseState';
 import { BugAttackState } from './BugAttackState';
 import type { Grid } from '../utils/Grid';
 
-const BUG_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 32, height: 32 };
-const BUG_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
+const BUG_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 16, height: 16 };
+const BUG_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 42, height: 42 };
 const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
 const BUG_DAMAGE = 10;
@@ -88,10 +88,10 @@ export function createBugEntity(props: CreateBugProps): Entity {
 
         const projectile = other.get(ProjectileComponent);
         if (!projectile) return;
-        
+
         const dirX = projectile.dirX;
         const dirY = projectile.dirY;
-        
+
         const knockback = entity.get(KnockbackComponent);
         if (knockback) {
           const length = Math.hypot(dirX, dirY);
@@ -109,7 +109,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
         other.destroy();
       } else if (other.tags.has('player')) {
         entity.remove(CollisionComponent);
-        
+
         const playerHealth = other.require(HealthComponent);
         playerHealth.takeDamage(BUG_DAMAGE);
 
