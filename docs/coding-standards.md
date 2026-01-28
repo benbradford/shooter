@@ -644,6 +644,70 @@ if (isHorizontal) {
 - May hide logic errors
 - Reduces code clarity
 
+### Derive Values from Base Constants
+
+**Calculate dependent values instead of hardcoding them. This reduces the number of values you need to change.**
+
+**DO ✅**
+```typescript
+// Single source of truth
+const BUG_BASE_COLLISION_SIZE = grid.cellSize * 0.75;  // 75% of cell
+const BASE_GRID_COLLISION_BOX = { 
+  offsetX: 0, 
+  offsetY: 0, 
+  width: BUG_BASE_COLLISION_SIZE, 
+  height: BUG_BASE_COLLISION_SIZE 
+};
+const BASE_ENTITY_COLLISION_BOX = { 
+  offsetX: -BUG_BASE_COLLISION_SIZE / 2,  // Calculated from size
+  offsetY: -BUG_BASE_COLLISION_SIZE / 2, 
+  width: BUG_BASE_COLLISION_SIZE, 
+  height: BUG_BASE_COLLISION_SIZE 
+};
+
+// Sprite scale derived from cell size
+const scale = grid.cellSize / SPRITE_WIDTH_PX;
+
+// Centering offset calculated
+const centerOffset = (grid.cellSize - BUG_BASE_COLLISION_SIZE) / 2;
+```
+
+**DON'T ❌**
+```typescript
+// Multiple hardcoded values that must stay in sync
+const BUG_BASE_COLLISION_SIZE = 48;  // What if cell size changes?
+const BUG_BASE_GRID_OFFSET = 8;      // Must recalculate if size changes
+const BUG_BASE_ENTITY_OFFSET = -24;  // Must recalculate if size changes
+const BASE_GRID_COLLISION_BOX = { 
+  offsetX: 8,   // Hardcoded
+  offsetY: 8, 
+  width: 48,    // Hardcoded
+  height: 48 
+};
+```
+
+**Benefits:**
+- Change one value (e.g., `grid.cellSize`) and everything adjusts
+- Relationships between values are explicit
+- Fewer places to update when tuning
+- Less chance of values getting out of sync
+
+**Common patterns:**
+```typescript
+// Percentages of base values
+const COLLISION_SIZE = BASE_SIZE * 0.75;
+const OFFSET = BASE_SIZE * 0.25;
+
+// Centering calculations
+const centerX = baseX + (width / 2);
+const offsetToCenter = (containerSize - itemSize) / 2;
+
+// Negative of positive value
+const leftOffset = -rightOffset;
+const halfSize = size / 2;
+const negativeHalfSize = -halfSize;
+```
+
 ### No Unnecessary Fallbacks in Spread
 
 **Don't use fallback objects when spreading - spreading `undefined` or `null` is safe.**

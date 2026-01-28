@@ -45,6 +45,7 @@ const PLAYER_AMMO_REFILL_RATE = 20;
 const PLAYER_AMMO_REFILL_DELAY_MS = 1000;
 const PLAYER_AMMO_OVERHEATED_DELAY_MS = 4000;
 const PLAYER_FIRE_COOLDOWN_MS = 180;
+const PLAYER_BULLET_MAX_DISTANCE_PX = 500;
 const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 70;
 const PLAYER_AMMO_BAR_OFFSET_Y_PX = 90;
 
@@ -98,7 +99,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
 
-  const input = entity.add(new InputComponent(scene, grid, getEnemies));
+  const input = entity.add(new InputComponent(scene, grid, getEnemies, PLAYER_BULLET_MAX_DISTANCE_PX));
 
   const joystickComp = joystick.get(TouchJoystickComponent);
   if (joystickComp) {
@@ -191,7 +192,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
       if (other.tags.has('enemy_projectile')) {
         const damage = other.require(DamageComponent);
         health.takeDamage(damage.damage);
-        
+
         const hitFlash = entity.get(HitFlashComponent);
         if (hitFlash) {
           hitFlash.flash(300);

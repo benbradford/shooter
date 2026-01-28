@@ -79,9 +79,6 @@ export class AddBugBaseEditorState extends EditorState {
     const grid = this.scene.getGrid();
     const entityManager = gameScene.getEntityManager();
 
-    // const x = col * grid.cellSize + grid.cellSize / 2;
-    // const y = row * grid.cellSize + grid.cellSize / 2;
-
     const player = entityManager.getFirst('player');
     if (!player) {
       throw new Error('Player not found');

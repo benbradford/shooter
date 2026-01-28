@@ -25,19 +25,19 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
   const { scene, x, y, dirX, dirY, grid, layer = 0, fromTransition = false } = props;
   const entity = new Entity('bullet');
   entity.tags.add('player_projectile');
-  
+
   // Calculate rotation from direction (add 90 degrees since bullet texture is vertical)
   const rotation = Math.atan2(dirY, dirX) + Math.PI / 2;
-  
+
   const transform = entity.add(new TransformComponent(x, y, rotation, BULLET_DISPLAY_SIZE / 16));
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
   sprite.sprite.setDisplaySize(16, 16); // Base size, scaled by transform
-  
+
   entity.add(new ProjectileComponent({
     dirX,
     dirY,
     speed: 800,
-    maxDistance: 700,
+    maxDistance: 500,
     grid,
     blockedByWalls: true,
     startLayer: layer,
@@ -52,23 +52,23 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
       if (other.tags.has('enemy')) {
         const health = other.require(HealthComponent);
         health.takeDamage(BULLET_DAMAGE);
-        
+
         const stateMachine = other.get(StateMachineComponent);
         if (stateMachine?.stateMachine.hasState('hit')) {
           stateMachine.stateMachine.enter('hit');
         }
-        
+
         scene.time.delayedCall(0, () => entity.destroy());
       }
     }
   }));
-  
+
   entity.setUpdateOrder([
     TransformComponent,
     ProjectileComponent,
     CollisionComponent,
     SpriteComponent,
   ]);
-  
+
   return entity;
 }

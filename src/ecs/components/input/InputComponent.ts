@@ -18,8 +18,9 @@ export class InputComponent implements Component {
   private fireHeldTime: number = 0;
   private readonly grid: Grid;
   private readonly getEnemies: () => Entity[];
+  private readonly bulletMaxDistance: number;
 
-  constructor(scene: Phaser.Scene, grid: Grid, getEnemies: () => Entity[]) {
+  constructor(scene: Phaser.Scene, grid: Grid, getEnemies: () => Entity[], bulletMaxDistance: number) {
     const keyboard = scene.input.keyboard;
     if (keyboard) {
       this.cursors = keyboard.createCursorKeys();
@@ -28,6 +29,7 @@ export class InputComponent implements Component {
     }
     this.grid = grid;
     this.getEnemies = getEnemies;
+    this.bulletMaxDistance = bulletMaxDistance;
   }
 
   setJoystick(joystick: TouchJoystickComponent): void {
@@ -156,7 +158,7 @@ export class InputComponent implements Component {
       const dy = enemyTransform.y - playerTransform.y;
       const distance = Math.hypot(dx, dy);
 
-      if (distance < nearestDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y)) {
+      if (distance <= this.bulletMaxDistance && distance < nearestDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y)) {
         nearestDistance = distance;
         nearestEnemy = enemy;
       }
@@ -185,7 +187,7 @@ export class InputComponent implements Component {
       const y = y1 + dy * t;
       const cell = this.grid.worldToCell(x, y);
       const cellData = this.grid.getCell(cell.col, cell.row);
-      if (cellData && cellData.layer === 1) {
+      if (cellData?.layer === 1) {
         return false;
       }
     }

@@ -85,6 +85,9 @@ export class WalkComponent implements Component {
     if (isFiring && autoAim) {
       // Auto-aim overrides facing direction
       this.updateFacingDirection(autoAim.dx, autoAim.dy);
+    } else if (isFiring && !autoAim && (facingInput.dx !== 0 || facingInput.dy !== 0)) {
+      // Firing but no auto-aim target - face movement direction
+      this.updateFacingDirection(facingInput.dx, facingInput.dy);
     } else if (!isFiring && this.controlMode && !this.controlMode.isInAimStopCooldown() && (facingInput.dx !== 0 || facingInput.dy !== 0)) {
       // Not firing and cooldown expired - face movement direction
       this.updateFacingDirection(facingInput.dx, facingInput.dy);

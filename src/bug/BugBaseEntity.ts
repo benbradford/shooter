@@ -14,9 +14,6 @@ import { getBugBaseDifficultyConfig } from './BugBaseDifficulty';
 import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 import type { Grid } from '../utils/Grid';
 
-const BASE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 128, height: 128 };
-const BASE_ENTITY_COLLISION_BOX = { offsetX: -64, offsetY: -64, width: 128, height: 128 };
-
 export function createBugBaseEntity(
   scene: Phaser.Scene,
   col: number,
@@ -26,18 +23,24 @@ export function createBugBaseEntity(
   onSpawnBug: (col: number, row: number) => void,
   difficulty: EnemyDifficulty = 'medium'
 ): Entity {
+  const BUG_BASE_COLLISION_SIZE = grid.cellSize * 0.75;
+  const BASE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: BUG_BASE_COLLISION_SIZE, height: BUG_BASE_COLLISION_SIZE };
+  const BASE_ENTITY_COLLISION_BOX = { offsetX: -BUG_BASE_COLLISION_SIZE / 2, offsetY: -BUG_BASE_COLLISION_SIZE / 2, width: BUG_BASE_COLLISION_SIZE, height: BUG_BASE_COLLISION_SIZE };
+
   const config = getBugBaseDifficultyConfig(difficulty);
   const entity = new Entity('bug_base');
   entity.tags.add('enemy');
 
   const worldPos = grid.cellToWorld(col, row);
-  const x = worldPos.x + grid.cellSize / 2;
-  const y = worldPos.y + grid.cellSize / 2;
+  const spriteX = worldPos.x + grid.cellSize / 2;
+  const spriteY = worldPos.y + grid.cellSize / 2;
+  const collisionOffset = (grid.cellSize - BUG_BASE_COLLISION_SIZE) / 2;
 
-  const transform = entity.add(new TransformComponent(x, y, 0, 1));
+  const scale = grid.cellSize / 153;
+  const transform = entity.add(new TransformComponent(spriteX, spriteY, 0, scale));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug_base', transform));
-  sprite.sprite.setDisplaySize(grid.cellSize, grid.cellSize);
+  sprite.sprite.setOrigin(0.5 - collisionOffset / grid.cellSize, 0.5 - collisionOffset / grid.cellSize);
   sprite.sprite.setDepth(-50);
 
   entity.add(new GridPositionComponent(col, row, BASE_GRID_COLLISION_BOX));
