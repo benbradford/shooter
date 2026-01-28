@@ -6,6 +6,7 @@ import type { AimJoystickComponent } from './AimJoystickComponent';
 import type { ControlModeComponent } from './ControlModeComponent';
 import type { Grid } from '../../../utils/Grid';
 import { TransformComponent } from '../core/TransformComponent';
+import { GridPositionComponent } from '../movement/GridPositionComponent';
 
 export class InputComponent implements Component {
   entity!: Entity;
@@ -159,7 +160,8 @@ export class InputComponent implements Component {
     if (mode !== 1) return null;
 
     const playerTransform = this.entity.get(TransformComponent);
-    if (!playerTransform) return null;
+    const playerGridPos = this.entity.get(GridPositionComponent);
+    if (!playerTransform || !playerGridPos) return null;
 
     const enemies = this.getEnemies();
     let nearestEnemy: Entity | null = null;
@@ -167,13 +169,17 @@ export class InputComponent implements Component {
 
     for (const enemy of enemies) {
       const enemyTransform = enemy.get(TransformComponent);
-      if (!enemyTransform) continue;
+      const enemyGridPos = enemy.get(GridPositionComponent);
+      if (!enemyTransform || !enemyGridPos) continue;
+
+      // Only target enemies on same layer or lower
+      if (enemyGridPos.currentLayer > playerGridPos.currentLayer) continue;
 
       const dx = enemyTransform.x - playerTransform.x;
       const dy = enemyTransform.y - playerTransform.y;
       const distance = Math.hypot(dx, dy);
 
-      if (distance <= this.bulletMaxDistance && distance < nearestDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y)) {
+      if (distance <= this.bulletMaxDistance && distance < nearestDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y, playerGridPos.currentLayer, enemyGridPos.currentLayer)) {
         nearestDistance = distance;
         nearestEnemy = enemy;
       }
@@ -190,11 +196,13 @@ export class InputComponent implements Component {
     return null;
   }
 
-  private hasLineOfSight(x1: number, y1: number, x2: number, y2: number): boolean {
+  private hasLineOfSight(x1: number, y1: number, x2: number, y2: number, playerLayer: number, enemyLayer: number): boolean {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const distance = Math.hypot(dx, dy);
     const steps = Math.ceil(distance / (this.grid.cellSize / 2));
+
+    const minLayer = Math.min(playerLayer, enemyLayer);
 
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
@@ -202,7 +210,9 @@ export class InputComponent implements Component {
       const y = y1 + dy * t;
       const cell = this.grid.worldToCell(x, y);
       const cellData = this.grid.getCell(cell.col, cell.row);
-      if (cellData?.layer === 1) {
+      
+      // Block if cell layer is higher than both entities
+      if (cellData && cellData.layer > minLayer) {
         return false;
       }
     }

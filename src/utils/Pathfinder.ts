@@ -125,7 +125,7 @@ export class Pathfinder {
   private getValidNeighbor(
     currentCell: { layer: number; isTransition: boolean },
     targetCell: { layer: number; isTransition: boolean; occupants: Set<unknown> },
-    _dir: { col: number; row: number },
+    dir: { col: number; row: number },
     _currentLayer: number,
     newCol: number,
     newRow: number,
@@ -142,10 +142,18 @@ export class Pathfinder {
       return { col: newCol, row: newRow, layer: targetCell.layer };
     }
 
+    // Block movement into wall edges (layer 1 with layer 0 below)
     if (targetCell.layer === 1) {
       const cellBelow = this.grid.getCell(newCol, newRow + 1);
-      if (cellBelow && cellBelow.layer === 0 && !allowLayerChanges) {
-        return null;
+      if (cellBelow && cellBelow.layer === 0) {
+        // Block horizontal movement into wall edges
+        if (dir.col !== 0 && dir.row === 0) {
+          return null;
+        }
+        // Block downward movement into wall edges if not allowing layer changes
+        if (!allowLayerChanges) {
+          return null;
+        }
       }
     }
 
