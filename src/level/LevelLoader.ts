@@ -19,6 +19,12 @@ export type LevelBugBase = {
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
+export type LevelThrower = {
+  col: number;
+  row: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
 export type VignetteConfig = {
   alpha: number;
   tint: number;
@@ -51,6 +57,7 @@ export type LevelData = {
   cells: LevelCell[];
   robots?: LevelRobot[];
   bugBases?: LevelBugBase[];
+  throwers?: LevelThrower[];
   vignette?: VignetteConfig;
   background?: BackgroundConfig;
 }

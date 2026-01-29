@@ -9,6 +9,9 @@ import { createShellCasingEntity } from "./projectile/ShellCasingEntity";
 import { createStalkingRobotEntity } from "./robot/StalkingRobotEntity";
 import { createBugBaseEntity } from "./bug/BugBaseEntity";
 import { createBugEntity } from "./bug/BugEntity";
+import { createThrowerEntity } from "./thrower/ThrowerEntity";
+import { createGrenadeEntity } from "./projectile/GrenadeEntity";
+import { createThrowerAnimations } from "./thrower/ThrowerAnimations";
 import { BugSpawnerComponent } from "./ecs/components/ai/BugSpawnerComponent";
 import { DifficultyComponent } from "./ecs/components/ai/DifficultyComponent";
 import { getBugBaseDifficultyConfig } from "./bug/BugBaseDifficulty";
@@ -51,6 +54,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.entityManager = new EntityManager();
+
+    createThrowerAnimations(this);
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
 
@@ -304,7 +309,7 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.add(shell);
       },
       joystick,
-      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug'))
+      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower'))
     }));
 
 
@@ -365,6 +370,32 @@ export default class GameScene extends Phaser.Scene {
           baseData.difficulty
         );
         this.entityManager.add(base);
+      }
+    }
+
+    // Spawn throwers from level data
+    if (level.throwers && level.throwers.length > 0) {
+      for (const throwerData of level.throwers) {
+        const thrower = createThrowerEntity({
+          scene: this,
+          col: throwerData.col,
+          row: throwerData.row,
+          grid: this.grid,
+          playerEntity: player,
+          difficulty: throwerData.difficulty as EnemyDifficulty,
+          onThrow: (x, y, dirX, dirY, throwDistancePx) => {
+            const grenade = createGrenadeEntity({
+              scene: this,
+              x,
+              y,
+              dirX,
+              dirY,
+              maxDistancePx: throwDistancePx
+            });
+            this.entityManager.add(grenade);
+          }
+        });
+        this.entityManager.add(thrower);
       }
     }
   }

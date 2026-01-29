@@ -110,6 +110,17 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/arrows.png',
     type: 'image' as const,
   },
+  thrower: {
+    key: 'thrower',
+    path: 'assets/thrower/thrower_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  grenade: {
+    key: 'grenade',
+    path: 'assets/thrower/grenade.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

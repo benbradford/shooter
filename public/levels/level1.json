@@ -864,6 +864,13 @@
       "difficulty": "medium"
     }
   ],
+  "throwers": [
+    {
+      "col": 30,
+      "row": 18,
+      "difficulty": "medium"
+    }
+  ],
   "vignette": {
     "alpha": 0.4999999999999996,
     "tint": 4465152,

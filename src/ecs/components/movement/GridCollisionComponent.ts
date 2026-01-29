@@ -154,7 +154,7 @@ export class GridCollisionComponent implements Component {
     }
     
     // When in or near a transition, allow all layers from min-1 to max+1
-    let allowedLayers = new Set<number>();
+    const allowedLayers = new Set<number>();
     if (wasInTransition) {
       for (let layer = minTransitionLayer - 1; layer <= maxTransitionLayer + 1; layer++) {
         allowedLayers.add(layer);
