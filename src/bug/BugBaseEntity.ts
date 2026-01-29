@@ -34,15 +34,14 @@ export function createBugBaseEntity(
   const worldPos = grid.cellToWorld(col, row);
   const spriteX = worldPos.x + grid.cellSize / 2;
   const spriteY = worldPos.y + grid.cellSize / 2;
-  const collisionOffset = (grid.cellSize - BUG_BASE_COLLISION_SIZE) / 2;
 
-  const scale = grid.cellSize / 153;
+  const scale = (grid.cellSize / 153) * 1.5;
   const transform = entity.add(new TransformComponent(spriteX, spriteY, 0, scale));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug_base', transform));
-  sprite.sprite.setOrigin(0.5 - collisionOffset / grid.cellSize, 0.5 - collisionOffset / grid.cellSize);
+  sprite.sprite.setOrigin(0.5, 0.5);
   sprite.sprite.setDepth(-50);
-
+  
   entity.add(new GridPositionComponent(col, row, BASE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
   entity.add(new GridCellBlocker());
