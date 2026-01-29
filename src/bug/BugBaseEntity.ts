@@ -41,7 +41,7 @@ export function createBugBaseEntity(
   const sprite = entity.add(new SpriteComponent(scene, 'bug_base', transform));
   sprite.sprite.setOrigin(0.5, 0.5);
   sprite.sprite.setDepth(-50);
-  
+
   entity.add(new GridPositionComponent(col, row, BASE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
   entity.add(new GridCellBlocker());

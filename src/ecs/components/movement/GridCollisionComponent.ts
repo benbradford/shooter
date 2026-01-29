@@ -46,6 +46,11 @@ export class GridCollisionComponent implements Component {
       }
     }
 
+    // Always allow movement between transition cells
+    if (fromCell.isTransition && toCell.isTransition) {
+      return true;
+    }
+
     // Block movement into layer 1 cells that have layer 0 below (unless transition or coming from transition)
     if (toCell.layer === 1 && !toCell.isTransition && !fromCell.isTransition) {
       const cellBelow = this.grid.getCell(toCol, toRow + 1);
@@ -54,20 +59,21 @@ export class GridCollisionComponent implements Component {
       }
     }
 
-    // If in a transition cell, restrict horizontal movement
+    // If in a transition cell, allow movement to adjacent layers
     if (fromCell.isTransition) {
-      const movingVertically = fromCol === toCol;
-
-      if (!movingVertically) {
-        return toCell.isTransition || toCell.layer === fromCell.layer;
+      // Allow movement to transitions
+      if (toCell.isTransition) return true;
+      
+      // Block movement into wall edges (layer 1 with layer 0 below)
+      if (toCell.layer === 1) {
+        const cellBelow = this.grid.getCell(toCol, toRow + 1);
+        if (cellBelow?.layer === 0) {
+          return false;
+        }
       }
-
-      const movingUp = toRow < fromRow;
-      const movingDown = toRow > fromRow;
-
-      if (movingUp && toCell.layer >= fromCell.layer && toCell.layer <= fromCell.layer + 1) return true;
-      if (movingDown && toCell.layer >= fromCell.layer - 1 && toCell.layer <= fromCell.layer) return true;
-
+      
+      // Allow movement to adjacent layers
+      if (toCell.layer >= fromCell.layer - 1 && toCell.layer <= fromCell.layer + 1) return true;
       return false;
     }
 
@@ -119,12 +125,40 @@ export class GridCollisionComponent implements Component {
     const prevCenterCell = this.grid.worldToCell(prevCenterX, prevCenterY);
     const prevCenterCellData = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
     
-    // When in or near a transition, allow adjacent layers
+    // Check if ANY previously occupied cell was a transition
+    let wasInTransition = prevCenterCellData?.isTransition ?? false;
+    let minTransitionLayer = prevCenterCellData?.layer ?? gridPos.currentLayer;
+    let maxTransitionLayer = prevCenterCellData?.layer ?? gridPos.currentLayer;
+    
+    for (let row = prevTopLeftCell.row; row <= prevBottomRightCell.row; row++) {
+      for (let col = prevTopLeftCell.col; col <= prevBottomRightCell.col; col++) {
+        const cell = this.grid.getCell(col, row);
+        if (cell?.isTransition) {
+          wasInTransition = true;
+          minTransitionLayer = Math.min(minTransitionLayer, cell.layer);
+          maxTransitionLayer = Math.max(maxTransitionLayer, cell.layer);
+        }
+      }
+    }
+    
+    // Also check if ANY new position cell is a transition
+    for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
+      for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
+        const cell = this.grid.getCell(col, row);
+        if (cell?.isTransition) {
+          wasInTransition = true;
+          minTransitionLayer = Math.min(minTransitionLayer, cell.layer);
+          maxTransitionLayer = Math.max(maxTransitionLayer, cell.layer);
+        }
+      }
+    }
+    
+    // When in or near a transition, allow all layers from min-1 to max+1
     let allowedLayers = new Set<number>();
-    if (prevCenterCellData?.isTransition) {
-      allowedLayers.add(prevCenterCellData.layer - 1);
-      allowedLayers.add(prevCenterCellData.layer);
-      allowedLayers.add(prevCenterCellData.layer + 1);
+    if (wasInTransition) {
+      for (let layer = minTransitionLayer - 1; layer <= maxTransitionLayer + 1; layer++) {
+        allowedLayers.add(layer);
+      }
     } else {
       allowedLayers.add(prevCenterCellData?.layer ?? gridPos.currentLayer);
     }
