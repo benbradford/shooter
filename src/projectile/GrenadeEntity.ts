@@ -57,19 +57,19 @@ class GrenadeArcComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     
     const emitter = this.scene.add.particles(transform.x, transform.y, 'fire', {
-      speed: { min: 100, max: 200 },
+      speed: { min: 50, max: 100 },
       angle: { min: 0, max: 360 },
-      scale: { start: 0.8, end: 0 },
+      scale: { start: 0.4, end: 0 },
       alpha: { start: 1, end: 0 },
       tint: [0xffffff, 0xff8800, 0xff0000],
-      lifespan: 600,
-      frequency: 3,
+      lifespan: 400,
+      frequency: 5,
       blendMode: 'ADD'
     });
 
     emitter.setDepth(1000);
-    this.scene.time.delayedCall(100, () => emitter.stop());
-    this.scene.time.delayedCall(700, () => emitter.destroy());
+    this.scene.time.delayedCall(80, () => emitter.stop());
+    this.scene.time.delayedCall(480, () => emitter.destroy());
 
     this.scene.time.delayedCall(0, () => this.entity.destroy());
   }
@@ -117,19 +117,19 @@ export function createGrenadeEntity(props: CreateGrenadeProps): Entity {
 
         const transform = entity.require(TransformComponent);
         const emitter = scene.add.particles(transform.x, transform.y, 'fire', {
-          speed: { min: 100, max: 200 },
+          speed: { min: 50, max: 100 },
           angle: { min: 0, max: 360 },
-          scale: { start: 0.8, end: 0 },
+          scale: { start: 0.4, end: 0 },
           alpha: { start: 1, end: 0 },
           tint: [0xffffff, 0xff8800, 0xff0000],
-          lifespan: 600,
-          frequency: 3,
+          lifespan: 400,
+          frequency: 5,
           blendMode: 'ADD'
         });
 
         emitter.setDepth(1000);
-        scene.time.delayedCall(100, () => emitter.stop());
-        scene.time.delayedCall(700, () => emitter.destroy());
+        scene.time.delayedCall(80, () => emitter.stop());
+        scene.time.delayedCall(480, () => emitter.destroy());
 
         scene.time.delayedCall(0, () => entity.destroy());
       }

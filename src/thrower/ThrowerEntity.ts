@@ -20,7 +20,7 @@ import { ThrowerDeathState } from './ThrowerDeathState';
 import { getThrowerDifficultyConfig, type ThrowerDifficulty } from './ThrowerDifficultyConfig';
 import type { Grid } from '../utils/Grid';
 
-const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 16 };
+const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
 const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: 0, width: 32, height: 32 };
 const THROWER_SCALE = 2;
 const KNOCKBACK_FRICTION = 0.92;

@@ -97,7 +97,9 @@ export class RobotStalkingState implements IState {
         robotCell.row,
         playerCell.col,
         playerCell.row,
-        gridPos.currentLayer
+        gridPos.currentLayer,
+        false,
+        true
       );
       
       this.currentPathIndex = 0;

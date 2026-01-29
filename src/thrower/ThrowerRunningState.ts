@@ -18,6 +18,9 @@ export class ThrowerRunningState implements IState {
   private throwTimerMs: number = 0;
   private targetCol: number = -1;
   private targetRow: number = -1;
+  private lastPositionCol: number = -1;
+  private lastPositionRow: number = -1;
+  private stuckTimerMs: number = 0;
 
   constructor(
     private readonly entity: Entity,
@@ -36,6 +39,7 @@ export class ThrowerRunningState implements IState {
   onUpdate(delta: number): void {
     this.throwTimerMs -= delta;
     this.pathRecalcTimerMs += delta;
+    this.stuckTimerMs += delta;
 
     if (this.throwTimerMs <= 0) {
       const stateMachine = this.entity.require(StateMachineComponent);
@@ -48,18 +52,32 @@ export class ThrowerRunningState implements IState {
     const difficulty = this.entity.require(DifficultyComponent);
     const config = getThrowerDifficultyConfig(difficulty.difficulty);
 
+    const currentCell = this.grid.worldToCell(transform.x, transform.y);
+    
+    if (currentCell.col === this.lastPositionCol && currentCell.row === this.lastPositionRow) {
+      if (this.stuckTimerMs >= 1000) {
+        this.path = null;
+        this.stuckTimerMs = 0;
+      }
+    } else {
+      this.lastPositionCol = currentCell.col;
+      this.lastPositionRow = currentCell.row;
+      this.stuckTimerMs = 0;
+    }
+
     if (this.pathRecalcTimerMs >= 500 || this.path === null) {
       this.pathRecalcTimerMs = 0;
       this.findCoverPosition();
       
       if (this.targetCol !== -1 && this.targetRow !== -1) {
-        const currentCell = this.grid.worldToCell(transform.x, transform.y);
         this.path = this.pathfinder.findPath(
           currentCell.col,
           currentCell.row,
           this.targetCol,
           this.targetRow,
-          gridPos.currentLayer
+          gridPos.currentLayer,
+          false,
+          true
         );
         this.currentPathIndex = 0;
       }

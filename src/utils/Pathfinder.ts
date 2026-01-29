@@ -24,7 +24,8 @@ export class Pathfinder {
     goalCol: number,
     goalRow: number,
     currentLayer: number,
-    allowLayerChanges: boolean = false
+    allowLayerChanges: boolean = false,
+    allowDiagonals: boolean = false
   ): Array<{ col: number; row: number }> | null {
     const openSet: PathNode[] = [];
     const closedSet = new Set<string>();
@@ -58,7 +59,7 @@ export class Pathfinder {
       openSet.splice(currentIndex, 1);
       closedSet.add(`${current.col},${current.row},${current.layer}`);
 
-      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges);
+      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals);
       for (const neighbor of neighbors) {
         const key = `${neighbor.col},${neighbor.row},${neighbor.layer}`;
         if (closedSet.has(key)) continue;
@@ -92,10 +93,12 @@ export class Pathfinder {
   }
 
   private heuristic(col1: number, row1: number, col2: number, row2: number): number {
-    return Math.abs(col1 - col2) + Math.abs(row1 - row2);
+    const dx = Math.abs(col1 - col2);
+    const dy = Math.abs(row1 - row2);
+    return Math.max(dx, dy);
   }
 
-  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean): Array<{ col: number; row: number; layer: number }> {
+  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean): Array<{ col: number; row: number; layer: number }> {
     const neighbors: Array<{ col: number; row: number; layer: number }> = [];
     const currentCell = this.grid.getCell(col, row);
     if (!currentCell) return neighbors;
@@ -106,6 +109,15 @@ export class Pathfinder {
       { col: -1, row: 0 }, // Left
       { col: 1, row: 0 },  // Right
     ];
+
+    if (allowDiagonals && !currentCell.isTransition) {
+      directions.push(
+        { col: -1, row: -1 }, // Up-Left
+        { col: 1, row: -1 },  // Up-Right
+        { col: -1, row: 1 },  // Down-Left
+        { col: 1, row: 1 }    // Down-Right
+      );
+    }
 
     for (const dir of directions) {
       const newCol = col + dir.col;
@@ -126,7 +138,7 @@ export class Pathfinder {
     currentCell: { layer: number; isTransition: boolean },
     targetCell: { layer: number; isTransition: boolean; occupants: Set<unknown> },
     dir: { col: number; row: number },
-    _currentLayer: number,
+    currentLayer: number,
     newCol: number,
     newRow: number,
     allowLayerChanges: boolean
@@ -138,19 +150,48 @@ export class Pathfinder {
       }
     }
 
-    if (targetCell.isTransition || currentCell.isTransition) {
+    const isDiagonal = dir.col !== 0 && dir.row !== 0;
+    const isHorizontal = dir.col !== 0 && dir.row === 0;
+
+    if (targetCell.isTransition) {
       return { col: newCol, row: newRow, layer: targetCell.layer };
+    }
+
+    if (currentCell.isTransition) {
+      if (isHorizontal) {
+        return null;
+      }
+      return { col: newCol, row: newRow, layer: targetCell.layer };
+    }
+
+    // Block diagonal movement across layer boundaries
+    if (isDiagonal && currentCell.layer !== targetCell.layer) {
+      return null;
+    }
+
+    // Block diagonal movement if either adjacent cell blocks movement
+    if (isDiagonal) {
+      const currentCol = newCol - dir.col;
+      const currentRow = newRow - dir.row;
+      
+      const sideCell1 = this.grid.getCell(newCol, currentRow);
+      const sideCell2 = this.grid.getCell(currentCol, newRow);
+      
+      if (!sideCell1 || sideCell1.layer !== currentLayer) {
+        return null;
+      }
+      if (!sideCell2 || sideCell2.layer !== currentLayer) {
+        return null;
+      }
     }
 
     // Block movement into wall edges (layer 1 with layer 0 below)
     if (targetCell.layer === 1) {
       const cellBelow = this.grid.getCell(newCol, newRow + 1);
       if (cellBelow && cellBelow.layer === 0) {
-        // Block horizontal movement into wall edges
         if (dir.col !== 0 && dir.row === 0) {
           return null;
         }
-        // Block downward movement into wall edges if not allowing layer changes
         if (!allowLayerChanges) {
           return null;
         }
@@ -161,7 +202,7 @@ export class Pathfinder {
       return null;
     }
 
-    return { col: newCol, row: newRow, layer: targetCell.layer };
+    return { col: newCol, row: newRow, layer: currentLayer };
   }
 
   private reconstructPath(node: PathNode): Array<{ col: number; row: number }> {
