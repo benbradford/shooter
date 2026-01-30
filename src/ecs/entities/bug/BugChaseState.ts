@@ -6,6 +6,8 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { BugHopComponent } from '../../components/movement/BugHopComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
+import { HealthComponent } from '../../components/core/HealthComponent';
+import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
 import type { Grid } from '../../../ecs/systems/Grid';
 import { Pathfinder } from '../../../ecs/systems/Pathfinder';
 
@@ -19,6 +21,7 @@ export class BugChaseState implements IState {
   private readonly grid: Grid;
   private readonly speedPxPerSec: number;
   private readonly pathfinder: Pathfinder;
+  private readonly scene: Phaser.Scene;
   private animTimer = 0;
   private currentFrame = 0;
   private isMovingToCell = false;
@@ -28,12 +31,13 @@ export class BugChaseState implements IState {
   private pathRecalcTimer = 0;
   private currentPathIndex = 0;
 
-  constructor(entity: Entity, playerEntity: Entity, grid: Grid, speedPxPerSec: number) {
+  constructor(entity: Entity, playerEntity: Entity, grid: Grid, speedPxPerSec: number, scene: Phaser.Scene) {
     this.entity = entity;
     this.playerEntity = playerEntity;
     this.grid = grid;
     this.speedPxPerSec = speedPxPerSec;
     this.pathfinder = new Pathfinder(grid);
+    this.scene = scene;
   }
 
 
@@ -54,6 +58,7 @@ export class BugChaseState implements IState {
     if (hop?.isActive()) return true;
     
     if (hop?.justEnded()) {
+      this.checkLandingDamage();
       this.path = null;
       this.pathRecalcTimer = PATH_RECALC_INTERVAL_MS;
       this.isMovingToCell = false;
@@ -62,6 +67,27 @@ export class BugChaseState implements IState {
 
     const knockback = this.entity.get(KnockbackComponent);
     return knockback?.isActive ?? false;
+  }
+
+  private checkLandingDamage(): void {
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distance = Math.hypot(dx, dy);
+    
+    if (distance <= ATTACK_RANGE_PX) {
+      const playerHealth = this.playerEntity.require(HealthComponent);
+      playerHealth.takeDamage(10);
+      
+      // Trigger burst and destroy
+      const burst = this.entity.get(BugBurstComponent);
+      if (burst) {
+        burst.burst();
+      }
+      this.scene.time.delayedCall(0, () => this.entity.destroy());
+    }
   }
 
   private getRequiredComponents() {

@@ -19,7 +19,7 @@ import { BugAttackState } from './BugAttackState';
 import type { Grid } from '../../../ecs/systems/Grid';
 
 const BUG_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 16, height: 16 };
-const BUG_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 42, height: 42 };
+const BUG_ENTITY_COLLISION_BOX = { offsetX: -15, offsetY: -15, width: 30, height: 30 };
 const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
 const BUG_DAMAGE = 10;
@@ -69,7 +69,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
   entity.add(new DamageComponent(10));
 
   const stateMachine = new StateMachine({
-    chase: new BugChaseState(entity, playerEntity, grid, speed),
+    chase: new BugChaseState(entity, playerEntity, grid, speed, scene),
     attack: new BugAttackState(entity, playerEntity, scene)
   }, 'chase');
   entity.add(new StateMachineComponent(stateMachine));
@@ -108,8 +108,6 @@ export function createBugEntity(props: CreateBugProps): Entity {
 
         other.destroy();
       } else if (other.tags.has('player')) {
-        entity.remove(CollisionComponent);
-
         const playerHealth = other.require(HealthComponent);
         playerHealth.takeDamage(BUG_DAMAGE);
 
@@ -117,8 +115,8 @@ export function createBugEntity(props: CreateBugProps): Entity {
         if (burst) {
           burst.burst();
         }
-        entity.isDestroyed = true;
-        scene.time.delayedCall(100, () => entity.destroy());
+        
+        scene.time.delayedCall(0, () => entity.destroy());
       }
     }
   }));
