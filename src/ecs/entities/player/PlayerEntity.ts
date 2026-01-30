@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { Entity } from '../../Entity';
-import type { Component } from '../../Component';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
@@ -21,7 +20,6 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
-import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -60,11 +58,10 @@ export type CreatePlayerEntityProps = {
   onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
   joystick: Entity;
   getEnemies: () => Entity[];
-  vignette?: Phaser.GameObjects.Image;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies, vignette } = props;
+  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -137,10 +134,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
 
-  if (vignette) {
-    entity.add(new VignetteHealthComponent({ vignette, health }));
-  }
-
   const ammo = entity.add(new AmmoComponent({
     maxAmmo: PLAYER_MAX_AMMO,
     refillRate: PLAYER_AMMO_REFILL_RATE,
@@ -209,7 +202,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   }));
 
   // Component instances for update order
-  const updateOrder: Array<new (...args: never[]) => Component> = [
+  entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
     ShadowComponent,
@@ -219,23 +212,14 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     GridCollisionComponent,
     CollisionComponent,
     HealthComponent,
-  ];
-  
-  if (vignette) {
-    updateOrder.push(VignetteHealthComponent);
-  }
-  
-  updateOrder.push(
     AmmoComponent,
     ProjectileEmitterComponent,
     OverheatSmokeComponent,
     HitFlashComponent,
     HudBarComponent,
     StateMachineComponent,
-    AnimationComponent
-  );
-  
-  entity.setUpdateOrder(updateOrder);
+    AnimationComponent,
+  ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);
 

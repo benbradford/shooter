@@ -26,5 +26,3 @@ export { ParticleTrailComponent } from './components/visual/ParticleTrailCompone
 export { DifficultyComponent } from './components/ai/DifficultyComponent';
 export { DamageComponent } from './components/combat/DamageComponent';
 export { ShadowComponent } from './components/visual/ShadowComponent';
-export { VignetteHealthComponent } from './components/visual/VignetteHealthComponent';
-export type { VignetteHealthComponentProps } from './components/visual/VignetteHealthComponent';
