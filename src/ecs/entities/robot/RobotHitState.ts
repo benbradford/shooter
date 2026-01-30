@@ -1,4 +1,4 @@
-import type { IState } from '../../../utils/state/IState';
+import type { IState } from '../../../ecs/systems/state/IState';
 import type { Entity } from '../../Entity';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';

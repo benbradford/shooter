@@ -1,4 +1,4 @@
-import type { IState } from '../../../utils/state/IState';
+import type { IState } from '../../../ecs/systems/state/IState';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
@@ -6,8 +6,8 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
-import { Pathfinder } from '../../../utils/Pathfinder';
-import type { Grid } from '../../../utils/Grid';
+import { Pathfinder } from '../../../ecs/systems/Pathfinder';
+import type { Grid } from '../../../ecs/systems/Grid';
 import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
 
 export class ThrowerRunningState implements IState {

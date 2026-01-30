@@ -13,10 +13,10 @@ import { BugHopComponent } from '../../components/movement/BugHopComponent';
 import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
-import { StateMachine } from '../../../utils/state/StateMachine';
+import { StateMachine } from '../../../ecs/systems/state/StateMachine';
 import { BugChaseState } from './BugChaseState';
 import { BugAttackState } from './BugAttackState';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 
 const BUG_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 16, height: 16 };
 const BUG_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 42, height: 42 };

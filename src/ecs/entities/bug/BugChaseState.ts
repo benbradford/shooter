@@ -1,4 +1,4 @@
-import type { IState } from '../../../utils/state/IState';
+import type { IState } from '../../../ecs/systems/state/IState';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
@@ -6,8 +6,8 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { BugHopComponent } from '../../components/movement/BugHopComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
-import type { Grid } from '../../../utils/Grid';
-import { Pathfinder } from '../../../utils/Pathfinder';
+import type { Grid } from '../../../ecs/systems/Grid';
+import { Pathfinder } from '../../../ecs/systems/Pathfinder';
 
 const FRAME_DURATION_MS = 125;
 const ATTACK_RANGE_PX = 128;

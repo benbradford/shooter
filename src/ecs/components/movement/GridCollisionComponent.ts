@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
 import { WalkComponent } from './WalkComponent';

@@ -23,10 +23,10 @@ import { ShadowComponent } from '../../components/core/ShadowComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
-import { StateMachine } from '../../../utils/state/StateMachine';
+import { StateMachine } from '../../../ecs/systems/state/StateMachine';
 import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 
 // Player configuration constants
 import { SPRITE_SCALE } from '../../../constants/GameConstants';

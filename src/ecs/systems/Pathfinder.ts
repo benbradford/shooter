@@ -1,5 +1,5 @@
 import type { Grid } from './Grid';
-import { GridCellBlocker } from '../ecs/components/movement/GridCellBlocker';
+import { GridCellBlocker } from '../components/movement/GridCellBlocker';
 
 type PathNode = {
   col: number;

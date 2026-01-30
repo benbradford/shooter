@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from './TouchJoystickComponent';
 import type { AimJoystickComponent } from './AimJoystickComponent';
 import type { ControlModeComponent } from './ControlModeComponent';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 

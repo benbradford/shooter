@@ -9,7 +9,7 @@ import { ShadowComponent } from '../../components/core/ShadowComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
 

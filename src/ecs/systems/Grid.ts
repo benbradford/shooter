@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import type { Entity } from "../ecs/Entity";
-import type GameScene from "../scenes/GameScene";
-import type { EntityManager } from "../ecs/EntityManager";
-import { ProjectileEmitterComponent } from "../ecs/components/combat/ProjectileEmitterComponent";
+import type { Entity } from "../Entity";
+import type GameScene from "../../scenes/GameScene";
+import type { EntityManager } from "../EntityManager";
+import { ProjectileEmitterComponent } from "../components/combat/ProjectileEmitterComponent";
 
 const LAYER1_FILL_COLOR = 0x4a4a5e;
 const LAYER1_EDGE_COLOR = 0x2a2a3e;

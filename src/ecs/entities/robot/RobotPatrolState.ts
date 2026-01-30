@@ -1,7 +1,7 @@
-import type { IState } from '../../../utils/state/IState';
+import type { IState } from '../../../ecs/systems/state/IState';
 import type { Entity } from '../../Entity';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 import { PatrolComponent } from '../../components/ai/PatrolComponent';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { LineOfSightComponent } from '../../components/combat/LineOfSightComponent';

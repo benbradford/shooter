@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 
 const ACTIVATION_RANGE_PX = 750;
 const MAX_BUGS = 6;

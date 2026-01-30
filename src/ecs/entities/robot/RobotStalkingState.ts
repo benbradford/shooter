@@ -1,4 +1,4 @@
-import type { IState } from '../../../utils/state/IState';
+import type { IState } from '../../../ecs/systems/state/IState';
 import type { Entity } from '../../Entity';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { TransformComponent } from '../../components/core/TransformComponent';
@@ -6,8 +6,8 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { PatrolComponent } from '../../components/ai/PatrolComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
-import { Pathfinder } from '../../../utils/Pathfinder';
-import type { Grid } from '../../../utils/Grid';
+import { Pathfinder } from '../../../ecs/systems/Pathfinder';
+import type { Grid } from '../../../ecs/systems/Grid';
 
 // Stalking state configuration
 const ATTACK_RANGE_PX = 500;

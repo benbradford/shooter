@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Grid } from "../utils/Grid";
+import { Grid } from "../ecs/systems/Grid";
 import { LevelLoader, type LevelData, type BackgroundConfig } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
 import type HudScene from "./HudScene";

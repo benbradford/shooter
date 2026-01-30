@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 import type GameScene from "./GameScene";
 import type HudScene from "./HudScene";
-import type { Grid } from "../utils/Grid";
+import type { Grid } from "../ecs/systems/Grid";
 import type { LevelData, LevelBugBase } from "../systems/level/LevelLoader";
 import type { Entity } from "../ecs/Entity";
 import type { EnemyDifficulty } from "../constants/EnemyDifficulty";
-import { StateMachine } from "../utils/state/StateMachine";
+import { StateMachine } from "../ecs/systems/state/StateMachine";
 import { DefaultEditorState } from "../editor/DefaultEditorState";
 import { GridEditorState } from "../editor/GridEditorState";
 import { ResizeEditorState } from "../editor/ResizeEditorState";

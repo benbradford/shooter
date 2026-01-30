@@ -1,6 +1,6 @@
-import type { IState } from '../../../utils/state/IState';
+import type { IState } from '../../../ecs/systems/state/IState';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../utils/Grid';
+import type { Grid } from '../../../ecs/systems/Grid';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
