@@ -28,3 +28,4 @@ export { DamageComponent } from './components/combat/DamageComponent';
 export { RemoteInputComponent } from './components/input/RemoteInputComponent';
 export { ShadowComponent } from './components/visual/ShadowComponent';
 export { AimJoystickVisualsComponent } from './components/ui/AimJoystickVisualsComponent';
+export { VignetteHealthComponent } from './components/visual/VignetteHealthComponent';

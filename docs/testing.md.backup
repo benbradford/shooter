@@ -11,10 +11,9 @@ The game uses Puppeteer for automated browser-based testing. Tests simulate real
 npm test
 ```
 
-**Run single test (requires dev server running):**
+**Run single test:**
 ```bash
-npm run dev  # In one terminal
-./test/run-test.sh test/test-player-movement.js  # In another
+./test/run-test.sh test/test-player-movement.js
 ```
 
 **Test output:**
@@ -31,24 +30,16 @@ Tests use `RemoteInputComponent` to simulate user input without polluting game c
 **Enabled when:** `?test=true` URL parameter is present
 
 **API:**
-- `setWalk(x, y, isPressed)` - Simulate movement joystick (x, y are -1 to 1, isPressed is boolean)
-- `setAim(x, y, isPressed)` - Simulate aim joystick (x, y are -1 to 1, isPressed is boolean)
+- `setWalk(x, y, isPressed)` - Simulate movement joystick
+- `setAim(x, y, isPressed)` - Simulate aim joystick
 - `getWalkInput()` - Get walk state `{x, y, isPressed}`
 - `getAimInput()` - Get aim state `{x, y, isPressed}`
-- `getWalkPointerState()` - Get simulated pointer positions for walk joystick HUD
-- `getAimPointerState()` - Get simulated pointer positions for aim joystick HUD
-
-**How it works:**
-- RemoteInputComponent is added to the player entity when tests call `enableRemoteInput()`
-- InputComponent checks for RemoteInputComponent first, before checking keyboard/touch input
-- Visual HUD components (JoystickVisualsComponent, AimJoystickVisualsComponent) also check RemoteInputComponent
-- This allows tests to verify both gameplay logic AND visual HUD behavior
 
 **Example:**
 ```javascript
-// Simulate walking up for 300ms
+// Simulate walking up for 1 second
 remoteInput.setWalk(0, -1, true);
-await new Promise(resolve => setTimeout(resolve, 300));
+await new Promise(resolve => setTimeout(resolve, 1000));
 remoteInput.setWalk(0, 0, false);
 ```
 
@@ -63,19 +54,11 @@ Reusable commands are in `test/commands/`:
 - `getBulletCount()` - Count active bullets
 - `enableRemoteInput()` - Add RemoteInputComponent to player
 
-**hud.js:**
-- `getJoystickVisuals()` - Get movement joystick HUD state (position, alpha, visibility)
-- `getAimJoystickVisuals()` - Get aim joystick HUD state (position, alpha, visibility)
-
 **Example usage:**
 ```javascript
 const initialPos = await page.evaluate(() => getPlayerPosition());
-await page.evaluate(() => setPlayerInput(0, -1, 300));
+await page.evaluate(() => setPlayerInput(0, -1, 1000));
 const finalPos = await page.evaluate(() => getPlayerPosition());
-
-// Verify HUD updates
-const hudState = await page.evaluate(() => getJoystickVisuals());
-console.log(`HUD alpha: ${hudState.outerCircle.alpha}`);
 ```
 
 ## Writing Tests
@@ -259,67 +242,12 @@ await page.evaluate(enemyCommands);
 If you need to access new components, expose them in `main.ts`:
 
 ```typescript
-import { TransformComponent, RemoteInputComponent, YourComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent, HealthComponent } from "./ecs";
 
 if (params.get('test') === 'true') {
-  (window as unknown as { YourComponent: typeof YourComponent }).YourComponent = YourComponent;
+  (window as unknown as { HealthComponent: typeof HealthComponent }).HealthComponent = HealthComponent;
 }
 ```
-
-**Critical:** Also export the component from `src/ecs/index.ts`:
-
-```typescript
-export { YourComponent } from './components/category/YourComponent';
-```
-
-## Verifying HUD Visual Components
-
-### HUD Test Pattern
-
-Tests can verify that HUD visual components update correctly:
-
-```javascript
-// Get HUD state
-const hudState = await page.evaluate(() => getJoystickVisuals());
-
-// Verify alpha transitions
-console.log(`Initial alpha: ${hudState.outerCircle.alpha}`); // Should be 0.3
-console.log(`Pressed alpha: ${hudState.outerCircle.alpha}`); // Should be 1.0
-
-// Verify position changes
-console.log(`Inner circle moved: ${hudState.innerCircle.x !== hudState.outerCircle.x}`);
-```
-
-### HUD Command Implementation
-
-HUD commands use `entity.get(ComponentClass)` to access visual components:
-
-```javascript
-function getJoystickVisuals() {
-  const hudScene = window.game.scene.scenes.find(s => s.scene.key === 'HudScene');
-  const joystickEntity = hudScene.joystickEntity;
-  const visuals = joystickEntity.get(window.JoystickVisualsComponent);
-  
-  return {
-    outerCircle: {
-      x: visuals.outerCircle.x,
-      y: visuals.outerCircle.y,
-      alpha: visuals.outerCircle.alpha
-    },
-    innerCircle: {
-      x: visuals.innerCircle.x,
-      y: visuals.innerCircle.y,
-      alpha: visuals.innerCircle.alpha
-    }
-  };
-}
-```
-
-**Key points:**
-- Access HUD entities via scene reference (e.g., `hudScene.joystickEntity`)
-- Use `entity.get(window.ComponentClass)` to get component instance
-- Component classes must be exposed on `window` in `main.ts`
-- Return plain objects (not Phaser objects) for serialization
 
 ## Example Tests
 
@@ -462,58 +390,6 @@ await page.waitForFunction(() => {
 
 ```typescript
 (window as unknown as { MyComponent: typeof MyComponent }).MyComponent = MyComponent;
-```
-
-**Also export from `src/ecs/index.ts`:**
-
-```typescript
-export { MyComponent } from './components/category/MyComponent';
-```
-
-### HUD Commands Return Undefined
-
-**Cause:** Component class not exposed on window, or using wrong access pattern
-
-**Solution:**
-
-1. **Expose component in `main.ts`:**
-```typescript
-import { JoystickVisualsComponent } from "./ecs";
-
-if (params.get('test') === 'true') {
-  (window as unknown as { JoystickVisualsComponent: typeof JoystickVisualsComponent }).JoystickVisualsComponent = JoystickVisualsComponent;
-}
-```
-
-2. **Export from `src/ecs/index.ts`:**
-```typescript
-export { JoystickVisualsComponent } from './components/ui/JoystickVisualsComponent';
-```
-
-3. **Use `entity.get(window.ComponentClass)` not `components.find()`:**
-```javascript
-// ✓ CORRECT
-const visuals = joystickEntity.get(window.JoystickVisualsComponent);
-
-// ✗ WRONG
-const visuals = joystickEntity.components.find(c => c.constructor.name === 'JoystickVisualsComponent');
-```
-
-### RemoteInputComponent Not Working with HUD
-
-**Cause:** HUD visual components not checking RemoteInputComponent for pointer state
-
-**Solution:** Update HUD components to check RemoteInputComponent:
-
-```typescript
-// In JoystickVisualsComponent.update()
-const remoteInput = this.playerEntity?.get(RemoteInputComponent);
-if (remoteInput) {
-  const pointerState = remoteInput.getWalkPointerState();
-  if (pointerState.active) {
-    // Use pointerState.startX, startY, currentX, currentY
-  }
-}
 ```
 
 ### Test Passes but Behavior Wrong

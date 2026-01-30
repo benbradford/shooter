@@ -47,6 +47,7 @@ export class JoystickVisualsComponent implements Component {
   update(_delta: number): void {
     // Get player entity if not cached
     if (!this.playerEntity) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gameScene = this.scene.scene.get('game') as any;
       if (gameScene?.entityManager) {
         this.playerEntity = gameScene.entityManager.getFirst('player');

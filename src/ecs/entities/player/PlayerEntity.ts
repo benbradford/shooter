@@ -20,6 +20,7 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
+import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -58,10 +59,11 @@ export type CreatePlayerEntityProps = {
   onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
   joystick: Entity;
   getEnemies: () => Entity[];
+  vignetteSprite?: Phaser.GameObjects.Image;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies } = props;
+  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies, vignetteSprite } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -147,15 +149,19 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   ]));
   hudBars.init();
 
+  if (vignetteSprite) {
+    entity.add(new VignetteHealthComponent({ healthComponent: health, vignetteSprite }));
+  }
+
   const emitterOffsets: Record<Direction, EmitterOffset> = {
-    [Direction.Down]: { x: -16, y: 40 },
-    [Direction.Up]: { x: 10, y: -30 },
-    [Direction.Left]: { x: -51, y: 0 },
-    [Direction.Right]: { x: 43, y: 0 },
-    [Direction.UpLeft]: { x: -25, y: -25 },
-    [Direction.UpRight]: { x: 22, y: -20 },
-    [Direction.DownLeft]: { x: -35, y: 22 },
-    [Direction.DownRight]: { x: 29, y: 21 },
+    [Direction.Down]: { x: -16 * SPRITE_SCALE, y: 40 * SPRITE_SCALE },
+    [Direction.Up]: { x: 10 * SPRITE_SCALE, y: -30 * SPRITE_SCALE },
+    [Direction.Left]: { x: -51 * SPRITE_SCALE, y: 0 * SPRITE_SCALE },
+    [Direction.Right]: { x: 43 * SPRITE_SCALE, y: 0 * SPRITE_SCALE },
+    [Direction.UpLeft]: { x: -25 * SPRITE_SCALE, y: -25 * SPRITE_SCALE },
+    [Direction.UpRight]: { x: 22 * SPRITE_SCALE, y: -20 * SPRITE_SCALE },
+    [Direction.DownLeft]: { x: -35 * SPRITE_SCALE, y: 22 * SPRITE_SCALE },
+    [Direction.DownRight]: { x: 29 * SPRITE_SCALE, y: 21 * SPRITE_SCALE },
     [Direction.None]: { x: 0, y: 0 },
   };
   entity.add(new ProjectileEmitterComponent({
@@ -212,6 +218,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     GridCollisionComponent,
     CollisionComponent,
     HealthComponent,
+    VignetteHealthComponent,
     AmmoComponent,
     ProjectileEmitterComponent,
     OverheatSmokeComponent,

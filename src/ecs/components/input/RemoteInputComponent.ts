@@ -80,5 +80,6 @@ export class RemoteInputComponent implements Component {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   update(_delta: number): void {}
 }

@@ -315,7 +315,8 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.add(shell);
       },
       joystick,
-      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower'))
+      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
+      vignetteSprite: this.vignette
     }));
 
 
