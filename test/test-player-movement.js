@@ -20,7 +20,7 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   });
   
   console.log('Navigating to game...');
-  await page.goto('http://localhost:5173/?test=true', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:5173/?test=true&level=emptyLevel', { waitUntil: 'networkidle2' });
   
   console.log('Waiting for game to be ready...');
   await page.waitForFunction(() => {
@@ -29,28 +29,47 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   
   await page.evaluate(playerCommands);
   
-  console.log('Getting initial player position...');
-  const initialPos = await page.evaluate(() => getPlayerPosition());
-  console.log(`Initial position: (${initialPos.x}, ${initialPos.y})`);
+  const directions = [
+    { name: 'up', dx: 0, dy: -1 },
+    { name: 'down', dx: 0, dy: 1 },
+    { name: 'left', dx: -1, dy: 0 },
+    { name: 'right', dx: 1, dy: 0 },
+    { name: 'up-left', dx: -1, dy: -1 },
+    { name: 'up-right', dx: 1, dy: -1 },
+    { name: 'down-left', dx: -1, dy: 1 },
+    { name: 'down-right', dx: 1, dy: 1 }
+  ];
   
-  console.log('Simulating upward movement for 1 second...');
-  await page.evaluate(() => setPlayerInput(0, -1, 1000));
+  let allPassed = true;
+  const results = [];
   
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  console.log('Getting final player position...');
-  const finalPos = await page.evaluate(() => getPlayerPosition());
-  console.log(`Final position: (${finalPos.x}, ${finalPos.y})`);
-  
-  const movedUp = finalPos.y < initialPos.y;
-  const distanceMoved = initialPos.y - finalPos.y;
+  for (const dir of directions) {
+    console.log(`\nTesting ${dir.name} movement...`);
+    
+    const initialPos = await page.evaluate(() => getPlayerPosition());
+    await page.evaluate((dx, dy) => setPlayerInput(dx, dy, 1000), dir.dx, dir.dy);
+    const finalPos = await page.evaluate(() => getPlayerPosition());
+    
+    const movedX = dir.dx !== 0 ? (dir.dx > 0 ? finalPos.x > initialPos.x : finalPos.x < initialPos.x) : true;
+    const movedY = dir.dy !== 0 ? (dir.dy > 0 ? finalPos.y > initialPos.y : finalPos.y < initialPos.y) : true;
+    const distanceX = Math.abs(finalPos.x - initialPos.x);
+    const distanceY = Math.abs(finalPos.y - initialPos.y);
+    const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    
+    const passed = movedX && movedY && totalDistance > 50;
+    results.push({ direction: dir.name, passed, distance: totalDistance.toFixed(0) });
+    
+    if (!passed) allPassed = false;
+    
+    console.log(`  Distance: ${totalDistance.toFixed(0)} pixels - ${passed ? '✓' : '✗'}`);
+  }
   
   console.log('\n=== TEST RESULTS ===');
-  console.log(`Player moved up: ${movedUp ? '✓' : '✗'}`);
-  console.log(`Distance moved: ${distanceMoved.toFixed(0)} pixels`);
-  console.log(`Movement via remote input: ${distanceMoved > 50 ? '✓' : '✗'}`);
+  for (const result of results) {
+    console.log(`${result.direction}: ${result.passed ? '✓' : '✗'} (${result.distance}px)`);
+  }
   
-  if (movedUp && distanceMoved > 50) {
+  if (allPassed) {
     console.log('\n✓ TEST PASSED');
   } else {
     console.log('\n✗ TEST FAILED');
@@ -60,4 +79,6 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   console.log('\nScreenshot saved to tmp/test/screenshots/test-player-movement.png');
   
   await browser.close();
+  
+  process.exit(allPassed ? 0 : 1);
 })();

@@ -1,0 +1,9 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 5,
+    "y": 5
+  },
+  "cells": []
+}

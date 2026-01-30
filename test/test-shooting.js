@@ -20,7 +20,7 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   });
   
   console.log('Navigating to game...');
-  await page.goto('http://localhost:5173/?test=true', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:5173/?test=true&level=emptyLevel', { waitUntil: 'networkidle2' });
   
   console.log('Waiting for game to be ready...');
   await page.waitForFunction(() => {
@@ -29,30 +29,69 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   
   await page.evaluate(playerCommands);
   
-  console.log('Getting initial bullet count...');
+  const directions = [
+    { name: 'up', dx: 0, dy: -1 },
+    { name: 'down', dx: 0, dy: 1 },
+    { name: 'left', dx: -1, dy: 0 },
+    { name: 'right', dx: 1, dy: 0 },
+    { name: 'up-left', dx: -1, dy: -1 },
+    { name: 'up-right', dx: 1, dy: -1 },
+    { name: 'down-left', dx: -1, dy: 1 },
+    { name: 'down-right', dx: 1, dy: 1 }
+  ];
+  
+  let allPassed = true;
+  const results = [];
+  
+  for (const dir of directions) {
+    console.log(`\nTesting ${dir.name} shooting...`);
+    
+    const initialBullets = await page.evaluate(() => getBulletCount());
+    const firePromise = page.evaluate((dx, dy) => fireWeapon(dx, dy, 1000), dir.dx, dir.dy);
+    
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const duringBullets = await page.evaluate(() => getBulletCount());
+    await firePromise;
+    
+    const bulletsFired = duringBullets - initialBullets;
+    const passed = bulletsFired > 0;
+    results.push({ direction: dir.name, passed, bullets: bulletsFired });
+    
+    if (!passed) allPassed = false;
+    
+    console.log(`  Bullets fired: ${bulletsFired} - ${passed ? '✓' : '✗'}`);
+  }
+  
+  // Test shooting in last facing direction (no aim input)
+  console.log('\nTesting shooting in facing direction (no aim)...');
+  
+  // First move right to set facing direction
+  await page.evaluate(() => setPlayerInput(1, 0, 500));
+  
+  // Then shoot without aim direction (should shoot right)
   const initialBullets = await page.evaluate(() => getBulletCount());
-  console.log(`Initial bullets: ${initialBullets}`);
+  const firePromise = page.evaluate(() => fireWeapon(0, 0, 1000));
   
-  console.log('Starting to fire weapon upward...');
-  const firePromise = page.evaluate(() => fireWeapon(0, -1, 1000));
-  
-  // Wait a bit for first bullet to spawn
   await new Promise(resolve => setTimeout(resolve, 100));
   
-  console.log('Checking bullet count while firing...');
   const duringBullets = await page.evaluate(() => getBulletCount());
-  console.log(`Bullets while firing: ${duringBullets}`);
-  
-  // Wait for firing to complete
   await firePromise;
   
   const bulletsFired = duringBullets - initialBullets;
+  const facingPassed = bulletsFired > 0;
+  results.push({ direction: 'facing', passed: facingPassed, bullets: bulletsFired });
+  
+  if (!facingPassed) allPassed = false;
+  
+  console.log(`  Bullets fired: ${bulletsFired} - ${facingPassed ? '✓' : '✗'}`);
   
   console.log('\n=== TEST RESULTS ===');
-  console.log(`Bullets fired: ${bulletsFired}`);
-  console.log(`Weapon fired successfully: ${bulletsFired > 0 ? '✓' : '✗'}`);
+  for (const result of results) {
+    console.log(`${result.direction}: ${result.passed ? '✓' : '✗'} (${result.bullets} bullets)`);
+  }
   
-  if (bulletsFired > 0) {
+  if (allPassed) {
     console.log('\n✓ TEST PASSED');
   } else {
     console.log('\n✗ TEST FAILED');
@@ -62,4 +101,6 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   console.log('\nScreenshot saved to tmp/test/screenshots/test-shooting.png');
   
   await browser.close();
+  
+  process.exit(allPassed ? 0 : 1);
 })();
