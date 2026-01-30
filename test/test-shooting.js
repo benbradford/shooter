@@ -1,6 +1,15 @@
 import puppeteer from 'puppeteer';
 import { readFileSync } from 'fs';
 
+/**
+ * TEST: Weapon Firing in All Directions
+ * 
+ * GIVEN: A player in an empty 10x10 level with a weapon
+ * WHEN: The player fires the weapon in each of 8 directions (up, down, left, right, and diagonals)
+ *   AND: The player fires without explicit aim direction (using facing direction)
+ * THEN: At least one bullet should spawn for each firing action
+ */
+
 const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
 
 (async () => {
@@ -20,7 +29,7 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   });
   
   console.log('Navigating to game...');
-  await page.goto('http://localhost:5173/?test=true&level=emptyLevel', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:5173/?test=true&level=test/emptyLevel', { waitUntil: 'networkidle2' });
   
   console.log('Waiting for game to be ready...');
   await page.waitForFunction(() => {
@@ -47,9 +56,9 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
     console.log(`\nTesting ${dir.name} shooting...`);
     
     const initialBullets = await page.evaluate(() => getBulletCount());
-    const firePromise = page.evaluate((dx, dy) => fireWeapon(dx, dy, 1000), dir.dx, dir.dy);
+    const firePromise = page.evaluate((dx, dy) => fireWeapon(dx, dy, 300), dir.dx, dir.dy);
     
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     const duringBullets = await page.evaluate(() => getBulletCount());
     await firePromise;
@@ -67,13 +76,13 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   console.log('\nTesting shooting in facing direction (no aim)...');
   
   // First move right to set facing direction
-  await page.evaluate(() => setPlayerInput(1, 0, 500));
+  await page.evaluate(() => setPlayerInput(1, 0, 200));
   
   // Then shoot without aim direction (should shoot right)
   const initialBullets = await page.evaluate(() => getBulletCount());
-  const firePromise = page.evaluate(() => fireWeapon(0, 0, 1000));
+  const firePromise = page.evaluate(() => fireWeapon(0, 0, 300));
   
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 50));
   
   const duringBullets = await page.evaluate(() => getBulletCount());
   await firePromise;

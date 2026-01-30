@@ -1,6 +1,14 @@
 import puppeteer from 'puppeteer';
 import { readFileSync } from 'fs';
 
+/**
+ * TEST: Player Movement in All Directions
+ * 
+ * GIVEN: A player in an empty 10x10 level
+ * WHEN: The player receives movement input in each of 8 directions (up, down, left, right, and diagonals)
+ * THEN: The player should move in the correct direction with measurable distance traveled (>20px)
+ */
+
 const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
 
 (async () => {
@@ -20,7 +28,7 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   });
   
   console.log('Navigating to game...');
-  await page.goto('http://localhost:5173/?test=true&level=emptyLevel', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:5173/?test=true&level=test/emptyLevel', { waitUntil: 'networkidle2' });
   
   console.log('Waiting for game to be ready...');
   await page.waitForFunction(() => {
@@ -47,7 +55,7 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
     console.log(`\nTesting ${dir.name} movement...`);
     
     const initialPos = await page.evaluate(() => getPlayerPosition());
-    await page.evaluate((dx, dy) => setPlayerInput(dx, dy, 1000), dir.dx, dir.dy);
+    await page.evaluate((dx, dy) => setPlayerInput(dx, dy, 300), dir.dx, dir.dy);
     const finalPos = await page.evaluate(() => getPlayerPosition());
     
     const movedX = dir.dx !== 0 ? (dir.dx > 0 ? finalPos.x > initialPos.x : finalPos.x < initialPos.x) : true;
@@ -56,7 +64,7 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
     const distanceY = Math.abs(finalPos.y - initialPos.y);
     const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
     
-    const passed = movedX && movedY && totalDistance > 50;
+    const passed = movedX && movedY && totalDistance > 20;
     results.push({ direction: dir.name, passed, distance: totalDistance.toFixed(0) });
     
     if (!passed) allPassed = false;

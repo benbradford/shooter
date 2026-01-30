@@ -22,7 +22,7 @@ FAILED_TESTS=()
 
 for test in "${TESTS[@]}"; do
   echo "Running $test..."
-  if node "$test" 2>&1 | grep -q "✓ TEST PASSED"; then
+  if ./test/run-test.sh "$test" 2>&1 | grep -q "✓ TEST PASSED"; then
     echo "✓ PASSED"
     ((PASSED++))
   else
