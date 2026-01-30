@@ -15,13 +15,6 @@ kiro-cli chat --agent dodging-bullets
 ```
 to start a kiro session with context on the project
 
-## Agent Skills
-
-The project uses Agent Skills for specialized development tasks. See `skills/README.md` for details.
-
-Available skills:
-- **component-builder** - Creating and refactoring ECS components
-
 ## Setup Instructions
 
 ### Prerequisites
