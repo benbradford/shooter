@@ -56,9 +56,18 @@ Quick reference for navigating the Dodging Bullets documentation.
    - HUD positioning
    - Android compatibility
 
+## Testing
+
+9. **[Testing](./testing.md)** - Automated browser testing
+   - Running tests with Puppeteer
+   - RemoteInputComponent for test control
+   - Writing new tests
+   - Test principles (don't confound tests)
+   - Getting feedback from game state
+
 ## Level Design
 
-9. **[Level Editor](./level-editor.md)** - In-game level editor
+10. **[Level Editor](./level-editor.md)** - In-game level editor
    - Level data structure and loading
    - Editor modes (default, grid, move, resize, edit robot)
    - Saving workflow
@@ -67,7 +76,7 @@ Quick reference for navigating the Dodging Bullets documentation.
 
 ## Adding Content
 
-10. **[Adding Enemies](./adding-enemies.md)** - Complete enemy implementation guide
+11. **[Adding Enemies](./adding-enemies.md)** - Complete enemy implementation guide
    - Asset preparation
    - Component creation
    - State machine setup

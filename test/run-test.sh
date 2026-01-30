@@ -11,7 +11,7 @@ done
 echo "Server ready!"
 
 echo "Running test..."
-node test/test-player-movement.js
+node "$@"
 
 TEST_EXIT_CODE=$?
 

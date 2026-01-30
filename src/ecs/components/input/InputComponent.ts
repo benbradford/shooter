@@ -4,6 +4,7 @@ import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from './TouchJoystickComponent';
 import type { AimJoystickComponent } from './AimJoystickComponent';
 import type { ControlModeComponent } from './ControlModeComponent';
+import { RemoteInputComponent } from './RemoteInputComponent';
 import type { Grid } from '../../../ecs/systems/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
@@ -57,6 +58,13 @@ export class InputComponent implements Component {
 
   /** Get input with deadzone applied (for movement) */
   getInputDelta(): { dx: number; dy: number } {
+    // Check for remote input first (test mode)
+    const remoteInput = this.entity.get(RemoteInputComponent);
+    if (remoteInput) {
+      const walk = remoteInput.getWalkInput();
+      return { dx: walk.x, dy: walk.y };
+    }
+
     // Prioritize joystick input over keyboard
     if (this.joystick) {
       const joystickDelta = this.joystick.getInputDelta();
@@ -81,6 +89,17 @@ export class InputComponent implements Component {
 
   /** Get raw input without deadzone (for facing direction) */
   getRawInputDelta(): { dx: number; dy: number } {
+    // Check for remote input first (test mode)
+    const remoteInput = this.entity.get(RemoteInputComponent);
+    if (remoteInput) {
+      const aim = remoteInput.getAimInput();
+      if (aim.isPressed) {
+        return { dx: aim.x, dy: aim.y };
+      }
+      const walk = remoteInput.getWalkInput();
+      return { dx: walk.x, dy: walk.y };
+    }
+
     // Get raw input without deadzone (for facing direction)
     if (this.joystick) {
       const joystickDelta = this.joystick.getRawInputDelta();
@@ -118,6 +137,12 @@ export class InputComponent implements Component {
   }
 
   isFirePressed(): boolean {
+    // Check for remote input first (test mode)
+    const remoteInput = this.entity.get(RemoteInputComponent);
+    if (remoteInput) {
+      return remoteInput.getAimInput().isPressed;
+    }
+
     const mode = this.controlMode?.getMode() ?? 1;
 
     if (mode === 1) {

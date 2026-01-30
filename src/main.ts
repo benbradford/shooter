@@ -3,7 +3,7 @@ import GameScene from "./scenes/GameScene";
 import EditorScene from "./scenes/EditorScene";
 import LevelSelectorScene from "./scenes/LevelSelectorScene";
 import HudScene from "./scenes/HudScene";
-import { TransformComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent } from "./ecs";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -24,6 +24,7 @@ const game = new Phaser.Game(config);
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('test') === 'true') {
-  (window as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent }).game = game;
+  (window as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent }).game = game;
   (window as unknown as { TransformComponent: typeof TransformComponent }).TransformComponent = TransformComponent;
+  (window as unknown as { RemoteInputComponent: typeof RemoteInputComponent }).RemoteInputComponent = RemoteInputComponent;
 }
