@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from '../input/TouchJoystickComponent';
+import { RemoteInputComponent } from '../input/RemoteInputComponent';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
 export class JoystickVisualsComponent implements Component {
@@ -11,6 +12,7 @@ export class JoystickVisualsComponent implements Component {
   private lastX: number = 0;
   private lastY: number = 0;
   private initialized: boolean = false;
+  private playerEntity: Entity | null = null;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -43,7 +45,18 @@ export class JoystickVisualsComponent implements Component {
   }
 
   update(_delta: number): void {
-    const state = this.joystick.getJoystickState();
+    // Get player entity if not cached
+    if (!this.playerEntity) {
+      const gameScene = this.scene.scene.get('game') as any;
+      if (gameScene?.entityManager) {
+        this.playerEntity = gameScene.entityManager.getFirst('player');
+      }
+    }
+
+    // Check for remote input first (test mode)
+    const remoteInput = this.playerEntity?.get(RemoteInputComponent);
+    const state = remoteInput ? remoteInput.getWalkPointerState() : this.joystick.getJoystickState();
+    
     const displayWidth = this.scene.scale.displaySize.width;
     const displayHeight = this.scene.scale.displaySize.height;
 

@@ -11,6 +11,7 @@ import { readFileSync } from 'fs';
  */
 
 const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
+const hudCommands = readFileSync('test/commands/hud.js', 'utf-8');
 
 (async () => {
   const browser = await puppeteer.launch({ 
@@ -37,6 +38,46 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   }, { timeout: 5000 });
   
   await page.evaluate(playerCommands);
+  await page.evaluate(hudCommands);
+  
+  // Test HUD visuals first
+  console.log('\nTesting aim HUD visuals...');
+  
+  // Check initial state (not pressed)
+  const initialHud = await page.evaluate(() => getAimJoystickVisuals());
+  console.log(`Initial aim HUD alpha: ${initialHud.outerCircle.alpha} (should be 0.3)`);
+  
+  if (initialHud.outerCircle.alpha !== 0.3) {
+    console.log('✗ Aim HUD initial alpha incorrect');
+    allPassed = false;
+  }
+  
+  // Press and check HUD updates
+  const pressPromise = page.evaluate(() => fireWeapon(0, -1, 300));
+  await new Promise(resolve => setTimeout(resolve, 50));
+  
+  const pressedHud = await page.evaluate(() => getAimJoystickVisuals());
+  console.log(`Pressed aim HUD alpha: ${pressedHud.outerCircle.alpha} (should be 1.0)`);
+  console.log(`Crosshair moved: ${pressedHud.crosshair.x !== pressedHud.outerCircle.x || pressedHud.crosshair.y !== pressedHud.outerCircle.y}`);
+  
+  if (pressedHud.outerCircle.alpha !== 1) {
+    console.log('✗ Aim HUD pressed alpha incorrect');
+    allPassed = false;
+  }
+  
+  await pressPromise;
+  await new Promise(resolve => setTimeout(resolve, 50));
+  
+  // Check released state
+  const releasedHud = await page.evaluate(() => getAimJoystickVisuals());
+  console.log(`Released aim HUD alpha: ${releasedHud.outerCircle.alpha} (should be 0.3)`);
+  
+  if (releasedHud.outerCircle.alpha !== 0.3) {
+    console.log('✗ Aim HUD released alpha incorrect');
+    allPassed = false;
+  }
+  
+  console.log('Aim HUD visuals: ✓\n');
   
   const directions = [
     { name: 'up', dx: 0, dy: -1 },
