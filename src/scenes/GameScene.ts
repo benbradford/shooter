@@ -221,22 +221,10 @@ export default class GameScene extends Phaser.Scene {
       level.height * this.grid.cellSize
     );
 
-    this.spawnEntities();
-
-    // Camera follow player's sprite
-    const player = this.entityManager.getFirst('player');
-    if (player) {
-      const spriteComp = player.get(SpriteComponent);
-      if (spriteComp) {
-        this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
-        this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
-      }
-    }
-
     // Set camera zoom - HUD scene is separate so this won't affect touch
     this.cameras.main.setZoom(CAMERA_ZOOM);
 
-    // Add vignette overlay
+    // Add vignette overlay BEFORE spawning entities
     if (this.vignette) {
       this.vignette.destroy();
     }
@@ -250,6 +238,18 @@ export default class GameScene extends Phaser.Scene {
     this.vignette.setAlpha(vignetteConfig.alpha);
     this.vignette.setTint(vignetteConfig.tint);
     this.vignette.setBlendMode(vignetteConfig.blendMode);
+
+    this.spawnEntities();
+
+    // Camera follow player's sprite
+    const player = this.entityManager.getFirst('player');
+    if (player) {
+      const spriteComp = player.get(SpriteComponent);
+      if (spriteComp) {
+        this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
+        this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
+      }
+    }
   }
 
   private enterEditorMode(): void {
@@ -309,7 +309,8 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.add(shell);
       },
       joystick,
-      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower'))
+      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
+      vignette: this.vignette
     }));
 
 
