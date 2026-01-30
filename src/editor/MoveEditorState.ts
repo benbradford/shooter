@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import type GameScene from '../GameScene';
+import type GameScene from '../scenes/GameScene';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../utils/state/IState';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';

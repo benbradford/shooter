@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
-import { createBugBaseEntity } from '../bug/BugBaseEntity';
-import type GameScene from '../GameScene';
+import { createBugBaseEntity } from '../ecs/entities/bug/BugBaseEntity';
+import type GameScene from '../scenes/GameScene';
 
 export class AddBugBaseEditorState extends EditorState {
   private ghostSprite: Phaser.GameObjects.Sprite | null = null;

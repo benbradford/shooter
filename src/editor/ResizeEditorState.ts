@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import type GameScene from '../GameScene';
+import type GameScene from '../scenes/GameScene';
 
 export class ResizeEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];

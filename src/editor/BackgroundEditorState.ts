@@ -1,6 +1,6 @@
 import { EditorState } from './EditorState';
-import type GameScene from '../GameScene';
-import type { BackgroundConfig } from '../level/LevelLoader';
+import type GameScene from '../scenes/GameScene';
+import type { BackgroundConfig } from '../systems/level/LevelLoader';
 
 const DEFAULT_CONFIG: BackgroundConfig = {
   centerColor: '#5a6a5a',

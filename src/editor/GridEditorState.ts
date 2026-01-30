@@ -1,6 +1,6 @@
 import { EditorState } from './EditorState';
-import type EditorScene from '../EditorScene';
-import type GameScene from '../GameScene';
+import type EditorScene from '../scenes/EditorScene';
+import type GameScene from '../scenes/GameScene';
 
 export class GridEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];

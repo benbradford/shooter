@@ -414,6 +414,7 @@ The game uses two visual joystick components for touch controls:
 - Inner circle: 80px radius, grey outline
 - Arrows sprite: Shows directional arrows, follows drag
 - Alpha: 1.0 when active, 0.3 when inactive
+- Default position: 20% from left, 75% from top
 - Appears at touch location on left half of screen
 - Persists at last position when not touching
 
@@ -421,6 +422,7 @@ The game uses two visual joystick components for touch controls:
 - Outer circle: 150px radius, blue outline
 - Crosshair sprite: Scaled to 50%, centered in auto-aim, follows drag in manual aim
 - Alpha: 1.0 when active, 0.3 when inactive
+- Default position: 80% from left, 50% from top (center-right)
 - Appears at touch location on right half of screen
 - Persists at last position when not aiming
 - Crosshair returns to center when releasing

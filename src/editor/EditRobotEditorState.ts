@@ -6,7 +6,7 @@ import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
-import { getRobotDifficultyConfig } from '../robot/RobotDifficulty';
+import { getRobotDifficultyConfig } from '../ecs/entities/robot/RobotDifficulty';
 import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { FireballPropertiesComponent } from '../ecs/components/ai/FireballPropertiesComponent';

@@ -9,6 +9,7 @@ export class AimJoystickVisualsComponent implements Component {
   private crosshairSprite!: Phaser.GameObjects.Sprite;
   private lastX: number = 0;
   private lastY: number = 0;
+  private initialized: boolean = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -31,6 +32,8 @@ export class AimJoystickVisualsComponent implements Component {
 
   update(_delta: number): void {
     const state = this.aimJoystick.getJoystickState();
+    const displayWidth = this.scene.scale.displaySize.width;
+    const displayHeight = this.scene.scale.displaySize.height;
 
     // Always show
     this.outerCircle.setVisible(true);
@@ -40,21 +43,28 @@ export class AimJoystickVisualsComponent implements Component {
       // Fully opaque when touching
       this.outerCircle.setAlpha(1);
       this.crosshairSprite.setAlpha(1);
-      
+
       // Remember positions
       this.lastX = state.startX;
       this.lastY = state.startY;
-      
+      this.initialized = true;
+
       // Position at touch location
       this.outerCircle.setPosition(state.startX, state.startY);
-      
+
       // Crosshair: center when auto-aim, follow when manual aim
       this.crosshairSprite.setPosition(state.currentX, state.currentY);
     } else {
       // Semi-transparent when not aiming
       this.outerCircle.setAlpha(0.3);
       this.crosshairSprite.setAlpha(0.3);
-      
+
+      // Use last position, or recalculate default until touched
+      if (!this.initialized || this.lastX === 0) {
+        this.lastX = displayWidth * 0.7;
+        this.lastY = displayHeight * 0.5;
+      }
+
       // Keep last position, crosshair centered
       this.outerCircle.setPosition(this.lastX, this.lastY);
       this.crosshairSprite.setPosition(this.lastX, this.lastY);

@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import GameScene from "./GameScene";
-import EditorScene from "./EditorScene";
-import LevelSelectorScene from "./LevelSelectorScene";
-import HudScene from "./HudScene";
+import GameScene from "./scenes/GameScene";
+import EditorScene from "./scenes/EditorScene";
+import LevelSelectorScene from "./scenes/LevelSelectorScene";
+import HudScene from "./scenes/HudScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,

@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
-import { createStalkingRobotEntity } from '../robot/StalkingRobotEntity';
-import type GameScene from '../GameScene';
+import { createStalkingRobotEntity } from '../ecs/entities/robot/StalkingRobotEntity';
+import type GameScene from '../scenes/GameScene';
 
 const ROBOT_SPRITE_FRAME = 0;
 const ROBOT_SCALE = 4;

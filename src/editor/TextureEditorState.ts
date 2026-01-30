@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import type GameScene from '../GameScene';
+import type GameScene from '../scenes/GameScene';
 
 const AVAILABLE_TEXTURES = ['dungeon_floor01', 'dungeon_floor02', 'wooden_floor01'];
 

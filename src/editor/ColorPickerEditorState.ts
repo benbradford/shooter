@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import type { BackgroundConfig } from '../level/LevelLoader';
+import type { BackgroundConfig } from '../systems/level/LevelLoader';
 
 type ColorPickerProps = {
   colorKey: keyof BackgroundConfig;
@@ -36,7 +36,7 @@ export class ColorPickerEditorState extends EditorState {
     const sliderX = centerX - radius - 60;
     const sliderHeight = radius * 2;
     const sliderWidth = 30;
-    
+
     const brightnessCanvas = this.scene.add.renderTexture(sliderX, centerY, sliderWidth, sliderHeight);
     brightnessCanvas.setScrollFactor(0);
     brightnessCanvas.setDepth(10002);
@@ -66,14 +66,14 @@ export class ColorPickerEditorState extends EditorState {
     this.canvas = canvas;
 
     const graphics = this.scene.add.graphics();
-    
+
     for (let angle = 0; angle < 360; angle += 1) {
       for (let r = 0; r < radius; r += 1) {
         const hue = angle;
         const saturation = (r / radius) * 100;
         const lightness = 50;
         const color = this.hslToRgb(hue, saturation, lightness);
-        
+
         graphics.fillStyle(color, 1);
         const rad = (angle * Math.PI) / 180;
         const x = radius + Math.cos(rad) * r;
@@ -81,7 +81,7 @@ export class ColorPickerEditorState extends EditorState {
         graphics.fillCircle(x, y, 2);
       }
     }
-    
+
     canvas.draw(graphics, 0, 0);
     graphics.destroy();
 
@@ -92,7 +92,7 @@ export class ColorPickerEditorState extends EditorState {
       const dx = localX - radius;
       const dy = localY - radius;
       const distance = Math.hypot(dx, dy);
-      
+
       if (distance <= radius) {
         const angle = Math.atan2(dy, dx) * 180 / Math.PI;
         this.selectedHue = (angle + 360) % 360;

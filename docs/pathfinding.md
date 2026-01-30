@@ -10,13 +10,24 @@ The `Pathfinder` class uses the A* algorithm to find the shortest path between t
 - Layer-based collision (entities can only move on same layer)
 - Transition cells (staircases that connect layers)
 - Wall obstacles (higher layer cells are impassable)
+- Movement directions (4-direction or 8-direction)
 
 ### Key Concepts
 
-**Transition Cells are Layer-Agnostic:**
-- If EITHER the current cell OR target cell is a transition, all layer checks are bypassed
-- Transitions act as "connectors" between layers
-- Movement to/from transitions is always allowed (pathfinder handles this automatically)
+**Movement Directions:**
+- **4-direction:** Cardinal directions only (up, down, left, right) - used by bugs
+- **8-direction:** Cardinal + diagonal directions - used by robots and throwers
+- Controlled by `allowDiagonals` parameter in `findPath()`
+- **Diagonal restrictions:**
+  - Blocked when crossing layer boundaries
+  - Blocked if either adjacent cell is a different layer
+  - Blocked when on a transition cell (only vertical movement allowed on transitions)
+
+**Transition Cell Movement Rules:**
+- **On a transition cell:** Only vertical movement (up/down) allowed
+- **No horizontal movement** from transitions to prevent getting stuck in walls
+- **No diagonal movement** from transitions
+- This forces entities to move vertically to change layers, then move horizontally once off the transition
 
 **Wall Edges:**
 - Layer 1 cells with layer 0 directly below them are "wall edges"
@@ -30,6 +41,12 @@ The `Pathfinder` class uses the A* algorithm to find the shortest path between t
 - **Solution:** Keep collision boxes small enough that they don't overlap adjacent cells
 - **Rule of thumb:** Grid collision box height should be ≤ 50% of cell size to avoid overlapping cells above/below
 - **Example:** For 64px cells, use height ≤ 32px and position it in the middle/top of the sprite
+- **Thrower example:** `offsetY: 16` (not 32) to reduce overlap with cells below
+
+**Stuck Detection:**
+- Entities should track if they stay in the same grid cell for too long (e.g., 1 second)
+- If stuck, invalidate the path to force recalculation
+- This allows automatic recovery when paths are blocked by collision issues
 
 ## Usage
 
@@ -311,6 +328,42 @@ const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 1
 
 **Rule of thumb:** For 64px cells, keep collision box height ≤ 32px and position it in the middle or top half of the sprite.
 
+### Entity Gets Stuck on Layer Corners
+
+**Symptom:** Entity with diagonal pathfinding gets stuck trying to move into layer 1 cells from layer 0.
+
+**Cause:** Collision box overlaps adjacent cells when moving diagonally near layer boundaries.
+
+**Solution:**
+1. Move collision box up: reduce `offsetY` (e.g., 32 → 16)
+2. Add stuck detection to force path recalculation:
+```typescript
+private lastPositionCol: number = -1;
+private lastPositionRow: number = -1;
+private stuckTimerMs: number = 0;
+
+// In update()
+const currentCell = this.grid.worldToCell(transform.x, transform.y);
+if (currentCell.col === this.lastPositionCol && currentCell.row === this.lastPositionRow) {
+  if (this.stuckTimerMs >= 1000) {
+    this.path = null; // Force recalculation
+    this.stuckTimerMs = 0;
+  }
+} else {
+  this.lastPositionCol = currentCell.col;
+  this.lastPositionRow = currentCell.row;
+  this.stuckTimerMs = 0;
+}
+```
+
+### Entity Tries to Move Horizontally from Transition
+
+**Symptom:** Entity on transition cell tries to move sideways into higher layer and gets stuck.
+
+**Cause:** Pathfinder allowing horizontal movement from transitions.
+
+**Solution:** Pathfinder now blocks all horizontal movement from transition cells - only vertical movement allowed.
+
 ### Path Doesn't Include Transitions
 
 **Symptom:** No path found between layers, even though transitions exist.
@@ -335,7 +388,6 @@ const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 1
 
 Potential improvements to the pathfinding system:
 
-- **Diagonal movement** - Support 8-direction movement
 - **Dynamic costs** - Different terrain types (mud, water, etc.)
 - **Avoidance** - Avoid other entities in path
 - **Path smoothing** - Reduce zigzag patterns

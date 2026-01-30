@@ -3,7 +3,7 @@ import type { Entity } from '../ecs/Entity';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
-import { getBugBaseDifficultyConfig } from '../bug/BugBaseDifficulty';
+import { getBugBaseDifficultyConfig } from '../ecs/entities/bug/BugBaseDifficulty';
 import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 
 export class EditBugBaseEditorState extends EditorState {

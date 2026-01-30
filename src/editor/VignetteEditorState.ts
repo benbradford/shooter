@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import type GameScene from '../GameScene';
+import type GameScene from '../scenes/GameScene';
 import Phaser from 'phaser';
 
 const ALPHA_STEP = 0.05;

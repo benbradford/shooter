@@ -177,10 +177,10 @@ export class Pathfinder {
       const sideCell1 = this.grid.getCell(newCol, currentRow);
       const sideCell2 = this.grid.getCell(currentCol, newRow);
       
-      if (!sideCell1 || sideCell1.layer !== currentLayer) {
+      if (sideCell1?.layer !== currentLayer) {
         return null;
       }
-      if (!sideCell2 || sideCell2.layer !== currentLayer) {
+      if (sideCell2?.layer !== currentLayer) {
         return null;
       }
     }
@@ -188,7 +188,7 @@ export class Pathfinder {
     // Block movement into wall edges (layer 1 with layer 0 below)
     if (targetCell.layer === 1) {
       const cellBelow = this.grid.getCell(newCol, newRow + 1);
-      if (cellBelow && cellBelow.layer === 0) {
+      if (cellBelow?.layer === 0) {
         if (dir.col !== 0 && dir.row === 0) {
           return null;
         }

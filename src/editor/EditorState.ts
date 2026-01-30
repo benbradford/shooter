@@ -1,5 +1,5 @@
 import type { IState, IStateEnterProps } from '../utils/state/IState';
-import type EditorScene from '../EditorScene';
+import type EditorScene from '../scenes/EditorScene';
 
 export abstract class EditorState<TData = void> implements IState<TData> {
   constructor(protected readonly scene: EditorScene) {}

@@ -57,7 +57,7 @@ export class JoystickVisualsComponent implements Component {
       this.outerCircle.setAlpha(1);
       this.innerCircle.setAlpha(1);
       this.arrowsSprite.setAlpha(1);
-      
+
       // Position at touch location and remember it
       this.lastX = state.startX;
       this.lastY = state.startY;
@@ -70,11 +70,11 @@ export class JoystickVisualsComponent implements Component {
       this.outerCircle.setAlpha(0.3);
       this.innerCircle.setAlpha(0.3);
       this.arrowsSprite.setAlpha(0.3);
-      
+
       // Use last position, or recalculate default until touched
       if (!this.initialized || this.lastX === 0) {
-        this.lastX = displayWidth * 0.15;
-        this.lastY = displayHeight * 0.85;
+        this.lastX = displayWidth * 0.1;
+        this.lastY = displayHeight * 0.65;
       }
       this.outerCircle.setPosition(this.lastX, this.lastY);
       this.innerCircle.setPosition(this.lastX, this.lastY);

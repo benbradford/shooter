@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import { AnimationSystem } from '../../../animation/AnimationSystem';
+import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import type { SpriteComponent } from './SpriteComponent';
 
 export class AnimationComponent implements Component {
