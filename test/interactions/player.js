@@ -166,3 +166,61 @@ function moveToColHelper(targetCol, maxTimeMs = 5000) {
     }, 5);
   });
 }
+
+function moveToCellHelper(targetCol, targetRow, maxTimeMs = 2000) {
+  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+  const player = scene.entityManager.getFirst('player');
+  const gridPos = player.require(window.GridPositionComponent);
+  const transform = player.require(window.TransformComponent);
+  
+  const targetX = targetCol * scene.grid.cellSize + scene.grid.cellSize / 2;
+  const targetY = targetRow * scene.grid.cellSize + scene.grid.cellSize / 2;
+  
+  const dx = targetX > transform.x ? 1 : (targetX < transform.x ? -1 : 0);
+  const dy = targetY > transform.y ? 1 : (targetY < transform.y ? -1 : 0);
+  
+  const remoteInput = enableRemoteInput();
+  remoteInput.setWalk(dx, dy, true);
+  
+  const startTime = Date.now();
+  let lastX = transform.x;
+  let lastY = transform.y;
+  let stuckCount = 0;
+  
+  return new Promise((resolve) => {
+    const checkInterval = setInterval(() => {
+      // Reached target
+      if (gridPos.currentCell.col === targetCol && gridPos.currentCell.row === targetRow) {
+        remoteInput.setWalk(0, 0, false);
+        clearInterval(checkInterval);
+        resolve({ reached: true, col: gridPos.currentCell.col, row: gridPos.currentCell.row });
+        return;
+      }
+      
+      // Check if stuck (not moving)
+      const movedX = Math.abs(transform.x - lastX);
+      const movedY = Math.abs(transform.y - lastY);
+      
+      if (movedX < 1 && movedY < 1) {
+        stuckCount++;
+        if (stuckCount >= 10) { // Stuck for 500ms (10 * 50ms)
+          remoteInput.setWalk(0, 0, false);
+          clearInterval(checkInterval);
+          resolve({ reached: false, col: gridPos.currentCell.col, row: gridPos.currentCell.row });
+          return;
+        }
+      } else {
+        stuckCount = 0;
+        lastX = transform.x;
+        lastY = transform.y;
+      }
+      
+      // Timeout
+      if (Date.now() - startTime >= maxTimeMs) {
+        remoteInput.setWalk(0, 0, false);
+        clearInterval(checkInterval);
+        resolve({ reached: false, col: gridPos.currentCell.col, row: gridPos.currentCell.row });
+      }
+    }, 50);
+  });
+}

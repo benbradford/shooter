@@ -1,6 +1,6 @@
 # Test Suite
 
-This directory contains automated browser tests for the Dodging Bullets game.
+Automated browser tests for the Dodging Bullets game using Puppeteer.
 
 ## Running Tests
 
@@ -10,9 +10,6 @@ npm test
 
 # Run single test
 ./test/run-single-test.sh test/tests/test-player-movement.js
-
-# Run with verbose output
-./test/run-all-tests.sh -v
 ```
 
 ## Test Structure
@@ -20,105 +17,114 @@ npm test
 ```
 test/
 ├── helpers/
-│   └── gwt-helper.js          # Given-When-Then output helper
+│   ├── test-helper.js         # test() wrapper for GWT format
+│   ├── test-runner.js         # runTests() boilerplate handler
+│   └── logger.js              # Debug logging utilities
 ├── interactions/
-│   ├── player.js              # Player interaction commands
-│   └── hud.js                 # HUD interaction commands
+│   ├── player.js              # Player commands (movement, firing, helpers)
+│   └── hud.js                 # HUD state queries
 ├── tests/
-│   ├── test-player-movement.js    # 8-direction movement
-│   ├── test-shooting.js           # Weapon firing
-│   ├── test-wall-collision.js     # Wall blocking
-│   └── test-player-transition.js  # Layer transitions
+│   ├── test-player-movement.js    # Movement + HUD tests
+│   ├── test-shooting.js           # Weapon firing + aim HUD tests
+│   ├── test-wall-collision.js     # Wall blocking tests
+│   ├── test-projectile-collision.js # Projectile wall collision
+│   └── test-player-transition.js  # Layer transition tests
 ├── run-all-tests.sh           # Run all tests
 └── run-single-test.sh         # Run single test
 ```
 
+## Writing Tests
+
+All tests use the clean `runTests()` format:
+
+```javascript
+import { test } from '../helpers/test-helper.js';
+import { runTests } from '../helpers/test-runner.js';
+
+const testMyFeature = test(
+  {
+    given: 'Initial state',
+    when: 'Action performed',
+    then: 'Expected result'
+  },
+  async (page) => {
+    // Test logic - return true/false
+    const result = await page.evaluate(() => someCheck());
+    return result === expectedValue;
+  }
+);
+
+runTests({
+  level: 'test/myLevel',
+  commands: ['test/interactions/player.js'],
+  tests: [
+    testMyFeature
+  ],
+  screenshotPath: 'tmp/test/screenshots/test-my-feature.png'
+});
+```
+
+## Player Interaction Helpers
+
+Available in `test/interactions/player.js`:
+
+- `getPlayerPosition()` - Get player x,y coordinates
+- `enableRemoteInput()` - Add RemoteInputComponent to player
+- `setPlayerInput(dx, dy, durationMs)` - Simulate movement for duration
+- `fireWeapon(aimDx, aimDy, durationMs)` - Simulate firing for duration
+- `getBulletCount()` - Count active bullets
+- `moveToRowHelper(targetRow, maxTimeMs)` - Move to specific row
+- `moveToColHelper(targetCol, maxTimeMs)` - Move to specific column
+- `moveToCellHelper(targetCol, targetRow, maxTimeMs)` - Move to specific cell with stuck detection
+
 ## Test Levels
 
-Test levels are stored in `public/levels/test/`:
+Test levels in `public/levels/test/`:
 
-- `emptyLevel.json` - 10x10 empty level for movement/shooting tests
-- `test-wall-collision.json` - 5x5 wall box for collision tests
-- `test-player-transition.json` - Multi-layer level with transitions
-
-## Map Visualization Format
-
-When discussing test levels, use this format to visualize the grid:
-
-```
-     Col: 0    1    2    3    4    5    6    7
-Row 0:   [ ]  [L1] [L1] [L1] [L1] [L1] [L1] [ ]
-Row 1:   [ ]  [W1] [W1] [T1] [T1] [W1] [W1] [ ]
-Row 2:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
-Row 3:   [ ]  [ ]  [ ]  [ ]  [P]  [ ]  [ ]  [ ]
-Row 4:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
-Row 5:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
-
-Legend:
-[ ]  = Layer 0 (ground)
-[L1] = Layer 1 platform
-[W1] = Layer 1 wall
-[T1] = Layer 1 transition (staircase)
-[P]  = Player start position
-[E]  = Enemy spawn
-[B]  = Bug base
-```
-
-### Example: test-player-transition.json
-
-```
-     Col: 0    1    2    3    4    5    6    7
-Row 0:   [ ]  [L1] [L1] [L1] [L1] [L1] [L1] [ ]
-Row 1:   [ ]  [W1] [W1] [T1] [T1] [W1] [W1] [ ]
-Row 2:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
-Row 3:   [ ]  [ ]  [ ]  [ ]  [P]  [ ]  [ ]  [ ]
-Row 4:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
-Row 5:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
-```
-
-**Test Flow:**
-1. Player starts at (4,3)
-2. Move to transition cell (4,1)
-3. Try to exit horizontally - blocked
-4. Move up to layer 1 at (4,0)
-5. Move right to edge (6,0) - blocked
-6. Try to move down - blocked (no transition)
-7. Move left to (4,0) then down through transition to (4,3)
+- `emptyLevel.json` - 10x10 empty level
+- `test-wall-collision.json` - 10x10 with 5x5 wall box
+- `test-player-transition.json` - Multi-layer with transitions
 
 ### Example: test-wall-collision.json
 
 ```
-     Col: 0    1    2    3    4    5    6
-Row 0:   [ ]  [W1] [W1] [W1] [W1] [W1] [ ]
-Row 1:   [ ]  [W1] [ ]  [ ]  [ ]  [W1] [ ]
-Row 2:   [ ]  [W1] [ ]  [P]  [ ]  [W1] [ ]
-Row 3:   [ ]  [W1] [ ]  [ ]  [ ]  [W1] [ ]
-Row 4:   [ ]  [W1] [W1] [W1] [W1] [W1] [ ]
-Row 5:   [ ]  [ ]  [ ]  [ ]  [ ]  [ ]  [ ]
+  0 1 2 3 4 5 6 7 8 9
+0 . . . . . . . . . .
+1 . . . . . . . . . .
+2 . . . . . . . . . .
+3 . . . █ █ █ █ █ . .
+4 . . . █ . . . █ . .
+5 . . . █ . . P █ . .  (P = player at 6,5)
+6 . . . █ . . . █ . .
+7 . . . █ █ █ █ █ . .
+8 . . . . . . . . . .
+9 . . . . . . . . . .
+
+█ = layer 1 walls
+. = layer 0 ground
+P = player start
 ```
 
-**Test Flow:**
-1. Player starts at (3,2) inside wall box
-2. Fire bullets in all 8 directions - all blocked by walls
-3. Move in diagonal circle - all blocked by walls
+## Key Patterns
 
-## Creating New Tests
+### Stuck Detection
 
-See `docs/testing.md` for detailed guide on:
-- Test template
-- Position-based movement helpers
-- Test principles
-- Common patterns
+`moveToCellHelper()` detects when player stops moving:
 
-## Key Principles
+```javascript
+// Exits early if player hasn't moved >1px for 500ms
+if (movedX < 1 && movedY < 1) {
+  stuckCount++;
+  if (stuckCount >= 10) { // 10 checks * 50ms = 500ms
+    resolve({ reached: false, col, row });
+  }
+}
+```
 
-1. **Check existence, not deltas** - Test if bullets exist during firing, not count differences
-2. **Re-apply input** - Maintain movement by re-applying input every 100ms
-3. **Detect stuck** - Exit early when player stops moving (200ms threshold)
-4. **Position-based movement** - Move to specific pixel coordinates, not just cell entry
-5. **5ms check interval** - Fast enough to catch target positions accurately
+### Test Output Format
 
-## Known Issues
+```
+GIVEN: Player in empty level, WHEN: Player moves up, THEN: Player moves >20px in up direction - ✓ PASSED
+```
 
-- **Projectile emitter overlap**: Bullets fired to the right may spawn inside walls if emitter position overlaps wall cells (test-wall-collision catches this)
-- **Browser close errors**: Wrapped in try-catch to prevent false failures
+No section headers, just clean GWT statements with pass/fail.

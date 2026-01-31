@@ -1,9 +1,5 @@
-import puppeteer from 'puppeteer';
-import { readFileSync } from 'fs';
 import { test } from '../helpers/test-helper.js';
-
-const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');
-const hudCommands = readFileSync('test/interactions/hud.js', 'utf-8');
+import { runTests } from '../helpers/test-runner.js';
 
 const testHudInitialState = test(
   {
@@ -72,70 +68,21 @@ function testMovement(direction, dx, dy) {
   );
 }
 
-(async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--window-size=1280,720']
-  });
-
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 720 });
-
-  page.on('console', msg => {
-    const text = msg.text();
-    const isVerbose = process.env.VERBOSE === 'true';
-    
-    if (text.startsWith('[DEBUG]')) {
-      if (isVerbose) console.log(text);
-      return;
-    }
-    if (text.startsWith('[TEST]') || text.startsWith('[INFO]')) {
-      console.log(text);
-    }
-  });
-
-  await page.goto('http://localhost:5173/?test=true&level=test/emptyLevel', { waitUntil: 'networkidle2' });
-
-  await page.waitForFunction(() => {
-    return window.game && window.game.scene.scenes.find(s => s.scene.key === 'game');
-  }, { timeout: 5000 });
-
-  await page.evaluate(playerCommands);
-  await page.evaluate(hudCommands);
-
-  const tests = [
-    { name: 'HUD Initial State', fn: testHudInitialState },
-    { name: 'HUD Pressed State', fn: testHudPressedState },
-    { name: 'HUD Released State', fn: testHudReleasedState },
-    { name: 'Move Up', fn: testMovement('up', 0, -1) },
-    { name: 'Move Down', fn: testMovement('down', 0, 1) },
-    { name: 'Move Left', fn: testMovement('left', -1, 0) },
-    { name: 'Move Right', fn: testMovement('right', 1, 0) },
-    { name: 'Move Up-Left', fn: testMovement('up-left', -1, -1) },
-    { name: 'Move Up-Right', fn: testMovement('up-right', 1, -1) },
-    { name: 'Move Down-Left', fn: testMovement('down-left', -1, 1) },
-    { name: 'Move Down-Right', fn: testMovement('down-right', 1, 1) }
-  ];
-
-  let allPassed = true;
-
-  for (const test of tests) {
-    const result = await test.fn(page);
-    
-    console.log(`GIVEN: ${result.given}, WHEN: ${result.when}, THEN: ${result.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}`);
-    
-    if (!result.passed) allPassed = false;
-  }
-
-  console.log(allPassed ? '\n✓ ALL TESTS PASSED' : '\n✗ SOME TESTS FAILED');
-
-  await page.screenshot({ path: 'tmp/test/screenshots/test-player-movement.png' });
-
-  try {
-    await browser.close();
-  } catch (error) {
-    // Ignore browser close errors
-  }
-
-  process.exit(allPassed ? 0 : 1);
-})();
+runTests({
+  level: 'test/emptyLevel',
+  commands: ['test/interactions/player.js', 'test/interactions/hud.js'],
+  tests: [
+    testHudInitialState,
+    testHudPressedState,
+    testHudReleasedState,
+    testMovement('up', 0, -1),
+    testMovement('down', 0, 1),
+    testMovement('left', -1, 0),
+    testMovement('right', 1, 0),
+    testMovement('up-left', -1, -1),
+    testMovement('up-right', 1, -1),
+    testMovement('down-left', -1, 1),
+    testMovement('down-right', 1, 1)
+  ],
+  screenshotPath: 'tmp/test/screenshots/test-player-movement.png'
+});

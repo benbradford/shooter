@@ -1,102 +1,69 @@
-import puppeteer from 'puppeteer';
-import { readFileSync } from 'fs';
 import { test } from '../helpers/test-helper.js';
+import { runTests } from '../helpers/test-runner.js';
 
-const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');
+async function moveToCell(page, targetCol, targetRow, maxTimeMs = 2000) {
+  await page.evaluate(() => enableRemoteInput());
+  return await page.evaluate((col, row, maxTime) => {
+    return moveToCellHelper(col, row, maxTime);
+  }, targetCol, targetRow, maxTimeMs);
+}
 
-const testPlayerWallCollision = test(
+const testWallBlockTopRight = test(
   {
-    given: 'Player is surrounded by a 5x5 wall box',
-    when: 'Player moves in diagonal circle',
-    then: 'Player movement is blocked by walls'
+    given: 'Player at (6,5) surrounded by walls',
+    when: 'Player tries to reach (7,3)',
+    then: 'Player is blocked at (6,4)'
   },
   async (page) => {
-    const cellSize = await page.evaluate(() => {
-      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
-      return scene.grid.cellSize;
-    });
-
-    const movements = [
-      { dx: 1, dy: -1 },
-      { dx: 1, dy: 1 },
-      { dx: -1, dy: 1 },
-      { dx: -1, dy: -1 },
-      { dx: 1, dy: -1 }
-    ];
-
-    let allBlocked = true;
-
-    for (const move of movements) {
-      const beforePos = await page.evaluate(() => getPlayerPosition());
-      await page.evaluate((dx, dy) => setPlayerInput(dx, dy, 1500), move.dx, move.dy);
-      await new Promise(resolve => setTimeout(resolve, 1550));
-      const afterPos = await page.evaluate(() => getPlayerPosition());
-      const distanceMoved = Math.hypot(afterPos.x - beforePos.x, afterPos.y - beforePos.y);
-      
-      if (distanceMoved >= cellSize * 3) {
-        allBlocked = false;
-      }
-    }
-
-    return allBlocked;
+    const result = await moveToCell(page, 7, 3);
+    return !result.reached && result.col === 6 && result.row === 4;
   }
 );
 
-
-(async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--window-size=1280,720']
-  });
-
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1280, height: 720 });
-
-  page.on('console', msg => {
-    const text = msg.text();
-    const isVerbose = process.env.VERBOSE === 'true';
-    
-    if (text.startsWith('[DEBUG]')) {
-      if (isVerbose) console.log(text);
-      return;
-    }
-    if (text.startsWith('[TEST]') || text.startsWith('[INFO]')) {
-      console.log(text);
-    }
-  });
-
-  await page.goto('http://localhost:5173/?test=true&level=test/test-wall-collision', { waitUntil: 'networkidle2' });
-
-  await page.waitForFunction(() => {
-    return window.game && window.game.scene.scenes.find(s => s.scene.key === 'game');
-  }, { timeout: 5000 });
-
-  await page.evaluate(playerCommands);
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  const tests = [
-    { name: 'Player Wall Collision', fn: testPlayerWallCollision }
-  ];
-
-  let allPassed = true;
-
-  for (const test of tests) {
-    const result = await test.fn(page);
-    
-    console.log(`GIVEN: ${result.given}, WHEN: ${result.when}, THEN: ${result.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}`);
-    
-    if (!result.passed) allPassed = false;
+const testWallBlockBottomRight = test(
+  {
+    given: 'Player at (6,5) surrounded by walls',
+    when: 'Player tries to reach (7,7)',
+    then: 'Player is blocked at (6,6)'
+  },
+  async (page) => {
+    const result = await moveToCell(page, 7, 7);
+    return !result.reached && result.col === 6 && result.row === 6;
   }
+);
 
-  console.log(allPassed ? '\n✓ ALL TESTS PASSED' : '\n✗ SOME TESTS FAILED');
-
-  await page.screenshot({ path: 'tmp/test/screenshots/test-wall-collision.png' });
-
-  try {
-    await browser.close();
-  } catch (error) {
-    // Ignore browser close errors
+const testWallBlockBottomLeft = test(
+  {
+    given: 'Player at (6,5) surrounded by walls',
+    when: 'Player tries to reach (3,7)',
+    then: 'Player is blocked at (4,6)'
+  },
+  async (page) => {
+    const result = await moveToCell(page, 3, 7);
+    return !result.reached && result.col === 4 && result.row === 6;
   }
+);
 
-  process.exit(allPassed ? 0 : 1);
-})();
+const testWallBlockTopLeft = test(
+  {
+    given: 'Player at (6,5) surrounded by walls',
+    when: 'Player tries to reach (3,3)',
+    then: 'Player is blocked at (4,4)'
+  },
+  async (page) => {
+    const result = await moveToCell(page, 3, 3);
+    return !result.reached && result.col === 4 && result.row === 4;
+  }
+);
+
+runTests({
+  level: 'test/test-wall-collision',
+  commands: ['test/interactions/player.js'],
+  tests: [
+    testWallBlockTopRight,
+    testWallBlockBottomRight,
+    testWallBlockBottomLeft,
+    testWallBlockTopLeft
+  ],
+  screenshotPath: 'tmp/test/screenshots/test-wall-collision.png'
+});
