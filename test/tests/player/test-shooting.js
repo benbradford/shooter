@@ -1,5 +1,5 @@
-import { test } from '../helpers/test-helper.js';
-import { runTests } from '../helpers/test-runner.js';
+import { test } from '../../helpers/test-helper.js';
+import { runTests } from '../../helpers/test-runner.js';
 
 const testAimHudInitialState = test(
   {
@@ -74,7 +74,7 @@ const testShootingFacingDirection = test(
 
     const initialBullets = await page.evaluate(() => getBulletCount());
     const firePromise = page.evaluate(() => fireWeapon(0, 0, 300));
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise(resolve => setTimeout(resolve, 250)); // Wait for first-shot delay (200ms)
     const duringBullets = await page.evaluate(() => getBulletCount());
     await firePromise;
 

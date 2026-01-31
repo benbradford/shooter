@@ -9,7 +9,7 @@ Automated browser tests for the Dodging Bullets game using Puppeteer.
 npm test
 
 # Run single test
-./test/run-single-test.sh test/tests/test-player-movement.js
+./test/run-single-test.sh test/tests/player/test-player-movement.js
 ```
 
 ## Test Structure
@@ -24,22 +24,25 @@ test/
 │   ├── player.js              # Player commands (movement, firing, helpers)
 │   └── hud.js                 # HUD state queries
 ├── tests/
-│   ├── test-player-movement.js    # Movement + HUD tests
-│   ├── test-shooting.js           # Weapon firing + aim HUD tests
-│   ├── test-wall-collision.js     # Wall blocking tests
-│   ├── test-projectile-collision.js # Projectile wall collision
-│   └── test-player-transition.js  # Layer transition tests
-├── run-all-tests.sh           # Run all tests
+│   └── player/                # Player-related tests
+│       ├── test-player-movement.js
+│       ├── test-player-transition.js
+│       ├── test-shooting.js
+│       ├── test-projectile-collision.js
+│       └── test-wall-collision.js
+├── run-all-tests.sh           # Run all tests (finds all *.js in tests/)
 └── run-single-test.sh         # Run single test
 ```
+
+Tests are organized by entity type in subdirectories. The test runner uses `find` to recursively discover all `*.js` files.
 
 ## Writing Tests
 
 All tests use the clean `runTests()` format:
 
 ```javascript
-import { test } from '../helpers/test-helper.js';
-import { runTests } from '../helpers/test-runner.js';
+import { test } from '../../helpers/test-helper.js';
+import { runTests } from '../../helpers/test-runner.js';
 
 const testMyFeature = test(
   {

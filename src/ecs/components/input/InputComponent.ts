@@ -168,6 +168,22 @@ export class InputComponent implements Component {
   }
 
   getManualAimDirection(): { dx: number; dy: number } | null {
+    // Check for remote input first (test mode)
+    const remoteInput = this.entity.get(RemoteInputComponent);
+    if (remoteInput) {
+      const aimState = remoteInput.getAimPointerState();
+      const dx = aimState.currentX - aimState.startX;
+      const dy = aimState.currentY - aimState.startY;
+      const distance = Math.hypot(dx, dy);
+      
+      // Manual aim threshold (same as AimJoystickComponent)
+      if (distance > 70 && aimState.active) {
+        const length = Math.hypot(dx, dy);
+        return { dx: dx / length, dy: dy / length };
+      }
+      return null;
+    }
+
     if (!this.aimJoystick?.isInManualAimMode()) {
       return null;
     }

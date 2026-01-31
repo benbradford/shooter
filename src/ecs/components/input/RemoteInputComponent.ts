@@ -42,6 +42,22 @@ export class RemoteInputComponent implements Component {
     }
   }
 
+  setAimInput(x: number, y: number): void {
+    const screenWidth = 1280;
+    const screenHeight = 720;
+    const baseX = screenWidth * 0.65;
+    const baseY = screenHeight * 0.5;
+    
+    // Set pointer position relative to base (x and y are multipliers)
+    this.aimPointerX = baseX + x * 100;
+    this.aimPointerY = baseY + y * 100;
+    this.aimPressed = true;
+  }
+
+  setFirePressed(pressed: boolean): void {
+    this.aimPressed = pressed;
+  }
+
   getWalkInput(): { x: number; y: number; isPressed: boolean } {
     return { x: this.moveX, y: this.moveY, isPressed: this.movePressed };
   }

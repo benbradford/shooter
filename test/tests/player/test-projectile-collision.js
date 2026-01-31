@@ -1,5 +1,5 @@
-import { test } from '../helpers/test-helper.js';
-import { runTests } from '../helpers/test-runner.js';
+import { test } from '../../helpers/test-helper.js';
+import { runTests } from '../../helpers/test-runner.js';
 
 const testProjectileWallCollision = test(
   {

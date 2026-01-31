@@ -1,5 +1,5 @@
-import { test } from '../helpers/test-helper.js';
-import { runTests } from '../helpers/test-runner.js';
+import { test } from '../../helpers/test-helper.js';
+import { runTests } from '../../helpers/test-runner.js';
 
 async function moveToCell(page, targetCol, targetRow, maxTimeMs = 2000) {
   await page.evaluate(() => enableRemoteInput());
@@ -10,9 +10,9 @@ async function moveToCell(page, targetCol, targetRow, maxTimeMs = 2000) {
 
 const testWallBlockTopRight = test(
   {
-    given: 'Player at (6,5) surrounded by walls',
-    when: 'Player tries to reach (7,3)',
-    then: 'Player is blocked at (6,4)'
+    given: 'Player surrounded by walls',
+    when: 'Player tries to exit diagonally up-right',
+    then: 'Player is blocked by wall'
   },
   async (page) => {
     const result = await moveToCell(page, 7, 3);
@@ -22,9 +22,9 @@ const testWallBlockTopRight = test(
 
 const testWallBlockBottomRight = test(
   {
-    given: 'Player at (6,5) surrounded by walls',
-    when: 'Player tries to reach (7,7)',
-    then: 'Player is blocked at (6,6)'
+    given: 'Player surrounded by walls',
+    when: 'Player tries to exit diagonally down-right',
+    then: 'Player is blocked by wall'
   },
   async (page) => {
     const result = await moveToCell(page, 7, 7);
@@ -34,9 +34,9 @@ const testWallBlockBottomRight = test(
 
 const testWallBlockBottomLeft = test(
   {
-    given: 'Player at (6,5) surrounded by walls',
-    when: 'Player tries to reach (3,7)',
-    then: 'Player is blocked at (4,6)'
+    given: 'Player surrounded by walls',
+    when: 'Player tries to exit diagonally down-left',
+    then: 'Player is blocked by wall'
   },
   async (page) => {
     const result = await moveToCell(page, 3, 7);
@@ -46,9 +46,9 @@ const testWallBlockBottomLeft = test(
 
 const testWallBlockTopLeft = test(
   {
-    given: 'Player at (6,5) surrounded by walls',
-    when: 'Player tries to reach (3,3)',
-    then: 'Player is blocked at (4,4)'
+    given: 'Player surrounded by walls',
+    when: 'Player tries to exit diagonally up-left',
+    then: 'Player is blocked by wall'
   },
   async (page) => {
     const result = await moveToCell(page, 3, 3);

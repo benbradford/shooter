@@ -1,0 +1,19 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 7,
+    "y": 4
+  },
+  "cells": [],
+  "robots": [
+    {
+      "col": 1,
+      "row": 4,
+      "difficulty": "medium",
+      "waypoints": [
+        { "col": 1, "row": 4 }
+      ]
+    }
+  ]
+}

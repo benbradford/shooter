@@ -6,6 +6,8 @@ import { Direction } from '../../../constants/Direction';
 import type { AmmoComponent } from './AmmoComponent';
 import type { InputComponent } from '../input/InputComponent';
 
+const INITIAL_AIM_WAIT_TIME_MS = 160;
+
 export type EmitterOffset = {
   x: number;
   y: number;
@@ -25,6 +27,7 @@ export type ProjectileEmitterProps = {
 export class ProjectileEmitterComponent implements Component {
   entity!: Entity;
   private canFire: boolean = true;
+  private wasFiring: boolean = false;
   private readonly scene: Phaser.Scene;
   private readonly onFire: (x: number, y: number, dirX: number, dirY: number) => void;
   private readonly offsets: Record<Direction, EmitterOffset>;
@@ -46,7 +49,24 @@ export class ProjectileEmitterComponent implements Component {
   }
 
   update(_delta: number): void {
-    if (this.shouldFire() && this.canFire && this.hasAmmo()) {
+    const shouldFireNow = this.shouldFire();
+
+    // Detect first press
+    if (shouldFireNow && !this.wasFiring) {
+      this.wasFiring = true;
+      this.canFire = false;
+      this.scene.time.delayedCall(INITIAL_AIM_WAIT_TIME_MS, () => {
+        this.canFire = true;
+      });
+    }
+
+    // Reset when released
+    if (!shouldFireNow) {
+      this.wasFiring = false;
+    }
+
+    // Fire if allowed
+    if (shouldFireNow && this.canFire && this.hasAmmo()) {
       this.fire();
       this.canFire = false;
       this.scene.time.delayedCall(this.cooldown, () => {

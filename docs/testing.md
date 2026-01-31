@@ -11,6 +11,8 @@ npm test                                              # Run all tests
 ./test/run-single-test.sh test/tests/test-name.js   # Run single test
 ```
 
+**⚠️ CRITICAL: Always run the test after making ANY change to verify it works.**
+
 ## Creating a New Test
 
 ### 1. Create Test Level (if needed)
@@ -30,11 +32,11 @@ Create `public/levels/test/my-test.json`:
 
 ### 2. Create Test File
 
-Create `test/tests/test-my-feature.js`:
+Create `test/tests/player/test-my-feature.js` (or other subdirectory):
 
 ```javascript
-import { test } from '../helpers/test-helper.js';
-import { runTests } from '../helpers/test-runner.js';
+import { test } from '../../helpers/test-helper.js';
+import { runTests } from '../../helpers/test-runner.js';
 
 const testMyFeature = test(
   {
@@ -67,7 +69,7 @@ runTests({
 ### 3. Run the Test
 
 ```bash
-./test/run-single-test.sh test/tests/test-my-feature.js
+./test/run-single-test.sh test/tests/player/test-my-feature.js
 ```
 
 ## Available Helpers
@@ -78,11 +80,17 @@ runTests({
 // Position
 getPlayerPosition()                              // Returns {x, y}
 
-// Movement
-setPlayerInput(dx, dy, durationMs)              // Simulate movement
-moveToRowHelper(targetRow, maxTimeMs)           // Move to specific row
-moveToColHelper(targetCol, maxTimeMs)           // Move to specific column
-moveToCellHelper(targetCol, targetRow, maxTimeMs) // Move to cell with stuck detection
+// Movement - Independent Tests
+moveToCellHelper(targetCol, targetRow, maxTimeMs) // Move to specific cell (diagonal)
+                                                   // Use when tests are independent
+
+// Movement - Sequential Tests  
+moveToRowHelper(targetRow, maxTimeMs)           // Move vertically to row
+moveToColHelper(targetCol, maxTimeMs)           // Move horizontally to column
+                                                 // Use when tests depend on previous position
+
+// Movement - Manual Control
+setPlayerInput(dx, dy, durationMs)              // Simulate movement for duration
 
 // Combat
 fireWeapon(aimDx, aimDy, durationMs)            // Simulate firing
@@ -91,6 +99,17 @@ getBulletCount()                                 // Count active bullets
 // Setup
 enableRemoteInput()                              // Add RemoteInputComponent to player
 ```
+
+**When to use which movement helper:**
+
+- **`moveToCellHelper(col, row)`** - Independent tests where each test can move the player to any position
+  - Example: Wall collision tests (each test moves to a different corner)
+  - Player can move diagonally to reach target
+  
+- **`moveToRowHelper(row)` / `moveToColHelper(col)`** - Sequential tests where each test depends on the player being at a specific position from the previous test
+  - Example: Layer transition tests (player must be at transition cell from previous test)
+  - Player moves only vertically or horizontally
+  - Tests build on each other's final positions
 
 ### HUD Commands (`test/interactions/hud.js`)
 
@@ -325,17 +344,26 @@ GIVEN: Player at (6,5) surrounded by walls, WHEN: Player tries to reach (7,3), T
 
 Clean GWT statements with pass/fail indicators. No section headers, no verbose output.
 
+## Test Organization
+
+Tests are organized by entity type in subdirectories:
+
+```
+test/tests/
+├── player/                    # Player-related tests
+│   ├── test-player-movement.js
+│   ├── test-player-transition.js
+│   ├── test-shooting.js
+│   ├── test-projectile-collision.js
+│   └── test-wall-collision.js
+└── (future: enemy/, projectile/, etc.)
+```
+
+The test runner uses `find` to recursively discover all `*.js` files in `test/tests/`, so tests are automatically included when added to any subdirectory.
+
 ## Adding Test to Suite
 
-Edit `test/run-all-tests.sh`:
-
-```bash
-TESTS=(
-  "test/tests/test-player-movement.js"
-  "test/tests/test-shooting.js"
-  "test/tests/test-my-feature.js"  # Add here
-)
-```
+Tests are automatically discovered by `find test/tests -name "*.js"`. Just create your test file in the appropriate subdirectory and it will be included.
 
 ## Debugging Tests
 

@@ -1,5 +1,5 @@
-import { test } from '../helpers/test-helper.js';
-import { runTests } from '../helpers/test-runner.js';
+import { test } from '../../helpers/test-helper.js';
+import { runTests } from '../../helpers/test-runner.js';
 
 async function moveToRow(page, targetRow, maxTimeMs = 5000) {
   return await page.evaluate((row, maxTime) => {
@@ -15,9 +15,9 @@ async function moveToCol(page, targetCol, maxTimeMs = 5000) {
 
 const testTransitionEntry = test(
   {
-    given: 'Player at (4,3) with transition cell at (4,1)',
-    when: 'Player moves up to row 1',
-    then: 'Player enters transition cell at (4,1)'
+    given: 'Player on ground level below a staircase',
+    when: 'Player moves up to the staircase',
+    then: 'Player enters the transition cell'
   },
   async (page) => {
     const reached = await moveToRow(page, 1);
@@ -38,9 +38,9 @@ const testTransitionEntry = test(
 
 const testTransitionHorizontalBlock = test(
   {
-    given: 'Player in transition cell at (4,1)',
-    when: 'Player tries to move right',
-    then: 'Player is blocked'
+    given: 'Player standing on a staircase',
+    when: 'Player tries to move sideways',
+    then: 'Player is blocked (can only move up/down on stairs)'
   },
   async (page) => {
     const startPos = await page.evaluate(() => {
@@ -67,9 +67,9 @@ const testTransitionHorizontalBlock = test(
 
 const testTransitionToLayer1 = test(
   {
-    given: 'Player in transition cell at (4,1)',
-    when: 'Player moves up to row 0',
-    then: 'Player reaches layer 1 at (4,0)'
+    given: 'Player on a staircase',
+    when: 'Player moves up the stairs',
+    then: 'Player reaches the upper platform (layer 1)'
   },
   async (page) => {
     const reached = await moveToRow(page, 0);
@@ -85,9 +85,9 @@ const testTransitionToLayer1 = test(
 
 const testLayer1EdgeBlock = test(
   {
-    given: 'Player on layer 1 platform at (4,0)',
-    when: 'Player tries to move right to (7,0)',
-    then: 'Player stops at edge (6,0)'
+    given: 'Player on an elevated platform',
+    when: 'Player tries to walk off the edge',
+    then: 'Player is blocked at the platform edge'
   },
   async (page) => {
     await moveToCol(page, 7);
@@ -103,9 +103,9 @@ const testLayer1EdgeBlock = test(
 
 const testLayer1EntryBlock = test(
   {
-    given: 'Player on layer 1 at (6,0)',
-    when: 'Player tries to move down to (6,1)',
-    then: 'Player is blocked'
+    given: 'Player on an elevated platform',
+    when: 'Player tries to step down without stairs',
+    then: 'Player is blocked (cannot drop down)'
   },
   async (page) => {
     const startPos = await page.evaluate(() => {
@@ -132,9 +132,9 @@ const testLayer1EntryBlock = test(
 
 const testTransitionExit = test(
   {
-    given: 'Player on layer 1 at (6,0)',
-    when: 'Player moves left to (4,0) then down through transition',
-    then: 'Player returns to layer 0 at (4,3)'
+    given: 'Player on an elevated platform',
+    when: 'Player walks to stairs and descends',
+    then: 'Player returns to ground level (layer 0)'
   },
   async (page) => {
     const reachedCol = await moveToCol(page, 4);

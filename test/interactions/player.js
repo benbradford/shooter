@@ -224,3 +224,10 @@ function moveToCellHelper(targetCol, targetRow, maxTimeMs = 2000) {
     }, 50);
   });
 }
+
+
+// Expose ProjectileComponent for tests
+window.ProjectileComponent = window.ProjectileComponent || (() => {
+  const { ProjectileComponent } = window;
+  return ProjectileComponent;
+})();
