@@ -1,5 +1,10 @@
 #!/bin/bash
 
+VERBOSE=false
+if [ "$1" == "-v" ] || [ "$1" == "--verbose" ]; then
+  VERBOSE=true
+fi
+
 echo "Starting dev server..."
 npm run dev > /dev/null 2>&1 &
 SERVER_PID=$!
@@ -12,8 +17,9 @@ echo "Server ready!"
 echo ""
 
 TESTS=(
-  "test/test-player-movement.js"
-  "test/test-shooting.js"
+  "test/tests/test-player-movement.js"
+  "test/tests/test-shooting.js"
+  "test/tests/test-wall-collision.js"
 )
 
 PASSED=0
@@ -22,29 +28,46 @@ FAILED_TESTS=()
 
 for test in "${TESTS[@]}"; do
   echo "Running $test..."
-  if ./test/run-test.sh "$test" 2>&1 | grep -q "✓ TEST PASSED"; then
-    echo "✓ PASSED"
+  echo ""
+  
+  OUTPUT=$(node "$test" 2>&1)
+  
+  if [ "$VERBOSE" = true ]; then
+    echo "$OUTPUT"
+  else
+    echo "$OUTPUT" | sed -n '/\[GWT-START\]/,/\[GWT-END\]/p' | grep -v '\[GWT-'
+    echo ""
+    echo "$OUTPUT" | grep "TEST PASSED\|TEST FAILED"
+  fi
+  
+  if echo "$OUTPUT" | grep -q "✓ TEST PASSED"; then
     ((PASSED++))
   else
-    echo "✗ FAILED"
     ((FAILED++))
     FAILED_TESTS+=("$test")
   fi
+  
+  echo ""
+  echo "--------------------------------------"
   echo ""
 done
 
-echo "========================================"
-echo "Test Results: $PASSED passed, $FAILED failed"
-echo "========================================"
+echo "TESTS RUN: ${#TESTS[@]}"
+echo "TESTS PASSED: $PASSED"
+echo "TESTS FAILED: $FAILED"
+echo ""
 
 if [ $FAILED -gt 0 ]; then
-  echo "Failed tests:"
+  echo "FAILED TESTS:"
   for test in "${FAILED_TESTS[@]}"; do
     echo "  - $test"
   done
+  echo ""
+else
+  echo "ALL TESTS PASSED!"
+  echo ""
 fi
 
-echo ""
 echo "Killing dev server (PID: $SERVER_PID)..."
 kill $SERVER_PID
 

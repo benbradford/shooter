@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import { readFileSync } from 'fs';
-import { outputGWT } from './helpers/gwt-helper.js';
+import { outputGWT } from '../helpers/gwt-helper.js';
 
 
 const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');

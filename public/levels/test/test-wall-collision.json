@@ -1,0 +1,26 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 6,
+    "y": 5
+  },
+  "cells": [
+    {"col": 3, "row": 3, "layer": 1},
+    {"col": 4, "row": 3, "layer": 1},
+    {"col": 5, "row": 3, "layer": 1},
+    {"col": 6, "row": 3, "layer": 1},
+    {"col": 7, "row": 3, "layer": 1},
+    {"col": 3, "row": 4, "layer": 1},
+    {"col": 7, "row": 4, "layer": 1},
+    {"col": 3, "row": 5, "layer": 1},
+    {"col": 7, "row": 5, "layer": 1},
+    {"col": 3, "row": 6, "layer": 1},
+    {"col": 7, "row": 6, "layer": 1},
+    {"col": 3, "row": 7, "layer": 1},
+    {"col": 4, "row": 7, "layer": 1},
+    {"col": 5, "row": 7, "layer": 1},
+    {"col": 6, "row": 7, "layer": 1},
+    {"col": 7, "row": 7, "layer": 1}
+  ]
+}

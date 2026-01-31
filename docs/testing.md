@@ -4,6 +4,26 @@
 
 The game uses Puppeteer for automated browser-based testing. Tests simulate real user input and verify game behavior without modifying game state directly.
 
+## Test Structure
+
+```
+test/
+├── helpers/
+│   └── gwt-helper.js          # Given-When-Then output helper
+├── interactions/
+│   ├── player.js              # Player interaction commands
+│   └── hud.js                 # HUD interaction commands
+├── tests/
+│   ├── test-player-movement.js
+│   ├── test-shooting.js
+│   └── test-wall-collision.js
+├── run-all-tests.sh           # Run all tests
+└── run-single-test.sh         # Run single test
+
+public/levels/test/
+└── test-wall-collision.json   # Test-specific level files
+```
+
 ## Running Tests
 
 **Run all tests:**
@@ -11,16 +31,164 @@ The game uses Puppeteer for automated browser-based testing. Tests simulate real
 npm test
 ```
 
-**Run single test (requires dev server running):**
+**Run all tests (verbose):**
 ```bash
-npm run dev  # In one terminal
-./test/run-test.sh test/test-player-movement.js  # In another
+./test/run-all-tests.sh -v
 ```
 
+**Run single test:**
+```bash
+./test/run-single-test.sh test/tests/test-player-movement.js
+```
+
+The script automatically starts the dev server, runs the test, and stops the server.
+
+**⚠️ CRITICAL: After modifying any test, you MUST run it to verify it works.**
+
 **Test output:**
-- ✓ PASSED - Test succeeded
-- ✗ FAILED - Test failed
+- ✓ TEST PASSED - Test succeeded
+- ✗ TEST FAILED - Test failed
 - Screenshots saved to `tmp/test/screenshots/`
+
+## Creating a New Test
+
+### 1. Create Test Level (if needed)
+
+Create a level file in `public/levels/test/`:
+
+```json
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 5,
+    "y": 5
+  },
+  "cells": [
+    {"col": 3, "row": 3, "layer": 1},
+    {"col": 4, "row": 3, "layer": 1}
+  ]
+}
+```
+
+### 2. Create Test File
+
+Create `test/tests/test-your-feature.js`:
+
+```javascript
+import puppeteer from 'puppeteer';
+import { readFileSync } from 'fs';
+import { outputGWT } from '../helpers/gwt-helper.js';
+
+const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');
+
+(async () => {
+  // Define test expectations
+  outputGWT({
+    title: 'Your Feature Test',
+    given: 'Initial state description',
+    when: 'Action performed',
+    then: 'Expected outcome'
+  });
+  
+  const browser = await puppeteer.launch({ 
+    headless: false,
+    args: ['--window-size=1280,720']
+  });
+  
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 720 });
+  
+  // Capture test logs
+  page.on('console', msg => {
+    const text = msg.text();
+    if (text.startsWith('[TEST]')) {
+      console.log(text);
+    }
+  });
+  
+  // Load game with test level
+  await page.goto('http://localhost:5173/?test=true&level=test/your-level', { 
+    waitUntil: 'networkidle2' 
+  });
+  
+  await page.waitForFunction(() => {
+    return window.game && window.game.scene.scenes.find(s => s.scene.key === 'game');
+  }, { timeout: 5000 });
+  
+  // Inject interaction commands
+  await page.evaluate(playerCommands);
+  
+  // Perform test actions
+  const initialState = await page.evaluate(() => getPlayerPosition());
+  
+  await page.evaluate(() => setPlayerInput(0, -1, 500));
+  await new Promise(resolve => setTimeout(resolve, 550));
+  
+  const finalState = await page.evaluate(() => getPlayerPosition());
+  
+  // Assert results
+  const success = finalState.y < initialState.y;
+  
+  if (success) {
+    console.log('\n✓ TEST PASSED');
+  } else {
+    console.log('\n✗ TEST FAILED');
+  }
+  
+  await page.screenshot({ path: 'tmp/test/screenshots/test-your-feature.png' });
+  await browser.close();
+  
+  process.exit(success ? 0 : 1);
+})();
+```
+
+### 3. Using outputGWT
+
+**Single when/then:**
+```javascript
+outputGWT({
+  title: 'Player Movement Test',
+  given: 'A player in an empty 10x10 level',
+  when: 'The player receives movement input',
+  then: 'The player should move in the correct direction'
+});
+```
+
+**Multiple when/then pairs:**
+```javascript
+outputGWT({
+  title: 'Wall Collision Test',
+  given: 'Player is surrounded by a 5x5 wall box',
+  when: [
+    'Player fires bullets in all 8 directions',
+    'Player moves in diagonal circle'
+  ],
+  then: [
+    'All bullets are blocked by walls',
+    'Player movement is blocked by walls'
+  ]
+});
+```
+
+### 4. Add to Test Suite
+
+Edit `test/run-all-tests.sh`:
+
+```bash
+TESTS=(
+  "test/tests/test-player-movement.js"
+  "test/tests/test-shooting.js"
+  "test/tests/test-wall-collision.js"
+  "test/tests/test-your-feature.js"  # Add here
+)
+```
+
+### 5. Run the Test
+
+```bash
+./test/run-single-test.sh test/tests/test-your-feature.js
+```
 
 ## Test Architecture
 
