@@ -20,8 +20,7 @@ export type ProjectileProps = {
 export class ProjectileComponent implements Component {
   entity!: Entity;
   private distanceTraveled: number = 0;
-  private currentLayer: number;
-  private readonly fromTransition: boolean;
+  private readonly startLayer: number;
   public readonly dirX: number;
   public readonly dirY: number;
   private readonly speed: number;
@@ -39,8 +38,7 @@ export class ProjectileComponent implements Component {
     this.maxDistance = props.maxDistance;
     this.grid = props.grid;
     this.blockedByWalls = props.blockedByWalls;
-    this.currentLayer = props.startLayer;
-    this.fromTransition = props.fromTransition;
+    this.startLayer = props.startLayer;
     this.scene = props.scene;
     this.onWallHit = props.onWallHit;
     this.onMaxDistance = props.onMaxDistance;
@@ -48,35 +46,35 @@ export class ProjectileComponent implements Component {
 
   update(delta: number): void {
     const transform = this.entity.require(TransformComponent);
-
     const distance = this.speed * (delta / 1000);
-
-    transform.x += this.dirX * distance;
-    transform.y += this.dirY * distance;
-
-    this.distanceTraveled += distance;
-
-    // Check collision with walls (layer-based)
-    const cell = this.grid.worldToCell(transform.x, transform.y);
-    const cellData = this.grid.getCell(cell.col, cell.row);
-
-    if (!cellData) {
-      this.entity.destroy();
-      return;
-    }
-
-    // If passing through transition cell, upgrade accessible layer
-    if (cellData.isTransition) {
-      this.currentLayer = Math.max(this.currentLayer, cellData.layer + 1);
-    }
-
-    if (this.shouldCheckWallCollision(cellData)) {
-      this.handleWallCollision(transform, cell);
-      return;
+    
+    // Subdivide movement to avoid skipping cells
+    const steps = Math.ceil(distance / (this.grid.cellSize / 2));
+    const stepDistance = distance / steps;
+    
+    for (let i = 0; i < steps; i++) {
+      // Check current cell before moving
+      const cell = this.grid.worldToCell(transform.x, transform.y);
+      const cellData = this.grid.getCell(cell.col, cell.row);
+      
+      if (!cellData) {
+        this.entity.destroy();
+        return;
+      }
+      
+      if (this.shouldCheckWallCollision(cellData)) {
+        console.log(`[BULLET] Hit wall at (${cell.col},${cell.row}) layer=${cellData.layer} startLayer=${this.startLayer}`);
+        this.handleWallCollision(transform, cell);
+        return;
+      }
+      
+      // Move one step
+      transform.x += this.dirX * stepDistance;
+      transform.y += this.dirY * stepDistance;
+      this.distanceTraveled += stepDistance;
     }
 
     if (this.distanceTraveled >= this.maxDistance) {
-      const transform = this.entity.require(TransformComponent);
       this.onMaxDistance?.(transform.x, transform.y);
       this.entity.destroy();
     }
@@ -84,21 +82,10 @@ export class ProjectileComponent implements Component {
 
   private shouldCheckWallCollision(cellData: { layer: number; isTransition: boolean }): boolean {
     if (!this.blockedByWalls || cellData.isTransition) return false;
-
-    const shouldBlock = this.fromTransition
-      ? cellData.layer > this.currentLayer + 1
-      : cellData.layer > this.currentLayer;
-
-    return shouldBlock;
+    return cellData.layer > this.startLayer;
   }
 
-  private handleWallCollision(transform: TransformComponent, cell: { col: number; row: number }): void {
-    const cellWorld = this.grid.cellToWorld(cell.col, cell.row);
-    const cellBottomY = cellWorld.y + this.grid.cellSize;
-    const bottomThreshold = cellBottomY - (this.grid.cellSize * 0.8);
-
-    if (transform.y >= bottomThreshold) return;
-
+  private handleWallCollision(transform: TransformComponent, _cell: { col: number; row: number }): void {
     if (this.onWallHit) {
       this.onWallHit(transform.x, transform.y);
     } else if (this.scene) {
