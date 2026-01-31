@@ -1,18 +1,92 @@
 import puppeteer from 'puppeteer';
 import { readFileSync } from 'fs';
-import { outputGWT } from '../helpers/gwt-helper.js';
+import { test } from '../helpers/test-helper.js';
 
 const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');
 const hudCommands = readFileSync('test/interactions/hud.js', 'utf-8');
 
-(async () => {
-  outputGWT({
-    title: 'Weapon Firing Test',
-    given: 'A player in an empty 10x10 level with a weapon',
-    when: 'The player fires in each of 8 directions + facing direction',
-    then: 'At least one bullet should spawn for each firing action'
-  });
+const testAimHudInitialState = test(
+  {
+    given: 'Player in empty level with aim joystick HUD',
+    when: 'Game starts (no input)',
+    then: 'Aim HUD alpha is 0.3 (inactive)'
+  },
+  async (page) => {
+    const hud = await page.evaluate(() => getAimJoystickVisuals());
+    return hud.outerCircle.alpha === 0.3;
+  }
+);
 
+const testAimHudPressedState = test(
+  {
+    given: 'Player in empty level with aim joystick HUD',
+    when: 'Player fires weapon',
+    then: 'Aim HUD alpha is 1.0 (active) and crosshair moves'
+  },
+  async (page) => {
+    const pressPromise = page.evaluate(() => fireWeapon(0, -1, 300));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    const hud = await page.evaluate(() => getAimJoystickVisuals());
+    const alphaCorrect = hud.outerCircle.alpha === 1;
+    const crosshairMoved = hud.crosshair.x !== hud.outerCircle.x || hud.crosshair.y !== hud.outerCircle.y;
+    
+    await pressPromise;
+    return alphaCorrect && crosshairMoved;
+  }
+);
+
+const testAimHudReleasedState = test(
+  {
+    given: 'Player released fire input',
+    when: 'Input is no longer active',
+    then: 'Aim HUD alpha returns to 0.3 (inactive)'
+  },
+  async (page) => {
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const hud = await page.evaluate(() => getAimJoystickVisuals());
+    return hud.outerCircle.alpha === 0.3;
+  }
+);
+
+function testShooting(direction, dx, dy) {
+  return test(
+    {
+      given: 'Player in empty level with weapon',
+      when: `Player fires ${direction}`,
+      then: `At least one bullet spawns`
+    },
+    async (page) => {
+      const firePromise = page.evaluate((dx, dy) => fireWeapon(dx, dy, 300), dx, dy);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const duringBullets = await page.evaluate(() => getBulletCount());
+      await firePromise;
+      return duringBullets > 0;
+    }
+  );
+}
+
+const testShootingFacingDirection = test(
+  {
+    given: 'Player facing right after moving',
+    when: 'Player fires without aim input',
+    then: 'Bullet fires in facing direction'
+  },
+  async (page) => {
+    await page.evaluate(() => setPlayerInput(1, 0, 200));
+    await new Promise(resolve => setTimeout(resolve, 250));
+    
+    const initialBullets = await page.evaluate(() => getBulletCount());
+    const firePromise = page.evaluate(() => fireWeapon(0, 0, 300));
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const duringBullets = await page.evaluate(() => getBulletCount());
+    await firePromise;
+    
+    return duringBullets - initialBullets > 0;
+  }
+);
+
+(async () => {
   const browser = await puppeteer.launch({
     headless: false,
     args: ['--window-size=1280,720']
@@ -23,15 +97,19 @@ const hudCommands = readFileSync('test/interactions/hud.js', 'utf-8');
 
   page.on('console', msg => {
     const text = msg.text();
-    if (text.startsWith('[TEST]')) {
+    const isVerbose = process.env.VERBOSE === 'true';
+    
+    if (text.startsWith('[DEBUG]')) {
+      if (isVerbose) console.log(text);
+      return;
+    }
+    if (text.startsWith('[TEST]') || text.startsWith('[INFO]')) {
       console.log(text);
     }
   });
 
-  console.log('Navigating to game...');
   await page.goto('http://localhost:5173/?test=true&level=test/emptyLevel', { waitUntil: 'networkidle2' });
 
-  console.log('Waiting for game to be ready...');
   await page.waitForFunction(() => {
     return window.game && window.game.scene.scenes.find(s => s.scene.key === 'game');
   }, { timeout: 5000 });
@@ -39,118 +117,34 @@ const hudCommands = readFileSync('test/interactions/hud.js', 'utf-8');
   await page.evaluate(playerCommands);
   await page.evaluate(hudCommands);
 
-  // Test HUD visuals first
-  console.log('\nTesting aim HUD visuals...');
-
-  // Check initial state (not pressed)
-  const initialHud = await page.evaluate(() => getAimJoystickVisuals());
-  console.log(`Initial aim HUD alpha: ${initialHud.outerCircle.alpha} (should be 0.3)`);
-
-  if (initialHud.outerCircle.alpha !== 0.3) {
-    console.log('✗ Aim HUD initial alpha incorrect');
-    allPassed = false;
-  }
-
-  // Press and check HUD updates
-  const pressPromise = page.evaluate(() => fireWeapon(0, -1, 300));
-  await new Promise(resolve => setTimeout(resolve, 50));
-
-  const pressedHud = await page.evaluate(() => getAimJoystickVisuals());
-  console.log(`Pressed aim HUD alpha: ${pressedHud.outerCircle.alpha} (should be 1.0)`);
-  console.log(`Crosshair moved: ${pressedHud.crosshair.x !== pressedHud.outerCircle.x || pressedHud.crosshair.y !== pressedHud.outerCircle.y}`);
-
-  if (pressedHud.outerCircle.alpha !== 1) {
-    console.log('✗ Aim HUD pressed alpha incorrect');
-    allPassed = false;
-  }
-
-  await pressPromise;
-  await new Promise(resolve => setTimeout(resolve, 50));
-
-  // Check released state
-  const releasedHud = await page.evaluate(() => getAimJoystickVisuals());
-  console.log(`Released aim HUD alpha: ${releasedHud.outerCircle.alpha} (should be 0.3)`);
-
-  if (releasedHud.outerCircle.alpha !== 0.3) {
-    console.log('✗ Aim HUD released alpha incorrect');
-    allPassed = false;
-  }
-
-  console.log('Aim HUD visuals: ✓\n');
-
-  const directions = [
-    { name: 'up', dx: 0, dy: -1 },
-    { name: 'down', dx: 0, dy: 1 },
-    { name: 'left', dx: -1, dy: 0 },
-    { name: 'right', dx: 1, dy: 0 },
-    { name: 'up-left', dx: -1, dy: -1 },
-    { name: 'up-right', dx: 1, dy: -1 },
-    { name: 'down-left', dx: -1, dy: 1 },
-    { name: 'down-right', dx: 1, dy: 1 }
+  const tests = [
+    { name: 'Aim HUD Initial State', fn: testAimHudInitialState },
+    { name: 'Aim HUD Pressed State', fn: testAimHudPressedState },
+    { name: 'Aim HUD Released State', fn: testAimHudReleasedState },
+    { name: 'Shoot Up', fn: testShooting('up', 0, -1) },
+    { name: 'Shoot Down', fn: testShooting('down', 0, 1) },
+    { name: 'Shoot Left', fn: testShooting('left', -1, 0) },
+    { name: 'Shoot Right', fn: testShooting('right', 1, 0) },
+    { name: 'Shoot Up-Left', fn: testShooting('up-left', -1, -1) },
+    { name: 'Shoot Up-Right', fn: testShooting('up-right', 1, -1) },
+    { name: 'Shoot Down-Left', fn: testShooting('down-left', -1, 1) },
+    { name: 'Shoot Down-Right', fn: testShooting('down-right', 1, 1) },
+    { name: 'Shoot Facing Direction', fn: testShootingFacingDirection }
   ];
 
   let allPassed = true;
-  const results = [];
 
-  for (const dir of directions) {
-    console.log(`\nTesting ${dir.name} shooting...`);
-
-    const firePromise = page.evaluate((dx, dy) => fireWeapon(dx, dy, 300), dir.dx, dir.dy);
-
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    const duringBullets = await page.evaluate(() => getBulletCount());
-    await firePromise;
+  for (const test of tests) {
+    const result = await test.fn(page);
     
-    await new Promise(resolve => setTimeout(resolve, 50));
-    const afterBullets = await page.evaluate(() => getBulletCount());
-
-    // If bullets were fired, count should have been > 0 during firing
-    const passed = duringBullets > 0;
-    results.push({ direction: dir.name, passed, bullets: duringBullets });
-
-    if (!passed) allPassed = false;
-
-    console.log(`  Bullets fired: ${duringBullets} - ${passed ? '✓' : '✗'}`);
+    console.log(`GIVEN: ${result.given}, WHEN: ${result.when}, THEN: ${result.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}`);
+    
+    if (!result.passed) allPassed = false;
   }
 
-  // Test shooting in last facing direction (no aim input)
-  console.log('\nTesting shooting in facing direction (no aim)...');
-
-  // First move right to set facing direction
-  await page.evaluate(() => setPlayerInput(1, 0, 200));
-  await new Promise(resolve => setTimeout(resolve, 250));
-
-  // Then shoot without aim direction (should shoot right)
-  const initialBullets = await page.evaluate(() => getBulletCount());
-  const firePromise = page.evaluate(() => fireWeapon(0, 0, 300));
-
-  await new Promise(resolve => setTimeout(resolve, 50));
-
-  const duringBullets = await page.evaluate(() => getBulletCount());
-  await firePromise;
-
-  const bulletsFired = duringBullets - initialBullets;
-  const facingPassed = bulletsFired > 0;
-  results.push({ direction: 'facing', passed: facingPassed, bullets: bulletsFired });
-
-  if (!facingPassed) allPassed = false;
-
-  console.log(`  Bullets fired: ${bulletsFired} - ${facingPassed ? '✓' : '✗'}`);
-
-  console.log('\n=== TEST RESULTS ===');
-  for (const result of results) {
-    console.log(`${result.direction}: ${result.passed ? '✓' : '✗'} (${result.bullets} bullets)`);
-  }
-
-  if (allPassed) {
-    console.log('\n✓ TEST PASSED');
-  } else {
-    console.log('\n✗ TEST FAILED');
-  }
+  console.log(allPassed ? '\n✓ ALL TESTS PASSED' : '\n✗ SOME TESTS FAILED');
 
   await page.screenshot({ path: 'tmp/test/screenshots/test-shooting.png' });
-  console.log('\nScreenshot saved to tmp/test/screenshots/test-shooting.png');
 
   try {
     await browser.close();

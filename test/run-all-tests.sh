@@ -16,12 +16,7 @@ done
 echo "Server ready!"
 echo ""
 
-TESTS=(
-  "test/tests/test-player-movement.js"
-  "test/tests/test-shooting.js"
-  "test/tests/test-wall-collision.js"
-  "test/tests/test-player-transition.js"
-)
+TESTS=($(find test/tests -name "*.js" | sort))
 
 PASSED=0
 FAILED=0
@@ -31,17 +26,15 @@ for test in "${TESTS[@]}"; do
   echo "Running $test..."
   echo ""
   
-  OUTPUT=$(node "$test" 2>&1)
-  
   if [ "$VERBOSE" = true ]; then
+    OUTPUT=$(VERBOSE=true node "$test" 2>&1)
     echo "$OUTPUT"
   else
-    echo "$OUTPUT" | sed -n '/\[GWT-START\]/,/\[GWT-END\]/p' | grep -v '\[GWT-'
-    echo ""
-    echo "$OUTPUT" | grep "TEST PASSED\|TEST FAILED"
+    OUTPUT=$(node "$test" 2>&1)
+    echo "$OUTPUT" | grep -E "^===|^GIVEN:|✓ ALL TESTS PASSED|✗ SOME TESTS FAILED|✓ TEST PASSED|✗ TEST FAILED"
   fi
   
-  if echo "$OUTPUT" | grep -q "✓ TEST PASSED"; then
+  if echo "$OUTPUT" | grep -q "✓ ALL TESTS PASSED\|✓ TEST PASSED"; then
     ((PASSED++))
   else
     ((FAILED++))
