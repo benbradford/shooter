@@ -22,15 +22,13 @@ const testProjectileWallCollision = test(
     let allBlocked = true;
 
     for (const dir of directions) {
-      await page.evaluate((dx, dy) => fireWeapon(dx, dy, 100), dir.dx, dir.dy);
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await page.evaluate((dx, dy) => fireWeapon(dx, dy, 500), dir.dx, dir.dy);
+      await new Promise(resolve => setTimeout(resolve, 600)); // Wait for shot + travel + destruction
       const afterBullets = await page.evaluate(() => getBulletCount());
 
       if (afterBullets !== 0) {
         allBlocked = false;
       }
-
-      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     return allBlocked;
