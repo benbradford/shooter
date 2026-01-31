@@ -295,7 +295,12 @@ async function moveToCol(page, targetCol, maxTimeMs = 5000) {
   }
   
   await page.screenshot({ path: 'tmp/test/screenshots/test-player-transition.png' });
-  await browser.close();
+  
+  try {
+    await browser.close();
+  } catch (error) {
+    // Ignore browser close errors
+  }
   
   process.exit(allTestsPassed ? 0 : 1);
 })();

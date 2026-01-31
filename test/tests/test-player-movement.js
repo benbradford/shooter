@@ -128,7 +128,11 @@ const hudCommands = readFileSync('test/interactions/hud.js', 'utf-8');
   await page.screenshot({ path: 'tmp/test/screenshots/test-player-movement.png' });
   console.log('\nScreenshot saved to tmp/test/screenshots/test-player-movement.png');
 
-  await browser.close();
+  try {
+    await browser.close();
+  } catch (error) {
+    // Ignore browser close errors
+  }
 
   process.exit(allPassed ? 0 : 1);
 })();

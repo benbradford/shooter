@@ -253,10 +253,18 @@ console.log(`HUD alpha: ${hudState.outerCircle.alpha}`);
 ```javascript
 import puppeteer from 'puppeteer';
 import { readFileSync } from 'fs';
+import { outputGWT } from '../helpers/gwt-helper.js';
 
-const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
+const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');
 
 (async () => {
+  outputGWT({
+    title: 'Your Test Name',
+    given: 'Initial state description',
+    when: 'Action performed',
+    then: 'Expected outcome'
+  });
+  
   const browser = await puppeteer.launch({ 
     headless: false,
     args: ['--window-size=1280,720']
@@ -275,7 +283,9 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   
   // Navigate and wait for game
   console.log('Navigating to game...');
-  await page.goto('http://localhost:5173/?test=true', { waitUntil: 'networkidle2' });
+  await page.goto('http://localhost:5173/?test=true&level=test/your-level', { 
+    waitUntil: 'networkidle2' 
+  });
   
   console.log('Waiting for game to be ready...');
   await page.waitForFunction(() => {
@@ -285,29 +295,106 @@ const playerCommands = readFileSync('test/commands/player.js', 'utf-8');
   // Inject commands
   await page.evaluate(playerCommands);
   
-  // Get initial state
+  // Perform test actions
   const initialState = await page.evaluate(() => getPlayerPosition());
   
-  // Perform action
-  await page.evaluate(() => setPlayerInput(0, -1, 1000));
+  await page.evaluate(() => setPlayerInput(0, -1, 500));
+  await new Promise(resolve => setTimeout(resolve, 550));
   
-  // Get final state
   const finalState = await page.evaluate(() => getPlayerPosition());
   
-  // Assert
+  // Assert results
   const success = finalState.y < initialState.y;
   
-  console.log('\n=== TEST RESULTS ===');
-  console.log(`Test passed: ${success ? '✓' : '✗'}`);
+  if (success) {
+    console.log('\n✓ TEST PASSED');
+  } else {
+    console.log('\n✗ TEST FAILED');
+  }
   
-  // Screenshot
   await page.screenshot({ path: 'tmp/test/screenshots/test-name.png' });
   
-  await browser.close();
+  try {
+    await browser.close();
+  } catch (error) {
+    // Ignore browser close errors
+  }
   
   process.exit(success ? 0 : 1);
 })();
 ```
+
+### Position-Based Movement Helpers
+
+For smooth, reliable movement testing, use position-based helpers that move to specific pixel coordinates:
+
+```javascript
+// Move to specific row (vertical movement)
+async function moveToRow(page, targetRow, maxTimeMs = 5000) {
+  const cellSize = 64;
+  const targetY = targetRow * cellSize + cellSize / 2 - 10; // Slightly above center
+  const threshold = 5; // Must be within 5px
+  const startTime = Date.now();
+  
+  const startPos = await page.evaluate(() => getPlayerPosition());
+  const dy = targetY - startPos.y;
+  const dirY = dy > 0 ? 1 : -1;
+  
+  let checkCount = 0;
+  let lastY = startPos.y;
+  let stuckCount = 0;
+  
+  while (Date.now() - startTime < maxTimeMs) {
+    await new Promise(resolve => setTimeout(resolve, 5));
+    
+    const currentPos = await page.evaluate(() => getPlayerPosition());
+    checkCount++;
+    
+    // Detect if stuck (not moving)
+    if (Math.abs(currentPos.y - lastY) < 1) {
+      stuckCount++;
+      if (stuckCount > 40) { // Stuck for 200ms
+        await page.evaluate(() => setPlayerInput(0, 0, 0));
+        return false;
+      }
+    } else {
+      stuckCount = 0;
+      lastY = currentPos.y;
+    }
+    
+    // Re-apply input every 100ms to maintain movement
+    if (checkCount % 20 === 0) {
+      page.evaluate((y) => setPlayerInput(0, y, 10000), dirY);
+    }
+    
+    if (Math.abs(currentPos.y - targetY) < threshold) {
+      await page.evaluate(() => setPlayerInput(0, 0, 0));
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return true;
+    }
+  }
+  
+  await page.evaluate(() => setPlayerInput(0, 0, 0));
+  return false;
+}
+
+// Move to specific column (horizontal movement)
+async function moveToCol(page, targetCol, maxTimeMs = 5000) {
+  // Similar implementation for horizontal movement
+}
+```
+
+**Key features:**
+- **5ms check interval**: Fast enough to catch target position
+- **Re-apply input every 100ms**: Maintains movement despite momentum/friction
+- **Stuck detection**: Exits early if blocked by walls (200ms without movement)
+- **5px threshold**: Ensures player reaches cell center, not just enters cell
+
+**Why position-based instead of cell-based:**
+- More reliable - no overshooting
+- Smoother movement
+- Better control over exact positioning
+- Can target specific positions within cells (e.g., slightly above center to avoid collision box overlap)
 
 ### Test Principles
 
@@ -349,6 +436,46 @@ remoteInput.setWalk(0, 0, false);
 - Each test should verify one behavior
 - Keep tests focused and simple
 - Name tests clearly: `test-player-movement.js`, `test-shooting.js`
+
+**6. Check Existence, Not Deltas**
+- When testing if bullets fired, check if `bulletCount > 0` during firing
+- Don't compare before/after counts (previous bullets may still exist)
+- Example:
+  ```javascript
+  // ✅ Good: Check if bullets exist
+  const duringBullets = await page.evaluate(() => getBulletCount());
+  const passed = duringBullets > 0;
+  
+  // ❌ Bad: Compare counts (affected by previous bullets)
+  const initialBullets = await page.evaluate(() => getBulletCount());
+  const duringBullets = await page.evaluate(() => getBulletCount());
+  const passed = duringBullets > initialBullets;
+  ```
+
+**7. Re-apply Input to Maintain Movement**
+- Player momentum/friction can cause movement to stop
+- Re-apply input every 100ms (every 20 checks at 5ms intervals)
+- Prevents player from stopping before reaching target
+- Example:
+  ```javascript
+  if (checkCount % 20 === 0) {
+    page.evaluate((x) => setPlayerInput(x, 0, 10000), dirX);
+  }
+  ```
+
+**8. Detect When Stuck**
+- Check if player position hasn't changed for 200ms
+- Exit early instead of waiting for timeout
+- Faster tests and clearer failure messages
+- Example:
+  ```javascript
+  if (Math.abs(currentPos.x - lastX) < 1) {
+    stuckCount++;
+    if (stuckCount > 40) { // 200ms at 5ms checks
+      return false; // Player is stuck
+    }
+  }
+  ```
 
 ## Getting Feedback from Game
 

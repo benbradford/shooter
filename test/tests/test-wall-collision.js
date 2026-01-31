@@ -147,7 +147,11 @@ const playerCommands = readFileSync('test/interactions/player.js', 'utf-8');
 
   await page.screenshot({ path: 'tmp/test/screenshots/test-wall-collision.png' });
 
-  await browser.close();
+  try {
+    await browser.close();
+  } catch (error) {
+    // Ignore browser close errors
+  }
 
   process.exit(success ? 0 : 1);
 })();
