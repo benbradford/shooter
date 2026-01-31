@@ -3,7 +3,7 @@ import GameScene from "./scenes/GameScene";
 import EditorScene from "./scenes/EditorScene";
 import LevelSelectorScene from "./scenes/LevelSelectorScene";
 import HudScene from "./scenes/HudScene";
-import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent } from "./ecs";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -24,9 +24,10 @@ const game = new Phaser.Game(config);
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('test') === 'true') {
-  (window as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent; JoystickVisualsComponent: typeof JoystickVisualsComponent; AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent }).game = game;
+  (window as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent; JoystickVisualsComponent: typeof JoystickVisualsComponent; AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent; GridPositionComponent: typeof GridPositionComponent }).game = game;
   (window as unknown as { TransformComponent: typeof TransformComponent }).TransformComponent = TransformComponent;
   (window as unknown as { RemoteInputComponent: typeof RemoteInputComponent }).RemoteInputComponent = RemoteInputComponent;
   (window as unknown as { JoystickVisualsComponent: typeof JoystickVisualsComponent }).JoystickVisualsComponent = JoystickVisualsComponent;
   (window as unknown as { AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent }).AimJoystickVisualsComponent = AimJoystickVisualsComponent;
+  (window as unknown as { GridPositionComponent: typeof GridPositionComponent }).GridPositionComponent = GridPositionComponent;
 }

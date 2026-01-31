@@ -11,6 +11,7 @@ const GRENADE_SPEED_PX_PER_SEC = 300;
 const GRENADE_ARC_HEIGHT_PX = 80;
 const GRENADE_SCALE_MIN = 0.5;
 const GRENADE_SCALE_MAX = 1.5;
+const GRENADE_SPIN_SPEED_RAD_PER_SEC = 5;
 
 class GrenadeArcComponent implements Component {
   entity!: Entity;
@@ -42,6 +43,9 @@ class GrenadeArcComponent implements Component {
 
     sprite.sprite.setScale(scale);
     sprite.sprite.y = transform.y - arcHeight;
+    
+    const rotationDirection = this.dirX >= 0 ? 1 : -1;
+    transform.rotation += rotationDirection * GRENADE_SPIN_SPEED_RAD_PER_SEC * (delta / 1000);
 
     if (shadow) {
       shadow.shadow.setScale(scale * 0.8);

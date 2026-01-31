@@ -289,8 +289,8 @@ export default class GameScene extends Phaser.Scene {
     const hudScene = this.scene.get('HudScene') as HudScene;
     const joystick = hudScene.getJoystickEntity();
 
-    const startX = this.grid.cellSize * level.playerStart.x;
-    const startY = this.grid.cellSize * level.playerStart.y;
+    const startX = this.grid.cellSize * level.playerStart.x + this.grid.cellSize / 2;
+    const startY = this.grid.cellSize * level.playerStart.y + this.grid.cellSize / 2;
     const player = this.entityManager.add(createPlayerEntity({
       scene: this,
       x: startX,

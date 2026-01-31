@@ -57,7 +57,7 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   const shadow = entity.add(new ShadowComponent(scene, {
     scale: THROWER_SCALE,
     offsetX: 0,
-    offsetY: 50
+    offsetY: 30
   }));
   shadow.init();
 

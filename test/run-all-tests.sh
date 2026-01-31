@@ -20,6 +20,7 @@ TESTS=(
   "test/tests/test-player-movement.js"
   "test/tests/test-shooting.js"
   "test/tests/test-wall-collision.js"
+  "test/tests/test-player-transition.js"
 )
 
 PASSED=0
