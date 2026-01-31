@@ -254,6 +254,64 @@ scene.time.delayedCall(1000, () => emitter.destroy());
 - `'MULTIPLY'` - Multiplicative blending (darkens)
 - `'SCREEN'` - Screen blending (lightens)
 
+### Depth Management for Direction-Based Rendering
+
+Particle effects should render behind or in front of the player based on facing direction:
+
+```typescript
+update(_delta: number): void {
+  const walk = this.entity.require(WalkComponent);
+  const direction = walk.lastDir;
+  
+  // Facing up = particles behind player, other directions = in front
+  const facingUp = direction === Direction.UpLeft || 
+                   direction === Direction.Up || 
+                   direction === Direction.UpRight;
+  const depth = facingUp ? -1 : 1000;
+  
+  this.smokeParticles.setDepth(depth);
+  this.fireParticles.setDepth(depth + 1); // Fire always above smoke
+}
+```
+
+**Depth values:**
+- `-1` - Behind player (for upward-facing effects)
+- `1000+` - In front of player (for other directions)
+- Layer multiple particle systems by incrementing depth
+
+### Progressive Particle Effects
+
+Create effects that scale with a value (health, ammo, etc.):
+
+```typescript
+update(_delta: number): void {
+  const ammoRatio = this.ammoComponent.getRatio();
+  
+  if (ammoRatio >= 0.75) {
+    // No effect at high ammo
+    this.smokeParticles.emitting = false;
+    this.fireParticles.emitting = false;
+  } else if (ammoRatio > 0) {
+    // Progressive smoke intensity as ammo decreases
+    const intensity = 1 - (ammoRatio / 0.75);
+    this.smokeParticles.frequency = 50 / (1 + intensity * 3);
+    this.smokeParticles.emitting = true;
+    this.fireParticles.emitting = false;
+  } else {
+    // Heavy smoke + fire at 0 ammo
+    this.smokeParticles.frequency = 10;
+    this.smokeParticles.emitting = true;
+    this.fireParticles.emitting = true;
+  }
+}
+```
+
+**Key points:**
+- Use `frequency` to control emission rate (lower = more particles)
+- Combine multiple particle systems for layered effects
+- Adjust depth dynamically based on entity state
+- Effects automatically lessen as value increases
+
 ### Cleanup
 
 Always track and clean up emitters:

@@ -97,12 +97,15 @@ export default class GameScene extends Phaser.Scene {
       this.textures.remove('gradient');
     }
 
-    const canvas = this.textures.createCanvas('gradient', width, height);
+    const MAX_TEXTURE_SIZE = 2048;
+    const canvasWidth = Math.min(width, MAX_TEXTURE_SIZE);
+    const canvasHeight = Math.min(height, MAX_TEXTURE_SIZE);
+
+    const canvas = this.textures.createCanvas('gradient', canvasWidth, canvasHeight);
     const ctx = canvas?.context;
     if (!ctx) return;
 
     this.createStarfieldPattern(ctx, width, height);
-
     canvas?.refresh();
 
     if (this.backgroundImage) {
@@ -111,6 +114,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.backgroundImage = this.add.image(0, 0, 'gradient');
     this.backgroundImage.setOrigin(0, 0);
+    this.backgroundImage.setDisplaySize(width, height);
     this.backgroundImage.setDepth(-1000);
   }
 

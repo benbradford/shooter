@@ -331,6 +331,19 @@ class ProjectileEmitterComponent {
 }
 ```
 
+**Important:** When defining emitter offsets, always scale by `SPRITE_SCALE`:
+
+```typescript
+const emitterOffsets: Record<Direction, EmitterOffset> = {
+  [Direction.Down]: { x: -16 * SPRITE_SCALE, y: 40 * SPRITE_SCALE },
+  [Direction.Up]: { x: 10 * SPRITE_SCALE, y: -30 * SPRITE_SCALE },
+  // ... etc
+};
+```
+
+This ensures projectile emission points are correct regardless of sprite scale.
+```
+
 ### Moving Player Start Position
 
 1. Press **E** to enter editor

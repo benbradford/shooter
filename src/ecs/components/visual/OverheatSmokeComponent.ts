@@ -55,7 +55,7 @@ export class OverheatSmokeComponent implements Component {
     const emitY = transform.y + offset.y;
 
     this.smokeParticles.setPosition(emitX, emitY);
-    this.fireParticles.setPosition(emitX, emitY);
+    this.fireParticles.setPosition(emitX, emitY - 15);
 
     const facingUp = direction === Direction.UpLeft || direction === Direction.Up || direction === Direction.UpRight;
     const depth = facingUp ? -1 : 1000;
