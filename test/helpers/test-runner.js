@@ -34,9 +34,28 @@ export async function runTests({ level, commands = [], tests, screenshotPath }) 
     await page.evaluate(commandCode);
   }
 
+  // Filter tests by name if TEST_NAME env var is set
+  const testNameFilter = process.env.TEST_NAME;
+  const testsToRun = testNameFilter
+    ? tests.filter(testFn => {
+        const testName = `${testFn.given} ${testFn.when} ${testFn.then}`;
+        return testName.toLowerCase().includes(testNameFilter.toLowerCase());
+      })
+    : tests;
+
+  if (testNameFilter && testsToRun.length === 0) {
+    console.log(`No tests found matching: "${testNameFilter}"`);
+    await browser.close();
+    process.exit(1);
+  }
+
+  if (testNameFilter) {
+    console.log(`Running ${testsToRun.length} test(s) matching: "${testNameFilter}"\n`);
+  }
+
   let allPassed = true;
 
-  for (const testFn of tests) {
+  for (const testFn of testsToRun) {
     const result = await testFn(page);
     console.log(`GIVEN: ${result.given}, WHEN: ${result.when}, THEN: ${result.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}`);
     if (!result.passed) allPassed = false;

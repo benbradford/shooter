@@ -63,6 +63,16 @@ export class AmmoComponent implements Component, HudBarDataSource {
     return this.currentAmmo / this.maxAmmo;
   }
 
+  // Visible for testing
+  getCurrentAmmo(): number {
+    return this.currentAmmo;
+  }
+
+  // Visible for testing
+  getMaxAmmo(): number {
+    return this.maxAmmo;
+  }
+
   getRatio(): number {
     return this.getAmmoRatio();
   }

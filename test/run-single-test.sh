@@ -1,6 +1,7 @@
 #!/bin/bash
 
 VERBOSE=false
+TEST_NAME=""
 
 # Parse flags
 while [[ "$1" =~ ^- ]]; do
@@ -17,13 +18,15 @@ while [[ "$1" =~ ^- ]]; do
 done
 
 if [ -z "$1" ]; then
-  echo "Usage: ./test/run-single-test.sh [-v|--verbose] <test-file>"
+  echo "Usage: ./test/run-single-test.sh [-v|--verbose] <test-file> [test-name]"
   echo "Example: ./test/run-single-test.sh test/test-wall-collision.js"
+  echo "Example: ./test/run-single-test.sh test/test-wall-collision.js 'Player moves up'"
   echo "Example: ./test/run-single-test.sh -v test/test-wall-collision.js"
   exit 1
 fi
 
 TEST_FILE="$1"
+TEST_NAME="$2"
 
 if [ ! -f "$TEST_FILE" ]; then
   echo "Error: Test file not found: $TEST_FILE"
@@ -41,11 +44,20 @@ done
 echo "Server ready!"
 echo ""
 
-echo "Running $TEST_FILE..."
-if [ "$VERBOSE" = true ]; then
-  VERBOSE=true node "$TEST_FILE"
+if [ -n "$TEST_NAME" ]; then
+  echo "Running test: $TEST_NAME from $TEST_FILE..."
+  if [ "$VERBOSE" = true ]; then
+    VERBOSE=true TEST_NAME="$TEST_NAME" node "$TEST_FILE"
+  else
+    TEST_NAME="$TEST_NAME" node "$TEST_FILE"
+  fi
 else
-  node "$TEST_FILE"
+  echo "Running $TEST_FILE..."
+  if [ "$VERBOSE" = true ]; then
+    VERBOSE=true node "$TEST_FILE"
+  else
+    node "$TEST_FILE"
+  fi
 fi
 TEST_EXIT=$?
 

@@ -2,14 +2,55 @@
 
 ## Overview
 
-Automated browser tests using Puppeteer. Tests simulate real user input and verify game behavior.
+Automated browser tests using Puppeteer with custom shell script runner. Tests simulate real user input and verify game behavior.
+
+## Why Custom Test Runner (Not Jest)
+
+We use a custom shell script approach instead of Jest for several reasons:
+
+**Simplicity:**
+- No complex configuration needed
+- No experimental Node features (Jest ES modules support is experimental)
+- Shell scripts are straightforward and easy to understand
+
+**Reliability:**
+- Direct Puppeteer control without abstraction layers
+- jest-puppeteer server management is flaky
+- Current approach works consistently across all platforms
+
+**Flexibility:**
+- Easy to run individual tests or all tests
+- Simple to add new test files (auto-discovered by `find`)
+- No framework lock-in
+
+**Maintenance:**
+- Fewer dependencies to manage
+- No breaking changes from test framework updates
+- Clear separation between test runner and test logic
+
+The custom approach is ~100 lines of shell script vs hundreds of lines of Jest configuration and workarounds.
 
 ## Running Tests
 
 ```bash
 npm test                                              # Run all tests
-./test/run-single-test.sh test/tests/test-name.js   # Run single test
+./test/run-single-test.sh test/tests/test-name.js   # Run single test file
+./test/run-single-test.sh test/tests/test-name.js "keyword"  # Run tests matching keyword
 ```
+
+**Examples:**
+```bash
+# Run all ammo tests
+./test/run-single-test.sh test/tests/player/test-ammo-system.js
+
+# Run only tests with "overheat" in the name
+./test/run-single-test.sh test/tests/player/test-ammo-system.js "overheat"
+
+# Run only tests with "fires once"
+./test/run-single-test.sh test/tests/player/test-ammo-system.js "fires once"
+```
+
+**Tip:** When fixing failing tests, run them one at a time using the keyword filter. This helps you focus on one issue at a time.
 
 **⚠️ CRITICAL: Always run the test after making ANY change to verify it works.**
 
@@ -173,6 +214,57 @@ const testShooting = test(
   }
 );
 ```
+
+## Best Practices
+
+### Don't Duplicate Magic Numbers
+
+**Always export constants from source code and use them in tests.** This prevents tests from breaking when you tune game values.
+
+**DO ✅**
+```typescript
+// In src/ecs/entities/player/PlayerEntity.ts
+export const PLAYER_MAX_AMMO = 25;
+
+// In test
+const maxAmmo = await page.evaluate(() => window.PLAYER_MAX_AMMO);
+const ammo = await page.evaluate(() => {
+  const player = scene.entityManager.getFirst('player');
+  return player.get(window.AmmoComponent).getCurrentAmmo();
+});
+return ammo === maxAmmo - 1;  // Test adapts to config changes
+```
+
+**DON'T ❌**
+```typescript
+// Hardcoded value in test
+return ammo === 24;  // Breaks if PLAYER_MAX_AMMO changes
+```
+
+**Common constants to export:**
+- `PLAYER_MAX_AMMO` - Max ammo capacity
+- `INITIAL_AIM_WAIT_TIME_MS` - First-shot delay
+- `PLAYER_FIRE_COOLDOWN_MS` - Time between shots
+- `PLAYER_MAX_HEALTH` - Max health
+
+**How to expose constants:**
+1. Export from source file: `export const MY_CONSTANT = 100;`
+2. Import in `src/main.ts`
+3. Add to window in test mode: `(window as unknown as { MY_CONSTANT: number }).MY_CONSTANT = MY_CONSTANT;`
+4. Use in tests: `const value = await page.evaluate(() => window.MY_CONSTANT);`
+
+### Mark Test-Only Code
+
+When adding methods or getters solely for testing, mark them with a comment:
+
+```typescript
+// Visible for testing
+getCurrentAmmo(): number {
+  return this.currentAmmo;
+}
+```
+
+This signals that the method exists for test access, not production use.
 
 ## Dos and Don'ts
 

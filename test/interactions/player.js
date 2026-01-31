@@ -48,6 +48,20 @@ function fireWeapon(aimDx, aimDy, durationMs) {
   });
 }
 
+function fireSingleShot(aimDx, aimDy) {
+  const remoteInput = enableRemoteInput();
+  const waitTime = window.INITIAL_AIM_WAIT_TIME_MS + 50;
+  
+  remoteInput.setAim(aimDx, aimDy, true);
+  
+  return new Promise(resolve => {
+    setTimeout(() => {
+      remoteInput.setAim(0, 0, false);
+      resolve();
+    }, waitTime);
+  });
+}
+
 function getBulletCount() {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const bullets = scene.entityManager.getByType('bullet');
@@ -231,3 +245,35 @@ window.ProjectileComponent = window.ProjectileComponent || (() => {
   const { ProjectileComponent } = window;
   return ProjectileComponent;
 })();
+
+function holdFire(aimDx, aimDy, durationMs) {
+  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+  const player = scene.entityManager.getFirst('player');
+  const remoteInput = player.get(window.RemoteInputComponent);
+  
+  remoteInput.setAimInput(aimDx, aimDy);
+  remoteInput.setFirePressed(true);
+  
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      remoteInput.setFirePressed(false);
+      resolve();
+    }, durationMs);
+  });
+}
+
+function waitForFullAmmo() {
+  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+  const player = scene.entityManager.getFirst('player');
+  const ammo = player.get(window.AmmoComponent);
+  const maxAmmo = window.PLAYER_MAX_AMMO;
+  
+  return new Promise((resolve) => {
+    const checkInterval = setInterval(() => {
+      if (ammo.getCurrentAmmo() >= maxAmmo) {
+        clearInterval(checkInterval);
+        resolve();
+      }
+    }, 100);
+  });
+}

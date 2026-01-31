@@ -3,7 +3,9 @@ import GameScene from "./scenes/GameScene";
 import EditorScene from "./scenes/EditorScene";
 import LevelSelectorScene from "./scenes/LevelSelectorScene";
 import HudScene from "./scenes/HudScene";
-import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AmmoComponent, OverheatSmokeComponent } from "./ecs";
+import { PLAYER_MAX_AMMO } from "./ecs/entities/player/PlayerEntity";
+import { INITIAL_AIM_WAIT_TIME_MS } from "./ecs/components/combat/ProjectileEmitterComponent";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -31,4 +33,8 @@ if (params.get('test') === 'true') {
   (window as unknown as { AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent }).AimJoystickVisualsComponent = AimJoystickVisualsComponent;
   (window as unknown as { GridPositionComponent: typeof GridPositionComponent }).GridPositionComponent = GridPositionComponent;
   (window as unknown as { ProjectileComponent: typeof ProjectileComponent }).ProjectileComponent = ProjectileComponent;
+  (window as unknown as { AmmoComponent: typeof AmmoComponent }).AmmoComponent = AmmoComponent;
+  (window as unknown as { OverheatSmokeComponent: typeof OverheatSmokeComponent }).OverheatSmokeComponent = OverheatSmokeComponent;
+  (window as unknown as { PLAYER_MAX_AMMO: number }).PLAYER_MAX_AMMO = PLAYER_MAX_AMMO;
+  (window as unknown as { INITIAL_AIM_WAIT_TIME_MS: number }).INITIAL_AIM_WAIT_TIME_MS = INITIAL_AIM_WAIT_TIME_MS;
 }

@@ -6,7 +6,7 @@ import { Direction } from '../../../constants/Direction';
 import type { AmmoComponent } from './AmmoComponent';
 import type { InputComponent } from '../input/InputComponent';
 
-const INITIAL_AIM_WAIT_TIME_MS = 160;
+export const INITIAL_AIM_WAIT_TIME_MS = 160;
 
 export type EmitterOffset = {
   x: number;
