@@ -54,6 +54,55 @@ npm test                                              # Run all tests
 
 **⚠️ CRITICAL: Always run the test after making ANY change to verify it works.**
 
+## Lessons Learned
+
+### Test Isolation is Critical
+
+Tests can fail due to state bleeding from previous tests. Always ensure clean state:
+
+```javascript
+// Wait for full ammo before starting test
+await page.evaluate(() => waitForFullAmmo());
+```
+
+Without this, a test that fires bullets will leave the game with low ammo, causing the next test to fail.
+
+### Export Game Constants
+
+Never hardcode game values in tests. Export them and use dynamically:
+
+```javascript
+// In src/ecs/entities/player/PlayerEntity.ts
+export const PLAYER_MAX_AMMO = 25;
+
+// In test
+const maxAmmo = await page.evaluate(() => window.PLAYER_MAX_AMMO);
+return ammo === maxAmmo - 1;  // Adapts to config changes
+```
+
+This prevents tests from breaking when you tune game balance.
+
+### Single-Shot vs Continuous Fire
+
+- `fireSingleShot(dx, dy)` - Fires exactly once (waits INITIAL_AIM_WAIT_TIME_MS + 50ms, releases before cooldown)
+- `fireWeapon(dx, dy, duration)` / `holdFire(dx, dy, duration)` - Holds fire button for duration (fires multiple times)
+
+Use the right helper for your test case.
+
+### Debug One Test at a Time
+
+When tests fail, use keyword filtering to run just one:
+
+```bash
+./test/run-single-test.sh test/tests/player/test-ammo-system.js "fires once"
+```
+
+This is much faster than running the entire suite repeatedly.
+
+### Add State Management Helpers
+
+Create helpers like `waitForFullAmmo()` to manage game state between tests. This is better than fixed delays because it waits exactly as long as needed.
+
 ## Creating a New Test
 
 ### 1. Create Test Level (if needed)
