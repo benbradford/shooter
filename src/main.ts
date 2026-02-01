@@ -4,7 +4,7 @@ import EditorScene from "./scenes/EditorScene";
 import LevelSelectorScene from "./scenes/LevelSelectorScene";
 import HudScene from "./scenes/HudScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AmmoComponent, OverheatSmokeComponent } from "./ecs";
-import { PLAYER_MAX_AMMO } from "./ecs/entities/player/PlayerEntity";
+import { PLAYER_MAX_AMMO, PLAYER_FIRE_COOLDOWN_MS } from "./ecs/entities/player/PlayerEntity";
 import { INITIAL_AIM_WAIT_TIME_MS } from "./ecs/components/combat/ProjectileEmitterComponent";
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -37,4 +37,5 @@ if (params.get('test') === 'true') {
   (window as unknown as { OverheatSmokeComponent: typeof OverheatSmokeComponent }).OverheatSmokeComponent = OverheatSmokeComponent;
   (window as unknown as { PLAYER_MAX_AMMO: number }).PLAYER_MAX_AMMO = PLAYER_MAX_AMMO;
   (window as unknown as { INITIAL_AIM_WAIT_TIME_MS: number }).INITIAL_AIM_WAIT_TIME_MS = INITIAL_AIM_WAIT_TIME_MS;
+  (window as unknown as { PLAYER_FIRE_COOLDOWN_MS: number }).PLAYER_FIRE_COOLDOWN_MS = PLAYER_FIRE_COOLDOWN_MS;
 }
