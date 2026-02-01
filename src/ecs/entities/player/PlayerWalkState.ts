@@ -1,4 +1,4 @@
-import type { IState } from '../../../ecs/systems/state/IState';
+import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { WalkComponent } from '../../components/movement/WalkComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';

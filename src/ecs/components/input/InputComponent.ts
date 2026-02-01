@@ -5,7 +5,7 @@ import type { TouchJoystickComponent } from './TouchJoystickComponent';
 import type { AimJoystickComponent } from './AimJoystickComponent';
 import type { ControlModeComponent } from './ControlModeComponent';
 import { RemoteInputComponent } from './RemoteInputComponent';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 
@@ -253,7 +253,7 @@ export class InputComponent implements Component {
       const cellData = this.grid.getCell(cell.col, cell.row);
       
       // Block if cell layer is higher than both entities
-      if (cellData && cellData.layer > minLayer) {
+      if (cellData && this.grid.getLayer(cellData) > minLayer) {
         return false;
       }
     }

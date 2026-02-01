@@ -1,4 +1,4 @@
-import type { IState } from '../../../ecs/systems/state/IState';
+import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { TransformComponent } from '../../components/core/TransformComponent';

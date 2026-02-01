@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
-import type { IStateEnterProps } from '../ecs/systems/state/IState';
+import type { IStateEnterProps } from '../systems/state/IState';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
@@ -376,7 +376,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
       const row = robotCell.row + offset.row;
       const cell = grid.getCell(col, row);
 
-      if (cell?.layer === 0 && !grid.isOccupied(col, row)) {
+      if (cell && grid.getLayer(cell) === 0 && !grid.isOccupied(col, row)) {
         patrol.waypoints.push({ col, row });
         this.renderWaypoints();
         return;

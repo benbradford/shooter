@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 
 type LineOfSightProps = {
   range: number;
@@ -77,7 +77,7 @@ export class LineOfSightComponent implements Component {
       const cell = this.grid.getCell(col, row);
 
       // Block line of sight only if cell layer is higher than both entities
-      if (cell && cell.layer > minLayer) {
+      if (cell && this.grid.getLayer(cell) > minLayer) {
         return false;
       }
     }

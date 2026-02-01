@@ -12,7 +12,7 @@ import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getBugBaseDifficultyConfig } from './BugBaseDifficulty';
 import type { EnemyDifficulty } from '../../../constants/EnemyDifficulty';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 
 export function createBugBaseEntity(
   scene: Phaser.Scene,

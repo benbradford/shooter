@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import { StateMachine } from '../../../ecs/systems/state/StateMachine';
+import { StateMachine } from '../../../systems/state/StateMachine';
 
 export class StateMachineComponent implements Component {
   entity!: Entity;

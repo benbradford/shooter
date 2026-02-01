@@ -16,7 +16,7 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { RobotHitParticlesComponent } from '../../components/visual/RobotHitParticlesComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
-import { StateMachine } from '../../../ecs/systems/state/StateMachine';
+import { StateMachine } from '../../../systems/state/StateMachine';
 import { RobotPatrolState } from './RobotPatrolState';
 import { RobotAlertState } from './RobotAlertState';
 import { RobotStalkingState } from './RobotStalkingState';
@@ -24,7 +24,7 @@ import { RobotRetreatState } from './RobotRetreatState';
 import { RobotFireballState } from './RobotFireballState';
 import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 import { getRobotDifficultyConfig } from './RobotDifficulty';
 import type { EnemyDifficulty } from '../../../constants/EnemyDifficulty';
 
@@ -75,7 +75,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
   // Set initial layer based on spawn cell
   const spawnCell = grid.getCell(startCell.col, startCell.row);
   if (spawnCell) {
-    gridPos.currentLayer = spawnCell.layer;
+    gridPos.currentLayer = grid.getLayer(spawnCell);
   }
 
   entity.add(new GridCollisionComponent(grid));

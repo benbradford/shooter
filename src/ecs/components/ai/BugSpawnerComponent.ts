@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 
 const ACTIVATION_RANGE_PX = 750;
 const MAX_BUGS = 6;
@@ -58,7 +58,7 @@ export class BugSpawnerComponent implements Component {
           
           const validDirections = directions.filter(dir => {
             const cell = this.grid.getCell(dir.col, dir.row);
-            return cell?.layer === baseLayer;
+            return cell && this.grid.getLayer(cell) === baseLayer;
           });
           
           if (validDirections.length > 0) {

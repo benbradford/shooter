@@ -29,7 +29,7 @@ const testTransitionEntry = test(
       return {
         col: gridPos.currentCell.col,
         row: gridPos.currentCell.row,
-        isTransition: cell?.isTransition ?? false
+        isTransition: cell ? scene.grid.isTransition(cell) : false
       };
     });
     return reached && result.isTransition && result.col === 4 && result.row === 1;

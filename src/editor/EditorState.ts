@@ -1,4 +1,4 @@
-import type { IState, IStateEnterProps } from '../ecs/systems/state/IState';
+import type { IState, IStateEnterProps } from '../systems/state/IState';
 import type EditorScene from '../scenes/EditorScene';
 
 export abstract class EditorState<TData = void> implements IState<TData> {

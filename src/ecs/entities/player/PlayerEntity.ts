@@ -24,10 +24,10 @@ import { VignetteHealthComponent } from '../../components/visual/VignetteHealthC
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
-import { StateMachine } from '../../../ecs/systems/state/StateMachine';
+import { StateMachine } from '../../../systems/state/StateMachine';
 import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 
 // Player configuration constants
 import { SPRITE_SCALE } from '../../../constants/GameConstants';

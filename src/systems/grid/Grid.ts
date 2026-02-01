@@ -1,19 +1,11 @@
 import Phaser from "phaser";
-import type { Entity } from "../Entity";
+import type { Entity } from "../../ecs/Entity";
 import type GameScene from "../../scenes/GameScene";
-import type { EntityManager } from "../EntityManager";
-import { ProjectileEmitterComponent } from "../components/combat/ProjectileEmitterComponent";
-
-const LAYER1_FILL_COLOR = 0x4a4a5e;
-const LAYER1_EDGE_COLOR = 0x2a2a3e;
-const LAYER1_BRICK_FILL_COLOR = 0x3a3a4e;
-
-export type CellData = {
-  layer: number;
-  isTransition: boolean;
-  occupants: Set<Entity>;
-  backgroundTexture?: string;
-};
+import type { EntityManager } from "../../ecs/EntityManager";
+import { ProjectileEmitterComponent } from "../../ecs/components/combat/ProjectileEmitterComponent";
+import type { CellData } from './CellData';
+import { GridRenderer } from './GridRenderer';
+export type { CellProperty, CellData } from './CellData';
 
 export class Grid {
   public width: number; // columns
@@ -24,6 +16,7 @@ export class Grid {
   private readonly backgroundSprites: Map<string, Phaser.GameObjects.Image> = new Map();
   private readonly layer1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private readonly layerNeg1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+  private readonly renderer: GridRenderer;
   private isGridDebugEnabled: boolean = false;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
@@ -58,6 +51,7 @@ export class Grid {
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
+    this.renderer = new GridRenderer(scene, this);
 
     // Initialize cells
     this.cells = [];
@@ -65,8 +59,7 @@ export class Grid {
       this.cells[row] = [];
       for (let col = 0; col < width; col++) {
         this.cells[row][col] = {
-          layer: 0,
-          isTransition: false,
+          properties: new Set(),
           occupants: new Set()
         };
       }
@@ -97,6 +90,21 @@ export class Grid {
   }
 
   /**
+   * Helper to get layer number from properties
+   */
+  getLayer(cell: CellData): number {
+    if (cell.properties.has('wall') || cell.properties.has('stairs')) return 1;
+    return 0;
+  }
+
+  /**
+   * Helper to check if cell is a transition
+   */
+  isTransition(cell: CellData): boolean {
+    return cell.properties.has('stairs');
+  }
+
+  /**
    * Convert world coordinates to cell indices
    */
   worldToCell(x: number, y: number) {
@@ -117,59 +125,51 @@ export class Grid {
 
     const cell = this.cells[row][col];
     const oldTexture = cell.backgroundTexture;
-    const oldLayer = cell.layer;
+    const oldLayer = this.getLayer(cell);
 
-    this.cells[row][col] = { ...cell, ...data };
+    // Merge properties if provided
+    if (data.properties) {
+      cell.properties = new Set(data.properties);
+    }
+    if (data.backgroundTexture !== undefined) {
+      cell.backgroundTexture = data.backgroundTexture;
+    }
+
+    const newLayer = this.getLayer(cell);
 
     // Handle layer rendering
-    if (data.layer !== undefined) {
-      const key = `${col},${row}`;
+    const key = `${col},${row}`;
 
-      if (oldLayer !== data.layer) {
-        const oldLayer1Sprite = this.layer1Sprites.get(key);
-        if (oldLayer1Sprite) {
-          oldLayer1Sprite.destroy();
-          this.layer1Sprites.delete(key);
-        }
-
-        const oldLayerNeg1Sprite = this.layerNeg1Sprites.get(key);
-        if (oldLayerNeg1Sprite) {
-          oldLayerNeg1Sprite.destroy();
-          this.layerNeg1Sprites.delete(key);
-        }
+    if (oldLayer !== newLayer) {
+      const oldLayer1Sprite = this.layer1Sprites.get(key);
+      if (oldLayer1Sprite) {
+        oldLayer1Sprite.destroy();
+        this.layer1Sprites.delete(key);
       }
 
-      if (data.layer === 1) {
-        const worldPos = this.cellToWorld(col, row);
-        const rect = this.scene.add.rectangle(
-          worldPos.x + this.cellSize / 2,
-          worldPos.y + this.cellSize / 2,
-          this.cellSize,
-          this.cellSize,
-          LAYER1_FILL_COLOR,
-          0.9
-        );
-        rect.setDepth(-50);
-        this.layer1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
-      } else if (data.layer === -1) {
-        const worldPos = this.cellToWorld(col, row);
-        const rect = this.scene.add.rectangle(
-          worldPos.x + this.cellSize / 2,
-          worldPos.y + this.cellSize / 2,
-          this.cellSize,
-          this.cellSize,
-          0xaaaaaa,
-          0.25
-        );
-        rect.setDepth(-50);
-        this.layerNeg1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
+      const oldLayerNeg1Sprite = this.layerNeg1Sprites.get(key);
+      if (oldLayerNeg1Sprite) {
+        oldLayerNeg1Sprite.destroy();
+        this.layerNeg1Sprites.delete(key);
       }
+    }
+
+    if (newLayer === 1) {
+      const worldPos = this.cellToWorld(col, row);
+      const rect = this.scene.add.rectangle(
+        worldPos.x + this.cellSize / 2,
+        worldPos.y + this.cellSize / 2,
+        this.cellSize,
+        this.cellSize,
+        0x4a4a5e,
+        0.9
+      );
+      rect.setDepth(-50);
+      this.layer1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
     }
 
     // Handle background texture changes
     if (data.backgroundTexture !== undefined) {
-      const key = `${col},${row}`;
-
       // Remove old sprite if texture changed
       if (oldTexture !== data.backgroundTexture) {
         const oldSprite = this.backgroundSprites.get(key);
@@ -231,173 +231,9 @@ export class Grid {
     }
   }
 
-  /**
-   * Render grid lines for debugging
-   */
   render(entityManager?: EntityManager) {
     this.graphics.clear();
-
-    // Draw transition cell steps
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        const cell = this.cells[row][col];
-        if (cell.layer === 1 && cell.isTransition) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-
-          // Draw steps in bottom 80% (full width, no gradient)
-          const numSteps = 5;
-          const startY = y + (this.cellSize * 0.2);
-          const stepHeight = (this.cellSize * 0.8) / numSteps;
-
-          for (let step = 0; step < numSteps; step++) {
-            const stepY = startY + step * stepHeight;
-
-            // Step tread (horizontal surface)
-            this.graphics.fillStyle(LAYER1_FILL_COLOR, 1);
-            this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
-
-            // Step front (horizontal line)
-            this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(
-              x, stepY,
-              x + this.cellSize, stepY
-            ));
-          }
-        }
-      }
-    }
-
-    // Always draw layer 1 edges
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        const cell = this.cells[row][col];
-        if (cell.layer === 1) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const edgeThickness = 8;
-
-          this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
-
-          // Right edge
-          if (col < this.width - 1 && this.cells[row][col + 1].layer === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(
-              x + this.cellSize, y,
-              x + this.cellSize, y + this.cellSize
-            ));
-          }
-
-          // Left edge
-          if (col > 0 && this.cells[row][col - 1].layer === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(
-              x, y,
-              x, y + this.cellSize
-            ));
-          }
-
-          // Top edge
-          if (row > 0 && this.cells[row - 1][col].layer === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(
-              x, y,
-              x + this.cellSize, y
-            ));
-          }
-
-          // Bottom edge - brick pattern (skip if current cell is transition)
-          if (row < this.height - 1 && this.cells[row + 1][col].layer === 0 && !cell.isTransition) {
-            const topBarY = y + (this.cellSize * 0.2);
-
-            // Draw horizontal line at top (20% down)
-            this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(
-              x, topBarY,
-              x + this.cellSize, topBarY
-            ));
-
-            // Draw brick pattern in bottom 80%
-            const brickHeight = 10;
-            const brickWidth = this.cellSize / 3;
-            let currentY = topBarY + 4;
-            let rowIndex = 0;
-
-            while (currentY + brickHeight <= y + this.cellSize) {
-              const offset = (rowIndex % 2) * (brickWidth / 2);
-
-              for (let brickX = x - offset; brickX < x + this.cellSize + brickWidth; brickX += brickWidth) {
-                const startX = Math.max(x, brickX);
-                const endX = Math.min(x + this.cellSize, brickX + brickWidth - 2);
-
-                if (startX < endX) {
-                  // Fill brick
-                  this.graphics.fillStyle(LAYER1_BRICK_FILL_COLOR, 1);
-                  this.graphics.fillRect(startX, currentY, endX - startX, brickHeight);
-
-                  // Outline brick
-                  this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
-                  this.graphics.strokeRect(startX, currentY, endX - startX, brickHeight);
-                }
-              }
-
-              currentY += brickHeight + 2;
-              rowIndex++;
-            }
-          }
-        }
-      }
-    }
-
-    // Draw shadows on right and bottom cells adjacent to layer 1
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        const cell = this.cells[row][col];
-        if (cell.layer === 1) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const shadowWidth = 24;
-          const shadowSteps = 8;
-
-          // Shadow on right cell (if layer 0)
-          if (col < this.width - 1 && this.cells[row][col + 1].layer === 0) {
-            for (let i = 0; i < shadowSteps; i++) {
-              const alpha = 0.4 * (1 - i / shadowSteps);
-              const stepWidth = shadowWidth / shadowSteps;
-              this.graphics.fillStyle(0x000000, alpha);
-              this.graphics.fillRect(x + this.cellSize + i * stepWidth, y, stepWidth, this.cellSize);
-            }
-          }
-
-          // Shadow on bottom cell (if layer 0)
-          if (row < this.height - 1 && this.cells[row + 1][col].layer === 0) {
-            for (let i = 0; i < shadowSteps; i++) {
-              const alpha = 0.4 * (1 - i / shadowSteps);
-              const stepHeight = shadowWidth / shadowSteps;
-              this.graphics.fillStyle(0x000000, alpha);
-              this.graphics.fillRect(x, y + this.cellSize + i * stepHeight, this.cellSize, stepHeight);
-            }
-          }
-
-          // Diagonal shadow on bottom-right cell (if layer 0)
-          if (col < this.width - 1 && row < this.height - 1 &&
-              this.cells[row + 1][col + 1].layer === 0 &&
-              this.cells[row][col + 1].layer === 0 &&
-              this.cells[row + 1][col].layer === 0) {
-            for (let i = 0; i < shadowSteps; i++) {
-              for (let j = 0; j < shadowSteps; j++) {
-                const alpha = 0.4 * (1 - Math.max(i, j) / shadowSteps);
-                const stepSize = shadowWidth / shadowSteps;
-                this.graphics.fillStyle(0x000000, alpha);
-                this.graphics.fillRect(
-                  x + this.cellSize + i * stepSize,
-                  y + this.cellSize + j * stepSize,
-                  stepSize,
-                  stepSize
-                );
-              }
-            }
-          }
-        }
-      }
-    }
+    this.renderer.render();
 
     if (!this.isGridDebugEnabled) {
       if (this.isSceneDebugEnabled) {
@@ -411,14 +247,15 @@ export class Grid {
         const x = col * this.cellSize;
         const y = row * this.cellSize;
         const cell = this.cells[row][col];
+        const layer = this.getLayer(cell);
 
         let layerAlpha: number;
         let layerColor: number;
 
-        if (cell.layer < 0) {
+        if (layer < 0) {
           layerAlpha = 0.25;
           layerColor = 0xffffff;
-        } else if (cell.layer > 0) {
+        } else if (layer > 0) {
           layerAlpha = 0.4;
           layerColor = 0x000000;
         } else {
@@ -429,7 +266,7 @@ export class Grid {
         this.graphics.fillStyle(layerColor, layerAlpha);
         this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
 
-        if (cell.isTransition) {
+        if (this.isTransition(cell)) {
           this.graphics.fillStyle(0x0000ff, 0.5);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
@@ -512,8 +349,7 @@ export class Grid {
     const newRow: CellData[] = [];
     for (let col = 0; col < this.width; col++) {
       newRow.push({
-        layer: 0,
-        isTransition: false,
+        properties: new Set(),
         occupants: new Set()
       });
     }
@@ -524,8 +360,7 @@ export class Grid {
   addColumn(): void {
     for (let row = 0; row < this.height; row++) {
       this.cells[row].push({
-        layer: 0,
-        isTransition: false,
+        properties: new Set(),
         occupants: new Set()
       });
     }

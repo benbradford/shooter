@@ -1,4 +1,4 @@
-import type { IState } from '../../../ecs/systems/state/IState';
+import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
@@ -6,8 +6,8 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
-import { Pathfinder } from '../../../ecs/systems/Pathfinder';
-import type { Grid } from '../../../ecs/systems/Grid';
+import { Pathfinder } from '../../../systems/Pathfinder';
+import type { Grid } from '../../../systems/grid/Grid';
 import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
 
 export class ThrowerRunningState implements IState {
@@ -104,7 +104,7 @@ export class ThrowerRunningState implements IState {
         const row = playerCell.row + dRow;
         
         const cell = this.grid.getCell(col, row);
-        if (!cell || cell.layer > playerGridPos.currentLayer) continue;
+        if (!cell || this.grid.getLayer(cell) > playerGridPos.currentLayer) continue;
         
         const hasWallBetween = this.checkWallBetween(col, row, playerCell.col, playerCell.row, playerGridPos.currentLayer);
         if (!hasWallBetween) continue;
@@ -135,7 +135,7 @@ export class ThrowerRunningState implements IState {
       const checkRow = Math.round(row1 + dy * t);
       
       const cell = this.grid.getCell(checkCol, checkRow);
-      if (cell && cell.layer > layer) {
+      if (cell && this.grid.getLayer(cell) > layer) {
         return true;
       }
     }

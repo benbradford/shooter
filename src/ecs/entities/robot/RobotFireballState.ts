@@ -1,6 +1,6 @@
-import type { IState } from '../../../ecs/systems/state/IState';
+import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
@@ -120,7 +120,7 @@ export class RobotFireballState implements IState {
     const grid = gameScene.getGrid();
     const robotCell = grid.worldToCell(transform.x, transform.y);
     const robotCellData = grid.getCell(robotCell.col, robotCell.row);
-    const robotLayer = robotCellData?.layer ?? 0;
+    const robotLayer = robotCellData ? grid.getLayer(robotCellData) : 0;
 
     const fireball = createFireballEntity({
       scene: this.scene,

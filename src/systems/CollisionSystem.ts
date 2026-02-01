@@ -2,7 +2,7 @@ import type { Entity } from '../ecs/Entity';
 import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
-import type { Grid } from '../ecs/systems/Grid';
+import type { Grid } from './grid/Grid';
 
 export class CollisionSystem {
   private readonly scene: Phaser.Scene;

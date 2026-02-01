@@ -1,4 +1,4 @@
-import type { IState } from '../../../ecs/systems/state/IState';
+import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { dirFromDelta } from '../../../constants/Direction';
 import type Phaser from 'phaser';

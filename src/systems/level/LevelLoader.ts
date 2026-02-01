@@ -1,8 +1,9 @@
+import type { CellProperty } from '../grid/Grid';
+
 export type LevelCell = {
   col: number;
   row: number;
-  layer?: number;
-  isTransition?: boolean;
+  properties?: CellProperty[];
   backgroundTexture?: string;
 }
 

@@ -11,14 +11,14 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
-import { StateMachine } from '../../../ecs/systems/state/StateMachine';
+import { StateMachine } from '../../../systems/state/StateMachine';
 import { ThrowerIdleState } from './ThrowerIdleState';
 import { ThrowerRunningState } from './ThrowerRunningState';
 import { ThrowerThrowingState } from './ThrowerThrowingState';
 import { ThrowerHitState } from './ThrowerHitState';
 import { ThrowerDeathState } from './ThrowerDeathState';
 import { getThrowerDifficultyConfig, type ThrowerDifficulty } from './ThrowerDifficultyConfig';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 
 const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
 const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: 0, width: 32, height: 32 };

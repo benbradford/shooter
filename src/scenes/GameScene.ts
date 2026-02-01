@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Grid } from "../ecs/systems/Grid";
+import { Grid } from "../systems/grid/Grid";
 import { LevelLoader, type LevelData, type BackgroundConfig } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
 import type HudScene from "./HudScene";
@@ -216,8 +216,7 @@ export default class GameScene extends Phaser.Scene {
 
     for (const cell of level.cells) {
       this.grid.setCell(cell.col, cell.row, {
-        layer: cell.layer ?? 0,
-        isTransition: cell.isTransition ?? false,
+        properties: new Set(cell.properties ?? []),
         backgroundTexture: cell.backgroundTexture
       });
     }
@@ -300,7 +299,7 @@ export default class GameScene extends Phaser.Scene {
         const gridPos = player.get(GridPositionComponent);
         if (!gridPos) return;
         const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
-        const fromTransition = playerCell?.isTransition ?? false;
+        const fromTransition = playerCell ? this.grid.isTransition(playerCell) : false;
 
         const bullet = createBulletEntity({
           scene: this,

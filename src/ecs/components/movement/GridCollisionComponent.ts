@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
 import { WalkComponent } from './WalkComponent';
@@ -47,43 +47,46 @@ export class GridCollisionComponent implements Component {
     }
 
     // Always allow movement between transition cells
-    if (fromCell.isTransition && toCell.isTransition) {
+    if (this.grid.isTransition(fromCell) && this.grid.isTransition(toCell)) {
       return true;
     }
 
     // Block movement into layer 1 cells that have layer 0 below (unless transition or coming from transition)
-    if (toCell.layer === 1 && !toCell.isTransition && !fromCell.isTransition) {
+    const toLayer = this.grid.getLayer(toCell);
+    const fromLayer = this.grid.getLayer(fromCell);
+    
+    if (toLayer === 1 && !this.grid.isTransition(toCell) && !this.grid.isTransition(fromCell)) {
       const cellBelow = this.grid.getCell(toCol, toRow + 1);
-      if (cellBelow?.layer === 0) {
+      if (cellBelow && this.grid.getLayer(cellBelow) === 0) {
         return false;
       }
     }
 
     // If in a transition cell, allow movement to adjacent layers
-    if (fromCell.isTransition) {
+    if (this.grid.isTransition(fromCell)) {
       // Allow movement to transitions
-      if (toCell.isTransition) return true;
+      if (this.grid.isTransition(toCell)) return true;
       
       // Block movement into wall edges (layer 1 with layer 0 below)
-      if (toCell.layer === 1) {
+      if (toLayer === 1) {
         const cellBelow = this.grid.getCell(toCol, toRow + 1);
-        if (cellBelow?.layer === 0) {
+        if (cellBelow && this.grid.getLayer(cellBelow) === 0) {
           return false;
         }
       }
       
       // Allow movement to adjacent layers
-      if (toCell.layer >= fromCell.layer - 1 && toCell.layer <= fromCell.layer + 1) return true;
+      if (toLayer >= fromLayer - 1 && toLayer <= fromLayer + 1) return true;
       return false;
     }
 
     // If moving to a transition cell, allow from any direction
-    if (toCell.isTransition) {
+    if (this.grid.isTransition(toCell)) {
       return true;
     }
 
     // Normal cell to normal cell: must be same layer (no layer changes except via transition)
-    if (toCell.layer !== fromCell.layer) return false;
+    if (toLayer !== fromLayer) return false;
 
     // Block diagonal movement through corners
     if (fromCol !== toCol && fromRow !== toRow) {
@@ -91,8 +94,8 @@ export class GridCollisionComponent implements Component {
       const cellY = this.grid.getCell(fromCol, toRow);
       
       // Block if EITHER intermediate cell is a different layer
-      if (cellX && cellX.layer !== fromCell.layer && !cellX.isTransition) return false;
-      if (cellY && cellY.layer !== fromCell.layer && !cellY.isTransition) return false;
+      if (cellX && this.grid.getLayer(cellX) !== fromLayer && !this.grid.isTransition(cellX)) return false;
+      if (cellY && this.grid.getLayer(cellY) !== fromLayer && !this.grid.isTransition(cellY)) return false;
     }
 
     return true;
@@ -126,17 +129,18 @@ export class GridCollisionComponent implements Component {
     const prevCenterCellData = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
     
     // Check if ANY previously occupied cell was a transition
-    let wasInTransition = prevCenterCellData?.isTransition ?? false;
-    let minTransitionLayer = prevCenterCellData?.layer ?? gridPos.currentLayer;
-    let maxTransitionLayer = prevCenterCellData?.layer ?? gridPos.currentLayer;
+    let wasInTransition = prevCenterCellData ? this.grid.isTransition(prevCenterCellData) : false;
+    let minTransitionLayer = prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer;
+    let maxTransitionLayer = prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer;
     
     for (let row = prevTopLeftCell.row; row <= prevBottomRightCell.row; row++) {
       for (let col = prevTopLeftCell.col; col <= prevBottomRightCell.col; col++) {
         const cell = this.grid.getCell(col, row);
-        if (cell?.isTransition) {
+        if (cell && this.grid.isTransition(cell)) {
           wasInTransition = true;
-          minTransitionLayer = Math.min(minTransitionLayer, cell.layer);
-          maxTransitionLayer = Math.max(maxTransitionLayer, cell.layer);
+          const cellLayer = this.grid.getLayer(cell);
+          minTransitionLayer = Math.min(minTransitionLayer, cellLayer);
+          maxTransitionLayer = Math.max(maxTransitionLayer, cellLayer);
         }
       }
     }
@@ -145,10 +149,11 @@ export class GridCollisionComponent implements Component {
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
         const cell = this.grid.getCell(col, row);
-        if (cell?.isTransition) {
+        if (cell && this.grid.isTransition(cell)) {
           wasInTransition = true;
-          minTransitionLayer = Math.min(minTransitionLayer, cell.layer);
-          maxTransitionLayer = Math.max(maxTransitionLayer, cell.layer);
+          const cellLayer = this.grid.getLayer(cell);
+          minTransitionLayer = Math.min(minTransitionLayer, cellLayer);
+          maxTransitionLayer = Math.max(maxTransitionLayer, cellLayer);
         }
       }
     }
@@ -160,7 +165,7 @@ export class GridCollisionComponent implements Component {
         allowedLayers.add(layer);
       }
     } else {
-      allowedLayers.add(prevCenterCellData?.layer ?? gridPos.currentLayer);
+      allowedLayers.add(prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer);
     }
 
     // Check each cell the new collision box overlaps
@@ -169,7 +174,7 @@ export class GridCollisionComponent implements Component {
         const cell = this.grid.getCell(col, row);
         
         // Block if any overlapping cell is a different layer (unless it's a transition or allowed)
-        if (cell && !cell.isTransition && !allowedLayers.has(cell.layer)) {
+        if (cell && !this.grid.isTransition(cell) && !allowedLayers.has(this.grid.getLayer(cell))) {
           return true; // blocked
         }
 
@@ -219,7 +224,7 @@ export class GridCollisionComponent implements Component {
       this.previousY = transform.y;
       const cell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
       if (cell) {
-        gridPos.currentLayer = cell.layer;
+        gridPos.currentLayer = this.grid.getLayer(cell);
       }
       return;
     }
@@ -293,8 +298,8 @@ export class GridCollisionComponent implements Component {
     const centerY = transform.y + gridPos.collisionBox.offsetY;
     const centerCell = this.grid.worldToCell(centerX, centerY);
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
-    if (centerCellData && !centerCellData.isTransition) {
-      gridPos.currentLayer = centerCellData.layer;
+    if (centerCellData && !this.grid.isTransition(centerCellData)) {
+      gridPos.currentLayer = this.grid.getLayer(centerCellData);
     }
 
     this.previousX = transform.x;

@@ -1,5 +1,5 @@
-import type { Grid } from './Grid';
-import { GridCellBlocker } from '../components/movement/GridCellBlocker';
+import type { Grid, CellData } from './grid/Grid';
+import { GridCellBlocker } from '../ecs/components/movement/GridCellBlocker';
 
 type PathNode = {
   col: number;
@@ -110,7 +110,7 @@ export class Pathfinder {
       { col: 1, row: 0 },  // Right
     ];
 
-    if (allowDiagonals && !currentCell.isTransition) {
+    if (allowDiagonals && !this.grid.isTransition(currentCell)) {
       directions.push(
         { col: -1, row: -1 }, // Up-Left
         { col: 1, row: -1 },  // Up-Right
@@ -135,8 +135,8 @@ export class Pathfinder {
   }
 
   private getValidNeighbor(
-    currentCell: { layer: number; isTransition: boolean },
-    targetCell: { layer: number; isTransition: boolean; occupants: Set<unknown> },
+    currentCell: CellData,
+    targetCell: CellData,
     dir: { col: number; row: number },
     currentLayer: number,
     newCol: number,
@@ -152,20 +152,22 @@ export class Pathfinder {
 
     const isDiagonal = dir.col !== 0 && dir.row !== 0;
     const isHorizontal = dir.col !== 0 && dir.row === 0;
+    const targetLayer = this.grid.getLayer(targetCell);
+    const currentCellLayer = this.grid.getLayer(currentCell);
 
-    if (targetCell.isTransition) {
-      return { col: newCol, row: newRow, layer: targetCell.layer };
+    if (this.grid.isTransition(targetCell)) {
+      return { col: newCol, row: newRow, layer: targetLayer };
     }
 
-    if (currentCell.isTransition) {
+    if (this.grid.isTransition(currentCell)) {
       if (isHorizontal) {
         return null;
       }
-      return { col: newCol, row: newRow, layer: targetCell.layer };
+      return { col: newCol, row: newRow, layer: targetLayer };
     }
 
     // Block diagonal movement across layer boundaries
-    if (isDiagonal && currentCell.layer !== targetCell.layer) {
+    if (isDiagonal && currentCellLayer !== targetLayer) {
       return null;
     }
 
@@ -177,18 +179,18 @@ export class Pathfinder {
       const sideCell1 = this.grid.getCell(newCol, currentRow);
       const sideCell2 = this.grid.getCell(currentCol, newRow);
       
-      if (sideCell1?.layer !== currentLayer) {
+      if (sideCell1 && this.grid.getLayer(sideCell1) !== currentLayer) {
         return null;
       }
-      if (sideCell2?.layer !== currentLayer) {
+      if (sideCell2 && this.grid.getLayer(sideCell2) !== currentLayer) {
         return null;
       }
     }
 
     // Block movement into wall edges (layer 1 with layer 0 below)
-    if (targetCell.layer === 1) {
+    if (targetLayer === 1) {
       const cellBelow = this.grid.getCell(newCol, newRow + 1);
-      if (cellBelow?.layer === 0) {
+      if (cellBelow && this.grid.getLayer(cellBelow) === 0) {
         if (dir.col !== 0 && dir.row === 0) {
           return null;
         }
@@ -198,7 +200,7 @@ export class Pathfinder {
       }
     }
 
-    if (currentCell.layer !== targetCell.layer && !allowLayerChanges) {
+    if (currentCellLayer !== targetLayer && !allowLayerChanges) {
       return null;
     }
 

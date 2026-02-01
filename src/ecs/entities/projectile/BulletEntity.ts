@@ -5,7 +5,7 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 import { BULLET_DISPLAY_SIZE } from './ProjectileConfig';
 
 const BULLET_DAMAGE = 10;

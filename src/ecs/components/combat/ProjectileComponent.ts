@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
-import type { Grid } from '../../../ecs/systems/Grid';
+import type { Grid, CellData } from '../../../systems/grid/Grid';
 
 export type ProjectileProps = {
   dirX: number;
@@ -63,7 +63,7 @@ export class ProjectileComponent implements Component {
       }
       
       if (this.shouldCheckWallCollision(cellData)) {
-        console.log(`[BULLET] Hit wall at (${cell.col},${cell.row}) layer=${cellData.layer} startLayer=${this.startLayer}`);
+        console.log(`[BULLET] Hit wall at (${cell.col},${cell.row}) layer=${this.grid.getLayer(cellData)} startLayer=${this.startLayer}`);
         this.handleWallCollision(transform, cell);
         return;
       }
@@ -80,9 +80,9 @@ export class ProjectileComponent implements Component {
     }
   }
 
-  private shouldCheckWallCollision(cellData: { layer: number; isTransition: boolean }): boolean {
-    if (!this.blockedByWalls || cellData.isTransition) return false;
-    return cellData.layer > this.startLayer;
+  private shouldCheckWallCollision(cellData: CellData): boolean {
+    if (!this.blockedByWalls || this.grid.isTransition(cellData)) return false;
+    return this.grid.getLayer(cellData) > this.startLayer;
   }
 
   private handleWallCollision(transform: TransformComponent, _cell: { col: number; row: number }): void {

@@ -1,4 +1,4 @@
-import type { IState } from '../../../ecs/systems/state/IState';
+import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
@@ -8,8 +8,8 @@ import { BugHopComponent } from '../../components/movement/BugHopComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
-import type { Grid } from '../../../ecs/systems/Grid';
-import { Pathfinder } from '../../../ecs/systems/Pathfinder';
+import type { Grid } from '../../../systems/grid/Grid';
+import { Pathfinder } from '../../../systems/Pathfinder';
 
 const FRAME_DURATION_MS = 125;
 const ATTACK_RANGE_PX = 128;
@@ -147,9 +147,9 @@ export class BugChaseState implements IState {
   ): void {
     if (gridPos.currentLayer === 1) {
       const cellBelow = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row + 1);
-      if (cellBelow?.layer === 1) {
+      if (cellBelow && this.grid.getLayer(cellBelow) === 1) {
         const cellTwoBelow = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row + 2);
-        if (cellTwoBelow?.layer === 0) {
+        if (cellTwoBelow && this.grid.getLayer(cellTwoBelow) === 0) {
           const playerTransform = this.playerEntity.get(TransformComponent);
           if (playerTransform && playerTransform.y > transform.y) {
             const hop = this.entity.get(BugHopComponent);
@@ -182,7 +182,7 @@ export class BugChaseState implements IState {
     const gridPos = this.entity.get(GridPositionComponent);
     if (gridPos) {
       const targetCell = this.grid.getCell(targetNode.col, targetNode.row);
-      if (targetCell && targetCell.layer !== gridPos.currentLayer) {
+      if (targetCell && this.grid.getLayer(targetCell) !== gridPos.currentLayer) {
         const hop = this.entity.get(BugHopComponent);
         if (hop) {
           let hopCol = targetNode.col;
@@ -191,15 +191,15 @@ export class BugChaseState implements IState {
           const movingDown = targetNode.row > gridPos.currentCell.row;
           const movingUp = targetNode.row < gridPos.currentCell.row;
           
-          if (movingDown && gridPos.currentLayer === 1 && targetCell.layer === 0) {
+          if (movingDown && gridPos.currentLayer === 1 && this.grid.getLayer(targetCell) === 0) {
             const nextCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row + 1);
-            if (nextCell?.layer === 1) {
+            if (nextCell && this.grid.getLayer(nextCell) === 1) {
               hopRow = gridPos.currentCell.row + 2;
               hopCol = gridPos.currentCell.col;
             }
-          } else if (movingUp && gridPos.currentLayer === 0 && targetCell.layer === 1) {
+          } else if (movingUp && gridPos.currentLayer === 0 && this.grid.getLayer(targetCell) === 1) {
             const nextCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row - 1);
-            if (nextCell?.layer === 1) {
+            if (nextCell && this.grid.getLayer(nextCell) === 1) {
               hopRow = gridPos.currentCell.row - 2;
               hopCol = gridPos.currentCell.col;
             }

@@ -56,24 +56,22 @@ export class GridEditorState extends EditorState {
 
     // Reset button
     this.createButton(startX, buttonY, 'Reset', () => {
-      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { layer: 0, isTransition: false });
+      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { properties: new Set() });
     });
 
-    // Layer buttons
-    const layers = [-2, -1, 0, 1, 2];
-    layers.forEach((layer, i) => {
-      this.createButton(startX + buttonSpacing * (i + 1), buttonY, `Layer${layer}`, () => {
-        this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { layer, isTransition: false });
-      });
+    // Wall button (layer 1, not bottom row)
+    this.createButton(startX + buttonSpacing, buttonY, 'Wall', () => {
+      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { properties: new Set(['wall']) });
     });
 
-    // Transition buttons
-    this.createButton(startX + buttonSpacing * 7, buttonY, 'TransUp', () => {
-      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { isTransition: true });
+    // Elevated button (layer 1, bottom row)
+    this.createButton(startX + buttonSpacing * 2, buttonY, 'Elevated', () => {
+      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { properties: new Set(['elevated']) });
     });
 
-    this.createButton(startX + buttonSpacing * 8, buttonY, 'TransDown', () => {
-      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { isTransition: true });
+    // Stairs button (transition)
+    this.createButton(startX + buttonSpacing * 3, buttonY, 'Stairs', () => {
+      this.scene.setCellData(this.selectedCell.col, this.selectedCell.row, { properties: new Set(['stairs']) });
     });
   }
 

@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 import type GameScene from "./GameScene";
 import type HudScene from "./HudScene";
-import type { Grid } from "../ecs/systems/Grid";
+import type { Grid, CellProperty } from "../systems/grid/Grid";
 import type { LevelData, LevelBugBase } from "../systems/level/LevelLoader";
 import type { Entity } from "../ecs/Entity";
 import type { EnemyDifficulty } from "../constants/EnemyDifficulty";
-import { StateMachine } from "../ecs/systems/state/StateMachine";
+import { StateMachine } from "../systems/state/StateMachine";
 import { DefaultEditorState } from "../editor/DefaultEditorState";
 import { GridEditorState } from "../editor/GridEditorState";
 import { ResizeEditorState } from "../editor/ResizeEditorState";
@@ -148,7 +148,7 @@ export default class EditorScene extends Phaser.Scene {
     return gameScene.getGrid();
   }
 
-  setCellData(col: number, row: number, data: { layer?: number; isTransition?: boolean; backgroundTexture?: string }): void {
+  setCellData(col: number, row: number, data: { properties?: Set<CellProperty>; backgroundTexture?: string }): void {
     const grid = this.getGrid();
     grid.setCell(col, row, data);
     grid.render(); // Force re-render to show changes
@@ -162,20 +162,18 @@ export default class EditorScene extends Phaser.Scene {
   private extractGridCells(grid: Grid): Array<{
     col: number;
     row: number;
-    layer?: number;
-    isTransition?: boolean;
+    properties?: CellProperty[];
     backgroundTexture?: string;
   }> {
     const cells = [];
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (cell && (cell.layer !== 0 || cell.isTransition || cell.backgroundTexture)) {
+        if (cell && (cell.properties.size > 0 || cell.backgroundTexture)) {
           cells.push({
             col,
             row,
-            layer: cell.layer === 0 ? undefined : cell.layer,
-            isTransition: cell.isTransition ? cell.isTransition : undefined,
+            properties: cell.properties.size > 0 ? Array.from(cell.properties) : undefined,
             backgroundTexture: cell.backgroundTexture
           });
         }
@@ -273,7 +271,6 @@ export default class EditorScene extends Phaser.Scene {
     const json = JSON.stringify(levelData, null, 2);
 
     // Log to console for easy copy/paste
-    console.log('Level JSON (copy and paste into public/levels/default.json):');
     console.log(json);
 
     // Create download
@@ -289,7 +286,6 @@ export default class EditorScene extends Phaser.Scene {
     this.originalLevelData = JSON.stringify(levelData);
 
     // Log instructions
-    console.log('✓ Level saved to ~/Downloads/default.json');
     console.log('To update the game, run: ./scripts/update-levels.sh');
   }
 
@@ -369,8 +365,7 @@ export default class EditorScene extends Phaser.Scene {
         const nextCell = grid.getCell(c, r + 1);
         if (nextCell) {
           grid.setCell(c, r, {
-            layer: nextCell.layer,
-            isTransition: nextCell.isTransition
+            properties: new Set(nextCell.properties)
           });
         }
       }
@@ -391,8 +386,7 @@ export default class EditorScene extends Phaser.Scene {
         const nextCell = grid.getCell(c + 1, r);
         if (nextCell) {
           grid.setCell(c, r, {
-            layer: nextCell.layer,
-            isTransition: nextCell.isTransition
+            properties: new Set(nextCell.properties)
           });
         }
       }
