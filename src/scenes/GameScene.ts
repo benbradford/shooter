@@ -305,6 +305,28 @@ export default class GameScene extends Phaser.Scene {
     return this.levelData;
   }
 
+  setTheme(theme: 'dungeon' | 'swamp'): void {
+    this.levelData.levelTheme = theme;
+    
+    if (this.background) this.background.destroy();
+    if (this.vignette) this.vignette.destroy();
+    if (this.sceneRenderer) {
+      this.sceneRenderer.destroy();
+    }
+    
+    if (theme === 'dungeon') {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    } else if (theme === 'swamp') {
+      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    }
+    
+    const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
+    this.background = rendered.background;
+    this.vignette = rendered.vignette;
+    
+    this.grid.render();
+  }
+
   private showLevelSelector(): void {
     this.scene.pause();
     this.scene.launch('LevelSelectorScene');

@@ -2,7 +2,6 @@ import { EditorState } from './EditorState';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 
 export class DefaultEditorState extends EditorState {
-  private saveButton!: Phaser.GameObjects.Text;
   private exitButton!: Phaser.GameObjects.Text;
   private gridButton!: Phaser.GameObjects.Text;
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -18,20 +17,8 @@ export class DefaultEditorState extends EditorState {
     // Setup click handler for robot selection
     this.scene.input.on('pointerdown', this.handleClick, this);
 
-    // Save button
-    this.saveButton = this.scene.add.text(centerX - buttonSpacing * 2.5, buttonY, 'Save', {
-      fontSize: '24px',
-      color: '#666666',
-      backgroundColor: '#222222',
-      padding: { x: 20, y: 10 }
-    });
-    this.saveButton.setOrigin(0.5);
-    this.saveButton.setScrollFactor(0);
-    this.saveButton.setDepth(1000);
-    this.buttons.push(this.saveButton);
-
     // Exit button
-    this.exitButton = this.scene.add.text(centerX - buttonSpacing * 1.5, buttonY, 'Exit', {
+    this.exitButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY, 'Exit', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -54,7 +41,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Grid button
-    this.gridButton = this.scene.add.text(centerX - buttonSpacing * 0.5, buttonY, 'Grid', {
+    this.gridButton = this.scene.add.text(centerX - buttonSpacing, buttonY, 'Grid', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -77,7 +64,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Add button
-    const addButton = this.scene.add.text(centerX + buttonSpacing * 0.5, buttonY, 'Add', {
+    const addButton = this.scene.add.text(centerX, buttonY, 'Add', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -100,7 +87,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Texture button
-    const textureButton = this.scene.add.text(centerX + buttonSpacing * 1.5, buttonY, 'Texture', {
+    const textureButton = this.scene.add.text(centerX + buttonSpacing, buttonY, 'Texture', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -123,7 +110,7 @@ export class DefaultEditorState extends EditorState {
     });
 
     // Resize button
-    const resizeButton = this.scene.add.text(centerX + buttonSpacing * 2.5, buttonY, 'Resize', {
+    const resizeButton = this.scene.add.text(centerX + buttonSpacing * 2, buttonY, 'Resize', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -145,54 +132,8 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterResizeMode();
     });
 
-    // Vignette button
-    const vignetteButton = this.scene.add.text(centerX - buttonSpacing * 3.5, buttonY - 80, 'Vignette', {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#333333',
-      padding: { x: 20, y: 10 }
-    });
-    vignetteButton.setOrigin(0.5);
-    vignetteButton.setScrollFactor(0);
-    vignetteButton.setInteractive({ useHandCursor: true });
-    vignetteButton.setDepth(1000);
-    this.buttons.push(vignetteButton);
-
-    vignetteButton.on('pointerover', () => {
-      vignetteButton.setBackgroundColor('#555555');
-    });
-    vignetteButton.on('pointerout', () => {
-      vignetteButton.setBackgroundColor('#333333');
-    });
-    vignetteButton.on('pointerdown', () => {
-      this.scene.enterVignetteMode();
-    });
-
-    // Background button
-    const backgroundButton = this.scene.add.text(centerX - buttonSpacing * 2.5, buttonY - 80, 'Background', {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#333333',
-      padding: { x: 20, y: 10 }
-    });
-    backgroundButton.setOrigin(0.5);
-    backgroundButton.setScrollFactor(0);
-    backgroundButton.setInteractive({ useHandCursor: true });
-    backgroundButton.setDepth(1000);
-    this.buttons.push(backgroundButton);
-
-    backgroundButton.on('pointerover', () => {
-      backgroundButton.setBackgroundColor('#555555');
-    });
-    backgroundButton.on('pointerout', () => {
-      backgroundButton.setBackgroundColor('#333333');
-    });
-    backgroundButton.on('pointerdown', () => {
-      this.scene.enterBackgroundMode();
-    });
-
     // Log button
-    const logButton = this.scene.add.text(centerX + buttonSpacing * 3.5, buttonY, 'Log', {
+    const logButton = this.scene.add.text(centerX + buttonSpacing * 3, buttonY, 'Log', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -213,6 +154,29 @@ export class DefaultEditorState extends EditorState {
     logButton.on('pointerdown', () => {
       this.scene.logLevel();
     });
+
+    // Theme button
+    const themeButton = this.scene.add.text(centerX - buttonSpacing * 3, buttonY, 'Theme', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    themeButton.setOrigin(0.5);
+    themeButton.setScrollFactor(0);
+    themeButton.setInteractive({ useHandCursor: true });
+    themeButton.setDepth(1000);
+    this.buttons.push(themeButton);
+
+    themeButton.on('pointerover', () => {
+      themeButton.setBackgroundColor('#555555');
+    });
+    themeButton.on('pointerout', () => {
+      themeButton.setBackgroundColor('#333333');
+    });
+    themeButton.on('pointerdown', () => {
+      this.scene.cycleTheme();
+    });
   }
 
   onExit(): void {
@@ -222,28 +186,7 @@ export class DefaultEditorState extends EditorState {
   }
 
   onUpdate(_delta: number): void {
-    // Update save button state based on changes
-    const hasChanges = this.scene.hasUnsavedChanges();
-    if (hasChanges) {
-      this.saveButton.setColor('#ffffff');
-      this.saveButton.setBackgroundColor('#333333');
-      if (!this.saveButton.input) {
-        this.saveButton.setInteractive({ useHandCursor: true });
-        this.saveButton.on('pointerover', () => {
-          this.saveButton.setBackgroundColor('#555555');
-        });
-        this.saveButton.on('pointerout', () => {
-          this.saveButton.setBackgroundColor('#333333');
-        });
-        this.saveButton.on('pointerdown', () => {
-          this.scene.saveLevel();
-        });
-      }
-    } else {
-      this.saveButton.setColor('#666666');
-      this.saveButton.setBackgroundColor('#222222');
-      this.saveButton.disableInteractive();
-    }
+    // No update logic needed
   }
 
   private handleClick(): void {

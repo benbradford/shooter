@@ -113,24 +113,9 @@ export class ResizeEditorState extends EditorState {
     const cell = grid.worldToCell(worldX, worldY);
 
     if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
-      // Determine if click is closer to row or column edge
-      const cellWorld = grid.cellToWorld(cell.col, cell.row);
-      const relX = worldX - cellWorld.x;
-      const relY = worldY - cellWorld.y;
-      
-      // If closer to vertical edge, select column; otherwise select row
-      const distToVertEdge = Math.min(relX, grid.cellSize - relX);
-      const distToHorizEdge = Math.min(relY, grid.cellSize - relY);
-      
-      if (distToVertEdge < distToHorizEdge) {
-        // Select column
-        this.selectedCol = relX < grid.cellSize / 2 ? cell.col : cell.col + 1;
-        this.selectedRow = null;
-      } else {
-        // Select row
-        this.selectedRow = relY < grid.cellSize / 2 ? cell.row : cell.row + 1;
-        this.selectedCol = null;
-      }
+      // Simple selection: click selects that row AND column
+      this.selectedRow = cell.row;
+      this.selectedCol = cell.col;
     }
   }
 

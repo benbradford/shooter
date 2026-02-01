@@ -16,6 +16,7 @@ import { AddEditorState } from "../editor/AddEditorState";
 import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
+import { ThemeEditorState } from "../editor/ThemeEditorState";
 import { PatrolComponent } from "../ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
@@ -60,6 +61,15 @@ export default class EditorScene extends Phaser.Scene {
     // Store for restoration
     this.registry.set('editorOriginalBounds', originalBounds);
 
+    // Hide HUD
+    const hudScene = this.scene.get('HudScene') as HudScene;
+    if (hudScene) {
+      hudScene.scene.setVisible(false);
+    }
+
+    // Enable debug grid
+    grid.setGridDebugEnabled(true);
+
     // Title
     const centerX = this.cameras.main.width / 2;
     this.title = this.add.text(centerX, 30, 'LEVEL EDITOR', {
@@ -99,7 +109,8 @@ export default class EditorScene extends Phaser.Scene {
       add: new AddEditorState(this),
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
-      texture: new TextureEditorState(this)
+      texture: new TextureEditorState(this),
+      theme: new ThemeEditorState(this)
     }, 'default');
 
     // Event listeners
@@ -366,7 +377,7 @@ export default class EditorScene extends Phaser.Scene {
 
     // Remove last row by resizing
     grid.removeRow();
-    grid.render();
+    this.updateGridSize();
   }
 
   removeColumn(col: number): void {
@@ -387,27 +398,49 @@ export default class EditorScene extends Phaser.Scene {
 
     // Remove last column by resizing
     grid.removeColumn();
-    grid.render();
+    this.updateGridSize();
   }
 
   addRow(): void {
     const grid = this.getGrid();
     grid.addRow();
-    grid.render();
+    this.updateGridSize();
   }
 
   addColumn(): void {
     const grid = this.getGrid();
     grid.addColumn();
+    this.updateGridSize();
+  }
+
+  private updateGridSize(): void {
+    const gameScene = this.scene.get('game') as GameScene;
+    const grid = this.getGrid();
+    
+    // Update camera bounds
+    const newWidth = grid.width * grid.cellSize;
+    const newHeight = grid.height * grid.cellSize;
+    gameScene.cameras.main.setBounds(-10000, -10000, 20000, 20000);
+    
+    // Update stored bounds for when we exit editor
+    this.registry.set('editorOriginalBounds', {
+      x: 0,
+      y: 0,
+      width: newWidth,
+      height: newHeight
+    });
+    
+    // Re-render grid
     grid.render();
   }
 
-  enterVignetteMode(): void {
-    this.stateMachine.enter('vignette');
+  cycleTheme(): void {
+    this.stateMachine.enter('theme');
   }
 
-  enterBackgroundMode(): void {
-    this.stateMachine.enter('background');
+  setTheme(theme: 'dungeon' | 'swamp'): void {
+    const gameScene = this.scene.get('game') as GameScene;
+    gameScene.setTheme(theme);
   }
 
   enterColorPickerMode(data: { colorKey: string; currentColor: string; onColorSelected: (color: string) => void }): void {
@@ -433,7 +466,10 @@ export default class EditorScene extends Phaser.Scene {
     }
 
     const hudScene = this.scene.get('HudScene') as HudScene;
-    hudScene.setEditorActive(false);
+    if (hudScene) {
+      hudScene.scene.setVisible(true);
+      hudScene.setEditorActive(false);
+    }
 
     this.scene.resume('game');
     this.scene.stop();

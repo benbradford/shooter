@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES = ['dungeon_floor01', 'dungeon_floor02', 'wooden_floor01'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -81,7 +81,7 @@ export class TextureEditorState extends EditorState {
     preview.setScrollFactor(0);
     container.add(preview);
 
-    const label = this.scene.add.text(0, 30, textureName.replace('dungeon_', ''), {
+    const label = this.scene.add.text(0, 30, textureName, {
       fontSize: '12px',
       color: '#ffffff'
     });

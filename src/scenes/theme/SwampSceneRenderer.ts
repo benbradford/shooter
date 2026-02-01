@@ -1,120 +1,105 @@
 import type { Grid } from '../../systems/grid/Grid';
-import type { GameSceneRenderer } from './GameSceneRenderer';
+import { GameSceneRenderer } from './GameSceneRenderer';
 
-const WALL_FILL_COLOR = 0x4a5a3e;
 const WALL_EDGE_COLOR = 0x2a3a2e;
 const COBBLE_COLOR_1 = 0x5a6a4e;
 const COBBLE_COLOR_2 = 0x4a5a3e;
 const COBBLE_COLOR_3 = 0x3a4a2e;
 const SHADOW_WIDTH_PX = 24;
 const SHADOW_STEPS = 8;
-const MUD_COLOR = 0x3a4a2e;
 
-export class SwampSceneRenderer implements GameSceneRenderer {
-  private readonly graphics: Phaser.GameObjects.Graphics;
+export class SwampSceneRenderer extends GameSceneRenderer {
+  constructor(scene: Phaser.Scene, private readonly cellSize: number) {
+    super(scene);
+  }
 
-  constructor(
-    private readonly scene: Phaser.Scene,
-    private readonly cellSize: number
-  ) {
-    this.graphics = scene.add.graphics();
+  protected getEdgeColor(): number {
+    return WALL_EDGE_COLOR;
   }
 
   renderGrid(grid: Grid): void {
     this.graphics.clear();
+    this.renderTransitionSteps(grid);
+    this.renderLayer1Edges(grid, this.cellSize);
+    this.renderShadows(grid);
+  }
 
+  protected renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
+    const stoneCount = 8 + (seed % 4);
+    let currentY = topBarY + 4;
+
+    while (currentY < y + cellSize) {
+      for (let i = 0; i < stoneCount; i++) {
+        const seedX = (seed + i * 123 + currentY) % 1000;
+        const seedSize = (seed + i * 789) % 1000;
+        const seedColor = (seed + i * 321) % 3;
+        
+        const stoneX = x + (seedX / 1000) * cellSize;
+        const stoneSize = 6 + (seedSize / 1000) * 8;
+        
+        if (currentY + stoneSize <= y + cellSize) {
+          const colors = [COBBLE_COLOR_1, COBBLE_COLOR_2, COBBLE_COLOR_3];
+          const color = colors[seedColor];
+          
+          this.graphics.fillStyle(color, 1);
+          this.graphics.fillCircle(stoneX, currentY, stoneSize / 2);
+          
+          this.graphics.lineStyle(1, WALL_EDGE_COLOR, 0.5);
+          this.graphics.strokeCircle(stoneX, currentY, stoneSize / 2);
+        }
+      }
+      currentY += 10;
+    }
+  }
+
+  private renderTransitionSteps(grid: Grid): void {
     for (let row = 0; row < grid.rows; row++) {
       for (let col = 0; col < grid.cols; col++) {
         const cell = grid.getCell(col, row);
-        if (!cell) continue;
+        if (cell && grid.isTransition(cell)) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
 
-        const x = col * this.cellSize;
-        const y = row * this.cellSize;
+          const stepCount = 4;
+          const stepHeight = this.cellSize / stepCount;
 
-        if (cell.properties.has('stairs')) {
-          this.renderTransitionSteps(x, y);
-        }
-
-        if (cell.properties.has('wall')) {
-          const cellBelow = grid.getCell(col, row + 1);
-          if (cellBelow?.properties.has('wall')) {
-            this.renderMuddyPlatform(x, y);
-          } else {
-            this.renderWallEdge(x, y);
-            this.renderCobblestones(x, y);
-            this.renderShadowsBelow(grid, col, row);
+          for (let i = 0; i < stepCount; i++) {
+            const stepY = y + i * stepHeight;
+            
+            this.graphics.fillStyle(0x5a6a4e - i * 0x0a0a0a, 1);
+            this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
+            
+            this.graphics.lineStyle(1, 0x2a3a2e, 0.6);
+            this.graphics.strokeRect(x, stepY, this.cellSize, stepHeight);
           }
         }
       }
     }
   }
 
-  private renderTransitionSteps(x: number, y: number): void {
-    const stepCount = 4;
-    const stepHeight = this.cellSize / stepCount;
+  private renderShadows(grid: Grid): void {
+    for (let row = 0; row < grid.rows; row++) {
+      for (let col = 0; col < grid.cols; col++) {
+        const cell = grid.getCell(col, row);
+        if (cell && grid.getLayer(cell) === 1 && !grid.isTransition(cell)) {
+          const cellBelow = grid.getCell(col, row + 1);
+          if (cellBelow && grid.getLayer(cellBelow) === 0) {
+            for (let i = 1; i <= SHADOW_STEPS; i++) {
+              const checkRow = row + i;
+              const shadowCell = grid.getCell(col, checkRow);
+              
+              if (!shadowCell || grid.getLayer(shadowCell) === 1) break;
 
-    for (let i = 0; i < stepCount; i++) {
-      const stepY = y + i * stepHeight;
-      
-      this.graphics.fillStyle(0x5a6a4e - i * 0x0a0a0a, 1);
-      this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
-      
-      this.graphics.lineStyle(1, 0x2a3a2e, 0.6);
-      this.graphics.strokeRect(x, stepY, this.cellSize, stepHeight);
-    }
-  }
+              const shadowY = checkRow * this.cellSize;
+              const shadowHeight = Math.min(SHADOW_WIDTH_PX / i, this.cellSize);
+              const alpha = 0.15 / i;
 
-  private renderWallEdge(x: number, y: number): void {
-    this.graphics.fillStyle(WALL_FILL_COLOR, 1);
-    this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-
-    this.graphics.lineStyle(2, WALL_EDGE_COLOR, 1);
-    this.graphics.strokeRect(x, y, this.cellSize, this.cellSize);
-  }
-
-  private renderCobblestones(x: number, y: number): void {
-    const seed = x * 1000 + y;
-    const stoneCount = 8 + (seed % 4);
-    
-    for (let i = 0; i < stoneCount; i++) {
-      const seedX = (seed + i * 123) % 1000;
-      const seedY = (seed + i * 456) % 1000;
-      const seedSize = (seed + i * 789) % 1000;
-      const seedColor = (seed + i * 321) % 3;
-      
-      const stoneX = x + (seedX / 1000) * this.cellSize;
-      const stoneY = y + (seedY / 1000) * this.cellSize;
-      const stoneSize = 8 + (seedSize / 1000) * 12;
-      
-      const colors = [COBBLE_COLOR_1, COBBLE_COLOR_2, COBBLE_COLOR_3];
-      const color = colors[seedColor];
-      
-      this.graphics.fillStyle(color, 1);
-      this.graphics.fillCircle(stoneX, stoneY, stoneSize / 2);
-      
-      this.graphics.lineStyle(1, WALL_EDGE_COLOR, 0.5);
-      this.graphics.strokeCircle(stoneX, stoneY, stoneSize / 2);
-    }
-  }
-
-  private renderMuddyPlatform(x: number, y: number): void {
-    this.graphics.fillStyle(MUD_COLOR, 0.3);
-    this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-  }
-
-  private renderShadowsBelow(grid: Grid, col: number, row: number): void {
-    for (let i = 1; i <= SHADOW_STEPS; i++) {
-      const checkRow = row + i;
-      const cellBelow = grid.getCell(col, checkRow);
-      
-      if (!cellBelow || cellBelow.properties.has('wall')) break;
-
-      const shadowY = checkRow * this.cellSize;
-      const shadowHeight = Math.min(SHADOW_WIDTH_PX / i, this.cellSize);
-      const alpha = 0.15 / i;
-
-      this.graphics.fillStyle(0x000000, alpha);
-      this.graphics.fillRect(col * this.cellSize, shadowY, this.cellSize, shadowHeight);
+              this.graphics.fillStyle(0x000000, alpha);
+              this.graphics.fillRect(col * this.cellSize, shadowY, this.cellSize, shadowHeight);
+            }
+          }
+        }
+      }
     }
   }
 
@@ -124,6 +109,10 @@ export class SwampSceneRenderer implements GameSceneRenderer {
   } {
     const worldWidth = width * this.cellSize;
     const worldHeight = height * this.cellSize;
+
+    if (this.scene.textures.exists('swamp_gradient')) {
+      this.scene.textures.remove('swamp_gradient');
+    }
 
     const canvas = this.scene.textures.createCanvas('swamp_gradient', worldWidth, worldHeight);
     const ctx = canvas?.context;

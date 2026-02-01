@@ -1,25 +1,52 @@
 import type { Grid } from '../../systems/grid/Grid';
-import type { GameSceneRenderer } from './GameSceneRenderer';
+import { GameSceneRenderer } from './GameSceneRenderer';
 
 const LAYER1_FILL_COLOR = 0x4a4a5e;
 const LAYER1_EDGE_COLOR = 0x2a2a3e;
 const LAYER1_BRICK_FILL_COLOR = 0x3a3a4e;
 
-export class DungeonSceneRenderer implements GameSceneRenderer {
-  private readonly graphics: Phaser.GameObjects.Graphics;
+export class DungeonSceneRenderer extends GameSceneRenderer {
+  constructor(scene: Phaser.Scene, private readonly cellSize: number) {
+    super(scene);
+  }
 
-  constructor(
-    private readonly scene: Phaser.Scene,
-    private readonly cellSize: number
-  ) {
-    this.graphics = scene.add.graphics();
+  protected getEdgeColor(): number {
+    return LAYER1_EDGE_COLOR;
   }
 
   renderGrid(grid: Grid): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
-    this.renderLayer1Edges(grid);
+    this.renderLayer1Edges(grid, this.cellSize);
     this.renderShadows(grid);
+  }
+
+  protected renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, _seed: number): void {
+    const brickHeight = 10;
+    const brickWidth = cellSize / 3;
+    let currentY = topBarY + 4;
+    let rowIndex = 0;
+
+    while (currentY < y + cellSize) {
+      const offset = (rowIndex % 2) * (brickWidth / 2);
+      const actualHeight = Math.min(brickHeight, y + cellSize - currentY);
+
+      for (let brickX = x - offset; brickX < x + cellSize + brickWidth; brickX += brickWidth) {
+        const startX = Math.max(x, brickX);
+        const endX = Math.min(x + cellSize, brickX + brickWidth - 2);
+
+        if (startX < endX) {
+          this.graphics.fillStyle(LAYER1_BRICK_FILL_COLOR, 1);
+          this.graphics.fillRect(startX, currentY, endX - startX, actualHeight);
+
+          this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
+          this.graphics.strokeRect(startX, currentY, endX - startX, actualHeight);
+        }
+      }
+
+      currentY += brickHeight;
+      rowIndex++;
+    }
   }
 
   renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image } {
@@ -145,72 +172,6 @@ export class DungeonSceneRenderer implements GameSceneRenderer {
 
             this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x, stepY, x + grid.cellSize, stepY));
-          }
-        }
-      }
-    }
-  }
-
-  // eslint-disable-next-line complexity
-  private renderLayer1Edges(grid: Grid): void {
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        if (cell && grid.getLayer(cell) === 1) {
-          const x = col * grid.cellSize;
-          const y = row * grid.cellSize;
-          const edgeThickness = 8;
-
-          this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
-
-          if (col < grid.width - 1 && grid.getLayer(grid.cells[row][col + 1]) === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(
-              x + grid.cellSize, y,
-              x + grid.cellSize, y + grid.cellSize
-            ));
-          }
-
-          if (col > 0 && grid.getLayer(grid.cells[row][col - 1]) === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + grid.cellSize));
-          }
-
-          if (row > 0 && grid.getLayer(grid.cells[row - 1][col]) === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + grid.cellSize, y));
-          }
-
-          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0 && !grid.isTransition(cell)) {
-            const topBarY = y + (grid.cellSize * 0.2);
-
-            this.graphics.lineStyle(edgeThickness, LAYER1_EDGE_COLOR, 1);
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + grid.cellSize, topBarY));
-
-            const brickHeight = 10;
-            const brickWidth = grid.cellSize / 3;
-            let currentY = topBarY + 4;
-            let rowIndex = 0;
-
-            // eslint-disable-next-line max-depth
-            while (currentY + brickHeight <= y + grid.cellSize) {
-              const offset = (rowIndex % 2) * (brickWidth / 2);
-
-              // eslint-disable-next-line max-depth
-              for (let brickX = x - offset; brickX < x + grid.cellSize + brickWidth; brickX += brickWidth) {
-                const startX = Math.max(x, brickX);
-                const endX = Math.min(x + grid.cellSize, brickX + brickWidth - 2);
-
-                // eslint-disable-next-line max-depth
-                if (startX < endX) {
-                  this.graphics.fillStyle(LAYER1_BRICK_FILL_COLOR, 1);
-                  this.graphics.fillRect(startX, currentY, endX - startX, brickHeight);
-
-                  this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
-                  this.graphics.strokeRect(startX, currentY, endX - startX, brickHeight);
-                }
-              }
-
-              currentY += brickHeight + 2;
-              rowIndex++;
-            }
           }
         }
       }
