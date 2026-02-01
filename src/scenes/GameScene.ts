@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Grid } from "../systems/grid/Grid";
-import { LevelLoader, type LevelData, type BackgroundConfig } from "../systems/level/LevelLoader";
+import { LevelLoader, type LevelData } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
 import type HudScene from "./HudScene";
 import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
@@ -22,18 +22,19 @@ import { GridPositionComponent } from "../ecs/components/movement/GridPositionCo
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { preloadAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
+import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
+import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
 export default class GameScene extends Phaser.Scene {
   private entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
-  private editorKey!: Phaser.Input.Keyboard.Key;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
   private currentLevelName: string = 'level1';
   private vignette?: Phaser.GameObjects.Image;
-  private backgroundImage?: Phaser.GameObjects.Image;
+  private sceneRenderer!: GameSceneRenderer;
 
   constructor() {
     super({ key: "game", active: true });
@@ -65,7 +66,12 @@ export default class GameScene extends Phaser.Scene {
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
 
-    this.createGradientBackground();
+    const theme = this.levelData.levelTheme || 'dungeon';
+    if (theme === 'dungeon') {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    } 
+    const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
+    this.vignette = rendered.vignette;
 
     this.initializeScene();
 
@@ -73,13 +79,6 @@ export default class GameScene extends Phaser.Scene {
 
     const keyboard = this.input.keyboard;
     if (keyboard) {
-      this.editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-      this.editorKey.on('down', () => {
-        if (this.scene.isActive()) {
-          this.enterEditorMode();
-        }
-      });
-
       this.levelKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
       this.levelKey.on('down', () => {
         if (this.scene.isActive()) {
@@ -89,124 +88,8 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  private createGradientBackground(): void {
-    const width = this.levelData.width * this.cellSize;
-    const height = this.levelData.height * this.cellSize;
-
-    if (this.textures.exists('gradient')) {
-      this.textures.remove('gradient');
-    }
-
-    const MAX_TEXTURE_SIZE = 2048;
-    const canvasWidth = Math.min(width, MAX_TEXTURE_SIZE);
-    const canvasHeight = Math.min(height, MAX_TEXTURE_SIZE);
-
-    const canvas = this.textures.createCanvas('gradient', canvasWidth, canvasHeight);
-    const ctx = canvas?.context;
-    if (!ctx) return;
-
-    this.createStarfieldPattern(ctx, width, height);
-    canvas?.refresh();
-
-    if (this.backgroundImage) {
-      this.backgroundImage.destroy();
-    }
-
-    this.backgroundImage = this.add.image(0, 0, 'gradient');
-    this.backgroundImage.setOrigin(0, 0);
-    this.backgroundImage.setDisplaySize(width, height);
-    this.backgroundImage.setDepth(-1000);
-  }
-
-  private createStarfieldPattern(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const maxRadius = Math.hypot(centerX, centerY);
-
-    const defaults = {
-      centerColor: '#5a6a5a',
-      midColor: '#3a4a3a',
-      edgeColor: '#2a3a2a',
-      outerColor: '#1a2a1a',
-      crackCount: 8,
-      circleCount: 100,
-      crackColor: '#c8ffc8',
-      crackVariation: 20,
-      crackThickness: 1,
-      crackLength: 30,
-      circleColor: '#e0e0e0',
-      circleVariation: 30,
-      circleThickness: 1
-    };
-
-    const config = { ...defaults, ...this.levelData.background };
-
-    const bgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-    bgGradient.addColorStop(0, config.centerColor);
-    bgGradient.addColorStop(0.4, config.midColor);
-    bgGradient.addColorStop(0.7, config.edgeColor);
-    bgGradient.addColorStop(1, config.outerColor);
-    ctx.fillStyle = bgGradient;
-    ctx.fillRect(0, 0, width, height);
-
-    for (let i = 0; i < config.crackCount; i++) {
-      const startX = Math.random() * width;
-      const startY = Math.random() * height;
-      const segments = Math.floor(Math.random() * 5) + 3;
-
-      const color = this.varyColor(config.crackColor, config.crackVariation);
-      ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${Math.random() * 0.2 + 0.1})`;
-      ctx.lineWidth = config.crackThickness;
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-
-      let x = startX;
-      let y = startY;
-      let currentAngle = Math.random() * Math.PI * 2;
-
-      for (let j = 0; j < segments; j++) {
-        const angleChange = (Math.random() - 0.5) * (90 * Math.PI / 180);
-        currentAngle += angleChange;
-
-        const distance = config.crackLength * (0.5 + Math.random());
-        x += Math.cos(currentAngle) * distance;
-        y += Math.sin(currentAngle) * distance;
-        ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-
-    for (let i = 0; i < config.circleCount; i++) {
-      const x = Math.random() * width;
-      const y = Math.random() * height;
-      const radius = Math.random() * 8 + 1;
-      const brightness = Math.random() * 0.3 + 0.1;
-
-      const color = this.varyColor(config.circleColor, config.circleVariation);
-      ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${brightness})`;
-      ctx.lineWidth = config.circleThickness;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  }
-
-  private varyColor(hexColor: string | undefined, variationPercent: number): { r: number; g: number; b: number } {
-    if (hexColor?.length !== 7) {
-      return { r: 150, g: 150, b: 150 };
-    }
-
-    const r = Number.parseInt(hexColor.slice(1, 3), 16);
-    const g = Number.parseInt(hexColor.slice(3, 5), 16);
-    const b = Number.parseInt(hexColor.slice(5, 7), 16);
-
-    const brightnessMultiplier = 1 + (Math.random() - 0.5) * 2 * (variationPercent / 100);
-
-    return {
-      r: Math.max(0, Math.min(255, Math.round(r * brightnessMultiplier))),
-      g: Math.max(0, Math.min(255, Math.round(g * brightnessMultiplier))),
-      b: Math.max(0, Math.min(255, Math.round(b * brightnessMultiplier)))
-    };
+  renderGrid(grid: Grid): void {
+    this.sceneRenderer.renderGrid(grid);
   }
 
   private initializeScene(): void {
@@ -233,21 +116,6 @@ export default class GameScene extends Phaser.Scene {
     // Set camera zoom - HUD scene is separate so this won't affect touch
     this.cameras.main.setZoom(CAMERA_ZOOM);
 
-    // Add vignette overlay BEFORE spawning entities
-    if (this.vignette) {
-      this.vignette.destroy();
-    }
-    const vignetteConfig = level.vignette ?? { alpha: 0.6, tint: 0x000000, blendMode: Phaser.BlendModes.MULTIPLY };
-    const zoom = this.cameras.main.zoom;
-    this.vignette = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, 'vignette');
-    this.vignette.setOrigin(0.5, 0.5);
-    this.vignette.setScrollFactor(0);
-    this.vignette.setDisplaySize(this.cameras.main.width / zoom, this.cameras.main.height / zoom);
-    this.vignette.setDepth(10000);
-    this.vignette.setAlpha(vignetteConfig.alpha);
-    this.vignette.setTint(vignetteConfig.tint);
-    this.vignette.setBlendMode(vignetteConfig.blendMode);
-
     this.spawnEntities();
 
     // Camera follow player's sprite
@@ -259,19 +127,6 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
       }
     }
-  }
-
-  private enterEditorMode(): void {
-    this.resetScene();
-
-    this.grid.setGridDebugEnabled(true);
-
-    const hudScene = this.scene.get('HudScene') as HudScene;
-    hudScene.setEditorActive(true);
-
-    this.scene.pause();
-
-    this.scene.launch('EditorScene');
   }
 
   private resetScene(): void {
@@ -420,7 +275,6 @@ export default class GameScene extends Phaser.Scene {
     // Check collisions
     this.collisionSystem.update(this.entityManager.getAll());
 
-    // Re-render the grid (debug only)
     this.grid.render(this.entityManager);
   }
 
@@ -434,19 +288,6 @@ export default class GameScene extends Phaser.Scene {
 
   getLevelData(): LevelData {
     return this.levelData;
-  }
-
-  updateVignette(): void {
-    if (this.vignette && this.levelData.vignette) {
-      this.vignette.setAlpha(this.levelData.vignette.alpha);
-      this.vignette.setTint(this.levelData.vignette.tint);
-      this.vignette.setBlendMode(this.levelData.vignette.blendMode);
-    }
-  }
-
-  updateBackground(config: BackgroundConfig): void {
-    this.levelData.background = config;
-    this.createGradientBackground();
   }
 
   private showLevelSelector(): void {

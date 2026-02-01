@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import GameScene from "./scenes/GameScene";
-import EditorScene from "./scenes/EditorScene";
 import LevelSelectorScene from "./scenes/LevelSelectorScene";
 import HudScene from "./scenes/HudScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AmmoComponent, OverheatSmokeComponent } from "./ecs";
@@ -19,7 +18,7 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-  scene: [GameScene, HudScene, EditorScene, LevelSelectorScene],
+  scene: [GameScene, HudScene, LevelSelectorScene],
 };
 
 const game = new Phaser.Game(config);

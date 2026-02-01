@@ -150,7 +150,9 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   hudBars.init();
 
   if (vignetteSprite) {
-    entity.add(new VignetteHealthComponent({ healthComponent: health, vignetteSprite }));
+    const cameraWidth = scene.cameras.main.width;
+    const cameraHeight = scene.cameras.main.height;
+    entity.add(new VignetteHealthComponent({ healthComponent: health, scene, cameraWidth, cameraHeight }));
   }
 
   const emitterOffsets: Record<Direction, EmitterOffset> = {

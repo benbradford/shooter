@@ -1,5 +1,7 @@
 import type { CellProperty } from '../grid/Grid';
 
+export type LevelTheme = 'dungeon';
+
 export type LevelCell = {
   col: number;
   row: number;
@@ -26,28 +28,6 @@ export type LevelThrower = {
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
-export type VignetteConfig = {
-  alpha: number;
-  tint: number;
-  blendMode: number;
-}
-
-export type BackgroundConfig = {
-  centerColor: string;
-  midColor: string;
-  edgeColor: string;
-  outerColor: string;
-  crackCount: number;
-  circleCount: number;
-  crackColor: string;
-  crackVariation: number;
-  crackThickness: number;
-  crackLength: number;
-  circleColor: string;
-  circleVariation: number;
-  circleThickness: number;
-}
-
 export type LevelData = {
   width: number;
   height: number;
@@ -59,8 +39,7 @@ export type LevelData = {
   robots?: LevelRobot[];
   bugBases?: LevelBugBase[];
   throwers?: LevelThrower[];
-  vignette?: VignetteConfig;
-  background?: BackgroundConfig;
+  levelTheme?: LevelTheme;
 }
 
 export class LevelLoader {
@@ -70,8 +49,7 @@ export class LevelLoader {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      return data as LevelData;
+      return await response.json() as LevelData;
     } catch (error) {
       console.error(`Failed to load level ${levelName}:`, error);
       throw error;

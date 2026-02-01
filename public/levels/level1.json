@@ -1194,24 +1194,5 @@
       "difficulty": "medium"
     }
   ],
-  "vignette": {
-    "alpha": 0.4999999999999996,
-    "tint": 4465152,
-    "blendMode": 2
-  },
-  "background": {
-    "centerColor": "#5a6a5a",
-    "midColor": "#c0c4ae",
-    "edgeColor": "#2a3a2a",
-    "outerColor": "#633063",
-    "crackCount": 50,
-    "circleCount": 100,
-    "crackColor": "#333333",
-    "crackVariation": 40,
-    "crackThickness": 4,
-    "crackLength": 14,
-    "circleColor": "#333333",
-    "circleVariation": 30,
-    "circleThickness": 3
-  }
+  "levelTheme": "dungeon"
 }

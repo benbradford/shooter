@@ -4,7 +4,6 @@ import type GameScene from "../../scenes/GameScene";
 import type { EntityManager } from "../../ecs/EntityManager";
 import { ProjectileEmitterComponent } from "../../ecs/components/combat/ProjectileEmitterComponent";
 import type { CellData } from './CellData';
-import { GridRenderer } from './GridRenderer';
 export type { CellProperty, CellData } from './CellData';
 
 export class Grid {
@@ -16,7 +15,6 @@ export class Grid {
   private readonly backgroundSprites: Map<string, Phaser.GameObjects.Image> = new Map();
   private readonly layer1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private readonly layerNeg1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
-  private readonly renderer: GridRenderer;
   private isGridDebugEnabled: boolean = false;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
@@ -51,7 +49,6 @@ export class Grid {
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;
-    this.renderer = new GridRenderer(scene, this);
 
     // Initialize cells
     this.cells = [];
@@ -233,7 +230,9 @@ export class Grid {
 
   render(entityManager?: EntityManager) {
     this.graphics.clear();
-    this.renderer.render();
+    
+    const gameScene = this.scene as GameScene;
+    gameScene.renderGrid(this);
 
     if (!this.isGridDebugEnabled) {
       if (this.isSceneDebugEnabled) {
