@@ -1,6 +1,7 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
 
 const DEATH_ANIMATION_DURATION_MS = 583;
@@ -17,6 +18,11 @@ export class ThrowerDeathState implements IState {
 
   onEnter(): void {
     this.elapsedMs = 0;
+    
+    const collision = this.entity.get(CollisionComponent);
+    if (collision) {
+      this.entity.remove(CollisionComponent);
+    }
     
     const dir = dirFromDelta(this.lastHitDirX, this.lastHitDirY);
     const dirName = directionToAnimationName(dir);

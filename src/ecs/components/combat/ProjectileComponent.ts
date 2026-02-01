@@ -47,27 +47,26 @@ export class ProjectileComponent implements Component {
   update(delta: number): void {
     const transform = this.entity.require(TransformComponent);
     const distance = this.speed * (delta / 1000);
-    
+
     // Subdivide movement to avoid skipping cells
     const steps = Math.ceil(distance / (this.grid.cellSize / 2));
     const stepDistance = distance / steps;
-    
+
     for (let i = 0; i < steps; i++) {
       // Check current cell before moving
       const cell = this.grid.worldToCell(transform.x, transform.y);
       const cellData = this.grid.getCell(cell.col, cell.row);
-      
+
       if (!cellData) {
         this.entity.destroy();
         return;
       }
-      
+
       if (this.shouldCheckWallCollision(cellData)) {
-        console.log(`[BULLET] Hit wall at (${cell.col},${cell.row}) layer=${this.grid.getLayer(cellData)} startLayer=${this.startLayer}`);
         this.handleWallCollision(transform, cell);
         return;
       }
-      
+
       // Move one step
       transform.x += this.dirX * stepDistance;
       transform.y += this.dirY * stepDistance;

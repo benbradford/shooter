@@ -37,12 +37,12 @@ export class SwampSceneRenderer implements GameSceneRenderer {
 
         if (cell.properties.has('wall')) {
           const cellBelow = grid.getCell(col, row + 1);
-          if (!cellBelow || !cellBelow.properties.has('wall')) {
+          if (cellBelow?.properties.has('wall')) {
+            this.renderMuddyPlatform(x, y);
+          } else {
             this.renderWallEdge(x, y);
             this.renderCobblestones(x, y);
             this.renderShadowsBelow(grid, col, row);
-          } else {
-            this.renderMuddyPlatform(x, y);
           }
         }
       }

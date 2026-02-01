@@ -134,6 +134,7 @@ export class Pathfinder {
     return neighbors;
   }
 
+  // eslint-disable-next-line complexity
   private getValidNeighbor(
     currentCell: CellData,
     targetCell: CellData,

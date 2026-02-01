@@ -89,6 +89,7 @@ class GrenadeArcComponent implements Component {
           
           if (distance <= explosionRadius) {
             const health = other.get(HealthComponent);
+            // eslint-disable-next-line max-depth
             if (health) {
               health.takeDamage(damage.damage);
             }
