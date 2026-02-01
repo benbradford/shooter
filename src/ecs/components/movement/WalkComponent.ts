@@ -71,6 +71,7 @@ export class WalkComponent implements Component {
     this.transformComp.y += this.velocityY * (delta / 1000);
   }
 
+  // eslint-disable-next-line complexity
   private updateMode1(facingInput: { dx: number; dy: number }): void {
     // Mode 1: Manual aim > Auto-aim > Movement direction
     const manualAim = this.inputComp.getManualAimDirection();

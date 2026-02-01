@@ -92,6 +92,14 @@ export default class GameScene extends Phaser.Scene {
           this.showLevelSelector();
         }
       });
+      
+      const editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+      editorKey.on('down', () => {
+        if (this.scene.isActive()) {
+          this.scene.pause();
+          this.scene.launch('EditorScene');
+        }
+      });
     }
   }
 

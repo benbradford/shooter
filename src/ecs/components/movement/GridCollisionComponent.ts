@@ -101,6 +101,7 @@ export class GridCollisionComponent implements Component {
     return true;
   }
 
+  // eslint-disable-next-line complexity
   private checkCollision(x: number, y: number, gridPos: GridPositionComponent): boolean {
     // Calculate collision box bounds at new position
     const boxLeft = x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
@@ -195,6 +196,7 @@ export class GridCollisionComponent implements Component {
     return false; // not blocked
   }
 
+  // eslint-disable-next-line complexity
   update(_delta: number): void {
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);

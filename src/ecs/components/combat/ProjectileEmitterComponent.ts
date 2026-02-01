@@ -28,6 +28,7 @@ export class ProjectileEmitterComponent implements Component {
   entity!: Entity;
   private canFire: boolean = true;
   private wasFiring: boolean = false;
+  private fireOnRelease: boolean = false;
   private readonly scene: Phaser.Scene;
   private readonly onFire: (x: number, y: number, dirX: number, dirY: number) => void;
   private readonly offsets: Record<Direction, EmitterOffset>;
@@ -55,14 +56,29 @@ export class ProjectileEmitterComponent implements Component {
     if (shouldFireNow && !this.wasFiring) {
       this.wasFiring = true;
       this.canFire = false;
+      this.fireOnRelease = true;
       this.scene.time.delayedCall(INITIAL_AIM_WAIT_TIME_MS, () => {
         this.canFire = true;
+        this.fireOnRelease = false;
       });
+    }
+
+    // Fire on release if didn't hold long enough
+    if (!shouldFireNow && this.wasFiring && this.fireOnRelease && this.hasAmmo()) {
+      this.fire();
+      this.fireOnRelease = false;
+      this.wasFiring = false;
+      this.canFire = false;
+      this.scene.time.delayedCall(this.cooldown, () => {
+        this.canFire = true;
+      });
+      return;
     }
 
     // Reset when released
     if (!shouldFireNow) {
       this.wasFiring = false;
+      this.fireOnRelease = false;
     }
 
     // Fire if allowed
