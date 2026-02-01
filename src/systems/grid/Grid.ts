@@ -14,7 +14,6 @@ export class Grid {
   private readonly scene: Phaser.Scene;
   private readonly backgroundSprites: Map<string, Phaser.GameObjects.Image> = new Map();
   private readonly layer1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
-  private readonly layerNeg1Sprites: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private isGridDebugEnabled: boolean = false;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
@@ -142,12 +141,6 @@ export class Grid {
       if (oldLayer1Sprite) {
         oldLayer1Sprite.destroy();
         this.layer1Sprites.delete(key);
-      }
-
-      const oldLayerNeg1Sprite = this.layerNeg1Sprites.get(key);
-      if (oldLayerNeg1Sprite) {
-        oldLayerNeg1Sprite.destroy();
-        this.layerNeg1Sprites.delete(key);
       }
     }
 

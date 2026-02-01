@@ -66,7 +66,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
 
-    const theme = this.levelData.levelTheme || 'dungeon';
+    const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     } 

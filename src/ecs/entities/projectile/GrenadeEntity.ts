@@ -77,7 +77,7 @@ class GrenadeArcComponent implements Component {
 
     const explosionRadius = 64;
     const gameScene = this.scene as { entityManager?: { getAll: () => Entity[] } };
-    const nearbyEntities = gameScene.entityManager?.getAll() || [];
+    const nearbyEntities = gameScene.entityManager?.getAll() ?? [];
     
     for (const other of nearbyEntities) {
       if (other.tags.has('player')) {
