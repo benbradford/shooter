@@ -1,6 +1,6 @@
 import type { CellProperty } from '../grid/Grid';
 
-export type LevelTheme = 'dungeon';
+export type LevelTheme = 'dungeon' | 'swamp';
 
 export type LevelCell = {
   col: number;

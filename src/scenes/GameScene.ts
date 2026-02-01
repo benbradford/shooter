@@ -23,6 +23,7 @@ import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { preloadAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
+import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
 export default class GameScene extends Phaser.Scene {
@@ -34,6 +35,7 @@ export default class GameScene extends Phaser.Scene {
   private levelData!: LevelData;
   private currentLevelName: string = 'level1';
   private vignette?: Phaser.GameObjects.Image;
+  private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
 
   constructor() {
@@ -69,8 +71,13 @@ export default class GameScene extends Phaser.Scene {
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    } 
+    } else if (theme === 'swamp') {
+      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    } else {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    }
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
+    this.background = rendered.background;
     this.vignette = rendered.vignette;
 
     this.initializeScene();
@@ -298,6 +305,27 @@ export default class GameScene extends Phaser.Scene {
   async loadLevel(levelName: string): Promise<void> {
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
+    
+    const theme = this.levelData.levelTheme ?? 'dungeon';
+    if (theme === 'dungeon') {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    } else if (theme === 'swamp') {
+      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    } else {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    }
+    
+    if (this.background) {
+      this.background.destroy();
+    }
+    if (this.vignette) {
+      this.vignette.destroy();
+    }
+    
+    const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
+    this.background = rendered.background;
+    this.vignette = rendered.vignette;
+    
     this.resetScene();
   }
 
