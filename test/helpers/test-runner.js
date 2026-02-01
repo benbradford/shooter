@@ -3,8 +3,13 @@ import { readFileSync } from 'fs';
 
 export async function runTests({ level, commands = [], tests, screenshotPath }) {
   const browser = await puppeteer.launch({
-    headless: false,
-    args: ['--window-size=1280,720']
+    headless: process.env.HEADLESS === 'true',
+    args: [
+      '--window-size=1280,720',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage'
+    ]
   });
 
   const page = await browser.newPage();
@@ -56,12 +61,28 @@ export async function runTests({ level, commands = [], tests, screenshotPath }) 
   let allPassed = true;
 
   for (const testFn of testsToRun) {
+    process.stdout.write(`GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then} `);
+    
+    // Start spinner
+    const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+    let spinnerIndex = 0;
+    const spinner = setInterval(() => {
+      process.stdout.write(`\r${spinnerFrames[spinnerIndex]} GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then} `);
+      spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
+    }, 80);
+    
     const result = await testFn(page);
-    console.log(`GIVEN: ${result.given}, WHEN: ${result.when}, THEN: ${result.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}`);
+    
+    // Stop spinner and clear line
+    clearInterval(spinner);
+    process.stdout.write(`\r`);
+    
+    // Print final result
+    process.stdout.write(`GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}\n`);
     if (!result.passed) allPassed = false;
   }
 
-  console.log(allPassed ? '\n✓ ALL TESTS PASSED' : '\n✗ SOME TESTS FAILED');
+  process.stdout.write(allPassed ? '\n✓ ALL TESTS PASSED\n' : '\n✗ SOME TESTS FAILED\n');
 
   await page.screenshot({ path: screenshotPath });
 

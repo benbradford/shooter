@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Trap Ctrl+C and exit immediately
+trap 'echo ""; echo "Tests interrupted. Killing dev server..."; kill $SERVER_PID 2>/dev/null; exit 130' INT
+
 VERBOSE=false
 if [ "$1" == "-v" ] || [ "$1" == "--verbose" ]; then
   VERBOSE=true
@@ -27,12 +30,12 @@ for test in "${TESTS[@]}"; do
   echo ""
   
   if [ "$VERBOSE" = true ]; then
-    OUTPUT=$(VERBOSE=true node "$test" 2>&1)
-    echo "$OUTPUT"
+    VERBOSE=true node "$test" 2>&1 | tee /tmp/test_output.txt
   else
-    OUTPUT=$(node "$test" 2>&1)
-    echo "$OUTPUT" | grep -E "^===|^GIVEN:|✓ ALL TESTS PASSED|✗ SOME TESTS FAILED|✓ TEST PASSED|✗ TEST FAILED"
+    node "$test" 2>&1 | tee /tmp/test_output.txt
   fi
+  
+  OUTPUT=$(cat /tmp/test_output.txt)
   
   if echo "$OUTPUT" | grep -q "✓ ALL TESTS PASSED\|✓ TEST PASSED"; then
     ((PASSED++))

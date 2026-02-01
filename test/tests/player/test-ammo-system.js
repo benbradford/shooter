@@ -23,7 +23,7 @@ const testFireDecreaseAmmo = test(
 const testFireUntilOverheat = test(
   {
     given: 'Player with full ammo',
-    when: 'Player holds fire for 10 seconds',
+    when: 'Player holds fire to deplete ammo',
     then: 'Ammo reaches 0 and gun overheats'
   },
   async (page) => {

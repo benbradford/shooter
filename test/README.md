@@ -5,9 +5,20 @@ Automated browser tests using Puppeteer.
 ## Running Tests
 
 ```bash
-npm test                                              # All tests
-./test/run-single-test.sh test/tests/test-name.js   # Single file
-./test/run-single-test.sh test/tests/test-name.js "keyword"  # Filter by keyword
+# All tests
+npm test                                    # Visible browser
+npm run test:headless                       # Headless mode
+
+# Single test file
+npm run test:single test-ammo-system        # Visible browser
+npm run test:headless:single test-ammo-system  # Headless mode
+
+# Filter by keyword
+npm run test:single test-ammo-system "refills"
+npm run test:headless:single test-ammo-system "refills"
+
+# Kill stuck dev server
+npm run kill
 ```
 
 ## Structure
@@ -69,5 +80,7 @@ runTests({
 - Use keyword filtering to debug one test at a time
 - Export game constants (like `PLAYER_MAX_AMMO`) instead of hardcoding values
 - `fireSingleShot()` for single shots, `holdFire()` for continuous fire
+- Use headless mode for faster CI/automated testing
+- Ctrl+C stops tests immediately and kills dev server
 
 See `docs/testing.md` for comprehensive guide.

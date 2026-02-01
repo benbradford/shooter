@@ -33,21 +33,32 @@ The custom approach is ~100 lines of shell script vs hundreds of lines of Jest c
 ## Running Tests
 
 ```bash
-npm test                                              # Run all tests
-./test/run-single-test.sh test/tests/test-name.js   # Run single test file
-./test/run-single-test.sh test/tests/test-name.js "keyword"  # Run tests matching keyword
+# All tests
+npm test                                    # Visible browser
+npm run test:headless                       # Headless mode (faster)
+
+# Single test file
+npm run test:single test-ammo-system        # Visible browser
+npm run test:headless:single test-ammo-system  # Headless mode
+
+# Filter by keyword
+npm run test:single test-ammo-system "refills"
+npm run test:headless:single test-ammo-system "refills"
+
+# Kill stuck dev server
+npm run kill
 ```
 
 **Examples:**
 ```bash
-# Run all ammo tests
-./test/run-single-test.sh test/tests/player/test-ammo-system.js
+# Run all ammo tests in headless mode
+npm run test:headless:single test-ammo-system
 
 # Run only tests with "overheat" in the name
-./test/run-single-test.sh test/tests/player/test-ammo-system.js "overheat"
+npm run test:single test-ammo-system "overheat"
 
 # Run only tests with "fires once"
-./test/run-single-test.sh test/tests/player/test-ammo-system.js "fires once"
+npm run test:headless:single test-ammo-system "fires once"
 ```
 
 **Tip:** When fixing failing tests, run them one at a time using the keyword filter. This helps you focus on one issue at a time.
@@ -66,6 +77,46 @@ await page.evaluate(() => waitForFullAmmo());
 ```
 
 Without this, a test that fires bullets will leave the game with low ammo, causing the next test to fail.
+
+### Don't Optimize Tests Prematurely
+
+**Lesson:** Trying to speed up tests by reducing wait times or manipulating game state (like setting `maxAmmo = 3`) can introduce subtle bugs and test isolation issues.
+
+**What happened:**
+- Reduced `maxAmmo` from 25 to 3 to speed up overheat tests
+- Tests passed individually but failed when run sequentially
+- State leaked between tests (maxAmmo stayed at 3)
+- Spent more time debugging than the original tests took to run
+
+**Solution:** Keep tests simple and use real game values. If tests are slow:
+1. Run individual tests during development (`npm run test:headless:single`)
+2. Use headless mode for speed (`npm run test:headless`)
+3. Only run full suite before commits
+
+**Rule:** Prefer reliable tests over fast tests. A slow test that always works is better than a fast test that's flaky.
+
+### Headless Mode for Speed
+
+Use headless mode for faster execution:
+- Development: Use visible browser to see what's happening
+- CI/Automation: Use headless mode for speed
+- Debugging: Use visible browser with keyword filter
+
+```bash
+# Fast headless execution
+npm run test:headless:single test-ammo-system
+
+# Visible for debugging
+npm run test:single test-ammo-system "specific test"
+```
+
+### Real-Time Test Output
+
+Tests now show a spinner while running and display results immediately:
+- Spinner animation shows test is in progress
+- Result appears as soon as test completes
+- No waiting for entire file to finish
+- Ctrl+C stops immediately and cleans up
 
 ### Export Game Constants
 
@@ -94,7 +145,7 @@ Use the right helper for your test case.
 When tests fail, use keyword filtering to run just one:
 
 ```bash
-./test/run-single-test.sh test/tests/player/test-ammo-system.js "fires once"
+npm run test:single test-ammo-system "fires once"
 ```
 
 This is much faster than running the entire suite repeatedly.

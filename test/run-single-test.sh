@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Trap Ctrl+C and exit immediately
+trap 'echo ""; echo "Test interrupted. Killing dev server..."; kill $SERVER_PID 2>/dev/null; exit 130' INT
+
 VERBOSE=false
 TEST_NAME=""
 

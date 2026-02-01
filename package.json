@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "./test/run-all-tests.sh"
+    "test": "./test/run-all-tests.sh",
+    "test:headless": "HEADLESS=true ./test/run-all-tests.sh",
+    "test:single": "./scripts/test-single.sh",
+    "test:headless:single": "HEADLESS=true ./scripts/test-single.sh",
+    "kill": "lsof -ti:5173 | xargs kill -9 2>/dev/null || true"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
