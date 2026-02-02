@@ -12,6 +12,8 @@ import { createBugEntity } from "../ecs/entities/bug/BugEntity";
 import { createThrowerEntity } from "../ecs/entities/thrower/ThrowerEntity";
 import { createGrenadeEntity } from "../ecs/entities/projectile/GrenadeEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
+import { createTriggerEntity } from "../trigger/TriggerEntity";
+import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { BugSpawnerComponent } from "../ecs/components/ai/BugSpawnerComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
 import { getBugBaseDifficultyConfig } from "../ecs/entities/bug/BugBaseDifficulty";
@@ -29,6 +31,7 @@ import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 export default class GameScene extends Phaser.Scene {
   private entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
+  private eventManager!: EventManagerSystem;
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
@@ -57,6 +60,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.entityManager = new EntityManager();
+    this.eventManager = new EventManagerSystem();
 
     createThrowerAnimations(this);
 
@@ -278,6 +282,19 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.add(thrower);
       }
     }
+
+    // Spawn triggers from level data
+    if (level.triggers && level.triggers.length > 0) {
+      for (const triggerData of level.triggers) {
+        const trigger = createTriggerEntity({
+          eventName: triggerData.eventName,
+          triggerCells: triggerData.triggerCells,
+          grid: this.grid,
+          eventManager: this.eventManager
+        });
+        this.entityManager.add(trigger);
+      }
+    }
   }
 
   update(_time: number, delta: number): void {
@@ -290,7 +307,7 @@ export default class GameScene extends Phaser.Scene {
     // Check collisions
     this.collisionSystem.update(this.entityManager.getAll());
 
-    this.grid.render(this.entityManager);
+    this.grid.render(this.entityManager, this.levelData);
   }
 
   getGrid(): Grid {

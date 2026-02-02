@@ -2,12 +2,21 @@ import type { IState, IStateEnterProps } from '../systems/state/IState';
 import type EditorScene from '../scenes/EditorScene';
 
 export abstract class EditorState<TData = void> implements IState<TData> {
+  protected uiContainer?: HTMLElement;
+
   constructor(protected readonly scene: EditorScene) {}
 
   abstract onEnter(props?: IStateEnterProps<TData>): void;
   abstract onExit(nextState?: IState<TData>): void;
   onUpdate?(_delta: number): void {
     // Override if needed
+  }
+
+  protected destroyUI(): void {
+    if (this.uiContainer) {
+      document.body.removeChild(this.uiContainer);
+      this.uiContainer = undefined;
+    }
   }
 
   protected createBackButton(): Phaser.GameObjects.Text {

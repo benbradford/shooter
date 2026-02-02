@@ -17,6 +17,7 @@ import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
+import { TriggerEditorState } from "../editor/TriggerEditorState";
 import { PatrolComponent } from "../ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
@@ -110,7 +111,8 @@ export default class EditorScene extends Phaser.Scene {
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
       texture: new TextureEditorState(this),
-      theme: new ThemeEditorState(this)
+      theme: new ThemeEditorState(this),
+      trigger: new TriggerEditorState(this)
     }, 'default');
 
     // Event listeners
@@ -241,7 +243,7 @@ export default class EditorScene extends Phaser.Scene {
     return bugBases;
   }
 
-  private getCurrentLevelData(): LevelData {
+  getCurrentLevelData(): LevelData {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
     const entityManager = gameScene.getEntityManager();
@@ -259,15 +261,21 @@ export default class EditorScene extends Phaser.Scene {
         }
       : { x: 10, y: 10 };
 
-    return {
+    // Get existing level data to preserve triggers added in editor
+    const existingLevelData = gameScene.getLevelData();
+
+    const result = {
       width: grid.width,
       height: grid.height,
       playerStart,
       cells,
       robots: robots.length > 0 ? robots : undefined,
       bugBases: bugBases.length > 0 ? bugBases : undefined,
-      levelTheme: gameScene.getLevelData().levelTheme
+      triggers: existingLevelData.triggers, // Preserve triggers from level data
+      levelTheme: existingLevelData.levelTheme
     };
+
+    return result;
   }
 
   saveLevel(): void {
@@ -357,6 +365,10 @@ export default class EditorScene extends Phaser.Scene {
 
   enterTextureMode(): void {
     this.stateMachine.enter('texture');
+  }
+
+  enterTriggerMode(): void {
+    this.stateMachine.enter('trigger');
   }
 
   removeRow(row: number): void {

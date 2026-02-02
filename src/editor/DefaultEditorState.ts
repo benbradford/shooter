@@ -177,6 +177,29 @@ export class DefaultEditorState extends EditorState {
     themeButton.on('pointerdown', () => {
       this.scene.cycleTheme();
     });
+
+    // Trigger button
+    const triggerButton = this.scene.add.text(centerX + buttonSpacing * 4, buttonY, 'Trigger', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    triggerButton.setOrigin(0.5);
+    triggerButton.setScrollFactor(0);
+    triggerButton.setInteractive({ useHandCursor: true });
+    triggerButton.setDepth(1000);
+    this.buttons.push(triggerButton);
+
+    triggerButton.on('pointerover', () => {
+      triggerButton.setBackgroundColor('#555555');
+    });
+    triggerButton.on('pointerout', () => {
+      triggerButton.setBackgroundColor('#333333');
+    });
+    triggerButton.on('pointerdown', () => {
+      this.scene.enterTriggerMode();
+    });
   }
 
   onExit(): void {

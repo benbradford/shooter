@@ -221,7 +221,7 @@ export class Grid {
     }
   }
 
-  render(entityManager?: EntityManager) {
+  render(entityManager?: EntityManager, levelData?: any) {
     this.graphics.clear();
     
     const gameScene = this.scene as GameScene;
@@ -265,6 +265,17 @@ export class Grid {
 
         this.graphics.lineStyle(1, 0xffffff, 0.3);
         this.graphics.strokeRect(x + 0.5, y + 0.5, this.cellSize, this.cellSize);
+      }
+    }
+
+    // Draw trigger cells with yellow outline when grid debug is enabled
+    if (levelData?.triggers) {
+      for (const trigger of levelData.triggers) {
+        for (const cell of trigger.triggerCells) {
+          const worldPos = this.cellToWorld(cell.col, cell.row);
+          this.graphics.lineStyle(3, 0xffff00, 1);
+          this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
+        }
       }
     }
 
@@ -371,6 +382,20 @@ export class Grid {
       this.cells[row].pop();
     }
     this.width--;
+  }
+
+  getEntitiesWithTag(tag: string): Entity[] {
+    const entities: Entity[] = [];
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        for (const entity of this.cells[row][col].occupants) {
+          if (entity.tags.has(tag) && !entities.includes(entity)) {
+            entities.push(entity);
+          }
+        }
+      }
+    }
+    return entities;
   }
 
   destroy(): void {

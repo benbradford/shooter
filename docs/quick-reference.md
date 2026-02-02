@@ -194,6 +194,37 @@ new MyComponent(dependency, { speed: 500, cooldown: 1000 })  // Custom
 
 3. Export from `src/ecs/index.ts`
 
+### Adding Triggers
+
+Triggers are invisible areas that fire events when the player walks into them:
+
+```typescript
+// In level JSON
+"triggers": [
+  {
+    "eventName": "door_open",
+    "triggerCells": [
+      { "col": 15, "row": 20 },
+      { "col": 16, "row": 20 }
+    ]
+  }
+]
+```
+
+**Editor workflow:**
+1. Press **E** → **Trigger** button
+2. Enter event name (e.g., "door_open")
+3. Click grid cells to select trigger area (white borders appear)
+4. Click **Add Trigger** → returns to main editor
+5. Press **G** to see yellow outlines around trigger cells
+6. Click **Log** to save level with triggers
+
+**How triggers work:**
+- Invisible entities that detect player position
+- Fire events when player enters any trigger cell
+- Disappear after being triggered (one-time use)
+- Events logged to console and show alert popup
+
 ### Adding Grid Walls
 
 In `GameScene.create()`:
@@ -213,6 +244,7 @@ for (let col = 5; col <= 10; col++) {
   - White lines: Grid cells
   - Layer shading: Darker for higher layers, lighter for lower
   - Blue overlay: Transition cells (staircases)
+  - **Yellow outlines: Trigger cells**
   
 - **C key** - Toggle collision debug visualization (disabled by default)
   - Black boxes: Entity collision boxes (CollisionComponent)
@@ -222,6 +254,7 @@ for (let col = 5; col <= 10; col++) {
 - **E key** - Enter level editor mode
   - Pauses game
   - Allows editing grid cells, moving player, resizing grid
+  - **Trigger button** - Add invisible trigger areas that fire events
   - Click Save to export level JSON (logs to console + downloads file)
 
 ### Managing Entities

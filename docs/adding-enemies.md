@@ -246,6 +246,208 @@ if (level.robots && level.robots.length > 0) {
 }
 ```
 
+## Adding Invisible/System Entities (like Triggers)
+
+For entities that don't have sprites but provide game functionality:
+
+### 1. Create Component with Game Logic
+
+```typescript
+export class TriggerComponent implements Component {
+  entity!: Entity;
+  public readonly eventName: string;
+  public readonly triggerCells: Array<{ col: number; row: number }>;
+  
+  constructor(props: TriggerComponentProps) {
+    this.eventName = props.eventName;
+    this.triggerCells = props.triggerCells;
+  }
+  
+  update(_delta: number): void {
+    // Game logic here - check player position, fire events, etc.
+  }
+}
+```
+
+### 2. Create Simple Entity Factory
+
+```typescript
+export function createTriggerEntity(props: CreateTriggerEntityProps): Entity {
+  const entity = new Entity('trigger');
+  
+  // Position at first trigger cell (for editor visualization)
+  const firstCell = props.triggerCells[0];
+  const worldPos = props.grid.cellToWorld(firstCell.col, firstCell.row);
+  const centerX = worldPos.x + props.grid.cellSize / 2;
+  const centerY = worldPos.y + props.grid.cellSize / 2;
+  
+  entity.add(new TransformComponent(centerX, centerY, 0, 1));
+  entity.add(new TriggerComponent(props));
+  
+  entity.setUpdateOrder([
+    TransformComponent,
+    TriggerComponent
+  ]);
+  
+  return entity;
+}
+```
+
+### 3. Add to Level Data Structure
+
+```typescript
+export type LevelTrigger = {
+  eventName: string;
+  triggerCells: Array<{ col: number; row: number }>;
+}
+
+export type LevelData = {
+  // ... existing fields
+  triggers?: LevelTrigger[];
+}
+```
+
+## Editor Integration
+
+### 1. Create Editor State
+
+```typescript
+export class TriggerEditorState extends EditorState {
+  private selectedCells: Set<string> = new Set();
+  private selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+  
+  onEnter(): void {
+    this.createUI();
+    this.scene.input.on('pointerdown', this.handlePointerDown, this);
+  }
+  
+  onExit(): void {
+    this.scene.input.off('pointerdown', this.handlePointerDown, this);
+    this.destroyUI();
+    this.clearSelectionRectangles();
+  }
+  
+  private handlePointerDown = (pointer: Phaser.Input.Pointer): void => {
+    // CRITICAL: Check for UI button clicks first
+    const gameScene = this.scene.scene.get('game');
+    const hitObjects = gameScene.input.hitTestPointer(pointer);
+    
+    if (hitObjects.length > 0) {
+      for (const obj of hitObjects) {
+        if ((obj as any).depth >= 1000) { // UI elements have high depth
+          return; // Don't process grid clicks when clicking UI
+        }
+      }
+    }
+    
+    // Process grid cell selection...
+  };
+}
+```
+
+### 2. Add Button to Default Editor State
+
+```typescript
+// In DefaultEditorState.ts
+const triggerButton = this.scene.add.text(centerX + buttonSpacing * 4, buttonY, 'Trigger', {
+  fontSize: '24px',
+  color: '#ffffff',
+  backgroundColor: '#333333',
+  padding: { x: 20, y: 10 }
+});
+triggerButton.setOrigin(0.5);
+triggerButton.setScrollFactor(0);
+triggerButton.setInteractive({ useHandCursor: true });
+triggerButton.setDepth(1000);
+this.buttons.push(triggerButton);
+
+triggerButton.on('pointerdown', () => {
+  this.scene.enterTriggerMode();
+});
+```
+
+### 3. Add State to EditorScene
+
+```typescript
+// In EditorScene.ts imports
+import { TriggerEditorState } from "../editor/TriggerEditorState";
+
+// In state machine initialization
+this.stateMachine = new StateMachine({
+  // ... existing states
+  trigger: new TriggerEditorState(this)
+}, 'default');
+
+// Add method
+enterTriggerMode(): void {
+  this.stateMachine.enter('trigger');
+}
+```
+
+### 4. Level Data Integration
+
+**CRITICAL:** Modify GameScene's level data directly, not EditorScene's computed data:
+
+```typescript
+// In TriggerEditorState.addTrigger()
+private addTrigger(): void {
+  // Get the GameScene's level data directly - CRITICAL!
+  const gameScene = this.scene.scene.get('game') as any;
+  const levelData = gameScene.getLevelData();
+  
+  if (!levelData.triggers) {
+    levelData.triggers = [];
+  }
+  
+  levelData.triggers.push(newTrigger);
+  this.scene.enterDefaultMode();
+}
+```
+
+**Why this is critical:** EditorScene's `getCurrentLevelData()` creates a computed result. Changes to computed data don't persist. You must modify the GameScene's actual level data object.
+
+### 5. Update Level Data Extraction
+
+```typescript
+// In EditorScene.getCurrentLevelData()
+getCurrentLevelData(): LevelData {
+  // ... extract other data
+  
+  // Get existing level data to preserve editor changes
+  const existingLevelData = gameScene.getLevelData();
+  
+  return {
+    // ... other fields
+    triggers: existingLevelData.triggers, // Preserve from GameScene
+  };
+}
+```
+
+## Debug Visualization
+
+### Add to Grid Rendering
+
+```typescript
+// In Grid.render() method
+// Draw trigger cells with yellow outline when grid debug is enabled
+if (levelData?.triggers) {
+  for (const trigger of levelData.triggers) {
+    for (const cell of trigger.triggerCells) {
+      const worldPos = this.cellToWorld(cell.col, cell.row);
+      this.graphics.lineStyle(3, 0xffff00, 1);
+      this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
+    }
+  }
+}
+```
+
+### Update GameScene to Pass Level Data
+
+```typescript
+// In GameScene.update()
+this.grid.render(this.entityManager, this.levelData);
+```
+
 ## Best Practices
 
 ### Component Design
@@ -268,100 +470,108 @@ if (level.robots && level.robots.length > 0) {
 - **Visual Indicators** - Show state, waypoints, detection radius
 - **Remove Debug Code** - Clean up before committing
 
-## Example: Stalking Robot
+## Common Pitfalls and Solutions
 
-The Stalking Robot is a complete example in the codebase:
+### ❌ Editor Button Clicks Trigger Grid Selection
 
-**Files:**
-- `src/robot/StalkingRobotEntity.ts` - Factory function
-- `src/robot/RobotPatrolState.ts` - Waypoint navigation
-- `src/robot/RobotAlertState.ts` - Detection indicator
-- `src/robot/RobotStalkingState.ts` - Chase player
-- `src/robot/RobotFireballState.ts` - Attack animation
-- `src/robot/RobotHitState.ts` - Damage response
-- `src/robot/RobotDeathState.ts` - Death animation
-- `src/ecs/components/PatrolComponent.ts` - Waypoint system
-- `src/ecs/components/LineOfSightComponent.ts` - Player detection
-- `src/ecs/components/KnockbackComponent.ts` - Physics response
+**Problem:** Clicking editor buttons also selects grid cells behind them.
 
-**Behavior:**
-1. Patrols between waypoints
-2. Detects player within 500px
-3. Shows exclamation mark for 1 second
-4. Chases player at 2x speed
-5. Fires projectile when in range
-6. Takes knockback when hit
-7. Flashes red and pauses for 1 second
-8. Dies with fade-out animation
-
-## Common Patterns
-
-### Directional Animation
+**Solution:** Always check for UI element hits before processing grid clicks:
 ```typescript
-// Calculate direction to target
-const dx = targetX - sprite.x;
-const dy = targetY - sprite.y;
-const angle = Math.atan2(dy, dx);
-
-// Convert to 8-direction index (0-7)
-const direction = Math.round((angle + Math.PI) / (Math.PI / 4)) % 8;
-
-// Play directional animation
-sprite.play(`walk_${direction}`);
-```
-
-### Waypoint Navigation
-```typescript
-const patrol = entity.get(PatrolComponent);
-const waypoint = patrol.getCurrentWaypoint();
-const targetX = waypoint.col * grid.cellSize + grid.cellSize / 2;
-const targetY = waypoint.row * grid.cellSize + grid.cellSize / 2;
-
-// Move toward waypoint
-const distance = Math.sqrt((targetX - x) ** 2 + (targetY - y) ** 2);
-if (distance < 5) {
-  patrol.nextWaypoint();
-}
-```
-
-### Line of Sight Detection
-```typescript
-const los = entity.get(LineOfSightComponent);
-const playerPos = player.get(TransformComponent);
-const distance = Math.sqrt(
-  (playerPos.x - x) ** 2 + (playerPos.y - y) ** 2
-);
-
-if (distance < los.range) {
-  los.hasTarget = true;
-  los.targetX = playerPos.x;
-  los.targetY = playerPos.y;
-}
-```
-
-### Knockback Physics
-```typescript
-const knockback = entity.get(KnockbackComponent);
-if (knockback) {
-  // Apply velocity
-  transform.x += knockback.velocityX * (delta / 1000);
-  transform.y += knockback.velocityY * (delta / 1000);
+private handlePointerDown = (pointer: Phaser.Input.Pointer): void => {
+  const gameScene = this.scene.scene.get('game');
+  const hitObjects = gameScene.input.hitTestPointer(pointer);
   
-  // Apply friction
-  knockback.velocityX *= knockback.friction;
-  knockback.velocityY *= knockback.friction;
-  
-  // Update timer
-  knockback.duration -= delta;
-  if (knockback.duration <= 0) {
-    entity.remove(KnockbackComponent);
+  if (hitObjects.length > 0) {
+    for (const obj of hitObjects) {
+      if ((obj as any).depth >= 1000) {
+        return; // UI element clicked, ignore grid
+      }
+    }
   }
+  // Process grid click...
+};
+```
+
+### ❌ Visual Selection Not Updating
+
+**Problem:** Cell selection/deselection works in logic but visuals don't update.
+
+**Cause:** Creating new rectangles every frame without destroying old ones.
+
+**Solution:** Track rectangles and destroy them immediately:
+```typescript
+private selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+
+// On select
+const border = gameScene.add.rectangle(...);
+this.selectionRectangles.set(cellKey, border);
+
+// On deselect
+const rect = this.selectionRectangles.get(cellKey);
+if (rect) {
+  rect.destroy();
+  this.selectionRectangles.delete(cellKey);
 }
 ```
+
+### ❌ Level Data Not Persisting
+
+**Problem:** Changes made in editor don't appear in logged JSON.
+
+**Cause:** Modifying computed data instead of source data.
+
+**Solution:** Always modify GameScene's level data directly:
+```typescript
+// ❌ Wrong - modifies computed result
+const levelData = this.scene.getCurrentLevelData();
+
+// ✅ Correct - modifies source data
+const gameScene = this.scene.scene.get('game') as any;
+const levelData = gameScene.getLevelData();
+```
+
+### ❌ Input Capturing Game Keys
+
+**Problem:** Typing in editor inputs triggers game controls (WASD moves camera).
+
+**Solution:** Stop event propagation on input elements:
+```typescript
+this.eventNameInput.addEventListener('keydown', (e) => {
+  e.stopPropagation();
+});
+```
+
+### ❌ Debug Visuals Not Showing
+
+**Problem:** Added debug rendering but it doesn't appear.
+
+**Cause:** Rendering in wrong debug mode or wrong render method.
+
+**Solution:** Add to main grid render, not scene debug:
+```typescript
+// In Grid.render() - shows when G key pressed
+if (levelData?.triggers) {
+  // Render triggers
+}
+
+// Not in renderSceneDebug() - only shows when C key pressed
+```
+
+### ❌ Entity Not Updating
+
+**Problem:** Entity exists but component logic doesn't run.
+
+**Cause:** Component not in update order or missing from EntityManager.
+
+**Solution:** 
+1. Add component to `setUpdateOrder()`
+2. Ensure entity is added to EntityManager
+3. Check component has `update()` method
 
 ## Testing Checklist
 
-- [ ] Enemy spawns at correct position
+- [ ] Entity spawns at correct position
 - [ ] Animations play correctly for all states
 - [ ] State transitions work as expected
 - [ ] Collision detection works (walls, player, projectiles)
@@ -369,6 +579,9 @@ if (knockback) {
 - [ ] Doesn't cause performance issues with multiple instances
 - [ ] Works correctly after save/load
 - [ ] Debug logs removed
+- [ ] Editor integration works (if applicable)
+- [ ] Level JSON exports correctly
+- [ ] Debug visualization shows (if applicable)
 
 ## Future Improvements
 

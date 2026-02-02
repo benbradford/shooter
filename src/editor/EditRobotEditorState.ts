@@ -13,7 +13,7 @@ import { FireballPropertiesComponent } from '../ecs/components/ai/FireballProper
 
 export class EditRobotEditorState extends EditorState<Entity | undefined> {
   private selectedRobot: Entity | null = null;
-  private uiContainer: Phaser.GameObjects.Container | null = null;
+  private phaserUIContainer: Phaser.GameObjects.Container | null = null;
   private difficultyText: Phaser.GameObjects.Text | null = null;
   private waypointMarkers: Phaser.GameObjects.Container[] = [];
   private draggingWaypointIndex: number | null = null;
@@ -143,12 +143,12 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     const x = camera.width - 250;
     const y = 150;
 
-    this.uiContainer = this.scene.add.container(x, y);
-    this.uiContainer.setScrollFactor(0);
+    this.phaserUIContainer = this.scene.add.container(x, y);
+    this.phaserUIContainer.setScrollFactor(0);
 
     // Background panel
     const bg = this.scene.add.rectangle(0, 0, 240, 300, 0x000000, 0.8);
-    this.uiContainer.add(bg);
+    this.phaserUIContainer.add(bg);
 
     // Title
     const title = this.scene.add.text(0, -120, 'Edit Robot', {
@@ -156,52 +156,52 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
       color: '#ffffff',
       fontStyle: 'bold'
     }).setOrigin(0.5);
-    this.uiContainer.add(title);
+    this.phaserUIContainer.add(title);
 
     // Instructions
     const instructions = this.scene.add.text(0, -90, 'Click a robot to edit', {
       fontSize: '14px',
       color: '#aaaaaa'
     }).setOrigin(0.5);
-    this.uiContainer.add(instructions);
+    this.phaserUIContainer.add(instructions);
 
     // Difficulty label and value
     const difficultyLabel = this.scene.add.text(-100, -50, 'Difficulty:', {
       fontSize: '16px',
       color: '#ffffff'
     });
-    this.uiContainer.add(difficultyLabel);
+    this.phaserUIContainer.add(difficultyLabel);
 
     this.difficultyText = this.scene.add.text(0, -20, 'MEDIUM', {
       fontSize: '18px',
       color: '#ffff00',
       fontStyle: 'bold'
     }).setOrigin(0.5);
-    this.uiContainer.add(this.difficultyText);
+    this.phaserUIContainer.add(this.difficultyText);
 
     // Difficulty buttons
     const easyButton = this.createButton(-70, 20, 'Easy', () => this.setDifficulty('easy'));
     const mediumButton = this.createButton(0, 20, 'Medium', () => this.setDifficulty('medium'));
     const hardButton = this.createButton(70, 20, 'Hard', () => this.setDifficulty('hard'));
-    this.uiContainer.add([easyButton, mediumButton, hardButton]);
+    this.phaserUIContainer.add([easyButton, mediumButton, hardButton]);
 
     // Back button
     const backButton = this.createButton(0, 70, 'Back', () => {
       this.scene.enterDefaultMode();
     });
-    this.uiContainer.add(backButton);
+    this.phaserUIContainer.add(backButton);
 
     // Add Waypoint button
     const addWaypointButton = this.createButton(0, 110, 'Add Waypoint', () => {
       this.addWaypoint();
     });
-    this.uiContainer.add(addWaypointButton);
+    this.phaserUIContainer.add(addWaypointButton);
 
     // Delete Waypoint button
     const deleteWaypointButton = this.createButton(0, 150, 'Delete Waypoint', () => {
       this.deleteWaypoint();
     });
-    this.uiContainer.add(deleteWaypointButton);
+    this.phaserUIContainer.add(deleteWaypointButton);
   }
 
   private createButton(x: number, y: number, text: string, onClick: () => void): Phaser.GameObjects.Container {
@@ -265,10 +265,11 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     }
   }
 
-  private destroyUI(): void {
-    if (this.uiContainer) {
-      this.uiContainer.destroy();
-      this.uiContainer = null;
+  protected destroyUI(): void {
+    super.destroyUI();
+    if (this.phaserUIContainer) {
+      this.phaserUIContainer.destroy();
+      this.phaserUIContainer = null;
     }
     this.difficultyText = null;
   }

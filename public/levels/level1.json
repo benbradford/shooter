@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 6,
-    "y": 37
+    "x": 11,
+    "y": 34
   },
   "cells": [
     {
@@ -739,6 +739,53 @@
       "row": 39,
       "properties": [
         "wall"
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "eventName": "tr123",
+      "triggerCells": [
+        {
+          "col": 17,
+          "row": 37
+        },
+        {
+          "col": 7,
+          "row": 32
+        },
+        {
+          "col": 8,
+          "row": 32
+        },
+        {
+          "col": 9,
+          "row": 32
+        },
+        {
+          "col": 10,
+          "row": 32
+        },
+        {
+          "col": 6,
+          "row": 32
+        },
+        {
+          "col": 5,
+          "row": 32
+        },
+        {
+          "col": 4,
+          "row": 32
+        },
+        {
+          "col": 3,
+          "row": 32
+        },
+        {
+          "col": 2,
+          "row": 32
+        }
       ]
     }
   ],

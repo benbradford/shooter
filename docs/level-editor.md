@@ -105,16 +105,12 @@ States can specify their data type and access it via `props.data` in `onEnter()`
 The initial mode when entering the editor. Shows buttons at the bottom and allows clicking entities:
 
 **Buttons:**
-- **Save** - Downloads level as JSON and logs to console
-  - Greyed out when no changes made
-  - Console shows full JSON for easy copy/paste
-  - Downloads to ~/Downloads/default.json
-  - Run `./scripts/update-levels.sh` to update game
 - **Exit** - Returns to game (also ESC key)
 - **Grid** - Enters grid editing mode
 - **Add** - Enters add mode to place new entities
 - **Texture** - Enters texture mode to paint background textures
 - **Resize** - Enters resize mode for adding/removing rows/columns
+- **Theme** - Opens theme selector to switch between dungeon/swamp themes
 - **Log** - Logs level JSON to console and copies to clipboard
 
 **Entity Interaction:**
@@ -196,8 +192,7 @@ Allows painting background textures onto grid cells.
 **UI Panel (right side):**
 - Shows available textures with 60x60 previews
 - Currently includes:
-  - `dungeon_floor01` - Stone floor texture
-  - `dungeon_floor02` - Alternate stone floor texture
+  - `door_closed` - Door texture
 - **Clear** button - Removes texture from cells
 
 **Usage:**
@@ -229,11 +224,33 @@ Allows painting background textures onto grid cells.
    ```
 5. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`:
    ```typescript
-   const AVAILABLE_TEXTURES = ['dungeon_floor01', 'dungeon_floor02', 'your_texture'];
+   const AVAILABLE_TEXTURES = ['door_closed', 'your_texture'];
    ```
 6. Run `npm run build && npx eslint src --ext .ts`
 
 **Note:** Background textures are saved in the level JSON and persist across sessions.
+
+### Theme Mode
+
+Allows switching between available level themes (dungeon, swamp).
+
+**UI:**
+- Shows list of available themes as buttons
+- Click a theme to switch immediately
+- **Back** button returns to default mode
+
+**Visual Feedback:**
+- Theme changes are applied immediately
+- Background, vignette, and wall rendering all update
+- Old renderer is destroyed to prevent artifacts
+
+**How it works:**
+- Destroys old background, vignette, and renderer graphics
+- Creates new renderer for selected theme
+- Re-renders grid with new theme
+- Changes are saved to level JSON
+
+**Note:** Theme changes persist when toggling editor mode and are saved to level JSON.
 
 ### Move Mode
 
@@ -287,33 +304,21 @@ Allows selecting and removing rows or columns from the grid.
 
 **To save and update level files:**
 
-1. **In editor, click Save**
+1. **In editor, click Log**
    - Logs complete JSON to browser console
-   - Downloads `default.json` to `~/Downloads/`
    - Browser console shows:
      ```
      Level JSON (copy and paste into public/levels/default.json):
      { ... full JSON ... }
-     ✓ Level saved to ~/Downloads/default.json
-     To update the game, run: ./scripts/update-levels.sh
      ```
 
-2. **Option A: Copy from console (fastest)**
+2. **Copy from console**
    - Open browser console (F12)
    - Copy the JSON output
    - Paste into `public/levels/default.json`
    - Refresh browser
 
-3. **Option B: Use the update script**
-   ```bash
-   ./scripts/update-levels.sh
-   ```
-   - Copies `default.json` from Downloads to `public/levels/`
-   - Also copies any other level files (`level1.json`, etc.)
-   - Shows confirmation messages
-   - Refresh browser
-
-**Note:** Browsers cannot directly write to the filesystem for security reasons. The console output + manual paste is the fastest workflow.
+**Note:** Browsers cannot directly write to the filesystem for security reasons. The console output + manual paste is the workflow.
 
 ## Architecture
 
