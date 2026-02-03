@@ -157,7 +157,7 @@ export class Pathfinder {
     const currentCellLayer = this.grid.getLayer(currentCell);
 
     if (this.grid.isTransition(targetCell)) {
-      return { col: newCol, row: newRow, layer: targetLayer };
+      return { col: newCol, row: newRow, layer: targetLayer + 1 };
     }
 
     if (this.grid.isTransition(currentCell)) {
@@ -189,13 +189,18 @@ export class Pathfinder {
     }
 
     // Block movement into walls
-    if (targetLayer === 1 && this.grid.isWall(targetCell)) {
+    if (this.grid.isWall(targetCell)) {
+      // Always block horizontal movement into walls
       if (dir.col !== 0 && dir.row === 0) {
         return null;
       }
-      if (!allowLayerChanges) {
+      // Block vertical movement into walls at same or higher layer
+      if (targetLayer >= currentLayer) {
         return null;
       }
+      // Block vertical movement into lower walls unless jumping over them
+      // (bugs should path around walls, not land on them)
+      return null;
     }
 
     if (currentCellLayer !== targetLayer && !allowLayerChanges) {

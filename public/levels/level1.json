@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 3,
-    "y": 18
+    "x": 6,
+    "y": 24
   },
   "cells": [
     {
@@ -1439,6 +1439,13 @@
       "properties": [
         "platform"
       ]
+    }
+  ],
+  "bugBases": [
+    {
+      "col": 9,
+      "row": 21,
+      "difficulty": "hard"
     }
   ],
   "triggers": [

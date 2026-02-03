@@ -138,11 +138,21 @@ if (rightCell.layer < cell.layer) {
 - [x] Verified build: `npm run build` ✅
 - [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
 
+**Projectile Layer Rules:**
+1. Bullets pass through platforms/walls at same layer or lower
+2. Bullets blocked by platforms/walls at strictly higher layer
+3. Bullets upgrade layer when passing through stairs
+4. After upgrading through stairs, bullets blocked by walls at that upgraded layer
+5. Example: Standing on layer 0, shoot through stairs (upgrade to layer 1), hit layer 1 wall = blocked
+6. Example: Standing on layer 2, shoot at layer 1 wall = passes through
+7. Example: Standing on layer 1, shoot at layer 1 wall = passes through
+
 **Changes made:**
 - Projectiles now track their current layer and upgrade when passing through stairs
 - Line of sight raycasts upgrade layer when passing through stairs
 - Projectiles fired from transitions start at `startLayer + 1`
 - Both systems respect layer-based blocking dynamically
+- Blocking logic: `cellLayer > currentLayer` (strictly higher)
 }
 
 // Upgrade layer when passing through stairs
@@ -151,21 +161,21 @@ if (isTransition(cell) && cell.layer === this.currentLayer) {
 }
 ```
 
-### Phase 5: Pathfinding ⏸️ NOT STARTED
-**Files to modify:**
-- [ ] `src/systems/Pathfinder.ts`
-  - Require stairs for layer changes
-  - Allow free movement within same layer
+### Phase 5: Pathfinding ✅ COMPLETED
+**Files modified:**
+- [x] `src/systems/Pathfinder.ts`
+  - Upgrade layer to `targetLayer + 1` when entering transition cells
+  - Maintain layer tracking through PathNode
+  - Block horizontal movement from transitions (vertical only)
+  - Block diagonal movement across layer boundaries
+- [x] Verified build: `npm run build` ✅
+- [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
 
-**Logic:**
-```typescript
-// Must use stairs to change layers
-if (targetCell.layer !== currentCell.layer) {
-  if (!isTransition(currentCell) && !isTransition(targetCell)) {
-    return null; // No path
-  }
-}
-```
+**Changes made:**
+- Pathfinder now upgrades entity layer when pathing through stairs
+- Entities can path to higher layers via transitions
+- Movement restrictions enforced (no horizontal from transitions, no diagonal across layers)
+- Layer tracking maintained throughout path calculation
 
 ### Phase 6: Editor ✅ COMPLETED
 **Files modified:**
