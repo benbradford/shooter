@@ -225,17 +225,20 @@ Triggers are invisible areas that fire events when the player walks into them:
 - Disappear after being triggered (one-time use)
 - Events logged to console and show alert popup
 
-### Adding Grid Walls
+### Adding Grid Walls and Platforms
 
 In `GameScene.create()`:
 ```typescript
-// Single wall
-this.grid.setCell(5, 5, { layer: 1 });
+// Single wall (blocks movement, renders with pattern)
+this.grid.setCell(5, 5, { layer: 1, properties: new Set(['wall']) });
 
 // Row of walls
 for (let col = 5; col <= 10; col++) {
-  this.grid.setCell(col, 5, { layer: 1 });
+  this.grid.setCell(col, 5, { layer: 1, properties: new Set(['wall']) });
 }
+
+// Platform (elevated, walkable, no pattern)
+this.grid.setCell(15, 10, { layer: 1, properties: new Set(['platform']) });
 ```
 
 ### Debug Controls

@@ -17,11 +17,11 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
   renderGrid(grid: Grid): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
-    this.renderLayer1Edges(grid, this.cellSize);
+    this.renderPlatformsAndWalls(grid, this.cellSize);
     this.renderShadows(grid);
   }
 
-  protected renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, _seed: number): void {
+  protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, _seed: number): void {
     const brickHeight = 10;
     const brickWidth = cellSize / 3;
     let currentY = topBarY + 4;

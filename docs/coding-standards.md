@@ -15,6 +15,27 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 
 ---
 
+## ⚠️ MANDATORY: Clarify Before Implementing ⚠️
+
+**When implementing any feature or change:**
+
+1. **If there is ANY ambiguity** in the requirements
+2. **If there are multiple valid approaches** to solve the problem
+3. **If design decisions need to be made** (naming, structure, behavior)
+4. **If the request could be interpreted in different ways**
+
+**STOP and ask for clarification BEFORE writing code.**
+
+**Examples of when to ask:**
+- "Should this component use props or constructor parameters?"
+- "Do you want this to work for all entities or just the player?"
+- "Should this be a new component or extend an existing one?"
+- "What should happen when [edge case]?"
+
+**Don't assume or guess.** Always confirm the intended behavior and design before proceeding.
+
+---
+
 ## Comments
 
 ### No Redundant Comments

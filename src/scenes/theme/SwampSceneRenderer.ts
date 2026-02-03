@@ -20,11 +20,11 @@ export class SwampSceneRenderer extends GameSceneRenderer {
   renderGrid(grid: Grid): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
-    this.renderLayer1Edges(grid, this.cellSize);
+    this.renderPlatformsAndWalls(grid, this.cellSize);
     this.renderShadows(grid);
   }
 
-  protected renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
+  protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
     const stoneCount = 8 + (seed % 4);
     let currentY = topBarY + 4;
 

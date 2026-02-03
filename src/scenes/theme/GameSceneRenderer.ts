@@ -10,7 +10,7 @@ export abstract class GameSceneRenderer {
 
   abstract renderGrid(grid: Grid): void;
   abstract renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image };
-  protected abstract renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, seed: number): void;
+  protected abstract renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void;
   protected abstract getEdgeColor(): number;
 
   destroy(): void {
@@ -18,7 +18,7 @@ export abstract class GameSceneRenderer {
   }
 
   // eslint-disable-next-line complexity, max-depth
-  protected renderLayer1Edges(grid: Grid, cellSize: number): void {
+  protected renderPlatformsAndWalls(grid: Grid, cellSize: number): void {
     const edgeThickness = 8;
     const edgeColor = this.getEdgeColor();
 
@@ -69,7 +69,7 @@ export abstract class GameSceneRenderer {
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + cellSize, topBarY));
 
             const seed = col * 1000 + row;
-            this.renderBottomRow(x, y, cellSize, topBarY, seed);
+            this.renderWallPattern(x, y, cellSize, topBarY, seed);
           }
         }
       }

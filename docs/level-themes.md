@@ -26,7 +26,7 @@ export abstract class GameSceneRenderer {
     background: Phaser.GameObjects.Image; 
     vignette: Phaser.GameObjects.Image 
   };
-  protected abstract renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, seed: number): void;
+  protected abstract renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void;
   protected abstract getEdgeColor(): number;
   
   destroy(): void {
@@ -34,21 +34,25 @@ export abstract class GameSceneRenderer {
   }
   
   // Common edge rendering logic
-  protected renderLayer1Edges(grid: Grid, cellSize: number): void { /* ... */ }
+  protected renderPlatformsAndWalls(grid: Grid, cellSize: number): void { /* ... */ }
 }
 ```
 
 **Key Points:**
 - Graphics depth is -10 to render behind player
-- `renderLayer1Edges()` contains all common edge detection logic
-- Subclasses only implement theme-specific parts (bottom row rendering, edge color)
+- `renderPlatformsAndWalls()` contains all common edge detection logic
+- Subclasses only implement theme-specific parts (wall pattern rendering, edge color)
 
 ### Edge Rendering Logic
 
 The base class handles all edge detection:
 - **Left/Right edges**: Only drawn when adjacent cell is layer 0 (not when adjacent to another layer 1 cell)
 - **Top edges**: Only drawn when cell above is layer 0
-- **Bottom edges**: Drawn as horizontal line at 15% from top (85% height), then calls `renderBottomRow()` for theme-specific rendering
+- **Bottom edges**: Only drawn for cells with `'wall'` property - horizontal line at 15% from top (85% height), then calls `renderWallPattern()` for theme-specific rendering
+
+**Wall vs Platform:**
+- **Walls** (cells with `'wall'` property): Render with brick/stone patterns via `renderWallPattern()`
+- **Platforms** (cells with `'platform'` property): Render as elevated with no special pattern
 
 **Critical:** No vertical lines between adjacent bottom-row cells - this prevents double-drawing edges.
 
@@ -56,13 +60,13 @@ The base class handles all edge detection:
 
 ### Dungeon Theme
 - Dark stone dungeon with radial gradient background
-- Brick pattern on bottom rows (staggered layout)
+- Brick pattern on walls (staggered layout)
 - Brown vignette
 - Edge color: `0x2a2a3e`
 
 ### Swamp Theme
 - Muddy/grassy background with radial gradient
-- Circle stones on bottom rows (rocky appearance)
+- Circle stones on walls (rocky appearance)
 - Green vignette
 - Edge color: `0x2a3a2e`
 
@@ -118,13 +122,13 @@ export class CaveSceneRenderer extends GameSceneRenderer {
   renderGrid(grid: Grid): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
-    this.renderLayer1Edges(grid, this.cellSize);
+    this.renderPlatformsAndWalls(grid, this.cellSize);
     this.renderShadows(grid);
   }
 
-  protected renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
-    // Your custom bottom row rendering (bricks, stones, etc.)
-    // This is called for each bottom-row cell
+  protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
+    // Your custom wall pattern rendering (bricks, stones, etc.)
+    // This is called for each wall cell
     // topBarY is at 15% from top (where horizontal line is drawn)
   }
 
@@ -239,7 +243,7 @@ Individual cells can have custom background textures that override theme renderi
 ```
 
 **How it works:**
-- In `renderLayer1Edges()`, cells with `backgroundTexture` are rendered as images at depth -100
+- In `renderPlatformsAndWalls()`, cells with `backgroundTexture` are rendered as images at depth -100
 - The theme's custom rendering (bricks, stones) is skipped for these cells
 - Texture is scaled to fit cell size
 
@@ -291,7 +295,7 @@ setTheme(theme: 'dungeon' | 'swamp'): void {
 2. **Use deterministic rendering** - Use seed-based randomness for consistent appearance
 3. **Set graphics depth to -10** - Ensures walls render behind player (done in base class)
 4. **Remove textures before recreating** - Check `scene.textures.exists()` and `remove()` before `createCanvas()`
-5. **Don't draw edges between adjacent bottom rows** - Only draw when adjacent cell is layer 0
+5. **Don't draw edges between adjacent walls** - Only draw when adjacent cell is layer 0
 
 ### Bottom Row Rendering
 
@@ -303,7 +307,7 @@ The `renderBottomRow()` method receives:
 
 **Pattern:**
 ```typescript
-protected renderBottomRow(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
+protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
   let currentY = topBarY + 4; // Start just below horizontal line
   
   while (currentY < y + cellSize) {

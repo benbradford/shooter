@@ -37,11 +37,23 @@ The game uses a fixed-size grid for collision detection and entity placement:
 Each grid cell tracks:
 ```typescript
 interface CellData {
-  layer: number;                  // Vertical layer (-1 = pit, 0 = ground, 1 = platform, etc.)
-  isTransition: boolean;          // Is this a staircase/transition between layers?
+### Cell Properties
+
+Each grid cell tracks:
+```typescript
+interface CellData {
+  layer: number;                  // Vertical layer (-1 = pit, 0 = ground, 1 = platform/wall)
+  properties: Set<CellProperty>;  // 'platform', 'wall', or 'stairs'
   occupants: Set<Entity>;         // Which entities are in this cell
 }
+
+type CellProperty = 'platform' | 'wall' | 'stairs';
 ```
+
+**Property Meanings:**
+- **'platform'**: Elevated surface (layer 1) - walkable, no visual pattern
+- **'wall'**: Solid barrier (layer 1) - blocks movement, renders with brick/stone pattern
+- **'stairs'**: Transition between layers - allows vertical movement only
 
 ### Layer System
 
@@ -50,13 +62,14 @@ The grid supports vertical layering for multi-level environments:
 **Layer Values:**
 - **Layer -1**: Pits, water, lower areas
 - **Layer 0**: Default ground level
-- **Layer 1**: Elevated platforms, upper floors
+- **Layer 1**: Platforms and walls (elevated surfaces)
 - **Layer 2+**: Higher levels (if needed)
 
 **Movement Rules:**
 - Entities can only move to cells on the **same layer**
-- Layer changes only allowed through **transition cells**
+- Layer changes only allowed through **transition cells** (stairs)
 - Diagonal movement between different layers is blocked
+- **Walls block all movement** (horizontal and vertical)
 
 **Transition Cells (Staircases):**
 - Special cells that connect two adjacent layers
@@ -71,6 +84,7 @@ The grid supports vertical layering for multi-level environments:
 **Projectile Rules:**
 - Projectiles can hit cells at **same layer or lower**
 - **Transition cells don't block projectiles**
+- **Walls block projectiles** (if `blockedByWalls: true`)
 - When projectile passes through transition cell, it gains access to layer+1
 - Example: Bullet fired from layer 0 → passes through transition → can now hit layer 1
 
@@ -79,6 +93,7 @@ The grid supports vertical layering for multi-level environments:
 - **Lighter shading**: Lower layers (layer -1)
 - **Blue overlay**: Transition cells
 - **Green overlay**: Occupied cells
+- **Brick/stone pattern**: Walls (layer 1 with 'wall' property)
 
 ### Grid API
 
@@ -115,11 +130,16 @@ for (let col = 5; col <= 8; col++) {
   }
 }
 
-// Layer 1 (elevated platform)
+// Layer 1 platform (elevated, walkable)
 for (let col = 15; col <= 20; col++) {
   for (let row = 8; row <= 12; row++) {
-    this.grid.setCell(col, row, { layer: 1 });
+    this.grid.setCell(col, row, { layer: 1, properties: new Set(['platform']) });
   }
+}
+
+// Layer 1 wall (blocks movement, renders with pattern)
+for (let col = 25; col <= 30; col++) {
+  this.grid.setCell(col, 10, { layer: 1, properties: new Set(['wall']) });
 }
 
 // Transition cell (staircase) to access layer 1 platform

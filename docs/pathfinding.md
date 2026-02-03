@@ -29,10 +29,16 @@ The `Pathfinder` class uses the A* algorithm to find the shortest path between t
 - **No diagonal movement** from transitions
 - This forces entities to move vertically to change layers, then move horizontally once off the transition
 
-**Wall Edges:**
-- Layer 1 cells with layer 0 directly below them are "wall edges"
-- Robots (`allowLayerChanges=false`) cannot path through wall edges
-- Bugs (`allowLayerChanges=true`) can path through wall edges horizontally/upward, but not downward
+**Walls:**
+- Layer 1 cells with `'wall'` property block movement
+- Robots (`allowLayerChanges=false`) cannot path through walls
+- Bugs (`allowLayerChanges=true`) can path through walls horizontally/upward, but not downward
+- Walls render with brick/stone patterns to distinguish them from platforms
+
+**Platforms:**
+- Layer 1 cells with `'platform'` property are elevated walkable surfaces
+- No special movement restrictions beyond layer rules
+- Render as elevated with no visual pattern
 
 **Critical: Collision Box Size**
 - The pathfinder finds valid paths, but `GridCollisionComponent` validates actual movement

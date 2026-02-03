@@ -7,7 +7,8 @@ This document helps create better level designs for Dodging Bullets.
 **Map dimensions:** 70 columns × 49 rows (each cell is 64×64 pixels)
 
 **Symbols for ASCII maps:**
-- `W` = Wall (layer 1)
+- `W` = Wall (layer 1, blocks movement, renders with brick/stone pattern)
+- `P` = Platform (layer 1, elevated walkable surface, no pattern)
 - `.` = Floor (layer 0)
 - `S` = Stairs (transition between layers)
 - `P` = Player start
@@ -16,6 +17,8 @@ This document helps create better level designs for Dodging Bullets.
 - `H` = Hard enemy
 - `B` = Bug base (spawner)
 - `T` = Thrower enemy
+
+**Note:** In ASCII maps, `W` represents walls. Platforms are typically not shown in ASCII maps since they're less common and can be represented as `.` with a note.
 
 ## Core Principles
 
