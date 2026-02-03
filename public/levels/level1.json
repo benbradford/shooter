@@ -11,763 +11,872 @@
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 4,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 5,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 6,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 16,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 17,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 18,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 19,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 20,
       "row": 14,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 4,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 5,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 6,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 15,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 16,
       "row": 15,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 17,
       "row": 15,
       "properties": [
         "stairs"
-      ]
+      ],
+      "layer": 0
     },
     {
       "col": 18,
       "row": 15,
       "properties": [
         "stairs"
-      ]
+      ],
+      "layer": 0
     },
     {
       "col": 19,
       "row": 15,
       "properties": [
         "stairs"
-      ]
+      ],
+      "layer": 0
     },
     {
       "col": 20,
       "row": 15,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 4,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 5,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 6,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 7,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 8,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 9,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 10,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 16,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 4,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 5,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 6,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 7,
       "row": 17,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 8,
       "row": 17,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 9,
       "row": 17,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 10,
       "row": 17,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 17,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 4,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 5,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 6,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 18,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 4,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 5,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 6,
       "row": 19,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 19,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 2,
       "row": 20,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 3,
       "row": 20,
       "properties": [
         "stairs"
-      ]
+      ],
+      "layer": 0
     },
     {
       "col": 4,
       "row": 20,
       "properties": [
         "stairs"
-      ]
+      ],
+      "layer": 0
     },
     {
       "col": 5,
       "row": 20,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 20,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 21,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 21,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 21,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 21,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 21,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
       "row": 21,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 15,
       "row": 21,
       "properties": [
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 22,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 22,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 22,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 22,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
       "row": 22,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 14,
@@ -775,35 +884,40 @@
       "properties": [
         "platform",
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 23,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 23,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 23,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 23,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 13,
@@ -811,455 +925,520 @@
       "properties": [
         "platform",
         "wall"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 24,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 24,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 24,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 24,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 25,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 25,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 25,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 25,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 26,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 26,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 26,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 26,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 27,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 27,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 27,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 27,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 28,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 28,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 28,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 28,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 29,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 29,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 29,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 29,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 30,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 30,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 30,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 30,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 31,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 31,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 31,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 31,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 32,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 32,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 32,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 32,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 33,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 33,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 33,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 33,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 34,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 34,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 34,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 34,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 35,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 35,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 35,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 35,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 36,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 36,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 36,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 36,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 37,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 37,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 37,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 37,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 38,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 38,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 38,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 38,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 0,
       "row": 39,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 1,
       "row": 39,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 11,
       "row": 39,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     },
     {
       "col": 12,
       "row": 39,
       "properties": [
         "platform"
-      ]
+      ],
+      "layer": 1
     }
   ],
   "robots": [

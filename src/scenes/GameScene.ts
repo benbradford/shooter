@@ -118,6 +118,7 @@ export default class GameScene extends Phaser.Scene {
 
     for (const cell of level.cells) {
       this.grid.setCell(cell.col, cell.row, {
+        layer: cell.layer ?? 0,
         properties: new Set(cell.properties ?? []),
         backgroundTexture: cell.backgroundTexture
       });

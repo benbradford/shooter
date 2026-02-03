@@ -60,13 +60,28 @@ export class SwampSceneRenderer extends GameSceneRenderer {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
 
+          // Fill top 20% with platform color
+          const topBarY = y + (this.cellSize * 0.2);
+          this.graphics.fillStyle(COBBLE_COLOR_1, 1);
+          this.graphics.fillRect(x, y, this.cellSize, this.cellSize * 0.2);
+          
+          // Draw top bar line
+          this.graphics.lineStyle(8, WALL_EDGE_COLOR, 1);
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + this.cellSize, topBarY));
+
           const stepCount = 4;
-          const stepHeight = this.cellSize / stepCount;
+          const startY = topBarY;
+          const availableHeight = this.cellSize * 0.8;
+          const stepHeight = availableHeight / stepCount;
 
           for (let i = 0; i < stepCount; i++) {
-            const stepY = y + i * stepHeight;
+            const stepY = startY + i * stepHeight;
             
-            this.graphics.fillStyle(0x5a6a4e - i * 0x0a0a0a, 1);
+            // Progressive shading: darker at bottom, lighter at top
+            const brightness = i / (stepCount - 1);  // 0 to 1
+            const shadedColor = COBBLE_COLOR_1 - 0x202020 + Math.floor(0x202020 * brightness);
+            
+            this.graphics.fillStyle(shadedColor, 1);
             this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
             
             this.graphics.lineStyle(1, 0x2a3a2e, 0.6);
@@ -83,7 +98,7 @@ export class SwampSceneRenderer extends GameSceneRenderer {
         const cell = grid.getCell(col, row);
         if (cell && grid.getLayer(cell) === 1 && !grid.isTransition(cell)) {
           const cellBelow = grid.getCell(col, row + 1);
-          if (cellBelow && grid.getLayer(cellBelow) === 0) {
+          if (cellBelow && grid.getLayer(cellBelow) === 0 && !grid.isTransition(cellBelow)) {
             for (let i = 1; i <= SHADOW_STEPS; i++) {
               const checkRow = row + i;
               const shadowCell = grid.getCell(col, checkRow);

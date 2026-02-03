@@ -51,11 +51,16 @@ export class GridCollisionComponent implements Component {
       return true;
     }
 
-    // Block movement into layer 1 cells that have layer 0 below (unless transition or coming from transition)
+    // Block movement into higher layers (unless transition or coming from transition)
     const toLayer = this.grid.getLayer(toCell);
     const fromLayer = this.grid.getLayer(fromCell);
     
-    if (toLayer === 1 && this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
+    if (toLayer > fromLayer && !this.grid.isTransition(fromCell) && !this.grid.isTransition(toCell)) {
+      return false;
+    }
+    
+    // Block movement into walls specifically
+    if (this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
       return false;
     }
 
@@ -294,8 +299,19 @@ export class GridCollisionComponent implements Component {
     const centerY = transform.y + gridPos.collisionBox.offsetY;
     const centerCell = this.grid.worldToCell(centerX, centerY);
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
-    if (centerCellData && !this.grid.isTransition(centerCellData)) {
-      gridPos.currentLayer = this.grid.getLayer(centerCellData);
+    
+    if (centerCellData) {
+      if (this.grid.isTransition(centerCellData)) {
+        // In transition: allow access to adjacent layers
+        const transitionLayer = this.grid.getLayer(centerCellData);
+        // Keep current layer if within range, otherwise snap to transition layer
+        if (gridPos.currentLayer < transitionLayer - 1 || gridPos.currentLayer > transitionLayer + 1) {
+          gridPos.currentLayer = transitionLayer;
+        }
+      } else {
+        // Not in transition: update to cell's layer
+        gridPos.currentLayer = this.grid.getLayer(centerCellData);
+      }
     }
 
     this.previousX = transform.x;

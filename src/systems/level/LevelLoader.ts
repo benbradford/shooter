@@ -5,6 +5,7 @@ export type LevelTheme = 'dungeon' | 'swamp';
 export type LevelCell = {
   col: number;
   row: number;
+  layer?: number;
   properties?: CellProperty[];
   backgroundTexture?: string;
 }

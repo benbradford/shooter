@@ -55,6 +55,7 @@ export class Grid {
       this.cells[row] = [];
       for (let col = 0; col < width; col++) {
         this.cells[row][col] = {
+          layer: 0,
           properties: new Set(),
           occupants: new Set()
         };
@@ -89,8 +90,7 @@ export class Grid {
    * Helper to get layer number from properties
    */
   getLayer(cell: CellData): number {
-    if (cell.properties.has('platform') || cell.properties.has('wall') || cell.properties.has('stairs')) return 1;
-    return 0;
+    return cell.layer;
   }
 
   /**
@@ -130,6 +130,10 @@ export class Grid {
     const oldTexture = cell.backgroundTexture;
     const oldLayer = this.getLayer(cell);
 
+    // Merge layer if provided
+    if (data.layer !== undefined) {
+      cell.layer = data.layer;
+    }
     // Merge properties if provided
     if (data.properties) {
       cell.properties = new Set(data.properties);
@@ -359,6 +363,7 @@ export class Grid {
     const newRow: CellData[] = [];
     for (let col = 0; col < this.width; col++) {
       newRow.push({
+        layer: 0,
         properties: new Set(),
         occupants: new Set()
       });
@@ -370,6 +375,7 @@ export class Grid {
   addColumn(): void {
     for (let row = 0; row < this.height; row++) {
       this.cells[row].push({
+        layer: 0,
         properties: new Set(),
         occupants: new Set()
       });

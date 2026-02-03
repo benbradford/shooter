@@ -156,18 +156,33 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (cell && grid.getLayer(cell) === 1 && grid.isTransition(cell)) {
+        if (cell && grid.isTransition(cell)) {
           const x = col * grid.cellSize;
           const y = row * grid.cellSize;
 
+          // Fill top 20% with platform color
+          const topBarY = y + (grid.cellSize * 0.2);
+          this.graphics.fillStyle(LAYER1_FILL_COLOR, 1);
+          this.graphics.fillRect(x, y, grid.cellSize, grid.cellSize * 0.2);
+          
+          // Draw top bar line
+          this.graphics.lineStyle(8, LAYER1_EDGE_COLOR, 1);
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + grid.cellSize, topBarY));
+
           const numSteps = 5;
-          const startY = y + (grid.cellSize * 0.2);
+          const startY = topBarY;
           const stepHeight = (grid.cellSize * 0.8) / numSteps;
 
           for (let step = 0; step < numSteps; step++) {
             const stepY = startY + step * stepHeight;
+            
+            // Progressive shading: darker at bottom, lighter at top
+            const brightness = step / (numSteps - 1);  // 0 to 1
+            const baseColor = LAYER1_FILL_COLOR;
+            const darkenAmount = 0x202020;
+            const shadedColor = baseColor - darkenAmount + Math.floor(darkenAmount * brightness);
 
-            this.graphics.fillStyle(LAYER1_FILL_COLOR, 1);
+            this.graphics.fillStyle(shadedColor, 1);
             this.graphics.fillRect(x, stepY, grid.cellSize, stepHeight);
 
             this.graphics.lineStyle(2, LAYER1_EDGE_COLOR, 1);
@@ -189,7 +204,7 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
           const shadowWidth = 24;
           const shadowSteps = 8;
 
-          if (col < grid.width - 1 && grid.getLayer(grid.cells[row][col + 1]) === 0) {
+          if (col < grid.width - 1 && grid.getLayer(grid.cells[row][col + 1]) === 0 && !grid.isTransition(grid.cells[row][col + 1])) {
             // eslint-disable-next-line max-depth
             for (let i = 0; i < shadowSteps; i++) {
               const alpha = 0.4 * (1 - i / shadowSteps);
@@ -199,7 +214,7 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
             }
           }
 
-          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0) {
+          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0 && !grid.isTransition(grid.cells[row + 1][col])) {
             // eslint-disable-next-line max-depth
             for (let i = 0; i < shadowSteps; i++) {
               const alpha = 0.4 * (1 - i / shadowSteps);
@@ -210,9 +225,9 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
           }
 
           if (col < grid.width - 1 && row < grid.height - 1 &&
-              grid.getLayer(grid.cells[row + 1][col + 1]) === 0 &&
-              grid.getLayer(grid.cells[row][col + 1]) === 0 &&
-              grid.getLayer(grid.cells[row + 1][col]) === 0) {
+              grid.getLayer(grid.cells[row + 1][col + 1]) === 0 && !grid.isTransition(grid.cells[row + 1][col + 1]) &&
+              grid.getLayer(grid.cells[row][col + 1]) === 0 && !grid.isTransition(grid.cells[row][col + 1]) &&
+              grid.getLayer(grid.cells[row + 1][col]) === 0 && !grid.isTransition(grid.cells[row + 1][col])) {
             // eslint-disable-next-line max-depth
             for (let i = 0; i < shadowSteps; i++) {
               // eslint-disable-next-line max-depth

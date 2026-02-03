@@ -25,9 +25,13 @@ export abstract class GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (cell && grid.getLayer(cell) === 1) {
+        const isStairs = cell && grid.isTransition(cell);
+        const isLayer1 = cell && grid.getLayer(cell) === 1;
+        
+        if (isLayer1 || isStairs) {
           const x = col * cellSize;
           const y = row * cellSize;
+          const topBarY = y + (cellSize * 0.2);
 
           if (cell.backgroundTexture) {
             const sprite = this.scene.add.image(x, y, cell.backgroundTexture);
@@ -41,10 +45,12 @@ export abstract class GameSceneRenderer {
 
           if (col < grid.width - 1) {
             const rightCell = grid.cells[row][col + 1];
-            const rightIsLayer0 = grid.getLayer(rightCell) === 0;
+            const rightIsLayer0 = grid.getLayer(rightCell) === 0 && !grid.isTransition(rightCell);
             if (rightIsLayer0) {
+              // For stairs, only draw edge below top 20%
+              const startY = isStairs ? topBarY : y;
               this.graphics.strokeLineShape(new Phaser.Geom.Line(
-                x + cellSize, y,
+                x + cellSize, startY,
                 x + cellSize, y + cellSize
               ));
             }
@@ -52,14 +58,19 @@ export abstract class GameSceneRenderer {
 
           if (col > 0) {
             const leftCell = grid.cells[row][col - 1];
-            const leftIsLayer0 = grid.getLayer(leftCell) === 0;
+            const leftIsLayer0 = grid.getLayer(leftCell) === 0 && !grid.isTransition(leftCell);
             if (leftIsLayer0) {
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + cellSize));
+              // For stairs, only draw edge below top 20%
+              const startY = isStairs ? topBarY : y;
+              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, startY, x, y + cellSize));
             }
           }
 
-          if (row > 0 && grid.getLayer(grid.cells[row - 1][col]) === 0) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + cellSize, y));
+          if (row > 0 && grid.getLayer(grid.cells[row - 1][col]) === 0 && !grid.isTransition(grid.cells[row - 1][col])) {
+            // Don't draw top edge for stairs (they have the bar instead)
+            if (!isStairs) {
+              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + cellSize, y));
+            }
           }
 
           if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0 && grid.isWall(cell)) {
