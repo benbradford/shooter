@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 6,
-    "y": 24
+    "x": 7,
+    "y": 23
   },
   "cells": [
     {
@@ -1441,11 +1441,36 @@
       ]
     }
   ],
-  "bugBases": [
+  "robots": [
     {
-      "col": 9,
-      "row": 21,
-      "difficulty": "hard"
+      "col": 8,
+      "row": 22,
+      "difficulty": "medium",
+      "waypoints": [
+        {
+          "col": 7,
+          "row": 22
+        },
+        {
+          "col": 9,
+          "row": 22
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 15,
+      "difficulty": "medium",
+      "waypoints": [
+        {
+          "col": 1,
+          "row": 15
+        },
+        {
+          "col": 3,
+          "row": 15
+        }
+      ]
     }
   ],
   "triggers": [

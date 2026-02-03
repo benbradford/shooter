@@ -213,9 +213,6 @@ export class InputComponent implements Component {
       const enemyGridPos = enemy.get(GridPositionComponent);
       if (!enemyTransform || !enemyGridPos) continue;
 
-      // Only target enemies on same layer or lower
-      if (enemyGridPos.currentLayer > playerGridPos.currentLayer) continue;
-
       const dx = enemyTransform.x - playerTransform.x;
       const dy = enemyTransform.y - playerTransform.y;
       const distance = Math.hypot(dx, dy);
@@ -237,13 +234,13 @@ export class InputComponent implements Component {
     return null;
   }
 
-  private hasLineOfSight(x1: number, y1: number, x2: number, y2: number, playerLayer: number, enemyLayer: number): boolean {
+  private hasLineOfSight(x1: number, y1: number, x2: number, y2: number, playerLayer: number, _enemyLayer: number): boolean {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const distance = Math.hypot(dx, dy);
     const steps = Math.ceil(distance / (this.grid.cellSize / 2));
 
-    const minLayer = Math.min(playerLayer, enemyLayer);
+    let currentLayer = playerLayer;
 
     for (let i = 0; i <= steps; i++) {
       const t = i / steps;
@@ -252,8 +249,13 @@ export class InputComponent implements Component {
       const cell = this.grid.worldToCell(x, y);
       const cellData = this.grid.getCell(cell.col, cell.row);
       
-      // Block if cell layer is higher than both entities
-      if (cellData && this.grid.getLayer(cellData) > minLayer) {
+      if (!cellData) return false;
+
+      if (this.grid.isTransition(cellData)) {
+        currentLayer = Math.max(currentLayer, this.grid.getLayer(cellData) + 1);
+      }
+
+      if (this.grid.getLayer(cellData) > currentLayer && !this.grid.isTransition(cellData)) {
         return false;
       }
     }

@@ -194,7 +194,27 @@ if (isTransition(cell) && cell.layer === this.currentLayer) {
 - Painting cells applies selected layer + properties
 - Can now create multi-layer test scenarios in editor
 
-### Phase 7: Testing ⏸️ NOT STARTED
+### Phase 7: Auto-Aim ✅ COMPLETED
+**Files modified:**
+- [x] `src/ecs/components/input/InputComponent.ts`
+  - Skip enemies at higher layers (`enemyLayer > playerLayer`)
+  - Upgrade layer through transitions in LOS raycast
+  - Block LOS by walls at higher layers than current raycast layer
+- [x] Verified build: `npm run build` ✅
+- [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
+
+**Rules:**
+- Target enemies at same layer (not blocked by higher walls)
+- Target enemies at lower layers
+- Don't target enemies at higher layers
+- LOS upgrades through transitions (same as LineOfSightComponent)
+
+**Changes made:**
+- Auto-aim now respects layer system
+- LOS raycast upgrades layer when passing through stairs
+- Enemies at higher layers are never targeted
+
+### Phase 8: Testing ⏸️ NOT STARTED
 **Files to create:**
 - [ ] `test/tests/player/test-multi-layer.js`
 
