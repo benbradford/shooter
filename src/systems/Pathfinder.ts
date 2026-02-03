@@ -188,16 +188,13 @@ export class Pathfinder {
       }
     }
 
-    // Block movement into wall edges (layer 1 with layer 0 below)
-    if (targetLayer === 1) {
-      const cellBelow = this.grid.getCell(newCol, newRow + 1);
-      if (cellBelow && this.grid.getLayer(cellBelow) === 0) {
-        if (dir.col !== 0 && dir.row === 0) {
-          return null;
-        }
-        if (!allowLayerChanges) {
-          return null;
-        }
+    // Block movement into walls
+    if (targetLayer === 1 && this.grid.isWall(targetCell)) {
+      if (dir.col !== 0 && dir.row === 0) {
+        return null;
+      }
+      if (!allowLayerChanges) {
+        return null;
       }
     }
 

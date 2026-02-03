@@ -1,6 +1,6 @@
 import type { Entity } from '../../ecs/Entity';
 
-export type CellProperty = 'wall' | 'elevated' | 'stairs';
+export type CellProperty = 'platform' | 'wall' | 'stairs';
 
 export type CellData = {
   properties: Set<CellProperty>;

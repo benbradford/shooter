@@ -43,9 +43,15 @@ Quick reference for navigating the Dodging Bullets documentation.
    - Separation from grid collision
    - Debug visualization (C key)
 
+7. **[Event System](./event-system.md)** - Event-driven gameplay
+   - EventManagerSystem and EventListener
+   - BaseEventComponent for automatic cleanup
+   - Triggers and event flow
+   - One-shot vs repeating triggers
+
 ## Input and Controls
 
-7. **[Input Systems](./input-systems.md)** - Player controls
+8. **[Input Systems](./input-systems.md)** - Player controls
    - Touch joystick (movement)
    - Crosshair button (firing)
    - Keyboard controls

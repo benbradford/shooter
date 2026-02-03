@@ -55,11 +55,8 @@ export class GridCollisionComponent implements Component {
     const toLayer = this.grid.getLayer(toCell);
     const fromLayer = this.grid.getLayer(fromCell);
     
-    if (toLayer === 1 && !this.grid.isTransition(toCell) && !this.grid.isTransition(fromCell)) {
-      const cellBelow = this.grid.getCell(toCol, toRow + 1);
-      if (cellBelow && this.grid.getLayer(cellBelow) === 0) {
-        return false;
-      }
+    if (toLayer === 1 && this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
+      return false;
     }
 
     // If in a transition cell, allow movement to adjacent layers
@@ -67,12 +64,9 @@ export class GridCollisionComponent implements Component {
       // Allow movement to transitions
       if (this.grid.isTransition(toCell)) return true;
       
-      // Block movement into wall edges (layer 1 with layer 0 below)
-      if (toLayer === 1) {
-        const cellBelow = this.grid.getCell(toCol, toRow + 1);
-        if (cellBelow && this.grid.getLayer(cellBelow) === 0) {
-          return false;
-        }
+      // Block movement into walls
+      if (toLayer === 1 && this.grid.isWall(toCell)) {
+        return false;
       }
       
       // Allow movement to adjacent layers

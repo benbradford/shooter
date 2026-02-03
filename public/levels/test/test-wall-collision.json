@@ -10,7 +10,7 @@
       "col": 3,
       "row": 3,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
@@ -38,49 +38,49 @@
       "col": 7,
       "row": 3,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
       "col": 3,
       "row": 4,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 4,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
       "col": 3,
       "row": 5,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 5,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
       "col": 3,
       "row": 6,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 6,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {

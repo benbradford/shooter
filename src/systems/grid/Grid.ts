@@ -89,7 +89,7 @@ export class Grid {
    * Helper to get layer number from properties
    */
   getLayer(cell: CellData): number {
-    if (cell.properties.has('wall') || cell.properties.has('stairs')) return 1;
+    if (cell.properties.has('platform') || cell.properties.has('wall') || cell.properties.has('stairs')) return 1;
     return 0;
   }
 
@@ -98,6 +98,13 @@ export class Grid {
    */
   isTransition(cell: CellData): boolean {
     return cell.properties.has('stairs');
+  }
+
+  /**
+   * Helper to check if cell is a wall
+   */
+  isWall(cell: CellData): boolean {
+    return cell.properties.has('wall');
   }
 
   /**

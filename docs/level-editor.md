@@ -15,6 +15,7 @@ interface LevelData {
   cells: LevelCell[];     // Array of special cells
   robots?: LevelRobot[];  // Optional robot enemies
   bugBases?: LevelBugBase[]; // Optional bug spawners
+  triggers?: LevelTrigger[]; // Optional event triggers
   vignette?: VignetteConfig; // Optional screen overlay
 }
 
@@ -23,6 +24,12 @@ interface LevelCell {
   row: number;            // Row position
   layer?: number;         // Layer (-1 = pit, 0 = ground, 1 = platform)
   isTransition?: boolean; // Is this a staircase?
+}
+
+interface LevelTrigger {
+  eventName: string;      // Event to raise when triggered
+  triggerCells: Array<{ col: number; row: number }>; // Cells that trigger the event
+  oneShot: boolean;       // If true, trigger once and destroy; if false, trigger every frame while in cell
 }
 ```
 
@@ -229,6 +236,43 @@ Allows painting background textures onto grid cells.
 6. Run `npm run build && npx eslint src --ext .ts`
 
 **Note:** Background textures are saved in the level JSON and persist across sessions.
+
+### Trigger Mode
+
+Allows creating and editing event triggers - invisible areas that fire events when the player enters them.
+
+**UI Panel (right side):**
+- **Event Name** input - Name of the event to raise (e.g., "door_open", "testTrigger")
+- **One-shot trigger** checkbox - If checked, trigger fires once and destroys itself; if unchecked, fires every frame while player is in trigger cell
+- **Instructions** - "Click grid cells to select trigger area"
+- **Add Trigger / Save** button - Creates new trigger or saves changes to existing trigger
+- **Delete** button - Only shown when editing existing trigger
+- **Back** button - Returns to default mode
+
+**Usage:**
+1. Click **Trigger** button in default mode
+2. Enter event name
+3. Check/uncheck "One-shot trigger" as needed
+4. Click grid cells to select trigger area (white borders appear)
+5. Click **Add Trigger** to create, or **Save** to update existing trigger
+6. Triggers appear as yellow semi-transparent boxes in editor
+
+**Editing Existing Triggers:**
+- Click any cell of an existing trigger (yellow box) in default mode
+- Opens trigger editor with event name, oneShot value, and cells pre-loaded
+- Can add/remove cells by clicking
+- Click **Save** to update or **Delete** to remove
+
+**Visual Feedback:**
+- Yellow boxes with semi-transparent fill show trigger areas in editor
+- White borders show selected cells while editing
+- Triggers are hidden while in trigger edit mode (to see cell selection clearly)
+- Triggers reappear when returning to default mode
+
+**Important:**
+- `oneShot` field is required in level JSON - no default values
+- Triggers are invisible during gameplay (only visible in editor)
+- Events are raised through `EventManagerSystem.raiseEvent(eventName)`
 
 ### Theme Mode
 

@@ -62,7 +62,7 @@ export abstract class GameSceneRenderer {
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + cellSize, y));
           }
 
-          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0 && !grid.isTransition(cell)) {
+          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0 && grid.isWall(cell)) {
             const topBarY = y + (cellSize * 0.2);
 
             this.graphics.lineStyle(edgeThickness, edgeColor, 1);
