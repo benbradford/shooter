@@ -1,0 +1,43 @@
+{
+  "spritesheet": {
+    "file": "skeleton-spritesheet.png",
+    "frameWidth": 48,
+    "frameHeight": 48,
+    "dimensions": {
+      "width": 288,
+      "height": 1344,
+      "columns": 6,
+      "rows": 28
+    }
+  },
+  "animations": [
+    {
+      "name": "idle",
+      "rowStart": 0,
+      "rowEnd": 7,
+      "frameCount": 1,
+      "directions": ["south", "south-east", "east", "north-east", "north", "north-west", "west", "south-west"]
+    },
+    {
+      "name": "walk",
+      "rowStart": 8,
+      "rowEnd": 15,
+      "frameCount": 4,
+      "directions": ["south", "south-east", "east", "north-east", "north", "north-west", "west", "south-west"]
+    },
+    {
+      "name": "jab",
+      "rowStart": 16,
+      "rowEnd": 23,
+      "frameCount": 3,
+      "directions": ["south", "south-east", "east", "north-east", "north", "north-west", "west", "south-west"]
+    },
+    {
+      "name": "punch",
+      "rowStart": 24,
+      "rowEnd": 27,
+      "frameCount": 6,
+      "directions": ["south", "east", "north", "west"]
+    }
+  ]
+}

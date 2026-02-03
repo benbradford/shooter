@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 7,
-    "y": 23
+    "x": 6,
+    "y": 24
   },
   "cells": [
     {
@@ -1041,6 +1041,62 @@
       ]
     },
     {
+      "col": 3,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 11,
       "row": 27,
       "layer": 1,
@@ -1066,6 +1122,62 @@
     },
     {
       "col": 1,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "stairs"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 28,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 9,
       "row": 28,
       "layer": 1,
       "properties": [
@@ -1098,6 +1210,22 @@
     },
     {
       "col": 1,
+      "row": 29,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 29,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
       "row": 29,
       "layer": 1,
       "properties": [
@@ -1130,6 +1258,22 @@
     },
     {
       "col": 1,
+      "row": 30,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 30,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
       "row": 30,
       "layer": 1,
       "properties": [
@@ -1162,6 +1306,22 @@
     },
     {
       "col": 1,
+      "row": 31,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 31,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
       "row": 31,
       "layer": 1,
       "properties": [
@@ -1194,6 +1354,62 @@
     },
     {
       "col": 1,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 32,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
       "row": 32,
       "layer": 1,
       "properties": [
@@ -1230,6 +1446,62 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "stairs"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 33,
+      "layer": 1,
+      "properties": [
+        "wall"
       ]
     },
     {
@@ -1443,8 +1715,8 @@
   ],
   "robots": [
     {
-      "col": 8,
-      "row": 22,
+      "col": 10,
+      "row": 19,
       "difficulty": "medium",
       "waypoints": [
         {
@@ -1458,7 +1730,7 @@
       ]
     },
     {
-      "col": 2,
+      "col": 1,
       "row": 15,
       "difficulty": "medium",
       "waypoints": [

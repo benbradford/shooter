@@ -146,6 +146,8 @@ export class GridEditorState extends EditorState {
       }
     });
 
+    if (selectedTags.size === 0) return;
+
     this.scene.setCellData(cell.col, cell.row, { 
       layer: this.selectedLayer,
       properties: selectedTags 
