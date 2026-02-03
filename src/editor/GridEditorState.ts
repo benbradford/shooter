@@ -7,6 +7,7 @@ export class GridEditorState extends EditorState {
   private readonly checkboxes: Map<CellProperty, { box: Phaser.GameObjects.Rectangle; label: Phaser.GameObjects.Text; checked: boolean }> = new Map();
   private selectionGraphics!: Phaser.GameObjects.Graphics;
   private isDragging: boolean = false;
+  private selectedLayer: number = 0;
 
   onEnter(): void {
     const width = this.scene.cameras.main.width;
@@ -17,6 +18,39 @@ export class GridEditorState extends EditorState {
 
     // Back button
     this.buttons.push(this.createBackButton());
+
+    // Layer buttons at top
+    const layerY = 20;
+    const layerStartX = width / 2 - 250;
+    const layerSpacing = 120;
+    
+    for (let layer = 0; layer <= 3; layer++) {
+      const btn = this.scene.add.text(
+        layerStartX + layer * layerSpacing,
+        layerY,
+        `Layer ${layer}`,
+        {
+          fontSize: '20px',
+          color: '#ffffff',
+          backgroundColor: layer === 0 ? '#00ff00' : '#333333',
+          padding: { x: 15, y: 8 }
+        }
+      );
+      btn.setOrigin(0.5);
+      btn.setScrollFactor(0);
+      btn.setDepth(1000);
+      btn.setInteractive({ useHandCursor: true });
+      
+      btn.on('pointerdown', () => {
+        this.selectedLayer = layer;
+        // Update button colors
+        this.buttons.slice(1).forEach((b, i) => {
+          b.setBackgroundColor(i === layer ? '#00ff00' : '#333333');
+        });
+      });
+      
+      this.buttons.push(btn);
+    }
 
     // Tag checkboxes on right side
     const tags: CellProperty[] = ['platform', 'wall', 'stairs'];
@@ -112,6 +146,9 @@ export class GridEditorState extends EditorState {
       }
     });
 
-    this.scene.setCellData(cell.col, cell.row, { properties: selectedTags });
+    this.scene.setCellData(cell.col, cell.row, { 
+      layer: this.selectedLayer,
+      properties: selectedTags 
+    });
   }
 }

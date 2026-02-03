@@ -69,8 +69,8 @@ export class GridCollisionComponent implements Component {
       // Allow movement to transitions
       if (this.grid.isTransition(toCell)) return true;
       
-      // Block movement into walls
-      if (toLayer === 1 && this.grid.isWall(toCell)) {
+      // Block movement into walls at any layer
+      if (this.grid.isWall(toCell)) {
         return false;
       }
       

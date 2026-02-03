@@ -14,6 +14,10 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     return LAYER1_EDGE_COLOR;
   }
 
+  protected getPlatformFillColor(): number {
+    return LAYER1_FILL_COLOR;
+  }
+
   renderGrid(grid: Grid): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
@@ -21,10 +25,10 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     this.renderShadows(grid);
   }
 
-  protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, _seed: number): void {
+  protected renderWallPattern(x: number, y: number, cellSize: number, _topBarY: number, _seed: number): void {
     const brickHeight = 10;
     const brickWidth = cellSize / 3;
-    let currentY = topBarY + 4;
+    let currentY = y;
     let rowIndex = 0;
 
     while (currentY < y + cellSize) {
@@ -164,10 +168,6 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
           const topBarY = y + (grid.cellSize * 0.2);
           this.graphics.fillStyle(LAYER1_FILL_COLOR, 1);
           this.graphics.fillRect(x, y, grid.cellSize, grid.cellSize * 0.2);
-          
-          // Draw top bar line
-          this.graphics.lineStyle(8, LAYER1_EDGE_COLOR, 1);
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + grid.cellSize, topBarY));
 
           const numSteps = 5;
           const startY = topBarY;
@@ -177,7 +177,7 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
             const stepY = startY + step * stepHeight;
             
             // Progressive shading: darker at bottom, lighter at top
-            const brightness = step / (numSteps - 1);  // 0 to 1
+            const brightness = 1 - (step / (numSteps - 1));  // 1 to 0 (reversed)
             const baseColor = LAYER1_FILL_COLOR;
             const darkenAmount = 0x202020;
             const shadedColor = baseColor - darkenAmount + Math.floor(darkenAmount * brightness);
@@ -198,23 +198,29 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (cell && grid.getLayer(cell) === 1) {
+        if (cell && grid.getLayer(cell) >= 1) {
           const x = col * grid.cellSize;
           const y = row * grid.cellSize;
           const shadowWidth = 24;
-          const shadowSteps = 8;
+          const shadowSteps = 24;
+          const currentLayer = grid.getLayer(cell);
 
-          if (col < grid.width - 1 && grid.getLayer(grid.cells[row][col + 1]) === 0 && !grid.isTransition(grid.cells[row][col + 1])) {
-            // eslint-disable-next-line max-depth
-            for (let i = 0; i < shadowSteps; i++) {
-              const alpha = 0.4 * (1 - i / shadowSteps);
-              const stepWidth = shadowWidth / shadowSteps;
-              this.graphics.fillStyle(0x000000, alpha);
-              this.graphics.fillRect(x + grid.cellSize + i * stepWidth, y, stepWidth, grid.cellSize);
+          if (col < grid.width - 1) {
+            const rightCell = grid.cells[row][col + 1];
+            const rightIsLower = grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell);
+            
+            if (rightIsLower) {
+              // eslint-disable-next-line max-depth
+              for (let i = 0; i < shadowSteps; i++) {
+                const alpha = 0.4 * (1 - i / shadowSteps);
+                const stepWidth = shadowWidth / shadowSteps;
+                this.graphics.fillStyle(0x000000, alpha);
+                this.graphics.fillRect(x + grid.cellSize + i * stepWidth, y, stepWidth, grid.cellSize);
+              }
             }
           }
 
-          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) === 0 && !grid.isTransition(grid.cells[row + 1][col])) {
+          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) < currentLayer && !grid.isTransition(grid.cells[row + 1][col])) {
             // eslint-disable-next-line max-depth
             for (let i = 0; i < shadowSteps; i++) {
               const alpha = 0.4 * (1 - i / shadowSteps);
@@ -224,23 +230,30 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
             }
           }
 
-          if (col < grid.width - 1 && row < grid.height - 1 &&
-              grid.getLayer(grid.cells[row + 1][col + 1]) === 0 && !grid.isTransition(grid.cells[row + 1][col + 1]) &&
-              grid.getLayer(grid.cells[row][col + 1]) === 0 && !grid.isTransition(grid.cells[row][col + 1]) &&
-              grid.getLayer(grid.cells[row + 1][col]) === 0 && !grid.isTransition(grid.cells[row + 1][col])) {
-            // eslint-disable-next-line max-depth
-            for (let i = 0; i < shadowSteps; i++) {
+          if (col < grid.width - 1 && row < grid.height - 1) {
+            const diagCell = grid.cells[row + 1][col + 1];
+            const rightCell = grid.cells[row][col + 1];
+            const belowCell = grid.cells[row + 1][col];
+            
+            const diagIsLowerOrStairs = (grid.getLayer(diagCell) < currentLayer && !grid.isTransition(diagCell)) || grid.isTransition(diagCell);
+            const rightIsLowerOrStairs = (grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell)) || grid.isTransition(rightCell);
+            const belowIsLower = grid.getLayer(belowCell) < currentLayer && !grid.isTransition(belowCell);
+            
+            if (diagIsLowerOrStairs && rightIsLowerOrStairs && belowIsLower) {
               // eslint-disable-next-line max-depth
-              for (let j = 0; j < shadowSteps; j++) {
-                const alpha = 0.4 * (1 - Math.max(i, j) / shadowSteps);
-                const stepSize = shadowWidth / shadowSteps;
-                this.graphics.fillStyle(0x000000, alpha);
-                this.graphics.fillRect(
-                  x + grid.cellSize + i * stepSize,
-                  y + grid.cellSize + j * stepSize,
-                  stepSize,
-                  stepSize
-                );
+              for (let i = 0; i < shadowSteps; i++) {
+                // eslint-disable-next-line max-depth
+                for (let j = 0; j < shadowSteps; j++) {
+                  const alpha = 0.4 * (1 - Math.max(i, j) / shadowSteps);
+                  const stepSize = shadowWidth / shadowSteps;
+                  this.graphics.fillStyle(0x000000, alpha);
+                  this.graphics.fillRect(
+                    x + grid.cellSize + i * stepSize,
+                    y + grid.cellSize + j * stepSize,
+                    stepSize,
+                    stepSize
+                  );
+                }
               }
             }
           }

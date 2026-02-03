@@ -81,11 +81,21 @@ node scripts/migrate-multi-layer.js
 - Transitions allow movement to layers within range (transitionLayer ±1)
 - Wall blocking logic preserved (walls always block unless from transition)
 
-### Phase 3: Rendering ⏸️ NOT STARTED
-**Files to modify:**
-- [ ] `src/scenes/theme/GameSceneRenderer.ts`
-  - Update `renderPlatformsAndWalls()` to check `layer < currentCell.layer`
-  - Currently checks `layer === 0`, should check relative layers
+### Phase 3: Rendering ✅ COMPLETED
+**Files modified:**
+- [x] `src/scenes/theme/GameSceneRenderer.ts`
+  - Updated `renderPlatformsAndWalls()` to check `layer < currentCell.layer` instead of `layer === 0`
+  - Edges now render based on relative layer comparison
+  - Works for any layer height (not just 0 and 1)
+- [x] Verified build: `npm run build` ✅
+- [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
+
+**Changes made:**
+- Right edge: Draws when `rightCell.layer < currentLayer`
+- Left edge: Draws when `leftCell.layer < currentLayer`
+- Top edge: Draws when `aboveCell.layer < currentLayer`
+- Bottom edge: Draws when `belowCell.layer < currentLayer` (walls only)
+- System now supports arbitrary layer heights (0, 1, 2, 3, ...)
 
 **Logic:**
 ```typescript
@@ -132,19 +142,22 @@ if (targetCell.layer !== currentCell.layer) {
 }
 ```
 
-### Phase 6: Editor ⏸️ NOT STARTED
-**Files to modify:**
-- [ ] `src/editor/GridEditorState.ts`
-  - Add layer display with +/- buttons
-  - Save layer value to selected cell
-- [ ] `src/scenes/EditorScene.ts`
-  - Update `getCurrentLevelData()` to include layer
+### Phase 6: Editor ✅ COMPLETED
+**Files modified:**
+- [x] `src/editor/GridEditorState.ts`
+  - Added `selectedLayer` field (default 0)
+  - Added layer selection buttons (Layer 0, 1, 2, 3) at top of screen
+  - Updated `paintCell()` to apply selected layer
+- [x] `src/scenes/EditorScene.ts`
+  - Updated `setCellData()` signature to accept `layer` parameter
+- [x] Verified build: `npm run build` ✅
+- [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
 
-**UI:**
-```
-Layer: [-] [0] [+]
-Tags: [platform] [wall] [stairs]
-```
+**Changes made:**
+- Grid editor now has 4 layer buttons at top (Layer 0-3)
+- Selected layer highlighted in green
+- Painting cells applies selected layer + properties
+- Can now create multi-layer test scenarios in editor
 
 ### Phase 7: Testing ⏸️ NOT STARTED
 **Files to create:**

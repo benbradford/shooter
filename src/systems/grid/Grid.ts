@@ -258,12 +258,13 @@ export class Grid {
         if (layer < 0) {
           layerAlpha = 0.25;
           layerColor = 0xffffff;
-        } else if (layer > 0) {
-          layerAlpha = 0.4;
-          layerColor = 0x000000;
-        } else {
+        } else if (layer === 0) {
           layerAlpha = 0.1;
           layerColor = 0x808080;
+        } else {
+          // Progressive darkening for higher layers
+          layerAlpha = 0.3 + (layer * 0.1);
+          layerColor = 0x000000;
         }
 
         this.graphics.fillStyle(layerColor, layerAlpha);

@@ -17,6 +17,10 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     return WALL_EDGE_COLOR;
   }
 
+  protected getPlatformFillColor(): number {
+    return COBBLE_COLOR_1;
+  }
+
   renderGrid(grid: Grid): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
@@ -24,9 +28,9 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     this.renderShadows(grid);
   }
 
-  protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
+  protected renderWallPattern(x: number, y: number, cellSize: number, _topBarY: number, seed: number): void {
     const stoneCount = 8 + (seed % 4);
-    let currentY = topBarY + 4;
+    let currentY = y;
 
     while (currentY < y + cellSize) {
       for (let i = 0; i < stoneCount; i++) {
@@ -64,10 +68,6 @@ export class SwampSceneRenderer extends GameSceneRenderer {
           const topBarY = y + (this.cellSize * 0.2);
           this.graphics.fillStyle(COBBLE_COLOR_1, 1);
           this.graphics.fillRect(x, y, this.cellSize, this.cellSize * 0.2);
-          
-          // Draw top bar line
-          this.graphics.lineStyle(8, WALL_EDGE_COLOR, 1);
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + this.cellSize, topBarY));
 
           const stepCount = 4;
           const startY = topBarY;
@@ -78,7 +78,7 @@ export class SwampSceneRenderer extends GameSceneRenderer {
             const stepY = startY + i * stepHeight;
             
             // Progressive shading: darker at bottom, lighter at top
-            const brightness = i / (stepCount - 1);  // 0 to 1
+            const brightness = 1 - (i / (stepCount - 1));  // 1 to 0 (reversed)
             const shadedColor = COBBLE_COLOR_1 - 0x202020 + Math.floor(0x202020 * brightness);
             
             this.graphics.fillStyle(shadedColor, 1);
@@ -96,14 +96,15 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     for (let row = 0; row < grid.rows; row++) {
       for (let col = 0; col < grid.cols; col++) {
         const cell = grid.getCell(col, row);
-        if (cell && grid.getLayer(cell) === 1 && !grid.isTransition(cell)) {
+        if (cell && grid.getLayer(cell) >= 1 && !grid.isTransition(cell)) {
+          const currentLayer = grid.getLayer(cell);
           const cellBelow = grid.getCell(col, row + 1);
-          if (cellBelow && grid.getLayer(cellBelow) === 0 && !grid.isTransition(cellBelow)) {
+          if (cellBelow && grid.getLayer(cellBelow) < currentLayer && !grid.isTransition(cellBelow)) {
             for (let i = 1; i <= SHADOW_STEPS; i++) {
               const checkRow = row + i;
               const shadowCell = grid.getCell(col, checkRow);
               
-              if (!shadowCell || grid.getLayer(shadowCell) === 1) break;
+              if (!shadowCell || grid.getLayer(shadowCell) >= currentLayer) break;
 
               const shadowY = checkRow * this.cellSize;
               const shadowHeight = Math.min(SHADOW_WIDTH_PX / i, this.cellSize);
