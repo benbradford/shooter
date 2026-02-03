@@ -92,6 +92,24 @@ The level editor allows you to pause the game, navigate the map, and edit grid c
 - Camera movement is unrestricted (not bounded to level size)
 - Camera stops following player while in editor
 
+## Multi-Layer System
+
+The game supports arbitrary positive integer layers (0, 1, 2, 3, ...) for creating multi-level environments:
+
+**Layer Values:**
+- **0**: Ground level (default)
+- **1+**: Elevated platforms and walls
+
+**In Grid Editor Mode:**
+- Layer selection buttons at top (Layer 0, 1, 2, 3)
+- Selected layer highlighted in green
+- Paint cells with selected layer + properties (platform, wall, stairs)
+- Layer field is always saved to JSON (required, not optional)
+
+**Visual Feedback:**
+- Progressive darkening for higher layers in debug view (G key)
+- Layer 1: 0.4 alpha, Layer 2: 0.5 alpha, Layer 3: 0.6 alpha, etc.
+
 ## Editor State System
 
 The editor uses a state machine with generic type support. Each state can accept typed data through props:

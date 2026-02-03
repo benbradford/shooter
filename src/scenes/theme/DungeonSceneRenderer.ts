@@ -235,11 +235,11 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
             const rightCell = grid.cells[row][col + 1];
             const belowCell = grid.cells[row + 1][col];
             
-            const diagIsLowerOrStairs = (grid.getLayer(diagCell) < currentLayer && !grid.isTransition(diagCell)) || grid.isTransition(diagCell);
-            const rightIsLowerOrStairs = (grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell)) || grid.isTransition(rightCell);
+            const diagIsLower = grid.getLayer(diagCell) < currentLayer && !grid.isTransition(diagCell);
+            const rightIsLower = grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell);
             const belowIsLower = grid.getLayer(belowCell) < currentLayer && !grid.isTransition(belowCell);
             
-            if (diagIsLowerOrStairs && rightIsLowerOrStairs && belowIsLower) {
+            if (diagIsLower && rightIsLower && belowIsLower) {
               // eslint-disable-next-line max-depth
               for (let i = 0; i < shadowSteps; i++) {
                 // eslint-disable-next-line max-depth

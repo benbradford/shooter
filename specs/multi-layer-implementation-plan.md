@@ -87,15 +87,35 @@ node scripts/migrate-multi-layer.js
   - Updated `renderPlatformsAndWalls()` to check `layer < currentCell.layer` instead of `layer === 0`
   - Edges now render based on relative layer comparison
   - Works for any layer height (not just 0 and 1)
+  - Left edge half thickness (4px) to prevent bleeding into lower layer cells
+  - Platforms only draw edges when adjacent to lower layers or walls at same layer
+  - Walls only draw edges when adjacent to lower layers
+  - Stairs draw edges when adjacent to walls
+- [x] `src/scenes/theme/DungeonSceneRenderer.ts` & `SwampSceneRenderer.ts`
+  - Shadows cast from any elevated layer to lower layers (relative comparison)
+  - Shadow smoothness: 24 steps instead of 8
+  - Horizontal shadows only cast onto lower layers (not stairs)
+  - Corner shadows only cast onto lower layers (not stairs)
+  - Wall patterns render to top (no 20% gap)
+  - Stairs shading reversed (darker bottom, lighter top)
+  - Horizontal bar removed from stairs
+- [x] `src/systems/grid/Grid.ts`
+  - Progressive layer darkening: `layerAlpha = 0.3 + (layer * 0.1)`
 - [x] Verified build: `npm run build` ✅
 - [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
 
 **Changes made:**
 - Right edge: Draws when `rightCell.layer < currentLayer`
-- Left edge: Draws when `leftCell.layer < currentLayer`
+- Left edge: Draws when `leftCell.layer < currentLayer` (half thickness)
 - Top edge: Draws when `aboveCell.layer < currentLayer`
 - Bottom edge: Draws when `belowCell.layer < currentLayer` (walls only)
 - System now supports arbitrary layer heights (0, 1, 2, 3, ...)
+
+**Key lessons:**
+- Left edge must be half thickness to prevent bleeding into adjacent cells
+- Shadows should not cast onto stairs (only lower layers)
+- Edge rendering logic: platforms draw edges to lower OR same-layer walls, walls only to lower
+- Progressive darkening makes layer depth clear in debug view
 
 **Logic:**
 ```typescript
@@ -105,19 +125,24 @@ if (rightCell.layer < cell.layer) {
 }
 ```
 
-### Phase 4: Combat ⏸️ NOT STARTED
-**Files to modify:**
-- [ ] `src/ecs/components/combat/ProjectileComponent.ts`
+### Phase 4: Combat ✅ COMPLETED
+**Files modified:**
+- [x] `src/ecs/components/combat/ProjectileComponent.ts`
+  - Changed from `startLayer` to `currentLayer` tracking
+  - Upgrade `currentLayer` when passing through transitions
   - Block projectiles by cells at `layer > currentLayer`
-  - Upgrade `currentLayer` when passing through stairs
-- [ ] `src/ecs/components/combat/LineOfSightComponent.ts`
-  - Check layer blocking for LOS
+  - Initialize `currentLayer` to `startLayer + 1` if fired from transition
+- [x] `src/ecs/components/combat/LineOfSightComponent.ts`
+  - Upgrade layer when raycast passes through transitions
+  - Check layer blocking against current raycast layer (not min of both entities)
+- [x] Verified build: `npm run build` ✅
+- [x] Verified lint: `npx eslint src --ext .ts` ✅ (pre-existing errors only)
 
-**Logic:**
-```typescript
-// Projectile blocked by higher layer
-if (cellLayer > this.currentLayer && this.blockedByWalls) {
-  this.entity.destroy();
+**Changes made:**
+- Projectiles now track their current layer and upgrade when passing through stairs
+- Line of sight raycasts upgrade layer when passing through stairs
+- Projectiles fired from transitions start at `startLayer + 1`
+- Both systems respect layer-based blocking dynamically
 }
 
 // Upgrade layer when passing through stairs

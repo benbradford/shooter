@@ -58,14 +58,13 @@ export class LineOfSightComponent implements Component {
     return this.raycast(transform.x, transform.y, targetTransform.x, targetTransform.y, entityLayer, targetLayer);
   }
 
-  private raycast(x1: number, y1: number, x2: number, y2: number, entityLayer: number, targetLayer: number): boolean {
+  private raycast(x1: number, y1: number, x2: number, y2: number, entityLayer: number, _targetLayer: number): boolean {
     const dx = x2 - x1;
     const dy = y2 - y1;
     const distance = Math.hypot(dx, dy);
     const steps = Math.ceil(distance / (this.grid.cellSize / 2));
 
-    // Get the lower of the two entity layers
-    const minLayer = Math.min(entityLayer, targetLayer);
+    let currentLayer = entityLayer;
 
     for (let i = 1; i < steps; i++) {
       const t = i / steps;
@@ -76,8 +75,13 @@ export class LineOfSightComponent implements Component {
       const row = Math.floor(y / this.grid.cellSize);
       const cell = this.grid.getCell(col, row);
 
-      // Block line of sight only if cell layer is higher than both entities
-      if (cell && this.grid.getLayer(cell) > minLayer) {
+      if (!cell) return false;
+
+      if (this.grid.isTransition(cell)) {
+        currentLayer = Math.max(currentLayer, this.grid.getLayer(cell) + 1);
+      }
+
+      if (this.grid.getLayer(cell) > currentLayer && !this.grid.isTransition(cell)) {
         return false;
       }
     }

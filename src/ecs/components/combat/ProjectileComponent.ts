@@ -20,7 +20,7 @@ export type ProjectileProps = {
 export class ProjectileComponent implements Component {
   entity!: Entity;
   private distanceTraveled: number = 0;
-  private readonly startLayer: number;
+  private currentLayer: number;
   public readonly dirX: number;
   public readonly dirY: number;
   private readonly speed: number;
@@ -38,7 +38,7 @@ export class ProjectileComponent implements Component {
     this.maxDistance = props.maxDistance;
     this.grid = props.grid;
     this.blockedByWalls = props.blockedByWalls;
-    this.startLayer = props.startLayer;
+    this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
     this.scene = props.scene;
     this.onWallHit = props.onWallHit;
     this.onMaxDistance = props.onMaxDistance;
@@ -48,12 +48,10 @@ export class ProjectileComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const distance = this.speed * (delta / 1000);
 
-    // Subdivide movement to avoid skipping cells
     const steps = Math.ceil(distance / (this.grid.cellSize / 2));
     const stepDistance = distance / steps;
 
     for (let i = 0; i < steps; i++) {
-      // Check current cell before moving
       const cell = this.grid.worldToCell(transform.x, transform.y);
       const cellData = this.grid.getCell(cell.col, cell.row);
 
@@ -62,12 +60,15 @@ export class ProjectileComponent implements Component {
         return;
       }
 
+      if (this.grid.isTransition(cellData)) {
+        this.currentLayer = Math.max(this.currentLayer, this.grid.getLayer(cellData) + 1);
+      }
+
       if (this.shouldCheckWallCollision(cellData)) {
         this.handleWallCollision(transform, cell);
         return;
       }
 
-      // Move one step
       transform.x += this.dirX * stepDistance;
       transform.y += this.dirY * stepDistance;
       this.distanceTraveled += stepDistance;
@@ -81,7 +82,7 @@ export class ProjectileComponent implements Component {
 
   private shouldCheckWallCollision(cellData: CellData): boolean {
     if (!this.blockedByWalls || this.grid.isTransition(cellData)) return false;
-    return this.grid.getLayer(cellData) > this.startLayer;
+    return this.grid.getLayer(cellData) > this.currentLayer;
   }
 
   private handleWallCollision(transform: TransformComponent, _cell: { col: number; row: number }): void {
