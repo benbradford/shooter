@@ -215,14 +215,31 @@ export class DefaultEditorState extends EditorState {
   private handleClick(): void {
     const pointer = this.scene.input.activePointer;
     
-    // Get world coordinates from GameScene camera
     const gameScene = this.scene.scene.get('game') as Phaser.Scene & { 
       getEntityManager: () => import('../ecs/EntityManager').EntityManager;
       cameras: { main: Phaser.Cameras.Scene2D.Camera };
+      getLevelData: () => import('../systems/level/LevelLoader').LevelData;
     };
     
     const worldX = pointer.x + gameScene.cameras.main.scrollX;
     const worldY = pointer.y + gameScene.cameras.main.scrollY;
+    
+    const grid = this.scene.getGrid();
+    const clickedCell = grid.worldToCell(worldX, worldY);
+
+    // Check for trigger click
+    const levelData = gameScene.getLevelData();
+    if (levelData.triggers) {
+      for (let i = 0; i < levelData.triggers.length; i++) {
+        const trigger = levelData.triggers[i];
+        for (const cell of trigger.triggerCells) {
+          if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
+            this.scene.enterTriggerMode(i);
+            return;
+          }
+        }
+      }
+    }
 
     // Check for player click
     const entityManager = gameScene.getEntityManager();

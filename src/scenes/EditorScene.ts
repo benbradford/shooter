@@ -31,6 +31,8 @@ export default class EditorScene extends Phaser.Scene {
   private wasd!: { W: Phaser.Input.Keyboard.Key; A: Phaser.Input.Keyboard.Key; S: Phaser.Input.Keyboard.Key; D: Phaser.Input.Keyboard.Key };
   private originalLevelData!: string;
   private readonly cameraSpeed = 400;
+  private triggerGraphics: Phaser.GameObjects.Graphics | null = null;
+  private inTriggerState: boolean = false;
 
   constructor() {
     super({ key: 'EditorScene' });
@@ -100,7 +102,7 @@ export default class EditorScene extends Phaser.Scene {
     }
 
     // Initialize state machine
-    this.stateMachine = new StateMachine<void | Entity | MoveEditorStateProps>({
+    this.stateMachine = new StateMachine<void | Entity | MoveEditorStateProps | number>({
       default: new DefaultEditorState(this),
       grid: new GridEditorState(this),
       resize: new ResizeEditorState(this),
@@ -112,7 +114,7 @@ export default class EditorScene extends Phaser.Scene {
       addBugBase: new AddBugBaseEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
-      trigger: new TriggerEditorState(this)
+      trigger: new TriggerEditorState(this) as unknown as import('../systems/state/IState').IState<void | Entity | MoveEditorStateProps | number>
     }, 'default');
 
     // Event listeners
@@ -125,10 +127,36 @@ export default class EditorScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.stateMachine.update(delta);
     this.handleCameraMovement(delta);
+    this.renderTriggers();
+  }
 
-    // Render cell coordinates in editor (commented out - causes lag)
-    // const grid = this.getGrid();
-    // grid.renderCellCoordinates();
+  private renderTriggers(): void {
+    if (this.inTriggerState) return;
+    
+    const gameScene = this.scene.get('game') as GameScene;
+    const levelData = gameScene.getLevelData();
+    const grid = this.getGrid();
+    
+    if (this.triggerGraphics) {
+      this.triggerGraphics.destroy();
+      this.triggerGraphics = null;
+    }
+    
+    if (!levelData.triggers || levelData.triggers.length === 0) return;
+    
+    this.triggerGraphics = gameScene.add.graphics();
+    this.triggerGraphics.setDepth(1500);
+    
+    for (const trigger of levelData.triggers) {
+      this.triggerGraphics.lineStyle(3, 0xffff00, 0.8);
+      this.triggerGraphics.fillStyle(0xffff00, 0.2);
+      
+      for (const cell of trigger.triggerCells) {
+        const worldPos = grid.cellToWorld(cell.col, cell.row);
+        this.triggerGraphics.strokeRect(worldPos.x, worldPos.y, grid.cellSize, grid.cellSize);
+        this.triggerGraphics.fillRect(worldPos.x, worldPos.y, grid.cellSize, grid.cellSize);
+      }
+    }
   }
 
   private handleCameraMovement(delta: number): void {
@@ -317,6 +345,7 @@ export default class EditorScene extends Phaser.Scene {
   }
 
   enterDefaultMode(): void {
+    this.inTriggerState = false;
     this.stateMachine.enter('default');
   }
 
@@ -367,9 +396,19 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine.enter('texture');
   }
 
-  enterTriggerMode(): void {
-    this.stateMachine.enter('trigger');
+  enterTriggerMode(triggerIndex?: number): void {
+    this.inTriggerState = true;
+    if (this.triggerGraphics) {
+      this.triggerGraphics.destroy();
+      this.triggerGraphics = null;
+    }
+    if (triggerIndex !== undefined) {
+      this.stateMachine.enter('trigger', triggerIndex as unknown as void | Entity | MoveEditorStateProps);
+    } else {
+      this.stateMachine.enter('trigger');
+    }
   }
+
 
   removeRow(row: number): void {
     const grid = this.getGrid();
@@ -460,6 +499,11 @@ export default class EditorScene extends Phaser.Scene {
   }
 
   exitEditor(): void {
+    if (this.triggerGraphics) {
+      this.triggerGraphics.destroy();
+      this.triggerGraphics = null;
+    }
+    
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
     const bounds = this.registry.get('editorOriginalBounds') as { x: number; y: number; width: number; height: number };

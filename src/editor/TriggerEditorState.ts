@@ -1,16 +1,57 @@
 import { EditorState } from './EditorState';
 import type { LevelTrigger } from '../systems/level/LevelLoader';
+import type { IStateEnterProps } from '../systems/state/IState';
 
-const SELECTED_CELL_COLOR = 0xffffff; // White border for selected cells
+const SELECTED_CELL_COLOR = 0xffffff;
 
-export class TriggerEditorState extends EditorState {
-  private selectedCells: Set<string> = new Set(); // "col,row" format
+export class TriggerEditorState extends EditorState<number> {
+  private selectedCells: Set<string> = new Set();
   private eventNameInput: HTMLInputElement | null = null;
   private selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+  private editingTriggerIndex: number = -1;
 
-  onEnter(): void {
+  onEnter(props?: IStateEnterProps<number>): void {
+    this.editingTriggerIndex = props?.data ?? -1;
+    
+    if (this.editingTriggerIndex >= 0) {
+      this.loadExistingTrigger();
+    }
+    
     this.createUI();
+    this.renderSelectionRectangles();
     this.scene.input.on('pointerdown', this.handlePointerDown, this);
+  }
+
+  private loadExistingTrigger(): void {
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const levelData = gameScene.getLevelData();
+    const trigger = levelData.triggers?.[this.editingTriggerIndex];
+    
+    if (!trigger) return;
+    
+    for (const cell of trigger.triggerCells) {
+      this.selectedCells.add(`${cell.col},${cell.row}`);
+    }
+  }
+
+  private renderSelectionRectangles(): void {
+    const gameScene = this.scene.scene.get('game');
+    const grid = this.scene.getGrid();
+    
+    for (const cellKey of this.selectedCells) {
+      const [col, row] = cellKey.split(',').map(Number);
+      const worldPos = grid.cellToWorld(col, row);
+      const border = gameScene.add.rectangle(
+        worldPos.x + grid.cellSize / 2,
+        worldPos.y + grid.cellSize / 2,
+        grid.cellSize,
+        grid.cellSize
+      );
+      border.setStrokeStyle(3, 0xffffff);
+      border.setFillStyle(0x000000, 0);
+      border.setDepth(1000);
+      this.selectionRectangles.set(cellKey, border);
+    }
   }
 
   onExit(): void {
@@ -18,6 +59,7 @@ export class TriggerEditorState extends EditorState {
     this.destroyUI();
     this.clearSelectionRectangles();
     this.selectedCells.clear();
+    this.editingTriggerIndex = -1;
   }
 
   private clearSelectionRectangles(): void {
@@ -26,6 +68,10 @@ export class TriggerEditorState extends EditorState {
   }
 
   private createUI(): void {
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const levelData = gameScene.getLevelData();
+    const trigger = this.editingTriggerIndex >= 0 ? levelData.triggers?.[this.editingTriggerIndex] : null;
+
     const container = document.createElement('div');
     container.style.cssText = `
       position: fixed;
@@ -40,7 +86,6 @@ export class TriggerEditorState extends EditorState {
       max-width: 300px;
     `;
 
-    // Event name input
     const eventLabel = document.createElement('div');
     eventLabel.textContent = 'Event Name:';
     eventLabel.style.marginBottom = '5px';
@@ -49,6 +94,7 @@ export class TriggerEditorState extends EditorState {
     this.eventNameInput = document.createElement('input');
     this.eventNameInput.type = 'text';
     this.eventNameInput.placeholder = 'trigger_name';
+    this.eventNameInput.value = trigger?.eventName ?? '';
     this.eventNameInput.style.cssText = `
       width: 100%;
       padding: 5px;
@@ -62,21 +108,44 @@ export class TriggerEditorState extends EditorState {
     });
     container.appendChild(this.eventNameInput);
 
-    // Instructions
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.style.cssText = 'margin-bottom: 10px;';
+    
+    const oneShotCheckbox = document.createElement('input');
+    oneShotCheckbox.type = 'checkbox';
+    oneShotCheckbox.id = 'oneShot';
+    oneShotCheckbox.checked = trigger?.oneShot ?? true;
+    
+    const oneShotLabel = document.createElement('label');
+    oneShotLabel.htmlFor = 'oneShot';
+    oneShotLabel.textContent = ' One-shot trigger';
+    oneShotLabel.style.cursor = 'pointer';
+    
+    checkboxContainer.appendChild(oneShotCheckbox);
+    checkboxContainer.appendChild(oneShotLabel);
+    container.appendChild(checkboxContainer);
+
     const instructions = document.createElement('div');
     instructions.textContent = 'Click grid cells to select trigger area';
     instructions.style.cssText = 'margin-bottom: 10px; font-size: 12px; color: #ccc;';
     container.appendChild(instructions);
 
-    // Buttons
     const buttonContainer = document.createElement('div');
     buttonContainer.style.cssText = 'display: flex; gap: 10px; margin-bottom: 15px;';
 
-    const addTriggerBtn = document.createElement('button');
-    addTriggerBtn.textContent = 'Add Trigger';
-    addTriggerBtn.style.cssText = 'padding: 5px 10px; background: #4CAF50; color: white; border: none; cursor: pointer;';
-    addTriggerBtn.onclick = () => this.addTrigger();
-    buttonContainer.appendChild(addTriggerBtn);
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = this.editingTriggerIndex >= 0 ? 'Save' : 'Add Trigger';
+    saveBtn.style.cssText = 'padding: 5px 10px; background: #4CAF50; color: white; border: none; cursor: pointer;';
+    saveBtn.onclick = () => this.saveTrigger();
+    buttonContainer.appendChild(saveBtn);
+
+    if (this.editingTriggerIndex >= 0) {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.style.cssText = 'padding: 5px 10px; background: #f44336; color: white; border: none; cursor: pointer;';
+      deleteBtn.onclick = () => this.deleteTrigger();
+      buttonContainer.appendChild(deleteBtn);
+    }
 
     const backBtn = document.createElement('button');
     backBtn.textContent = 'Back';
@@ -90,7 +159,7 @@ export class TriggerEditorState extends EditorState {
     this.uiContainer = container;
   }
 
-  private addTrigger(): void {
+  private saveTrigger(): void {
     const eventName = this.eventNameInput?.value.trim();
     if (!eventName) {
       alert('Please enter an event name');
@@ -102,8 +171,7 @@ export class TriggerEditorState extends EditorState {
       return;
     }
 
-    // Get the GameScene's level data directly
-    const gameScene = this.scene.scene.get('game') as any;
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
     const levelData = gameScene.getLevelData();
     
     if (!levelData.triggers) {
@@ -115,12 +183,32 @@ export class TriggerEditorState extends EditorState {
       return { col, row };
     });
 
+    const oneShotCheckbox = document.getElementById('oneShot') as HTMLInputElement;
+    const oneShot = oneShotCheckbox?.checked ?? true;
+
     const newTrigger: LevelTrigger = {
       eventName,
-      triggerCells
+      triggerCells,
+      oneShot
     };
 
-    levelData.triggers.push(newTrigger);
+    if (this.editingTriggerIndex >= 0) {
+      levelData.triggers[this.editingTriggerIndex] = newTrigger;
+    } else {
+      levelData.triggers.push(newTrigger);
+    }
+    
+    this.scene.enterDefaultMode();
+  }
+
+  private deleteTrigger(): void {
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const levelData = gameScene.getLevelData();
+    
+    if (levelData.triggers && this.editingTriggerIndex >= 0 && this.editingTriggerIndex < levelData.triggers.length) {
+      levelData.triggers.splice(this.editingTriggerIndex, 1);
+    }
+    
     this.scene.enterDefaultMode();
   }
 

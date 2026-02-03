@@ -9,6 +9,7 @@ export type TriggerComponentProps = {
   triggerCells: Array<{ col: number; row: number }>;
   grid: Grid;
   eventManager: EventManagerSystem;
+  oneShot: boolean;
 }
 
 export class TriggerComponent implements Component {
@@ -17,6 +18,7 @@ export class TriggerComponent implements Component {
   public readonly triggerCells: Array<{ col: number; row: number }>;
   private readonly grid: Grid;
   private readonly eventManager: EventManagerSystem;
+  private readonly oneShot: boolean;
   private triggered: boolean = false;
 
   constructor(props: TriggerComponentProps) {
@@ -24,12 +26,12 @@ export class TriggerComponent implements Component {
     this.triggerCells = props.triggerCells;
     this.grid = props.grid;
     this.eventManager = props.eventManager;
+    this.oneShot = props.oneShot;
   }
 
   update(_delta: number): void {
-    if (this.triggered) return;
+    if (this.oneShot && this.triggered) return;
 
-    // Check if player is in any trigger cell
     const playerEntities = this.grid.getEntitiesWithTag('player');
     if (playerEntities.length === 0) return;
 
@@ -43,9 +45,15 @@ export class TriggerComponent implements Component {
       if (playerCell.col === triggerCell.col && playerCell.row === triggerCell.row) {
         this.triggered = true;
         this.eventManager.raiseEvent(this.eventName);
-        this.entity.destroy();
+        if (this.oneShot) {
+          this.entity.destroy();
+        }
         return;
       }
+    }
+    
+    if (!this.oneShot) {
+      this.triggered = false;
     }
   }
 

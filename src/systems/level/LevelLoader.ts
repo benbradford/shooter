@@ -31,6 +31,7 @@ export type LevelThrower = {
 export type LevelTrigger = {
   eventName: string;
   triggerCells: Array<{ col: number; row: number }>;
+  oneShot: boolean;
 }
 
 export type LevelData = {

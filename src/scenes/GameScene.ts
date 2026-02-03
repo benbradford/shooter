@@ -193,7 +193,8 @@ export default class GameScene extends Phaser.Scene {
       },
       joystick,
       getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
-      vignetteSprite: this.vignette
+      vignetteSprite: this.vignette,
+      eventManager: this.eventManager
     }));
 
 
@@ -290,7 +291,8 @@ export default class GameScene extends Phaser.Scene {
           eventName: triggerData.eventName,
           triggerCells: triggerData.triggerCells,
           grid: this.grid,
-          eventManager: this.eventManager
+          eventManager: this.eventManager,
+          oneShot: triggerData.oneShot ?? true
         });
         this.entityManager.add(trigger);
       }

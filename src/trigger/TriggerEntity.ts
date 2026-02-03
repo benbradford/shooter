@@ -9,6 +9,7 @@ export type CreateTriggerEntityProps = {
   triggerCells: Array<{ col: number; row: number }>;
   grid: Grid;
   eventManager: EventManagerSystem;
+  oneShot: boolean;
 }
 
 export function createTriggerEntity(props: CreateTriggerEntityProps): Entity {

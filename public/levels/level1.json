@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 11,
-    "y": 34
+    "x": 6,
+    "y": 39
   },
   "cells": [
     {
@@ -744,12 +744,8 @@
   ],
   "triggers": [
     {
-      "eventName": "tr123",
+      "eventName": "testTrigger",
       "triggerCells": [
-        {
-          "col": 17,
-          "row": 37
-        },
         {
           "col": 7,
           "row": 32
@@ -786,7 +782,8 @@
           "col": 2,
           "row": 32
         }
-      ]
+      ],
+      "oneShot": true
     }
   ],
   "levelTheme": "dungeon"
