@@ -6,6 +6,7 @@ import EditorScene from "./scenes/EditorScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AmmoComponent, OverheatSmokeComponent } from "./ecs";
 import { PLAYER_MAX_AMMO, PLAYER_FIRE_COOLDOWN_MS } from "./ecs/entities/player/PlayerEntity";
 import { INITIAL_AIM_WAIT_TIME_MS } from "./ecs/components/combat/ProjectileEmitterComponent";
+import { Pathfinder } from "./systems/Pathfinder";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -35,6 +36,7 @@ if (params.get('test') === 'true') {
   (window as unknown as { ProjectileComponent: typeof ProjectileComponent }).ProjectileComponent = ProjectileComponent;
   (window as unknown as { AmmoComponent: typeof AmmoComponent }).AmmoComponent = AmmoComponent;
   (window as unknown as { OverheatSmokeComponent: typeof OverheatSmokeComponent }).OverheatSmokeComponent = OverheatSmokeComponent;
+  (window as unknown as { Pathfinder: typeof Pathfinder }).Pathfinder = Pathfinder;
   (window as unknown as { PLAYER_MAX_AMMO: number }).PLAYER_MAX_AMMO = PLAYER_MAX_AMMO;
   (window as unknown as { INITIAL_AIM_WAIT_TIME_MS: number }).INITIAL_AIM_WAIT_TIME_MS = INITIAL_AIM_WAIT_TIME_MS;
   (window as unknown as { PLAYER_FIRE_COOLDOWN_MS: number }).PLAYER_FIRE_COOLDOWN_MS = PLAYER_FIRE_COOLDOWN_MS;

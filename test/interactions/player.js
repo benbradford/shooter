@@ -68,6 +68,93 @@ function getBulletCount() {
   return bullets.length;
 }
 
+function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
+  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+  const player = scene.entityManager.getFirst('player');
+  const gridPos = player.require(window.GridPositionComponent);
+  const transform = player.require(window.TransformComponent);
+  const grid = scene.grid;
+  
+  const startCol = gridPos.currentCell.col;
+  const startRow = gridPos.currentCell.row;
+  const startLayer = gridPos.currentLayer;
+  
+  console.log(`[TEST] Pathfinding from (${startCol},${startRow}) layer ${startLayer} to (${targetCol},${targetRow})`);
+  
+  const pathfinder = new window.Pathfinder(grid);
+  const path = pathfinder.findPath(startCol, startRow, targetCol, targetRow, startLayer, false, true);
+  
+  if (!path || path.length === 0) {
+    console.log(`[TEST] No path found`);
+    return Promise.resolve({ reached: false, col: startCol, row: startRow });
+  }
+  
+  console.log(`[TEST] Path: ${path.map(n => `(${n.col},${n.row})`).join(' -> ')}`);
+  
+  let pathIndex = 1;
+  const startTime = Date.now();
+  const cellSize = grid.cellSize;
+  const threshold = 15;
+  let lastDistance = Infinity;
+  let stuckCount = 0;
+  
+  return new Promise((resolve) => {
+    const remoteInput = enableRemoteInput();
+    
+    const interval = setInterval(() => {
+      if (Date.now() - startTime >= maxTimeMs) {
+        remoteInput.setWalk(0, 0, false);
+        clearInterval(interval);
+        const finalCell = grid.worldToCell(transform.x, transform.y);
+        console.log(`[TEST] Timeout at (${finalCell.col},${finalCell.row})`);
+        resolve({ reached: false, col: finalCell.col, row: finalCell.row });
+        return;
+      }
+      
+      if (pathIndex >= path.length) {
+        remoteInput.setWalk(0, 0, false);
+        clearInterval(interval);
+        console.log(`[TEST] Reached destination (${targetCol},${targetRow})`);
+        resolve({ reached: true, col: targetCol, row: targetRow });
+        return;
+      }
+      
+      const targetNode = path[pathIndex];
+      const targetWorld = grid.cellToWorld(targetNode.col, targetNode.row);
+      const targetX = targetWorld.x + cellSize / 2;
+      const targetY = targetWorld.y + cellSize / 2;
+      
+      const dx = targetX - transform.x;
+      const dy = targetY - transform.y;
+      const distance = Math.hypot(dx, dy);
+      
+      if (Math.abs(distance - lastDistance) < 1) {
+        stuckCount++;
+        if (stuckCount > 60) {
+          remoteInput.setWalk(0, 0, false);
+          clearInterval(interval);
+          const finalCell = grid.worldToCell(transform.x, transform.y);
+          console.log(`[TEST] Stuck at (${finalCell.col},${finalCell.row})`);
+          resolve({ reached: false, col: finalCell.col, row: finalCell.row });
+          return;
+        }
+      } else {
+        stuckCount = 0;
+        lastDistance = distance;
+      }
+      
+      if (distance < threshold) {
+        console.log(`[TEST] Reached waypoint ${pathIndex}: (${targetNode.col},${targetNode.row})`);
+        pathIndex++;
+      } else {
+        const dirX = dx / distance;
+        const dirY = dy / distance;
+        remoteInput.setWalk(dirX, dirY, true);
+      }
+    }, 16);
+  });
+}
+
 function movePlayer(dx, dy) {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const player = scene.entityManager.getFirst('player');

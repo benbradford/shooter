@@ -61,24 +61,19 @@ export async function runTests({ level, commands = [], tests, screenshotPath }) 
   let allPassed = true;
 
   for (const testFn of testsToRun) {
-    process.stdout.write(`GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then} `);
+    const testTitle = `GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then}`;
     
-    // Start spinner
     const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
     let spinnerIndex = 0;
     const spinner = setInterval(() => {
-      process.stdout.write(`\r${spinnerFrames[spinnerIndex]} GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then} `);
+      process.stdout.write(`\r${spinnerFrames[spinnerIndex]} `);
       spinnerIndex = (spinnerIndex + 1) % spinnerFrames.length;
     }, 80);
     
     const result = await testFn(page);
     
-    // Stop spinner and clear line
     clearInterval(spinner);
-    process.stdout.write(`\r`);
-    
-    // Print final result
-    process.stdout.write(`GIVEN: ${testFn.given}, WHEN: ${testFn.when}, THEN: ${testFn.then} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}\n`);
+    process.stdout.write(`\r${testTitle} - ${result.passed ? '✓ PASSED' : '✗ FAILED'}\n`);
     if (!result.passed) allPassed = false;
   }
 

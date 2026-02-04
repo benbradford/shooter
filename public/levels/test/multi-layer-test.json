@@ -1,0 +1,40 @@
+{
+  "width": 15,
+  "height": 15,
+  "playerStart": {
+    "x": 2,
+    "y": 7
+  },
+  "cells": [
+    {"col": 4, "row": 3, "layer": 1, "properties": ["platform"]},
+    {"col": 5, "row": 3, "layer": 1, "properties": ["platform"]},
+    {"col": 6, "row": 3, "layer": 1, "properties": ["platform"]},
+    {"col": 7, "row": 3, "layer": 1, "properties": ["platform"]},
+    {"col": 8, "row": 3, "layer": 1, "properties": ["platform"]},
+    {"col": 9, "row": 3, "layer": 1, "properties": ["platform"]},
+    {"col": 4, "row": 4, "layer": 1, "properties": ["platform"]},
+    {"col": 5, "row": 4, "layer": 1, "properties": ["platform"]},
+    {"col": 6, "row": 4, "layer": 1, "properties": ["platform"]},
+    {"col": 7, "row": 4, "layer": 1, "properties": ["platform"]},
+    {"col": 8, "row": 4, "layer": 1, "properties": ["platform"]},
+    {"col": 9, "row": 4, "layer": 1, "properties": ["platform"]},
+    {"col": 4, "row": 5, "layer": 1, "properties": ["platform"]},
+    {"col": 5, "row": 5, "layer": 1, "properties": ["platform"]},
+    {"col": 6, "row": 5, "layer": 1, "properties": ["platform"]},
+    {"col": 7, "row": 5, "layer": 1, "properties": ["platform"]},
+    {"col": 8, "row": 5, "layer": 1, "properties": ["platform"]},
+    {"col": 9, "row": 5, "layer": 1, "properties": ["platform"]},
+    {"col": 4, "row": 6, "layer": 1, "properties": ["platform"]},
+    {"col": 5, "row": 6, "layer": 1, "properties": ["platform"]},
+    {"col": 6, "row": 6, "layer": 1, "properties": ["platform"]},
+    {"col": 7, "row": 6, "layer": 1, "properties": ["platform"]},
+    {"col": 8, "row": 6, "layer": 1, "properties": ["platform"]},
+    {"col": 9, "row": 6, "layer": 1, "properties": ["platform"]},
+    {"col": 4, "row": 7, "layer": 1, "properties": ["wall"]},
+    {"col": 5, "row": 7, "layer": 0, "properties": ["stairs"]},
+    {"col": 6, "row": 7, "layer": 0, "properties": ["stairs"]},
+    {"col": 7, "row": 7, "layer": 0, "properties": ["stairs"]},
+    {"col": 8, "row": 7, "layer": 1, "properties": ["wall"]},
+    {"col": 9, "row": 7, "layer": 1, "properties": ["platform"]}
+  ]
+}
