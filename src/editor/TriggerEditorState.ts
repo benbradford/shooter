@@ -218,7 +218,8 @@ export class TriggerEditorState extends EditorState<number> {
     // If we hit any UI objects, ignore the grid click
     if (hitObjects.length > 0) {
       for (const obj of hitObjects) {
-        if (obj.depth >= 1000) { // UI elements have high depth
+        const depth = (obj as unknown as { depth?: number }).depth;
+        if (depth !== undefined && depth >= 1000) { // UI elements have high depth
           return;
         }
       }

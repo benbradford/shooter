@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 8,
-    "y": 39
+    "x": 7,
+    "y": 37
   },
   "cells": [
     {
@@ -1796,6 +1796,78 @@
       ]
     },
     {
+      "col": 2,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 39,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 11,
       "row": 39,
       "layer": 1,
@@ -1834,13 +1906,13 @@
       "id": "th1",
       "col": 4,
       "row": 32,
-      "difficulty": "medium"
+      "difficulty": "easy"
     },
     {
       "id": "th2",
       "col": 8,
       "row": 32,
-      "difficulty": "hard"
+      "difficulty": "easy"
     }
   ],
   "triggers": [

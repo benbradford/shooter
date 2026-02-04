@@ -179,7 +179,7 @@ export class ThrowerRunningState implements IState {
       const sprite = this.entity.require(SpriteComponent);
       const animKey = `thrower_walk_${dirName}`;
       if (!sprite.sprite.anims.isPlaying || sprite.sprite.anims.currentAnim?.key !== animKey) {
-        sprite.sprite.play(animKey);
+        sprite.sprite.play({ key: animKey, frameRate: 6 });
       }
     }
   }

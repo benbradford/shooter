@@ -27,7 +27,7 @@ export class ThrowerIdleState implements IState {
     
     if (distance < DETECTION_RANGE_PX) {
       const stateMachine = this.entity.require(StateMachineComponent);
-      stateMachine.stateMachine.enter('running');
+      stateMachine.stateMachine.enter('throwing');
     }
   }
 }

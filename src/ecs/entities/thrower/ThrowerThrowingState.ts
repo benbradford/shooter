@@ -58,13 +58,16 @@ export class ThrowerThrowingState implements IState {
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const length = Math.hypot(dx, dy);
+    
+    // Use actual distance to player, capped at max throw distance
+    const throwDistance = Math.min(length, config.throwDistancePx);
 
     this.onThrow(
       transform.x,
       transform.y,
       dx / length,
       dy / length,
-      config.throwDistancePx
+      throwDistance
     );
   }
 }
