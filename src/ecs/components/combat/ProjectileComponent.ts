@@ -21,6 +21,7 @@ export class ProjectileComponent implements Component {
   entity!: Entity;
   private distanceTraveled: number = 0;
   private currentLayer: number;
+  private hasUpgradedThroughStairs: boolean = false;
   public readonly dirX: number;
   public readonly dirY: number;
   private readonly speed: number;
@@ -39,6 +40,7 @@ export class ProjectileComponent implements Component {
     this.grid = props.grid;
     this.blockedByWalls = props.blockedByWalls;
     this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
+    this.hasUpgradedThroughStairs = props.fromTransition;
     this.scene = props.scene;
     this.onWallHit = props.onWallHit;
     this.onMaxDistance = props.onMaxDistance;
@@ -62,6 +64,7 @@ export class ProjectileComponent implements Component {
 
       if (this.grid.isTransition(cellData)) {
         this.currentLayer = Math.max(this.currentLayer, this.grid.getLayer(cellData) + 1);
+        this.hasUpgradedThroughStairs = true;
       }
 
       if (this.shouldCheckWallCollision(cellData)) {
@@ -82,7 +85,24 @@ export class ProjectileComponent implements Component {
 
   private shouldCheckWallCollision(cellData: CellData): boolean {
     if (!this.blockedByWalls || this.grid.isTransition(cellData)) return false;
-    return this.grid.getLayer(cellData) > this.currentLayer;
+    
+    const cellLayer = this.grid.getLayer(cellData);
+    
+    // Platforms and walls at layer 0 never block
+    if (cellLayer === 0) return false;
+    
+    const isWall = this.grid.isWall(cellData);
+    
+    // After upgrading through stairs
+    if (this.hasUpgradedThroughStairs) {
+      // Walls blocked at upgraded layer or higher
+      if (isWall) return cellLayer >= this.currentLayer;
+      // Platforms blocked only at strictly higher layer
+      return cellLayer > this.currentLayer;
+    }
+    
+    // Without upgrading: both walls and platforms blocked at strictly higher layer
+    return cellLayer > this.currentLayer;
   }
 
   private handleWallCollision(transform: TransformComponent, _cell: { col: number; row: number }): void {

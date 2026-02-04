@@ -40,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
+  private layerDebugText?: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: "game", active: true });
@@ -87,6 +88,15 @@ export default class GameScene extends Phaser.Scene {
     this.initializeScene();
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
+
+    this.layerDebugText = this.add.text(10, 10, '', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#000000',
+      padding: { x: 10, y: 5 }
+    });
+    this.layerDebugText.setScrollFactor(0);
+    this.layerDebugText.setDepth(10000);
 
     const keyboard = this.input.keyboard;
     if (keyboard) {
@@ -172,9 +182,15 @@ export default class GameScene extends Phaser.Scene {
       grid: this.grid,
       onFire: (x, y, dirX, dirY) => {
         const gridPos = player.get(GridPositionComponent);
-        if (!gridPos) return;
-        const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
-        const fromTransition = playerCell ? this.grid.isTransition(playerCell) : false;
+        const transform = player.get(TransformComponent);
+        if (!gridPos || !transform) return;
+        
+        // Check if player's center is on transition (matches how currentLayer is calculated)
+        const centerX = transform.x + gridPos.collisionBox.offsetX;
+        const centerY = transform.y + gridPos.collisionBox.offsetY;
+        const centerCell = this.grid.worldToCell(centerX, centerY);
+        const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
+        const fromTransition = centerCellData ? this.grid.isTransition(centerCellData) : false;
 
         const bullet = createBulletEntity({
           scene: this,
@@ -311,6 +327,15 @@ export default class GameScene extends Phaser.Scene {
     this.collisionSystem.update(this.entityManager.getAll());
 
     this.grid.render(this.entityManager, this.levelData);
+
+    // Update layer debug text
+    const player = this.entityManager.getFirst('player');
+    if (player && this.layerDebugText) {
+      const gridPos = player.get(GridPositionComponent);
+      if (gridPos) {
+        this.layerDebugText.setText(`Layer: ${gridPos.currentLayer}`);
+      }
+    }
   }
 
   getGrid(): Grid {

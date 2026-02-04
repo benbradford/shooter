@@ -217,13 +217,84 @@ if (isTransition(cell) && cell.layer === this.currentLayer) {
 ### Phase 8: Testing ⏸️ NOT STARTED
 **Files to create:**
 - [ ] `test/tests/player/test-multi-layer.js`
+- [ ] `public/levels/test/multi-layer-test.json`
 
-**Test scenarios:**
-- Player on layer 0 blocked by layer 1 platform
-- Player can use stairs to reach layer 1
-- Player can walk on layer 1 platforms
-- Projectiles from layer 0 blocked by layer 1 walls
-- Pathfinding works across multiple layers
+**Test Map Layout (20×15 cells):**
+```
+Layer 0 (ground):
+  Rows 0-14, Cols 0-19 (all layer 0 except where specified)
+
+Layer 1 (platforms/walls):
+  Platform: Cols 10-14, Rows 5-9 (layer 1, 'platform')
+  Wall: Cols 10-14, Row 4 (layer 1, 'wall')
+  
+Stairs:
+  Col 9, Row 7 (layer 0, transition)
+  
+Player spawn: Col 5, Row 7
+```
+
+**Test Scenarios:**
+
+**Test 1: Ground level shooting at layer 1 wall**
+- Player position: (5, 7) - layer 0 ground
+- Shoot direction: Right (toward wall at col 10, row 4)
+- Expected: Bullet blocked by layer 1 wall
+
+**Test 2: Ground level shooting at layer 1 platform**
+- Player position: (5, 7) - layer 0 ground
+- Shoot direction: Right (toward platform at col 10, row 7)
+- Expected: Bullet blocked by layer 1 platform
+
+**Test 3: Standing near platform edge (gun in layer 1)**
+- Player position: (9, 7) - layer 0 ground, but close to platform
+- Gun tip: In layer 1 cell (col 10)
+- Shoot direction: Right (into platform)
+- Expected: Bullet blocked (player not on stairs, uses player's layer 0)
+
+**Test 4: Standing on stairs (gun in layer 1)**
+- Player position: (9, 7) - layer 0 stairs
+- Gun tip: In layer 1 cell (col 10)
+- Shoot direction: Right (into platform)
+- Expected: Bullet passes through layer 1 platform (upgraded to layer 1)
+
+**Test 5: Standing on stairs shooting at wall**
+- Player position: (9, 7) - layer 0 stairs
+- Gun tip: In layer 1 cell
+- Shoot direction: Up-right (toward wall at col 10, row 4)
+- Expected: Bullet blocked by layer 1 wall (walls block at same layer after upgrade)
+
+**Test 6: Shooting through stairs from ground**
+- Player position: (7, 7) - layer 0 ground
+- Shoot direction: Right (through stairs at col 9, into platform at col 10)
+- Expected: Bullet upgrades when passing through stairs, then passes through layer 1 platform
+
+**Test 7: Shooting through stairs at wall**
+- Player position: (7, 7) - layer 0 ground
+- Shoot direction: Up-right (through stairs, toward wall at col 10, row 4)
+- Expected: Bullet upgrades through stairs, blocked by layer 1 wall
+
+**Test 8: On platform shooting at same layer wall**
+- Player position: (12, 7) - layer 1 platform
+- Shoot direction: Up (toward wall at col 12, row 4)
+- Expected: Bullet passes through layer 1 wall (same layer, no upgrade)
+
+**Test 9: Player movement blocked by higher layer**
+- Player position: (5, 7) - layer 0 ground
+- Move direction: Right (toward platform at col 10)
+- Expected: Player blocked at col 9 (cannot enter layer 1 without stairs)
+
+**Test 10: Player uses stairs to reach platform**
+- Player position: (5, 7) - layer 0 ground
+- Move to: (9, 7) - stairs
+- Then move to: (10, 7) - layer 1 platform
+- Expected: Player successfully reaches platform, currentLayer = 1
+
+**Test 11: Player hitbox straddling stairs and platform**
+- Player position: (9, 7) - layer 0 stairs, but hitbox overlaps layer 1 platform
+- Player center: On stairs (layer 0)
+- Shoot direction: Right (into platform at col 10)
+- Expected: Bullet passes through layer 1 platform (player center on stairs → upgrade)
 
 ## Progress Tracking
 

@@ -73,6 +73,7 @@ The grid supports vertical layering for multi-level environments:
 
 **Transition Cells (Staircases):**
 - Special cells that connect two adjacent layers
+- **Player layer updates immediately** when stepping on stairs
 - **Entry**: Only from top or bottom (vertical movement only)
   - From above: Can enter when moving down
   - From below: Can enter when moving up
@@ -81,12 +82,28 @@ The grid supports vertical layering for multi-level environments:
   - Down: Moves to same layer or layer-1
 - **Restriction**: Cannot move left/right while in transition cell
 
-**Projectile Rules:**
-- Projectiles can hit cells at **same layer or lower**
-- **Transition cells don't block projectiles**
-- **Walls block projectiles** (if `blockedByWalls: true`)
-- When projectile passes through transition cell, it gains access to layer+1
-- Example: Bullet fired from layer 0 → passes through transition → can now hit layer 1
+**Projectile Layer Rules:**
+1. Bullets start at player's current layer
+2. If player is on stairs AND bullet spawn position is in a higher layer cell → bullet upgrades immediately
+3. If player is NOT on stairs → bullet uses player's layer (blocked by higher platforms)
+4. Bullets pass through platforms at same layer or lower
+5. Bullets blocked by walls at strictly higher layer
+6. When bullet passes through stairs, it upgrades to stairs layer + 1
+7. After upgrading through stairs:
+   - Walls blocked at upgraded layer or higher (`>=`)
+   - Platforms blocked only at strictly higher layer (`>`)
+8. Without upgrading through stairs:
+   - Both walls and platforms blocked at strictly higher layer (`>`)
+
+**Examples:**
+- Standing on layer 0, shoot at layer 1 wall → blocked
+- Standing on layer 0, shoot at layer 1 platform → blocked
+- Standing on layer 0 near layer 1 platform, gun tip in layer 1 → blocked (player not on stairs)
+- Standing on layer 0 stairs, gun tip in layer 1 cell → bullet starts at layer 1
+- Standing on layer 0 stairs, shoot through stairs → bullet upgrades to layer 1
+- After upgrading to layer 1, shoot at layer 1 wall → blocked
+- After upgrading to layer 1, shoot at layer 1 platform → passes through
+- After upgrading to layer 1, shoot at layer 2 wall → blocked
 
 **Debug Visualization:**
 - **Darker shading**: Higher layers (layer 1+)
@@ -272,74 +289,103 @@ Projectiles use a different collision system than entities:
 
 ```typescript
 class ProjectileComponent {
-  constructor(
-    dirX: number,           // Direction X (-1 to 1)
-    dirY: number,           // Direction Y (-1 to 1)
-    speed: number,          // Pixels per second
-    maxDistance: number,    // Max travel distance
-    grid: Grid,             // Grid reference
-    blockedByWalls: boolean,// Whether walls stop this projectile
-    startLayer: number,     // Starting layer
-    fromTransition: boolean // Fired from transition cell?
-  ) {}
+  constructor(props: {
+    dirX: number;           // Direction X (-1 to 1)
+    dirY: number;           // Direction Y (-1 to 1)
+    speed: number;          // Pixels per second
+    maxDistance: number;    // Max travel distance
+    grid: Grid;             // Grid reference
+    blockedByWalls: boolean;// Whether walls/platforms stop this projectile
+    startLayer: number;     // Player's current layer
+    fromTransition: boolean;// Fired from transition cell or gun in higher layer
+  }) {}
 }
 ```
 
 ### Layer-Based Projectile Collision
 
-**Basic Rules:**
-- Projectiles can hit cells at **same layer or lower**
-- **Transition cells don't block projectiles**
-- When projectile passes through transition cell, it gains access to **layer+1**
+**Initialization:**
+1. Bullet starts at player's `currentLayer`
+2. If bullet spawn position (gun tip) is in a higher layer cell → auto-upgrade
+3. If `fromTransition: true` → bullet starts at `startLayer + 1`
+
+**Collision Rules:**
+
+**Without upgrading through stairs:**
+- Walls blocked at strictly higher layer (`layer > currentLayer`)
+- Platforms blocked at strictly higher layer (`layer > currentLayer`)
+
+**After upgrading through stairs:**
+- Walls blocked at upgraded layer or higher (`layer >= currentLayer`)
+- Platforms blocked only at strictly higher layer (`layer > currentLayer`)
+
+**Transition cells:**
+- Never block projectiles
+- Upgrade bullet's `currentLayer` to `transitionLayer + 1`
+- Set `hasUpgradedThroughStairs = true`
 
 **Examples:**
 
 ```typescript
-// Bullet from layer 0 (blocked by layer 1)
-new ProjectileComponent(dirX, dirY, 800, 700, grid, true, 0, false);
+// Standing on layer 0, shoot at layer 1 wall → blocked
+// Standing on layer 0, shoot at layer 1 platform → blocked
 
-// Bullet from transition cell (can hit layer 0 and 1)
-new ProjectileComponent(dirX, dirY, 800, 700, grid, true, 0, true);
+// Standing on layer 0 stairs, gun tip in layer 1 cell
+// → bullet auto-upgrades to layer 1
+// → layer 1 walls blocked, layer 1 platforms pass through
 
-// Grenade (flies over all layers)
-new ProjectileComponent(dirX, dirY, 600, 500, grid, false, 0, false);
-```
+// Standing on layer 0, shoot through stairs
+// → bullet upgrades to layer 1 when passing through stairs
+// → layer 1 walls blocked, layer 1 platforms pass through
 
-**Dynamic Layer Access:**
-```typescript
-// Bullet fired from layer 0
-// → Passes through transition cell at layer 0
-// → Gains access to layer 1
-// → Can now hit layer 1 targets
+// Standing on layer 1, shoot at layer 1 wall → passes through
+// Standing on layer 1, shoot at layer 2 wall → blocked
 ```
 
 **Implementation:**
 ```typescript
+// In BulletEntity.ts
+const startCell = grid.worldToCell(x, y);
+const startCellData = grid.getCell(startCell.col, startCell.row);
+const startCellLayer = startCellData ? grid.getLayer(startCellData) : layer;
+const actualFromTransition = fromTransition || startCellLayer > layer;
+
+// In ProjectileComponent.ts
+constructor(props: ProjectileProps) {
+  this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
+  this.hasUpgradedThroughStairs = props.fromTransition;
+}
+
 update(delta: number): void {
-  // Move projectile
-  this.transform.x += this.dirX * this.speed * (delta / 1000);
-  this.transform.y += this.dirY * this.speed * (delta / 1000);
-  
-  const cell = this.grid.worldToCell(this.transform.x, this.transform.y);
-  const cellData = this.grid.getCell(cell.col, cell.row);
-  
-  // Upgrade layer access when passing through transition
-  if (cellData.isTransition) {
-    this.currentLayer = Math.max(this.currentLayer, cellData.layer + 1);
+  // Upgrade when passing through stairs
+  if (this.grid.isTransition(cellData)) {
+    this.currentLayer = Math.max(this.currentLayer, this.grid.getLayer(cellData) + 1);
+    this.hasUpgradedThroughStairs = true;
   }
   
-  // Check collision if blockedByWalls is true
-  if (this.blockedByWalls && !cellData.isTransition) {
-    if (cellData.layer > this.currentLayer) {
-      this.entity.destroy();
-    }
-  }
-  
-  // Check max distance
-  this.distanceTraveled += this.speed * (delta / 1000);
-  if (this.distanceTraveled >= this.maxDistance) {
+  // Check collision
+  if (this.shouldCheckWallCollision(cellData)) {
     this.entity.destroy();
   }
+}
+
+private shouldCheckWallCollision(cellData: CellData): boolean {
+  if (!this.blockedByWalls || this.grid.isTransition(cellData)) return false;
+  
+  const cellLayer = this.grid.getLayer(cellData);
+  if (cellLayer === 0) return false;
+  
+  const isWall = this.grid.isWall(cellData);
+  
+  if (this.hasUpgradedThroughStairs) {
+    // Walls blocked at upgraded layer or higher
+    if (isWall) return cellLayer >= this.currentLayer;
+    // Platforms blocked only at strictly higher layer
+    return cellLayer > this.currentLayer;
+  }
+  
+  // Without upgrading: both blocked at strictly higher layer
+  return cellLayer > this.currentLayer;
 }
 ```
 

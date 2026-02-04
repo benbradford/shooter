@@ -301,17 +301,8 @@ export class GridCollisionComponent implements Component {
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
     
     if (centerCellData) {
-      if (this.grid.isTransition(centerCellData)) {
-        // In transition: allow access to adjacent layers
-        const transitionLayer = this.grid.getLayer(centerCellData);
-        // Keep current layer if within range, otherwise snap to transition layer
-        if (gridPos.currentLayer < transitionLayer - 1 || gridPos.currentLayer > transitionLayer + 1) {
-          gridPos.currentLayer = transitionLayer;
-        }
-      } else {
-        // Not in transition: update to cell's layer
-        gridPos.currentLayer = this.grid.getLayer(centerCellData);
-      }
+      // Always update to the current cell's layer
+      gridPos.currentLayer = this.grid.getLayer(centerCellData);
     }
 
     this.previousX = transform.x;

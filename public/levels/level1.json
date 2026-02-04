@@ -3,7 +3,7 @@
   "height": 40,
   "playerStart": {
     "x": 6,
-    "y": 24
+    "y": 34
   },
   "cells": [
     {
@@ -63,6 +63,14 @@
       ]
     },
     {
+      "col": 7,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 13,
       "row": 14,
       "layer": 1,
@@ -176,6 +184,14 @@
     },
     {
       "col": 6,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
       "row": 15,
       "layer": 1,
       "properties": [
@@ -435,7 +451,7 @@
       "row": 17,
       "layer": 1,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
@@ -443,7 +459,7 @@
       "row": 17,
       "layer": 1,
       "properties": [
-        "wall"
+        "platform"
       ]
     },
     {
@@ -559,6 +575,22 @@
       ]
     },
     {
+      "col": 7,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 11,
       "row": 18,
       "layer": 1,
@@ -651,7 +683,23 @@
       "row": 19,
       "layer": 1,
       "properties": [
-        "wall"
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
       ]
     },
     {
@@ -743,6 +791,30 @@
       ]
     },
     {
+      "col": 6,
+      "row": 20,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 20,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 20,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 11,
       "row": 20,
       "layer": 1,
@@ -796,6 +868,33 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
       ]
     },
     {
@@ -1155,7 +1254,7 @@
     {
       "col": 6,
       "row": 28,
-      "layer": 1,
+      "layer": 0,
       "properties": [
         "stairs"
       ]
@@ -1475,7 +1574,7 @@
     {
       "col": 6,
       "row": 33,
-      "layer": 1,
+      "layer": 0,
       "properties": [
         "stairs"
       ]
@@ -1710,38 +1809,6 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
-    }
-  ],
-  "robots": [
-    {
-      "col": 10,
-      "row": 19,
-      "difficulty": "medium",
-      "waypoints": [
-        {
-          "col": 7,
-          "row": 22
-        },
-        {
-          "col": 9,
-          "row": 22
-        }
-      ]
-    },
-    {
-      "col": 1,
-      "row": 15,
-      "difficulty": "medium",
-      "waypoints": [
-        {
-          "col": 1,
-          "row": 15
-        },
-        {
-          "col": 3,
-          "row": 15
-        }
       ]
     }
   ],
