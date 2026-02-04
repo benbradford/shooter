@@ -13,6 +13,7 @@ import { createThrowerEntity } from "../ecs/entities/thrower/ThrowerEntity";
 import { createGrenadeEntity } from "../ecs/entities/projectile/GrenadeEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { createTriggerEntity } from "../trigger/TriggerEntity";
+import { createEnemySpawnerEntity } from "../spawner/EnemySpawnerEntity";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { BugSpawnerComponent } from "../ecs/components/ai/BugSpawnerComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
@@ -29,7 +30,7 @@ import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
 export default class GameScene extends Phaser.Scene {
-  private entityManager!: EntityManager;
+  public entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
   private eventManager!: EventManagerSystem;
   private grid!: Grid;
@@ -41,6 +42,7 @@ export default class GameScene extends Phaser.Scene {
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
   private layerDebugText?: Phaser.GameObjects.Text;
+  private isEditorMode: boolean = false;
 
   constructor() {
     super({ key: "game", active: true });
@@ -110,6 +112,8 @@ export default class GameScene extends Phaser.Scene {
       const editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
       editorKey.on('down', () => {
         if (this.scene.isActive()) {
+          this.isEditorMode = true;
+          this.resetScene();
           this.scene.pause();
           this.scene.launch('EditorScene');
         }
@@ -159,7 +163,7 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  private resetScene(): void {
+  resetScene(): void {
     this.grid.destroy();
 
     this.entityManager.destroyAll();
@@ -277,7 +281,16 @@ export default class GameScene extends Phaser.Scene {
 
     // Spawn throwers from level data
     if (level.throwers && level.throwers.length > 0) {
+      console.log('[GameScene] Loading', level.throwers.length, 'throwers');
       for (const throwerData of level.throwers) {
+        // In editor mode, spawn all throwers so they can be edited
+        // In game mode, skip throwers with IDs (spawned by spawners)
+        if (!this.isEditorMode && throwerData.id) {
+          console.log('[GameScene] Skipping thrower with ID:', throwerData.id);
+          continue;
+        }
+
+        console.log('[GameScene] Creating thrower at', throwerData.col, throwerData.row);
         const thrower = createThrowerEntity({
           scene: this,
           col: throwerData.col,
@@ -297,6 +310,12 @@ export default class GameScene extends Phaser.Scene {
             this.entityManager.add(grenade);
           }
         });
+        
+        // Store ID on entity for editor
+        if (throwerData.id) {
+          (thrower as any).throwerId = throwerData.id;
+        }
+        
         this.entityManager.add(thrower);
       }
     }
@@ -312,6 +331,48 @@ export default class GameScene extends Phaser.Scene {
           oneShot: triggerData.oneShot ?? true
         });
         this.entityManager.add(trigger);
+      }
+    }
+
+    // Spawn enemy spawners from level data
+    if (level.spawners && level.spawners.length > 0) {
+      for (const spawnerData of level.spawners) {
+        const spawner = createEnemySpawnerEntity({
+          eventManager: this.eventManager,
+          eventName: spawnerData.eventName,
+          enemyIds: spawnerData.enemyIds,
+          spawnDelayMs: spawnerData.spawnDelayMs,
+          onSpawnEnemy: (enemyId: string) => {
+            console.log('[GameScene] Spawner callback - looking for enemy ID:', enemyId);
+            // Find thrower with matching ID
+            const throwerData = level.throwers?.find(t => t.id === enemyId);
+            console.log('[GameScene] Found thrower data:', throwerData);
+            if (throwerData) {
+              console.log('[GameScene] Creating thrower at', throwerData.col, throwerData.row);
+              const thrower = createThrowerEntity({
+                scene: this,
+                col: throwerData.col,
+                row: throwerData.row,
+                grid: this.grid,
+                playerEntity: player,
+                difficulty: throwerData.difficulty as EnemyDifficulty,
+                onThrow: (x, y, dirX, dirY, throwDistancePx) => {
+                  const grenade = createGrenadeEntity({
+                    scene: this,
+                    x,
+                    y,
+                    dirX,
+                    dirY,
+                    maxDistancePx: throwDistancePx
+                  });
+                  this.entityManager.add(grenade);
+                }
+              });
+              this.entityManager.add(thrower);
+            }
+          }
+        });
+        this.entityManager.add(spawner);
       }
     }
   }

@@ -24,6 +24,7 @@ export type LevelBugBase = {
 }
 
 export type LevelThrower = {
+  id?: string;
   col: number;
   row: number;
   difficulty: 'easy' | 'medium' | 'hard';
@@ -33,6 +34,12 @@ export type LevelTrigger = {
   eventName: string;
   triggerCells: Array<{ col: number; row: number }>;
   oneShot: boolean;
+}
+
+export type LevelSpawner = {
+  eventName: string;
+  enemyIds: string[];
+  spawnDelayMs: number;
 }
 
 export type LevelData = {
@@ -47,6 +54,7 @@ export type LevelData = {
   bugBases?: LevelBugBase[];
   throwers?: LevelThrower[];
   triggers?: LevelTrigger[];
+  spawners?: LevelSpawner[];
   levelTheme?: LevelTheme;
 }
 

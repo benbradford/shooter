@@ -2,8 +2,8 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 6,
-    "y": 34
+    "x": 8,
+    "y": 39
   },
   "cells": [
     {
@@ -1812,48 +1812,73 @@
       ]
     }
   ],
-  "triggers": [
+  "robots": [
     {
-      "eventName": "testTrigger",
-      "triggerCells": [
+      "col": 10,
+      "row": 33,
+      "difficulty": "easy",
+      "waypoints": [
         {
-          "col": 7,
-          "row": 32
-        },
-        {
-          "col": 8,
-          "row": 32
-        },
-        {
-          "col": 9,
-          "row": 32
+          "col": 10,
+          "row": 33
         },
         {
           "col": 10,
-          "row": 32
-        },
+          "row": 28
+        }
+      ]
+    }
+  ],
+  "throwers": [
+    {
+      "id": "th1",
+      "col": 4,
+      "row": 32,
+      "difficulty": "medium"
+    },
+    {
+      "id": "th2",
+      "col": 8,
+      "row": 32,
+      "difficulty": "hard"
+    }
+  ],
+  "triggers": [
+    {
+      "eventName": "trig1",
+      "triggerCells": [
         {
-          "col": 6,
-          "row": 32
+          "col": 4,
+          "row": 29
         },
         {
           "col": 5,
-          "row": 32
+          "row": 29
         },
         {
-          "col": 4,
-          "row": 32
+          "col": 6,
+          "row": 29
         },
         {
-          "col": 3,
-          "row": 32
+          "col": 7,
+          "row": 29
         },
         {
-          "col": 2,
-          "row": 32
+          "col": 8,
+          "row": 29
         }
       ],
       "oneShot": true
+    }
+  ],
+  "spawners": [
+    {
+      "eventName": "trig1",
+      "enemyIds": [
+        "th1",
+        "th2"
+      ],
+      "spawnDelayMs": 1000
     }
   ],
   "levelTheme": "dungeon"

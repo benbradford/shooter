@@ -55,6 +55,29 @@ export class AddEditorState extends EditorState {
     bugBaseButton.on('pointerdown', () => {
       this.scene.enterAddBugBaseMode();
     });
+
+    // Thrower button
+    const throwerButton = this.scene.add.text(centerX, centerY + 120, 'Thrower', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    throwerButton.setOrigin(0.5);
+    throwerButton.setScrollFactor(0);
+    throwerButton.setInteractive({ useHandCursor: true });
+    throwerButton.setDepth(1000);
+    this.buttons.push(throwerButton);
+
+    throwerButton.on('pointerover', () => {
+      throwerButton.setBackgroundColor('#555555');
+    });
+    throwerButton.on('pointerout', () => {
+      throwerButton.setBackgroundColor('#333333');
+    });
+    throwerButton.on('pointerdown', () => {
+      this.scene.enterAddThrowerMode();
+    });
   }
 
   onExit(): void {

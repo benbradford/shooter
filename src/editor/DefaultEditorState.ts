@@ -200,6 +200,29 @@ export class DefaultEditorState extends EditorState {
     triggerButton.on('pointerdown', () => {
       this.scene.enterTriggerMode();
     });
+
+    // Spawner button (second row)
+    const spawnerButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY + 60, 'Spawner', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    spawnerButton.setOrigin(0.5);
+    spawnerButton.setScrollFactor(0);
+    spawnerButton.setInteractive({ useHandCursor: true });
+    spawnerButton.setDepth(1000);
+    this.buttons.push(spawnerButton);
+
+    spawnerButton.on('pointerover', () => {
+      spawnerButton.setBackgroundColor('#555555');
+    });
+    spawnerButton.on('pointerout', () => {
+      spawnerButton.setBackgroundColor('#333333');
+    });
+    spawnerButton.on('pointerdown', () => {
+      this.scene.enterSpawnerMode();
+    });
   }
 
   onExit(): void {
@@ -279,6 +302,20 @@ export class DefaultEditorState extends EditorState {
       const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
       if (distance < 64) {
         this.scene.enterEditBugBaseMode(bugBase);
+        return;
+      }
+    }
+
+    // Check for thrower click
+    const throwers = entityManager.getByType('thrower');
+
+    for (const thrower of throwers) {
+      const transform = thrower.get(TransformComponent);
+      if (!transform) continue;
+
+      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+      if (distance < 64) {
+        this.scene.enterEditThrowerMode(thrower);
         return;
       }
     }

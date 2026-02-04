@@ -221,9 +221,15 @@ runTests({
 // Position
 getPlayerPosition()                              // Returns {x, y}
 
+// Movement - Pathfinding (Recommended)
+moveToPathfindHelper(targetCol, targetRow, maxTimeMs) // A* pathfinding around obstacles
+                                                       // Automatically navigates walls and uses stairs
+                                                       // Use for complex navigation
+
 // Movement - Independent Tests
 moveToCellHelper(targetCol, targetRow, maxTimeMs) // Move to specific cell (diagonal)
                                                    // Use when tests are independent
+                                                   // No obstacle avoidance
 
 // Movement - Sequential Tests  
 moveToRowHelper(targetRow, maxTimeMs)           // Move vertically to row
@@ -243,9 +249,16 @@ enableRemoteInput()                              // Add RemoteInputComponent to 
 
 **When to use which movement helper:**
 
+- **`moveToPathfindHelper(col, row)`** - Best for navigating around walls and obstacles
+  - Uses A* pathfinding to find valid path
+  - Automatically avoids walls and uses stairs for layer changes
+  - Example: Moving to a cell blocked by walls
+  - Note: Does not allow layer changes - must use stairs
+  
 - **`moveToCellHelper(col, row)`** - Independent tests where each test can move the player to any position
   - Example: Wall collision tests (each test moves to a different corner)
   - Player can move diagonally to reach target
+  - No obstacle avoidance - will get stuck on walls
   
 - **`moveToRowHelper(row)` / `moveToColHelper(col)`** - Sequential tests where each test depends on the player being at a specific position from the previous test
   - Example: Layer transition tests (player must be at transition cell from previous test)
@@ -306,14 +319,23 @@ const testShooting = test(
     then: 'At least one bullet spawns'
   },
   async (page) => {
+    let maxBulletCount = 0;
     const firePromise = page.evaluate(() => fireWeapon(0, -1, 300));
-    await new Promise(resolve => setTimeout(resolve, 50));
-    const bulletCount = await page.evaluate(() => getBulletCount());
+    
+    // Check multiple times during firing
+    for (let i = 0; i < 10; i++) {
+      await new Promise(resolve => setTimeout(resolve, 30));
+      const bulletCount = await page.evaluate(() => getBulletCount());
+      if (bulletCount > maxBulletCount) maxBulletCount = bulletCount;
+    }
+    
     await firePromise;
-    return bulletCount > 0;
+    return maxBulletCount > 0;
   }
 );
 ```
+
+**Why check max bullet count?** Bullets may be destroyed quickly (hitting walls, etc.), so checking at a single point in time may miss them. Checking the maximum count during the firing period ensures we detect bullets that existed even briefly.
 
 ## Best Practices
 

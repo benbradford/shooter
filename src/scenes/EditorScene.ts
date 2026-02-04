@@ -12,9 +12,12 @@ import { ResizeEditorState } from "../editor/ResizeEditorState";
 import { MoveEditorState, type MoveEditorStateProps } from "../editor/MoveEditorState";
 import { EditRobotEditorState } from "../editor/EditRobotEditorState";
 import { EditBugBaseEditorState } from "../editor/EditBugBaseEditorState";
+import { EditThrowerEditorState } from "../editor/EditThrowerEditorState";
 import { AddEditorState } from "../editor/AddEditorState";
 import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
+import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
+import { SpawnerEditorState } from "../editor/SpawnerEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
 import { TriggerEditorState } from "../editor/TriggerEditorState";
@@ -109,9 +112,12 @@ export default class EditorScene extends Phaser.Scene {
       move: new MoveEditorState(this),
       editRobot: new EditRobotEditorState(this),
       editBugBase: new EditBugBaseEditorState(this),
+      editThrower: new EditThrowerEditorState(this),
       add: new AddEditorState(this),
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
+      addThrower: new AddThrowerEditorState(this),
+      spawner: new SpawnerEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
       trigger: new TriggerEditorState(this) as unknown as import('../systems/state/IState').IState<void | Entity | MoveEditorStateProps | number>
@@ -276,6 +282,28 @@ export default class EditorScene extends Phaser.Scene {
     return bugBases;
   }
 
+  private extractThrowers(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelThrower[] {
+    const throwers: import('../systems/level/LevelLoader').LevelThrower[] = [];
+    const throwerEntities = entityManager.getByType('thrower');
+
+    for (const thrower of throwerEntities) {
+      const transform = thrower.get(TransformComponent);
+      const difficulty = thrower.get(DifficultyComponent);
+
+      if (transform) {
+        const cell = grid.worldToCell(transform.x, transform.y);
+
+        throwers.push({
+          id: (thrower as any).throwerId,
+          col: cell.col,
+          row: cell.row,
+          difficulty: difficulty?.difficulty ?? 'medium'
+        });
+      }
+    }
+    return throwers;
+  }
+
   getCurrentLevelData(): LevelData {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
@@ -284,6 +312,7 @@ export default class EditorScene extends Phaser.Scene {
     const cells = this.extractGridCells(grid);
     const robots = this.extractRobots(entityManager, grid);
     const bugBases = this.extractBugBases(entityManager, grid);
+    const throwers = this.extractThrowers(entityManager, grid);
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
@@ -294,7 +323,7 @@ export default class EditorScene extends Phaser.Scene {
         }
       : { x: 10, y: 10 };
 
-    // Get existing level data to preserve triggers added in editor
+    // Get existing level data to preserve triggers and spawners added in editor
     const existingLevelData = gameScene.getLevelData();
 
     const result = {
@@ -304,7 +333,9 @@ export default class EditorScene extends Phaser.Scene {
       cells,
       robots: robots.length > 0 ? robots : undefined,
       bugBases: bugBases.length > 0 ? bugBases : undefined,
-      triggers: existingLevelData.triggers, // Preserve triggers from level data
+      throwers: throwers.length > 0 ? throwers : undefined,
+      triggers: existingLevelData.triggers,
+      spawners: existingLevelData.spawners,
       levelTheme: existingLevelData.levelTheme
     };
 
@@ -395,6 +426,18 @@ export default class EditorScene extends Phaser.Scene {
 
   enterEditBugBaseMode(bugBase: Entity): void {
     this.stateMachine.enter('editBugBase', bugBase);
+  }
+
+  enterAddThrowerMode(): void {
+    this.stateMachine.enter('addThrower');
+  }
+
+  enterEditThrowerMode(thrower: Entity): void {
+    this.stateMachine.enter('editThrower', thrower);
+  }
+
+  enterSpawnerMode(): void {
+    this.stateMachine.enter('spawner');
   }
 
   enterTextureMode(): void {

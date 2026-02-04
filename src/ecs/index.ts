@@ -31,3 +31,4 @@ export { AimJoystickVisualsComponent } from './components/ui/AimJoystickVisualsC
 export { VignetteHealthComponent } from './components/visual/VignetteHealthComponent';
 export { TriggerComponent } from './components/core/TriggerComponent';
 export { TestEventComponent } from './components/core/TestEventComponent';
+export { EnemySpawnComponent } from './components/spawner/EnemySpawnComponent';
