@@ -18,7 +18,7 @@ export abstract class GameSceneRenderer {
     this.graphics.destroy();
   }
 
-  // eslint-disable-next-line complexity, max-depth
+  // eslint-disable-next-line complexity
   protected renderPlatformsAndWalls(grid: Grid, cellSize: number): void {
     const edgeThickness = 8;
     const edgeColor = this.getEdgeColor();
@@ -64,6 +64,7 @@ export abstract class GameSceneRenderer {
             // Platforms: only draw edge if adjacent is lower or wall at same layer
             // Walls: only draw edge if adjacent is lower
             // Stairs: draw edge if adjacent is wall at any layer
+            // eslint-disable-next-line max-depth
             if (isPlatform && (rightIsLower || (rightIsWall && rightIsSameLayer))) {
               this.graphics.strokeLineShape(new Phaser.Geom.Line(
                 x + cellSize, y,

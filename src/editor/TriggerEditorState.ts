@@ -5,9 +5,9 @@ import type { IStateEnterProps } from '../systems/state/IState';
 const SELECTED_CELL_COLOR = 0xffffff;
 
 export class TriggerEditorState extends EditorState<number> {
-  private selectedCells: Set<string> = new Set();
+  private readonly selectedCells: Set<string> = new Set();
   private eventNameInput: HTMLInputElement | null = null;
-  private selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+  private readonly selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private editingTriggerIndex: number = -1;
 
   onEnter(props?: IStateEnterProps<number>): void {
@@ -174,9 +174,7 @@ export class TriggerEditorState extends EditorState<number> {
     const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
     const levelData = gameScene.getLevelData();
     
-    if (!levelData.triggers) {
-      levelData.triggers = [];
-    }
+    levelData.triggers ??= [];
 
     const triggerCells = Array.from(this.selectedCells).map(cellKey => {
       const [col, row] = cellKey.split(',').map(Number);
@@ -220,7 +218,7 @@ export class TriggerEditorState extends EditorState<number> {
     // If we hit any UI objects, ignore the grid click
     if (hitObjects.length > 0) {
       for (const obj of hitObjects) {
-        if ((obj as any).depth >= 1000) { // UI elements have high depth
+        if (obj.depth >= 1000) { // UI elements have high depth
           return;
         }
       }

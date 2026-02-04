@@ -294,7 +294,7 @@ export default class EditorScene extends Phaser.Scene {
         const cell = grid.worldToCell(transform.x, transform.y);
 
         throwers.push({
-          id: (thrower as any).throwerId,
+          id: thrower.throwerId,
           col: cell.col,
           row: cell.row,
           difficulty: difficulty?.difficulty ?? 'medium'
@@ -450,10 +450,10 @@ export default class EditorScene extends Phaser.Scene {
       this.triggerGraphics.destroy();
       this.triggerGraphics = null;
     }
-    if (triggerIndex !== undefined) {
-      this.stateMachine.enter('trigger', triggerIndex as unknown as void | Entity | MoveEditorStateProps);
-    } else {
+    if (triggerIndex === undefined) {
       this.stateMachine.enter('trigger');
+    } else {
+      this.stateMachine.enter('trigger', triggerIndex as unknown as void | Entity | MoveEditorStateProps);
     }
   }
 

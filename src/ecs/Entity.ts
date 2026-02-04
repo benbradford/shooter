@@ -6,6 +6,7 @@ export class Entity {
   public isDestroyed: boolean = false;
   public markedForRemoval: boolean = false;
   public readonly tags: Set<string> = new Set();
+  public throwerId?: string; // For editor: ID of thrower entity for spawner system
 
   constructor(public readonly id: string) {}
 

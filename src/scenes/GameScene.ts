@@ -171,6 +171,7 @@ export default class GameScene extends Phaser.Scene {
     this.initializeScene();
   }
 
+  // eslint-disable-next-line complexity
   private spawnEntities(): void {
     const level = this.levelData;
 
@@ -310,7 +311,7 @@ export default class GameScene extends Phaser.Scene {
         
         // Store ID on entity for editor
         if (throwerData.id) {
-          (thrower as any).throwerId = throwerData.id;
+          thrower.throwerId = throwerData.id;
         }
         
         this.entityManager.add(thrower);

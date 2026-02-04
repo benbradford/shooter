@@ -235,6 +235,7 @@ export class DefaultEditorState extends EditorState {
     // No update logic needed
   }
 
+  // eslint-disable-next-line complexity
   private handleClick(): void {
     const pointer = this.scene.input.activePointer;
     

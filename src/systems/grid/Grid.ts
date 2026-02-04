@@ -4,6 +4,7 @@ import type GameScene from "../../scenes/GameScene";
 import type { EntityManager } from "../../ecs/EntityManager";
 import { ProjectileEmitterComponent } from "../../ecs/components/combat/ProjectileEmitterComponent";
 import type { CellData } from './CellData';
+import type { LevelData } from '../level/LevelLoader';
 export type { CellProperty, CellData } from './CellData';
 
 export class Grid {
@@ -232,7 +233,7 @@ export class Grid {
     }
   }
 
-  render(entityManager?: EntityManager, levelData?: any) {
+  render(entityManager?: EntityManager, levelData?: LevelData) {
     this.graphics.clear();
     
     const gameScene = this.scene as GameScene;

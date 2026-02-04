@@ -1878,7 +1878,7 @@
         "th1",
         "th2"
       ],
-      "spawnDelayMs": 1000
+      "spawnDelayMs": 0
     }
   ],
   "levelTheme": "dungeon"

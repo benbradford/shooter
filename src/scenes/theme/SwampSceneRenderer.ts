@@ -100,10 +100,12 @@ export class SwampSceneRenderer extends GameSceneRenderer {
           const currentLayer = grid.getLayer(cell);
           const cellBelow = grid.getCell(col, row + 1);
           if (cellBelow && grid.getLayer(cellBelow) < currentLayer && !grid.isTransition(cellBelow)) {
+            // eslint-disable-next-line max-depth
             for (let i = 1; i <= SHADOW_STEPS; i++) {
               const checkRow = row + i;
               const shadowCell = grid.getCell(col, checkRow);
               
+              // eslint-disable-next-line max-depth
               if (!shadowCell || grid.getLayer(shadowCell) >= currentLayer) break;
 
               const shadowY = checkRow * this.cellSize;
