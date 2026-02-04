@@ -6,12 +6,6 @@
     "y": 7
   },
   "cells": [
-    {"col": 4, "row": 3, "layer": 1, "properties": ["platform"]},
-    {"col": 5, "row": 3, "layer": 1, "properties": ["platform"]},
-    {"col": 6, "row": 3, "layer": 1, "properties": ["platform"]},
-    {"col": 7, "row": 3, "layer": 1, "properties": ["platform"]},
-    {"col": 8, "row": 3, "layer": 1, "properties": ["platform"]},
-    {"col": 9, "row": 3, "layer": 1, "properties": ["platform"]},
     {"col": 4, "row": 4, "layer": 1, "properties": ["platform"]},
     {"col": 5, "row": 4, "layer": 1, "properties": ["platform"]},
     {"col": 6, "row": 4, "layer": 1, "properties": ["platform"]},

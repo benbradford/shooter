@@ -295,14 +295,15 @@ export default class GameScene extends Phaser.Scene {
           grid: this.grid,
           playerEntity: player,
           difficulty: throwerData.difficulty as EnemyDifficulty,
-          onThrow: (x, y, dirX, dirY, throwDistancePx) => {
+          onThrow: (x, y, dirX, dirY, throwDistancePx, throwSpeedPxPerSec) => {
             const grenade = createGrenadeEntity({
               scene: this,
               x,
               y,
               dirX,
               dirY,
-              maxDistancePx: throwDistancePx
+              maxDistancePx: throwDistancePx,
+              speedPxPerSec: throwSpeedPxPerSec
             });
             this.entityManager.add(grenade);
           }
@@ -349,14 +350,15 @@ export default class GameScene extends Phaser.Scene {
                 grid: this.grid,
                 playerEntity: player,
                 difficulty: throwerData.difficulty as EnemyDifficulty,
-                onThrow: (x, y, dirX, dirY, throwDistancePx) => {
+                onThrow: (x, y, dirX, dirY, throwDistancePx, throwSpeedPxPerSec) => {
                   const grenade = createGrenadeEntity({
                     scene: this,
                     x,
                     y,
                     dirX,
                     dirY,
-                    maxDistancePx: throwDistancePx
+                    maxDistancePx: throwDistancePx,
+                    speedPxPerSec: throwSpeedPxPerSec
                   });
                   this.entityManager.add(grenade);
                 }

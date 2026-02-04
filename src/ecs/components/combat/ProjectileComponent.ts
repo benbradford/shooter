@@ -63,8 +63,15 @@ export class ProjectileComponent implements Component {
       }
 
       if (this.grid.isTransition(cellData)) {
-        this.currentLayer = Math.max(this.currentLayer, this.grid.getLayer(cellData) + 1);
-        this.hasUpgradedThroughStairs = true;
+        const stairLayer = this.grid.getLayer(cellData);
+        if (stairLayer + 1 > this.currentLayer) {
+          // Going up stairs
+          this.currentLayer = stairLayer + 1;
+          this.hasUpgradedThroughStairs = true;
+        } else if (stairLayer < this.currentLayer) {
+          // Going down stairs
+          this.currentLayer = stairLayer;
+        }
       }
 
       if (this.shouldCheckWallCollision(cellData)) {
@@ -84,9 +91,15 @@ export class ProjectileComponent implements Component {
   }
 
   private shouldCheckWallCollision(cellData: CellData): boolean {
-    if (!this.blockedByWalls || this.grid.isTransition(cellData)) return false;
+    if (!this.blockedByWalls) return false;
     
     const cellLayer = this.grid.getLayer(cellData);
+    
+    // Stairs never block
+    if (this.grid.isTransition(cellData)) return false;
+    
+    // After promotion, cannot descend to non-stair cells below current layer
+    if (this.hasUpgradedThroughStairs && cellLayer < this.currentLayer) return true;
     
     // Platforms and walls at layer 0 never block
     if (cellLayer === 0) return false;

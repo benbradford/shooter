@@ -35,7 +35,7 @@ export type CreateThrowerProps = {
   grid: Grid;
   playerEntity: Entity;
   difficulty: ThrowerDifficulty;
-  onThrow: (x: number, y: number, dirX: number, dirY: number, throwDistancePx: number) => void;
+  onThrow: (x: number, y: number, dirX: number, dirY: number, throwDistancePx: number, throwSpeedPxPerSec: number) => void;
 }
 
 export function createThrowerEntity(props: CreateThrowerProps): Entity {

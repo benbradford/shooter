@@ -7,7 +7,6 @@ import { HealthComponent } from '../../components/core/HealthComponent';
 import type { Component } from '../../Component';
 
 const GRENADE_DAMAGE = 25;
-const GRENADE_SPEED_PX_PER_SEC = 300;
 const GRENADE_ARC_HEIGHT_PX = 80;
 const GRENADE_SCALE_MIN = 0.5;
 const GRENADE_SCALE_MAX = 1.5;
@@ -17,14 +16,17 @@ class GrenadeArcComponent implements Component {
   entity!: Entity;
   private distanceTraveledPx: number = 0;
   private readonly totalDistancePx: number;
+  private readonly speedPxPerSec: number;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly dirX: number,
     private readonly dirY: number,
-    maxDistancePx: number
+    maxDistancePx: number,
+    speedPxPerSec: number
   ) {
     this.totalDistancePx = maxDistancePx;
+    this.speedPxPerSec = speedPxPerSec;
   }
 
   update(delta: number): void {
@@ -32,7 +34,7 @@ class GrenadeArcComponent implements Component {
     const sprite = this.entity.require(SpriteComponent);
     const shadow = this.entity.get(ShadowComponent);
 
-    const moveDistancePx = GRENADE_SPEED_PX_PER_SEC * (delta / 1000);
+    const moveDistancePx = this.speedPxPerSec * (delta / 1000);
     transform.x += this.dirX * moveDistancePx;
     transform.y += this.dirY * moveDistancePx;
     this.distanceTraveledPx += moveDistancePx;
@@ -109,10 +111,11 @@ export type CreateGrenadeProps = {
   dirX: number;
   dirY: number;
   maxDistancePx: number;
+  speedPxPerSec: number;
 }
 
 export function createGrenadeEntity(props: CreateGrenadeProps): Entity {
-  const { scene, x, y, dirX, dirY, maxDistancePx } = props;
+  const { scene, x, y, dirX, dirY, maxDistancePx, speedPxPerSec } = props;
   
   const entity = new Entity('grenade');
   entity.tags.add('enemy_projectile');
@@ -129,7 +132,7 @@ export function createGrenadeEntity(props: CreateGrenadeProps): Entity {
   shadow.init();
 
   entity.add(new DamageComponent(GRENADE_DAMAGE));
-  entity.add(new GrenadeArcComponent(scene, dirX, dirY, maxDistancePx));
+  entity.add(new GrenadeArcComponent(scene, dirX, dirY, maxDistancePx, speedPxPerSec));
 
   entity.setUpdateOrder([
     TransformComponent,

@@ -16,7 +16,7 @@ export class ThrowerThrowingState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly onThrow: (x: number, y: number, dirX: number, dirY: number, throwDistancePx: number) => void
+    private readonly onThrow: (x: number, y: number, dirX: number, dirY: number, throwDistancePx: number, throwSpeedPxPerSec: number) => void
   ) {}
 
   onEnter(): void {
@@ -59,7 +59,6 @@ export class ThrowerThrowingState implements IState {
     const dy = playerTransform.y - transform.y;
     const length = Math.hypot(dx, dy);
     
-    // Use actual distance to player, capped at max throw distance
     const throwDistance = Math.min(length, config.throwDistancePx);
 
     this.onThrow(
@@ -67,7 +66,8 @@ export class ThrowerThrowingState implements IState {
       transform.y,
       dx / length,
       dy / length,
-      throwDistance
+      throwDistance,
+      config.throwSpeedPxPerSec
     );
   }
 }

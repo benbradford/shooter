@@ -112,6 +112,25 @@ export class SpawnerEditorState extends EditorState {
     const isNew = this.selectedSpawnerIndex === -1;
     const spawner = isNew ? { eventName: '', enemyIds: [], spawnDelayMs: 1000 } : this.spawners[this.selectedSpawnerIndex];
 
+    const gameScene = this.scene.scene.get('game') as GameScene;
+    const levelData = gameScene.getLevelData();
+
+    // Get available event names from triggers
+    const availableEvents = new Set<string>();
+    if (levelData.triggers) {
+      for (const trigger of levelData.triggers) {
+        availableEvents.add(trigger.eventName);
+      }
+    }
+
+    // Get available enemy IDs
+    const availableEnemyIds = new Set<string>();
+    if (levelData.throwers) {
+      for (const thrower of levelData.throwers) {
+        if (thrower.id) availableEnemyIds.add(thrower.id);
+      }
+    }
+
     this.uiContainer = document.createElement('div');
     this.uiContainer.style.cssText = `
       position: fixed;
@@ -132,43 +151,78 @@ export class SpawnerEditorState extends EditorState {
     title.style.marginTop = '0';
     this.uiContainer.appendChild(title);
 
-    // Event name input
+    // Event name dropdown
     const eventLabel = document.createElement('label');
     eventLabel.textContent = 'Event Name:';
     eventLabel.style.display = 'block';
     eventLabel.style.marginTop = '10px';
     this.uiContainer.appendChild(eventLabel);
 
-    const eventInput = document.createElement('input');
-    eventInput.type = 'text';
-    eventInput.value = spawner.eventName;
-    eventInput.style.cssText = `
+    const eventSelect = document.createElement('select');
+    eventSelect.style.cssText = `
       width: 100%;
       padding: 5px;
       margin: 5px 0;
       font-family: monospace;
     `;
-    eventInput.addEventListener('keydown', (e) => e.stopPropagation());
-    this.uiContainer.appendChild(eventInput);
 
-    // Enemy IDs input
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = '-- Select Event --';
+    eventSelect.appendChild(emptyOption);
+
+    for (const eventName of Array.from(availableEvents).sort()) {
+      const option = document.createElement('option');
+      option.value = eventName;
+      option.textContent = eventName;
+      if (eventName === spawner.eventName) {
+        option.selected = true;
+      }
+      eventSelect.appendChild(option);
+    }
+
+    this.uiContainer.appendChild(eventSelect);
+
+    // Enemy IDs multi-select
     const idsLabel = document.createElement('label');
-    idsLabel.textContent = 'Enemy IDs (comma-separated):';
+    idsLabel.textContent = 'Enemy IDs:';
     idsLabel.style.display = 'block';
     idsLabel.style.marginTop = '10px';
     this.uiContainer.appendChild(idsLabel);
 
-    const idsInput = document.createElement('input');
-    idsInput.type = 'text';
-    idsInput.value = spawner.enemyIds.join(', ');
-    idsInput.style.cssText = `
-      width: 100%;
+    const idsContainer = document.createElement('div');
+    idsContainer.style.cssText = `
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #666;
       padding: 5px;
       margin: 5px 0;
-      font-family: monospace;
+      background: rgba(255,255,255,0.1);
     `;
-    idsInput.addEventListener('keydown', (e) => e.stopPropagation());
-    this.uiContainer.appendChild(idsInput);
+
+    const selectedIds = new Set(spawner.enemyIds);
+
+    for (const enemyId of Array.from(availableEnemyIds).sort()) {
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = enemyId;
+      checkbox.checked = selectedIds.has(enemyId);
+      checkbox.id = `enemy-${enemyId}`;
+
+      const label = document.createElement('label');
+      label.htmlFor = `enemy-${enemyId}`;
+      label.textContent = enemyId;
+      label.style.cssText = `
+        display: block;
+        padding: 5px;
+        cursor: pointer;
+      `;
+      label.prepend(checkbox);
+
+      idsContainer.appendChild(label);
+    }
+
+    this.uiContainer.appendChild(idsContainer);
 
     // Spawn delay input
     const delayLabel = document.createElement('label');
@@ -203,19 +257,17 @@ export class SpawnerEditorState extends EditorState {
       font-family: monospace;
     `;
     saveButton.onclick = () => {
-      const eventName = eventInput.value.trim();
-      const enemyIds = idsInput.value.split(',').map(id => id.trim()).filter(id => id.length > 0);
+      const eventName = eventSelect.value.trim();
+      const checkboxes = idsContainer.querySelectorAll('input[type="checkbox"]:checked');
+      const enemyIds = Array.from(checkboxes).map(cb => (cb as HTMLInputElement).value);
       const spawnDelayMs = Number.parseInt(delayInput.value, 10);
 
       if (!eventName || enemyIds.length === 0 || Number.isNaN(spawnDelayMs)) {
-        alert('Please fill all fields correctly');
+        alert('Please select event, at least one enemy, and valid delay');
         return;
       }
 
       const newSpawner: LevelSpawner = { eventName, enemyIds, spawnDelayMs };
-
-      const gameScene = this.scene.scene.get('game') as GameScene;
-      const levelData = gameScene.getLevelData();
 
       levelData.spawners ??= [];
 
@@ -227,7 +279,7 @@ export class SpawnerEditorState extends EditorState {
 
       this.destroyUI();
       this.selectedSpawnerIndex = -1;
-      this.spawners = levelData.spawners; // Use the updated array directly
+      this.spawners = levelData.spawners;
 
       this.createUI();
     };
@@ -248,8 +300,6 @@ export class SpawnerEditorState extends EditorState {
         font-family: monospace;
       `;
       deleteButton.onclick = () => {
-        const gameScene = this.scene.scene.get('game') as GameScene;
-        const levelData = gameScene.getLevelData();
         levelData.spawners?.splice(this.selectedSpawnerIndex, 1);
 
         this.destroyUI();
@@ -274,14 +324,9 @@ export class SpawnerEditorState extends EditorState {
       font-family: monospace;
     `;
     backButton.onclick = () => {
-      console.log('[SpawnerEditor] Back button clicked');
       this.destroyUI();
       this.selectedSpawnerIndex = -1;
-
-      const gameScene = this.scene.scene.get('game') as GameScene;
-      const levelData = gameScene.getLevelData();
       this.spawners = levelData.spawners ?? [];
-
       this.createUI();
     };
     this.uiContainer.appendChild(backButton);

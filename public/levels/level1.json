@@ -2,7 +2,7 @@
   "width": 50,
   "height": 40,
   "playerStart": {
-    "x": 7,
+    "x": 9,
     "y": 37
   },
   "cells": [
@@ -1913,6 +1913,12 @@
       "col": 8,
       "row": 32,
       "difficulty": "easy"
+    },
+    {
+      "id": "th3",
+      "col": 6,
+      "row": 32,
+      "difficulty": "easy"
     }
   ],
   "triggers": [
@@ -1948,7 +1954,8 @@
       "eventName": "trig1",
       "enemyIds": [
         "th1",
-        "th2"
+        "th2",
+        "th3"
       ],
       "spawnDelayMs": 0
     }
