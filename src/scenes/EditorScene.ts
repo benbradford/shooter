@@ -138,25 +138,25 @@ export default class EditorScene extends Phaser.Scene {
 
   private renderTriggers(): void {
     if (this.inTriggerState) return;
-    
+
     const gameScene = this.scene.get('game') as GameScene;
     const levelData = gameScene.getLevelData();
     const grid = this.getGrid();
-    
+
     if (this.triggerGraphics) {
       this.triggerGraphics.destroy();
       this.triggerGraphics = null;
     }
-    
+
     if (!levelData.triggers || levelData.triggers.length === 0) return;
-    
+
     this.triggerGraphics = gameScene.add.graphics();
     this.triggerGraphics.setDepth(1500);
-    
+
     for (const trigger of levelData.triggers) {
       this.triggerGraphics.lineStyle(3, 0xffff00, 0.8);
       this.triggerGraphics.fillStyle(0xffff00, 0.2);
-      
+
       for (const cell of trigger.triggerCells) {
         const worldPos = grid.cellToWorld(cell.col, cell.row);
         this.triggerGraphics.strokeRect(worldPos.x, worldPos.y, grid.cellSize, grid.cellSize);
@@ -212,7 +212,7 @@ export default class EditorScene extends Phaser.Scene {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
         if (!cell) continue;
-        
+
         const layer = grid.getLayer(cell);
         if (layer !== 0 || cell.properties.size > 0 || cell.backgroundTexture) {
           cells.push({
@@ -294,7 +294,7 @@ export default class EditorScene extends Phaser.Scene {
         const cell = grid.worldToCell(transform.x, transform.y);
 
         throwers.push({
-          id: thrower.throwerId,
+          id: thrower.entityId,
           col: cell.col,
           row: cell.row,
           difficulty: difficulty?.difficulty ?? 'medium'
@@ -515,12 +515,12 @@ export default class EditorScene extends Phaser.Scene {
   private updateGridSize(): void {
     const gameScene = this.scene.get('game') as GameScene;
     const grid = this.getGrid();
-    
+
     // Update camera bounds
     const newWidth = grid.width * grid.cellSize;
     const newHeight = grid.height * grid.cellSize;
     gameScene.cameras.main.setBounds(-10000, -10000, 20000, 20000);
-    
+
     // Update stored bounds for when we exit editor
     this.registry.set('editorOriginalBounds', {
       x: 0,
@@ -528,7 +528,7 @@ export default class EditorScene extends Phaser.Scene {
       width: newWidth,
       height: newHeight
     });
-    
+
     // Re-render grid
     grid.render();
   }
@@ -551,7 +551,7 @@ export default class EditorScene extends Phaser.Scene {
       this.triggerGraphics.destroy();
       this.triggerGraphics = null;
     }
-    
+
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
     const bounds = this.registry.get('editorOriginalBounds') as { x: number; y: number; width: number; height: number };

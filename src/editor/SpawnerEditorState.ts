@@ -45,7 +45,7 @@ export class SpawnerEditorState extends EditorState {
     if (this.spawners.length > 0) {
       const list = document.createElement('div');
       list.style.marginBottom = '20px';
-      
+
       this.spawners.forEach((spawner, index) => {
         const item = document.createElement('div');
         item.style.cssText = `
@@ -59,7 +59,7 @@ export class SpawnerEditorState extends EditorState {
         item.onclick = () => this.editSpawner(index);
         list.appendChild(item);
       });
-      
+
       this.uiContainer.appendChild(list);
     }
 
@@ -203,26 +203,20 @@ export class SpawnerEditorState extends EditorState {
       font-family: monospace;
     `;
     saveButton.onclick = () => {
-      console.log('[SpawnerEditor] Save button clicked');
       const eventName = eventInput.value.trim();
       const enemyIds = idsInput.value.split(',').map(id => id.trim()).filter(id => id.length > 0);
       const spawnDelayMs = Number.parseInt(delayInput.value, 10);
 
-      console.log('[SpawnerEditor] Values:', { eventName, enemyIds, spawnDelayMs });
-
       if (!eventName || enemyIds.length === 0 || Number.isNaN(spawnDelayMs)) {
-        console.log('[SpawnerEditor] Validation failed');
         alert('Please fill all fields correctly');
         return;
       }
-
-      console.log('[SpawnerEditor] Validation passed, saving...');
 
       const newSpawner: LevelSpawner = { eventName, enemyIds, spawnDelayMs };
 
       const gameScene = this.scene.scene.get('game') as GameScene;
       const levelData = gameScene.getLevelData();
-      
+
       levelData.spawners ??= [];
 
       if (isNew) {
@@ -231,11 +225,10 @@ export class SpawnerEditorState extends EditorState {
         levelData.spawners[this.selectedSpawnerIndex] = newSpawner;
       }
 
-      console.log('[SpawnerEditor] Saved, entering spawner mode');
       this.destroyUI();
       this.selectedSpawnerIndex = -1;
       this.spawners = levelData.spawners; // Use the updated array directly
-      
+
       this.createUI();
     };
     this.uiContainer.appendChild(saveButton);
@@ -258,7 +251,7 @@ export class SpawnerEditorState extends EditorState {
         const gameScene = this.scene.scene.get('game') as GameScene;
         const levelData = gameScene.getLevelData();
         levelData.spawners?.splice(this.selectedSpawnerIndex, 1);
-        
+
         this.destroyUI();
         this.selectedSpawnerIndex = -1;
         this.spawners = levelData.spawners ?? [];
@@ -284,11 +277,11 @@ export class SpawnerEditorState extends EditorState {
       console.log('[SpawnerEditor] Back button clicked');
       this.destroyUI();
       this.selectedSpawnerIndex = -1;
-      
+
       const gameScene = this.scene.scene.get('game') as GameScene;
       const levelData = gameScene.getLevelData();
       this.spawners = levelData.spawners ?? [];
-      
+
       this.createUI();
     };
     this.uiContainer.appendChild(backButton);

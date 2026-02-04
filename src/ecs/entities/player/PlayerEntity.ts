@@ -21,8 +21,6 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
-import { TestEventComponent } from '../../components/core/TestEventComponent';
-import type { EventManagerSystem } from '../../../ecs/systems/EventManagerSystem';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -62,11 +60,10 @@ export type CreatePlayerEntityProps = {
   joystick: Entity;
   getEnemies: () => Entity[];
   vignetteSprite?: Phaser.GameObjects.Image;
-  eventManager: EventManagerSystem;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies, vignetteSprite, eventManager } = props;
+  const { scene, x, y, grid, onFire, onShellEject, joystick, getEnemies, vignetteSprite } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -185,9 +182,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   entity.add(new HitFlashComponent());
 
-  const testEvent = entity.add(new TestEventComponent(eventManager));
-  testEvent.init();
-
   // Added after Animation so onEnter can access it
   const stateMachine = new StateMachine(
     {
@@ -231,7 +225,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     ProjectileEmitterComponent,
     OverheatSmokeComponent,
     HitFlashComponent,
-    TestEventComponent,
     HudBarComponent,
     StateMachineComponent,
     AnimationComponent,

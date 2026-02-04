@@ -31,7 +31,7 @@ export class CollisionSystem {
     }
 
     // Get entities with collision component
-    const collidables = entities.filter(e => e.has(CollisionComponent) && !e.markedForRemoval);
+    const collidables = entities.filter(e => e.has(CollisionComponent));
 
     // Use spatial partitioning for entities with GridPositionComponent
     const gridEntities: Entity[] = [];
@@ -64,9 +64,9 @@ export class CollisionSystem {
       for (const cell of nearbyCells) {
         const cellData = this.grid.getCell(cell.col, cell.row);
         if (!cellData) continue;
-        
+
         for (const occupant of cellData.occupants) {
-          if (occupant !== entityA && !occupant.markedForRemoval) {
+          if (occupant !== entityA) {
             nearbyEntities.add(occupant);
           }
         }
@@ -116,7 +116,7 @@ export class CollisionSystem {
 
   private getNearbyCells(col: number, row: number): Array<{ col: number; row: number }> {
     const cells: Array<{ col: number; row: number }> = [];
-    
+
     // Current cell + 8 neighbors
     for (let dc = -1; dc <= 1; dc++) {
       for (let dr = -1; dr <= 1; dr++) {
@@ -127,7 +127,7 @@ export class CollisionSystem {
         }
       }
     }
-    
+
     return cells;
   }
 

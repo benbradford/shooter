@@ -205,8 +205,10 @@ export class InputComponent implements Component {
     if (!playerTransform || !playerGridPos) return null;
 
     const enemies = this.getEnemies();
-    let nearestEnemy: Entity | null = null;
-    let nearestDistance = Infinity;
+    let nearestTargetableEnemy: Entity | null = null;
+    let nearestTargetableDistance = Infinity;
+    let nearestAnyEnemy: Entity | null = null;
+    let nearestAnyDistance = Infinity;
 
     for (const enemy of enemies) {
       const enemyTransform = enemy.get(TransformComponent);
@@ -217,14 +219,26 @@ export class InputComponent implements Component {
       const dy = enemyTransform.y - playerTransform.y;
       const distance = Math.hypot(dx, dy);
 
-      if (distance <= this.bulletMaxDistance && distance < nearestDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y, playerGridPos.currentLayer, enemyGridPos.currentLayer)) {
-        nearestDistance = distance;
-        nearestEnemy = enemy;
+      if (distance <= this.bulletMaxDistance) {
+        // Track nearest enemy regardless of line of sight
+        if (distance < nearestAnyDistance) {
+          nearestAnyDistance = distance;
+          nearestAnyEnemy = enemy;
+        }
+
+        // Track nearest targetable enemy (with line of sight)
+        if (distance < nearestTargetableDistance && this.hasLineOfSight(playerTransform.x, playerTransform.y, enemyTransform.x, enemyTransform.y, playerGridPos.currentLayer, enemyGridPos.currentLayer)) {
+          nearestTargetableDistance = distance;
+          nearestTargetableEnemy = enemy;
+        }
       }
     }
 
-    if (nearestEnemy) {
-      const enemyTransform = nearestEnemy.require(TransformComponent);
+    // Priority: targetable enemy > any nearby enemy > null
+    const targetEnemy = nearestTargetableEnemy ?? nearestAnyEnemy;
+    
+    if (targetEnemy) {
+      const enemyTransform = targetEnemy.require(TransformComponent);
       const dx = enemyTransform.x - playerTransform.x;
       const dy = enemyTransform.y - playerTransform.y;
       const length = Math.hypot(dx, dy);

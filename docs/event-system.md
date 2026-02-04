@@ -205,15 +205,7 @@ doorEvent.init();
 
 ## Testing Events
 
-Use `TestEventComponent` on the player to verify events are firing:
-
-```typescript
-// Already added to player in PlayerEntity.ts
-const testEvent = entity.add(new TestEventComponent(eventManager));
-testEvent.init();
-
-// Logs to console when 'testTrigger' event is raised
-```
+Create event listener components that extend `BaseEventComponent` and register for specific events. The event system will automatically notify listeners when triggers fire.
 
 ## Best Practices
 
@@ -228,7 +220,6 @@ testEvent.init();
 - `src/ecs/systems/EventManagerSystem.ts` - Event dispatcher
 - `src/ecs/systems/EventListener.ts` - Listener interface
 - `src/ecs/components/core/BaseEventComponent.ts` - Base class for event components
-- `src/ecs/components/core/TestEventComponent.ts` - Example event component
 - `src/ecs/components/core/TriggerComponent.ts` - Trigger implementation
 - `src/trigger/TriggerEntity.ts` - Trigger entity factory
 - `src/editor/TriggerEditorState.ts` - Trigger editor UI

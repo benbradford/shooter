@@ -108,7 +108,7 @@ export default class GameScene extends Phaser.Scene {
           this.showLevelSelector();
         }
       });
-      
+
       const editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
       editorKey.on('down', () => {
         if (this.scene.isActive()) {
@@ -189,7 +189,7 @@ export default class GameScene extends Phaser.Scene {
         const gridPos = player.get(GridPositionComponent);
         const transform = player.get(TransformComponent);
         if (!gridPos || !transform) return;
-        
+
         // Check if player's center is on transition (matches how currentLayer is calculated)
         const centerX = transform.x + gridPos.collisionBox.offsetX;
         const centerY = transform.y + gridPos.collisionBox.offsetY;
@@ -215,8 +215,7 @@ export default class GameScene extends Phaser.Scene {
       },
       joystick,
       getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
-      vignetteSprite: this.vignette,
-      eventManager: this.eventManager
+      vignetteSprite: this.vignette
     }));
 
 
@@ -308,12 +307,12 @@ export default class GameScene extends Phaser.Scene {
             this.entityManager.add(grenade);
           }
         });
-        
+
         // Store ID on entity for editor
         if (throwerData.id) {
-          thrower.throwerId = throwerData.id;
+          thrower.entityId = throwerData.id;
         }
-        
+
         this.entityManager.add(thrower);
       }
     }
@@ -407,23 +406,23 @@ export default class GameScene extends Phaser.Scene {
 
   setTheme(theme: 'dungeon' | 'swamp'): void {
     this.levelData.levelTheme = theme;
-    
+
     if (this.background) this.background.destroy();
     if (this.vignette) this.vignette.destroy();
     if (this.sceneRenderer) {
       this.sceneRenderer.destroy();
     }
-    
+
     if (theme === 'dungeon') {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     } else if (theme === 'swamp') {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
     }
-    
+
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
     this.vignette = rendered.vignette;
-    
+
     this.grid.render();
   }
 
@@ -435,7 +434,7 @@ export default class GameScene extends Phaser.Scene {
   async loadLevel(levelName: string): Promise<void> {
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
-    
+
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
@@ -444,18 +443,18 @@ export default class GameScene extends Phaser.Scene {
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
-    
+
     if (this.background) {
       this.background.destroy();
     }
     if (this.vignette) {
       this.vignette.destroy();
     }
-    
+
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
     this.vignette = rendered.vignette;
-    
+
     this.resetScene();
   }
 

@@ -21,7 +21,7 @@ export class AddThrowerEditorState extends EditorState {
   onExit(): void {
     this.scene.input.off('pointermove', this.handlePointerMove, this);
     this.scene.input.off('pointerdown', this.handlePointerDown, this);
-    
+
     if (this.ghostSprite) {
       this.ghostSprite.destroy();
       this.ghostSprite = null;
@@ -65,14 +65,11 @@ export class AddThrowerEditorState extends EditorState {
       difficulty: this.difficulty
     });
 
-    console.log('[AddThrower] Added thrower at', cell.col, cell.row, 'Total throwers:', levelData.throwers.length);
-
     gameScene.resetScene();
-    
+
     const throwers = gameScene.entityManager.getByType('thrower');
-    console.log('[AddThrower] After reset, thrower entities:', throwers.length);
     const newThrower = throwers[throwers.length - 1];
-    
+
     this.scene.enterEditThrowerMode(newThrower);
   };
 }

@@ -26,8 +26,7 @@ export class EnemySpawnComponent extends BaseEventComponent implements Component
     this.registerEvent(props.eventName);
   }
 
-  onEvent(eventName: string): void {
-    console.log(`[EnemySpawnComponent] Event received: ${eventName}`);
+  onEvent(_eventName: string): void {
     if (!this.isSpawning && this.currentIndex < this.enemyIds.length) {
       this.isSpawning = true;
       this.spawnNext();
@@ -54,7 +53,6 @@ export class EnemySpawnComponent extends BaseEventComponent implements Component
     }
 
     const enemyId = this.enemyIds[this.currentIndex];
-    console.log(`[EnemySpawnComponent] Spawning enemy: ${enemyId}`);
     this.onSpawnEnemy(enemyId);
     this.currentIndex++;
     this.timeSinceLastSpawnMs = 0;

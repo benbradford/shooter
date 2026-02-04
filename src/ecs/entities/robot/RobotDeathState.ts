@@ -41,7 +41,7 @@ export class RobotDeathState implements IState {
     if (sprite) {
       const currentFrame = sprite.sprite.frame.name;
       const frameNum = Number.parseInt(currentFrame, 10);
-      
+
       // Determine direction from current frame
       // Idle frames: 0-7 (8 directions)
       // Walk frames: 8-71 (8 directions × 8 frames)
@@ -53,7 +53,7 @@ export class RobotDeathState implements IState {
         const dirIndex = Math.floor((frameNum - 8) / 8);
         this.currentDirection = this.getDirectionFromIndex(dirIndex);
       }
-      
+
       sprite.sprite.clearTint();
       this.scene = sprite.sprite.scene;
 
@@ -87,7 +87,7 @@ export class RobotDeathState implements IState {
       if (this.animationFrame >= DEATH_TOTAL_FRAMES) {
         // Animation complete, mark for removal
         this.animationComplete = true;
-        this.entity.markForRemoval();
+        this.entity.destroy();
         return;
       }
     }
