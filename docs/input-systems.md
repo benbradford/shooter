@@ -22,7 +22,7 @@ Both systems work simultaneously and are integrated through the `InputComponent`
 
 ### Joystick System
 
-The joystick system provides touch/mouse-based movement controls for the player. When the user clicks/touches in the lower-left quadrant of the screen, a visual joystick appears and tracks their input, allowing 360-degree movement with momentum-based physics.
+The joystick system provides touch/mouse-based movement controls for the player. When the user clicks/touches the left side of the screen, a visual joystick appears and tracks their input, allowing 360-degree movement with momentum-based physics.
 
 ## Architecture
 
@@ -32,7 +32,7 @@ The joystick system provides touch/mouse-based movement controls for the player.
 - Handles pointer input (mouse/touch)
 - Tracks joystick state (active, start position, current position)
 - has a deadzone whereby the player changes direction but doesn't move until move distance is outside of deadzone
-- Only activates in lower-left screen quadrant
+- Only activates on left side of screen
 - Provides two input methods:
   - `getInputDelta()` - With deadzone (for movement)
   - `getRawInputDelta()` - Without deadzone (for facing direction)
@@ -164,7 +164,7 @@ this.player.update(delta);
 - **Dual deadzone system**: Separate thresholds for facing vs movement
 - **Visual feedback**: Clear joystick UI shows input state
 - **Dual input support**: Keyboard controls work alongside joystick
-- **Quadrant activation**: Only lower-left to avoid conflicts with future UI
+- **Screen activation**: Only left side to avoid conflicts with aim joystick
 - **Component reusability**: Joystick is separate entity, can be reused
 - **Smooth animation**: Animation speed matches movement state
 
@@ -191,7 +191,7 @@ Both update from raw input, ensuring instant response to player intent.
 
 ## Future Extensions
 
-- Right quadrant can be used for attack/aim joystick
+- Right side can be used for attack/aim joystick
 - Joystick appearance can be customized (colors, sizes)
 - Multiple joysticks can coexist (movement, aiming, etc.)
 - Touch zones can be configured per-entity

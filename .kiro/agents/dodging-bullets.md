@@ -50,16 +50,17 @@ constructor(props: WalkComponentProps) {
 - **EntityManager**: Creates, destroys, queries entities
 - **Systems**: Update logic (often in components themselves)
 
-### Component Organization (7 folders)
+### Component Organization
 ```
 src/ecs/components/
-├── core/        - TransformComponent, SpriteComponent, AnimationComponent
+├── core/        - TransformComponent, SpriteComponent, AnimationComponent, DamageComponent
 ├── movement/    - WalkComponent, GridCollisionComponent
 ├── input/       - InputComponent, TouchJoystickComponent
 ├── combat/      - ProjectileComponent, CollisionComponent, HealthComponent
-├── ai/          - PatrolComponent, RobotDifficultyComponent
+├── ai/          - PatrolComponent, DifficultyComponent
 ├── visual/      - HitFlashComponent, ParticleTrailComponent
-└── ui/          - HudBarComponent, JoystickVisualsComponent
+├── ui/          - HudBarComponent, JoystickVisualsComponent
+└── spawner/     - EnemySpawnComponent
 ```
 
 ### Grid System
@@ -72,33 +73,28 @@ src/ecs/components/
 ### Level System & Editor
 
 #### Level Data Structure
-Levels are stored as JSON files in `public/levels/` (e.g., `level1.json`). The structure:
+Levels are stored as JSON files in `public/levels/`. The structure:
 
 ```typescript
 interface LevelData {
-  width: number;           // Grid width in cells
-  height: number;          // Grid height in cells
-  cells: CellData[];       // Array of all grid cells
-  entities: EntityData[];  // Enemy spawn points and types
-  playerSpawn: { col: number; row: number };
-  vignette?: {            // Optional vignette overlay
-    alpha: number;        // 0-1 opacity
-    tint: number;         // Hex color (0x000000)
-    blendMode: number;    // Phaser blend mode (2=MULTIPLY, 3=ADD, etc.)
-  };
+  width: number;
+  height: number;
+  playerStart: { x: number; y: number };
+  cells: LevelCell[];
+  robots?: LevelRobot[];
+  bugBases?: LevelBugBase[];
+  throwers?: LevelThrower[];
+  triggers?: LevelTrigger[];
+  spawners?: LevelSpawner[];
+  levelTheme?: 'dungeon' | 'swamp';
 }
 
-interface CellData {
+interface LevelCell {
   col: number;
   row: number;
-  layer: number;  // 0=FLOOR, 1=WALL, 2=ENTITY
-}
-
-interface EntityData {
-  type: string;   // 'robot', 'thrower', etc.
-  col: number;
-  row: number;
-  patrolPath?: { col: number; row: number }[];
+  layer?: number;
+  properties?: ('platform' | 'wall')[];
+  backgroundTexture?: string;
 }
 ```
 
@@ -107,19 +103,20 @@ interface EntityData {
 **Entering Editor Mode:**
 - Press **E** in-game to toggle editor
 - `GameScene` launches `EditorScene` as an overlay
-- Editor has multiple states (default, patrol, vignette, etc.)
+- Editor has multiple states (default, grid, move, resize, etc.)
 
 **Editor States:**
-- `DefaultEditorState` - Main mode with tool buttons (Wall, Floor, Robot, Vignette, etc.)
-- `PatrolEditorState` - Define enemy patrol paths by clicking waypoints
-- `VignetteEditorState` - Configure vignette overlay (alpha, tint, blend mode)
+- `DefaultEditorState` - Main mode with tool buttons (Wall, Floor, Robot, etc.)
+- `GridEditorState` - Cell selection and editing with keyboard navigation
+- `MoveEditorState` - Entity repositioning with drag-and-drop
+- `ResizeEditorState` - Row/column selection and removal
 
 **Editing Workflow:**
 1. Click tool buttons to select mode (Wall, Floor, Robot, etc.)
 2. Click grid cells to place/remove tiles or entities
 3. Changes are made directly to `GameScene.levelData` in memory
-4. Click **Save** button to download modified `level1.json`
-5. Run `./scripts/update-levels.sh` to copy from Downloads to `public/levels/`
+4. Click **Save** button to download modified level JSON
+5. Manually copy the JSON content into `public/levels/{levelName}.json`
 6. Refresh browser to load updated level
 
 **Key Editor Methods:**
@@ -220,8 +217,8 @@ entity.add(new WalkComponent({ speedPxPerSec: 200 }));
 1. Press **E** in-game to open editor
 2. Select tool (Wall, Floor, Robot, etc.)
 3. Click grid cells to place/remove
-4. Click **Save** to download `level1.json`
-5. Run `./scripts/update-levels.sh` to copy to project
+4. Click **Save** to download level JSON
+5. Manually copy JSON content into `public/levels/{levelName}.json`
 6. Refresh browser to see changes
 
 ### Adding Editor Features

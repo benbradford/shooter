@@ -24,7 +24,7 @@ export { AnimatedSpriteComponent } from './components/core/AnimatedSpriteCompone
 export { PulsingScaleComponent } from './components/visual/PulsingScaleComponent';
 export { ParticleTrailComponent } from './components/visual/ParticleTrailComponent';
 export { DifficultyComponent } from './components/ai/DifficultyComponent';
-export { DamageComponent } from './components/combat/DamageComponent';
+export { DamageComponent } from './components/core/DamageComponent';
 export { RemoteInputComponent } from './components/input/RemoteInputComponent';
 export { ShadowComponent } from './components/visual/ShadowComponent';
 export { AimJoystickVisualsComponent } from './components/ui/AimJoystickVisualsComponent';

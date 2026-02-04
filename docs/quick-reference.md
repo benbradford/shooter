@@ -152,11 +152,11 @@ const ENTITY_COLLISION_BOX = {
 import type { Component } from '../Component';
 import type { Entity } from '../Entity';
 
-// 1. Define props interface
+// 1. Define props interface - all required
 export interface MyComponentProps {
-  speed?: number;
-  duration?: number;
-  cooldown?: number;
+  speed: number;
+  duration: number;
+  cooldown: number;
 }
 
 // 2. Implement component with props
@@ -168,12 +168,11 @@ export class MyComponent implements Component {
   
   constructor(
     private readonly dependency: SomeOtherComponent,
-    props: MyComponentProps = {}
+    props: MyComponentProps
   ) {
-    // Apply defaults
-    this.speed = props.speed ?? 300;
-    this.duration = props.duration ?? 1000;
-    this.cooldown = props.cooldown ?? 2000;
+    this.speed = props.speed;
+    this.duration = props.duration;
+    this.cooldown = props.cooldown;
   }
   
   update(delta: number): void {
@@ -185,12 +184,12 @@ export class MyComponent implements Component {
   }
 }
 
-// 3. Usage: Easy to customize per entity
-new MyComponent(dependency)  // Defaults
-new MyComponent(dependency, { speed: 500, cooldown: 1000 })  // Custom
+// 3. Usage: Explicit configuration
+new MyComponent(dependency, { speed: 300, duration: 1000, cooldown: 2000 })
+new MyComponent(dependency, { speed: 500, duration: 800, cooldown: 1000 })
 ```
 
-**Key principle:** Think about what might vary between entities and pass it as props.
+**Key principle:** All props required, no defaults. Think about what might vary between entities.
 
 3. Export from `src/ecs/index.ts`
 

@@ -1,53 +1,253 @@
 # Spawner Entities Guide
 
-This guide covers creating entities that spawn other entities (like bug bases that spawn bugs).
+This guide covers creating entities that spawn other entities, including the event-driven spawner system.
 
 ## Overview
 
-Spawner entities are stationary entities that periodically spawn mobile enemies. Examples:
-- Bug base spawns bugs
-- Turret spawns projectiles
-- Portal spawns enemies
+There are two types of spawner systems:
 
-## Key Components
+1. **Proximity spawners** - Spawn when player is nearby (bug bases)
+2. **Event-driven spawners** - Spawn when an event is triggered (enemy spawner system)
 
-### 1. Spawner Component
+This guide focuses on the event-driven spawner system used for spawning enemies by ID.
 
-The spawner component handles spawn timing and tracking:
+## Event-Driven Spawner System
 
+### Architecture
+
+**Components:**
+- `EnemySpawnComponent` - Listens for events, spawns enemies by ID with delay
+- `EnemySpawnerEntity` - Entity factory for spawners (no position, just logic)
+- `TriggerComponent` - Raises events when player enters trigger cells
+
+**Level Data:**
 ```typescript
-export class BugSpawnerComponent implements Component {
-  private timeSinceLastSpawnMs: number = 0;
-  private activeBugs: Set<Entity> = new Set();
-  
-  constructor(
-    private readonly spawnIntervalMs: number,
-    private readonly maxBugs: number,
-    private readonly activationRangePx: number
-  ) {}
-  
-  update(delta: number): void {
-    // Check if player is in range
-    // Check if max bugs not reached
-    // Spawn if interval elapsed
-  }
+type LevelSpawner = {
+  eventName: string;      // Event to listen for
+  enemyIds: string[];     // IDs of enemies to spawn
+  spawnDelayMs: number;   // Delay between spawns
+}
+
+type LevelThrower = {
+  id?: string;            // Optional - if present, spawned by spawner
+  col: number;
+  row: number;
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 ```
 
-**Critical:** Track spawned entities in a Set and remove them when destroyed.
+### How It Works
 
-### 2. Spawned Entity Registration
+1. **Level loads** - Enemies with IDs are NOT spawned at start (skipped in game mode)
+2. **Player triggers event** - Walks into trigger zone, event is raised
+3. **Spawner receives event** - `EnemySpawnComponent.onEvent()` called
+4. **Enemies spawn** - Spawner creates enemies one by one with delay
+5. **Spawner destroys** - After all enemies spawned, spawner entity is destroyed
 
-**Problem:** Spawned entities move but don't update their grid position.
-
-**Solution:** Register spawned entities with the spawner so they can be tracked:
+### Creating a Spawner
 
 ```typescript
-// In spawner component
-onSpawnBug: (bug: Entity) => {
-  this.activeBugs.add(bug);
-  
-  // Listen for destruction
+const spawner = createEnemySpawnerEntity({
+  eventManager: this.eventManager,
+  eventName: 'spawn_wave_1',
+  enemyIds: ['th1', 'th2', 'th3'],
+  spawnDelayMs: 1000,
+  onSpawnEnemy: (enemyId: string) => {
+    // Find enemy data by ID
+    const enemyData = level.throwers?.find(t => t.id === enemyId);
+    if (enemyData) {
+      // Create and add enemy entity
+      const enemy = createThrowerEntity({ ... });
+      this.entityManager.add(enemy);
+    }
+  }
+});
+```
+
+### Editor Integration
+
+**Placing Enemies:**
+1. Press E → Add → Thrower
+2. Click to place thrower
+3. Click thrower to edit
+4. Assign ID (e.g., "th1")
+5. Save level
+
+**Creating Spawner:**
+1. Press E → Spawner
+2. Enter event name (e.g., "spawn_wave_1")
+3. Enter enemy IDs (comma-separated: "th1, th2, th3")
+4. Set spawn delay (milliseconds)
+5. Click Add Spawner
+
+**Creating Trigger:**
+1. Press E → Trigger
+2. Enter event name (must match spawner: "spawn_wave_1")
+3. Click cells to select trigger area
+4. Check "One-shot trigger" (fires once and destroys)
+5. Click Add Trigger
+
+### Critical: Editor Mode vs Game Mode
+
+**Problem:** Enemies with IDs need to be visible in editor but not spawn at game start.
+
+**Solution:** Use `isEditorMode` flag:
+
+```typescript
+// In GameScene
+private isEditorMode: boolean = false;
+
+// When entering editor
+editorKey.on('down', () => {
+  this.isEditorMode = true;
+  this.resetScene();  // Respawn all entities
+  this.scene.pause();
+  this.scene.launch('EditorScene');
+});
+
+// When spawning enemies
+if (!this.isEditorMode && enemyData.id) {
+  continue;  // Skip enemies with IDs in game mode
+}
+```
+
+**Why this works:**
+- Editor mode: All enemies spawn (including ID'd ones) so you can see/edit them
+- Game mode: Only enemies without IDs spawn at start
+- ID'd enemies spawn when spawner triggers them
+
+### Storing IDs on Entities
+
+Store the ID on the entity so it can be extracted when saving:
+
+```typescript
+const enemy = createThrowerEntity({ ... });
+
+if (enemyData.id) {
+  (enemy as any).throwerId = enemyData.id;
+}
+
+this.entityManager.add(enemy);
+```
+
+Then in `EditorScene.extractThrowers()`:
+
+```typescript
+const id = (thrower as any).throwerId;
+throwers.push({
+  col: cell.col,
+  row: cell.row,
+  difficulty: difficulty?.difficulty ?? 'medium',
+  id: id || undefined  // Include ID if present
+});
+```
+
+## Common Pitfalls
+
+### ❌ Enemies with IDs Spawn at Game Start
+
+**Symptom:** Enemies appear immediately instead of waiting for trigger.
+
+**Cause:** Not checking `isEditorMode` flag when spawning.
+
+**Solution:**
+```typescript
+if (!this.isEditorMode && enemyData.id) {
+  continue;  // Skip in game mode
+}
+```
+
+### ❌ Can't See Enemies with IDs in Editor
+
+**Symptom:** Placed enemies with IDs are invisible in editor.
+
+**Cause:** Enemies with IDs are skipped even in editor mode.
+
+**Solution:** Reset scene when entering editor and spawn all enemies:
+```typescript
+editorKey.on('down', () => {
+  this.isEditorMode = true;
+  this.resetScene();  // Respawn everything
+});
+```
+
+### ❌ IDs Not Saved to Level JSON
+
+**Symptom:** Assigned IDs disappear after save/reload.
+
+**Cause:** ID not stored on entity or not extracted in `extractThrowers()`.
+
+**Solution:** Store ID on entity when spawning, read it when extracting.
+
+### ❌ Spawner Doesn't Spawn Anything
+
+**Symptom:** Event fires, spawner receives it, but no enemies appear.
+
+**Cause:** 
+- Enemy IDs don't match any enemies in level data
+- `onSpawnEnemy` callback not creating entities correctly
+- Enemies not added to `entityManager`
+
+**Solution:** Add logging to verify:
+```typescript
+onSpawnEnemy: (enemyId: string) => {
+  const enemyData = level.throwers?.find(t => t.id === enemyId);
+  if (!enemyData) {
+    console.error('Enemy not found:', enemyId);
+    return;
+  }
+  const enemy = createThrowerEntity({ ... });
+  this.entityManager.add(enemy);
+}
+```
+
+## Editor Workflow
+
+**Complete workflow for spawner system:**
+
+1. **Place enemies:**
+   - Press E → Add → Thrower
+   - Click to place at desired positions
+   - Click each thrower to edit
+   - Assign unique IDs (th1, th2, th3, etc.)
+
+2. **Create trigger:**
+   - Press E → Trigger
+   - Enter event name (e.g., "wave1")
+   - Click cells to define trigger zone
+   - Check "One-shot trigger"
+   - Click Add Trigger
+
+3. **Create spawner:**
+   - Press E → Spawner
+   - Enter same event name ("wave1")
+   - Enter enemy IDs (comma-separated: "th1, th2, th3")
+   - Set spawn delay (e.g., 1000ms = 1 second between spawns)
+   - Click Add Spawner
+
+4. **Test:**
+   - Press E to exit editor
+   - Walk into trigger zone
+   - Enemies should spawn one by one with delay
+
+5. **Save:**
+   - Press E → Log
+   - Copy JSON to level file
+   - Refresh to test
+
+## Best Practices
+
+1. **Use descriptive IDs** - "th1", "robot1", "boss1" not "e1", "e2"
+2. **Match event names exactly** - Trigger and spawner must use same event name
+3. **Test in game mode** - Exit editor to verify spawning works
+4. **One spawner per event** - Don't create multiple spawners for same event
+5. **Reset scene when entering editor** - Ensures all entities visible for editing
+
+## Related Documentation
+
+- [Event System](./event-system.md) - Event manager and listeners
+- [Level Editor](./level-editor.md) - Editor modes and workflow
+- [Adding Enemies](./adding-enemies.md) - Creating new enemy types
   bug.onDestroy = () => {
     this.activeBugs.delete(bug);
   };

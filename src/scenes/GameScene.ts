@@ -281,16 +281,13 @@ export default class GameScene extends Phaser.Scene {
 
     // Spawn throwers from level data
     if (level.throwers && level.throwers.length > 0) {
-      console.log('[GameScene] Loading', level.throwers.length, 'throwers');
       for (const throwerData of level.throwers) {
         // In editor mode, spawn all throwers so they can be edited
         // In game mode, skip throwers with IDs (spawned by spawners)
         if (!this.isEditorMode && throwerData.id) {
-          console.log('[GameScene] Skipping thrower with ID:', throwerData.id);
           continue;
         }
 
-        console.log('[GameScene] Creating thrower at', throwerData.col, throwerData.row);
         const thrower = createThrowerEntity({
           scene: this,
           col: throwerData.col,
@@ -343,12 +340,8 @@ export default class GameScene extends Phaser.Scene {
           enemyIds: spawnerData.enemyIds,
           spawnDelayMs: spawnerData.spawnDelayMs,
           onSpawnEnemy: (enemyId: string) => {
-            console.log('[GameScene] Spawner callback - looking for enemy ID:', enemyId);
-            // Find thrower with matching ID
             const throwerData = level.throwers?.find(t => t.id === enemyId);
-            console.log('[GameScene] Found thrower data:', throwerData);
             if (throwerData) {
-              console.log('[GameScene] Creating thrower at', throwerData.col, throwerData.row);
               const thrower = createThrowerEntity({
                 scene: this,
                 col: throwerData.col,

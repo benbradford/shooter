@@ -1,7 +1,7 @@
 import { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
-import { DamageComponent } from '../../components/combat/DamageComponent';
+import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import type { Component } from '../../Component';

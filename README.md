@@ -96,7 +96,7 @@ npx eslint src --ext .ts     # Must pass with zero errors
 - Press **E** in-game to open the level editor
 - Make changes to the grid (see [Level Editor docs](./docs/level-editor.md))
 - Click **Save** to download the level JSON
-- Run `./scripts/update-levels.sh` to copy from Downloads to project
+- Manually copy JSON content into `public/levels/{levelName}.json`
 - Refresh browser to see changes
 
 ### Building for Production

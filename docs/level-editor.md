@@ -6,30 +6,33 @@ This document covers the level data structure, loading system, and in-game edito
 
 ```typescript
 interface LevelData {
-  width: number;          // Grid width in cells
-  height: number;         // Grid height in cells
+  width: number;
+  height: number;
   playerStart: {
-    x: number;            // Player start X in cells
-    y: number;            // Player start Y in cells
+    x: number;
+    y: number;
   };
-  cells: LevelCell[];     // Array of special cells
-  robots?: LevelRobot[];  // Optional robot enemies
-  bugBases?: LevelBugBase[]; // Optional bug spawners
-  triggers?: LevelTrigger[]; // Optional event triggers
-  vignette?: VignetteConfig; // Optional screen overlay
+  cells: LevelCell[];
+  robots?: LevelRobot[];
+  bugBases?: LevelBugBase[];
+  throwers?: LevelThrower[];
+  triggers?: LevelTrigger[];
+  spawners?: LevelSpawner[];
+  levelTheme?: 'dungeon' | 'swamp';
 }
 
 interface LevelCell {
-  col: number;            // Column position
-  row: number;            // Row position
-  layer?: number;         // Layer (-1 = pit, 0 = ground, 1 = platform)
-  isTransition?: boolean; // Is this a staircase?
+  col: number;
+  row: number;
+  layer?: number;
+  properties?: ('platform' | 'wall' | 'stairs')[];
+  backgroundTexture?: string;
 }
 
 interface LevelTrigger {
-  eventName: string;      // Event to raise when triggered
-  triggerCells: Array<{ col: number; row: number }>; // Cells that trigger the event
-  oneShot: boolean;       // If true, trigger once and destroy; if false, trigger every frame while in cell
+  eventName: string;
+  triggerCells: Array<{ col: number; row: number }>;
+  oneShot: boolean;
 }
 ```
 
