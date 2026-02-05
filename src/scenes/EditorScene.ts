@@ -317,11 +317,8 @@ export default class EditorScene extends Phaser.Scene {
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
     const playerStart = playerTransform
-      ? {
-          x: Math.round(playerTransform.x / grid.cellSize),
-          y: Math.round(playerTransform.y / grid.cellSize)
-        }
-      : { x: 10, y: 10 };
+      ? grid.worldToCell(playerTransform.x, playerTransform.y)
+      : { col: 10, row: 10 };
 
     // Get existing level data to preserve triggers and spawners added in editor
     const existingLevelData = gameScene.getLevelData();
@@ -329,7 +326,7 @@ export default class EditorScene extends Phaser.Scene {
     const result = {
       width: grid.width,
       height: grid.height,
-      playerStart,
+      playerStart: { x: playerStart.col, y: playerStart.row },
       cells,
       robots: robots.length > 0 ? robots : undefined,
       bugBases: bugBases.length > 0 ? bugBases : undefined,

@@ -84,6 +84,10 @@ export class Grid {
       if (gameScene.collisionSystem) {
         gameScene.collisionSystem.setDebugEnabled(this.isSceneDebugEnabled);
       }
+      // Toggle layer debug text
+      if (gameScene.layerDebugText) {
+        gameScene.layerDebugText.setVisible(this.isSceneDebugEnabled);
+      }
     });
   }
 

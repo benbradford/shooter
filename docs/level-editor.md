@@ -182,7 +182,7 @@ Edit robot properties (health, speed). Accepts `Entity | undefined`:
 
 ### Grid Mode
 
-Allows selecting and modifying individual grid cells using keyboard navigation.
+Allows selecting and modifying individual grid cells using keyboard navigation or click-and-drag painting.
 
 **Navigation:**
 - **WASD / Arrow Keys** - Move selection to neighboring cells
@@ -194,14 +194,14 @@ Allows selecting and modifying individual grid cells using keyboard navigation.
 
 **Cell Editing Buttons:**
 - **Back** - Return to default mode
-- **Reset** - Reset cell to layer 0, no transition
-- **Layer-2** - Set cell to layer -2
-- **Layer-1** - Set cell to layer -1 (pit, lighter gray)
-- **Layer0** - Set cell to layer 0 (ground, default)
-- **Layer1** - Set cell to layer 1 (platform, darker gray)
-- **Layer2** - Set cell to layer 2 (higher platform, darker gray)
-- **TransUp** - Mark cell as transition (staircase, blue)
-- **TransDown** - Mark cell as transition (staircase, blue)
+- **Layer 0-3** - Set cell to specified layer
+- **Clear** - Reset cell to layer 0, no properties, no texture
+- **Checkboxes** (right side) - Select properties: platform, wall, stairs
+
+**Painting:**
+- Click and drag to paint multiple cells
+- Selected layer + checked properties applied to painted cells
+- Clear mode removes all properties and textures
 
 **Visual Feedback:**
 - Selected cell: Yellow border (0xffff00)
@@ -211,8 +211,6 @@ Allows selecting and modifying individual grid cells using keyboard navigation.
 - Transitions: Blue overlay (0.5 alpha)
 - Changes appear immediately
 
-**Note:** TransUp and TransDown currently have the same effect (marking as transition). The distinction is for future functionality.
-
 ### Texture Mode
 
 Allows painting background textures onto grid cells.
@@ -221,7 +219,8 @@ Allows painting background textures onto grid cells.
 - Shows available textures with 60x60 previews
 - Currently includes:
   - `door_closed` - Door texture
-- **Clear** button - Removes texture from cells
+  - `dungeon_door` - Dungeon door texture
+- **Clear** button - Removes texture from cells (highlights green when selected)
 
 **Usage:**
 1. Click a texture in the panel to select it (highlights green)
@@ -231,13 +230,23 @@ Allows painting background textures onto grid cells.
 
 **Visual Feedback:**
 - Selected texture has green background
+- Clear button highlights green when selected
 - Textures render at depth -100 (behind all entities)
 - Textures are scaled to fit cell size (128x128)
 - Changes appear immediately
 
+**Clearing Textures:**
+- Click "Clear" button (turns green)
+- Click cells to remove their background textures
+- Empty string (`''`) is passed to clear the texture
+
 **Adding New Textures:**
 1. Add texture file to `public/assets/{category}/` (e.g., `dungeon/`, `wooden/`)
-2. Resize to 128x128 pixels: `sips -z 128 128 path/to/texture.png`
+2. Resize to appropriate size and trim transparent borders:
+   ```bash
+   magick image.png -trim +repage image.png
+   sips -Z 200 image.png  # Resize if needed
+   ```
 3. Register in `src/assets/AssetRegistry.ts`:
    ```typescript
    your_texture: {
@@ -252,7 +261,7 @@ Allows painting background textures onto grid cells.
    ```
 5. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`:
    ```typescript
-   const AVAILABLE_TEXTURES = ['door_closed', 'your_texture'];
+   const AVAILABLE_TEXTURES = ['door_closed', 'dungeon_door', 'your_texture'];
    ```
 6. Run `npm run build && npx eslint src --ext .ts`
 
@@ -470,6 +479,24 @@ Only cells that differ from defaults are saved to keep file size small.
 
 ## Common Issues
 
+### Texture Clear Button Not Working
+
+**Symptom:** Clicking Clear button doesn't highlight green, and clicking cells doesn't remove textures.
+
+**Cause:** Clear button wasn't tracked separately, so `updateSelection()` couldn't update its color. Also, passing `undefined` instead of empty string didn't clear textures.
+
+**Solution:**
+```typescript
+// Track Clear button separately
+private clearButton!: Phaser.GameObjects.Text;
+
+// Update its color in updateSelection()
+this.clearButton.setBackgroundColor(this.selectedTexture === null ? '#00ff00' : '#333333');
+
+// Pass empty string to clear texture
+backgroundTexture: this.selectedTexture ?? ''
+```
+
 ### Player Spawning at Wrong Position
 
 **Symptom:** Player always spawns at (0, 0) or top-left corner, regardless of saved position.
@@ -477,6 +504,18 @@ Only cells that differ from defaults are saved to keep file size small.
 **Cause:** GridCollisionComponent initializes `previousX` and `previousY` to (0, 0). On first update, it thinks the player is moving from (0, 0) to spawn position. If there are walls in between, it blocks the movement and snaps player back to (0, 0).
 
 **Solution:** GridCollisionComponent now initializes previous position to player's actual starting position on first frame.
+
+### Editor Saving Wrong Player Position
+
+**Symptom:** Player position in saved level JSON doesn't match where player is in editor.
+
+**Cause:** Editor was using `Math.round(worldX / cellSize)` which doesn't account for cell centering offset.
+
+**Solution:** Use `grid.worldToCell()` for proper conversion:
+```typescript
+const cell = grid.worldToCell(playerTransform.x, playerTransform.y);
+const playerStart = { x: cell.col, y: cell.row };
+```
 
 ### Green Box in Wrong Position (Move Mode)
 

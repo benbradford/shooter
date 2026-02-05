@@ -37,11 +37,11 @@ export default class GameScene extends Phaser.Scene {
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
-  private currentLevelName: string = 'level1';
+  private currentLevelName: string = 'dungeon1';
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
-  private layerDebugText?: Phaser.GameObjects.Text;
+  public layerDebugText?: Phaser.GameObjects.Text;
   private isEditorMode: boolean = false;
 
   constructor() {
@@ -99,6 +99,7 @@ export default class GameScene extends Phaser.Scene {
     });
     this.layerDebugText.setScrollFactor(0);
     this.layerDebugText.setDepth(10000);
+    this.layerDebugText.setVisible(false);
 
     const keyboard = this.input.keyboard;
     if (keyboard) {

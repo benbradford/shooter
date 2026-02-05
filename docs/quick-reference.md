@@ -307,7 +307,9 @@ new ProjectileComponent({
   blockedByWalls: true
 })
 
-// Grenade - flies over walls
+// Grenade - flies over walls with fixed flight time
+// Note: Grenades use GrenadeArcComponent which calculates speed based on
+// distance to ensure all grenades take the same time (800ms) to reach target
 new ProjectileComponent({
   dirX, dirY, speed: 600, maxDistance: 500, grid,
   blockedByWalls: false
@@ -613,6 +615,28 @@ if (this.previousX === 0 && this.previousY === 0) {
   this.previousY = transform.y;
 }
 ```
+
+### Editor Saving Wrong Player Position
+
+**Symptom:** Player position in saved level JSON doesn't match where player is in editor.
+
+**Cause:** Editor was using `Math.round(worldX / cellSize)` to convert world coordinates to cell coordinates, which doesn't account for cell centering offset (`+ cellSize / 2`).
+
+**Solution:** Use `grid.worldToCell()` which properly handles the conversion:
+
+```typescript
+// ❌ Wrong
+const playerStart = {
+  x: Math.round(playerTransform.x / grid.cellSize),
+  y: Math.round(playerTransform.y / grid.cellSize)
+};
+
+// ✅ Correct
+const cell = grid.worldToCell(playerTransform.x, playerTransform.y);
+const playerStart = { x: cell.col, y: cell.row };
+```
+
+**Why:** Loading uses `worldX = cellSize * x + cellSize / 2`, so saving must use the inverse operation.
 
 ### Editor Green Box in Wrong Position
 

@@ -2,6 +2,16 @@
 
 Quick reference for navigating the Dodging Bullets documentation.
 
+## Documentation Principles
+
+When updating documentation:
+- **No conflicting information** - Ensure consistency across all docs
+- **No spurious information** - Only document what isn't easily found in code
+- **Highlight pitfalls** - Add lessons learned from debugging sessions
+- **Document best practices** - Include patterns that work well
+- **Update correct location** - Place info in the most relevant doc
+- **Ask for clarification** - Request details when requirements are unclear
+
 ## 🚨 Start Here
 
 1. **[Coding Standards](./coding-standards.md)** - MANDATORY reading

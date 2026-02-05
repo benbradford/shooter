@@ -11,11 +11,11 @@ const GRENADE_ARC_HEIGHT_PX = 80;
 const GRENADE_SCALE_MIN = 0.5;
 const GRENADE_SCALE_MAX = 1.5;
 const GRENADE_SPIN_SPEED_RAD_PER_SEC = 5;
+const GRENADE_FLIGHT_TIME_MS = 800;
 
 class GrenadeArcComponent implements Component {
   entity!: Entity;
-  private distanceTraveledPx: number = 0;
-  private readonly totalDistancePx: number;
+  private elapsedMs: number = 0;
   private readonly speedPxPerSec: number;
 
   constructor(
@@ -23,10 +23,9 @@ class GrenadeArcComponent implements Component {
     private readonly dirX: number,
     private readonly dirY: number,
     maxDistancePx: number,
-    speedPxPerSec: number
+    _speedPxPerSec: number
   ) {
-    this.totalDistancePx = maxDistancePx;
-    this.speedPxPerSec = speedPxPerSec;
+    this.speedPxPerSec = (maxDistancePx / GRENADE_FLIGHT_TIME_MS) * 1000;
   }
 
   update(delta: number): void {
@@ -37,9 +36,9 @@ class GrenadeArcComponent implements Component {
     const moveDistancePx = this.speedPxPerSec * (delta / 1000);
     transform.x += this.dirX * moveDistancePx;
     transform.y += this.dirY * moveDistancePx;
-    this.distanceTraveledPx += moveDistancePx;
+    this.elapsedMs += delta;
 
-    const progress = this.distanceTraveledPx / this.totalDistancePx;
+    const progress = this.elapsedMs / GRENADE_FLIGHT_TIME_MS;
     const arcHeight = Math.sin(progress * Math.PI) * GRENADE_ARC_HEIGHT_PX;
     const scale = GRENADE_SCALE_MIN + (GRENADE_SCALE_MAX - GRENADE_SCALE_MIN) * Math.sin(progress * Math.PI);
 
@@ -53,7 +52,7 @@ class GrenadeArcComponent implements Component {
       shadow.shadow.setScale(scale * 0.8);
     }
 
-    if (this.distanceTraveledPx >= this.totalDistancePx) {
+    if (this.elapsedMs >= GRENADE_FLIGHT_TIME_MS) {
       this.explode();
     }
   }

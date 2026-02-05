@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type GameScene from './GameScene';
 
-const AVAILABLE_LEVELS = ['level1', 'default'];
+const AVAILABLE_LEVELS = ['level1', 'default', "dungeon1"];
 
 export default class LevelSelectorScene extends Phaser.Scene {
   private readonly buttons: Phaser.GameObjects.Text[] = [];

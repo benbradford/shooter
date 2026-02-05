@@ -1,12 +1,13 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
   private selectedTexture: string | null = null;
   private textureButtons: Phaser.GameObjects.Container[] = [];
+  private clearButton!: Phaser.GameObjects.Text;
 
   onEnter(): void {
     const width = this.scene.cameras.main.width;
@@ -35,21 +36,19 @@ export class TextureEditorState extends EditorState {
     });
 
     // Clear button
-    const clearButton = this.scene.add.text(panelX, panelY + AVAILABLE_TEXTURES.length * 80 + 20, 'Clear', {
+    this.clearButton = this.scene.add.text(panelX, panelY + AVAILABLE_TEXTURES.length * 80 + 20, 'Clear', {
       fontSize: '18px',
       color: '#ffffff',
       backgroundColor: '#333333',
       padding: { x: 15, y: 8 }
     });
-    clearButton.setOrigin(0.5);
-    clearButton.setScrollFactor(0);
-    clearButton.setInteractive({ useHandCursor: true });
-    clearButton.setDepth(1000);
-    this.buttons.push(clearButton);
+    this.clearButton.setOrigin(0.5);
+    this.clearButton.setScrollFactor(0);
+    this.clearButton.setInteractive({ useHandCursor: true });
+    this.clearButton.setDepth(1000);
+    this.buttons.push(this.clearButton);
 
-    clearButton.on('pointerover', () => clearButton.setBackgroundColor('#555555'));
-    clearButton.on('pointerout', () => clearButton.setBackgroundColor('#333333'));
-    clearButton.on('pointerdown', () => {
+    this.clearButton.on('pointerdown', () => {
       this.selectedTexture = null;
       this.updateSelection();
     });
@@ -109,6 +108,8 @@ export class TextureEditorState extends EditorState {
       const textureName = container.getData('textureName') as string;
       bg.setFillStyle(this.selectedTexture === textureName ? 0x00ff00 : 0x333333);
     });
+    
+    this.clearButton.setBackgroundColor(this.selectedTexture === null ? '#00ff00' : '#333333');
   }
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
@@ -126,7 +127,7 @@ export class TextureEditorState extends EditorState {
 
     if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
       this.scene.setCellData(cell.col, cell.row, {
-        backgroundTexture: this.selectedTexture ?? undefined
+        backgroundTexture: this.selectedTexture ?? ''
       });
     }
   }

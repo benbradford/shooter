@@ -52,6 +52,28 @@ export class GridEditorState extends EditorState {
       this.buttons.push(btn);
     }
 
+    // Clear button
+    const clearBtn = this.scene.add.text(
+      layerStartX + 4 * layerSpacing,
+      layerY,
+      'Clear',
+      {
+        fontSize: '20px',
+        color: '#ffffff',
+        backgroundColor: '#ff0000',
+        padding: { x: 15, y: 8 }
+      }
+    );
+    clearBtn.setOrigin(0.5);
+    clearBtn.setScrollFactor(0);
+    clearBtn.setDepth(1000);
+    clearBtn.setInteractive({ useHandCursor: true });
+    clearBtn.on('pointerdown', () => {
+      this.selectedLayer = -1;
+      this.buttons.slice(1, 5).forEach(b => b.setBackgroundColor('#333333'));
+    });
+    this.buttons.push(clearBtn);
+
     // Tag checkboxes on right side
     const tags: CellProperty[] = ['platform', 'wall', 'stairs'];
     const startY = 100;
@@ -138,6 +160,14 @@ export class GridEditorState extends EditorState {
 
     const cell = grid.worldToCell(worldX, worldY);
     if (cell.col < 0 || cell.col >= grid.width || cell.row < 0 || cell.row >= grid.height) return;
+
+    if (this.selectedLayer === -1) {
+      this.scene.setCellData(cell.col, cell.row, { 
+        layer: 0,
+        properties: new Set()
+      });
+      return;
+    }
 
     const selectedTags = new Set<CellProperty>();
     this.checkboxes.forEach((checkbox, tag) => {
