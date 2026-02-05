@@ -19,6 +19,7 @@ export class CollisionComponent implements Component {
   public readonly box: CollisionBox;
   public readonly collidesWith: string[];
   private readonly onHitCallback: (other: Entity) => void;
+  public enabled: boolean = true;
 
   constructor(props: CollisionComponentProps) {
     this.box = props.box;

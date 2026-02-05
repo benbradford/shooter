@@ -9,9 +9,11 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
+import { SpawnSmokeComponent } from '../../components/visual/SpawnSmokeComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { StateMachine } from '../../../systems/state/StateMachine';
+import { ThrowerSpawningState } from './ThrowerSpawningState';
 import { ThrowerIdleState } from './ThrowerIdleState';
 import { ThrowerRunningState } from './ThrowerRunningState';
 import { ThrowerThrowingState } from './ThrowerThrowingState';
@@ -21,7 +23,7 @@ import { getThrowerDifficultyConfig, type ThrowerDifficulty } from './ThrowerDif
 import type { Grid } from '../../../systems/grid/Grid';
 
 const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
-const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: 0, width: 32, height: 32 };
+const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -40, width: 32, height: 72 };
 const THROWER_SCALE = 2;
 const KNOCKBACK_FRICTION = 0.92;
 const KNOCKBACK_DURATION_MS = 500;
@@ -53,6 +55,8 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   
   const sprite = entity.add(new SpriteComponent(scene, 'thrower', transform));
   sprite.sprite.setDepth(10);
+
+  entity.add(new SpawnSmokeComponent(scene, x, y));
 
   const shadow = entity.add(new ShadowComponent(scene, {
     scale: THROWER_SCALE,
@@ -108,16 +112,18 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   }));
 
   const stateMachine = new StateMachine({
+    spawning: new ThrowerSpawningState(entity),
     idle: new ThrowerIdleState(entity, playerEntity),
     running: new ThrowerRunningState(entity, playerEntity, grid),
     throwing: new ThrowerThrowingState(entity, playerEntity, onThrow),
     hit: new ThrowerHitState(entity),
     death: new ThrowerDeathState(entity, lastHitDirX, lastHitDirY)
-  }, 'idle');
+  }, 'spawning');
 
   entity.add(new StateMachineComponent(stateMachine));
 
   entity.setUpdateOrder([
+    SpawnSmokeComponent,
     TransformComponent,
     HitFlashComponent,
     SpriteComponent,

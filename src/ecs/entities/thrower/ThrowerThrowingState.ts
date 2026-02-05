@@ -8,6 +8,7 @@ import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
 import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
 
 const THROW_ANIMATION_DURATION_MS = 583;
+const THROW_RECOVERY_MS = 1000;
 
 export class ThrowerThrowingState implements IState {
   private elapsedMs: number = 0;
@@ -43,7 +44,7 @@ export class ThrowerThrowingState implements IState {
       this.throwGrenade();
     }
 
-    if (this.elapsedMs >= THROW_ANIMATION_DURATION_MS) {
+    if (this.elapsedMs >= THROW_ANIMATION_DURATION_MS + THROW_RECOVERY_MS) {
       const stateMachine = this.entity.require(StateMachineComponent);
       stateMachine.stateMachine.enter('running');
     }

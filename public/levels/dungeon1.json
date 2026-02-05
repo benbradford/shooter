@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 23,
-    "y": 23
+    "x": 28,
+    "y": 19
   },
   "cells": [
     {
@@ -1380,8 +1380,6 @@
       "col": 32,
       "row": 6,
       "layer": 0,
-      "properties": [
-      ],
       "backgroundTexture": "dungeon_door"
     },
     {
@@ -3351,6 +3349,12 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 27,
+      "row": 22,
+      "layer": 0,
+      "backgroundTexture": "dungeon_key"
     },
     {
       "col": 32,

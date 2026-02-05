@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_key'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -108,7 +108,7 @@ export class TextureEditorState extends EditorState {
       const textureName = container.getData('textureName') as string;
       bg.setFillStyle(this.selectedTexture === textureName ? 0x00ff00 : 0x333333);
     });
-    
+
     this.clearButton.setBackgroundColor(this.selectedTexture === null ? '#00ff00' : '#333333');
   }
 

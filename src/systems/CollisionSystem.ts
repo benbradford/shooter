@@ -50,7 +50,7 @@ export class CollisionSystem {
       const collisionA = entityA.get(CollisionComponent);
       const transformA = entityA.get(TransformComponent);
       const gridPosA = entityA.get(GridPositionComponent);
-      if (!collisionA || !transformA || !gridPosA) continue;
+      if (!collisionA || !transformA || !gridPosA || !collisionA.enabled) continue;
 
       // Debug render collision box
       if (this.debugEnabled && this.debugGraphics) {
@@ -76,7 +76,7 @@ export class CollisionSystem {
       for (const entityB of nearbyEntities) {
         const collisionB = entityB.get(CollisionComponent);
         const transformB = entityB.get(TransformComponent);
-        if (!collisionB || !transformB) continue;
+        if (!collisionB || !transformB || !collisionB.enabled) continue;
 
         if (!this.shouldCollide(entityA, entityB, collisionA, collisionB)) continue;
 

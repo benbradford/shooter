@@ -31,9 +31,22 @@ export class ThrowerRunningState implements IState {
   }
 
   onEnter(): void {
-    const difficulty = this.entity.require(DifficultyComponent);
-    const config = getThrowerDifficultyConfig(difficulty.difficulty);
-    this.throwTimerMs = config.throwFrequencyMs;
+    // Only reset throw timer if it's negative (just threw)
+    if (this.throwTimerMs <= 0) {
+      const difficulty = this.entity.require(DifficultyComponent);
+      const config = getThrowerDifficultyConfig(difficulty.difficulty);
+      this.throwTimerMs = config.throwFrequencyMs;
+    }
+    
+    // Ensure walking animation plays
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const dir = dirFromDelta(dx, dy);
+    const dirName = directionToAnimationName(dir);
+    const sprite = this.entity.require(SpriteComponent);
+    sprite.sprite.play({ key: `thrower_walk_${dirName}`, frameRate: 6 });
   }
 
   onUpdate(delta: number): void {
@@ -122,6 +135,12 @@ export class ThrowerRunningState implements IState {
 
     this.targetCol = bestCol;
     this.targetRow = bestRow;
+    
+    // Fallback: if no cover found, move toward player
+    if (this.targetCol === -1 || this.targetRow === -1) {
+      this.targetCol = playerCell.col;
+      this.targetRow = playerCell.row;
+    }
   }
 
   private checkWallBetween(col1: number, row1: number, col2: number, row2: number, layer: number): boolean {

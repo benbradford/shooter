@@ -117,6 +117,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_door.png',
     type: 'image' as const,
   },
+  dungeon_key: {
+    key: 'dungeon_key',
+    path: 'assets/cell_drawables/dungeon_key.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

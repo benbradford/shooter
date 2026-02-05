@@ -28,6 +28,6 @@ export { DamageComponent } from './components/core/DamageComponent';
 export { RemoteInputComponent } from './components/input/RemoteInputComponent';
 export { ShadowComponent } from './components/visual/ShadowComponent';
 export { AimJoystickVisualsComponent } from './components/ui/AimJoystickVisualsComponent';
-export { VignetteHealthComponent } from './components/visual/VignetteHealthComponent';
+export { SpawnSmokeComponent } from './components/visual/SpawnSmokeComponent';
 export { TriggerComponent } from './components/core/TriggerComponent';
 export { EnemySpawnComponent } from './components/spawner/EnemySpawnComponent';
