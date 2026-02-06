@@ -3,6 +3,19 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 
+/**
+ * ProjectileComponent - Handles bullet movement and layer-based collision
+ * 
+ * DEFINITIVE BULLET COLLISION RULES:
+ * See docs/grid-and-collision.md#projectile-layer-rules-definitive
+ * 
+ * Summary:
+ * - Walls never block bullets
+ * - Before stairs: blocked by platforms above player start layer
+ * - After stairs UP: pass through same layer, blocked by different layers
+ * - After stairs DOWN: no special restrictions
+ */
+
 export type ProjectileProps = {
   dirX: number;
   dirY: number;
@@ -66,10 +79,11 @@ export class ProjectileComponent implements Component {
 
     if (this.grid.isTransition(cellData)) {
       const transitionLayer = this.grid.getLayer(cellData);
-      if (transitionLayer > this.currentLayer) {
+      const targetLayer = transitionLayer + 1;
+      if (targetLayer > this.currentLayer) {
         this.wentUpThroughStairs = true;
       }
-      this.currentLayer = Math.max(this.currentLayer, transitionLayer);
+      this.currentLayer = Math.max(this.currentLayer, targetLayer);
       this.hasTraversedStairs = true;
       return;
     }

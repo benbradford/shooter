@@ -72,7 +72,6 @@ entity.add(new ProjectileComponent({
   speed: 400,
   maxDistance: 2000,
   grid,
-  blockedByWalls: true,
   startLayer: 0,
   fromTransition: false,
   scene,

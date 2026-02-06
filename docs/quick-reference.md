@@ -296,23 +296,24 @@ const bullets = this.entityManager.getByType('bullet');
 - Easy to query by type
 - Centralized collision detection
 
-### Projectile Wall Collision
+### Projectile Collision
 
-Control whether projectiles are blocked by walls:
+**See [Grid and Collision](./grid-and-collision.md#projectile-layer-rules-definitive) for complete bullet collision rules.**
+
+Key points:
+- Walls never block bullets
+- Bullets blocked by platforms above player's starting layer (before stairs)
+- After going UP through stairs: bullets pass through all same-layer platforms, blocked by different layers
+- After going DOWN through stairs: no special restrictions
 
 ```typescript
-// Bullet - blocked by walls
+// Bullet example
 new ProjectileComponent({
   dirX, dirY, speed: 800, maxDistance: 700, grid,
-  blockedByWalls: true
-})
-
-// Grenade - flies over walls with fixed flight time
-// Note: Grenades use GrenadeArcComponent which calculates speed based on
-// distance to ensure all grenades take the same time (800ms) to reach target
-new ProjectileComponent({
-  dirX, dirY, speed: 600, maxDistance: 500, grid,
-  blockedByWalls: false
+  startLayer: playerLayer,
+  fromTransition: false,
+  scene,
+  onWallHit: (x, y) => createParticles(scene, x, y)
 })
 ```
 
