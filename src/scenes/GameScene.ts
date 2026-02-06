@@ -196,7 +196,15 @@ export default class GameScene extends Phaser.Scene {
         const centerY = transform.y + gridPos.collisionBox.offsetY;
         const centerCell = this.grid.worldToCell(centerX, centerY);
         const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
-        const fromTransition = centerCellData ? this.grid.isTransition(centerCellData) : false;
+        const playerOnStairs = centerCellData ? this.grid.isTransition(centerCellData) : false;
+        
+        let fromTransition = false;
+        if (playerOnStairs) {
+          const gunTipCell = this.grid.worldToCell(x, y);
+          const gunTipCellData = this.grid.getCell(gunTipCell.col, gunTipCell.row);
+          const gunTipLayer = gunTipCellData ? this.grid.getLayer(gunTipCellData) : 0;
+          fromTransition = gunTipLayer > gridPos.currentLayer;
+        }
 
         const bullet = createBulletEntity({
           scene: this,

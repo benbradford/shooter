@@ -65,7 +65,6 @@ export function createFireballEntity(props: CreateFireballProps): Entity {
     speed,
     maxDistance,
     grid,
-    blockedByWalls: true,
     startLayer,
     fromTransition: false,
     scene,

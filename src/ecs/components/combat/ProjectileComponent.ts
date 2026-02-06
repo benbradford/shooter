@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
-import type { Grid, CellData } from '../../../systems/grid/Grid';
+import type { Grid } from '../../../systems/grid/Grid';
 
 export type ProjectileProps = {
   dirX: number;
@@ -9,7 +9,6 @@ export type ProjectileProps = {
   speed: number;
   maxDistance: number;
   grid: Grid;
-  blockedByWalls: boolean;
   startLayer: number;
   fromTransition: boolean;
   scene?: Phaser.Scene;
@@ -19,19 +18,21 @@ export type ProjectileProps = {
 
 export class ProjectileComponent implements Component {
   entity!: Entity;
-  private distanceTraveled: number = 0;
-  public currentLayer: number;
-  private lastLayer: number;
-  private hasUpgradedThroughStairs: boolean = false;
   public readonly dirX: number;
   public readonly dirY: number;
   private readonly speed: number;
   private readonly maxDistance: number;
   private readonly grid: Grid;
-  private readonly blockedByWalls: boolean;
-  private readonly scene?: Phaser.Scene;
   private readonly onWallHit?: (x: number, y: number) => void;
   private readonly onMaxDistance?: (x: number, y: number) => void;
+  
+  private distanceTraveled: number = 0;
+  private currentLayer: number;
+  private readonly playerStartLayer: number;
+  private hasTraversedStairs: boolean = false;
+  private wentUpThroughStairs: boolean = false;
+  private lastStairsCol: number = -1;
+  private lastStairsRow: number = -1;
 
   constructor(props: ProjectileProps) {
     this.dirX = props.dirX;
@@ -39,106 +40,75 @@ export class ProjectileComponent implements Component {
     this.speed = props.speed;
     this.maxDistance = props.maxDistance;
     this.grid = props.grid;
-    this.blockedByWalls = props.blockedByWalls;
-    this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
-    this.lastLayer = this.currentLayer;
-    this.hasUpgradedThroughStairs = props.fromTransition;
-    this.scene = props.scene;
     this.onWallHit = props.onWallHit;
     this.onMaxDistance = props.onMaxDistance;
+    
+    this.playerStartLayer = props.startLayer;
+    this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
+    this.hasTraversedStairs = props.fromTransition;
   }
 
   update(delta: number): void {
     const transform = this.entity.require(TransformComponent);
-    const distance = this.speed * (delta / 1000);
-
-    const steps = Math.ceil(distance / (this.grid.cellSize / 2));
-    const stepDistance = distance / steps;
-
-    for (let i = 0; i < steps; i++) {
-      const cell = this.grid.worldToCell(transform.x, transform.y);
-      const cellData = this.grid.getCell(cell.col, cell.row);
-
-      if (!cellData) {
-        this.entity.destroy();
-        return;
-      }
-
-      if (this.grid.isTransition(cellData)) {
-        const stairLayer = this.grid.getLayer(cellData);
-        const prevLayer = this.currentLayer;
-        if (stairLayer + 1 > this.currentLayer) {
-          this.currentLayer = stairLayer + 1;
-          this.hasUpgradedThroughStairs = true;
-          this.lastLayer = prevLayer;
-        } else if (stairLayer < this.currentLayer) {
-          this.lastLayer = prevLayer;
-          this.currentLayer = stairLayer;
-        }
-      } else if (this.shouldCheckWallCollision(cellData)) {
-        this.handleWallCollision(transform, cell);
-        return;
-      }
-
-      transform.x += this.dirX * stepDistance;
-      transform.y += this.dirY * stepDistance;
-      this.distanceTraveled += stepDistance;
-    }
+    
+    const movePx = this.speed * (delta / 1000);
+    transform.x += this.dirX * movePx;
+    transform.y += this.dirY * movePx;
+    this.distanceTraveled += movePx;
 
     if (this.distanceTraveled >= this.maxDistance) {
       this.onMaxDistance?.(transform.x, transform.y);
       this.entity.destroy();
+      return;
     }
-  }
 
-  private shouldCheckWallCollision(cellData: CellData): boolean {
-    if (!this.blockedByWalls) return false;
-    
+    const cell = this.grid.worldToCell(transform.x, transform.y);
+    const cellData = this.grid.getCell(cell.col, cell.row);
+    if (!cellData) return;
+
+    if (this.grid.isTransition(cellData)) {
+      const transitionLayer = this.grid.getLayer(cellData);
+      if (transitionLayer > this.currentLayer) {
+        this.wentUpThroughStairs = true;
+      }
+      this.currentLayer = Math.max(this.currentLayer, transitionLayer);
+      this.hasTraversedStairs = true;
+      this.lastStairsCol = cell.col;
+      this.lastStairsRow = cell.row;
+      return;
+    }
+
     const cellLayer = this.grid.getLayer(cellData);
     
-    if (this.grid.isTransition(cellData)) return false;
+    if (this.grid.isWall(cellData)) return;
     
-    const isWall = this.grid.isWall(cellData);
+    let shouldBlock = false;
     
-    if (this.hasUpgradedThroughStairs) {
-      const wentUp = this.currentLayer > this.lastLayer;
-      if (wentUp && cellLayer < this.currentLayer) return true;
-      
-      if (cellLayer === 0) return false;
-      
-      if (isWall) return cellLayer >= this.currentLayer;
-      return cellLayer > this.currentLayer;
+    if (this.hasTraversedStairs && this.wentUpThroughStairs) {
+      if (cellLayer < this.currentLayer) {
+        shouldBlock = true;
+      } else if (cellLayer === this.currentLayer && cellLayer >= 1) {
+        const isAdjacent = this.isAdjacentToLastStairs(cell.col, cell.row);
+        shouldBlock = !isAdjacent;
+      } else if (cellLayer > this.currentLayer) {
+        shouldBlock = true;
+      }
+    } else if (cellLayer >= 1) {
+      shouldBlock = cellLayer > this.playerStartLayer;
     }
     
-    if (cellLayer === 0) return false;
-    
-    return cellLayer > this.currentLayer;
-  }
-
-  private handleWallCollision(transform: TransformComponent, _cell: { col: number; row: number }): void {
-    if (this.onWallHit) {
-      this.onWallHit(transform.x, transform.y);
-    } else if (this.scene) {
-      this.createWallHitParticles(transform.x, transform.y);
+    if (shouldBlock) {
+      this.onWallHit?.(transform.x, transform.y);
+      this.entity.destroy();
     }
-    this.entity.destroy();
   }
 
-  private createWallHitParticles(x: number, y: number): void {
-    if (!this.scene) return;
-
-    const emitter = this.scene.add.particles(x, y, 'smoke', {
-      speed: { min: 300, max: 500 },
-      angle: { min: 0, max: 360 },
-      scale: { start: 1.5, end: 0 },
-      alpha: { start: 1, end: 0 },
-      lifespan: 100,
-      quantity: 10,
-      tint: [0xffff00, 0xff5500],
-      blendMode: 'ADD'
-    });
-    emitter.setDepth(1000);
-    this.scene.time.delayedCall(300, () => emitter.destroy());
+  private isAdjacentToLastStairs(col: number, row: number): boolean {
+    if (this.lastStairsCol === -1) return false;
+    
+    const dx = Math.abs(col - this.lastStairsCol);
+    const dy = Math.abs(row - this.lastStairsRow);
+    
+    return (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
   }
-
 }
