@@ -31,8 +31,6 @@ export class ProjectileComponent implements Component {
   private readonly playerStartLayer: number;
   private hasTraversedStairs: boolean = false;
   private wentUpThroughStairs: boolean = false;
-  private lastStairsCol: number = -1;
-  private lastStairsRow: number = -1;
 
   constructor(props: ProjectileProps) {
     this.dirX = props.dirX;
@@ -73,8 +71,6 @@ export class ProjectileComponent implements Component {
       }
       this.currentLayer = Math.max(this.currentLayer, transitionLayer);
       this.hasTraversedStairs = true;
-      this.lastStairsCol = cell.col;
-      this.lastStairsRow = cell.row;
       return;
     }
 
@@ -87,9 +83,6 @@ export class ProjectileComponent implements Component {
     if (this.hasTraversedStairs && this.wentUpThroughStairs) {
       if (cellLayer < this.currentLayer) {
         shouldBlock = true;
-      } else if (cellLayer === this.currentLayer && cellLayer >= 1) {
-        const isAdjacent = this.isAdjacentToLastStairs(cell.col, cell.row);
-        shouldBlock = !isAdjacent;
       } else if (cellLayer > this.currentLayer) {
         shouldBlock = true;
       }
@@ -101,14 +94,5 @@ export class ProjectileComponent implements Component {
       this.onWallHit?.(transform.x, transform.y);
       this.entity.destroy();
     }
-  }
-
-  private isAdjacentToLastStairs(col: number, row: number): boolean {
-    if (this.lastStairsCol === -1) return false;
-    
-    const dx = Math.abs(col - this.lastStairsCol);
-    const dy = Math.abs(row - this.lastStairsRow);
-    
-    return (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
   }
 }

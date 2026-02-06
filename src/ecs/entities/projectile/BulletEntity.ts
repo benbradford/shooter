@@ -44,17 +44,17 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
     scene,
     onWallHit: (x, y) => {
       const emitter = scene.add.particles(x, y, 'smoke', {
-        speed: { min: 100, max: 200 },
+        speed: { min: 300, max: 500 },
         angle: { min: 0, max: 360 },
-        scale: { start: 0.4, end: 0 },
+        scale: { start: 1.5, end: 0 },
         alpha: { start: 1, end: 0 },
-        lifespan: 300,
-        frequency: 5,
+        lifespan: 100,
+        quantity: 10,
+        tint: [0xffff00, 0xff5500],
         blendMode: 'ADD'
       });
       emitter.setDepth(1000);
-      scene.time.delayedCall(50, () => emitter.stop());
-      scene.time.delayedCall(350, () => emitter.destroy());
+      scene.time.delayedCall(300, () => emitter.destroy());
     }
   }));
 
