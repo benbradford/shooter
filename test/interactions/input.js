@@ -1,3 +1,9 @@
+function testLog(...args) {
+  if (window.VERBOSE) {
+    console.log(...args);
+  }
+}
+
 function getJoystickState() {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const joystick = scene.entityManager.getFirst('joystick');
@@ -26,20 +32,18 @@ function touchJoystick(startX, startY, endX, endY, durationMs) {
   
   const downPointer = createPointer(startX, startY, 1, true);
   scene.input.emit('pointerdown', downPointer);
-  console.log(`[TEST] Touch down at (${startX}, ${startY})`);
+  testLog(`[TEST] Touch down at (${startX}, ${startY})`);
   
   const movePointer = createPointer(endX, endY, 1, true);
   scene.input.emit('pointermove', movePointer);
-  console.log(`[TEST] Touch drag to (${endX}, ${endY})`);
+  testLog(`[TEST] Touch drag to (${endX}, ${endY})`);
   
-  // Game needs to update while holding - wait for actual game frames
   return new Promise(resolve => {
     setTimeout(() => {
       const upPointer = createPointer(endX, endY, 1, false);
       scene.input.emit('pointerup', upPointer);
-      console.log(`[TEST] Touch released`);
+      testLog(`[TEST] Touch released`);
       
-      // Wait one more frame after release for physics to settle
       setTimeout(resolve, 100);
     }, durationMs);
   });

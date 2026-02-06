@@ -1,3 +1,9 @@
+function testLog(...args) {
+  if (window.VERBOSE) {
+    console.log(...args);
+  }
+}
+
 function getPlayerPosition() {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const player = scene.entityManager.getFirst('player');
@@ -9,11 +15,10 @@ function enableRemoteInput() {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const player = scene.entityManager.getFirst('player');
   
-  // Check if already has RemoteInputComponent
   let remoteInput = player.get(window.RemoteInputComponent);
   if (!remoteInput) {
     remoteInput = player.add(new window.RemoteInputComponent());
-    console.log('[DEBUG] Remote input enabled');
+    testLog('[DEBUG] Remote input enabled');
   }
   return remoteInput;
 }
@@ -22,12 +27,12 @@ function setPlayerInput(dx, dy, durationMs) {
   const remoteInput = enableRemoteInput();
   
   remoteInput.setWalk(dx, dy, true);
-  console.log(`[DEBUG] Player walk input set to (${dx}, ${dy})`);
+  testLog(`[DEBUG] Player walk input set to (${dx}, ${dy})`);
   
   return new Promise(resolve => {
     setTimeout(() => {
       remoteInput.setWalk(0, 0, false);
-      console.log('[DEBUG] Player walk input cleared');
+      testLog('[DEBUG] Player walk input cleared');
       setTimeout(resolve, 100);
     }, durationMs);
   });
@@ -37,12 +42,12 @@ function fireWeapon(aimDx, aimDy, durationMs) {
   const remoteInput = enableRemoteInput();
   
   remoteInput.setAim(aimDx, aimDy, true);
-  console.log(`[DEBUG] Firing weapon in direction (${aimDx}, ${aimDy})`);
+  testLog(`[DEBUG] Firing weapon in direction (${aimDx}, ${aimDy})`);
   
   return new Promise(resolve => {
     setTimeout(() => {
       remoteInput.setAim(0, 0, false);
-      console.log('[DEBUG] Stopped firing');
+      testLog('[DEBUG] Stopped firing');
       setTimeout(resolve, 100);
     }, durationMs);
   });
@@ -79,17 +84,17 @@ function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
   const startRow = gridPos.currentCell.row;
   const startLayer = gridPos.currentLayer;
   
-  console.log(`[TEST] Pathfinding from (${startCol},${startRow}) layer ${startLayer} to (${targetCol},${targetRow})`);
+  testLog(`[TEST] Pathfinding from (${startCol},${startRow}) layer ${startLayer} to (${targetCol},${targetRow})`);
   
   const pathfinder = new window.Pathfinder(grid);
   const path = pathfinder.findPath(startCol, startRow, targetCol, targetRow, startLayer, false, true);
   
   if (!path || path.length === 0) {
-    console.log(`[TEST] No path found`);
+    testLog(`[TEST] No path found`);
     return Promise.resolve({ reached: false, col: startCol, row: startRow });
   }
   
-  console.log(`[TEST] Path: ${path.map(n => `(${n.col},${n.row})`).join(' -> ')}`);
+  testLog(`[TEST] Path: ${path.map(n => `(${n.col},${n.row})`).join(' -> ')}`);
   
   let pathIndex = 1;
   const startTime = Date.now();
@@ -106,7 +111,7 @@ function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
         remoteInput.setWalk(0, 0, false);
         clearInterval(interval);
         const finalCell = grid.worldToCell(transform.x, transform.y);
-        console.log(`[TEST] Timeout at (${finalCell.col},${finalCell.row})`);
+        testLog(`[TEST] Timeout at (${finalCell.col},${finalCell.row})`);
         resolve({ reached: false, col: finalCell.col, row: finalCell.row });
         return;
       }
@@ -114,7 +119,7 @@ function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
       if (pathIndex >= path.length) {
         remoteInput.setWalk(0, 0, false);
         clearInterval(interval);
-        console.log(`[TEST] Reached destination (${targetCol},${targetRow})`);
+        testLog(`[TEST] Reached destination (${targetCol},${targetRow})`);
         resolve({ reached: true, col: targetCol, row: targetRow });
         return;
       }
@@ -134,7 +139,7 @@ function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
           remoteInput.setWalk(0, 0, false);
           clearInterval(interval);
           const finalCell = grid.worldToCell(transform.x, transform.y);
-          console.log(`[TEST] Stuck at (${finalCell.col},${finalCell.row})`);
+          testLog(`[TEST] Stuck at (${finalCell.col},${finalCell.row})`);
           resolve({ reached: false, col: finalCell.col, row: finalCell.row });
           return;
         }
@@ -144,7 +149,7 @@ function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
       }
       
       if (distance < threshold) {
-        console.log(`[TEST] Reached waypoint ${pathIndex}: (${targetNode.col},${targetNode.row})`);
+        testLog(`[TEST] Reached waypoint ${pathIndex}: (${targetNode.col},${targetNode.row})`);
         pathIndex++;
       } else {
         const dirX = dx / distance;
@@ -161,7 +166,7 @@ function movePlayer(dx, dy) {
   const transform = player.require(window.TransformComponent);
   transform.x += dx;
   transform.y += dy;
-  console.log(`[TEST] Player moved to (${transform.x}, ${transform.y})`);
+  testLog(`[TEST] Player moved to (${transform.x}, ${transform.y})`);
 }
 
 function moveToRowHelper(targetRow, maxTimeMs = 5000) {
@@ -364,3 +369,72 @@ function waitForFullAmmo() {
     }, 100);
   });
 }
+
+
+window.traceBullet = function(dirX, dirY, durationMs) {
+  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+  const player = scene.entityManager.getFirst('player');
+  const input = player.require(window.RemoteInputComponent);
+  const grid = scene.grid;
+  
+  const trace = {
+    cells: [],
+    startLayer: null,
+    endLayer: null,
+    destroyed: false,
+    maxY: -Infinity
+  };
+  
+  let trackedBulletId = null;
+  
+  input.setAimInput(dirX, dirY);
+  input.setFirePressed(true);
+  
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const checkInterval = setInterval(() => {
+        const bullets = scene.entityManager.getByType('bullet');
+        
+        if (bullets.length > 0 && trackedBulletId === null) {
+          trackedBulletId = bullets[0].id;
+        }
+        
+        const trackedBullet = bullets.find(b => b.id === trackedBulletId);
+        
+        if (trackedBullet) {
+          const transform = trackedBullet.require(window.TransformComponent);
+          const projectile = trackedBullet.require(window.ProjectileComponent);
+          
+          const cell = grid.worldToCell(transform.x, transform.y);
+          const cellKey = `${cell.col},${cell.row}`;
+          
+          if (trace.cells.length === 0 || trace.cells[trace.cells.length - 1] !== cellKey) {
+            trace.cells.push(cellKey);
+          }
+          
+          if (trace.startLayer === null) {
+            trace.startLayer = projectile.currentLayer;
+          }
+          trace.endLayer = projectile.currentLayer;
+          
+          if (transform.y > trace.maxY) {
+            trace.maxY = transform.y;
+          }
+        } else if (trackedBulletId !== null) {
+          trace.destroyed = true;
+          clearInterval(checkInterval);
+          input.setFirePressed(false);
+          input.setAimInput(0, 0);
+          resolve(trace);
+        }
+      }, 16);
+      
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        input.setFirePressed(false);
+        input.setAimInput(0, 0);
+        resolve(trace);
+      }, durationMs);
+    }, 100);
+  });
+};

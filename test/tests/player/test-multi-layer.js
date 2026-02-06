@@ -9,7 +9,7 @@ const test1 = test(
   },
   async (page) => {
     await page.evaluate(() => enableRemoteInput());
-    await page.evaluate(() => moveToCellHelper(2, 5, 2000));
+    await page.evaluate(() => moveToPathfindHelper(2, 5, 2000));
 
     const firePromise = page.evaluate(() => fireWeapon(1, 0, 300));
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -27,7 +27,7 @@ const test2 = test(
     then: 'Bullet blocked by wall (TEST 2)'
   },
   async (page) => {
-    await page.evaluate(() => moveToCellHelper(2, 7, 2000));
+    await page.evaluate(() => moveToPathfindHelper(2, 7, 2000));
 
     const firePromise = page.evaluate(() => fireWeapon(1, 0, 300));
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -45,7 +45,7 @@ const test3 = test(
     then: 'Bullet blocked by wall (TEST 3)'
   },
   async (page) => {
-    await page.evaluate(() => moveToCellHelper(3, 7, 2000));
+    await page.evaluate(() => moveToPathfindHelper(3, 7, 2000));
 
     const firePromise = page.evaluate(() => fireWeapon(1, 0, 300));
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -174,25 +174,20 @@ const test8 = test(
 
 const test9 = test(
   {
-    given: 'Player on platform (layer 1)',
-    when: 'Shoots through stairs',
-    then: 'Bullet passes through stairs (TEST 9)'
+    given: 'Player on platform (layer 1) at (6,5)',
+    when: 'Shoots down through stairs at (6,7)',
+    then: 'Bullet passes through stairs and ground cells (TEST 9)'
   },
   async (page) => {
+    await page.evaluate(() => waitForFullAmmo());
     await page.evaluate(() => moveToPathfindHelper(6, 5, 3000));
 
-    let maxBulletCount = 0;
-    const firePromise = page.evaluate(() => fireWeapon(0, 1, 300));
+    const trace = await page.evaluate(() => traceBullet(0, 1, 500));
 
-    for (let i = 0; i < 10; i++) {
-      await new Promise(resolve => setTimeout(resolve, 30));
-      const bulletCount = await page.evaluate(() => getBulletCount());
-      if (bulletCount > maxBulletCount) maxBulletCount = bulletCount;
-    }
+    const stairsCell = '6,7';
+    const groundCell = '6,8';
 
-    await firePromise;
-
-    return maxBulletCount > 0;
+    return trace.cells.includes(stairsCell) && trace.cells.includes(groundCell);
   }
 );
 
@@ -225,7 +220,7 @@ const test11 = test(
     then: 'Bullet blocked by wall at same layer (TEST 11)'
   },
   async (page) => {
-    await page.evaluate(() => moveToCellHelper(5, 7, 2000));
+    await page.evaluate(() => moveToPathfindHelper(5, 7, 2000));
 
     const firePromise = page.evaluate(() => fireWeapon(1, 0, 300));
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -238,26 +233,27 @@ const test11 = test(
 
 const test12 = test(
   {
-    given: 'Player on ground level (layer 0)',
-    when: 'Shoots up through stairs toward platform edge on layer 1',
-    then: 'Bullet cannot pass end of layer 1 platform (TEST 12)'
+    given: 'Player on ground level (layer 0) at (5,8)',
+    when: 'Shoots up through stairs at (5,7) toward platform',
+    then: 'Bullet blocked when trying to exit layer 1 to layer 0 (TEST 12)'
   },
   async (page) => {
-    await page.evaluate(() => moveToPathfindHelper(5, 8, 3000));
+    await page.evaluate(() => waitForFullAmmo());
+    await page.evaluate(() => moveToPathfindHelper(5, 8, 2000));
 
-    let bulletSpawned = false;
-    await page.evaluate(() => fireSingleShot(0, -1));
+    const trace = await page.evaluate(() => traceBullet(0, -1, 2000));
 
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    for (let i = 0; i < 20; i++) {
-      await new Promise(resolve => setTimeout(resolve, 50));
-      const bulletCount = await page.evaluate(() => getBulletCount());
-      if (bulletCount > 0) bulletSpawned = true;
+    if (process.env.VERBOSE) {
+      console.log('[TEST 12] Bullet trace:', JSON.stringify(trace));
     }
 
-    const finalBulletCount = await page.evaluate(() => getBulletCount());
-    return bulletSpawned && finalBulletCount === 0;
+    const stairsCell = '5,7';
+    const platformCells = ['5,6', '5,5', '5,4'];
+    const passedStairs = trace.cells.includes(stairsCell);
+    const reachedPlatform = platformCells.some(c => trace.cells.includes(c));
+    const exitedPlatform = trace.cells.includes('5,3') || trace.cells.includes('5,2');
+
+    return passedStairs && reachedPlatform && !exitedPlatform;
   }
 );
 

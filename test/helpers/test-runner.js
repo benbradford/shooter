@@ -17,13 +17,15 @@ export async function runTests({ level, commands = [], tests, screenshotPath }) 
 
   page.on('console', msg => {
     const text = msg.text();
-    const isVerbose = process.env.VERBOSE === 'true';
     
-    if (text.startsWith('[DEBUG]')) {
-      if (isVerbose) console.log(text);
+    if (text.startsWith('[DEBUG]') || text.startsWith('[TEST]')) {
+      if (process.env.VERBOSE === 'true' || process.env.VERBOSE === '1') {
+        console.log(text);
+      }
       return;
     }
-    if (text.startsWith('[TEST]') || text.startsWith('[INFO]')) {
+    
+    if (text.startsWith('[INFO]')) {
       console.log(text);
     }
   });
@@ -33,6 +35,11 @@ export async function runTests({ level, commands = [], tests, screenshotPath }) 
   await page.waitForFunction(() => {
     return window.game && window.game.scene.scenes.find(s => s.scene.key === 'game');
   }, { timeout: 5000 });
+
+  // Inject VERBOSE flag into browser context
+  await page.evaluate((isVerbose) => {
+    window.VERBOSE = isVerbose;
+  }, process.env.VERBOSE === 'true' || process.env.VERBOSE === '1');
 
   for (const commandFile of commands) {
     const commandCode = readFileSync(commandFile, 'utf-8');

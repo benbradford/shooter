@@ -20,7 +20,8 @@ export type ProjectileProps = {
 export class ProjectileComponent implements Component {
   entity!: Entity;
   private distanceTraveled: number = 0;
-  private currentLayer: number;
+  public currentLayer: number;
+  private lastLayer: number;
   private hasUpgradedThroughStairs: boolean = false;
   public readonly dirX: number;
   public readonly dirY: number;
@@ -40,6 +41,7 @@ export class ProjectileComponent implements Component {
     this.grid = props.grid;
     this.blockedByWalls = props.blockedByWalls;
     this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
+    this.lastLayer = this.currentLayer;
     this.hasUpgradedThroughStairs = props.fromTransition;
     this.scene = props.scene;
     this.onWallHit = props.onWallHit;
@@ -64,17 +66,16 @@ export class ProjectileComponent implements Component {
 
       if (this.grid.isTransition(cellData)) {
         const stairLayer = this.grid.getLayer(cellData);
+        const prevLayer = this.currentLayer;
         if (stairLayer + 1 > this.currentLayer) {
-          // Going up stairs
           this.currentLayer = stairLayer + 1;
           this.hasUpgradedThroughStairs = true;
+          this.lastLayer = prevLayer;
         } else if (stairLayer < this.currentLayer) {
-          // Going down stairs
+          this.lastLayer = prevLayer;
           this.currentLayer = stairLayer;
         }
-      }
-
-      if (this.shouldCheckWallCollision(cellData)) {
+      } else if (this.shouldCheckWallCollision(cellData)) {
         this.handleWallCollision(transform, cell);
         return;
       }
@@ -95,26 +96,22 @@ export class ProjectileComponent implements Component {
     
     const cellLayer = this.grid.getLayer(cellData);
     
-    // Stairs never block
     if (this.grid.isTransition(cellData)) return false;
-    
-    // After promotion, cannot descend to non-stair cells below current layer
-    if (this.hasUpgradedThroughStairs && cellLayer < this.currentLayer) return true;
-    
-    // Platforms and walls at layer 0 never block
-    if (cellLayer === 0) return false;
     
     const isWall = this.grid.isWall(cellData);
     
-    // After upgrading through stairs
     if (this.hasUpgradedThroughStairs) {
-      // Walls blocked at upgraded layer or higher
+      const wentUp = this.currentLayer > this.lastLayer;
+      if (wentUp && cellLayer < this.currentLayer) return true;
+      
+      if (cellLayer === 0) return false;
+      
       if (isWall) return cellLayer >= this.currentLayer;
-      // Platforms blocked only at strictly higher layer
       return cellLayer > this.currentLayer;
     }
     
-    // Without upgrading: both walls and platforms blocked at strictly higher layer
+    if (cellLayer === 0) return false;
+    
     return cellLayer > this.currentLayer;
   }
 
