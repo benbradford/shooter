@@ -1,6 +1,7 @@
 {
   "name": "dodging-bullets",
   "description": "Specialized agent for Dodging Bullets game - 2D top-down shooter with Phaser and TypeScript ECS architecture",
+  "model": "claude-sonnet-4.5-1m",
   "tools": ["@builtin"],
   "resources": [
     "file://README.md",

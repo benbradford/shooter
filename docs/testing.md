@@ -45,6 +45,10 @@ npm run test:headless:single test-ammo-system  # Headless mode
 npm run test:single test-ammo-system "refills"
 npm run test:headless:single test-ammo-system "refills"
 
+# Verbose mode (show all debug logs)
+VERBOSE=true npm run test:single test-ammo-system
+VERBOSE=true npm run test:headless:single test-ammo-system
+
 # Kill stuck dev server
 npm run kill
 ```
@@ -241,10 +245,14 @@ setPlayerInput(dx, dy, durationMs)              // Simulate movement for duratio
 
 // Combat
 fireWeapon(aimDx, aimDy, durationMs)            // Simulate firing
+fireSingleShot(aimDx, aimDy)                    // Fire exactly once
+traceBullet(dirX, dirY, durationMs)             // Track bullet path through cells
+                                                 // Returns: {cells, startLayer, endLayer, destroyed}
 getBulletCount()                                 // Count active bullets
 
 // Setup
 enableRemoteInput()                              // Add RemoteInputComponent to player
+waitForFullAmmo()                                // Wait for ammo to refill
 ```
 
 **When to use which movement helper:**
@@ -288,6 +296,29 @@ const testMoveUp = test(
     await page.evaluate(() => setPlayerInput(0, -1, 300));
     const finalPos = await page.evaluate(() => getPlayerPosition());
     return finalPos.y < initialPos.y && (initialPos.y - finalPos.y) > 20;
+  }
+);
+```
+
+### Bullet Tracing Test
+
+```javascript
+const testBulletPath = test(
+  {
+    given: 'Player at position',
+    when: 'Shoots in direction',
+    then: 'Bullet passes through expected cells'
+  },
+  async (page) => {
+    await page.evaluate(() => moveToPathfindHelper(6, 5, 3000));
+    
+    const trace = await page.evaluate(() => traceBullet(0, 1, 500));
+    
+    // trace.cells contains all cells the bullet passed through
+    // trace.startLayer and trace.endLayer show layer changes
+    // trace.destroyed indicates if bullet was destroyed
+    
+    return trace.cells.includes('6,7') && trace.cells.includes('6,8');
   }
 );
 ```
@@ -584,9 +615,20 @@ Tests are automatically discovered by `find test/tests -name "*.js"`. Just creat
 **Run with visible browser:**
 Tests run with `headless: false` by default - watch what happens.
 
+**Verbose mode:**
+```bash
+VERBOSE=true npm run test:single test-ammo-system
+```
+Shows all debug logs including:
+- Pathfinding routes and waypoints
+- Player movement details
+- Input state changes
+- Bullet traces
+
 **Add debug logs:**
 ```javascript
-console.log('[TEST] Player position:', x, y);
+testLog('[TEST] Player position:', x, y);  // Only shows with VERBOSE=true
+console.log('[INFO] Important info');      // Always shows
 ```
 
 **Take screenshots:**

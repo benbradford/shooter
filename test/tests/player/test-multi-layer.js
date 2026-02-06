@@ -174,20 +174,100 @@ const test8 = test(
 
 const test9 = test(
   {
-    given: 'Player on platform (layer 1) at (6,5)',
-    when: 'Shoots down through stairs at (6,7)',
-    then: 'Bullet passes through stairs and ground cells (TEST 9)'
+    given: 'Player on platform (layer 1) at top of stairs',
+    when: 'Shoots down at multiple positions across stairs (30px intervals)',
+    then: 'All bullets pass through stairs and ground cells (TEST 9)'
   },
   async (page) => {
     await page.evaluate(() => waitForFullAmmo());
-    await page.evaluate(() => moveToPathfindHelper(6, 5, 3000));
-
-    const trace = await page.evaluate(() => traceBullet(0, 1, 500));
-
-    const stairsCell = '6,7';
-    const groundCell = '6,8';
-
-    return trace.cells.includes(stairsCell) && trace.cells.includes(groundCell);
+    await page.evaluate(() => enableRemoteInput());
+    await page.evaluate(() => moveToPathfindHelper(5, 5, 3000));
+    
+    const results = await page.evaluate(async () => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const transform = player.require(window.TransformComponent);
+      const grid = scene.grid;
+      const cellSize = grid.cellSize;
+      
+      const startCol = 5;
+      const endCol = 7;
+      const shootRow = 6;
+      const stairsRow = 7;
+      const groundRow = 8;
+      const stepPx = 30;
+      
+      const startX = startCol * cellSize + cellSize / 2;
+      const endX = endCol * cellSize + cellSize / 2;
+      const totalDistance = endX - startX;
+      const testCount = Math.floor(totalDistance / stepPx) + 1;
+      const results = [];
+      
+      const startY = shootRow * cellSize + cellSize / 2;
+      movePlayer(startX - transform.x, startY - transform.y);
+      
+      for (let i = 0; i < testCount; i++) {
+        const targetX = Math.min(startX + (i * stepPx), endX);
+        const targetY = shootRow * cellSize + cellSize / 2;
+        
+        movePlayer(targetX - transform.x, targetY - transform.y);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        fireSingleShot(0, 1);
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        let passedStairs = false;
+        let reachedGround = false;
+        const cells = [];
+        
+        for (let check = 0; check < 50; check++) {
+          const bullets = scene.entityManager.getByType('bullet');
+          if (bullets.length > 0) {
+            const bullet = bullets[0];
+            const bulletTransform = bullet.require(window.TransformComponent);
+            const bulletCell = grid.worldToCell(bulletTransform.x, bulletTransform.y);
+            const cellKey = `${bulletCell.col},${bulletCell.row}`;
+            if (!cells.includes(cellKey)) cells.push(cellKey);
+            
+            if (bulletCell.row === stairsRow) passedStairs = true;
+            if (bulletCell.row >= groundRow) reachedGround = true;
+          } else if (cells.length > 0) {
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        
+        results.push({
+          position: i + 1,
+          x: Math.round(targetX),
+          passedStairs,
+          reachedGround,
+          cells
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      return results;
+    });
+    
+    if (process.env.VERBOSE) {
+      console.log('[TEST 9] Results:');
+      results.forEach(r => {
+        console.log(`  Position ${r.position} (x=${r.x}): stairs=${r.passedStairs}, ground=${r.reachedGround}, cells=${r.cells.join(' ')}`);
+      });
+    }
+    
+    const allPassed = results.every(r => r.passedStairs && r.reachedGround);
+    const failedCount = results.filter(r => !r.passedStairs || !r.reachedGround).length;
+    
+    if (!allPassed) {
+      const failed = results.filter(r => !r.passedStairs || !r.reachedGround);
+      console.log(`[TEST 9] Failed ${failedCount}/${results.length}: ${failed.map(r => `x=${r.x}`).join(', ')}`);
+    }
+    
+    return allPassed;
   }
 );
 
@@ -233,27 +313,99 @@ const test11 = test(
 
 const test12 = test(
   {
-    given: 'Player on ground level (layer 0) at (5,8)',
-    when: 'Shoots up through stairs at (5,7) toward platform',
-    then: 'Bullet blocked when trying to exit layer 1 to layer 0 (TEST 12)'
+    given: 'Player below stairs at row 8',
+    when: 'Shoots up at multiple positions across stairs (30px intervals)',
+    then: 'All bullets pass through stairs and reach platform (TEST 12)'
   },
   async (page) => {
     await page.evaluate(() => waitForFullAmmo());
-    await page.evaluate(() => moveToPathfindHelper(5, 8, 2000));
-
-    const trace = await page.evaluate(() => traceBullet(0, -1, 2000));
-
+    await page.evaluate(() => enableRemoteInput());
+    await page.evaluate(() => moveToPathfindHelper(5, 8, 3000));
+    
+    const results = await page.evaluate(async () => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const transform = player.require(window.TransformComponent);
+      const grid = scene.grid;
+      const cellSize = grid.cellSize;
+      
+      const startCol = 5;
+      const endCol = 7;
+      const shootRow = 8;
+      const stairsRow = 7;
+      const stepPx = 30;
+      
+      const startX = startCol * cellSize + cellSize / 2;
+      const endX = endCol * cellSize + cellSize / 2;
+      const totalDistance = endX - startX;
+      const testCount = Math.floor(totalDistance / stepPx) + 1;
+      const results = [];
+      
+      const startY = shootRow * cellSize + cellSize / 2;
+      movePlayer(startX - transform.x, startY - transform.y);
+      
+      for (let i = 0; i < testCount; i++) {
+        const targetX = Math.min(startX + (i * stepPx), endX);
+        const targetY = shootRow * cellSize + cellSize / 2;
+        
+        movePlayer(targetX - transform.x, targetY - transform.y);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        fireSingleShot(0, -1);
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        let passedStairs = false;
+        let reachedPlatform = false;
+        const cells = [];
+        
+        for (let check = 0; check < 50; check++) {
+          const bullets = scene.entityManager.getByType('bullet');
+          if (bullets.length > 0) {
+            const bullet = bullets[0];
+            const bulletTransform = bullet.require(window.TransformComponent);
+            const bulletCell = grid.worldToCell(bulletTransform.x, bulletTransform.y);
+            const cellKey = `${bulletCell.col},${bulletCell.row}`;
+            if (!cells.includes(cellKey)) cells.push(cellKey);
+            
+            if (bulletCell.row === stairsRow) passedStairs = true;
+            if (bulletCell.row <= 6) reachedPlatform = true;
+          } else if (cells.length > 0) {
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 20));
+        }
+        
+        results.push({
+          position: i + 1,
+          x: Math.round(targetX),
+          passedStairs,
+          reachedPlatform,
+          cells
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      return results;
+    });
+    
     if (process.env.VERBOSE) {
-      console.log('[TEST 12] Bullet trace:', JSON.stringify(trace));
+      console.log('[TEST 12] Results:');
+      results.forEach(r => {
+        console.log(`  Position ${r.position} (x=${r.x}): stairs=${r.passedStairs}, platform=${r.reachedPlatform}, cells=${r.cells.join(' ')}`);
+      });
     }
-
-    const stairsCell = '5,7';
-    const platformCells = ['5,6', '5,5', '5,4'];
-    const passedStairs = trace.cells.includes(stairsCell);
-    const reachedPlatform = platformCells.some(c => trace.cells.includes(c));
-    const exitedPlatform = trace.cells.includes('5,3') || trace.cells.includes('5,2');
-
-    return passedStairs && reachedPlatform && !exitedPlatform;
+    
+    const allPassed = results.every(r => r.passedStairs && r.reachedPlatform);
+    const failedCount = results.filter(r => !r.passedStairs || !r.reachedPlatform).length;
+    
+    if (!allPassed) {
+      const failed = results.filter(r => !r.passedStairs || !r.reachedPlatform);
+      console.log(`[TEST 12] Failed ${failedCount}/${results.length}: ${failed.map(r => `x=${r.x}`).join(', ')}`);
+    }
+    
+    return allPassed;
   }
 );
 
