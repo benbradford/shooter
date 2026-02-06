@@ -78,12 +78,6 @@ export class ProjectileComponent implements Component {
     if (!cellData) return;
 
     if (this.grid.isTransition(cellData)) {
-      const transitionLayer = this.grid.getLayer(cellData);
-      const targetLayer = transitionLayer + 1;
-      if (targetLayer > this.currentLayer) {
-        this.wentUpThroughStairs = true;
-      }
-      this.currentLayer = Math.max(this.currentLayer, targetLayer);
       this.hasTraversedStairs = true;
       return;
     }
@@ -94,10 +88,21 @@ export class ProjectileComponent implements Component {
     
     let shouldBlock = false;
     
-    if (this.hasTraversedStairs && this.wentUpThroughStairs) {
-      if (cellLayer < this.currentLayer) {
-        shouldBlock = true;
-      } else if (cellLayer > this.currentLayer) {
+    if (this.hasTraversedStairs) {
+      if (cellLayer !== this.currentLayer) {
+        if (cellLayer > this.currentLayer) {
+          this.wentUpThroughStairs = true;
+          this.currentLayer = cellLayer;
+        } else if (cellLayer < this.currentLayer) {
+          if (this.wentUpThroughStairs) {
+            shouldBlock = true;
+          } else {
+            this.currentLayer = cellLayer;
+          }
+        }
+      }
+      
+      if (this.wentUpThroughStairs && cellLayer > this.currentLayer) {
         shouldBlock = true;
       }
     } else if (cellLayer >= 1) {
