@@ -5195,6 +5195,38 @@
       ]
     }
   ],
+  "robots": [
+    {
+      "col": 26,
+      "row": 13,
+      "difficulty": "medium",
+      "waypoints": [
+        {
+          "col": 22,
+          "row": 14
+        },
+        {
+          "col": 22,
+          "row": 10
+        },
+        {
+          "col": 22,
+          "row": 14
+        },
+        {
+          "col": 30,
+          "row": 14
+        }
+      ]
+    }
+  ],
+  "bugBases": [
+    {
+      "col": 16,
+      "row": 12,
+      "difficulty": "medium"
+    }
+  ],
   "throwers": [
     {
       "id": "th1",
