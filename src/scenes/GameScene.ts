@@ -4,8 +4,6 @@ import { LevelLoader, type LevelData } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
 import type HudScene from "./HudScene";
 import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
-import { createBulletEntity } from "../ecs/entities/projectile/BulletEntity";
-import { createShellCasingEntity } from "../ecs/entities/projectile/ShellCasingEntity";
 import { createStalkingRobotEntity } from "../ecs/entities/robot/StalkingRobotEntity";
 import { createBugBaseEntity } from "../ecs/entities/bug/BugBaseEntity";
 import { createBugEntity } from "../ecs/entities/bug/BugEntity";
@@ -21,8 +19,8 @@ import { getBugBaseDifficultyConfig } from "../ecs/entities/bug/BugBaseDifficult
 import type { EnemyDifficulty } from "../constants/EnemyDifficulty";
 import { CELL_SIZE, CAMERA_ZOOM } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
-import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
+import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { preloadAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
@@ -186,44 +184,9 @@ export default class GameScene extends Phaser.Scene {
       x: startX,
       y: startY,
       grid: this.grid,
-      onFire: (x, y, dirX, dirY) => {
-        const gridPos = player.get(GridPositionComponent);
-        const transform = player.get(TransformComponent);
-        if (!gridPos || !transform) return;
-
-        // Check if player's center is on transition (matches how currentLayer is calculated)
-        const centerX = transform.x + gridPos.collisionBox.offsetX;
-        const centerY = transform.y + gridPos.collisionBox.offsetY;
-        const centerCell = this.grid.worldToCell(centerX, centerY);
-        const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
-        const playerOnStairs = centerCellData ? this.grid.isTransition(centerCellData) : false;
-        
-        let fromTransition = false;
-        if (playerOnStairs) {
-          const gunTipCell = this.grid.worldToCell(x, y);
-          const gunTipCellData = this.grid.getCell(gunTipCell.col, gunTipCell.row);
-          const gunTipLayer = gunTipCellData ? this.grid.getLayer(gunTipCellData) : 0;
-          fromTransition = gunTipLayer > gridPos.currentLayer;
-        }
-
-        const bullet = createBulletEntity({
-          scene: this,
-          x,
-          y,
-          dirX,
-          dirY,
-          grid: this.grid,
-          layer: gridPos.currentLayer,
-          fromTransition
-        });
-        this.entityManager.add(bullet);
-      },
-      onShellEject: (x, y, direction, playerDirection) => {
-        const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
-        this.entityManager.add(shell);
-      },
       joystick,
       getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
+      entityManager: this.entityManager,
       vignetteSprite: this.vignette
     }));
 

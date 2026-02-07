@@ -121,9 +121,26 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
 
-        const projectile = other.require(ProjectileComponent);
-        const dirX = projectile.dirX;
-        const dirY = projectile.dirY;
+        const projectile = other.get(ProjectileComponent);
+        let dirX = 0;
+        let dirY = 1;
+        
+        if (projectile) {
+          dirX = projectile.dirX;
+          dirY = projectile.dirY;
+        } else {
+          const otherTransform = other.get(TransformComponent);
+          const robotTransform = entity.get(TransformComponent);
+          if (otherTransform && robotTransform) {
+            const dx = robotTransform.x - otherTransform.x;
+            const dy = robotTransform.y - otherTransform.y;
+            const length = Math.hypot(dx, dy);
+            if (length > 0) {
+              dirX = dx / length;
+              dirY = dy / length;
+            }
+          }
+        }
 
         const healthComp = entity.require(HealthComponent);
         healthComp.takeDamage(ROBOT_BULLET_DAMAGE);

@@ -17,6 +17,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  attacker: {
+    key: 'attacker',
+    path: 'assets/attacker/attacker-spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 56, frameHeight: 56 }
+  },
   floating_robot: {
     key: 'floating_robot',
     path: 'assets/floating_robot/floating-robot-spritesheet.png',
@@ -115,6 +121,11 @@ export const ASSET_REGISTRY = {
   dungeon_door: {
     key: 'dungeon_door',
     path: 'assets/cell_drawables/dungeon_door.png',
+    type: 'image' as const,
+  },
+  rock: {
+    key: 'rock',
+    path: 'assets/generic/rock.png',
     type: 'image' as const,
   },
   dungeon_key: {

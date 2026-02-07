@@ -36,7 +36,6 @@ export class ProjectileEmitterComponent implements Component {
   private readonly cooldown: number;
   private readonly onShellEject: (x: number, y: number, direction: 'left' | 'right', playerDirection: Direction) => void;
   private readonly ammoComponent: AmmoComponent;
-  private readonly inputComponent?: InputComponent;
 
   constructor(props: ProjectileEmitterProps) {
     this.scene = props.scene;
@@ -46,7 +45,6 @@ export class ProjectileEmitterComponent implements Component {
     this.cooldown = props.cooldown ?? 200;
     this.onShellEject = props.onShellEject;
     this.ammoComponent = props.ammoComponent;
-    this.inputComponent = props.inputComponent;
   }
 
   update(_delta: number): void {
@@ -99,11 +97,8 @@ export class ProjectileEmitterComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const walk = this.entity.require(WalkComponent);
 
-    // Priority: Manual aim > Auto-aim > Facing direction
-    const manualAim = this.inputComponent?.getManualAimDirection();
-    const autoAim = this.inputComponent?.getAutoAimDirection();
-    const dirX = manualAim?.dx ?? autoAim?.dx ?? walk.lastMoveX;
-    const dirY = manualAim?.dy ?? autoAim?.dy ?? walk.lastMoveY;
+    const dirX = walk.lastMoveX;
+    const dirY = walk.lastMoveY;
 
     const direction = walk.lastDir;
 

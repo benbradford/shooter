@@ -4,6 +4,7 @@ export { TransformComponent } from './components/core/TransformComponent';
 export { SpriteComponent } from './components/core/SpriteComponent';
 export { AnimationComponent } from './components/core/AnimationComponent';
 export { InputComponent } from './components/input/InputComponent';
+export { AttackButtonComponent } from './components/input/AttackButtonComponent';
 export { WalkComponent } from './components/movement/WalkComponent';
 export { StateMachineComponent } from './components/core/StateMachineComponent';
 export { GridPositionComponent } from './components/movement/GridPositionComponent';

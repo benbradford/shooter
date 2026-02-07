@@ -4,6 +4,7 @@ import { WalkComponent } from '../../components/movement/WalkComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { InputComponent } from '../../components/input/InputComponent';
+import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
@@ -14,17 +15,27 @@ export class PlayerWalkState implements IState {
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
     
-    this.lastAnimKey = `walk_${walk.lastDir}`;
+    this.lastAnimKey = `idle_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
   }
 
 
   onUpdate(_delta: number): void {
-    // No-op: delta intentionally unused
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
     const sm = this.entity.require(StateMachineComponent);
     const input = this.entity.require(InputComponent);
+    const attackCombo = this.entity.get(AttackComboComponent);
+    
+    if (attackCombo) {
+      const isPressed = input.isAttackPressed();
+      attackCombo.checkAttackReleased(isPressed);
+      
+      if (isPressed) {
+        attackCombo.tryStartCombo();
+        attackCombo.tryAdvanceCombo();
+      }
+    }
     
     const { dx, dy } = input.getInputDelta();
 
@@ -33,16 +44,7 @@ export class PlayerWalkState implements IState {
       return;
     }
 
-    // Keep animation at full speed if there's input, otherwise scale with velocity
-    if (dx !== 0 || dy !== 0) {
-      anim.animationSystem.setTimeScale(1);
-    } else {
-      const velocityMagnitude = walk.getVelocityMagnitude();
-      const speedRatio = velocityMagnitude / walk.speed;
-      anim.animationSystem.setTimeScale(speedRatio);
-    }
-
-    const newKey = `walk_${walk.lastDir}`;
+    const newKey = `idle_${walk.lastDir}`;
     if (newKey !== this.lastAnimKey) {
       this.lastAnimKey = newKey;
       anim.animationSystem.play(newKey);

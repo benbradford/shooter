@@ -3,6 +3,8 @@ import type { Entity } from '../../Entity';
 import { WalkComponent } from '../../components/movement/WalkComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
+import { InputComponent } from '../../components/input/InputComponent';
+import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { Direction } from '../../../constants/Direction';
 
 export class PlayerIdleState implements IState {
@@ -20,11 +22,21 @@ export class PlayerIdleState implements IState {
 
 
   onUpdate(_delta: number): void {
-    // No-op: delta intentionally unused
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
+    const input = this.entity.require(InputComponent);
+    const attackCombo = this.entity.get(AttackComboComponent);
     
-    // Update idle direction if it changed (from input in WalkComponent)
+    if (attackCombo) {
+      const isPressed = input.isAttackPressed();
+      attackCombo.checkAttackReleased(isPressed);
+      
+      if (isPressed) {
+        attackCombo.tryStartCombo();
+        attackCombo.tryAdvanceCombo();
+      }
+    }
+    
     if (walk.lastDir !== this.lastDir) {
       this.lastDir = walk.lastDir;
       anim.animationSystem.play(`idle_${this.lastDir}`);

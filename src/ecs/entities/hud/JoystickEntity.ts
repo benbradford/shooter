@@ -1,9 +1,7 @@
 import { Entity } from '../../Entity';
 import { TouchJoystickComponent } from '../../components/input/TouchJoystickComponent';
 import { JoystickVisualsComponent } from '../../components/ui/JoystickVisualsComponent';
-import { CrosshairVisualsComponent } from '../../components/ui/CrosshairVisualsComponent';
-import { AimJoystickComponent } from '../../components/input/AimJoystickComponent';
-import { AimJoystickVisualsComponent } from '../../components/ui/AimJoystickVisualsComponent';
+import { AttackButtonComponent } from '../../components/input/AttackButtonComponent';
 import { ControlModeComponent } from '../../components/input/ControlModeComponent';
 
 export function createJoystickEntity(scene: Phaser.Scene): Entity {
@@ -19,18 +17,8 @@ export function createJoystickEntity(scene: Phaser.Scene): Entity {
   const visuals = entity.add(new JoystickVisualsComponent(scene, joystick));
   visuals.init();
   
-  const crosshair = entity.add(new CrosshairVisualsComponent(scene, joystick));
-  crosshair.init();
-
-  const aimJoystick = entity.add(new AimJoystickComponent(scene, {
-    maxRadius: 150,
-    innerRadius: 80,
-    manualAimThreshold: 70
-  }));
-  aimJoystick.init();
-
-  const aimVisuals = entity.add(new AimJoystickVisualsComponent(scene, aimJoystick));
-  aimVisuals.init();
+  const attackButton = entity.add(new AttackButtonComponent(scene));
+  attackButton.init();
 
   const controlMode = entity.add(new ControlModeComponent(scene));
   controlMode.init();
@@ -38,9 +26,7 @@ export function createJoystickEntity(scene: Phaser.Scene): Entity {
   entity.setUpdateOrder([
     TouchJoystickComponent,
     JoystickVisualsComponent,
-    CrosshairVisualsComponent,
-    AimJoystickComponent,
-    AimJoystickVisualsComponent,
+    AttackButtonComponent,
     ControlModeComponent,
   ]);
 
