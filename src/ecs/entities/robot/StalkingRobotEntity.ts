@@ -31,7 +31,7 @@ import type { EnemyDifficulty } from '../../../constants/EnemyDifficulty';
 // Robot configuration constants
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
 
-const ROBOT_SCALE = 3 * SPRITE_SCALE;
+const ROBOT_SCALE = 2 * SPRITE_SCALE;
 const ROBOT_SPRITE_FRAME = 0; // South idle
 const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 32, height: 32 };
 const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -22, offsetY: -40, width: 48, height: 85 };
@@ -124,7 +124,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
         const projectile = other.get(ProjectileComponent);
         let dirX = 0;
         let dirY = 1;
-        
+
         if (projectile) {
           dirX = projectile.dirX;
           dirY = projectile.dirY;

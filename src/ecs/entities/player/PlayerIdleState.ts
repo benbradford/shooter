@@ -32,8 +32,12 @@ export class PlayerIdleState implements IState {
       attackCombo.checkAttackReleased(isPressed);
       
       if (isPressed) {
-        attackCombo.tryStartCombo();
-        attackCombo.tryAdvanceCombo();
+        attackCombo.tryStartPunch();
+        return;
+      }
+
+      if (attackCombo.isPunching()) {
+        return;
       }
     }
     

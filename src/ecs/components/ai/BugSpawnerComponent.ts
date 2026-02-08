@@ -4,7 +4,7 @@ import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 
-const ACTIVATION_RANGE_PX = 750;
+const ACTIVATION_RANGE_PX = 400;
 const MAX_BUGS = 6;
 
 export class BugSpawnerComponent implements Component {
@@ -55,12 +55,12 @@ export class BugSpawnerComponent implements Component {
             { col: gridPos.currentCell.col - 1, row: gridPos.currentCell.row },
             { col: gridPos.currentCell.col + 1, row: gridPos.currentCell.row }
           ];
-          
+
           const validDirections = directions.filter(dir => {
             const cell = this.grid.getCell(dir.col, dir.row);
             return cell && this.grid.getLayer(cell) === baseLayer;
           });
-          
+
           if (validDirections.length > 0) {
             const target = validDirections[Math.floor(Math.random() * validDirections.length)];
             this.onSpawn(target.col, target.row);

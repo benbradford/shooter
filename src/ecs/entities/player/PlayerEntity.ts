@@ -80,7 +80,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     animMap.set(`idle_${dir}`, new Animation([String(row)], 'static', 0));
   });
 
-  animMap.set('slide', new Animation(['24', '25', '26', '27', '28', '29'], 'static', 0.1));
+  animMap.set('punch', new Animation(['47', '48', '49', '50', '51', '52','52'], 'repeat', 0.0315));
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
@@ -135,7 +135,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   entity.add(new AttackComboComponent({
     scene,
-    grid,
     entityManager,
     getEnemies
   }));
@@ -177,10 +176,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     CollisionComponent,
     HealthComponent,
     VignetteHealthComponent,
-    AttackComboComponent,
     HitFlashComponent,
     HudBarComponent,
     StateMachineComponent,
+    AttackComboComponent,
     AnimationComponent,
   ]);
 

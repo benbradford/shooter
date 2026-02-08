@@ -30,12 +30,16 @@ export class HudBarComponent implements Component {
     redOutlineOnLow: boolean;
     shakeOnLow: boolean;
     shakeTimer: number;
+    fullTimer: number;
+    fadeTimer: number;
   }> = [];
   private readonly flashIntervalMs: number = 300;
   private readonly shakeSpeedMs: number = 100; // milliseconds per shake cycle
   private readonly shakeAmountPx: number = 2; // pixels
   private readonly shakeLowThreshold: number = 0.3; // 30% - shake when below this ratio
-  private readonly shakeFrequency: number = 2; // full sine wave cycles per shake
+  private readonly shakeFrequency: number = 2;
+  private readonly fullDelayMs: number = 1000;
+  private readonly fadeDurationMs: number = 1000;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -84,6 +88,8 @@ export class HudBarComponent implements Component {
         redOutlineOnLow: config.redOutlineOnLow ?? false,
         shakeOnLow: config.shakeOnLow ?? false,
         shakeTimer: 0,
+        fullTimer: 0,
+        fadeTimer: 0,
       });
     }
   }
@@ -93,6 +99,24 @@ export class HudBarComponent implements Component {
     
     for (const bar of this.bars) {
       const ratio = bar.dataSource.getRatio();
+      
+      if (ratio >= 1) {
+        bar.fullTimer += delta;
+        if (bar.fullTimer >= this.fullDelayMs) {
+          bar.fadeTimer += delta;
+          const fadeProgress = Math.min(1, bar.fadeTimer / this.fadeDurationMs);
+          const alpha = 1 - fadeProgress;
+          bar.background.setAlpha(alpha);
+          bar.fill.setAlpha(alpha);
+          bar.outline.setAlpha(alpha);
+        }
+      } else {
+        bar.fullTimer = 0;
+        bar.fadeTimer = 0;
+        bar.background.setAlpha(1);
+        bar.fill.setAlpha(1);
+        bar.outline.setAlpha(1);
+      }
       
       let barX = transform.x;
       const barY = transform.y + bar.offsetY;

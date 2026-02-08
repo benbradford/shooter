@@ -24,7 +24,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 
 const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
 const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -40, width: 32, height: 72 };
-const THROWER_SCALE = 2;
+const THROWER_SCALE = 1.5;
 const KNOCKBACK_FRICTION = 0.92;
 const KNOCKBACK_DURATION_MS = 500;
 const KNOCKBACK_FORCE = 200;
@@ -52,7 +52,7 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   entity.tags.add('enemy');
 
   const transform = entity.add(new TransformComponent(x, y, 0, THROWER_SCALE));
-  
+
   const sprite = entity.add(new SpriteComponent(scene, 'thrower', transform));
   sprite.sprite.setDepth(10);
 

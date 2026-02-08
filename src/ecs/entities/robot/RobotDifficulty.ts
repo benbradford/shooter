@@ -11,15 +11,15 @@ export type RobotDifficultyConfig = {
 
 export const ROBOT_DIFFICULTY_PRESETS: Record<EnemyDifficulty, RobotDifficultyConfig> = {
   easy: {
-    health: 40,
-    speed: 90,
+    health: 30,
+    speed: 70,
     fireballDelayTime: 1500,
     fireballSpeed: 250,
     fireballDuration: 1500,
     hitDuration: 1000,
   },
   medium: {
-    health: 80,
+    health: 50,
     speed: 120,
     fireballDelayTime: 1200,
     fireballSpeed: 300,
@@ -27,8 +27,8 @@ export const ROBOT_DIFFICULTY_PRESETS: Record<EnemyDifficulty, RobotDifficultyCo
     hitDuration: 750,
   },
   hard: {
-    health: 100,
-    speed: 140,
+    health: 90,
+    speed: 120,
     fireballDelayTime: 800,
     fireballSpeed: 350,
     fireballDuration: 2500,

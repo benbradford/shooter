@@ -5199,7 +5199,7 @@
     {
       "col": 26,
       "row": 13,
-      "difficulty": "medium",
+      "difficulty": "easy",
       "waypoints": [
         {
           "col": 22,
@@ -5224,7 +5224,7 @@
     {
       "col": 16,
       "row": 12,
-      "difficulty": "medium"
+      "difficulty": "easy"
     }
   ],
   "throwers": [

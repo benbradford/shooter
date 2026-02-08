@@ -9,22 +9,22 @@ type BugBaseDifficultyConfig = {
 
 const DIFFICULTY_CONFIGS: Record<EnemyDifficulty, BugBaseDifficultyConfig> = {
   easy: {
-    baseHealth: 200,
+    baseHealth: 50,
     bugHealth: 1,
     bugSpeed: 100,
-    spawnIntervalMs: 3000
+    spawnIntervalMs: 4000
   },
   medium: {
-    baseHealth: 300,
+    baseHealth: 75,
     bugHealth: 1,
     bugSpeed: 150,
-    spawnIntervalMs: 2000
+    spawnIntervalMs: 3000
   },
   hard: {
-    baseHealth: 400,
+    baseHealth: 100,
     bugHealth: 1,
     bugSpeed: 200,
-    spawnIntervalMs: 1000
+    spawnIntervalMs: 2000
   }
 };
 

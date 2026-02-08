@@ -79,7 +79,12 @@ export function createBugEntity(props: CreateBugProps): Entity {
     collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
-        bugHealth.takeDamage(10);
+        const damage = other.get(DamageComponent);
+        if (damage) {
+          bugHealth.takeDamage(damage.damage);
+        } else {
+          bugHealth.takeDamage(10);
+        }
 
         const hitFlash = entity.get(HitFlashComponent);
         if (hitFlash) {
@@ -87,15 +92,15 @@ export function createBugEntity(props: CreateBugProps): Entity {
         }
 
         const projectile = other.get(ProjectileComponent);
-        if (!projectile) return;
+        if (projectile) {
+          const dirX = projectile.dirX;
+          const dirY = projectile.dirY;
 
-        const dirX = projectile.dirX;
-        const dirY = projectile.dirY;
-
-        const knockback = entity.get(KnockbackComponent);
-        if (knockback) {
-          const length = Math.hypot(dirX, dirY);
-          knockback.applyKnockback(dirX / length, dirY / length, 200);
+          const knockback = entity.get(KnockbackComponent);
+          if (knockback) {
+            const length = Math.hypot(dirX, dirY);
+            knockback.applyKnockback(dirX / length, dirY / length, 200);
+          }
         }
 
         if (bugHealth.getHealth() <= 0) {
@@ -103,11 +108,15 @@ export function createBugEntity(props: CreateBugProps): Entity {
           if (burst) {
             burst.burst();
           }
-          scene.time.delayedCall(100, () => entity.destroy());
+          entity.destroy();
         }
 
         other.destroy();
       } else if (other.tags.has('player')) {
+        if (bugHealth.getHealth() <= 0 || entity.isDestroyed) {
+          return;
+        }
+
         const playerHealth = other.require(HealthComponent);
         playerHealth.takeDamage(BUG_DAMAGE);
 
@@ -116,7 +125,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
           burst.burst();
         }
         
-        scene.time.delayedCall(0, () => entity.destroy());
+        entity.destroy();
       }
     }
   }));
