@@ -25,6 +25,7 @@ import { preloadAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
+import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
 export default class GameScene extends Phaser.Scene {
@@ -116,6 +117,11 @@ export default class GameScene extends Phaser.Scene {
           this.scene.pause();
           this.scene.launch('EditorScene');
         }
+      });
+
+      const punchModeKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
+      punchModeKey.on('down', () => {
+        toggleMustFaceEnemy();
       });
     }
   }

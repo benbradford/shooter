@@ -5,18 +5,12 @@ export class AttackButtonComponent implements Component {
   entity!: Entity;
   private isPressed: boolean = false;
   private readonly sprite: Phaser.GameObjects.Sprite;
-  private posX: number;
-  private posY: number;
+  private posX: number = 0;
+  private posY: number = 0;
   private initialized: boolean = false;
 
   constructor(private readonly scene: Phaser.Scene) {
-    const displayWidth = scene.scale.displaySize.width;
-    const displayHeight = scene.scale.displaySize.height;
-    
-    this.posX = displayWidth * 0.8;
-    this.posY = displayHeight * 0.75;
-    
-    this.sprite = scene.add.sprite(this.posX, this.posY, 'crosshair');
+    this.sprite = scene.add.sprite(0, 0, 'crosshair');
     this.sprite.setScale(0.8);
     this.sprite.setScrollFactor(0);
     this.sprite.setDepth(2000);
@@ -55,12 +49,13 @@ export class AttackButtonComponent implements Component {
   };
 
   update(): void {
-    const displayWidth = this.scene.scale.displaySize.width;
-    const displayHeight = this.scene.scale.displaySize.height;
+    const camera = this.scene.cameras.main;
+    const viewWidth = camera.width;
+    const viewHeight = camera.height;
     
     if (!this.initialized || this.posX === 0) {
-      this.posX = displayWidth * 0.8;
-      this.posY = displayHeight * 0.75;
+      this.posX = viewWidth * 0.85;
+      this.posY = viewHeight * 0.85;
     }
     
     this.sprite.setPosition(this.posX, this.posY);

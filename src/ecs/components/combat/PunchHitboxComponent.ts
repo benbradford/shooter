@@ -2,8 +2,8 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
-const OFFSET_DISTANCE_PX = 30;
-const HITBOX_LIFETIME_MS = 300;
+const OFFSET_DISTANCE_PX = 20;
+const HITBOX_LIFETIME_MS = 200;
 
 export type PunchHitboxComponentProps = {
   playerEntity: Entity;
@@ -26,7 +26,7 @@ export class PunchHitboxComponent implements Component {
 
   update(delta: number): void {
     this.lifetime += delta;
-    
+
     if (this.lifetime >= HITBOX_LIFETIME_MS) {
       this.entity.destroy();
       return;
@@ -34,7 +34,7 @@ export class PunchHitboxComponent implements Component {
 
     const playerTransform = this.playerEntity.get(TransformComponent);
     const transform = this.entity.get(TransformComponent);
-    
+
     if (playerTransform && transform) {
       transform.x = playerTransform.x + this.dirX * OFFSET_DISTANCE_PX;
       transform.y = playerTransform.y + this.dirY * OFFSET_DISTANCE_PX;

@@ -45,7 +45,7 @@ export class AimJoystickVisualsComponent implements Component {
     // Check for remote input first (test mode)
     const remoteInput = this.playerEntity?.get(RemoteInputComponent);
     const state = remoteInput ? remoteInput.getAimPointerState() : this.aimJoystick.getJoystickState();
-    
+
     const displayWidth = this.scene.scale.displaySize.width;
     const displayHeight = this.scene.scale.displaySize.height;
 
@@ -74,9 +74,9 @@ export class AimJoystickVisualsComponent implements Component {
       this.crosshairSprite.setAlpha(0.3);
 
       // Use last position, or recalculate default until touched
-      if (!this.initialized || this.lastX === 0) {
-        this.lastX = displayWidth * 0.7;
-        this.lastY = displayHeight * 0.5;
+      if (!this.initialized) {
+        this.lastX = displayWidth * 0.075;
+        this.lastY = displayHeight * 0.2;
       }
 
       // Keep last position, crosshair centered

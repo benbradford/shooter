@@ -30,9 +30,10 @@ npx eslint src --ext .ts  # Check code quality
 The player uses a melee punch attack system:
 
 **Attack Button:**
-- Fixed position at 80% screen width, 75% screen height
+- Fixed position at 85% camera width, 85% camera height (bottom-right)
 - Touch/click or press Space to punch
 - Recalculates position every frame (Android compatibility)
+- Uses camera dimensions (not displaySize) for correct positioning in HudScene
 
 **Punch Mechanics:**
 - Range: 128 pixels
@@ -44,6 +45,7 @@ The player uses a melee punch attack system:
 - Hitbox follows player if they move during punch
 - Hitbox lasts 300ms
 - Uses collision system for damage/hit flash
+- Respects layer boundaries (can't hit enemies on different layers unless on stairs)
 
 **Player Sprite:**
 - Uses `attacker` sprite sheet (56x56 frames)

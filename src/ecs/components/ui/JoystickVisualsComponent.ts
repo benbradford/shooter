@@ -57,7 +57,7 @@ export class JoystickVisualsComponent implements Component {
     // Check for remote input first (test mode)
     const remoteInput = this.playerEntity?.get(RemoteInputComponent);
     const state = remoteInput ? remoteInput.getWalkPointerState() : this.joystick.getJoystickState();
-    
+
     const displayWidth = this.scene.scale.displaySize.width;
     const displayHeight = this.scene.scale.displaySize.height;
 
@@ -87,8 +87,8 @@ export class JoystickVisualsComponent implements Component {
 
       // Use last position, or recalculate default until touched
       if (!this.initialized || this.lastX === 0) {
-        this.lastX = displayWidth * 0.1;
-        this.lastY = displayHeight * 0.65;
+        this.lastX = displayWidth * 0.075;
+        this.lastY = displayHeight * 0.5;
       }
       this.outerCircle.setPosition(this.lastX, this.lastY);
       this.innerCircle.setPosition(this.lastX, this.lastY);

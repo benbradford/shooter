@@ -224,12 +224,13 @@ Both update from raw input, ensuring instant response to player intent.
 **AttackButtonComponent** renders a crosshair sprite in the lower-right area of the screen that acts as an attack button.
 
 **Features:**
-- Positioned at 80% screen width, 75% screen height
+- Positioned at 85% camera width, 85% camera height (bottom-right)
 - Uses `crosshair.png` sprite asset
 - Scaled to 0.8x by default
 - Fixed to camera (doesn't scroll)
 - High depth (2000) to stay on top
 - Recalculates position every frame (Android compatibility)
+- Uses camera dimensions (not displaySize) for correct positioning in HudScene
 
 **Visual Feedback:**
 - **Normal state**: Default appearance with 0.7 alpha

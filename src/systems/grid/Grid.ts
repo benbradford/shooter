@@ -3,6 +3,9 @@ import type { Entity } from "../../ecs/Entity";
 import type GameScene from "../../scenes/GameScene";
 import type { EntityManager } from "../../ecs/EntityManager";
 import { ProjectileEmitterComponent } from "../../ecs/components/combat/ProjectileEmitterComponent";
+import { TransformComponent } from "../../ecs/components/core/TransformComponent";
+import { WalkComponent } from "../../ecs/components/movement/WalkComponent";
+import { getMustFaceEnemy } from "../../ecs/components/combat/AttackComboComponent";
 import type { CellData } from './CellData';
 import type { LevelData } from '../level/LevelLoader';
 export type { CellProperty, CellData } from './CellData';
@@ -239,7 +242,7 @@ export class Grid {
 
   render(entityManager?: EntityManager, levelData?: LevelData) {
     this.graphics.clear();
-    
+
     const gameScene = this.scene as GameScene;
     gameScene.renderGrid(this);
 
@@ -295,10 +298,51 @@ export class Grid {
         }
       }
     }
+  }
 
-    if (this.isSceneDebugEnabled) {
-      this.renderSceneDebug(entityManager);
-    }
+  private renderPunchFOV(entityManager?: EntityManager): void {
+    if (!entityManager) return;
+    if (!getMustFaceEnemy()) return;
+
+    const player = entityManager.getFirst('player');
+    if (!player) return;
+
+    const transform = player.get(TransformComponent);
+    const walk = player.get(WalkComponent);
+    if (!transform || !walk) return;
+
+    const facingAngle = Math.atan2(walk.lastMoveY, walk.lastMoveX);
+    const fovAngle = Math.PI * 0.6;
+    const range = 128;
+
+    this.graphics.lineStyle(2, 0xffff00, 0.5);
+    this.graphics.beginPath();
+    this.graphics.moveTo(transform.x, transform.y);
+
+    const leftAngle = facingAngle - fovAngle / 2;
+    const rightAngle = facingAngle + fovAngle / 2;
+
+    this.graphics.lineTo(
+      transform.x + Math.cos(leftAngle) * range,
+      transform.y + Math.sin(leftAngle) * range
+    );
+    this.graphics.moveTo(transform.x, transform.y);
+    this.graphics.lineTo(
+      transform.x + Math.cos(rightAngle) * range,
+      transform.y + Math.sin(rightAngle) * range
+    );
+
+    this.graphics.strokePath();
+
+    this.graphics.lineStyle(1, 0xffff00, 0.3);
+    this.graphics.beginPath();
+    this.graphics.arc(transform.x, transform.y, range, leftAngle, rightAngle);
+    this.graphics.strokePath();
+
+    this.graphics.lineStyle(1, 0xffff00, 0.3);
+    this.graphics.beginPath();
+    this.graphics.arc(transform.x, transform.y, range, leftAngle, rightAngle);
+    this.graphics.strokePath();
   }
 
   renderCellCoordinates(): void {
@@ -325,6 +369,7 @@ export class Grid {
   }
 
   private renderSceneDebug(entityManager?: EntityManager): void {
+     this.renderPunchFOV(entityManager);
     // Draw collision boxes
     this.collisionBoxes.forEach(box => {
       this.graphics.lineStyle(2, 0x0000ff, 1);
