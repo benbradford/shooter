@@ -39,6 +39,7 @@ The player uses a melee punch attack system:
 - Range: 128 pixels
 - Damage: 20
 - Duration: 250ms animation
+- Hitbox spawns 150ms into animation (60% through)
 - Finds nearest enemy within range
 - Player faces enemy when punching
 - Creates invisible hitbox 30px in front of player
@@ -46,6 +47,19 @@ The player uses a melee punch attack system:
 - Hitbox lasts 300ms
 - Uses collision system for damage/hit flash
 - Respects layer boundaries (can't hit enemies on different layers unless on stairs)
+
+**Hold-to-Repeat:**
+- Tap attack: Single punch, player can move
+- Hold attack: After first punch completes, auto-repeats every 250ms
+- Movement locked during repeat punches (2nd+ punch)
+- Facing direction updates even when locked
+- Release attack: Returns to idle, movement unlocked
+
+**Debug Mode (Press P):**
+- Toggle between two targeting modes:
+  - `mustFaceEnemy = false` (default): Punch any enemy within 128px
+  - `mustFaceEnemy = true`: Only punch enemies within 108° FOV cone
+- Press C to visualize FOV cone (yellow arc and lines)
 
 **Player Sprite:**
 - Uses `attacker` sprite sheet (56x56 frames)
@@ -279,7 +293,12 @@ this.grid.setCell(15, 10, { layer: 1, properties: new Set(['platform']) });
 - **C key** - Toggle collision debug visualization (disabled by default)
   - Black boxes: Entity collision boxes (CollisionComponent)
   - Blue boxes: Grid collision boxes (GridPositionComponent)
-  - Red boxes: Projectile emitter positions
+  - **Yellow FOV cone: Punch targeting cone (when P is enabled)**
+
+- **P key** - Toggle punch targeting mode
+  - `mustFaceEnemy = false` (default): Punch any enemy within 128px
+  - `mustFaceEnemy = true`: Only punch enemies within 108° FOV cone
+  - FOV visualization appears when C is also pressed
 
 - **E key** - Enter level editor mode
   - Pauses game

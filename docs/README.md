@@ -10,7 +10,15 @@ When updating documentation:
 - **Highlight pitfalls** - Add lessons learned from debugging sessions
 - **Document best practices** - Include patterns that work well
 - **Update correct location** - Place info in the most relevant doc
-- **Ask for clarification** - Request details when requirements are unclear
+- **Ask for clarification** - Request details when requirements are unclear or when there's conflicting information between docs and code
+
+When asked to "update the docs":
+1. Update existing sections to reflect code changes
+2. Remove obsolete information about deleted features
+3. Add new information for new features
+4. Keep docs accurate and minimal
+5. Update multiple doc files as needed
+6. **Ask clarifying questions if there's conflicting information or unclear behavior**
 
 ## 🚨 Start Here
 

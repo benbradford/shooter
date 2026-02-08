@@ -45,14 +45,10 @@ export class WalkComponent implements Component {
 
   update(delta: number): void {
     const attackCombo = this.entity.get(AttackComboComponent);
-    if (attackCombo?.isMovementLocked()) {
-      this.velocityX = 0;
-      this.velocityY = 0;
-      return;
-    }
+    const isLocked = attackCombo?.isMovementLocked() ?? false;
 
     const mode = this.controlMode?.getMode() ?? 1;
-    const movementInput = this.inputComp.getInputDelta();
+    const movementInput = isLocked ? { dx: 0, dy: 0 } : this.inputComp.getInputDelta();
     const facingInput = this.inputComp.getRawInputDelta();
 
     if (mode === 1) {

@@ -74,9 +74,9 @@ export class AimJoystickVisualsComponent implements Component {
       this.crosshairSprite.setAlpha(0.3);
 
       // Use last position, or recalculate default until touched
-      if (!this.initialized) {
-        this.lastX = displayWidth * 0.075;
-        this.lastY = displayHeight * 0.2;
+      if (!this.initialized || this.lastX === 0) {
+        this.lastX = displayWidth * 0.7;
+        this.lastY = displayHeight * 0.5;
       }
 
       // Keep last position, crosshair centered

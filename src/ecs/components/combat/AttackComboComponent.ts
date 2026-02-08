@@ -38,6 +38,8 @@ export class AttackComboComponent implements Component {
   private phaseTimer: number = 0;
   private wasAttackPressed: boolean = false;
   private hitboxCreated: boolean = false;
+  private isHoldingAttack: boolean = false;
+  private punchCount: number = 0;
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
   private readonly getEnemies: () => Entity[];
@@ -58,15 +60,22 @@ export class AttackComboComponent implements Component {
       }
 
       if (this.phaseTimer >= PUNCH_DURATION_MS) {
-        this.currentPhase = 'idle';
-        this.phaseTimer = 0;
-        this.hitboxCreated = false;
+        if (this.isHoldingAttack) {
+          this.phaseTimer = 0;
+          this.hitboxCreated = false;
+          this.punchCount++;
+        } else {
+          this.currentPhase = 'idle';
+          this.phaseTimer = 0;
+          this.hitboxCreated = false;
+          this.punchCount = 0;
 
-        const walk = this.entity.get(WalkComponent);
-        const anim = this.entity.get(AnimationComponent);
-        if (walk && anim) {
-          const animKey = `idle_${walk.lastDir}`;
-          anim.animationSystem.play(animKey);
+          const walk = this.entity.get(WalkComponent);
+          const anim = this.entity.get(AnimationComponent);
+          if (walk && anim) {
+            const animKey = `idle_${walk.lastDir}`;
+            anim.animationSystem.play(animKey);
+          }
         }
       }
     }
@@ -197,11 +206,15 @@ export class AttackComboComponent implements Component {
     this.currentPhase = 'punch';
     this.phaseTimer = 0;
     this.hitboxCreated = false;
+    this.punchCount = 0;
   }
 
   checkAttackReleased(isPressed: boolean): void {
+    this.isHoldingAttack = isPressed;
+    
     if (!isPressed) {
       this.wasAttackPressed = false;
+      this.punchCount = 0;
     }
   }
 
@@ -210,7 +223,7 @@ export class AttackComboComponent implements Component {
   }
 
   isMovementLocked(): boolean {
-    return false;
+    return this.currentPhase === 'punch' && this.punchCount > 0;
   }
 
   onDestroy(): void {

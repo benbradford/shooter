@@ -1,6 +1,11 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
+const UNPRESSED_SCALE = 0.6;
+const PRESSED_SCALE = 0.8;
+const POS_X = 0.85;
+const POS_Y = 0.8;
+
 export class AttackButtonComponent implements Component {
   entity!: Entity;
   private isPressed: boolean = false;
@@ -11,7 +16,7 @@ export class AttackButtonComponent implements Component {
 
   constructor(private readonly scene: Phaser.Scene) {
     this.sprite = scene.add.sprite(0, 0, 'crosshair');
-    this.sprite.setScale(0.8);
+    this.sprite.setScale(UNPRESSED_SCALE);
     this.sprite.setScrollFactor(0);
     this.sprite.setDepth(2000);
     this.sprite.setAlpha(0.7);
@@ -20,7 +25,7 @@ export class AttackButtonComponent implements Component {
   init(): void {
     this.scene.input.on('pointerdown', this.handlePointerDown, this);
     this.scene.input.on('pointerup', this.handlePointerUp, this);
-    
+
     const keyboard = this.scene.input.keyboard;
     if (keyboard) {
       const spaceKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -31,20 +36,20 @@ export class AttackButtonComponent implements Component {
 
   private readonly handlePointerDown = (pointer: Phaser.Input.Pointer): void => {
     this.initialized = true;
-    
+
     const distance = Math.hypot(pointer.x - this.posX, pointer.y - this.posY);
     const radius = (this.sprite.width / 2) * this.sprite.scale;
-    
+
     if (distance <= radius) {
       this.isPressed = true;
-      this.sprite.setScale(1);
+      this.sprite.setScale(PRESSED_SCALE);
       this.sprite.setTint(0x6666ff);
     }
   };
 
   private readonly handlePointerUp = (): void => {
     this.isPressed = false;
-    this.sprite.setScale(0.8);
+    this.sprite.setScale(UNPRESSED_SCALE);
     this.sprite.clearTint();
   };
 
@@ -52,12 +57,12 @@ export class AttackButtonComponent implements Component {
     const camera = this.scene.cameras.main;
     const viewWidth = camera.width;
     const viewHeight = camera.height;
-    
+
     if (!this.initialized || this.posX === 0) {
-      this.posX = viewWidth * 0.85;
-      this.posY = viewHeight * 0.85;
+      this.posX = viewWidth * POS_X;
+      this.posY = viewHeight * POS_Y;
     }
-    
+
     this.sprite.setPosition(this.posX, this.posY);
   }
 
