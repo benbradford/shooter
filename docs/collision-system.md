@@ -181,20 +181,28 @@ this.velocityX *= frictionPerFrame;
 
 ## Usage Example
 
-### Player Bullet
+### Player Punch Hitbox
 
 ```typescript
-const entity = new Entity('bullet');
+const entity = new Entity('punch_hitbox');
 entity.tags.add('player_projectile');
 
+entity.add(new DamageComponent(PUNCH_DAMAGE));
+
 entity.add(new CollisionComponent({
-  box: { offsetX: -2, offsetY: -2, width: 4, height: 4 },
+  box: { offsetX: -16, offsetY: -16, width: 32, height: 32 },
   collidesWith: ['enemy'],
   onHit: (other) => {
     if (other.tags.has('enemy')) {
+      // Use layer collision helper
+      if (!canPlayerHitEnemy(playerEntity, other, grid)) {
+        return;
+      }
+      
       const health = other.get(HealthComponent);
-      if (health) {
-        health.takeDamage(BULLET_DAMAGE);
+      const damage = entity.get(DamageComponent);
+      if (health && damage) {
+        health.takeDamage(damage.damage);
       }
       
       const stateMachine = other.get(StateMachineComponent);

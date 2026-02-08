@@ -25,6 +25,32 @@ npm run build        # Build for production
 npx eslint src --ext .ts  # Check code quality
 ```
 
+### Player Combat System
+
+The player uses a melee punch attack system:
+
+**Attack Button:**
+- Fixed position at 80% screen width, 75% screen height
+- Touch/click or press Space to punch
+- Recalculates position every frame (Android compatibility)
+
+**Punch Mechanics:**
+- Range: 128 pixels
+- Damage: 20
+- Duration: 250ms animation
+- Finds nearest enemy within range
+- Player faces enemy when punching
+- Creates invisible hitbox 30px in front of player
+- Hitbox follows player if they move during punch
+- Hitbox lasts 300ms
+- Uses collision system for damage/hit flash
+
+**Player Sprite:**
+- Uses `attacker` sprite sheet (56x56 frames)
+- Row 0: 8-direction idle animations (frames 0-7)
+- Frames 47-52: Cross-punch animation (west-facing)
+- No walk animations (uses idle frames while moving)
+
 ### Adding a Shadow to an Entity
 
 Shadows are handled by the reusable `ShadowComponent`. All shadow properties must be explicitly provided:
@@ -329,6 +355,11 @@ entity.add(new CollisionComponent({
   box: { offsetX: -2, offsetY: -2, width: 4, height: 4 },
   collidesWith: ['enemy'],
   onHit: (other) => {
+    // Use layer collision helper for player attacks
+    if (!canPlayerHitEnemy(playerEntity, other, grid)) {
+      return;
+    }
+    
     const health = other.get(HealthComponent);
     const damage = entity.get(DamageComponent);
     if (health && damage) {
@@ -339,48 +370,34 @@ entity.add(new CollisionComponent({
 }));
 ```
 
+**Layer Collision Helper:**
+
+Use `canPlayerHitEnemy()` to check if player attacks can hit enemies across layers:
+
+```typescript
+import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
+
+// In enemy collision handler
+if (!canPlayerHitEnemy(playerEntity, enemyEntity, grid)) {
+  return; // Player on different layer and not on stairs
+}
+```
+
+**Rules:**
+- Player on stairs → Always hits (ignores layer)
+- Player on same layer as enemy → Hits
+- Player on different layer and not on stairs → Doesn't hit
+
 **Key points:**
 - Use `tags` to identify entity types
 - `DamageComponent` stores damage value
 - Collision boxes are separate from grid collision boxes
 - Press **C** to toggle collision box debug rendering (black outlines)
+- Use layer helper for all player projectile collisions with enemies
 
 ### Making Components Reusable
 
-Use callbacks instead of hardcoding behavior:
-
-```typescript
-// ❌ Bad: Hardcoded to player input
-class ProjectileEmitterComponent {
-  constructor(scene: Phaser.Scene) {
-    this.fireKey = scene.input.keyboard!.addKey(KeyCodes.SPACE);
-  }
-}
-
-// ✅ Good: Callback-based
-class ProjectileEmitterComponent {
-  constructor(props: {
-    scene: Phaser.Scene,
-    onFire: (x, y, dirX, dirY) => void,
-    offsets: Record<Direction, EmitterOffset>,
-    shouldFire: () => boolean,  // Player: () => input.isFirePressed()
-    cooldown?: number           // Enemy: () => ai.shouldAttack()
-  }) {}
-}
-```
-
-**Important:** When defining emitter offsets, always scale by `SPRITE_SCALE`:
-
-```typescript
-const emitterOffsets: Record<Direction, EmitterOffset> = {
-  [Direction.Down]: { x: -16 * SPRITE_SCALE, y: 40 * SPRITE_SCALE },
-  [Direction.Up]: { x: 10 * SPRITE_SCALE, y: -30 * SPRITE_SCALE },
-  // ... etc
-};
-```
-
-This ensures projectile emission points are correct regardless of sprite scale.
-```
+Use callbacks instead of hardcoding behavior to make components work across different entity types (player, enemies, NPCs, turrets).
 
 ### Moving Player Start Position
 
@@ -393,29 +410,6 @@ This ensures projectile emission points are correct regardless of sprite scale.
 7. Refresh browser
 
 **Important:** Always use `this.grid.cellSize` instead of hardcoded values when converting between world and cell coordinates.
-
-### Configuring Overheat System
-
-The overheat system locks the gun when ammo reaches 0 until fully reloaded:
-
-```typescript
-// In PlayerEntity.ts
-const ammo = entity.add(new AmmoComponent({
-  maxAmmo: 20,                    // Total ammo capacity
-  refillRate: 10,                 // Ammo per second refill rate
-  refillDelay: 2000,              // Normal delay before refilling (ms)
-  overheatedRefillDelay: 4000     // Longer delay when overheated (ms)
-}));
-```
-
-**Behavior:**
-- Fire normally when `currentAmmo > 0` and not overheated
-- Ammo hits 0 → Gun locks (can't fire even as ammo refills)
-- Wait `overheatedRefillDelay` ms → Start refilling
-- Ammo reaches max → Gun unlocks
-- Smoke particles emit while overheated
-
-**Key difference:** `overheatedRefillDelay` is longer than `refillDelay` to punish overheating.
 
 ### Health Regeneration
 

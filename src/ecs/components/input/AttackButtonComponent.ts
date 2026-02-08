@@ -7,6 +7,7 @@ export class AttackButtonComponent implements Component {
   private readonly sprite: Phaser.GameObjects.Sprite;
   private posX: number;
   private posY: number;
+  private initialized: boolean = false;
 
   constructor(private readonly scene: Phaser.Scene) {
     const displayWidth = scene.scale.displaySize.width;
@@ -35,6 +36,8 @@ export class AttackButtonComponent implements Component {
   }
 
   private readonly handlePointerDown = (pointer: Phaser.Input.Pointer): void => {
+    this.initialized = true;
+    
     const distance = Math.hypot(pointer.x - this.posX, pointer.y - this.posY);
     const radius = (this.sprite.width / 2) * this.sprite.scale;
     
@@ -55,8 +58,11 @@ export class AttackButtonComponent implements Component {
     const displayWidth = this.scene.scale.displaySize.width;
     const displayHeight = this.scene.scale.displaySize.height;
     
-    this.posX = displayWidth * 0.8;
-    this.posY = displayHeight * 0.75;
+    if (!this.initialized || this.posX === 0) {
+      this.posX = displayWidth * 0.8;
+      this.posY = displayHeight * 0.75;
+    }
+    
     this.sprite.setPosition(this.posX, this.posY);
   }
 

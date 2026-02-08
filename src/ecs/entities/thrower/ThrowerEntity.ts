@@ -20,10 +20,11 @@ import { ThrowerThrowingState } from './ThrowerThrowingState';
 import { ThrowerHitState } from './ThrowerHitState';
 import { ThrowerDeathState } from './ThrowerDeathState';
 import { getThrowerDifficultyConfig, type ThrowerDifficulty } from './ThrowerDifficultyConfig';
+import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import type { Grid } from '../../../systems/grid/Grid';
 
 const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
-const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -40, width: 32, height: 72 };
+const THROWER_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -30, width: 32, height: 60 };
 const THROWER_SCALE = 1.5;
 const KNOCKBACK_FRICTION = 0.92;
 const KNOCKBACK_DURATION_MS = 500;
@@ -59,7 +60,7 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   entity.add(new SpawnSmokeComponent(scene, x, y));
 
   const shadow = entity.add(new ShadowComponent(scene, {
-    scale: THROWER_SCALE,
+    scale: THROWER_SCALE * 0.75,
     offsetX: 0,
     offsetY: 30
   }));
@@ -80,6 +81,10 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
+        if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
+          return;
+        }
+
         const health = entity.require(HealthComponent);
         health.takeDamage(BULLET_DAMAGE);
 

@@ -61,7 +61,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   const sprite = entity.add(new SpriteComponent(scene, 'attacker', transform));
   sprite.sprite.setFrame(PLAYER_SPRITE_FRAME);
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 2, offsetX: -5, offsetY: 43 }));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 28 }));
   shadow.init();
 
   const animMap = new Map<string, Animation>();

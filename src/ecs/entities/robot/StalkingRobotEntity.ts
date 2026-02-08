@@ -26,6 +26,7 @@ import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
 import type { Grid } from '../../../systems/grid/Grid';
 import { getRobotDifficultyConfig } from './RobotDifficulty';
+import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import type { EnemyDifficulty } from '../../../constants/EnemyDifficulty';
 
 // Robot configuration constants
@@ -34,7 +35,7 @@ import { SPRITE_SCALE } from '../../../constants/GameConstants';
 const ROBOT_SCALE = 2 * SPRITE_SCALE;
 const ROBOT_SPRITE_FRAME = 0; // South idle
 const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 32, height: 32 };
-const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -22, offsetY: -40, width: 48, height: 85 };
+const ROBOT_ENTITY_COLLISION_BOX = { offsetX: -19, offsetY: -20, width: 38, height: 40 };
 const ROBOT_LINE_OF_SIGHT_RANGE = 500;
 const ROBOT_FIELD_OF_VIEW = Math.PI * 0.75;
 const ROBOT_KNOCKBACK_FRICTION = 0.85;
@@ -66,7 +67,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
   const sprite = entity.add(new SpriteComponent(scene, 'floating_robot', transform));
   sprite.sprite.setFrame(ROBOT_SPRITE_FRAME);
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 2, offsetX: 0, offsetY: 60 }));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 1.3, offsetX: 0, offsetY: 30 }));
   shadow.init();
 
   const startCell = grid.worldToCell(x, y);
@@ -120,6 +121,9 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
+        if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
+          return;
+        }
 
         const projectile = other.get(ProjectileComponent);
         let dirX = 0;

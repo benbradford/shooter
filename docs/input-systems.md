@@ -199,70 +199,41 @@ Both update from raw input, ensuring instant response to player intent.
 
 ---
 
-## Control Modes
-
-The game has two control modes that can be toggled:
-
-### Control Mode 1: Auto-Aim with Manual Override
+## Control System
 
 **Movement:**
 - Touch left half of screen → Movement joystick appears at touch location
 - Drag to move in any direction
 - Outer circle (grey) and inner circle with arrows sprite
 - Inner circle follows drag, arrows show movement direction
-
-**Aiming/Firing:**
-- Touch right half of screen → Aim joystick appears at touch location
-- **Auto-aim (default)**: Crosshair stays centered, automatically aims at nearest visible enemy within range (700px)
-- **Manual aim**: Drag crosshair to outer circle edge (70px from center) to override auto-aim
-- Outer circle (blue) and crosshair sprite in center
-- Player faces auto-aim target or manual aim direction while firing
 - After releasing, joystick stays visible at last position with reduced alpha (0.3)
 
-**Auto-Aim System:**
-- Finds nearest enemy within bullet max distance (700px)
-- Checks line of sight (blocked by layer 1 walls)
-- Player automatically faces and fires at target
-- Falls back to movement direction if no target found
-- Manual aim overrides auto-aim when dragged beyond threshold
-
-**Manual Aim Threshold:**
-- Drag distance > 70px → Enters manual aim mode
-- Drag distance ≤ 70px → Returns to auto-aim mode
-- Smooth transition between modes
-
-### Control Mode 2: Dual Joystick
-
-**Movement:**
-- Touch left half of screen → Movement joystick (same as mode 1)
-
-**Aiming/Firing:**
-- Touch right half of screen → Aim joystick appears at touch location
-- Always manual aim (no auto-aim)
-- Drag to aim in any direction
-- Player faces aim direction while aiming
-- After releasing, joystick stays visible at last position with reduced alpha (0.3)
+**Attack:**
+- Touch right half of screen or press Space → Punch attack
+- Fixed attack button at 80% width, 75% height
+- Crosshair sprite with visual feedback on press
+- Finds nearest enemy within 128px and punches them
+- Player faces enemy during punch
 
 ---
 
-## Fire Button System (Legacy - Mode 1 Only)
+## Attack Button System
 
-### Crosshair Component
+### Attack Button Component
 
-**CrosshairVisualsComponent** renders a crosshair sprite in the lower-right area of the screen that acts as a fire button.
-
-**Note:** In current implementation, crosshair is hidden in mode 1 (replaced by aim joystick). Only used in mode 2 as fallback.
+**AttackButtonComponent** renders a crosshair sprite in the lower-right area of the screen that acts as an attack button.
 
 **Features:**
-- Positioned at 85% screen width, 65% screen height
+- Positioned at 80% screen width, 75% screen height
 - Uses `crosshair.png` sprite asset
 - Scaled to 0.8x by default
 - Fixed to camera (doesn't scroll)
 - High depth (2000) to stay on top
+- Recalculates position every frame (Android compatibility)
 
 **Visual Feedback:**
-- **Normal state**: Default appearance
-- **Pressed state**: Scales up to 1.0x (25% larger) and applies blue tint (0x6666ff)
+- **Normal state**: Default appearance with 0.7 alpha
+- **Pressed state**: Scales up to 1.0x and applies blue tint (0x6666ff)
 - Instant visual response when touched/held
 
 ### Touch Detection
@@ -270,61 +241,34 @@ The game has two control modes that can be toggled:
 **Circular Hit Area:**
 - Touch detection uses circular collision based on sprite size
 - Radius calculated from sprite dimensions × scale
-- Only touches within the crosshair circle register as fire input
-
-**Implementation:**
-```typescript
-// CrosshairVisualsComponent sets bounds on joystick
-const radius = (this.sprite.width / 2) * this.scale;
-this.joystick.setCrosshairBounds(x, y, radius);
-
-// TouchJoystickComponent checks distance
-const dx = pointer.x - this.crosshairBounds.x;
-const dy = pointer.y - this.crosshairBounds.y;
-const distance = Math.sqrt(dx * dx + dy * dy);
-
-if (distance <= this.crosshairBounds.radius) {
-  this.isFirePressed = true;
-}
-```
+- Only touches within the button circle register as attack input
 
 ### Integration with Input System
 
-**InputComponent** checks both keyboard and touch fire inputs:
+**InputComponent** checks both keyboard and touch attack inputs:
 ```typescript
-isFirePressed(): boolean {
-  // Check joystick fire button first
-  if (this.joystick?.isFireButtonPressed()) {
+isAttackPressed(): boolean {
+  if (this.attackButton?.isAttackPressed()) {
     return true;
   }
-
-  // Fall back to keyboard
-  return this.fireKey.isDown;
+  return false;
 }
 ```
 
 **Behavior:**
-- Single tap: Fires one bullet (respects cooldown)
-- Hold: Continuous firing (respects cooldown between shots)
-- Works alongside keyboard spacebar
+- Single tap/press: Triggers one punch
+- Must release and press again for next punch
+- Works with both touch and spacebar
 
 ### Entity Structure
 
 ```typescript
-// Joystick Entity (includes both movement and fire controls)
+// Joystick Entity (includes movement and attack controls)
 createJoystickEntity(scene)
-  ├─ TouchJoystickComponent (handles both movement and fire input)
+  ├─ TouchJoystickComponent (handles movement input)
   ├─ JoystickVisualsComponent (movement joystick circles)
-  └─ CrosshairVisualsComponent (fire button crosshair)
+  └─ AttackButtonComponent (attack button)
 ```
-
-### Asset Requirements
-
-**crosshair.png:**
-- Located in `public/assets/player/crosshair.png`
-- Registered in `AssetRegistry.ts`
-- Loaded in `AssetLoader.ts` default assets list
-- Should have transparent background (white/grey alpha'd out)
 
 ---
 
@@ -338,7 +282,7 @@ createJoystickEntity(scene)
 - Diagonal movement supported (normalized for consistent speed)
 
 ### Actions
-- **Space**: Fire weapon
+- **Space**: Punch attack
 - **G**: Toggle debug grid visualization
 
 ### Implementation

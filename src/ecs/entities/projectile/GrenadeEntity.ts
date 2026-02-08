@@ -44,12 +44,12 @@ class GrenadeArcComponent implements Component {
 
     sprite.sprite.setScale(scale);
     sprite.sprite.y = transform.y - arcHeight;
-    
+
     const rotationDirection = this.dirX >= 0 ? 1 : -1;
     transform.rotation += rotationDirection * GRENADE_SPIN_SPEED_RAD_PER_SEC * (delta / 1000);
 
     if (shadow) {
-      shadow.shadow.setScale(scale * 0.8);
+      shadow.shadow.setScale(scale * 0.5);
     }
 
     if (this.elapsedMs >= GRENADE_FLIGHT_TIME_MS) {
@@ -60,7 +60,7 @@ class GrenadeArcComponent implements Component {
   private explode(): void {
     const transform = this.entity.require(TransformComponent);
     const damage = this.entity.require(DamageComponent);
-    
+
     const emitter = this.scene.add.particles(transform.x, transform.y, 'fire', {
       speed: { min: 50, max: 100 },
       angle: { min: 0, max: 360 },
@@ -79,7 +79,7 @@ class GrenadeArcComponent implements Component {
     const explosionRadius = 64;
     const gameScene = this.scene as { entityManager?: { getAll: () => Entity[] } };
     const nearbyEntities = gameScene.entityManager?.getAll() ?? [];
-    
+
     for (const other of nearbyEntities) {
       if (other.tags.has('player')) {
         const otherTransform = other.get(TransformComponent);
@@ -87,7 +87,7 @@ class GrenadeArcComponent implements Component {
           const dx = otherTransform.x - transform.x;
           const dy = otherTransform.y - transform.y;
           const distance = Math.hypot(dx, dy);
-          
+
           if (distance <= explosionRadius) {
             const health = other.get(HealthComponent);
             // eslint-disable-next-line max-depth
@@ -115,7 +115,7 @@ export type CreateGrenadeProps = {
 
 export function createGrenadeEntity(props: CreateGrenadeProps): Entity {
   const { scene, x, y, dirX, dirY, maxDistancePx, speedPxPerSec } = props;
-  
+
   const entity = new Entity('grenade');
   entity.tags.add('enemy_projectile');
 

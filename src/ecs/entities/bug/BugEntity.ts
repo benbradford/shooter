@@ -14,6 +14,7 @@ import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { StateMachine } from '../../../systems/state/StateMachine';
+import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import { BugChaseState } from './BugChaseState';
 import { BugAttackState } from './BugAttackState';
 import type { Grid } from '../../../systems/grid/Grid';
@@ -79,6 +80,10 @@ export function createBugEntity(props: CreateBugProps): Entity {
     collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
+        if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
+          return;
+        }
+
         const damage = other.get(DamageComponent);
         if (damage) {
           bugHealth.takeDamage(damage.damage);
