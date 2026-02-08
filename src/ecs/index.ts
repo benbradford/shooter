@@ -32,3 +32,4 @@ export { AimJoystickVisualsComponent } from './components/ui/AimJoystickVisualsC
 export { SpawnSmokeComponent } from './components/visual/SpawnSmokeComponent';
 export { TriggerComponent } from './components/core/TriggerComponent';
 export { EnemySpawnComponent } from './components/spawner/EnemySpawnComponent';
+export { PunchParticlesComponent } from './components/visual/PunchParticlesComponent';

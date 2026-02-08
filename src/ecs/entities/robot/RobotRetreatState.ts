@@ -6,8 +6,8 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { PatrolComponent } from '../../components/ai/PatrolComponent';
 
-const SAFE_DISTANCE_PX = 220;
-const RETREAT_SPEED_MULTIPLIER = 1.75;
+const SAFE_DISTANCE_PX = 180;
+const RETREAT_SPEED_MULTIPLIER = 1.5;
 const ANIMATION_SPEED_MS = 100;
 const WALK_ANIMATION_FRAME_COUNT = 8;
 
@@ -58,7 +58,7 @@ export class RobotRetreatState implements IState {
     const speed = patrol.speed * RETREAT_SPEED_MULTIPLIER;
     const prevX = transform.x;
     const prevY = transform.y;
-    
+
     transform.x += retreatDirX * speed * (delta / 1000);
     transform.y += retreatDirY * speed * (delta / 1000);
 

@@ -80,7 +80,30 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     animMap.set(`idle_${dir}`, new Animation([String(row)], 'static', 0));
   });
 
-  animMap.set('punch', new Animation(['47', '48', '49', '50', '51', '52','52'], 'repeat', 0.0315));
+  const punchDirections: [Direction, number][] = [
+    [Direction.Down, 8],
+    [Direction.DownRight, 14],
+    [Direction.Right, 20],
+    [Direction.UpRight, 26],
+    [Direction.Up, 32],
+    [Direction.UpLeft, 38],
+    [Direction.Left, 44],
+    [Direction.DownLeft, 44],
+  ];
+
+  punchDirections.forEach(([dir, startFrame]) => {
+    const frames = [
+      String(startFrame),
+      String(startFrame + 1),
+      String(startFrame + 2),
+      String(startFrame + 3),
+      String(startFrame + 4),
+      String(startFrame + 5),
+      String(startFrame + 5),
+      String(startFrame + 5)
+    ];
+    animMap.set(`punch_${dir}`, new Animation(frames, 'repeat', 0.0315));
+  });
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));

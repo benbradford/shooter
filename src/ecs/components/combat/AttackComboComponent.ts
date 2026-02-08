@@ -5,10 +5,11 @@ import { TransformComponent } from '../core/TransformComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
+import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
 const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
-const PUNCH_DURATION_MS = 250;
+const PUNCH_DURATION_MS = 360;
 const PUNCH_FOV_RADIANS = Math.PI * 0.6;
 const PUNCH_HITBOX_DELAY_MS = 150;
 
@@ -64,6 +65,12 @@ export class AttackComboComponent implements Component {
           this.phaseTimer = 0;
           this.hitboxCreated = false;
           this.punchCount++;
+          
+          const walk = this.entity.get(WalkComponent);
+          const anim = this.entity.get(AnimationComponent);
+          if (walk && anim) {
+            anim.animationSystem.play(`punch_${walk.lastDir}`);
+          }
         } else {
           this.currentPhase = 'idle';
           this.phaseTimer = 0;
@@ -142,6 +149,11 @@ export class AttackComboComponent implements Component {
       playerEntity: this.entity,
       damage: PUNCH_DAMAGE
     }));
+
+    const walkComp = this.entity.require(WalkComponent);
+    const particleEntity = new Entity('punch_particles');
+    particleEntity.add(new PunchParticlesComponent(this.scene, punchStartX, punchStartY, dirX, dirY, walkComp.lastDir, this.entity));
+    this.entityManager.add(particleEntity);
   }
 
   tryStartPunch(): void {
@@ -200,7 +212,7 @@ export class AttackComboComponent implements Component {
 
     const anim = this.entity.get(AnimationComponent);
     if (anim) {
-      anim.animationSystem.play('punch');
+      anim.animationSystem.play(`punch_${walk.lastDir}`);
     }
 
     this.currentPhase = 'punch';
@@ -211,7 +223,7 @@ export class AttackComboComponent implements Component {
 
   checkAttackReleased(isPressed: boolean): void {
     this.isHoldingAttack = isPressed;
-    
+
     if (!isPressed) {
       this.wasAttackPressed = false;
       this.punchCount = 0;
