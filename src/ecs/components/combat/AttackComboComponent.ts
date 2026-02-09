@@ -9,7 +9,7 @@ import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
 const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
-const PUNCH_DURATION_MS = 360;
+const PUNCH_DURATION_MS = 500;
 const PUNCH_FOV_RADIANS = Math.PI * 0.6;
 const PUNCH_HITBOX_DELAY_MS = 150;
 
@@ -65,7 +65,7 @@ export class AttackComboComponent implements Component {
           this.phaseTimer = 0;
           this.hitboxCreated = false;
           this.punchCount++;
-          
+
           const walk = this.entity.get(WalkComponent);
           const anim = this.entity.get(AnimationComponent);
           if (walk && anim) {

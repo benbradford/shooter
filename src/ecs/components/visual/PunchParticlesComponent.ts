@@ -25,8 +25,8 @@ export class PunchParticlesComponent implements Component {
   ) {
     this.playerEntity = playerEntity;
     const angle = Math.atan2(dirY, dirX) * 180 / Math.PI;
-    const startX = x - dirX * 30;
-    const startY = y - dirY * 30;
+    const startX = x - dirX * 50;
+    const startY = y - dirY * 50;
 
     const facingUp = direction === Direction.UpLeft ||
                      direction === Direction.Up ||

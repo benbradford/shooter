@@ -100,9 +100,12 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
       String(startFrame + 4),
       String(startFrame + 5),
       String(startFrame + 5),
+      String(startFrame + 5),
+      String(startFrame + 5),
+      String(startFrame + 5),
       String(startFrame + 5)
     ];
-    animMap.set(`punch_${dir}`, new Animation(frames, 'repeat', 0.0315));
+    animMap.set(`punch_${dir}`, new Animation(frames, 'repeat', 0.0415));
   });
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);

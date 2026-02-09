@@ -2,8 +2,8 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
-const OFFSET_DISTANCE_PX = 20;
-const HITBOX_LIFETIME_MS = 200;
+const OFFSET_DISTANCE_PX = 32;
+const HITBOX_LIFETIME_MS = 250;
 
 export type PunchHitboxComponentProps = {
   playerEntity: Entity;
