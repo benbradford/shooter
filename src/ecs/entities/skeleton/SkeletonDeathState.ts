@@ -4,10 +4,10 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 
 const DEATH_PARTICLE_COUNT_MIN = 3;
-const DEATH_PARTICLE_COUNT_MAX = 6;
+const DEATH_PARTICLE_COUNT_MAX = 5;
 const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 150;
 const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 300;
-const DEATH_PARTICLE_LIFESPAN_MS = 350;
+const DEATH_PARTICLE_LIFESPAN_MS = 300;
 
 export class SkeletonDeathState implements IState {
   private hasSpawnedParticles = false;
@@ -41,13 +41,17 @@ export class SkeletonDeathState implements IState {
         alpha: { start: 1, end: 0 },
         lifespan: DEATH_PARTICLE_LIFESPAN_MS,
         quantity: particleCount,
-        rotate: { min: -90, max: 90 },
+        rotate: { min: -45, max: 45 },
         blendMode: 'NORMAL'
       });
 
       emitter.setDepth(0);
 
-      this.scene.time.delayedCall(DEATH_PARTICLE_LIFESPAN_MS, () => {
+      this.scene.time.delayedCall(DEATH_PARTICLE_LIFESPAN_MS / 2, () => {
+        emitter.stop();
+      });
+
+      this.scene.time.delayedCall(DEATH_PARTICLE_LIFESPAN_MS * 2, () => {
         emitter.destroy();
       });
 

@@ -5199,11 +5199,11 @@
     {
       "col": 26,
       "row": 13,
-      "difficulty": "hard",
+      "difficulty": "easy",
       "waypoints": [
         {
           "col": 22,
-          "row": 14
+          "row": 13
         },
         {
           "col": 22,
@@ -5211,11 +5211,11 @@
         },
         {
           "col": 22,
-          "row": 14
+          "row": 13
         },
         {
           "col": 30,
-          "row": 14
+          "row": 13
         }
       ]
     }
@@ -5224,7 +5224,7 @@
     {
       "col": 16,
       "row": 12,
-      "difficulty": "hard"
+      "difficulty": "easy"
     }
   ],
   "throwers": [
@@ -5232,13 +5232,13 @@
       "id": "th1",
       "col": 25,
       "row": 21,
-      "difficulty": "hard"
+      "difficulty": "easy"
     },
     {
       "id": "th2",
       "col": 32,
       "row": 21,
-      "difficulty": "hard"
+      "difficulty": "easy"
     }
   ],
   "skeletons": [

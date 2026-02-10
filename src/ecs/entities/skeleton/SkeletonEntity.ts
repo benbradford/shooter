@@ -25,7 +25,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 const SKELETON_SCALE = 2;
 const SKELETON_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
 const SKELETON_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
-const SKELETON_SHADOW_PROPS = { scale: 1.5, offsetX: 0, offsetY: 40 };
+const SKELETON_SHADOW_PROPS = { scale: 1, offsetX: 8, offsetY: 30 };
 const SKELETON_KNOCKBACK_FRICTION = 0.88;
 const SKELETON_KNOCKBACK_FORCE_PX = 400;
 const HIT_DURATION_MS = 300;

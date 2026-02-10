@@ -26,6 +26,7 @@ export class SkeletonWalkState implements IState {
   private pauseDurationMs = 0;
   private lastDirection = Direction.Down;
   private attackCooldownMs = 0;
+  private currentAnimKey = '';
 
   constructor(
     private readonly entity: Entity,
@@ -42,6 +43,7 @@ export class SkeletonWalkState implements IState {
     this.pathRecalcTimerMs = 0;
     this.pauseTimerMs = 0;
     this.isPaused = false;
+    this.currentAnimKey = '';
   }
 
   onUpdate(delta: number): void {
@@ -62,7 +64,11 @@ export class SkeletonWalkState implements IState {
         this.nextPauseMs = WALK_IDLE_PAUSE_MIN_MS + Math.random() * (WALK_IDLE_PAUSE_MAX_MS - WALK_IDLE_PAUSE_MIN_MS);
       } else {
         const dirName = Direction[this.lastDirection].toLowerCase();
-        sprite.sprite.play(`skeleton_idle_${dirName}`);
+        const animKey = `skeleton_idle_${dirName}`;
+        if (this.currentAnimKey !== animKey) {
+          this.currentAnimKey = animKey;
+          sprite.sprite.play(animKey);
+        }
         return;
       }
     }
@@ -127,7 +133,11 @@ export class SkeletonWalkState implements IState {
 
           this.lastDirection = dirFromDelta(normalizedDirX, normalizedDirY);
           const dirName = Direction[this.lastDirection].toLowerCase();
-          sprite.sprite.play(`skeleton_walk_${dirName}`);
+          const animKey = `skeleton_walk_${dirName}`;
+          if (this.currentAnimKey !== animKey) {
+            this.currentAnimKey = animKey;
+            sprite.sprite.play(animKey);
+          }
         }
       }
     } else {
@@ -144,7 +154,11 @@ export class SkeletonWalkState implements IState {
 
         this.lastDirection = dirFromDelta(normalizedDirX, normalizedDirY);
         const dirName = Direction[this.lastDirection].toLowerCase();
-        sprite.sprite.play(`skeleton_walk_${dirName}`);
+        const animKey = `skeleton_walk_${dirName}`;
+        if (this.currentAnimKey !== animKey) {
+          this.currentAnimKey = animKey;
+          sprite.sprite.play(animKey);
+        }
       }
     }
   }

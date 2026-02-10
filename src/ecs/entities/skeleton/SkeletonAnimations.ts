@@ -1,6 +1,6 @@
 import { Direction } from '../../../constants/Direction';
 
-const DIRECTION_ORDER = [
+const SPRITESHEET_DIRECTION_ORDER = [
   Direction.Down,
   Direction.DownRight,
   Direction.Right,
@@ -12,7 +12,7 @@ const DIRECTION_ORDER = [
 ];
 
 function getDirectionIndex(direction: Direction): number {
-  return DIRECTION_ORDER.indexOf(direction);
+  return SPRITESHEET_DIRECTION_ORDER.indexOf(direction);
 }
 
 function getIdleFrame(direction: Direction): number {
@@ -39,7 +39,7 @@ export function createSkeletonAnimations(scene: Phaser.Scene): void {
     return;
   }
 
-  for (const direction of DIRECTION_ORDER) {
+  for (const direction of SPRITESHEET_DIRECTION_ORDER) {
     const dirName = Direction[direction].toLowerCase();
 
     scene.anims.create({

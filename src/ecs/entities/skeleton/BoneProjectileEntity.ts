@@ -5,10 +5,11 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { RotatingProjectileComponent } from '../../components/visual/RotatingProjectileComponent';
+import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 
 const BONE_SPEED_PX_PER_SEC = 250;
-const BONE_MAX_DISTANCE_PX = 400;
+const BONE_MAX_DISTANCE_PX = 300;
 const BONE_DAMAGE = 10;
 const BONE_SCALE = 0.13;
 
@@ -32,6 +33,9 @@ export function createBoneProjectileEntity(props: CreateBoneProjectileProps): En
 
   const sprite = entity.add(new SpriteComponent(scene, 'bone_small', transform));
   sprite.sprite.setDepth(100);
+
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 10 }));
+  shadow.init();
 
   entity.add(new DamageComponent(BONE_DAMAGE));
   entity.add(new RotatingProjectileComponent(dirX));
@@ -64,9 +68,10 @@ export function createBoneProjectileEntity(props: CreateBoneProjectileProps): En
   }));
 
   entity.setUpdateOrder([
+    RotatingProjectileComponent,
     TransformComponent,
     SpriteComponent,
-    RotatingProjectileComponent,
+    ShadowComponent,
     ProjectileComponent,
     CollisionComponent
   ]);

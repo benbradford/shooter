@@ -1,21 +1,21 @@
 export const SKELETON_DIFFICULTY_CONFIG = {
   easy: {
     health: 20,
-    speedPxPerSec: 90,
+    speedPxPerSec: 70,
     attackRangePx: 250,
-    attackCooldownMs: 3000
+    attackCooldownMs: 4000
   },
   medium: {
     health: 40,
-    speedPxPerSec: 130,
+    speedPxPerSec: 90,
     attackRangePx: 300,
-    attackCooldownMs: 2000
+    attackCooldownMs: 3000
   },
   hard: {
     health: 60,
-    speedPxPerSec: 170,
+    speedPxPerSec: 110,
     attackRangePx: 400,
-    attackCooldownMs: 1500
+    attackCooldownMs: 2000
   }
 } as const;
 

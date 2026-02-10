@@ -1,8 +1,8 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import { SpriteComponent } from '../core/SpriteComponent';
+import { TransformComponent } from '../core/TransformComponent';
 
-const ROTATION_SPEED_DEG_PER_SEC = 360;
+const ROTATION_SPEED_DEG_PER_SEC = 720;
 
 export class RotatingProjectileComponent implements Component {
   entity!: Entity;
@@ -13,10 +13,10 @@ export class RotatingProjectileComponent implements Component {
   }
 
   update(delta: number): void {
-    const sprite = this.entity.get(SpriteComponent);
-    if (!sprite) return;
+    const transform = this.entity.get(TransformComponent);
+    if (!transform) return;
 
-    const rotationDelta = (ROTATION_SPEED_DEG_PER_SEC * (delta / 1000)) * this.rotationDirection;
-    sprite.sprite.angle += rotationDelta;
+    const rotationDelta = (ROTATION_SPEED_DEG_PER_SEC * (delta / 1000) * Math.PI / 180) * this.rotationDirection;
+    transform.rotation += rotationDelta;
   }
 }

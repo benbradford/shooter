@@ -65,69 +65,33 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   shadow.init();
 
   const animMap = new Map<string, Animation>();
-  const directionRows: [Direction, number][] = [
-    [Direction.Down, 0],
-    [Direction.DownRight, 1],
-    [Direction.Right, 2],
-    [Direction.UpRight, 3],
-    [Direction.Up, 4],
-    [Direction.UpLeft, 5],
-    [Direction.Left, 6],
-    [Direction.DownLeft, 7],
-  ];
+  
+  animMap.set(`idle_${Direction.Right}`, new Animation(['0'], 'static', 0));
+  animMap.set(`idle_${Direction.UpRight}`, new Animation(['1'], 'static', 0));
+  animMap.set(`idle_${Direction.UpLeft}`, new Animation(['2'], 'static', 0));
+  animMap.set(`idle_${Direction.Up}`, new Animation(['3'], 'static', 0));
+  animMap.set(`idle_${Direction.DownRight}`, new Animation(['4'], 'static', 0));
+  animMap.set(`idle_${Direction.DownLeft}`, new Animation(['5'], 'static', 0));
+  animMap.set(`idle_${Direction.Down}`, new Animation(['6'], 'static', 0));
+  animMap.set(`idle_${Direction.Left}`, new Animation(['7'], 'static', 0));
 
-  directionRows.forEach(([dir, row]) => {
-    animMap.set(`idle_${dir}`, new Animation([String(row)], 'static', 0));
-  });
+  animMap.set(`walk_${Direction.Down}`, new Animation(['56', '57', '58', '59'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownRight}`, new Animation(['60', '61', '62', '63'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Right}`, new Animation(['64', '65', '66', '67'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpRight}`, new Animation(['68', '69', '70', '71'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Up}`, new Animation(['72', '73', '74', '75'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['76', '77', '78', '79'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Left}`, new Animation(['80', '81', '82', '83'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['84', '85', '86', '87'], 'repeat', 0.125));
 
-  const walkDirections: [Direction, number][] = [
-    [Direction.Down, 56],
-    [Direction.DownRight, 60],
-    [Direction.Right, 64],
-    [Direction.UpRight, 68],
-    [Direction.Up, 72],
-    [Direction.UpLeft, 76],
-    [Direction.Left, 80],
-    [Direction.DownLeft, 84],
-  ];
-
-  walkDirections.forEach(([dir, startFrame]) => {
-    const frames = [
-      String(startFrame),
-      String(startFrame + 1),
-      String(startFrame + 2),
-      String(startFrame + 3)
-    ];
-    animMap.set(`walk_${dir}`, new Animation(frames, 'repeat', 0.125));
-  });
-
-  const punchDirections: [Direction, number][] = [
-    [Direction.Down, 8],
-    [Direction.DownRight, 14],
-    [Direction.Right, 20],
-    [Direction.UpRight, 26],
-    [Direction.Up, 32],
-    [Direction.UpLeft, 38],
-    [Direction.Left, 44],
-    [Direction.DownLeft, 44],
-  ];
-
-  punchDirections.forEach(([dir, startFrame]) => {
-    const frames = [
-      String(startFrame),
-      String(startFrame + 1),
-      String(startFrame + 2),
-      String(startFrame + 3),
-      String(startFrame + 4),
-      String(startFrame + 5),
-      String(startFrame + 5),
-      String(startFrame + 5),
-      String(startFrame + 5),
-      String(startFrame + 5),
-      String(startFrame + 5)
-    ];
-    animMap.set(`punch_${dir}`, new Animation(frames, 'repeat', 0.0415));
-  });
+  animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13', '13', '13', '13', '13', '13'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19', '19', '19', '19', '19', '19'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.Right}`, new Animation(['20', '21', '22', '23', '24', '25', '25', '25', '25', '25', '25'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.UpRight}`, new Animation(['26', '27', '28', '29', '30', '31', '31', '31', '31', '31', '31'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.Up}`, new Animation(['32', '33', '34', '35', '36', '37', '37', '37', '37', '37', '37'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.UpLeft}`, new Animation(['38', '39', '40', '41', '42', '43', '43', '43', '43', '43', '43'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.Left}`, new Animation(['44', '45', '46', '47', '48', '49', '49', '49', '49', '49', '49'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.DownLeft}`, new Animation(['50', '51', '52', '53', '54', '55', '55', '55', '55', '55', '55'], 'repeat', 0.0415));
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));

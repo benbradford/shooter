@@ -1919,6 +1919,18 @@
       "col": 6,
       "row": 32,
       "difficulty": "easy"
+    },
+    {
+      "col": 9,
+      "row": 38,
+      "difficulty": "medium"
+    }
+  ],
+  "skeletons": [
+    {
+      "col": 2,
+      "row": 34,
+      "difficulty": "easy"
     }
   ],
   "triggers": [
