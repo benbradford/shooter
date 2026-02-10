@@ -5241,6 +5241,33 @@
       "difficulty": "hard"
     }
   ],
+  "skeletons": [
+    {
+      "col": 28,
+      "row": 22,
+      "difficulty": "easy"
+    },
+    {
+      "col": 28,
+      "row": 22,
+      "difficulty": "easy"
+    },
+    {
+      "col": 28,
+      "row": 22,
+      "difficulty": "easy"
+    },
+    {
+      "col": 28,
+      "row": 22,
+      "difficulty": "easy"
+    },
+    {
+      "col": 34,
+      "row": 22,
+      "difficulty": "easy"
+    }
+  ],
   "triggers": [
     {
       "eventName": "trigger_g",

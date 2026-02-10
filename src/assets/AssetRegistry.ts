@@ -133,6 +133,17 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_key.png',
     type: 'image' as const,
   },
+  skeleton: {
+    key: 'skeleton',
+    path: 'assets/skeleton/skeleton-spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  bone_small: {
+    key: 'bone_small',
+    path: 'assets/skeleton/bone-small.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;

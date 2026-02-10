@@ -30,6 +30,13 @@ export type LevelThrower = {
   difficulty: 'easy' | 'medium' | 'hard';
 }
 
+export type LevelSkeleton = {
+  id?: string;
+  col: number;
+  row: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
 export type LevelTrigger = {
   eventName: string;
   triggerCells: Array<{ col: number; row: number }>;
@@ -53,6 +60,7 @@ export type LevelData = {
   robots?: LevelRobot[];
   bugBases?: LevelBugBase[];
   throwers?: LevelThrower[];
+  skeletons?: LevelSkeleton[];
   triggers?: LevelTrigger[];
   spawners?: LevelSpawner[];
   levelTheme?: LevelTheme;

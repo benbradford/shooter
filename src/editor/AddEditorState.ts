@@ -78,6 +78,29 @@ export class AddEditorState extends EditorState {
     throwerButton.on('pointerdown', () => {
       this.scene.enterAddThrowerMode();
     });
+
+    // Skeleton button
+    const skeletonButton = this.scene.add.text(centerX, centerY + 180, 'Skeleton', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    skeletonButton.setOrigin(0.5);
+    skeletonButton.setScrollFactor(0);
+    skeletonButton.setInteractive({ useHandCursor: true });
+    skeletonButton.setDepth(1000);
+    this.buttons.push(skeletonButton);
+
+    skeletonButton.on('pointerover', () => {
+      skeletonButton.setBackgroundColor('#555555');
+    });
+    skeletonButton.on('pointerout', () => {
+      skeletonButton.setBackgroundColor('#333333');
+    });
+    skeletonButton.on('pointerdown', () => {
+      this.scene.enterAddSkeletonMode();
+    });
   }
 
   onExit(): void {

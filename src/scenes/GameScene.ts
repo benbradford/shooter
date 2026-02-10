@@ -8,6 +8,8 @@ import { createStalkingRobotEntity } from "../ecs/entities/robot/StalkingRobotEn
 import { createBugBaseEntity } from "../ecs/entities/bug/BugBaseEntity";
 import { createBugEntity } from "../ecs/entities/bug/BugEntity";
 import { createThrowerEntity } from "../ecs/entities/thrower/ThrowerEntity";
+import { createSkeletonEntity } from "../ecs/entities/skeleton/SkeletonEntity";
+import { createBoneProjectileEntity } from "../ecs/entities/skeleton/BoneProjectileEntity";
 import { createGrenadeEntity } from "../ecs/entities/projectile/GrenadeEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { createTriggerEntity } from "../trigger/TriggerEntity";
@@ -296,6 +298,43 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    // Spawn skeletons from level data
+    if (level.skeletons && level.skeletons.length > 0) {
+      for (const skeletonData of level.skeletons) {
+        if (!this.isEditorMode && skeletonData.id) {
+          continue;
+        }
+
+        const skeleton = createSkeletonEntity({
+          scene: this,
+          col: skeletonData.col,
+          row: skeletonData.row,
+          grid: this.grid,
+          playerEntity: player,
+          difficulty: skeletonData.difficulty as EnemyDifficulty,
+          onThrowBone: (x, y, dirX, dirY) => {
+            const gridPos = skeleton.require(GridPositionComponent);
+            const bone = createBoneProjectileEntity({
+              scene: this,
+              x,
+              y,
+              dirX,
+              dirY,
+              grid: this.grid,
+              layer: gridPos.currentLayer
+            });
+            this.entityManager.add(bone);
+          }
+        });
+
+        if (skeletonData.id) {
+          (skeleton as { skeletonId?: string }).skeletonId = skeletonData.id;
+        }
+
+        this.entityManager.add(skeleton);
+      }
+    }
+
     // Spawn triggers from level data
     if (level.triggers && level.triggers.length > 0) {
       for (const triggerData of level.triggers) {
@@ -342,6 +381,33 @@ export default class GameScene extends Phaser.Scene {
                 }
               });
               this.entityManager.add(thrower);
+              return;
+            }
+
+            const skeletonData = level.skeletons?.find(s => s.id === enemyId);
+            if (skeletonData) {
+              const skeleton = createSkeletonEntity({
+                scene: this,
+                col: skeletonData.col,
+                row: skeletonData.row,
+                grid: this.grid,
+                playerEntity: player,
+                difficulty: skeletonData.difficulty as EnemyDifficulty,
+                onThrowBone: (x, y, dirX, dirY) => {
+                  const gridPos = skeleton.require(GridPositionComponent);
+                  const bone = createBoneProjectileEntity({
+                    scene: this,
+                    x,
+                    y,
+                    dirX,
+                    dirY,
+                    grid: this.grid,
+                    layer: gridPos.currentLayer
+                  });
+                  this.entityManager.add(bone);
+                }
+              });
+              this.entityManager.add(skeleton);
             }
           }
         });

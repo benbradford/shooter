@@ -13,10 +13,12 @@ import { MoveEditorState, type MoveEditorStateProps } from "../editor/MoveEditor
 import { EditRobotEditorState } from "../editor/EditRobotEditorState";
 import { EditBugBaseEditorState } from "../editor/EditBugBaseEditorState";
 import { EditThrowerEditorState } from "../editor/EditThrowerEditorState";
+import { EditSkeletonEditorState } from "../editor/EditSkeletonEditorState";
 import { AddEditorState } from "../editor/AddEditorState";
 import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
 import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
+import { AddSkeletonEditorState } from "../editor/AddSkeletonEditorState";
 import { SpawnerEditorState } from "../editor/SpawnerEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
@@ -113,10 +115,12 @@ export default class EditorScene extends Phaser.Scene {
       editRobot: new EditRobotEditorState(this),
       editBugBase: new EditBugBaseEditorState(this),
       editThrower: new EditThrowerEditorState(this),
+      editSkeleton: new EditSkeletonEditorState(this),
       add: new AddEditorState(this),
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
       addThrower: new AddThrowerEditorState(this),
+      addSkeleton: new AddSkeletonEditorState(this),
       spawner: new SpawnerEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
@@ -304,6 +308,29 @@ export default class EditorScene extends Phaser.Scene {
     return throwers;
   }
 
+  private extractSkeletons(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelSkeleton[] {
+    const skeletons: import('../systems/level/LevelLoader').LevelSkeleton[] = [];
+    const skeletonEntities = entityManager.getByType('skeleton');
+
+    for (const skeleton of skeletonEntities) {
+      const transform = skeleton.get(TransformComponent);
+      const difficulty = skeleton.get(DifficultyComponent);
+
+      if (transform) {
+        const cell = grid.worldToCell(transform.x, transform.y);
+        const id = (skeleton as { skeletonId?: string }).skeletonId;
+
+        skeletons.push({
+          col: cell.col,
+          row: cell.row,
+          difficulty: difficulty?.difficulty ?? 'easy',
+          id: id ?? undefined
+        });
+      }
+    }
+    return skeletons;
+  }
+
   getCurrentLevelData(): LevelData {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
@@ -313,6 +340,7 @@ export default class EditorScene extends Phaser.Scene {
     const robots = this.extractRobots(entityManager, grid);
     const bugBases = this.extractBugBases(entityManager, grid);
     const throwers = this.extractThrowers(entityManager, grid);
+    const skeletons = this.extractSkeletons(entityManager, grid);
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
@@ -331,6 +359,7 @@ export default class EditorScene extends Phaser.Scene {
       robots: robots.length > 0 ? robots : undefined,
       bugBases: bugBases.length > 0 ? bugBases : undefined,
       throwers: throwers.length > 0 ? throwers : undefined,
+      skeletons: skeletons.length > 0 ? skeletons : undefined,
       triggers: existingLevelData.triggers,
       spawners: existingLevelData.spawners,
       levelTheme: existingLevelData.levelTheme
@@ -431,6 +460,14 @@ export default class EditorScene extends Phaser.Scene {
 
   enterEditThrowerMode(thrower: Entity): void {
     this.stateMachine.enter('editThrower', thrower);
+  }
+
+  enterAddSkeletonMode(): void {
+    this.stateMachine.enter('addSkeleton');
+  }
+
+  enterEditSkeletonMode(skeleton: Entity): void {
+    this.stateMachine.enter('editSkeleton', skeleton);
   }
 
   enterSpawnerMode(): void {
