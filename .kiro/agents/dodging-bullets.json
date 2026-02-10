@@ -16,6 +16,8 @@
     "npm test",
     "npm run test:headless",
     "convert",
-    "magick"
+    "magick",
+    "write",
+    "cd /Users/bebradfo/code/DodgingBullets/dodging-bullets *"
   ]
 }

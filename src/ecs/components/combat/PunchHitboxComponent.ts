@@ -14,8 +14,8 @@ export type PunchHitboxComponentProps = {
 export class PunchHitboxComponent implements Component {
   entity!: Entity;
   private readonly playerEntity: Entity;
-  private readonly dirX: number;
-  private readonly dirY: number;
+  readonly dirX: number;
+  readonly dirY: number;
   private lifetime: number = 0;
 
   constructor(props: PunchHitboxComponentProps) {

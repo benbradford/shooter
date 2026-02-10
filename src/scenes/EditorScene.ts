@@ -14,11 +14,13 @@ import { EditRobotEditorState } from "../editor/EditRobotEditorState";
 import { EditBugBaseEditorState } from "../editor/EditBugBaseEditorState";
 import { EditThrowerEditorState } from "../editor/EditThrowerEditorState";
 import { EditSkeletonEditorState } from "../editor/EditSkeletonEditorState";
+import { EditBulletDudeEditorState } from "../editor/EditBulletDudeEditorState";
 import { AddEditorState } from "../editor/AddEditorState";
 import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
 import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
 import { AddSkeletonEditorState } from "../editor/AddSkeletonEditorState";
+import { AddBulletDudeEditorState } from "../editor/AddBulletDudeEditorState";
 import { SpawnerEditorState } from "../editor/SpawnerEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
@@ -116,11 +118,13 @@ export default class EditorScene extends Phaser.Scene {
       editBugBase: new EditBugBaseEditorState(this),
       editThrower: new EditThrowerEditorState(this),
       editSkeleton: new EditSkeletonEditorState(this),
+      editBulletDude: new EditBulletDudeEditorState(this),
       add: new AddEditorState(this),
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
       addThrower: new AddThrowerEditorState(this),
       addSkeleton: new AddSkeletonEditorState(this),
+      addBulletDude: new AddBulletDudeEditorState(this),
       spawner: new SpawnerEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
@@ -331,6 +335,29 @@ export default class EditorScene extends Phaser.Scene {
     return skeletons;
   }
 
+  private extractBulletDudes(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelBulletDude[] {
+    const bulletDudes: import('../systems/level/LevelLoader').LevelBulletDude[] = [];
+    const bulletDudeEntities = entityManager.getByType('bulletdude');
+
+    for (const bulletDude of bulletDudeEntities) {
+      const transform = bulletDude.get(TransformComponent);
+      const difficulty = bulletDude.get(DifficultyComponent);
+
+      if (transform) {
+        const cell = grid.worldToCell(transform.x, transform.y);
+        const id = (bulletDude as { spawnerId?: string }).spawnerId;
+
+        bulletDudes.push({
+          col: cell.col,
+          row: cell.row,
+          difficulty: difficulty?.difficulty ?? 'easy',
+          id: id ?? undefined
+        });
+      }
+    }
+    return bulletDudes;
+  }
+
   getCurrentLevelData(): LevelData {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
@@ -341,6 +368,7 @@ export default class EditorScene extends Phaser.Scene {
     const bugBases = this.extractBugBases(entityManager, grid);
     const throwers = this.extractThrowers(entityManager, grid);
     const skeletons = this.extractSkeletons(entityManager, grid);
+    const bulletDudes = this.extractBulletDudes(entityManager, grid);
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
@@ -360,6 +388,7 @@ export default class EditorScene extends Phaser.Scene {
       bugBases: bugBases.length > 0 ? bugBases : undefined,
       throwers: throwers.length > 0 ? throwers : undefined,
       skeletons: skeletons.length > 0 ? skeletons : undefined,
+      bulletDudes: bulletDudes.length > 0 ? bulletDudes : undefined,
       triggers: existingLevelData.triggers,
       spawners: existingLevelData.spawners,
       levelTheme: existingLevelData.levelTheme
@@ -468,6 +497,14 @@ export default class EditorScene extends Phaser.Scene {
 
   enterEditSkeletonMode(skeleton: Entity): void {
     this.stateMachine.enter('editSkeleton', skeleton);
+  }
+
+  enterAddBulletDudeMode(): void {
+    this.stateMachine.enter('addBulletDude');
+  }
+
+  enterEditBulletDudeMode(bulletDude: Entity): void {
+    this.stateMachine.enter('editBulletDude', bulletDude);
   }
 
   enterSpawnerMode(): void {

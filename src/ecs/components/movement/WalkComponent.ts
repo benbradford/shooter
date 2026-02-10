@@ -76,9 +76,7 @@ export class WalkComponent implements Component {
   }
 
   private updateMode2(facingInput: { dx: number; dy: number }): void {
-    if (facingInput.dx !== 0 || facingInput.dy !== 0) {
-      this.updateFacingDirection(facingInput.dx, facingInput.dy);
-    }
+    this.updateMode1(facingInput);
   }
 
   isMovementStopped(): boolean {

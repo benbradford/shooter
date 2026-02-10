@@ -101,6 +101,29 @@ export class AddEditorState extends EditorState {
     skeletonButton.on('pointerdown', () => {
       this.scene.enterAddSkeletonMode();
     });
+
+    // BulletDude button
+    const bulletDudeButton = this.scene.add.text(centerX, centerY + 240, 'BulletDude', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    bulletDudeButton.setOrigin(0.5);
+    bulletDudeButton.setScrollFactor(0);
+    bulletDudeButton.setInteractive({ useHandCursor: true });
+    bulletDudeButton.setDepth(1000);
+    this.buttons.push(bulletDudeButton);
+
+    bulletDudeButton.on('pointerover', () => {
+      bulletDudeButton.setBackgroundColor('#555555');
+    });
+    bulletDudeButton.on('pointerout', () => {
+      bulletDudeButton.setBackgroundColor('#333333');
+    });
+    bulletDudeButton.on('pointerdown', () => {
+      this.scene.enterAddBulletDudeMode();
+    });
   }
 
   onExit(): void {

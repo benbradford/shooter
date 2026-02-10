@@ -5268,6 +5268,13 @@
       "difficulty": "easy"
     }
   ],
+  "bulletDudes": [
+    {
+      "col": 11,
+      "row": 15,
+      "difficulty": "medium"
+    }
+  ],
   "triggers": [
     {
       "eventName": "trigger_g",

@@ -22,7 +22,7 @@ export class BugBurstComponent implements Component {
       frequency: 2.5,
       tint: [0x00bb00, 0x009900, 0x007700, 0x005500, 0x003300, 0x001100, 0x000000, 0xff6666],
       blendMode: 'NORMAL',
-      emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 16) }
+      emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 16) } as Phaser.Types.GameObjects.Particles.EmitZoneData
     });
 
     emitter.setDepth(1000);

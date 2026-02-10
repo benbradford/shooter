@@ -1,7 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
-import { SpriteComponent } from '../core/SpriteComponent';
 
 export class BaseExplosionComponent implements Component {
   entity!: Entity;
@@ -29,7 +28,7 @@ export class BaseExplosionComponent implements Component {
 
   explode(): void {
     const transform = this.entity.require(TransformComponent);
-    
+
     this.originalX = transform.x;
     this.originalY = transform.y;
 
@@ -40,7 +39,7 @@ export class BaseExplosionComponent implements Component {
       duration: 3000,
       ease: 'Power2'
     });
-    
+
     // Add shake effect by tweening offset values
     this.scene.tweens.add({
       targets: this,
@@ -69,7 +68,7 @@ export class BaseExplosionComponent implements Component {
         const emitter = this.scene.add.particles(transform.x + offsetX, transform.y + offsetY, 'smoke', {
           speed: { min: 40, max: 80 },
           angle: { min: 0, max: 360 },
-          scale: { start: 3.0, end: 0 },
+          scale: { start: 3, end: 0 },
           alpha: { start: 1, end: 0 },
           lifespan: 600,
           frequency: 10,

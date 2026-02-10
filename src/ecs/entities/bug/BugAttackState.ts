@@ -17,7 +17,6 @@ const SPRITE_FRAME_RIGHT = 12;
 export class BugAttackState implements IState {
   private readonly entity: Entity;
   private readonly playerEntity: Entity;
-  private readonly scene: Phaser.Scene;
   private elapsedMs = 0;
   private startX = 0;
   private startY = 0;
@@ -26,10 +25,9 @@ export class BugAttackState implements IState {
   private lastAttackTime = 0;
   private isLeaping = false;
 
-  constructor(entity: Entity, playerEntity: Entity, scene: Phaser.Scene) {
+  constructor(entity: Entity, playerEntity: Entity, _scene: Phaser.Scene) {
     this.entity = entity;
     this.playerEntity = playerEntity;
-    this.scene = scene;
   }
 
   onEnter(): void {
