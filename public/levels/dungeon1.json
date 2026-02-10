@@ -5243,23 +5243,23 @@
   ],
   "skeletons": [
     {
-      "col": 28,
-      "row": 22,
+      "col": 32,
+      "row": 16,
+      "difficulty": "easy"
+    },
+    {
+      "col": 23,
+      "row": 17,
+      "difficulty": "easy"
+    },
+    {
+      "col": 22,
+      "row": 23,
       "difficulty": "easy"
     },
     {
       "col": 28,
-      "row": 22,
-      "difficulty": "easy"
-    },
-    {
-      "col": 28,
-      "row": 22,
-      "difficulty": "easy"
-    },
-    {
-      "col": 28,
-      "row": 22,
+      "row": 13,
       "difficulty": "easy"
     },
     {

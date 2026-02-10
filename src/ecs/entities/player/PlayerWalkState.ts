@@ -15,7 +15,7 @@ export class PlayerWalkState implements IState {
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
     
-    this.lastAnimKey = `idle_${walk.lastDir}`;
+    this.lastAnimKey = `walk_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
   }
 
@@ -48,7 +48,7 @@ export class PlayerWalkState implements IState {
       return;
     }
 
-    const newKey = `idle_${walk.lastDir}`;
+    const newKey = `walk_${walk.lastDir}`;
     if (newKey !== this.lastAnimKey) {
       this.lastAnimKey = newKey;
       anim.animationSystem.play(newKey);

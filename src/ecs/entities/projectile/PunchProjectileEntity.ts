@@ -31,7 +31,7 @@ export function createPunchProjectileEntity(props: CreatePunchProjectileProps): 
   entity.add(new DamageComponent(damage));
 
   entity.add(new CollisionComponent({
-    box: { offsetX: -15, offsetY: -15, width: 30, height: 30 },
+    box: { offsetX: -22, offsetY: -22, width: 44, height: 44 },
     collidesWith: ['enemy'],
     onHit: () => {
       scene.time.delayedCall(0, () => entity.destroy());

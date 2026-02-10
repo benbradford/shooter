@@ -80,6 +80,27 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     animMap.set(`idle_${dir}`, new Animation([String(row)], 'static', 0));
   });
 
+  const walkDirections: [Direction, number][] = [
+    [Direction.Down, 56],
+    [Direction.DownRight, 60],
+    [Direction.Right, 64],
+    [Direction.UpRight, 68],
+    [Direction.Up, 72],
+    [Direction.UpLeft, 76],
+    [Direction.Left, 80],
+    [Direction.DownLeft, 84],
+  ];
+
+  walkDirections.forEach(([dir, startFrame]) => {
+    const frames = [
+      String(startFrame),
+      String(startFrame + 1),
+      String(startFrame + 2),
+      String(startFrame + 3)
+    ];
+    animMap.set(`walk_${dir}`, new Animation(frames, 'repeat', 0.125));
+  });
+
   const punchDirections: [Direction, number][] = [
     [Direction.Down, 8],
     [Direction.DownRight, 14],
