@@ -117,7 +117,15 @@ When asked to "update the docs":
     - HitFlashComponent usage
     - Particle system patterns
     - Shadow component
+    - Rotating projectiles
     - Combining effects
+
+## Implemented Enemies
+
+- **Stalking Robot**: Patrols waypoints, detects player, shoots fireballs
+- **Bug Base**: Spawns bugs that chase the player
+- **Thrower**: Runs toward player, throws grenades in arc
+- **Skeleton**: Pathfinds to player, stops periodically, throws rotating bone projectiles
 
 ## Key Concepts
 

@@ -87,6 +87,8 @@ shadow.init();  // Must call init() after add()
 - Player: `{ scale: 2, offsetX: -5, offsetY: 43 }`
 - Robot: `{ scale: 2, offsetX: 0, offsetY: 60 }`
 - Fireball: `{ scale: 1.4, offsetX: 0, offsetY: 50 }`
+- Skeleton: `{ scale: 1.5, offsetX: 0, offsetY: 40 }`
+- Bone projectile: `{ scale: 0.5, offsetX: 0, offsetY: 10 }`
 
 The shadow:
 - Uses the `shadow` texture from `assets/generic/shadow.png`
@@ -556,10 +558,24 @@ export class MyState implements IState {
 
 ### Sprite Sheet Frame Layout
 
-Current player sprite sheet (256x512):
-- 4 columns: idle, walk1, walk2, walk3
-- 8 rows: down, up, left, right, upleft, upright, downleft, downright
-- Frame index = `row * 4 + column`
+**Attacker sprite sheet** (672×672 pixels, 12×12 grid, 56×56 frames):
+- Frames 0-7: Idle (8 directions)
+- Frames 8-55: Cross-punch (6 frames × 8 directions)
+- Frames 56-87: Walking (4 frames × 8 directions)
+- Frames 88-115: Surprise uppercut (7 frames × 4 directions)
+- Frames 116-127: Running slide (6 frames × 2 directions)
+- Frames 128-133: Running (6 frames, south only)
+- Frames 134-140: Throw object (7 frames, east only)
+
+See `docs/attacker-spritesheet-reference.md` for complete frame mapping.
+
+**Skeleton sprite sheet** (288×1344 pixels, 6 columns × 28 rows, 48×48 frames):
+- Rows 0-7: Idle (1 frame, 8 directions)
+- Rows 8-15: Walk (4 frames, 8 directions)
+- Rows 16-23: Lead Jab (3 frames, 8 directions)
+- Rows 24-27: Taking Punch (6 frames, 4 directions)
+
+See `public/assets/skeleton/README.md` for frame calculation formulas.
 
 ### Component Update Order Rules
 

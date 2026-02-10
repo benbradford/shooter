@@ -34,7 +34,7 @@ export function createBoneProjectileEntity(props: CreateBoneProjectileProps): En
   const sprite = entity.add(new SpriteComponent(scene, 'bone_small', transform));
   sprite.sprite.setDepth(100);
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 10 }));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 30 }));
   shadow.init();
 
   entity.add(new DamageComponent(BONE_DAMAGE));

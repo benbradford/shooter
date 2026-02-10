@@ -1,6 +1,6 @@
 # Adding Enemies
 
-This guide explains how to add new enemy types to the game, based on the implementation of the Stalking Robot enemy.
+This guide explains how to add new enemy types to the game, based on implementations of the Stalking Robot, Thrower, and Skeleton enemies.
 
 ## Overview
 
@@ -9,6 +9,76 @@ Enemies in this game use:
 - **State Machines** - Different AI states (patrol, alert, attack, etc.)
 - **Grid-based positioning** - Enemies use col/row coordinates
 - **Level JSON** - Enemies are defined in level files
+- **Difficulty System** - Easy/medium/hard presets for health, speed, and attack parameters
+- **Spawner Support** - Optional IDs for event-driven spawning
+- **Distance-based AI** - Chase/idle behavior based on pathfinding distance and pixel distance
+
+## AI Distance Management
+
+Many enemies should only chase the player when within reasonable range to avoid cross-map pursuit.
+
+### Distance Check Pattern
+
+Use both pathfinding distance (cells) and pixel distance with hysteresis:
+
+```typescript
+// Constants
+const MAX_CHASE_DISTANCE_CELLS = 16;    // Path length limit
+const MAX_CHASE_DISTANCE_PX = 800;      // Straight-line distance limit
+const CHASE_STOP_MULTIPLIER = 1.5;      // Hysteresis to prevent flickering
+
+// In idle state - start chasing
+const path = this.pathfinder.findPath(enemyCol, enemyRow, playerCol, playerRow, layer);
+const pathDistance = path ? path.length : Infinity;
+const pixelDistance = Math.hypot(playerX - enemyX, playerY - enemyY);
+
+// Both conditions must be true to start chase
+if (pathDistance <= MAX_CHASE_DISTANCE_CELLS && pixelDistance <= MAX_CHASE_DISTANCE_PX) {
+  stateMachine.enter('chase');
+}
+
+// In chase state - stop chasing
+// Either condition can stop chase (use 1.5x multiplier for hysteresis)
+if (pathDistance > MAX_CHASE_DISTANCE_CELLS * CHASE_STOP_MULTIPLIER || 
+    pixelDistance > MAX_CHASE_DISTANCE_PX * CHASE_STOP_MULTIPLIER) {
+  stateMachine.enter('idle'); // or 'patrol'
+}
+```
+
+**Why both distances?**
+- **Path distance:** Accounts for walls, stairs, and actual navigation complexity
+- **Pixel distance:** Prevents chasing through walls when no path exists
+- **Hysteresis (1.5x):** Prevents rapid state switching at threshold boundaries
+
+**When to check:**
+- **Idle state:** Check periodically (every 500-1000ms) or after idle duration
+- **Chase state:** Check during path recalculation (every 500ms)
+- **Patrol state:** Check when player enters line of sight
+
+### Spawner Distance Checks
+
+Spawners should also respect distance limits:
+
+```typescript
+export class BugSpawnerComponent implements Component {
+  update(delta: number): void {
+    // Don't spawn if base is dead
+    const health = this.entity.get(HealthComponent);
+    if (health && health.getHealth() <= 0) {
+      return;
+    }
+
+    const distance = Math.hypot(playerX - spawnerX, playerY - spawnerY);
+    
+    // Don't spawn if player too far
+    if (distance > MAX_SPAWN_DISTANCE_PX) {
+      return;
+    }
+    
+    // Spawn logic...
+  }
+}
+```
 
 ## Step-by-Step Process
 
@@ -558,6 +628,64 @@ if (levelData?.triggers) {
 // Not in renderSceneDebug() - only shows when C key pressed
 ```
 
+### ❌ Animations Not Playing
+
+**Problem:** Enemy uses Phaser animations but they don't play or show wrong frames.
+
+**Cause:** Animation not called on state enter, or called every frame restarting it.
+
+**Solution:** Track current animation and only call play() when it changes:
+```typescript
+private currentAnimKey = '';
+
+onUpdate(delta: number): void {
+  const animKey = `walk_${direction}`;
+  if (this.currentAnimKey !== animKey) {
+    this.currentAnimKey = animKey;
+    sprite.sprite.play(animKey);
+  }
+}
+
+// Reset on state enter to force animation restart
+onEnter(): void {
+  this.currentAnimKey = '';
+}
+```
+
+### ❌ Rotating Projectiles Don't Rotate
+
+**Problem:** RotatingProjectileComponent added but sprite doesn't rotate.
+
+**Cause:** SpriteComponent resets sprite.angle every frame from TransformComponent.rotation.
+
+**Solution:** Update TransformComponent.rotation instead of sprite.angle:
+```typescript
+// ❌ Wrong - gets overwritten by SpriteComponent
+sprite.sprite.angle += rotationDelta;
+
+// ✅ Correct - persists through SpriteComponent update
+transform.rotation += rotationDelta; // In radians
+
+// Update order must be: RotatingProjectileComponent → TransformComponent → SpriteComponent
+```
+
+### ❌ Attack Cooldown Not Working
+
+**Problem:** Enemy attacks continuously without cooldown.
+
+**Cause:** Cooldown configured but not tracked in state.
+
+**Solution:** Track cooldown timer in walk state:
+```typescript
+private attackCooldownMs = 0;
+
+onUpdate(delta: number): void {
+  this.attackCooldownMs -= delta;
+  
+  if (distToPlayer <= attackRange && this.attackCooldownMs <= 0) {
+    this.attackCooldownMs = config.attackCooldownMs;
+    stateMachine.enter('attack');
+  }
 ### ❌ Entity Not Updating
 
 **Problem:** Entity exists but component logic doesn't run.

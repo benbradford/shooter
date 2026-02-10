@@ -2,7 +2,7 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 28,
+    "x": 15,
     "y": 19
   },
   "cells": [
@@ -5272,10 +5272,6 @@
     {
       "eventName": "trigger_g",
       "triggerCells": [
-        {
-          "col": 34,
-          "row": 25
-        },
         {
           "col": 28,
           "row": 21

@@ -68,7 +68,7 @@ export default class GameScene extends Phaser.Scene {
 
     createThrowerAnimations(this);
 
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(globalThis.location.search);
     const levelParam = params.get('level');
     if (levelParam) {
       this.currentLevelName = levelParam;

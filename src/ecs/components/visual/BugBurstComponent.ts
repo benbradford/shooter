@@ -14,23 +14,24 @@ export class BugBurstComponent implements Component {
     const transform = this.entity.require(TransformComponent);
 
     const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
-      speed: { min: 50, max: 120 },
+      speed: { min: 100, max: 200 },
       angle: { min: 0, max: 360 },
-      scale: { start: 0.5, end: 0 },
+      scale: { start: 0.4, end: 0 },
       alpha: { start: 1, end: 0 },
-      lifespan: 800,
-      frequency: 10,
-      tint: [0x000000, 0x0000ff,0x0000ff, 0x00ff00],
-      blendMode: 'NORMAL'
+      lifespan: 600,
+      frequency: 2.5,
+      tint: [0x00bb00, 0x009900, 0x007700, 0x005500, 0x003300, 0x001100, 0x000000, 0xff6666],
+      blendMode: 'NORMAL',
+      emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 16) }
     });
 
     emitter.setDepth(1000);
 
-    this.scene.time.delayedCall(250, () => {
+    this.scene.time.delayedCall(200, () => {
       emitter.stop();
     });
 
-    this.scene.time.delayedCall(750, () => {
+    this.scene.time.delayedCall(600, () => {
       emitter.destroy();
     });
   }

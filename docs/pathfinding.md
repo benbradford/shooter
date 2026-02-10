@@ -12,6 +12,78 @@ The `Pathfinder` class uses the A* algorithm to find the shortest path between t
 - Wall obstacles (higher layer cells are impassable)
 - Movement directions (4-direction or 8-direction)
 
+## Using Pathfinding in States
+
+### Patrol State Pattern
+
+Patrol states should use pathfinding to navigate to waypoints, not direct movement:
+
+```typescript
+export class RobotPatrolState implements IState {
+  private readonly pathfinder: Pathfinder;
+  private path: Array<{ col: number; row: number }> | null = null;
+  private currentPathIndex: number = 0;
+  private pathRecalcTimer: number = 0;
+
+  constructor(entity: Entity, grid: Grid, playerEntity: Entity) {
+    this.pathfinder = new Pathfinder(grid);
+  }
+
+  onUpdate(delta: number): void {
+    const waypoint = patrol.getCurrentWaypoint();
+    
+    // Recalculate path periodically
+    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL_MS || this.path === null) {
+      this.pathRecalcTimer = 0;
+      const robotCell = this.grid.worldToCell(transform.x, transform.y);
+
+      this.path = this.pathfinder.findPath(
+        robotCell.col, robotCell.row,
+        waypoint.col, waypoint.row,
+        gridPos.currentLayer,
+        false,  // allowLayerChanges
+        true    // allowDiagonals
+      );
+      this.currentPathIndex = 0;
+    }
+
+    // Follow path node by node
+    if (this.path && this.path.length > 1) {
+      if (this.currentPathIndex === 0) this.currentPathIndex = 1;
+      
+      if (this.currentPathIndex < this.path.length) {
+        const targetNode = this.path[this.currentPathIndex];
+        const nodeX = targetNode.col * this.grid.cellSize + this.grid.cellSize / 2;
+        const nodeY = targetNode.row * this.grid.cellSize + this.grid.cellSize / 2;
+        
+        const distance = Math.hypot(nodeX - transform.x, nodeY - transform.y);
+        
+        if (distance < 10) {
+          this.currentPathIndex++;  // Move to next node
+        } else {
+          // Move toward current node
+          const dirX = (nodeX - transform.x) / distance;
+          const dirY = (nodeY - transform.y) / distance;
+          transform.x += dirX * speed * (delta / 1000);
+          transform.y += dirY * speed * (delta / 1000);
+        }
+      }
+    }
+  }
+}
+```
+
+**Why use pathfinding in patrol?**
+- Handles obstacles and walls automatically
+- Works with multi-level terrain and stairs
+- Prevents getting stuck on level geometry
+- More robust than direct movement
+
+**When to recalculate:**
+- Every 1000ms (1 second) for patrol states
+- Every 500ms for chase states (more responsive)
+- When reaching a waypoint (clear path, force recalc)
+
 ### Key Concepts
 
 **Movement Directions:**

@@ -67,7 +67,8 @@ export default defineConfig([
       "unicorn/no-negated-condition": "warn",
       "unicorn/prefer-number-properties": "warn",
       "unicorn/prefer-class-fields": "error",
-      "unicorn/no-useless-fallback-in-spread": "error"
+      "unicorn/no-useless-fallback-in-spread": "error",
+      "unicorn/prefer-global-this": "error"
     }
   },
   tseslint.configs.recommended,

@@ -2,148 +2,101 @@
 
 **File:** `public/assets/attacker/attacker-spritesheet.png`  
 **Frame Size:** 56x56 pixels  
-**Total Frames:** 53 frames (0-52)
+**Sheet Dimensions:** 672×672 pixels (12×12 grid)
+**Total Frames:** 141 frames (3 empty slots at end)
 
 ## Frame Layout
 
 ### Idle Rotations (Frames 0-7)
 Single frame per direction, no animation.
 
-| Frame | Direction    |
-|-------|-------------|
-| 0     | South       |
-| 1     | South-East  |
-| 2     | East        |
-| 3     | North-East  |
-| 4     | North       |
-| 5     | North-West  |
-| 6     | West        |
-| 7     | South-West  |
+**Critical:** Frame order is based on alphabetical sorting of source files, NOT Direction enum order.
 
-### Cross-Punch Animation (Frames 8-52)
-6-frame punch animation for each direction (except south-west which has 7 frames).
+| Frame | Direction    | Source File         | Direction Enum |
+|-------|-------------|---------------------|----------------|
+| 0     | East        | rotations/east.png  | Direction.Right = 4 |
+| 1     | North-East  | rotations/north-east.png | Direction.UpRight = 6 |
+| 2     | North-West  | rotations/north-west.png | Direction.UpLeft = 5 |
+| 3     | North       | rotations/north.png | Direction.Up = 2 |
+| 4     | South-East  | rotations/south-east.png | Direction.DownRight = 8 |
+| 5     | South-West  | rotations/south-west.png | Direction.DownLeft = 7 |
+| 6     | South       | rotations/south.png | Direction.Down = 1 |
+| 7     | West        | rotations/west.png  | Direction.Left = 3 |
 
-| Frames  | Direction    | Frame Count |
-|---------|-------------|-------------|
-| 8-13    | West        | 6 frames    |
-| 14-19   | South-West  | 6 frames    |
-| 20-26   | South-West  | 7 frames    |
-| 27-32   | South       | 6 frames    |
-| 33-38   | South-East  | 6 frames    |
-| 39-44   | East        | 6 frames    |
-| 45-50   | North-East  | 6 frames    |
-| 51-52   | North       | 2 frames    |
+### Cross-Punch Animation (Frames 8-55)
+6-frame punch animation for each direction (8 directions × 6 frames = 48 frames).
 
-**Note:** The cross-punch animation is incomplete - only 2 frames exist for North direction.
+| Frames  | Direction    |
+|---------|-------------|
+| 8-13    | South       |
+| 14-19   | South-East  |
+| 20-25   | East        |
+| 26-31   | North-East  |
+| 32-37   | North       |
+| 38-43   | North-West  |
+| 44-49   | West        |
+| 50-55   | South-West  |
 
-## Available Animations (from metadata.json)
+### Walking Animation (Frames 56-87)
+4-frame walk animation for each direction (8 directions × 4 frames = 32 frames).
 
-### Throw Object
-- **East only:** 7 frames
-- Located in `animations/throw-object/east/`
+| Frames  | Direction    |
+|---------|-------------|
+| 56-59   | South       |
+| 60-63   | South-East  |
+| 64-67   | East        |
+| 68-71   | North-East  |
+| 72-75   | North       |
+| 76-79   | North-West  |
+| 80-83   | West        |
+| 84-87   | South-West  |
 
-### Running Slide
-- **South:** 6 frames
-- **East:** 6 frames
-- Located in `animations/running-slide/{direction}/`
+### Surprise Uppercut (Frames 88-115)
+7-frame uppercut animation (4 directions × 7 frames = 28 frames).
 
-### Surprise Uppercut
-- **South:** 7 frames
-- **East:** 7 frames
-- Located in `animations/surprise-uppercut/{direction}/`
+| Frames  | Direction |
+|---------|-----------|
+| 88-94   | South     |
+| 95-101  | East      |
+| 102-108 | North     |
+| 109-115 | West      |
 
-### Walking
-- **South only:** 4 frames
-- Located in `animations/walking-5/south/`
+### Running Slide (Frames 116-127)
+6-frame slide animation (2 directions × 6 frames = 12 frames).
 
-### Running (6 frames)
-- **South only:** 6 frames
-- Located in `animations/running-6-frames/south/`
+| Frames  | Direction |
+|---------|-----------|
+| 116-121 | South     |
+| 122-127 | East      |
 
-## Creating Animations
+### Running (Frames 128-133)
+6-frame running animation (South only).
 
-### Example: Idle Animation
-```typescript
-// Single frame, no animation
-animationSystem.add('idle_down', new Animation({
-  frames: [0],
-  frameRate: 1,
-  style: 'static'
-}));
+### Throw Object (Frames 134-140)
+7-frame throw animation (East only).
 
-animationSystem.add('idle_right', new Animation({
-  frames: [2],
-  frameRate: 1,
-  style: 'static'
-}));
-```
+## Regenerating the Sprite Sheet
 
-### Example: Cross-Punch Animation
-```typescript
-// West punch (6 frames)
-animationSystem.add('punch_left', new Animation({
-  frames: [8, 9, 10, 11, 12, 13],
-  frameRate: 24,
-  style: 'static'
-}));
-
-// East punch (6 frames)
-animationSystem.add('punch_right', new Animation({
-  frames: [39, 40, 41, 42, 43, 44],
-  frameRate: 24,
-  style: 'static'
-}));
-
-// South punch (6 frames)
-animationSystem.add('punch_down', new Animation({
-  frames: [27, 28, 29, 30, 31, 32],
-  frameRate: 24,
-  style: 'static'
-}));
-```
-
-## Missing Animations
-
-The following animations are incomplete or missing:
-- **Cross-punch North:** Only 2 frames (51-52), needs 4 more frames
-- **Cross-punch North-West:** Not present in spritesheet
-- **Walk animations:** Only South direction available
-- **Running animations:** Only South direction available
-- **Throw/Uppercut:** Only South and East directions available
+See `docs/attacker-spritesheet-reference.md` for complete instructions on regenerating the spritesheet from source images.
 
 ## Usage in Code
 
+The player entity maps Direction enum values to frame indices:
+
 ```typescript
-// Register spritesheet
-this.load.spritesheet('attacker', 'assets/attacker/attacker-spritesheet.png', {
-  frameWidth: 56,
-  frameHeight: 56
-});
+// Idle - must explicitly map enum values to frame indices
+animMap.set(`idle_${Direction.Right}`, new Animation(['0'], 'static', 0));
+animMap.set(`idle_${Direction.UpRight}`, new Animation(['1'], 'static', 0));
+animMap.set(`idle_${Direction.UpLeft}`, new Animation(['2'], 'static', 0));
+animMap.set(`idle_${Direction.Up}`, new Animation(['3'], 'static', 0));
+animMap.set(`idle_${Direction.DownRight}`, new Animation(['4'], 'static', 0));
+animMap.set(`idle_${Direction.DownLeft}`, new Animation(['5'], 'static', 0));
+animMap.set(`idle_${Direction.Down}`, new Animation(['6'], 'static', 0));
+animMap.set(`idle_${Direction.Left}`, new Animation(['7'], 'static', 0));
 
-// Create animations
-const animationSystem = new AnimationSystem();
-
-// Idle (8 directions)
-for (let i = 0; i < 8; i++) {
-  const dir = ['down', 'downright', 'right', 'upright', 'up', 'upleft', 'left', 'downleft'][i];
-  animationSystem.add(`idle_${dir}`, new Animation({
-    frames: [i],
-    frameRate: 1,
-    style: 'static'
-  }));
-}
-
-// Punch (partial - only some directions)
-animationSystem.add('punch_left', new Animation({
-  frames: [8, 9, 10, 11, 12, 13],
-  frameRate: 24,
-  style: 'static'
-}));
+// Walk - direction order matches spritesheet
+animMap.set(`walk_${Direction.Down}`, new Animation(['56', '57', '58', '59'], 'repeat', 0.125));
+// ... etc
 ```
 
-## Recommendations
-
-1. **Complete cross-punch animation** for all 8 directions (currently missing north-west and incomplete north)
-2. **Add walk animations** for all 8 directions (currently only south)
-3. **Add running animations** for all 8 directions (currently only south)
-4. **Standardize frame counts** - all animations should have same number of frames per direction for consistency
+**Critical:** The idle frame order (0-7) does NOT match the Direction enum order due to alphabetical sorting of source files. Walk and punch animations follow the standard South→South-East→East→... order.

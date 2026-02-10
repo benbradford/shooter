@@ -171,10 +171,27 @@ entity.add(new CollisionComponent({
   lifespan: 800,                       // Particle lifetime (ms)
   frequency: 20,                       // Emit interval (ms) - continuous
   quantity: 8,                         // Number per emission - one-shot
-  tint: [0x000000, 0xff0000],         // Color tints
+  tint: [0x000000, 0xff0000],         // Color tints (hex colors)
   blendMode: 'ADD',                    // Additive blending for glow
+  emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 16) }  // Emission area
 }
 ```
+
+**Color tints:**
+- Use hex color values: `0xff0000` (red), `0x00ff00` (green), `0x0000ff` (blue)
+- Multiple colors create variety: `[0x000000, 0x333333, 0xf5f5dc]` (black, gray, beige)
+- Particles randomly pick from the array
+- Common palettes:
+  - Fire: `[0xffffff, 0xff8800, 0xff0000]` (white, orange, red)
+  - Smoke: `[0x000000, 0x333333, 0x666666]` (black to gray)
+  - Bug burst: `[0x00bb00, 0x009900, 0x007700, 0x000000]` (dark greens, black)
+  - Explosion: `[0x000000, 0xf5f5dc]` (black, beige)
+
+**Emission zones:**
+- Point emission (default): All particles from exact position
+- Circle: `emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, radius) }`
+- Rectangle: `emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(x, y, w, h) }`
+- Use for more natural, spread-out effects
 
 ### Emission Patterns
 
@@ -350,11 +367,38 @@ shadow.init();  // Must call after add()
 - Player: `{ scale: 2, offsetX: -5, offsetY: 43 }`
 - Robot: `{ scale: 2, offsetX: 0, offsetY: 60 }`
 - Fireball: `{ scale: 1.4, offsetX: 0, offsetY: 50 }`
+- Skeleton: `{ scale: 1.5, offsetX: 0, offsetY: 40 }`
+- Bone projectile: `{ scale: 0.5, offsetX: 0, offsetY: 10 }`
 
 The shadow:
 - Uses `shadow` texture from `assets/generic/shadow.png`
 - Automatically follows entity position
 - Renders at depth -1 (behind everything)
+
+## Rotating Projectiles
+
+For projectiles that should rotate while flying (bones, shurikens, etc.), use `RotatingProjectileComponent`:
+
+```typescript
+import { RotatingProjectileComponent } from '../../components/visual/RotatingProjectileComponent';
+
+// In projectile entity factory
+entity.add(new RotatingProjectileComponent(dirX));
+
+// Update order - MUST be before TransformComponent
+entity.setUpdateOrder([
+  RotatingProjectileComponent,  // Updates rotation
+  TransformComponent,            // Applies rotation to sprite
+  SpriteComponent,
+  ProjectileComponent
+]);
+```
+
+**Key points:**
+- Constructor takes `dirX` to determine rotation direction (clockwise if > 0, counter-clockwise if < 0)
+- Rotates at 720°/sec (2 full rotations per second)
+- Updates `TransformComponent.rotation` (not sprite.angle directly)
+- Must update BEFORE TransformComponent so SpriteComponent applies the rotation
 
 ## Combining Effects
 
@@ -381,6 +425,90 @@ if (knockback) {
   knockback.applyKnockback(dirX, dirY, force);
 }
 ```
+
+## Complex Destruction Effects
+
+For multi-stage destruction effects (scaling, shaking, particles), use a dedicated component with update loop:
+
+```typescript
+export class BaseExplosionComponent implements Component {
+  entity!: Entity;
+  private shakeOffsetX = 0;
+  private shakeOffsetY = 0;
+  private originalX = 0;
+  private originalY = 0;
+
+  update(): void {
+    // Apply shake offset to transform each frame
+    if (this.shakeOffsetX !== 0 || this.shakeOffsetY !== 0) {
+      const transform = this.entity.get(TransformComponent);
+      if (transform) {
+        transform.x = this.originalX + this.shakeOffsetX;
+        transform.y = this.originalY + this.shakeOffsetY;
+      }
+    }
+  }
+
+  explode(): void {
+    const transform = this.entity.require(TransformComponent);
+    this.originalX = transform.x;
+    this.originalY = transform.y;
+
+    // Scale down over time
+    this.scene.tweens.add({
+      targets: transform,
+      scale: 0,
+      duration: 3000,
+      ease: 'Power2'
+    });
+    
+    // Shake by tweening offset values
+    this.scene.tweens.add({
+      targets: this,
+      shakeOffsetX: 3,
+      shakeOffsetY: 3,
+      duration: 100,
+      yoyo: true,
+      repeat: 30,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        this.shakeOffsetX = 0;
+        this.shakeOffsetY = 0;
+      }
+    });
+
+    // Periodic particle bursts
+    for (let i = 0; i < 6; i++) {
+      this.scene.time.delayedCall(i * 500, () => {
+        const offsetX = (Math.random() - 0.5) * this.cellSize * 0.8;
+        const offsetY = (Math.random() - 0.5) * this.cellSize * 0.8;
+        
+        const emitter = this.scene.add.particles(transform.x + offsetX, transform.y + offsetY, 'smoke', {
+          speed: { min: 40, max: 80 },
+          angle: { min: 0, max: 360 },
+          scale: { start: 3.0, end: 0 },
+          lifespan: 600,
+          frequency: 10,
+          tint: [0x000000, 0xf5f5dc],
+          blendMode: 'NORMAL'
+        });
+        
+        emitter.setDepth(1000);
+        this.scene.time.delayedCall(150, () => emitter.stop());
+        this.scene.time.delayedCall(550, () => emitter.destroy());
+      });
+    }
+  }
+}
+```
+
+**Key patterns:**
+- **Shake effect:** Tween offset values, apply in update() to transform position
+- **Scale animation:** Tween `transform.scale` (not sprite properties)
+- **Periodic effects:** Use loop with `scene.time.delayedCall(i * interval, ...)`
+- **Random positions:** Offset within cell bounds for natural spread
+- **Component must be in update order** for shake to work
+- **Prevent hits during death:** Check health <= 0 at start of collision handler
 
 ## Troubleshooting
 

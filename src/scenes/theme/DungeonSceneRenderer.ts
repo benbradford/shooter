@@ -176,8 +176,8 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
           for (let step = 0; step < numSteps; step++) {
             const stepY = startY + step * stepHeight;
             
-            // Progressive shading: darker at bottom, lighter at top
-            const brightness = 1 - (step / (numSteps - 1));  // 1 to 0 (reversed)
+            // Progressive shading: darker at bottom, but not too dark
+            const brightness = 1 - (step / (numSteps - 1)) * 0.5;  // 1 to 0.5 (less contrast)
             const baseColor = LAYER1_FILL_COLOR;
             const darkenAmount = 0x202020;
             const shadedColor = baseColor - darkenAmount + Math.floor(darkenAmount * brightness);

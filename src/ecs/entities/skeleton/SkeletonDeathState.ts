@@ -3,10 +3,10 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 
-const DEATH_PARTICLE_COUNT_MIN = 3;
-const DEATH_PARTICLE_COUNT_MAX = 5;
-const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 150;
-const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 300;
+const DEATH_PARTICLE_COUNT_MIN = 2;
+const DEATH_PARTICLE_COUNT_MAX = 4;
+const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 125;
+const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 250;
 const DEATH_PARTICLE_LIFESPAN_MS = 300;
 
 export class SkeletonDeathState implements IState {
@@ -51,7 +51,7 @@ export class SkeletonDeathState implements IState {
         emitter.stop();
       });
 
-      this.scene.time.delayedCall(DEATH_PARTICLE_LIFESPAN_MS * 2, () => {
+      this.scene.time.delayedCall(DEATH_PARTICLE_LIFESPAN_MS * 3, () => {
         emitter.destroy();
       });
 

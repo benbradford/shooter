@@ -4,6 +4,7 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
+import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
 
 const LEAP_DURATION_MS = 700;
 const LEAP_HEIGHT_PX = 30;
@@ -95,19 +96,10 @@ export class BugAttackState implements IState {
       if (playerTransform) {
         const distance = Math.hypot(transform.x - playerTransform.x, transform.y - playerTransform.y);
         if (distance < 32) {
-          const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
-            speed: { min: 100, max: 200 },
-            angle: { min: 0, max: 360 },
-            scale: { start: 0.8, end: 0 },
-            alpha: { start: 1, end: 0 },
-            lifespan: 600,
-            frequency: 10,
-            tint: [0xff0000, 0x0000ff, 0x0000ff, 0xffff00],
-            blendMode: 'ADD'
-          });
-          emitter.setDepth(1000);
-          this.scene.time.delayedCall(200, () => emitter.stop());
-          this.scene.time.delayedCall(800, () => emitter.destroy());
+          const burst = this.entity.get(BugBurstComponent);
+          if (burst) {
+            burst.burst();
+          }
 
           const playerHealth = this.playerEntity.require(HealthComponent);
           playerHealth.takeDamage(10);

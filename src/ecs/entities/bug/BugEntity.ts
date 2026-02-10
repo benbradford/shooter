@@ -27,7 +27,7 @@ const BUG_DAMAGE = 10;
 
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
 
-const BUG_SCALE = 2 * SPRITE_SCALE;
+const BUG_SCALE = 1.5 * SPRITE_SCALE;
 
 export type CreateBugProps = {
   scene: Phaser.Scene;
@@ -129,7 +129,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
         if (burst) {
           burst.burst();
         }
-        
+
         entity.destroy();
       }
     }

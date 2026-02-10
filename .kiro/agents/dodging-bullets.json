@@ -8,5 +8,14 @@
     "file://docs/**/*.md",
     "file://src/ecs/index.ts"
   ],
-  "prompt": "file://dodging-bullets.md"
+  "prompt": "file://dodging-bullets.md",
+  "trustedCommands": [
+    "npm run build",
+    "npx eslint src --ext .ts",
+    "npm run dev",
+    "npm test",
+    "npm run test:headless",
+    "convert",
+    "magick"
+  ]
 }

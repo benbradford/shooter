@@ -15,6 +15,9 @@ const MIN_DISTANCE_PX = 150;
 const STALKING_SPEED_MULTIPLIER = 1.5;
 const ANIMATION_SPEED_MS = 100;
 const PATH_RECALC_INTERVAL_MS = 500;
+const MAX_CHASE_DISTANCE_CELLS = 12;
+const MAX_CHASE_DISTANCE_PX = 500;
+const CHASE_STOP_MULTIPLIER = 1.5;
 
 export class RobotStalkingState implements IState {
   private readonly entity: Entity;
@@ -101,8 +104,18 @@ export class RobotStalkingState implements IState {
         false,
         true
       );
-      
+
       this.currentPathIndex = 0;
+
+      // Check if player is too far away (use 1.5x multiplier for hysteresis)
+      const pathDistance = this.path ? this.path.length : Infinity;
+      const pixelDistance = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+
+      if (pathDistance > MAX_CHASE_DISTANCE_CELLS * CHASE_STOP_MULTIPLIER || pixelDistance > MAX_CHASE_DISTANCE_PX * CHASE_STOP_MULTIPLIER) {
+        const stateMachine = this.entity.require(StateMachineComponent);
+        stateMachine.stateMachine.enter('patrol');
+        return;
+      }
     }
   }
 
@@ -150,7 +163,7 @@ export class RobotStalkingState implements IState {
   private moveDirectly(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
     const playerTransform = this.playerEntity.get(TransformComponent);
     if (!playerTransform) return;
-    
+
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const distance = Math.hypot(dx, dy);

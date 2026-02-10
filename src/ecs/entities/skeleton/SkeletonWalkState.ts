@@ -14,6 +14,9 @@ const WALK_IDLE_PAUSE_MIN_MS = 3000;
 const WALK_IDLE_PAUSE_MAX_MS = 5000;
 const WALK_IDLE_PAUSE_DURATION_MS = 500;
 const PATH_RECALC_INTERVAL_MS = 500;
+const MAX_CHASE_DISTANCE_CELLS = 16;
+const MAX_CHASE_DISTANCE_PX = 800;
+const CHASE_STOP_MULTIPLIER = 1.5;
 
 export class SkeletonWalkState implements IState {
   private readonly pathfinder: Pathfinder;
@@ -105,6 +108,16 @@ export class SkeletonWalkState implements IState {
         true
       );
       this.currentPathIndex = 0;
+      
+      // Check if player is too far away (use 1.5x multiplier for hysteresis)
+      const pathDistance = this.path ? this.path.length : Infinity;
+      const pixelDistance = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+      
+      if (pathDistance > MAX_CHASE_DISTANCE_CELLS * CHASE_STOP_MULTIPLIER || pixelDistance > MAX_CHASE_DISTANCE_PX * CHASE_STOP_MULTIPLIER) {
+        const stateMachine = this.entity.require(StateMachineComponent);
+        stateMachine.stateMachine.enter('idle');
+        return;
+      }
     }
 
     if (this.path && this.path.length > 1) {

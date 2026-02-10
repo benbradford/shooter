@@ -57,6 +57,11 @@ export function createBugBaseEntity(
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
+        // Don't take damage if already dead
+        if (health.getHealth() <= 0) {
+          return;
+        }
+        
         health.takeDamage(10);
 
         const hitFlash = entity.get(HitFlashComponent);
@@ -72,7 +77,7 @@ export function createBugBaseEntity(
           if (explosion) {
             explosion.explode();
           }
-          scene.time.delayedCall(100, () => entity.destroy());
+          scene.time.delayedCall(3000, () => entity.destroy());
         }
 
         scene.time.delayedCall(0, () => other.destroy());
@@ -88,6 +93,7 @@ export function createBugBaseEntity(
     GridCellBlocker,
     BugSpawnerComponent,
     HitFlashComponent,
+    BaseExplosionComponent,
     DifficultyComponent,
     CollisionComponent
   ]);
