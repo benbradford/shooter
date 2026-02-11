@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_key', 'stone_stairs', 'stone_wall'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_key', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -11,14 +11,16 @@ export class TextureEditorState extends EditorState {
 
   onEnter(): void {
     const width = this.scene.cameras.main.width;
+    const height = this.scene.cameras.main.height;
 
     this.buttons.push(this.createBackButton());
 
-    // Texture selection panel
-    const panelX = width - 200;
+    const panelStartX = width - 200;
     const panelY = 80;
+    const buttonHeight = 60;
+    const maxButtonsPerColumn = Math.floor((height - panelY - 80) / buttonHeight);
 
-    const title = this.scene.add.text(panelX, panelY - 30, 'Textures', {
+    const title = this.scene.add.text(panelStartX, panelY - 30, 'Textures', {
       fontSize: '20px',
       color: '#ffffff',
       fontStyle: 'bold'
@@ -28,15 +30,23 @@ export class TextureEditorState extends EditorState {
     title.setDepth(1000);
     this.buttons.push(title);
 
-    // Create texture buttons
+    // Create texture buttons in columns
     AVAILABLE_TEXTURES.forEach((textureName, index) => {
-      const buttonY = panelY + index * 80;
-      const container = this.createTextureButton(panelX, buttonY, textureName);
+      const col = Math.floor(index / maxButtonsPerColumn);
+      const row = index % maxButtonsPerColumn;
+      const buttonX = panelStartX - col * 200;
+      const buttonY = panelY + row * buttonHeight;
+      const container = this.createTextureButton(buttonX, buttonY, textureName);
       this.textureButtons.push(container);
     });
 
-    // Clear button
-    this.clearButton = this.scene.add.text(panelX, panelY + AVAILABLE_TEXTURES.length * 80 + 20, 'Clear', {
+    // Clear button below last column
+    const lastCol = Math.floor((AVAILABLE_TEXTURES.length - 1) / maxButtonsPerColumn);
+    const lastRow = AVAILABLE_TEXTURES.length % maxButtonsPerColumn;
+    const clearX = panelStartX - lastCol * 200;
+    const clearY = panelY + lastRow * buttonHeight + 20;
+    
+    this.clearButton = this.scene.add.text(clearX, clearY, 'Clear', {
       fontSize: '18px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -70,18 +80,18 @@ export class TextureEditorState extends EditorState {
     container.setScrollFactor(0);
     container.setDepth(1000);
 
-    const bg = this.scene.add.rectangle(0, 0, 180, 70, 0x333333);
+    const bg = this.scene.add.rectangle(0, 0, 180, 55, 0x333333);
     bg.setInteractive({ useHandCursor: true });
     container.add(bg);
 
     const gameScene = this.scene.scene.get('game');
-    const preview = gameScene.add.image(0, -10, textureName);
-    preview.setDisplaySize(60, 60);
+    const preview = gameScene.add.image(0, -8, textureName);
+    preview.setDisplaySize(40, 40);
     preview.setScrollFactor(0);
     container.add(preview);
 
-    const label = this.scene.add.text(0, 30, textureName, {
-      fontSize: '12px',
+    const label = this.scene.add.text(0, 22, textureName, {
+      fontSize: '10px',
       color: '#ffffff'
     });
     label.setOrigin(0.5);

@@ -2,6 +2,14 @@ import type { CellProperty } from '../grid/Grid';
 
 export type LevelTheme = 'dungeon' | 'swamp';
 
+export type LevelBackground = {
+  floor_texture: string;
+  platform_texture: string;
+  stairs_texture: string;
+  wall_texture: string;
+  tile: number;
+}
+
 export type LevelCell = {
   col: number;
   row: number;
@@ -72,6 +80,7 @@ export type LevelData = {
   triggers?: LevelTrigger[];
   spawners?: LevelSpawner[];
   levelTheme?: LevelTheme;
+  background?: LevelBackground;
 }
 
 export class LevelLoader {

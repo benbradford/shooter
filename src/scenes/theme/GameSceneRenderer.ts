@@ -3,10 +3,13 @@ import type { LevelData } from '../../systems/level/LevelLoader';
 
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
+  protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
 
   constructor(protected readonly scene: Phaser.Scene) {
     this.graphics = scene.add.graphics();
     this.graphics.setDepth(-10);
+    this.edgeGraphics = scene.add.graphics();
+    this.edgeGraphics.setDepth(0);
   }
 
   abstract renderGrid(grid: Grid, levelData?: LevelData): void;
@@ -17,6 +20,7 @@ export abstract class GameSceneRenderer {
 
   destroy(): void {
     this.graphics.destroy();
+    this.edgeGraphics.destroy();
   }
 
   // eslint-disable-next-line complexity
@@ -28,12 +32,8 @@ export abstract class GameSceneRenderer {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
         
-        if (levelData) {
-          const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
-          if (levelCell?.backgroundTexture) {
-            continue;
-          }
-        }
+        const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
+        const hasTexture = !!levelCell?.backgroundTexture;
         
         const isStairs = cell && grid.isTransition(cell);
         const isElevated = cell && grid.getLayer(cell) >= 1;
@@ -41,15 +41,16 @@ export abstract class GameSceneRenderer {
         if (isElevated || isStairs) {
           const x = col * cellSize;
           const y = row * cellSize;
-          const topBarY = y + (cellSize * 0.2);
 
-          // Fill platforms (not stairs or walls)
-          if (!isStairs && !grid.isWall(cell)) {
+          // Fill platforms (not stairs or walls) - skip if has texture
+          if (!hasTexture && !isStairs && !grid.isWall(cell)) {
             this.graphics.fillStyle(this.getPlatformFillColor(), 1);
             this.graphics.fillRect(x, y, cellSize, cellSize);
           }
 
-          this.graphics.lineStyle(edgeThickness, edgeColor, 1);
+          // Use edgeGraphics for textured cells, regular graphics otherwise
+          const gfx = hasTexture ? this.edgeGraphics : this.graphics;
+          gfx.lineStyle(edgeThickness, edgeColor, 1);
 
           const currentLayer = isStairs ? grid.getLayer(cell) : grid.getLayer(cell);
           const isPlatform = !isStairs && !grid.isWall(cell);
@@ -67,18 +68,18 @@ export abstract class GameSceneRenderer {
             // Stairs: draw edge if adjacent is wall at any layer
             // eslint-disable-next-line max-depth
             if (isPlatform && (rightIsLower || (rightIsWall && rightIsSameLayer))) {
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              gfx.strokeLineShape(new Phaser.Geom.Line(
                 x + cellSize, y,
                 x + cellSize, y + cellSize
               ));
             } else if (isWall && rightIsLower) {
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(
+              gfx.strokeLineShape(new Phaser.Geom.Line(
                 x + cellSize, y,
                 x + cellSize, y + cellSize
               ));
             } else if (isStairs && rightIsWall) {
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(
-                x + cellSize, topBarY,
+              gfx.strokeLineShape(new Phaser.Geom.Line(
+                x + cellSize, y,
                 x + cellSize, y + cellSize
               ));
             }
@@ -96,35 +97,40 @@ export abstract class GameSceneRenderer {
             // Walls: only draw edge if adjacent is lower
             // Stairs: draw edge if adjacent is wall at any layer
             if (isPlatform && (leftIsLower || (leftIsWall && leftIsSameLayer))) {
-              this.graphics.lineStyle(edgeThickness / 2, edgeColor, 1);
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + cellSize));
-              this.graphics.lineStyle(edgeThickness, edgeColor, 1);
+              gfx.lineStyle(edgeThickness / 2, edgeColor, 1);
+              gfx.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + cellSize));
+              gfx.lineStyle(edgeThickness, edgeColor, 1);
             } else if (isWall && leftIsLower) {
-              this.graphics.lineStyle(edgeThickness / 2, edgeColor, 1);
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + cellSize));
-              this.graphics.lineStyle(edgeThickness, edgeColor, 1);
+              gfx.lineStyle(edgeThickness / 2, edgeColor, 1);
+              gfx.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + cellSize));
+              gfx.lineStyle(edgeThickness, edgeColor, 1);
             } else if (isStairs && leftIsWall) {
-              this.graphics.lineStyle(edgeThickness / 2, edgeColor, 1);
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x, y + cellSize));
-              this.graphics.lineStyle(edgeThickness, edgeColor, 1);
+              gfx.lineStyle(edgeThickness / 2, edgeColor, 1);
+              gfx.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + cellSize));
+              gfx.lineStyle(edgeThickness, edgeColor, 1);
             }
           }
 
           if (row > 0 && grid.getLayer(grid.cells[row - 1][col]) < currentLayer && !grid.isTransition(grid.cells[row - 1][col])) {
             // Don't draw top edge for stairs (they have the bar instead)
             if (!isStairs) {
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + cellSize, y));
+              gfx.strokeLineShape(new Phaser.Geom.Line(x, y, x + cellSize, y));
             }
           }
 
           if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) < currentLayer && grid.isWall(cell)) {
-            const topBarY = y + (cellSize * 0.2);
+            // Only draw top edge line if no texture
+            if (!hasTexture) {
+              gfx.lineStyle(edgeThickness, edgeColor, 1);
+              gfx.strokeLineShape(new Phaser.Geom.Line(x, y, x + cellSize, y));
+            }
 
-            this.graphics.lineStyle(edgeThickness, edgeColor, 1);
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, topBarY, x + cellSize, topBarY));
-
-            const seed = col * 1000 + row;
-            this.renderWallPattern(x, y, cellSize, topBarY, seed);
+            // Skip wall pattern if cell has texture
+            if (!hasTexture) {
+              const topBarY = y + (cellSize * 0.2);
+              const seed = col * 1000 + row;
+              this.renderWallPattern(x, y, cellSize, topBarY, seed);
+            }
           }
         }
       }

@@ -7,7 +7,7 @@ import { ASSET_REGISTRY, type AssetKey } from './AssetRegistry';
  * @param keys - Optional array of asset keys to load. If not provided, loads all assets
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'fireball', 'fire', 'shadow', 'vignette', 'bug', 'bug_base', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall'];
+  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'fireball', 'fire', 'shadow', 'vignette', 'bug', 'bug_base', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor'];
   // TODO I would like it if we had additional preload of assets for those that are included in the scene (and any dependent assets on those, such as bullets / grenades etc.)
   keysToLoad.forEach((key: AssetKey) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

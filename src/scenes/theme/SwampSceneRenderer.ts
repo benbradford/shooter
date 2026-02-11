@@ -24,7 +24,8 @@ export class SwampSceneRenderer extends GameSceneRenderer {
 
   renderGrid(grid: Grid, levelData?: LevelData): void {
     this.graphics.clear();
-    this.renderTransitionSteps(grid);
+    this.edgeGraphics.clear();
+    this.renderTransitionSteps(grid, levelData);
     this.renderPlatformsAndWalls(grid, this.cellSize, levelData);
     this.renderShadows(grid);
   }
@@ -57,29 +58,30 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     }
   }
 
-  private renderTransitionSteps(grid: Grid): void {
+  private renderTransitionSteps(grid: Grid, levelData?: LevelData): void {
     for (let row = 0; row < grid.rows; row++) {
       for (let col = 0; col < grid.cols; col++) {
         const cell = grid.getCell(col, row);
         if (cell && grid.isTransition(cell)) {
+          const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
+          if (levelCell?.backgroundTexture) {
+            continue;
+          }
+          
           const x = col * this.cellSize;
           const y = row * this.cellSize;
 
-          // Fill top 20% with platform color
-          const topBarY = y + (this.cellSize * 0.2);
-          this.graphics.fillStyle(COBBLE_COLOR_1, 1);
-          this.graphics.fillRect(x, y, this.cellSize, this.cellSize * 0.2);
+          // Draw top edge line at very top
+          this.graphics.lineStyle(8, 0x2a3a2e, 1);
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
 
           const stepCount = 4;
-          const startY = topBarY;
-          const availableHeight = this.cellSize * 0.8;
-          const stepHeight = availableHeight / stepCount;
+          const stepHeight = this.cellSize / stepCount;
 
           for (let i = 0; i < stepCount; i++) {
-            const stepY = startY + i * stepHeight;
+            const stepY = y + i * stepHeight;
             
-            // Progressive shading: darker at bottom, lighter at top
-            const brightness = 1 - (i / (stepCount - 1));  // 1 to 0 (reversed)
+            const brightness = 1 - (i / (stepCount - 1));
             const shadedColor = COBBLE_COLOR_1 - 0x202020 + Math.floor(0x202020 * brightness);
             
             this.graphics.fillStyle(shadedColor, 1);
