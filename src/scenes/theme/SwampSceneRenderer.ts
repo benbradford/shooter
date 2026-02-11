@@ -1,4 +1,5 @@
 import type { Grid } from '../../systems/grid/Grid';
+import type { LevelData } from '../../systems/level/LevelLoader';
 import { GameSceneRenderer } from './GameSceneRenderer';
 
 const WALL_EDGE_COLOR = 0x2a3a2e;
@@ -21,10 +22,10 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     return COBBLE_COLOR_1;
   }
 
-  renderGrid(grid: Grid): void {
+  renderGrid(grid: Grid, levelData?: LevelData): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
-    this.renderPlatformsAndWalls(grid, this.cellSize);
+    this.renderPlatformsAndWalls(grid, this.cellSize, levelData);
     this.renderShadows(grid);
   }
 

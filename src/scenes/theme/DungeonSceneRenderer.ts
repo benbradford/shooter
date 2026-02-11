@@ -1,4 +1,5 @@
 import type { Grid } from '../../systems/grid/Grid';
+import type { LevelData } from '../../systems/level/LevelLoader';
 import { GameSceneRenderer } from './GameSceneRenderer';
 
 const LAYER1_FILL_COLOR = 0x4a4a5e;
@@ -18,10 +19,10 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     return LAYER1_FILL_COLOR;
   }
 
-  renderGrid(grid: Grid): void {
+  renderGrid(grid: Grid, levelData?: LevelData): void {
     this.graphics.clear();
     this.renderTransitionSteps(grid);
-    this.renderPlatformsAndWalls(grid, this.cellSize);
+    this.renderPlatformsAndWalls(grid, this.cellSize, levelData);
     this.renderShadows(grid);
   }
 

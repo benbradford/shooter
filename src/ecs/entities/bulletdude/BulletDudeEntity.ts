@@ -112,20 +112,17 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
         }
 
         const stateMachine = entity.require(StateMachineComponent);
-        const currentState = (stateMachine.stateMachine as any).currentKey;
+        const currentState = (stateMachine.stateMachine as unknown as { currentKey?: string }).currentKey;
         
         if (health.getHealth() <= 0) {
           if (currentState !== 'dying') {
             (stateMachine.stateMachine as StateMachine<void | { hitDirX: number; hitDirY: number }>).enter('dying', { hitDirX: lastHitDirX, hitDirY: lastHitDirY });
           }
+        } else if (currentState === 'stunned') {
+          const stunnedState = (stateMachine.stateMachine as unknown as { currentState?: { onEnter?: (props: { data: { hitDirX: number; hitDirY: number } }) => void } }).currentState;
+          stunnedState?.onEnter?.({ data: { hitDirX: lastHitDirX, hitDirY: lastHitDirY } });
         } else {
-          if (currentState === 'stunned') {
-            // Force re-enter stunned state by calling onEnter directly
-            const stunnedState = (stateMachine.stateMachine as any).currentState;
-            stunnedState?.onEnter?.({ data: { hitDirX: lastHitDirX, hitDirY: lastHitDirY } });
-          } else {
-            (stateMachine.stateMachine as StateMachine<void | { hitDirX: number; hitDirY: number }>).enter('stunned', { hitDirX: lastHitDirX, hitDirY: lastHitDirY });
-          }
+          (stateMachine.stateMachine as StateMachine<void | { hitDirX: number; hitDirY: number }>).enter('stunned', { hitDirX: lastHitDirX, hitDirY: lastHitDirY });
         }
       }
     }

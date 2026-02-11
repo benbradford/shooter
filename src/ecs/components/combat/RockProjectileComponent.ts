@@ -50,6 +50,7 @@ export class RockProjectileComponent implements Component {
     this.dirY = dy / length;
   }
 
+  // eslint-disable-next-line complexity
   update(delta: number): void {
     if (this.hasHit) return;
 

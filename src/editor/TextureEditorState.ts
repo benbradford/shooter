@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_key'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_key', 'stone_stairs', 'stone_wall'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -16,9 +16,9 @@ export class TextureEditorState extends EditorState {
 
     // Texture selection panel
     const panelX = width - 200;
-    const panelY = 150;
+    const panelY = 80;
 
-    const title = this.scene.add.text(panelX, panelY - 50, 'Textures', {
+    const title = this.scene.add.text(panelX, panelY - 30, 'Textures', {
       fontSize: '20px',
       color: '#ffffff',
       fontStyle: 'bold'

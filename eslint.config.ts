@@ -45,7 +45,6 @@ export default defineConfig([
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "@typescript-eslint/default-param-last": "error",
       "@typescript-eslint/prefer-nullish-coalescing": "warn",
-      "@typescript-eslint/prefer-at": "warn",
       "no-dupe-else-if": "error",
       "no-else-return": "error",
       "no-lonely-if": "error",

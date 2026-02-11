@@ -197,7 +197,7 @@ export class Grid {
           data.backgroundTexture
         );
         sprite.setDisplaySize(this.cellSize, this.cellSize);
-        sprite.setDepth(-100);
+        sprite.setDepth(-5);
         this.backgroundSprites.set(key, sprite);
       }
     }
@@ -244,7 +244,7 @@ export class Grid {
     this.graphics.clear();
 
     const gameScene = this.scene as GameScene;
-    gameScene.renderGrid(this);
+    gameScene.renderGrid(this, levelData);
 
     if (!this.isGridDebugEnabled) {
       if (this.isSceneDebugEnabled) {
@@ -277,11 +277,6 @@ export class Grid {
 
         this.graphics.fillStyle(layerColor, layerAlpha);
         this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-
-        if (this.isTransition(cell)) {
-          this.graphics.fillStyle(0x0000ff, 0.5);
-          this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-        }
 
         this.graphics.lineStyle(1, 0xffffff, 0.3);
         this.graphics.strokeRect(x + 0.5, y + 0.5, this.cellSize, this.cellSize);

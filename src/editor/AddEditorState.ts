@@ -7,12 +7,12 @@ export class AddEditorState extends EditorState {
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
     const centerX = width / 2;
-    const centerY = height / 2;
+    const startY = height * 0.25;
 
     const backButton = this.createBackButton();
     this.buttons.push(backButton);
 
-    const robotButton = this.scene.add.text(centerX, centerY, 'Robot', {
+    const robotButton = this.scene.add.text(centerX, startY, 'Robot', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -34,7 +34,7 @@ export class AddEditorState extends EditorState {
       this.scene.enterAddRobotMode();
     });
 
-    const bugBaseButton = this.scene.add.text(centerX, centerY + 60, 'Bug Base', {
+    const bugBaseButton = this.scene.add.text(centerX, startY + 60, 'Bug Base', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -57,7 +57,7 @@ export class AddEditorState extends EditorState {
     });
 
     // Thrower button
-    const throwerButton = this.scene.add.text(centerX, centerY + 120, 'Thrower', {
+    const throwerButton = this.scene.add.text(centerX, startY + 120, 'Thrower', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -80,7 +80,7 @@ export class AddEditorState extends EditorState {
     });
 
     // Skeleton button
-    const skeletonButton = this.scene.add.text(centerX, centerY + 180, 'Skeleton', {
+    const skeletonButton = this.scene.add.text(centerX, startY + 180, 'Skeleton', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -103,7 +103,7 @@ export class AddEditorState extends EditorState {
     });
 
     // BulletDude button
-    const bulletDudeButton = this.scene.add.text(centerX, centerY + 240, 'BulletDude', {
+    const bulletDudeButton = this.scene.add.text(centerX, startY + 240, 'BulletDude', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',

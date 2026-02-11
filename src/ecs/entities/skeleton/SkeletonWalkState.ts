@@ -49,6 +49,7 @@ export class SkeletonWalkState implements IState {
     this.currentAnimKey = '';
   }
 
+  // eslint-disable-next-line complexity
   onUpdate(delta: number): void {
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);

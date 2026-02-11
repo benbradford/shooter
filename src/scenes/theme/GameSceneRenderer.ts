@@ -1,4 +1,5 @@
 import type { Grid } from '../../systems/grid/Grid';
+import type { LevelData } from '../../systems/level/LevelLoader';
 
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
@@ -8,7 +9,7 @@ export abstract class GameSceneRenderer {
     this.graphics.setDepth(-10);
   }
 
-  abstract renderGrid(grid: Grid): void;
+  abstract renderGrid(grid: Grid, levelData?: LevelData): void;
   abstract renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image };
   protected abstract renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void;
   protected abstract getEdgeColor(): number;
@@ -19,28 +20,28 @@ export abstract class GameSceneRenderer {
   }
 
   // eslint-disable-next-line complexity
-  protected renderPlatformsAndWalls(grid: Grid, cellSize: number): void {
+  protected renderPlatformsAndWalls(grid: Grid, cellSize: number, levelData?: LevelData): void {
     const edgeThickness = 8;
     const edgeColor = this.getEdgeColor();
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
+        
+        if (levelData) {
+          const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+          if (levelCell?.backgroundTexture) {
+            continue;
+          }
+        }
+        
         const isStairs = cell && grid.isTransition(cell);
         const isElevated = cell && grid.getLayer(cell) >= 1;
-        
+
         if (isElevated || isStairs) {
           const x = col * cellSize;
           const y = row * cellSize;
           const topBarY = y + (cellSize * 0.2);
-
-          if (cell.backgroundTexture) {
-            const sprite = this.scene.add.image(x, y, cell.backgroundTexture);
-            sprite.setOrigin(0, 0);
-            sprite.setDisplaySize(cellSize, cellSize);
-            sprite.setDepth(-100);
-            continue;
-          }
 
           // Fill platforms (not stairs or walls)
           if (!isStairs && !grid.isWall(cell)) {
@@ -60,7 +61,7 @@ export abstract class GameSceneRenderer {
             const rightIsWall = grid.isWall(rightCell);
             const rightIsSameLayer = rightLayer === currentLayer;
             const isWall = grid.isWall(cell);
-            
+
             // Platforms: only draw edge if adjacent is lower or wall at same layer
             // Walls: only draw edge if adjacent is lower
             // Stairs: draw edge if adjacent is wall at any layer
@@ -90,7 +91,7 @@ export abstract class GameSceneRenderer {
             const leftIsWall = grid.isWall(leftCell);
             const leftIsSameLayer = leftLayer === currentLayer;
             const isWall = grid.isWall(cell);
-            
+
             // Platforms: only draw edge if adjacent is lower or wall at same layer
             // Walls: only draw edge if adjacent is lower
             // Stairs: draw edge if adjacent is wall at any layer

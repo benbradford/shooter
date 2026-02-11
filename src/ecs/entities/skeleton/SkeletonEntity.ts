@@ -74,8 +74,52 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
 
   entity.add(new CollisionComponent({
     box: SKELETON_ENTITY_COLLISION_BOX,
-    collidesWith: ['player_projectile'],
+    collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
+      if (other.tags.has('player')) {
+        const transform = entity.require(TransformComponent);
+        const gridPos = entity.require(GridPositionComponent);
+        const otherTransform = other.require(TransformComponent);
+        
+        const dx = transform.x - otherTransform.x;
+        const dy = transform.y - otherTransform.y;
+        const distance = Math.hypot(dx, dy);
+        
+        if (distance > 0) {
+          const dirX = dx / distance;
+          const dirY = dy / distance;
+          
+          const skeletonBox = SKELETON_ENTITY_COLLISION_BOX;
+          const skeletonHalfWidth = skeletonBox.width / 2;
+          const skeletonHalfHeight = skeletonBox.height / 2;
+          
+          const playerCollision = other.get(CollisionComponent);
+          if (!playerCollision) return;
+          
+          const playerBox = playerCollision.box;
+          const playerHalfWidth = playerBox.width / 2;
+          const playerHalfHeight = playerBox.height / 2;
+          
+          const minSeparation = Math.hypot(
+            skeletonHalfWidth + playerHalfWidth,
+            skeletonHalfHeight + playerHalfHeight
+          );
+          
+          const pushDistance = minSeparation - distance + 1;
+          const newX = transform.x + dirX * pushDistance;
+          const newY = transform.y + dirY * pushDistance;
+          
+          const newCell = grid.worldToCell(newX, newY);
+          const cell = grid.getCell(newCell.col, newCell.row);
+          
+          if (cell?.layer === gridPos.currentLayer && !cell.properties.has('wall') && !cell.properties.has('platform')) {
+            transform.x = newX;
+            transform.y = newY;
+          }
+        }
+        return;
+      }
+      
       if (other.tags.has('player_projectile')) {
         if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
           return;

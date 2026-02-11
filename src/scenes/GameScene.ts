@@ -129,8 +129,8 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  renderGrid(grid: Grid): void {
-    this.sceneRenderer.renderGrid(grid);
+  renderGrid(grid: Grid, levelData?: LevelData): void {
+    this.sceneRenderer.renderGrid(grid, levelData);
   }
 
   private initializeScene(): void {

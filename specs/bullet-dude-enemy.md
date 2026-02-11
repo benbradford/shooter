@@ -208,7 +208,7 @@ export const BULLET_DUDE_DIFFICULTY_CONFIG = {
 ## Stunned State Logic
 
 ### On Enter
-- Apply knockback: 100px in direction opposite to damage source
+- Apply knockback: 100px in direction of the hit (from projectile/punch direction)
 - Use tween for smooth knockback animation (200ms duration, Quad.easeOut)
 - Check for wall collision during knockback (don't move into walls)
 - Activate `HitFlashComponent` for visual feedback
@@ -219,6 +219,7 @@ export const BULLET_DUDE_DIFFICULTY_CONFIG = {
 - No movement
 - No rotation
 - Just hold idle pose
+- **Can be hit again**: If hit while stunned, `onEnter` is called directly to reset timer and apply new knockback (allows continuous stunning)
 
 ### On Exit
 - Return to Shooting state (resume combat)
@@ -226,10 +227,11 @@ export const BULLET_DUDE_DIFFICULTY_CONFIG = {
 ## Dying State Logic
 
 - Duration: 1000ms
+- Apply knockback: 100px in direction of the killing hit (same as stunned state)
 - Alpha fade: 1.0 → 0.0 over 1s (linear tween)
 - Disable collision (cannot be hit during death)
 - Remove entity after fade completes
-- No particle effects (simple fade)
+- No particle effects (simple fade with knockback)
 
 ## Level Data Structure
 
@@ -350,6 +352,11 @@ const BULLET_DUDE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, hei
 const BULLET_DUDE_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
 const BULLET_DUDE_SHADOW_PROPS = { scale: 1.5, offsetX: 0, offsetY: 40 };
 
+// In BulletDudeConstants.ts (shared)
+const SPRITE_SCALE = 2;
+const BULLET_EMIT_OFFSET_SCALE = 0.3;
+// BULLET_DUDE_EMITTER_OFFSETS - shared between shooting and overheated states
+
 // In BulletDudeAlertState.ts
 const ALERT_DURATION_MS = 500;
 const EXCLAMATION_OFFSET_Y_PX = -120;
@@ -359,10 +366,9 @@ const EXCLAMATION_DEPTH = 3;
 const EXCLAMATION_ANIMATION_DURATION_MS = 300;
 
 // In BulletDudeOverheatedState.ts
-const OVERHEAT_CHASE_SPEED_PX_PER_SEC = 150;
+const OVERHEAT_CHASE_SPEED_PX_PER_SEC = 75; // Half speed
 const PATH_RECALC_INTERVAL_MS = 500;
 const FLAMES_PHASE_RATIO = 0.3; // 30% flames, 70% smoke
-const SPRITE_SCALE = 2; // For emitter offset calculations
 const CHASE_STOP_MULTIPLIER = 1.5; // Same as skeleton
 
 // In BulletDudeStunnedState.ts
@@ -371,11 +377,16 @@ const KNOCKBACK_DURATION_MS = 200;
 
 // In BulletDudeDyingState.ts
 const DEATH_FADE_DURATION_MS = 1000;
+const KNOCKBACK_DISTANCE_PX = 100;
+const KNOCKBACK_DURATION_MS = 200;
 
 // In BulletDudeBulletEntity.ts
 const BULLET_MAX_DISTANCE_PX = 800;
 const BULLET_DAMAGE = 10;
-const BULLET_SCALE = 1.5;
+const BULLET_SCALE = 1.125; // 0.75 of original 1.5
+
+// In BulletDudeAnimations.ts
+const WALK_ANIMATION_FPS = 4; // Half speed (was 8)
 ```
 
 ## Files to Create

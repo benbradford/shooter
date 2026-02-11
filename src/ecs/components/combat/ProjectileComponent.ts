@@ -59,6 +59,7 @@ export class ProjectileComponent implements Component {
     this.hasTraversedStairs = props.fromTransition;
   }
 
+  // eslint-disable-next-line complexity
   update(delta: number): void {
     const transform = this.entity.require(TransformComponent);
     

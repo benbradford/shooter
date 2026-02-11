@@ -241,13 +241,8 @@ Allows painting background textures onto grid cells.
 - Empty string (`''`) is passed to clear the texture
 
 **Adding New Textures:**
-1. Add texture file to `public/assets/{category}/` (e.g., `dungeon/`, `wooden/`)
-2. Resize to appropriate size and trim transparent borders:
-   ```bash
-   magick image.png -trim +repage image.png
-   sips -Z 200 image.png  # Resize if needed
-   ```
-3. Register in `src/assets/AssetRegistry.ts`:
+1. Add texture file to `public/assets/{category}/` (e.g., `cell_drawables/`, `dungeon/`)
+2. Register in `src/assets/AssetRegistry.ts`:
    ```typescript
    your_texture: {
      key: 'your_texture',
@@ -255,15 +250,15 @@ Allows painting background textures onto grid cells.
      type: 'image' as const,
    },
    ```
-4. Add to default assets in `src/assets/AssetLoader.ts`:
+3. Add to default assets in `src/assets/AssetLoader.ts`:
    ```typescript
    const keysToLoad: AssetKey[] = keys || [..., 'your_texture'];
    ```
-5. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`:
+4. Add texture name to `AVAILABLE_TEXTURES` array in `src/editor/TextureEditorState.ts`:
    ```typescript
    const AVAILABLE_TEXTURES = ['door_closed', 'dungeon_door', 'your_texture'];
    ```
-6. Run `npm run build && npx eslint src --ext .ts`
+5. Run `npm run build && npx eslint src --ext .ts`
 
 **Note:** Background textures are saved in the level JSON and persist across sessions.
 
