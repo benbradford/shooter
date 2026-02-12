@@ -391,7 +391,8 @@ export default class EditorScene extends Phaser.Scene {
       bulletDudes: bulletDudes.length > 0 ? bulletDudes : undefined,
       triggers: existingLevelData.triggers,
       spawners: existingLevelData.spawners,
-      levelTheme: existingLevelData.levelTheme
+      levelTheme: existingLevelData.levelTheme,
+      background: existingLevelData.background
     };
 
     return result;

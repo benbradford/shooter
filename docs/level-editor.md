@@ -240,6 +240,34 @@ Allows painting background textures onto grid cells.
 - Click cells to remove their background textures
 - Empty string (`''`) is passed to clear the texture
 
+**Level Background Config:**
+
+Levels can specify default textures for all cells of a type in the level JSON:
+
+```json
+{
+  "background": {
+    "floor_texture": "dungeon_floor",
+    "platform_texture": "stone_floor",
+    "stairs_texture": "stone_stairs",
+    "wall_texture": "stone_wall",
+    "tile": 10
+  }
+}
+```
+
+- `floor_texture`: Rendered in NxN chunks (specified by `tile`) at depth -1000 under everything
+- `platform_texture`: Not used - platforms show floor with dark overlay (0.3 alpha black)
+- `stairs_texture`: Rendered per cell at depth -5 (falls back to line rendering if not specified)
+- `wall_texture`: Rendered per cell at depth -5 (falls back to brick pattern if not specified)
+- `tile`: Chunk size for floor texture (e.g., 10 = 10x10 cells per sprite for performance)
+
+**Performance:**
+- Floor and cell textures are cached on first render (only created once)
+- Graphics operations (platform overlays, edges, shadows) run each frame
+- Use larger tile sizes (10+) for better performance
+- Custom `backgroundTexture` on individual cells overrides background config
+
 **Adding New Textures:**
 1. Add texture file to `public/assets/{category}/` (e.g., `cell_drawables/`, `dungeon/`)
 2. Register in `src/assets/AssetRegistry.ts`:

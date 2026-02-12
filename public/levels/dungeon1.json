@@ -1243,7 +1243,6 @@
       "row": 5,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -1252,7 +1251,6 @@
       "row": 5,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -3706,7 +3704,6 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -3715,7 +3712,6 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -3724,7 +3720,6 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -3749,7 +3744,6 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -3758,7 +3752,6 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
@@ -3767,7 +3760,6 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
