@@ -63,9 +63,9 @@ The player uses a melee punch attack system:
 
 **Player Sprite:**
 - Uses `attacker` sprite sheet (56x56 frames)
-- Row 0: 8-direction idle animations (frames 0-7)
-- Frames 47-52: Cross-punch animation (west-facing)
-- No walk animations (uses idle frames while moving)
+- Frames 0-7: 8-direction idle
+- Frames 8-55: Cross-punch (6 frames × 8 directions)
+- Frames 56-87: Walking (4 frames × 8 directions)
 
 ### Adding a Shadow to an Entity
 

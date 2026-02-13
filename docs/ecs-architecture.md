@@ -401,3 +401,45 @@ update(delta: number) {
 6. **Check existing first** - Extend before creating new
 7. **Update order matters** - Control component execution sequence
 8. **One type per entity** - Enforced at runtime
+
+## Animation System
+
+The `Animation` class supports four styles:
+
+- **`'static'`** - Single frame, no animation
+- **`'repeat'`** - Loops continuously (walk cycles)
+- **`'pingpong'`** - Plays forward then backward (breathing effects)
+- **`'once'`** - Plays through once and holds last frame (punch, attack)
+
+**Key behavior:** Calling `AnimationSystem.play()` with the same animation key resets it. This allows `'once'` animations to replay.
+
+## Common Patterns
+
+### Smooth Enemy Pushing
+
+When enemies should move away from the player on collision box overlap, use `KnockbackComponent` for smooth movement instead of instant teleport:
+
+```typescript
+entity.add(new CollisionComponent({
+  collidesWith: ['player'],
+  onHit: (other) => {
+    if (other.tags.has('player')) {
+      const transform = entity.require(TransformComponent);
+      const otherTransform = other.require(TransformComponent);
+      const knockback = entity.require(KnockbackComponent);
+      
+      const dx = transform.x - otherTransform.x;
+      const dy = transform.y - otherTransform.y;
+      const distance = Math.hypot(dx, dy);
+      
+      if (distance > 0 && !knockback.isActive) {
+        const dirX = dx / distance;
+        const dirY = dy / distance;
+        knockback.applyKnockback(dirX, dirY, 150);
+      }
+    }
+  }
+}));
+```
+
+This prevents jerky "teleport" behavior when player walks into enemies.

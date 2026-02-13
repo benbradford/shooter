@@ -87,8 +87,25 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
 
   entity.add(new CollisionComponent({
     box: BULLET_DUDE_ENTITY_COLLISION_BOX,
-    collidesWith: ['player_projectile'],
+    collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
+      if (other.tags.has('player')) {
+        const transform = entity.require(TransformComponent);
+        const otherTransform = other.require(TransformComponent);
+        const knockback = entity.require(KnockbackComponent);
+        
+        const dx = transform.x - otherTransform.x;
+        const dy = transform.y - otherTransform.y;
+        const distance = Math.hypot(dx, dy);
+        
+        if (distance > 0 && !knockback.isActive) {
+          const dirX = dx / distance;
+          const dirY = dy / distance;
+          knockback.applyKnockback(dirX, dirY, 150);
+        }
+        return;
+      }
+      
       if (other.tags.has('player_projectile')) {
         if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
           return;
