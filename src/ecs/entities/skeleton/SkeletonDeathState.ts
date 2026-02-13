@@ -3,11 +3,11 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 
-const DEATH_PARTICLE_COUNT_MIN = 2;
-const DEATH_PARTICLE_COUNT_MAX = 4;
-const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 125;
-const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 250;
-const DEATH_PARTICLE_LIFESPAN_MS = 300;
+const DEATH_PARTICLE_COUNT_MIN = 1;
+const DEATH_PARTICLE_COUNT_MAX = 3;
+const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 100;
+const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 225;
+const DEATH_PARTICLE_LIFESPAN_MS = 400;
 
 export class SkeletonDeathState implements IState {
   private hasSpawnedParticles = false;
@@ -37,11 +37,11 @@ export class SkeletonDeathState implements IState {
       const emitter = this.scene.add.particles(transform.x, transform.y, 'bone_small', {
         speed: { min: DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC, max: DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC },
         angle: { min: 0, max: 360 },
-        scale: { start: 0.2, end: 0 },
+        scale: { start: 0.17, end: 0 },
         alpha: { start: 1, end: 0 },
         lifespan: DEATH_PARTICLE_LIFESPAN_MS,
         quantity: particleCount,
-        rotate: { min: -45, max: 45 },
+        rotate: { min: -50, max: 50 },
         blendMode: 'NORMAL'
       });
 

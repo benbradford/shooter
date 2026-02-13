@@ -12,6 +12,7 @@ const MAX_SPAWN_DISTANCE_PX = 650;
 export class BugSpawnerComponent implements Component {
   entity!: Entity;
   private isActive = false;
+  private fullySpawned = false;
   private spawnTimer = 0;
   private readonly onSpawn: (col: number, row: number) => void;
   private readonly playerEntity: Entity;
@@ -26,11 +27,23 @@ export class BugSpawnerComponent implements Component {
     this.grid = grid;
   }
 
+  setFullySpawned(): void {
+    this.fullySpawned = true;
+    this.isActive = true;
+    this.spawnTimer = this.spawnIntervalMs;
+  }
+
+  isFullySpawned(): boolean {
+    return this.fullySpawned;
+  }
+
   registerBug(bug: Entity): void {
     this.activeBugs.add(bug);
   }
 
   update(delta: number): void {
+    if (!this.fullySpawned) return;
+    
     this.activeBugs = new Set([...this.activeBugs].filter(bug => !bug.isDestroyed));
 
     // Don't spawn if base is dead

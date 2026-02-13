@@ -56,7 +56,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
   sprite.sprite.setScale(BUG_SCALE);
   sprite.sprite.setDepth(10);
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 1.5, offsetX: 0, offsetY: 10 }));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 10 }));
   shadow.init();
 
   entity.add(new GridPositionComponent(col, row, BUG_GRID_COLLISION_BOX));

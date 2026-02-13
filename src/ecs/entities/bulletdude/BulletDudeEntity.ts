@@ -28,7 +28,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 const BULLET_DUDE_SCALE = 1.5;
 const BULLET_DUDE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 26, width: 32, height: 16 };
 const BULLET_DUDE_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -25, width: 32, height: 50 };
-const BULLET_DUDE_SHADOW_PROPS = { scale: 1.3, offsetX: 0, offsetY: 40 };
+const BULLET_DUDE_SHADOW_PROPS = { scale: 1.2, offsetX: -5, offsetY: 33 };
 const MELEE_DAMAGE = 10;
 const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_DURATION_MS = 300;
@@ -93,11 +93,11 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
         const transform = entity.require(TransformComponent);
         const otherTransform = other.require(TransformComponent);
         const knockback = entity.require(KnockbackComponent);
-        
+
         const dx = transform.x - otherTransform.x;
         const dy = transform.y - otherTransform.y;
         const distance = Math.hypot(dx, dy);
-        
+
         if (distance > 0 && !knockback.isActive) {
           const dirX = dx / distance;
           const dirY = dy / distance;
@@ -105,7 +105,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
         }
         return;
       }
-      
+
       if (other.tags.has('player_projectile')) {
         if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
           return;
@@ -134,7 +134,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
 
         const stateMachine = entity.require(StateMachineComponent);
         const currentState = (stateMachine.stateMachine as unknown as { currentKey?: string }).currentKey;
-        
+
         if (health.getHealth() <= 0) {
           if (currentState !== 'dying') {
             (stateMachine.stateMachine as StateMachine<void | { hitDirX: number; hitDirY: number }>).enter('dying', { hitDirX: lastHitDirX, hitDirY: lastHitDirY });

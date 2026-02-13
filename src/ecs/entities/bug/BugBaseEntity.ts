@@ -8,6 +8,7 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { BugSpawnerComponent } from '../../components/ai/BugSpawnerComponent';
 import { BaseExplosionComponent } from '../../components/visual/BaseExplosionComponent';
+import { BaseSpawnComponent } from '../../components/visual/BaseSpawnComponent';
 import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getBugBaseDifficultyConfig } from './BugBaseDifficulty';
@@ -36,11 +37,12 @@ export function createBugBaseEntity(
   const spriteY = worldPos.y + grid.cellSize / 2;
 
   const scale = (grid.cellSize / 153) * 1.5;
-  const transform = entity.add(new TransformComponent(spriteX, spriteY, 0, scale));
+  const transform = entity.add(new TransformComponent(spriteX, spriteY, 0, 0));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug_base', transform));
   sprite.sprite.setOrigin(0.5, 0.5);
   sprite.sprite.setDepth(-50);
+  sprite.sprite.setAlpha(0);
 
   entity.add(new GridPositionComponent(col, row, BASE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
@@ -49,6 +51,7 @@ export function createBugBaseEntity(
   const health = entity.add(new HealthComponent({ maxHealth: config.baseHealth }));
   entity.add(new HitFlashComponent());
   entity.add(new BaseExplosionComponent(scene, grid.cellSize));
+  entity.add(new BaseSpawnComponent(scene, playerEntity, grid.cellSize, scale));
   entity.add(new BugSpawnerComponent(playerEntity, onSpawnBug, config.spawnIntervalMs, grid));
   entity.add(new DifficultyComponent<EnemyDifficulty>(difficulty));
 
@@ -57,7 +60,11 @@ export function createBugBaseEntity(
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
-        // Don't take damage if already dead
+        const spawner = entity.require(BugSpawnerComponent);
+        if (!spawner.isFullySpawned()) {
+          return;
+        }
+        
         if (health.getHealth() <= 0) {
           return;
         }
@@ -69,7 +76,6 @@ export function createBugBaseEntity(
           hitFlash.flash(300);
         }
 
-        const spawner = entity.require(BugSpawnerComponent);
         spawner.activate();
 
         if (health.getHealth() <= 0) {
@@ -91,6 +97,7 @@ export function createBugBaseEntity(
     GridPositionComponent,
     GridCollisionComponent,
     GridCellBlocker,
+    BaseSpawnComponent,
     BugSpawnerComponent,
     HitFlashComponent,
     BaseExplosionComponent,

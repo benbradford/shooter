@@ -23,8 +23,8 @@ import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper'
 import type { Grid } from '../../../systems/grid/Grid';
 
 const SKELETON_SCALE = 1.6;
-const SKELETON_GRID_COLLISION_BOX = { offsetX: 6, offsetY: 16, width: 24, height: 16 };
-const SKELETON_ENTITY_COLLISION_BOX = { offsetX: -6, offsetY: -19, width: 24, height: 38 };
+const SKELETON_GRID_COLLISION_BOX = { offsetX: 6, offsetY: 16, width: 24, height: 14 };
+const SKELETON_ENTITY_COLLISION_BOX = { offsetX: -6, offsetY: -17, width: 24, height: 42 };
 const SKELETON_SHADOW_PROPS = { scale: 0.9, offsetX: 6, offsetY: 23 };
 const SKELETON_KNOCKBACK_FRICTION = 0.88;
 const SKELETON_KNOCKBACK_FORCE_PX = 400;
@@ -80,11 +80,11 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
         const transform = entity.require(TransformComponent);
         const otherTransform = other.require(TransformComponent);
         const knockback = entity.require(KnockbackComponent);
-        
+
         const dx = transform.x - otherTransform.x;
         const dy = transform.y - otherTransform.y;
         const distance = Math.hypot(dx, dy);
-        
+
         if (distance > 0 && !knockback.isActive) {
           const dirX = dx / distance;
           const dirY = dy / distance;
@@ -92,7 +92,7 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
         }
         return;
       }
-      
+
       if (other.tags.has('player_projectile')) {
         if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
           return;

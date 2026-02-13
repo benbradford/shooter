@@ -23,7 +23,6 @@ export abstract class GameSceneRenderer {
     this.graphics.clear();
     this.edgeGraphics.clear();
 
-    // Pass 1: Floor chunks (cache on first render)
     if (!this.isCached && levelData?.background) {
       const chunkSize = levelData.background.tile;
       const texture = levelData.background.floor_texture;
@@ -41,17 +40,11 @@ export abstract class GameSceneRenderer {
           this.floorSprites.push(sprite);
         }
       }
-    }
 
-    // Pass 2: All cells - textures, fills, edges
-    this.renderAllCells(grid, levelData);
-
-    // Mark as cached after both passes ONLY if background exists
-    if (!this.isCached && levelData?.background) {
+      this.renderAllCells(grid, levelData);
       this.isCached = true;
     }
 
-    // Shadows
     this.renderShadows(grid);
 
     if (!this.floorOverlay && levelData?.background) {
@@ -269,8 +262,8 @@ export abstract class GameSceneRenderer {
 
   private renderShadows(grid: Grid): void {
     const shadowWidth = 64;
-    const shadowSteps = 64;
-    const shadowIntensity = 0.6;
+    const shadowSteps = 32;
+    const shadowIntensity = 0.45;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -285,21 +278,48 @@ export abstract class GameSceneRenderer {
             const rightIsLower = grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell);
 
             if (rightIsLower) {
-              for (let i = 0; i < shadowSteps; i++) {
-                const alpha = shadowIntensity * (1 - i / shadowSteps);
-                const stepWidth = shadowWidth / shadowSteps;
-                this.graphics.fillStyle(0x000000, alpha);
-                this.graphics.fillRect(x + this.cellSize + i * stepWidth, y, stepWidth, this.cellSize);
+              const isTopRightCorner = row > 0 && grid.getLayer(grid.cells[row - 1][col]) < currentLayer && !grid.isTransition(grid.cells[row - 1][col]);
+
+              if (isTopRightCorner) {
+                for (let yOffset = 0; yOffset < shadowSteps; yOffset++) {
+                  for (let xOffset = 0; xOffset <= yOffset; xOffset++) {
+                    const distance = Math.min(xOffset, yOffset);
+                    const alpha = shadowIntensity * (1 - distance / shadowSteps);
+                    const step = shadowWidth / shadowSteps;
+                    this.graphics.fillStyle(0x000000, alpha);
+                    this.graphics.fillRect(x + this.cellSize + xOffset * step, y + yOffset * step, step, step);
+                  }
+                }
+              } else {
+                for (let i = 0; i < shadowSteps; i++) {
+                  const alpha = shadowIntensity * (1 - i / shadowSteps);
+                  const stepWidth = shadowWidth / shadowSteps;
+                  this.graphics.fillStyle(0x000000, alpha);
+                  this.graphics.fillRect(x + this.cellSize + i * stepWidth, y, stepWidth, this.cellSize);
+                }
               }
             }
           }
 
           if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) < currentLayer && !grid.isTransition(grid.cells[row + 1][col])) {
-            for (let i = 0; i < shadowSteps; i++) {
-              const alpha = shadowIntensity * (1 - i / shadowSteps);
-              const stepHeight = shadowWidth / shadowSteps;
-              this.graphics.fillStyle(0x000000, alpha);
-              this.graphics.fillRect(x, y + this.cellSize + i * stepHeight, this.cellSize, stepHeight);
+            const isBottomLeftCorner = col > 0 && grid.getLayer(grid.cells[row][col - 1]) < currentLayer && !grid.isTransition(grid.cells[row][col - 1]);
+
+            if (isBottomLeftCorner) {
+              for (let i = 0; i < shadowSteps; i++) {
+                for (let j = 0; j <= i; j++) {
+                  const alpha = shadowIntensity * (1 - i / shadowSteps);
+                  const step = shadowWidth / shadowSteps;
+                  this.graphics.fillStyle(0x000000, alpha);
+                  this.graphics.fillRect(x + this.cellSize - (j + 1) * step, y + this.cellSize + (i - j) * step, step, step);
+                }
+              }
+            } else {
+              for (let i = 0; i < shadowSteps; i++) {
+                const alpha = shadowIntensity * (1 - i / shadowSteps);
+                const stepHeight = shadowWidth / shadowSteps;
+                this.graphics.fillStyle(0x000000, alpha);
+                this.graphics.fillRect(x, y + this.cellSize + i * stepHeight, this.cellSize, stepHeight);
+              }
             }
           }
 
