@@ -64,7 +64,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
 
   const bugHealth = entity.add(new HealthComponent({ maxHealth: health }));
   entity.add(new HitFlashComponent(0x00ff00));
-  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS));
+  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
   entity.add(new BugHopComponent());
   entity.add(new BugBurstComponent(scene));
   entity.add(new DamageComponent(10));

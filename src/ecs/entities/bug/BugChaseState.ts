@@ -12,7 +12,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
 
 const FRAME_DURATION_MS = 125;
-const ATTACK_RANGE_PX = 50;
+const ATTACK_RANGE_PX = 100;
 const PATH_RECALC_INTERVAL_MS = 500;
 
 export class BugChaseState implements IState {

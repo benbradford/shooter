@@ -5263,14 +5263,9 @@
   ],
   "bulletDudes": [
     {
-      "col": 11,
-      "row": 15,
-      "difficulty": "medium"
-    },
-    {
       "col": 12,
       "row": 5,
-      "difficulty": "hard"
+      "difficulty": "easy"
     }
   ],
   "triggers": [

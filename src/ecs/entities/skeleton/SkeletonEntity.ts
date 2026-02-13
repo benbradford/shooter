@@ -67,7 +67,7 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new HealthComponent({ maxHealth: config.health }));
   entity.add(new HitFlashComponent());
-  entity.add(new KnockbackComponent(SKELETON_KNOCKBACK_FRICTION, HIT_DURATION_MS));
+  entity.add(new KnockbackComponent(SKELETON_KNOCKBACK_FRICTION, HIT_DURATION_MS, grid));
 
   let lastHitDirX = 0;
   let lastHitDirY = -1;
@@ -88,7 +88,7 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
         if (distance > 0 && !knockback.isActive) {
           const dirX = dx / distance;
           const dirY = dy / distance;
-          knockback.applyKnockback(dirX, dirY, 150);
+          knockback.applyKnockback(dirX, dirY, 250);
         }
         return;
       }
@@ -144,9 +144,9 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
     HitFlashComponent,
     SpriteComponent,
     ShadowComponent,
+    KnockbackComponent,
     GridPositionComponent,
     GridCollisionComponent,
-    KnockbackComponent,
     StateMachineComponent,
     CollisionComponent
   ]);

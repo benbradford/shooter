@@ -71,7 +71,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
 
   entity.add(new GridPositionComponent(col, row, BULLET_DUDE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
-  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS));
+  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new HealthComponent({ maxHealth: config.health }));
   entity.add(new HitFlashComponent());
@@ -101,7 +101,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
         if (distance > 0 && !knockback.isActive) {
           const dirX = dx / distance;
           const dirY = dy / distance;
-          knockback.applyKnockback(dirX, dirY, 150);
+          knockback.applyKnockback(dirX, dirY, 250);
         }
         return;
       }
@@ -155,7 +155,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
     shooting: new BulletDudeShootingState(entity, playerEntity, scene, entityManager),
     overheated: new BulletDudeOverheatedState(entity, playerEntity, scene, grid),
     stunned: new BulletDudeStunnedState(entity),
-    dying: new BulletDudeDyingState(entity, scene, grid)
+    dying: new BulletDudeDyingState(entity, scene)
   }, 'guard');
 
   entity.add(new StateMachineComponent(stateMachine));

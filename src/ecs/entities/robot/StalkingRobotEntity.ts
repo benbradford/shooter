@@ -91,7 +91,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     fieldOfView: ROBOT_FIELD_OF_VIEW
   }));
 
-  entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION_MS));
+  entity.add(new KnockbackComponent(ROBOT_KNOCKBACK_FRICTION, ROBOT_KNOCKBACK_DURATION_MS, grid));
 
   entity.add(new FireballPropertiesComponent(config.fireballSpeed, config.fireballDuration));
 

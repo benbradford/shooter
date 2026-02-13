@@ -1,6 +1,8 @@
 import type { Entity } from '../../Entity';
 import type { Component } from '../../Component';
 import { TransformComponent } from '../core/TransformComponent';
+import { GridPositionComponent } from './GridPositionComponent';
+import type { Grid } from '../../../systems/grid/Grid';
 
 export class KnockbackComponent implements Component {
   entity!: Entity;
@@ -11,7 +13,11 @@ export class KnockbackComponent implements Component {
   elapsed: number = 0;
   isActive: boolean = false;
 
-  constructor(friction: number, duration: number) {
+  constructor(
+    friction: number,
+    duration: number,
+    private readonly grid: Grid
+  ) {
     this.friction = friction;
     this.duration = duration;
   }
@@ -21,10 +27,32 @@ export class KnockbackComponent implements Component {
       return;
     }
 
-    this.velocityX = dirX * force;
-    this.velocityY = dirY * force;
-    this.elapsed = 0;
-    this.isActive = true;
+    const transform = this.entity.require(TransformComponent);
+    const gridPos = this.entity.require(GridPositionComponent);
+    
+    const targetX = transform.x + dirX * 50;
+    const targetY = transform.y + dirY * 50;
+    const targetCell = this.grid.worldToCell(targetX, targetY);
+    const cell = this.grid.getCell(targetCell.col, targetCell.row);
+    
+    if (cell && cell.layer === gridPos.currentLayer && !this.grid.isWall(cell)) {
+      this.velocityX = dirX * force;
+      this.velocityY = dirY * force;
+      this.elapsed = 0;
+      this.isActive = true;
+    } else {
+      const currentCell = this.grid.worldToCell(transform.x, transform.y);
+      const safeX = currentCell.col * this.grid.cellSize + this.grid.cellSize / 2;
+      const safeY = currentCell.row * this.grid.cellSize + this.grid.cellSize / 2;
+      transform.x = safeX;
+      transform.y = safeY;
+    }
+  }
+
+  stop(): void {
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.isActive = false;
   }
 
   update(delta: number): void {

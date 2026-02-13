@@ -71,15 +71,32 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new HealthComponent({ maxHealth: config.health }));
   entity.add(new HitFlashComponent());
-  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS));
+  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
 
   let lastHitDirX = 0;
   let lastHitDirY = -1;
 
   entity.add(new CollisionComponent({
     box: THROWER_ENTITY_COLLISION_BOX,
-    collidesWith: ['player_projectile'],
+    collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
+      if (other.tags.has('player')) {
+        const transform = entity.require(TransformComponent);
+        const otherTransform = other.require(TransformComponent);
+        const knockback = entity.require(KnockbackComponent);
+        
+        const dx = transform.x - otherTransform.x;
+        const dy = transform.y - otherTransform.y;
+        const distance = Math.hypot(dx, dy);
+        
+        if (distance > 0 && !knockback.isActive) {
+          const dirX = dx / distance;
+          const dirY = dy / distance;
+          knockback.applyKnockback(dirX, dirY, 250);
+        }
+        return;
+      }
+      
       if (other.tags.has('player_projectile')) {
         if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
           return;

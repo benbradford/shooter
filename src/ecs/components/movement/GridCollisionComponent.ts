@@ -7,6 +7,7 @@ import { WalkComponent } from './WalkComponent';
 import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
+import { KnockbackComponent } from './KnockbackComponent';
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -238,25 +239,24 @@ export class GridCollisionComponent implements Component {
       const yOnlyBlocked = this.checkCollision(this.previousX, newY, gridPos);
 
       const walk = this.entity.get(WalkComponent);
+      const knockback = this.entity.get(KnockbackComponent);
 
       if (xOnlyBlocked && yOnlyBlocked) {
-        // Both axes blocked - stop completely
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
+        knockback?.stop();
       } else if (yOnlyBlocked) {
-        // Only Y blocked - allow X movement
         transform.y = this.previousY;
         walk?.resetVelocity(false, true);
       } else if (xOnlyBlocked) {
-        // Only X blocked - allow Y movement
         transform.x = this.previousX;
         walk?.resetVelocity(true, false);
       } else {
-        // Diagonal blocked but neither axis alone - stop completely
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
+        knockback?.stop();
       }
     }
 
