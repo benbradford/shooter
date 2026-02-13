@@ -29,12 +29,12 @@ export class KnockbackComponent implements Component {
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
-    
+
     const targetX = transform.x + dirX * 50;
     const targetY = transform.y + dirY * 50;
     const targetCell = this.grid.worldToCell(targetX, targetY);
     const cell = this.grid.getCell(targetCell.col, targetCell.row);
-    
+
     if (cell && cell.layer === gridPos.currentLayer && !this.grid.isWall(cell)) {
       this.velocityX = dirX * force;
       this.velocityY = dirY * force;
@@ -44,8 +44,10 @@ export class KnockbackComponent implements Component {
       const currentCell = this.grid.worldToCell(transform.x, transform.y);
       const safeX = currentCell.col * this.grid.cellSize + this.grid.cellSize / 2;
       const safeY = currentCell.row * this.grid.cellSize + this.grid.cellSize / 2;
-      transform.x = safeX;
-      transform.y = safeY;
+      const nudgeX = (safeX - transform.x) * 0.2;
+      const nudgeY = (safeY - transform.y) * 0.2;
+      transform.x += nudgeX;
+      transform.y += nudgeY;
     }
   }
 

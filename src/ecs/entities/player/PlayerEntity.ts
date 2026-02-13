@@ -39,7 +39,7 @@ const PLAYER_ACCELERATION_TIME_MS = 300;
 const PLAYER_DECELERATION_TIME_MS = 100;
 const PLAYER_STOP_THRESHOLD = 120;
 const PLAYER_MAX_HEALTH = 100;
-const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 70;
+const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 50;
 
 export type CreatePlayerEntityProps = {
   scene: Phaser.Scene;
