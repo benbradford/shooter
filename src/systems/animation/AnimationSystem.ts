@@ -1,10 +1,4 @@
 import { Animation } from "./Animation";
-import { Direction } from "../../constants/Direction";
-
-export type AnimDirProp = {
-  name: "idle" | "walk";
-  direction: Direction;
-}
 
 export class AnimationSystem {
   private readonly animations: Map<string, Animation>;
@@ -16,11 +10,18 @@ export class AnimationSystem {
     this.current = animations.get(defaultKey);
   }
 
-  play(key: string | AnimDirProp) {
-    const animKey = typeof key === 'string' ? key : `${key.name}_${key.direction}`;
+  play(animKey: string) {
     const next = this.animations.get(animKey);
 
-    if (!next || next === this.current) return;
+    if (!next) {
+      console.warn("No anim for " + animKey);
+      return;
+    }
+    
+    if (next === this.current) {
+      this.current.reset();
+      return;
+    }
 
     this.current = next;
     this.current.reset();

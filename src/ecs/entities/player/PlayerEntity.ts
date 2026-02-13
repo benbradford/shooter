@@ -84,14 +84,14 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`walk_${Direction.Left}`, new Animation(['80', '81', '82', '83'], 'repeat', 0.125));
   animMap.set(`walk_${Direction.DownLeft}`, new Animation(['84', '85', '86', '87'], 'repeat', 0.125));
 
-  animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13', '13', '13', '13', '13', '13'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19', '19', '19', '19', '19', '19'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.Right}`, new Animation(['20', '21', '22', '23', '24', '25', '25', '25', '25', '25', '25'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.UpRight}`, new Animation(['26', '27', '28', '29', '30', '31', '31', '31', '31', '31', '31'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.Up}`, new Animation(['32', '33', '34', '35', '36', '37', '37', '37', '37', '37', '37'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.UpLeft}`, new Animation(['38', '39', '40', '41', '42', '43', '43', '43', '43', '43', '43'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.Left}`, new Animation(['44', '45', '46', '47', '48', '49', '49', '49', '49', '49', '49'], 'repeat', 0.0415));
-  animMap.set(`punch_${Direction.DownLeft}`, new Animation(['50', '51', '52', '53', '54', '55', '55', '55', '55', '55', '55'], 'repeat', 0.0415));
+  animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.Right}`, new Animation(['20', '21', '22', '23', '24', '25'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.UpRight}`, new Animation(['26', '27', '28', '29', '30', '31'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.Up}`, new Animation(['32', '33', '34', '35', '36', '37'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.UpLeft}`, new Animation(['38', '39', '40', '41', '42', '43'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.Left}`, new Animation(['44', '45', '46', '47', '48', '49'], 'once', 0.0415));
+  animMap.set(`punch_${Direction.DownLeft}`, new Animation(['50', '51', '52', '53', '54', '55'], 'once', 0.0415));
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
@@ -168,10 +168,8 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
         const damage = other.require(DamageComponent);
         health.takeDamage(damage.damage);
 
-        const hitFlash = entity.get(HitFlashComponent);
-        if (hitFlash) {
-          hitFlash.flash(300);
-        }
+        const hitFlash = entity.require(HitFlashComponent);
+        hitFlash.flash(300);
       }
     }
   }));

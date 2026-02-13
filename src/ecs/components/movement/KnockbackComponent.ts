@@ -17,7 +17,6 @@ export class KnockbackComponent implements Component {
   }
 
   applyKnockback(dirX: number, dirY: number, force: number): void {
-    // Ignore new knockback if already being knocked back
     if (this.isActive) {
       return;
     }
@@ -41,12 +40,10 @@ export class KnockbackComponent implements Component {
     transform.x += this.velocityX * (delta / 1000);
     transform.y += this.velocityY * (delta / 1000);
 
-    // Apply friction per second (not per frame) for consistent behavior
     const frictionPerFrame = Math.pow(this.friction, delta / 1000);
     this.velocityX *= frictionPerFrame;
     this.velocityY *= frictionPerFrame;
 
-    // Stop if too slow or duration exceeded
     if (Math.abs(this.velocityX) < 1 && Math.abs(this.velocityY) < 1 || this.elapsed >= this.duration) {
       this.velocityX = 0;
       this.velocityY = 0;

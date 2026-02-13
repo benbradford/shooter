@@ -22,19 +22,19 @@ export abstract class GameSceneRenderer {
   renderGrid(grid: Grid, levelData?: LevelData): void {
     this.graphics.clear();
     this.edgeGraphics.clear();
-    
+
     // Pass 1: Floor chunks (cache on first render)
     if (!this.isCached && levelData?.background) {
       const chunkSize = levelData.background.tile;
       const texture = levelData.background.floor_texture;
-      
+
       for (let row = 0; row < grid.height; row += chunkSize) {
         for (let col = 0; col < grid.width; col += chunkSize) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
           const width = Math.min(chunkSize, grid.width - col) * this.cellSize;
           const height = Math.min(chunkSize, grid.height - row) * this.cellSize;
-          
+
           const sprite = this.scene.add.image(x + width / 2, y + height / 2, texture);
           sprite.setDisplaySize(width, height);
           sprite.setDepth(-1000);
@@ -42,18 +42,18 @@ export abstract class GameSceneRenderer {
         }
       }
     }
-    
+
     // Pass 2: All cells - textures, fills, edges
     this.renderAllCells(grid, levelData);
-    
+
     // Mark as cached after both passes ONLY if background exists
     if (!this.isCached && levelData?.background) {
       this.isCached = true;
     }
-    
+
     // Shadows
     this.renderShadows(grid);
-    
+
     if (!this.floorOverlay && levelData?.background) {
       this.renderFloorOverlay(grid, levelData);
     }
@@ -84,10 +84,10 @@ export abstract class GameSceneRenderer {
     const maxRadius = Math.hypot(centerX, centerY);
 
     const bgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-    bgGradient.addColorStop(0, 'rgba(40, 43, 14, 0.6)');
-    bgGradient.addColorStop(0.4, 'rgba(192, 196, 174, 0.6)');
-    bgGradient.addColorStop(0.7, 'rgba(64, 89, 116, 0.6)');
-    bgGradient.addColorStop(1, 'rgba(163, 104, 2, 0.6)');
+    bgGradient.addColorStop(0, 'rgba(146, 151, 84, 0.2)');
+    bgGradient.addColorStop(0.4, 'rgba(163, 170, 132, 0.2)');
+    bgGradient.addColorStop(0.7, 'rgba(40, 105, 3, 0.2)');
+    bgGradient.addColorStop(1, 'rgba(163, 104, 2, 0.2)');
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, worldWidth, worldHeight);
 
@@ -101,17 +101,17 @@ export abstract class GameSceneRenderer {
   }
 
   private renderAllCells(grid: Grid, levelData?: LevelData): void {
-    const edgeThickness = 8;
+    const edgeThickness = 4;
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        
+
         const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
         const hasTexture = !!levelCell?.backgroundTexture;
-        
+
         const isStairs = cell && grid.isTransition(cell);
         const isElevated = cell && grid.getLayer(cell) >= 1;
         const isWall = cell && cell.properties.has('wall');
@@ -135,13 +135,20 @@ export abstract class GameSceneRenderer {
               this.cellSprites.push(sprite);
             }
           }
-          
+
           // Platform overlay (draw every frame)
-          if (hasBackgroundConfig && !hasTexture && isPlatform) {
-            this.graphics.fillStyle(0x000000, 0.3);
-            this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
+          if (isPlatform) {
+            if (hasBackgroundConfig && levelData.background?.platform_texture) {
+              const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);
+              sprite.setDisplaySize(this.cellSize, this.cellSize);
+              sprite.setDepth(-5);
+              this.cellSprites.push(sprite);
+            } else {
+             this.graphics.fillStyle(0x000000, 0.3);
+              this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
+            }
           }
-          
+
           // Fallback: render stairs with lines if no texture
           if (isStairs && (!hasBackgroundConfig || !levelData?.background?.stairs_texture) && !hasTexture) {
             this.graphics.lineStyle(8, edgeColor, 1);
@@ -152,7 +159,7 @@ export abstract class GameSceneRenderer {
 
             for (let step = 0; step < numSteps; step++) {
               const stepY = y + step * stepHeight;
-              
+
               const brightness = 1 - (step / (numSteps - 1)) * 0.5;
               const shadedColor = 0x4a4a5e - 0x202020 + Math.floor(0x202020 * brightness);
 
@@ -163,7 +170,7 @@ export abstract class GameSceneRenderer {
               this.graphics.strokeLineShape(new Phaser.Geom.Line(x, stepY, x + this.cellSize, stepY));
             }
           }
-          
+
           // Fallback: render walls with pattern if no texture
           if (isWall && (!hasBackgroundConfig || !levelData?.background?.wall_texture) && !hasTexture) {
             const brickHeight = 10;
@@ -236,12 +243,12 @@ export abstract class GameSceneRenderer {
             const topIsPlatform = topCell && topCell.properties.has('platform');
             const topIsStairs = topCell && grid.isTransition(topCell);
             const topIsWall = topCell && topCell.properties.has('wall');
-            
+
             if (((topIsLower || (isWall && topIsPlatform && !topIsStairs) || (isStairs && topIsWall) || (isWall && topIsStairs)) && !isStairs) || (isPlatform && topIsStairs)) {
               this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
             }
           }
-          
+
           // Bottom edge
           if (row < grid.height - 1 && !isStairs) {
             const bottomCell = grid.cells[row + 1][col];
@@ -249,7 +256,7 @@ export abstract class GameSceneRenderer {
             const bottomIsLower = bottomLayer < currentLayer && !grid.isTransition(bottomCell);
             const bottomIsPlatform = bottomCell && bottomCell.properties.has('platform');
             const bottomIsStairs = bottomCell && grid.isTransition(bottomCell);
-            
+
             if (bottomIsLower || (isWall && bottomIsPlatform && !bottomIsStairs)) {
               this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y + this.cellSize, x + this.cellSize, y + this.cellSize));
             }
@@ -261,8 +268,9 @@ export abstract class GameSceneRenderer {
   }
 
   private renderShadows(grid: Grid): void {
-    const shadowWidth = 24;
-    const shadowSteps = 24;
+    const shadowWidth = 64;
+    const shadowSteps = 64;
+    const shadowIntensity = 0.6;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -278,7 +286,7 @@ export abstract class GameSceneRenderer {
 
             if (rightIsLower) {
               for (let i = 0; i < shadowSteps; i++) {
-                const alpha = 0.4 * (1 - i / shadowSteps);
+                const alpha = shadowIntensity * (1 - i / shadowSteps);
                 const stepWidth = shadowWidth / shadowSteps;
                 this.graphics.fillStyle(0x000000, alpha);
                 this.graphics.fillRect(x + this.cellSize + i * stepWidth, y, stepWidth, this.cellSize);
@@ -288,24 +296,24 @@ export abstract class GameSceneRenderer {
 
           if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) < currentLayer && !grid.isTransition(grid.cells[row + 1][col])) {
             for (let i = 0; i < shadowSteps; i++) {
-              const alpha = 0.4 * (1 - i / shadowSteps);
+              const alpha = shadowIntensity * (1 - i / shadowSteps);
               const stepHeight = shadowWidth / shadowSteps;
               this.graphics.fillStyle(0x000000, alpha);
               this.graphics.fillRect(x, y + this.cellSize + i * stepHeight, this.cellSize, stepHeight);
             }
           }
-          
+
           // Corner shadow (bottom-right)
           if (col < grid.width - 1 && row < grid.height - 1) {
             const rightCell = grid.cells[row][col + 1];
             const bottomCell = grid.cells[row + 1][col];
             const rightIsLower = grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell);
             const bottomIsLower = grid.getLayer(bottomCell) < currentLayer && !grid.isTransition(bottomCell);
-            
+
             if (rightIsLower && bottomIsLower) {
               for (let i = 0; i < shadowSteps; i++) {
                 for (let j = 0; j <= i; j++) {
-                  const alpha = 0.4 * (1 - i / shadowSteps);
+                  const alpha = shadowIntensity * (1 - i / shadowSteps);
                   const step = shadowWidth / shadowSteps;
                   this.graphics.fillStyle(0x000000, alpha);
                   this.graphics.fillRect(x + this.cellSize + j * step, y + this.cellSize + (i - j) * step, step, step);

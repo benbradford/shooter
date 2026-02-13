@@ -1,16 +1,13 @@
 import type { IState, IStateEnterProps } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { Direction } from '../../../constants/Direction';
-import type Phaser from 'phaser';
-import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
+import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { getBulletDudeDifficultyConfig, type BulletDudeDifficulty } from './BulletDudeDifficulty';
-import type { Grid } from '../../../systems/grid/Grid';
 
-const KNOCKBACK_DISTANCE_PX = 100;
-const KNOCKBACK_DURATION_MS = 200;
+const KNOCKBACK_FORCE = 500;
 
 type StunnedStateData = {
   hitDirX: number;
@@ -23,11 +20,7 @@ export class BulletDudeStunnedState implements IState<void | StunnedStateData> {
   private hitDirX = 0;
   private hitDirY = -1;
 
-  constructor(
-    private readonly entity: Entity,
-    private readonly scene: Phaser.Scene,
-    private readonly grid: Grid
-  ) {}
+  constructor(private readonly entity: Entity) {}
 
   onEnter(props?: IStateEnterProps<void | StunnedStateData>): void {
     this.stunTimer = 0;
@@ -57,28 +50,14 @@ export class BulletDudeStunnedState implements IState<void | StunnedStateData> {
     if (this.knockbackApplied) return;
     this.knockbackApplied = true;
 
-    const transform = this.entity.require(TransformComponent);
     const sprite = this.entity.require(SpriteComponent);
+    const knockback = this.entity.require(KnockbackComponent);
 
     const currentDirection = this.getCurrentDirection(sprite);
     const dirName = Direction[currentDirection].toLowerCase();
     sprite.sprite.play(`bulletdude_idle_${dirName}`, true);
 
-    const targetX = transform.x + this.hitDirX * KNOCKBACK_DISTANCE_PX;
-    const targetY = transform.y + this.hitDirY * KNOCKBACK_DISTANCE_PX;
-
-    const targetCell = this.grid.worldToCell(targetX, targetY);
-    const cell = this.grid.getCell(targetCell.col, targetCell.row);
-
-    if (cell && !this.grid.isWall(cell)) {
-      this.scene.tweens.add({
-        targets: transform,
-        x: targetX,
-        y: targetY,
-        duration: KNOCKBACK_DURATION_MS,
-        ease: 'Quad.easeOut'
-      });
-    }
+    knockback.applyKnockback(this.hitDirX, this.hitDirY, KNOCKBACK_FORCE);
   }
 
   private getCurrentDirection(sprite: SpriteComponent): Direction {

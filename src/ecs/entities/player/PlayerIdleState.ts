@@ -6,6 +6,7 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { InputComponent } from '../../components/input/InputComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { Direction } from '../../../constants/Direction';
+import { handlePunchInput } from './PlayerStateHelpers';
 
 export class PlayerIdleState implements IState {
   private lastDir: Direction = Direction.Down;
@@ -25,20 +26,10 @@ export class PlayerIdleState implements IState {
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
     const input = this.entity.require(InputComponent);
-    const attackCombo = this.entity.get(AttackComboComponent);
+    const attackCombo = this.entity.require(AttackComboComponent);
     
-    if (attackCombo) {
-      const isPressed = input.isAttackPressed();
-      attackCombo.checkAttackReleased(isPressed);
-      
-      if (isPressed) {
-        attackCombo.tryStartPunch();
-        return;
-      }
-
-      if (attackCombo.isPunching()) {
-        return;
-      }
+    if (handlePunchInput(input, attackCombo)) {
+      return;
     }
     
     if (walk.lastDir !== this.lastDir) {
@@ -47,10 +38,8 @@ export class PlayerIdleState implements IState {
     }
     
     if (walk.isMoving()) {
-      const sm = this.entity.get(StateMachineComponent);
-      if (sm) {
-        sm.stateMachine.enter('walk');
-      }
+      const sm = this.entity.require(StateMachineComponent);
+      sm.stateMachine.enter('walk');
     }
   }
 }

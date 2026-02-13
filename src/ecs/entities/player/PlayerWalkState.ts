@@ -5,6 +5,7 @@ import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { InputComponent } from '../../components/input/InputComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
+import { handlePunchInput } from './PlayerStateHelpers';
 
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
@@ -14,7 +15,7 @@ export class PlayerWalkState implements IState {
   onEnter(): void {
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
-    
+
     this.lastAnimKey = `walk_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
   }
@@ -25,22 +26,12 @@ export class PlayerWalkState implements IState {
     const anim = this.entity.require(AnimationComponent);
     const sm = this.entity.require(StateMachineComponent);
     const input = this.entity.require(InputComponent);
-    const attackCombo = this.entity.get(AttackComboComponent);
-    
-    if (attackCombo) {
-      const isPressed = input.isAttackPressed();
-      attackCombo.checkAttackReleased(isPressed);
-      
-      if (isPressed) {
-        attackCombo.tryStartPunch();
-        return;
-      }
+    const attackCombo = this.entity.require(AttackComboComponent);
 
-      if (attackCombo.isPunching()) {
-        return;
-      }
+    if (handlePunchInput(input, attackCombo)) {
+      return;
     }
-    
+
     const { dx, dy } = input.getInputDelta();
 
     if (dx === 0 && dy === 0 && !walk.isMoving()) {

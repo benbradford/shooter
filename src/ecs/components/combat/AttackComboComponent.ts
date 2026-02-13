@@ -80,7 +80,7 @@ export class AttackComboComponent implements Component {
           const walk = this.entity.get(WalkComponent);
           const anim = this.entity.get(AnimationComponent);
           if (walk && anim) {
-            const animKey = `idle_${walk.lastDir}`;
+            const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
             anim.animationSystem.play(animKey);
           }
         }

@@ -3,6 +3,7 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
+import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
@@ -29,6 +30,8 @@ const BULLET_DUDE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 26, width: 32, hei
 const BULLET_DUDE_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -25, width: 32, height: 50 };
 const BULLET_DUDE_SHADOW_PROPS = { scale: 1.3, offsetX: 0, offsetY: 40 };
 const MELEE_DAMAGE = 10;
+const KNOCKBACK_FRICTION = 0.85;
+const KNOCKBACK_DURATION_MS = 300;
 
 export type CreateBulletDudeProps = {
   scene: Phaser.Scene;
@@ -68,6 +71,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
 
   entity.add(new GridPositionComponent(col, row, BULLET_DUDE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
+  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS));
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new HealthComponent({ maxHealth: config.health }));
   entity.add(new HitFlashComponent());
@@ -133,7 +137,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
     alert: new BulletDudeAlertState(entity, playerEntity, scene),
     shooting: new BulletDudeShootingState(entity, playerEntity, scene, entityManager),
     overheated: new BulletDudeOverheatedState(entity, playerEntity, scene, grid),
-    stunned: new BulletDudeStunnedState(entity, scene, grid),
+    stunned: new BulletDudeStunnedState(entity),
     dying: new BulletDudeDyingState(entity, scene, grid)
   }, 'guard');
 
@@ -144,6 +148,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
     HitFlashComponent,
     SpriteComponent,
     ShadowComponent,
+    KnockbackComponent,
     GridPositionComponent,
     GridCollisionComponent,
     LineOfSightComponent,

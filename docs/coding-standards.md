@@ -844,11 +844,16 @@ if (!transform) return;  // Should use require()
 ```
 
 **When to use each:**
-- `entity.require()` - Component is mandatory for this entity type
-- `entity.get()` - Component is truly optional (may not exist)
-  - Examples: `KnockbackComponent`, `HitFlashComponent` (temporary)
-  - Examples: Optional features, temporary effects
-- Never use `!` - Bypasses safety
+- `entity.require()` - Component is **guaranteed** to exist on this entity type
+  - Examples: Player always has `WalkComponent`, `InputComponent`, `StateMachineComponent`
+  - Examples: Enemy always has `TransformComponent`, `SpriteComponent`, `HealthComponent`
+  - **Prefer `require()` whenever possible** - it documents expectations and fails fast
+- `entity.get()` - Component is truly optional (may or may not exist)
+  - Examples: `KnockbackComponent`, `HitFlashComponent` (temporary effects)
+  - Examples: Optional features that vary between entity instances
+- Never use `!` - Bypasses type safety
+
+**Rule of thumb:** If you're writing `if (!component) return;` after `get()`, you should be using `require()` instead.
 
 **Special case - Collision handlers:**
 When accessing components on the OTHER entity in a collision handler, the entity might be destroyed by its own collision handler first. In this case, use `require()` and ensure projectiles delay their destruction:
@@ -879,7 +884,7 @@ entity.add(new CollisionComponent({
 - `require()` fails fast with clear error messages
 - Bugs caught immediately in development
 - No silent failures that hide issues
-- Makes component dependencies explicit
+- Makes component dependencies explicit and self-documenting
 - Delayed destruction ensures all collision handlers can access data
 
 ### Use Class Fields Instead of Constructor Assignment

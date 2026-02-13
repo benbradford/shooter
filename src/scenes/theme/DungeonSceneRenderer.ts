@@ -1,6 +1,6 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
 
-const LAYER1_EDGE_COLOR = 0x2a2a3e;
+const LAYER1_EDGE_COLOR = 0x222222;
 
 export class DungeonSceneRenderer extends GameSceneRenderer {
   protected getEdgeColor(): number {
@@ -24,8 +24,8 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     const maxRadius = Math.hypot(centerX, centerY);
 
     const bgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-    bgGradient.addColorStop(0, '#282b0e');
-    bgGradient.addColorStop(0.4, '#c0c4ae');
+    bgGradient.addColorStop(0, '#404416');
+    bgGradient.addColorStop(0.4, '#7c806d');
     bgGradient.addColorStop(0.7, '#405974');
     bgGradient.addColorStop(1, '#a36802');
     ctx.fillStyle = bgGradient;

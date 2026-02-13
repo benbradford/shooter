@@ -1,4 +1,4 @@
-export type AnimationStyle = "static" | "repeat" | "pingpong";
+export type AnimationStyle = "static" | "repeat" | "pingpong" | "once";
 
 export class Animation {
   private readonly frames: string[];
@@ -31,7 +31,6 @@ export class Animation {
   update(delta: number) {
     if (this.style === "static" || this.frames.length <= 1) return;
 
-    // clamp large spikes (tab switch, debugger)
     delta = Math.min(delta, 50);
 
     this.elapsed += delta;
@@ -52,6 +51,10 @@ export class Animation {
       }
     } else if (this.style === "repeat") {
       this.index = (this.index + 1) % this.frames.length;
+    } else if (this.style === "once") {
+      if (this.index < this.frames.length - 1) {
+        this.index++;
+      }
     }
   }
 
