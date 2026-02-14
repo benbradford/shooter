@@ -55,6 +55,15 @@ The player uses a melee punch attack system:
 - Facing direction updates even when locked
 - Release attack: Returns to idle, movement unlocked
 
+**Slide Ability:**
+- Press H or tap slide button (left of attack button) to slide
+- Slides 250px in facing direction at 400px/s with friction
+- Player invulnerable during slide (passes through enemies)
+- Stops on walls
+- Cannot move or attack while sliding
+- 3 second cooldown after slide
+- Slide button shows reduced alpha (0.3) during cooldown
+
 **Debug Mode (Press P):**
 - Toggle between two targeting modes:
   - `mustFaceEnemy = false` (default): Punch any enemy within 128px
@@ -66,6 +75,7 @@ The player uses a melee punch attack system:
 - Frames 0-7: 8-direction idle
 - Frames 8-55: Cross-punch (6 frames × 8 directions)
 - Frames 56-87: Walking (4 frames × 8 directions)
+- Frames 116-163: Slide (6 frames × 8 directions)
 
 ### Adding a Shadow to an Entity
 
