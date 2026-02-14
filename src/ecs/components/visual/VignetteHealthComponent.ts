@@ -32,7 +32,7 @@ export class VignetteHealthComponent implements Component {
 
   update(delta: number): void {
     const healthRatio = this.healthComponent.getRatio();
-    const targetAlpha = (1 - healthRatio) * 0.3;
+    const targetAlpha = (1 - healthRatio) * 0.2;
 
     const lerpFactor = 1 - Math.pow(0.001, delta / 1000);
     this.currentAlpha += (targetAlpha - this.currentAlpha) * lerpFactor;

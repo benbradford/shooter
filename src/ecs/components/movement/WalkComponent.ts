@@ -4,6 +4,7 @@ import type { TransformComponent } from '../core/TransformComponent';
 import type { InputComponent } from '../input/InputComponent';
 import type { ControlModeComponent } from '../input/ControlModeComponent';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
+import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 export type WalkProps = {
@@ -44,6 +45,11 @@ export class WalkComponent implements Component {
   }
 
   update(delta: number): void {
+    const slide = this.entity.get(SlideAbilityComponent);
+    if (slide?.isActive()) {
+      return;
+    }
+
     const attackCombo = this.entity.get(AttackComboComponent);
     const isLocked = attackCombo?.isMovementLocked() ?? false;
 

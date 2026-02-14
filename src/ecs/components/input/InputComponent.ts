@@ -10,6 +10,7 @@ export class InputComponent implements Component {
   entity!: Entity;
   private readonly cursors: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
   private readonly keys: Record<string, Phaser.Input.Keyboard.Key> | undefined;
+  private readonly slideKey: Phaser.Input.Keyboard.Key | undefined;
   private joystick: TouchJoystickComponent | null = null;
   private attackButton: AttackButtonComponent | null = null;
 
@@ -18,6 +19,7 @@ export class InputComponent implements Component {
     if (keyboard) {
       this.cursors = keyboard.createCursorKeys();
       this.keys = keyboard.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
+      this.slideKey = keyboard.addKey('H');
     }
   }
 
@@ -110,6 +112,10 @@ export class InputComponent implements Component {
     }
     
     return false;
+  }
+
+  isSlidePressed(): boolean {
+    return this.slideKey?.isDown ?? false;
   }
 
   onDestroy(): void {

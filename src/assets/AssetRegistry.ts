@@ -64,6 +64,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/crosshair.png',
     type: 'image' as const,
   },
+  slide_icon: {
+    key: 'slide_icon',
+    path: 'assets/player/slide_icon.png',
+    type: 'image' as const,
+  },
   fireball: {
     key: 'fireball',
     path: 'assets/floating_robot/fireball-spritesheet.png',

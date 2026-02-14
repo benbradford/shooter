@@ -5,8 +5,9 @@ import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { InputComponent } from '../../components/input/InputComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
+import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
 import { Direction } from '../../../constants/Direction';
-import { handlePunchInput } from './PlayerStateHelpers';
+import { handlePunchInput, handleSlideInput } from './PlayerStateHelpers';
 
 export class PlayerIdleState implements IState {
   private lastDir: Direction = Direction.Down;
@@ -27,6 +28,11 @@ export class PlayerIdleState implements IState {
     const anim = this.entity.require(AnimationComponent);
     const input = this.entity.require(InputComponent);
     const attackCombo = this.entity.require(AttackComboComponent);
+    const slide = this.entity.require(SlideAbilityComponent);
+    
+    if (handleSlideInput(input, slide)) {
+      return;
+    }
     
     if (handlePunchInput(input, attackCombo)) {
       return;

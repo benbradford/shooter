@@ -1,5 +1,6 @@
 import type { InputComponent } from '../../components/input/InputComponent';
 import type { AttackComboComponent } from '../../components/combat/AttackComboComponent';
+import type { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
 
 export function handlePunchInput(
   input: InputComponent,
@@ -14,6 +15,22 @@ export function handlePunchInput(
   }
 
   if (attackCombo.isPunching()) {
+    return true;
+  }
+
+  return false;
+}
+
+export function handleSlideInput(
+  input: InputComponent,
+  slide: SlideAbilityComponent
+): boolean {
+  if (slide.isActive()) {
+    return true;
+  }
+
+  if (input.isSlidePressed() && slide.canSlide()) {
+    slide.trySlide();
     return true;
   }
 

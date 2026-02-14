@@ -20,6 +20,8 @@ import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
+import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
+import { SlideButtonComponent } from '../../components/input/SlideButtonComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -40,6 +42,7 @@ const PLAYER_DECELERATION_TIME_MS = 100;
 const PLAYER_STOP_THRESHOLD = 120;
 const PLAYER_MAX_HEALTH = 100;
 const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 50;
+const SLIDE_ANIM_SECONDS_PER_FRAME = 0.05;
 
 export type CreatePlayerEntityProps = {
   scene: Phaser.Scene;
@@ -92,6 +95,24 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`punch_${Direction.UpLeft}`, new Animation(['38', '39', '40', '41', '42', '43'], 'once', 0.0415));
   animMap.set(`punch_${Direction.Left}`, new Animation(['44', '45', '46', '47', '48', '49'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownLeft}`, new Animation(['50', '51', '52', '53', '54', '55'], 'once', 0.0415));
+
+  animMap.set(`slide_start_${Direction.Down}`, new Animation(['116', '117', '118', '119'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.DownRight}`, new Animation(['122', '123', '124', '125'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Right}`, new Animation(['128', '129', '130', '131'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.UpRight}`, new Animation(['134', '135', '136', '137'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Up}`, new Animation(['140', '141', '142', '143'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.UpLeft}`, new Animation(['146', '147', '148', '149'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Left}`, new Animation(['152', '153', '154', '155'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.DownLeft}`, new Animation(['158', '159', '160', '161'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+
+  animMap.set(`slide_end_${Direction.Down}`, new Animation(['120', '121'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.DownRight}`, new Animation(['126', '127'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Right}`, new Animation(['132', '133'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.UpRight}`, new Animation(['138', '139'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Up}`, new Animation(['144', '145'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.UpLeft}`, new Animation(['150', '151'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Left}`, new Animation(['156', '157'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.DownLeft}`, new Animation(['162', '163'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
@@ -150,6 +171,11 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     getEnemies
   }));
 
+  entity.add(new SlideAbilityComponent(scene));
+
+  const slideButton = entity.add(new SlideButtonComponent(scene, entity.get(SlideAbilityComponent)!));
+  slideButton.init();
+
   const stateMachine = new StateMachine(
     {
       idle: new PlayerIdleState(entity),
@@ -182,11 +208,13 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     InputComponent,
     WalkComponent,
     GridCollisionComponent,
+    SlideAbilityComponent,
     CollisionComponent,
     HealthComponent,
     VignetteHealthComponent,
     HitFlashComponent,
     HudBarComponent,
+    SlideButtonComponent,
     StateMachineComponent,
     AttackComboComponent,
     AnimationComponent,
