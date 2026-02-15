@@ -8,6 +8,12 @@ export type LevelBackground = {
   stairs_texture: string;
   wall_texture: string;
   tile: number;
+  overlays?: {
+    spritesheet: string;
+    spriteList: string;
+    frequency: number;
+    seed: number;
+  };
 }
 
 export type LevelCell = {

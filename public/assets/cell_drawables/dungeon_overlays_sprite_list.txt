@@ -1,0 +1,20 @@
+Spritesheet: dungeon_overlays_spritesheet.png
+Dimensions: 2128x848
+Grid: 4x4, Cell size: 532x212
+
+overlay_01: x=0, y=0, width=337, height=159
+overlay_02: x=532, y=0, width=486, height=198
+overlay_03: x=1064, y=0, width=412, height=192
+overlay_04: x=1596, y=0, width=444, height=181
+overlay_05: x=0, y=212, width=179, height=131
+overlay_06: x=532, y=212, width=304, height=140
+overlay_07: x=1064, y=212, width=375, height=187
+overlay_08: x=1596, y=212, width=331, height=161
+overlay_09: x=0, y=424, width=438, height=174
+overlay_10: x=532, y=424, width=199, height=118
+overlay_11: x=1064, y=424, width=532, height=211
+overlay_12: x=1596, y=424, width=315, height=141
+overlay_13: x=0, y=636, width=438, height=212
+overlay_14: x=532, y=636, width=226, height=157
+overlay_15: x=1064, y=636, width=317, height=190
+overlay_16: x=1596, y=636, width=344, height=185

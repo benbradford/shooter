@@ -28,6 +28,7 @@ import { preloadAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
+import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
@@ -146,7 +147,11 @@ export default class GameScene extends Phaser.Scene {
       });
     }
 
-    this.grid.render();
+    const overlays = new SceneOverlays(this, this.levelData);
+    void overlays.init().then(() => {
+      overlays.applyOverlays(this.grid);
+      this.grid.render();
+    });
 
     this.cameras.main.setBounds(
       0,

@@ -1,10 +1,10 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
-const UNPRESSED_SCALE = 0.6;
-const PRESSED_SCALE = 0.8;
-const POS_X = 0.85;
-const POS_Y = 0.8;
+const UNPRESSED_SCALE = 0.26;
+const PRESSED_SCALE = 0.28;
+const POS_X = 0.915;
+const POS_Y = 0.85;
 
 export class AttackButtonComponent implements Component {
   entity!: Entity;

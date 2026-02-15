@@ -23,13 +23,14 @@ export function handlePunchInput(
 
 export function handleSlideInput(
   input: InputComponent,
-  slide: SlideAbilityComponent
+  slide: SlideAbilityComponent,
+  attackCombo: AttackComboComponent
 ): boolean {
   if (slide.isActive()) {
     return true;
   }
 
-  if (input.isSlidePressed() && slide.canSlide()) {
+  if (input.isSlidePressed() && slide.canSlide() && !attackCombo.isPunching()) {
     slide.trySlide();
     return true;
   }

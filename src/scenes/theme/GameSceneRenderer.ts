@@ -43,6 +43,8 @@ export abstract class GameSceneRenderer {
 
       this.renderAllCells(grid, levelData);
       this.isCached = true;
+    } else if (this.isCached) {
+      this.renderEdges(grid);
     }
 
     this.renderShadows(grid);
@@ -94,7 +96,6 @@ export abstract class GameSceneRenderer {
   }
 
   private renderAllCells(grid: Grid, levelData?: LevelData): void {
-    const edgeThickness = 4;
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
 
@@ -192,8 +193,28 @@ export abstract class GameSceneRenderer {
               rowIndex++;
             }
           }
+        }
+      }
+    }
+  }
 
-          // Use edgeGraphics for all edges (always on top)
+  private renderEdges(grid: Grid): void {
+    const edgeThickness = 4;
+    const edgeColor = this.getEdgeColor();
+
+    for (let row = 0; row < grid.height; row++) {
+      for (let col = 0; col < grid.width; col++) {
+        const cell = grid.getCell(col, row);
+
+        const isStairs = cell && grid.isTransition(cell);
+        const isElevated = cell && grid.getLayer(cell) >= 1;
+        const isWall = cell && cell.properties.has('wall');
+        const isPlatform = cell && cell.properties.has('platform');
+
+        if (isElevated || isStairs) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+
           this.edgeGraphics.lineStyle(edgeThickness, edgeColor, 1);
 
           const currentLayer = grid.getLayer(cell);
@@ -242,7 +263,6 @@ export abstract class GameSceneRenderer {
             }
           }
 
-          // Bottom edge
           if (row < grid.height - 1 && !isStairs) {
             const bottomCell = grid.cells[row + 1][col];
             const bottomLayer = grid.getLayer(bottomCell);
@@ -254,7 +274,6 @@ export abstract class GameSceneRenderer {
               this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y + this.cellSize, x + this.cellSize, y + this.cellSize));
             }
           }
-
         }
       }
     }

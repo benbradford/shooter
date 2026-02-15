@@ -61,7 +61,7 @@ export const ASSET_REGISTRY = {
   },
   crosshair: {
     key: 'crosshair',
-    path: 'assets/player/crosshair.png',
+    path: 'assets/player/punch_icon.png',
     type: 'image' as const,
   },
   slide_icon: {
@@ -156,6 +156,11 @@ export const ASSET_REGISTRY = {
   dungeon_floor: {
     key: 'dungeon_floor',
     path: 'assets/cell_drawables/dungeon_floor.png',
+    type: 'image' as const,
+  },
+  dungeon_overlays: {
+    key: 'dungeon_overlays',
+    path: 'assets/cell_drawables/dungeon_overlays_spritesheet.png',
     type: 'image' as const,
   },
   skeleton: {

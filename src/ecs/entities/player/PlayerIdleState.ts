@@ -30,7 +30,7 @@ export class PlayerIdleState implements IState {
     const attackCombo = this.entity.require(AttackComboComponent);
     const slide = this.entity.require(SlideAbilityComponent);
     
-    if (handleSlideInput(input, slide)) {
+    if (handleSlideInput(input, slide, attackCombo)) {
       return;
     }
     

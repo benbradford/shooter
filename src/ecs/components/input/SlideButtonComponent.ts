@@ -1,24 +1,32 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
+import type { AttackComboComponent } from '../combat/AttackComboComponent';
 
 const BUTTON_SCALE = 0.2;
 const BUTTON_ALPHA_ACTIVE = 0.7;
 const BUTTON_ALPHA_COOLDOWN = 0.3;
 const BUTTON_SCALE_PRESSED = 0.22;
 const BUTTON_TINT_PRESSED = 0x6666ff;
+const POS_X = 0.75;
+const POS_Y = 0.85;
 
 export class SlideButtonComponent implements Component {
   entity!: Entity;
   private readonly sprite: Phaser.GameObjects.Sprite;
   private readonly scene: Phaser.Scene;
   private readonly slideAbility: SlideAbilityComponent;
+  private readonly attackCombo: AttackComboComponent;
   private isPressed = false;
   private pointerId = -1;
+  private posX = 0;
+  private posY = 0;
+  private initialized = false;
 
-  constructor(scene: Phaser.Scene, slideAbility: SlideAbilityComponent) {
+  constructor(scene: Phaser.Scene, slideAbility: SlideAbilityComponent, attackCombo: AttackComboComponent) {
     this.scene = scene;
     this.slideAbility = slideAbility;
+    this.attackCombo = attackCombo;
 
     this.sprite = scene.add.sprite(0, 0, 'slide_icon');
     this.sprite.setScale(BUTTON_SCALE);
@@ -37,18 +45,24 @@ export class SlideButtonComponent implements Component {
   }
 
   update(): void {
-    const displayWidth = this.scene.scale.displaySize.width;
-    const displayHeight = this.scene.scale.displaySize.height;
+    const camera = this.scene.cameras.main;
+    const viewWidth = camera.width;
+    const viewHeight = camera.height;
 
-    const x = displayWidth * 0.75;
-    const y = displayHeight * 0.85;
+    if (!this.initialized || this.posX === 0) {
+      this.posX = viewWidth * POS_X;
+      this.posY = viewHeight * POS_Y;
+    }
 
-    this.sprite.setPosition(x, y);
+    this.sprite.setPosition(this.posX, this.posY);
 
-    if (this.slideAbility.canSlide()) {
-      this.sprite.setAlpha(this.isPressed ? 1 : BUTTON_ALPHA_ACTIVE);
-    } else {
+    const isPunching = this.attackCombo.isPunching();
+    const canSlide = this.slideAbility.canSlide();
+
+    if (isPunching || !canSlide) {
       this.sprite.setAlpha(BUTTON_ALPHA_COOLDOWN);
+    } else {
+      this.sprite.setAlpha(this.isPressed ? 1 : BUTTON_ALPHA_ACTIVE);
     }
 
     if (this.isPressed) {

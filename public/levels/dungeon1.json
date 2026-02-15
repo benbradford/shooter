@@ -5305,9 +5305,15 @@
   "levelTheme": "dungeon",
   "background": {
     "floor_texture": "dungeon_floor",
-    "tile": 10,
+    "tile": 15,
     "platform_texture": "stone_floor",
     "stairs_texture": "stone_stairs",
-    "wall_texture": "stone_wall"
+    "wall_texture": "stone_wall",
+    "overlays": {
+      "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
+      "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
+      "frequency": 10,
+      "seed": 1
+    }
   }
 }
