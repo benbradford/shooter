@@ -9,7 +9,7 @@ export class ThemeEditorState extends EditorState {
     const centerX = width / 2;
     const centerY = height / 2;
 
-    const themes = ['dungeon', 'swamp'];
+    const themes = ['dungeon', 'swamp', 'grass'];
     const buttonSpacing = 80;
 
     themes.forEach((theme, index) => {

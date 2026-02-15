@@ -28,6 +28,7 @@ import { preloadAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
+import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
@@ -40,7 +41,7 @@ export default class GameScene extends Phaser.Scene {
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
-  private currentLevelName: string = 'dungeon1';
+  private currentLevelName: string = 'grass_overworld1';
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
@@ -83,6 +84,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     } else if (theme === 'swamp') {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    } else if (theme === 'grass') {
+      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
@@ -494,7 +497,7 @@ export default class GameScene extends Phaser.Scene {
     return this.levelData;
   }
 
-  setTheme(theme: 'dungeon' | 'swamp'): void {
+  setTheme(theme: 'dungeon' | 'swamp' | 'grass'): void {
     this.levelData.levelTheme = theme;
 
     if (this.background) this.background.destroy();
@@ -507,6 +510,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     } else if (theme === 'swamp') {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    } else if (theme === 'grass') {
+      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     }
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
@@ -530,6 +535,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     } else if (theme === 'swamp') {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    } else if (theme === 'grass') {
+      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }

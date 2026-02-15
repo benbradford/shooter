@@ -75,7 +75,7 @@ export class GridEditorState extends EditorState {
     this.buttons.push(clearBtn);
 
     // Tag checkboxes on right side
-    const tags: CellProperty[] = ['platform', 'wall', 'stairs'];
+    const tags: CellProperty[] = ['platform', 'wall', 'stairs', 'path'];
     const startY = 100;
     const spacing = 40;
 

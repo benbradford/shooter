@@ -1,6 +1,6 @@
 import type { CellProperty } from '../grid/Grid';
 
-export type LevelTheme = 'dungeon' | 'swamp';
+export type LevelTheme = 'dungeon' | 'swamp' | 'grass';
 
 export type LevelBackground = {
   floor_texture: string;
