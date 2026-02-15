@@ -47,13 +47,14 @@ interface CellData {
   occupants: Set<Entity>;         // Which entities are in this cell
 }
 
-type CellProperty = 'platform' | 'wall' | 'stairs';
+export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path';
 ```
 
 **Property Meanings:**
 - **'platform'**: Elevated surface (layer 1) - walkable, no visual pattern
 - **'wall'**: Solid barrier (layer 1) - blocks movement, renders with brick/stone pattern
 - **'stairs'**: Transition between layers - allows vertical movement only
+- **'path'**: Stone path (grass theme only) - walkable, renders as connected grey stones with black outlines
 
 ### Layer System
 

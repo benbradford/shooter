@@ -41,7 +41,7 @@ export default class GameScene extends Phaser.Scene {
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
-  private currentLevelName: string = 'grass_overworld1';
+  private currentLevelName: string = 'dungeon1';
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
@@ -529,6 +529,10 @@ export default class GameScene extends Phaser.Scene {
   async loadLevel(levelName: string): Promise<void> {
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
+
+    if (this.sceneRenderer) {
+      this.sceneRenderer.destroy();
+    }
 
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {

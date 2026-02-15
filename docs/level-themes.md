@@ -70,6 +70,15 @@ The base class handles all edge detection:
 - Green vignette
 - Edge color: `0x2a3a2e`
 
+### Grass Theme
+- Bright green gradient background
+- Stone paths with connected circular shapes
+- Path cells render as grey circles with black outlines
+- Paths automatically connect between adjacent cells
+- Inner and outer corner arcs for smooth perimeter
+- Green vignette
+- Edge color: `0x3a5a2e`
+
 ## Using a Theme
 
 In your level JSON file, specify the theme:
@@ -80,11 +89,36 @@ In your level JSON file, specify the theme:
   "height": 49,
   "playerStart": { "x": 5, "y": 18 },
   "cells": [...],
-  "levelTheme": "swamp"
+  "levelTheme": "grass"
 }
 ```
 
 If `levelTheme` is omitted, it defaults to `"dungeon"`.
+
+## Level Overlays
+
+Levels can include random decorative overlays (dirt patches, cracked stone, skulls, etc.) placed on empty floor cells:
+
+```json
+{
+  "background": {
+    "floor_texture": "dungeon_floor",
+    "tile": 15,
+    "overlays": {
+      "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
+      "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
+      "frequency": 10,
+      "seed": 12345
+    }
+  }
+}
+```
+
+**How it works:**
+- `frequency`: 1 overlay per N eligible cells (e.g., 10 = 1 per 10 cells)
+- `seed`: Deterministic random seed for consistent placement
+- Only places on layer 0 cells with no properties and no existing texture
+- Overlays are applied once during level load via `SceneOverlays` class
 
 ## Switching Themes in Editor
 
@@ -349,6 +383,8 @@ vignette.setBlendMode(2); // MULTIPLY for darkening effect
 - `src/scenes/theme/GameSceneRenderer.ts` - Abstract base class
 - `src/scenes/theme/DungeonSceneRenderer.ts` - Dungeon theme implementation
 - `src/scenes/theme/SwampSceneRenderer.ts` - Swamp theme implementation
+- `src/scenes/theme/GrassSceneRenderer.ts` - Grass theme implementation
+- `src/systems/SceneOverlays.ts` - Overlay placement system
 - `src/scenes/GameScene.ts` - Theme instantiation and switching
 - `src/editor/ThemeEditorState.ts` - Theme selection UI
 - `src/systems/level/LevelLoader.ts` - LevelTheme type definition

@@ -179,6 +179,14 @@ export class HudBarComponent implements Component {
     }
   }
 
+  setVisible(visible: boolean): void {
+    for (const bar of this.bars) {
+      bar.background.setVisible(visible);
+      bar.fill.setVisible(visible);
+      bar.outline.setVisible(visible);
+    }
+  }
+
   onDestroy(): void {
     for (const bar of this.bars) {
       bar.background.destroy();

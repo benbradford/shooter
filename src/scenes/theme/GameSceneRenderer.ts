@@ -111,10 +111,17 @@ export abstract class GameSceneRenderer {
         const isWall = cell && cell.properties.has('wall');
         const isPlatform = cell && cell.properties.has('platform');
 
-        if (isElevated || isStairs) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
+        const x = col * this.cellSize;
+        const y = row * this.cellSize;
 
+        if (hasTexture && levelCell?.backgroundTexture && !this.isCached) {
+          const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelCell.backgroundTexture);
+          sprite.setDisplaySize(this.cellSize, this.cellSize);
+          sprite.setDepth(-100);
+          this.cellSprites.push(sprite);
+        }
+
+        if (isElevated || isStairs) {
           // Render textures from background config (cache on first render)
           if (hasBackgroundConfig && !hasTexture && levelData.background && !this.isCached) {
             if (isStairs && levelData.background.stairs_texture) {

@@ -70,6 +70,10 @@ export class AttackButtonComponent implements Component {
     return this.isPressed;
   }
 
+  setVisible(visible: boolean): void {
+    this.sprite.setVisible(visible);
+  }
+
   onDestroy(): void {
     this.scene.input.off('pointerdown', this.handlePointerDown, this);
     this.scene.input.off('pointerup', this.handlePointerUp, this);

@@ -1015,24 +1015,6 @@
       ]
     },
     {
-      "col": 6,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
-    },
-    {
-      "col": 11,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": "overlay_0"
-    },
-    {
-      "col": 15,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": "overlay_10"
-    },
-    {
       "col": 20,
       "row": 3,
       "layer": 1,
@@ -1145,12 +1127,6 @@
       ]
     },
     {
-      "col": 7,
-      "row": 4,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
-    },
-    {
       "col": 20,
       "row": 4,
       "layer": 1,
@@ -1165,12 +1141,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 22,
-      "row": 4,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
     },
     {
       "col": 29,
@@ -1293,12 +1263,6 @@
       ]
     },
     {
-      "col": 30,
-      "row": 5,
-      "layer": 0,
-      "backgroundTexture": "overlay_11"
-    },
-    {
       "col": 35,
       "row": 5,
       "layer": 1,
@@ -1385,18 +1349,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 8,
-      "row": 6,
-      "layer": 0,
-      "backgroundTexture": "overlay_9"
-    },
-    {
-      "col": 14,
-      "row": 6,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
     },
     {
       "col": 29,
@@ -1421,12 +1373,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 32,
-      "row": 6,
-      "layer": 0,
-      "backgroundTexture": "dungeon_door"
     },
     {
       "col": 33,
@@ -1531,12 +1477,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 24,
-      "row": 7,
-      "layer": 0,
-      "backgroundTexture": "overlay_1"
     },
     {
       "col": 29,
@@ -1667,36 +1607,6 @@
       ]
     },
     {
-      "col": 11,
-      "row": 8,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
-    },
-    {
-      "col": 12,
-      "row": 8,
-      "layer": 0,
-      "backgroundTexture": "overlay_15"
-    },
-    {
-      "col": 13,
-      "row": 8,
-      "layer": 0,
-      "backgroundTexture": "overlay_12"
-    },
-    {
-      "col": 20,
-      "row": 8,
-      "layer": 0,
-      "backgroundTexture": "overlay_6"
-    },
-    {
-      "col": 30,
-      "row": 8,
-      "layer": 0,
-      "backgroundTexture": "overlay_12"
-    },
-    {
       "col": 35,
       "row": 8,
       "layer": 1,
@@ -1785,12 +1695,6 @@
       ]
     },
     {
-      "col": 12,
-      "row": 9,
-      "layer": 0,
-      "backgroundTexture": "overlay_3"
-    },
-    {
       "col": 35,
       "row": 9,
       "layer": 1,
@@ -1877,30 +1781,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 7,
-      "row": 10,
-      "layer": 0,
-      "backgroundTexture": "overlay_0"
-    },
-    {
-      "col": 11,
-      "row": 10,
-      "layer": 0,
-      "backgroundTexture": "overlay_15"
-    },
-    {
-      "col": 15,
-      "row": 10,
-      "layer": 0,
-      "backgroundTexture": "overlay_2"
-    },
-    {
-      "col": 16,
-      "row": 10,
-      "layer": 0,
-      "backgroundTexture": "overlay_0"
     },
     {
       "col": 20,
@@ -2007,18 +1887,6 @@
       ]
     },
     {
-      "col": 9,
-      "row": 11,
-      "layer": 0,
-      "backgroundTexture": "overlay_0"
-    },
-    {
-      "col": 13,
-      "row": 11,
-      "layer": 0,
-      "backgroundTexture": "overlay_8"
-    },
-    {
       "col": 20,
       "row": 11,
       "layer": 1,
@@ -2033,18 +1901,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 28,
-      "row": 11,
-      "layer": 0,
-      "backgroundTexture": "overlay_2"
-    },
-    {
-      "col": 30,
-      "row": 11,
-      "layer": 0,
-      "backgroundTexture": "overlay_9"
     },
     {
       "col": 35,
@@ -2135,18 +1991,6 @@
       ]
     },
     {
-      "col": 6,
-      "row": 12,
-      "layer": 0,
-      "backgroundTexture": "overlay_6"
-    },
-    {
-      "col": 12,
-      "row": 12,
-      "layer": 0,
-      "backgroundTexture": "overlay_7"
-    },
-    {
       "col": 20,
       "row": 12,
       "layer": 1,
@@ -2161,18 +2005,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 23,
-      "row": 12,
-      "layer": 0,
-      "backgroundTexture": "overlay_6"
-    },
-    {
-      "col": 30,
-      "row": 12,
-      "layer": 0,
-      "backgroundTexture": "overlay_15"
     },
     {
       "col": 35,
@@ -2263,12 +2095,6 @@
       ]
     },
     {
-      "col": 15,
-      "row": 13,
-      "layer": 0,
-      "backgroundTexture": "overlay_2"
-    },
-    {
       "col": 20,
       "row": 13,
       "layer": 1,
@@ -2283,12 +2109,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 22,
-      "row": 13,
-      "layer": 0,
-      "backgroundTexture": "overlay_11"
     },
     {
       "col": 35,
@@ -2377,12 +2197,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 12,
-      "row": 14,
-      "layer": 0,
-      "backgroundTexture": "overlay_0"
     },
     {
       "col": 20,
@@ -2487,24 +2301,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 11,
-      "row": 15,
-      "layer": 0,
-      "backgroundTexture": "overlay_6"
-    },
-    {
-      "col": 15,
-      "row": 15,
-      "layer": 0,
-      "backgroundTexture": "overlay_13"
-    },
-    {
-      "col": 17,
-      "row": 15,
-      "layer": 0,
-      "backgroundTexture": "overlay_13"
     },
     {
       "col": 20,
@@ -2772,12 +2568,6 @@
       ]
     },
     {
-      "col": 31,
-      "row": 16,
-      "layer": 0,
-      "backgroundTexture": "overlay_9"
-    },
-    {
       "col": 35,
       "row": 16,
       "layer": 1,
@@ -2866,18 +2656,6 @@
       ]
     },
     {
-      "col": 14,
-      "row": 17,
-      "layer": 0,
-      "backgroundTexture": "overlay_1"
-    },
-    {
-      "col": 15,
-      "row": 17,
-      "layer": 0,
-      "backgroundTexture": "overlay_11"
-    },
-    {
       "col": 20,
       "row": 17,
       "layer": 1,
@@ -2892,24 +2670,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 24,
-      "row": 17,
-      "layer": 0,
-      "backgroundTexture": "overlay_15"
-    },
-    {
-      "col": 31,
-      "row": 17,
-      "layer": 0,
-      "backgroundTexture": "overlay_8"
-    },
-    {
-      "col": 34,
-      "row": 17,
-      "layer": 0,
-      "backgroundTexture": "overlay_2"
     },
     {
       "col": 35,
@@ -3168,12 +2928,6 @@
       ]
     },
     {
-      "col": 10,
-      "row": 19,
-      "layer": 0,
-      "backgroundTexture": "overlay_7"
-    },
-    {
       "col": 20,
       "row": 19,
       "layer": 1,
@@ -3340,18 +3094,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 13,
-      "row": 20,
-      "layer": 0,
-      "backgroundTexture": "overlay_4"
-    },
-    {
-      "col": 15,
-      "row": 20,
-      "layer": 0,
-      "backgroundTexture": "overlay_8"
     },
     {
       "col": 20,
@@ -3522,18 +3264,6 @@
       ]
     },
     {
-      "col": 6,
-      "row": 21,
-      "layer": 0,
-      "backgroundTexture": "overlay_14"
-    },
-    {
-      "col": 14,
-      "row": 21,
-      "layer": 0,
-      "backgroundTexture": "overlay_6"
-    },
-    {
       "col": 20,
       "row": 21,
       "layer": 1,
@@ -3558,24 +3288,12 @@
       ]
     },
     {
-      "col": 29,
-      "row": 21,
-      "layer": 0,
-      "backgroundTexture": "overlay_0"
-    },
-    {
       "col": 32,
       "row": 21,
       "layer": 1,
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 34,
-      "row": 21,
-      "layer": 0,
-      "backgroundTexture": "overlay_4"
     },
     {
       "col": 35,
@@ -3666,12 +3384,6 @@
       ]
     },
     {
-      "col": 19,
-      "row": 22,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
-    },
-    {
       "col": 20,
       "row": 22,
       "layer": 1,
@@ -3694,18 +3406,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 27,
-      "row": 22,
-      "layer": 0,
-      "backgroundTexture": "dungeon_key"
-    },
-    {
-      "col": 31,
-      "row": 22,
-      "layer": 0,
-      "backgroundTexture": "overlay_11"
     },
     {
       "col": 32,
@@ -3804,12 +3504,6 @@
       ]
     },
     {
-      "col": 16,
-      "row": 23,
-      "layer": 0,
-      "backgroundTexture": "overlay_11"
-    },
-    {
       "col": 20,
       "row": 23,
       "layer": 1,
@@ -3824,12 +3518,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 22,
-      "row": 23,
-      "layer": 0,
-      "backgroundTexture": "overlay_15"
     },
     {
       "col": 25,
@@ -3984,12 +3672,6 @@
       ]
     },
     {
-      "col": 14,
-      "row": 24,
-      "layer": 0,
-      "backgroundTexture": "overlay_2"
-    },
-    {
       "col": 20,
       "row": 24,
       "layer": 1,
@@ -4004,12 +3686,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 23,
-      "row": 24,
-      "layer": 0,
-      "backgroundTexture": "overlay_5"
     },
     {
       "col": 25,
@@ -4164,18 +3840,6 @@
       ]
     },
     {
-      "col": 6,
-      "row": 25,
-      "layer": 0,
-      "backgroundTexture": "overlay_3"
-    },
-    {
-      "col": 10,
-      "row": 25,
-      "layer": 0,
-      "backgroundTexture": "overlay_15"
-    },
-    {
       "col": 20,
       "row": 25,
       "layer": 1,
@@ -4190,12 +3854,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 33,
-      "row": 25,
-      "layer": 0,
-      "backgroundTexture": "overlay_12"
     },
     {
       "col": 35,
@@ -5635,14 +5293,14 @@
   "levelTheme": "dungeon",
   "background": {
     "floor_texture": "dungeon_floor",
-    "tile": 15,
+    "tile": 8,
     "platform_texture": "stone_floor",
     "stairs_texture": "stone_stairs",
     "wall_texture": "stone_wall",
     "overlays": {
       "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
       "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
-      "frequency": 10,
+      "frequency": 5,
       "seed": 1
     }
   }

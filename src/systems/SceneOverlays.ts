@@ -9,7 +9,7 @@ type OverlaySprite = {
 };
 
 export class SceneOverlays {
-  private overlaySprites: OverlaySprite[] = [];
+  private readonly overlaySprites: OverlaySprite[] = [];
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -26,7 +26,7 @@ export class SceneOverlays {
     const lines = text.split('\n');
     for (const line of lines) {
       if (line.includes('overlay_')) {
-        const match = line.match(/x=(\d+), y=(\d+), width=(\d+), height=(\d+)/);
+        const match = new RegExp(/x=(\d+), y=(\d+), width=(\d+), height=(\d+)/).exec(line);
         if (match) {
           this.overlaySprites.push({
             x: Number.parseInt(match[1]),
@@ -45,42 +45,53 @@ export class SceneOverlays {
     const { frequency, seed } = this.levelData.background.overlays;
     const rng = this.seededRandom(seed);
 
-    const eligibleCells: Array<{ col: number; row: number }> = [];
+    const eligibleCells: Array<{ col: number; row: number; priority: number }> = [];
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
         const levelCell = this.levelData.cells.find(c => c.col === col && c.row === row);
 
-        if (cell && 
-            grid.getLayer(cell) === 0 && 
-            cell.properties.size === 0 && 
+        if (cell &&
+            grid.getLayer(cell) === 0 &&
+            cell.properties.size === 0 &&
             !levelCell?.backgroundTexture) {
-          eligibleCells.push({ col, row });
+
+          let priority = 0;
+
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              const neighbor = grid.getCell(col + dc, row + dr);
+              if (neighbor && (grid.getLayer(neighbor) >= 1 || neighbor.properties.has('stairs'))) {
+                priority += 3;
+              }
+            }
+          }
+
+          const centerX = grid.width / 2;
+          const centerY = grid.height / 2;
+          const distFromCenter = Math.hypot(col - centerX, row - centerY);
+          const maxDist = Math.hypot(centerX, centerY);
+          priority += Math.floor((distFromCenter / maxDist) * 5);
+
+          eligibleCells.push({ col, row, priority });
         }
       }
     }
 
+    eligibleCells.sort((a, b) => b.priority - a.priority);
+
     const overlayCount = Math.floor(eligibleCells.length / frequency);
 
     for (let i = 0; i < overlayCount; i++) {
-      const cellIndex = Math.floor(rng() * eligibleCells.length);
+      const maxIndex = Math.min(eligibleCells.length, Math.floor(eligibleCells.length * 0.3));
+      const cellIndex = Math.floor(rng() * maxIndex);
       const cell = eligibleCells[cellIndex];
       eligibleCells.splice(cellIndex, 1);
 
       const spriteIndex = Math.floor(rng() * this.overlaySprites.length);
       const sprite = this.overlaySprites[spriteIndex];
-
-      const levelCell = this.levelData.cells.find(c => c.col === cell.col && c.row === cell.row);
-      if (levelCell) {
-        levelCell.backgroundTexture = `overlay_${spriteIndex}`;
-      } else {
-        this.levelData.cells.push({
-          col: cell.col,
-          row: cell.row,
-          backgroundTexture: `overlay_${spriteIndex}`
-        });
-      }
 
       const worldPos = grid.cellToWorld(cell.col, cell.row);
       const image = this.scene.add.image(
@@ -90,8 +101,14 @@ export class SceneOverlays {
       );
       image.setOrigin(0.5, 0.5);
       image.setCrop(sprite.x, sprite.y, sprite.width, sprite.height);
-      image.setDisplaySize(sprite.width, sprite.height);
+      image.setDisplaySize(sprite.width * 1.5, sprite.height * 1.5);
       image.setDepth(-100);
+
+      const rotation = (rng() - 0.5) * 0.52;
+      image.setRotation(rotation);
+
+      const alpha = 0.85 + rng() * 0.15;
+      image.setAlpha(alpha);
     }
   }
 

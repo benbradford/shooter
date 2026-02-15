@@ -21,7 +21,6 @@ export class SlideButtonComponent implements Component {
   private pointerId = -1;
   private posX = 0;
   private posY = 0;
-  private initialized = false;
 
   constructor(scene: Phaser.Scene, slideAbility: SlideAbilityComponent, attackCombo: AttackComboComponent) {
     this.scene = scene;
@@ -49,7 +48,7 @@ export class SlideButtonComponent implements Component {
     const viewWidth = camera.width;
     const viewHeight = camera.height;
 
-    if (!this.initialized || this.posX === 0) {
+    if (this.posX === 0) {
       this.posX = viewWidth * POS_X;
       this.posY = viewHeight * POS_Y;
     }
@@ -90,6 +89,10 @@ export class SlideButtonComponent implements Component {
       this.pointerId = -1;
       this.isPressed = false;
     }
+  }
+
+  setVisible(visible: boolean): void {
+    this.sprite.setVisible(visible);
   }
 
   onDestroy(): void {

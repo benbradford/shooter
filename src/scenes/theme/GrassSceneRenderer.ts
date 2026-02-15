@@ -47,19 +47,6 @@ export class GrassSceneRenderer extends GameSceneRenderer {
           this.graphics.fillRect(x - radius, y - 1, radius * 2, this.cellSize / 2 + 1);
         }
 
-        if (hasLeft && hasUp) {
-          this.graphics.fillRect(x - this.cellSize / 2, y - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        }
-        if (hasRight && hasUp) {
-          this.graphics.fillRect(x + radius, y - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        }
-        if (hasLeft && hasDown) {
-          this.graphics.fillRect(x - this.cellSize / 2, y + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        }
-        if (hasRight && hasDown) {
-          this.graphics.fillRect(x + radius, y + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        }
-
         this.graphics.fillCircle(x, y, radius);
       }
     }
@@ -116,28 +103,6 @@ export class GrassSceneRenderer extends GameSceneRenderer {
           this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y + this.cellSize / 2));
         } else if (hasRight && !hasDown) {
           this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x + this.cellSize / 2, y + radius));
-        }
-
-        const innerRadius = this.cellSize / 2 - radius;
-        if (hasLeft && hasUp && !grid.getCell(col - 1, row - 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x - this.cellSize / 2, y - this.cellSize / 2, innerRadius, 0, Math.PI / 2, false);
-          this.graphics.strokePath();
-        }
-        if (hasRight && hasUp && !grid.getCell(col + 1, row - 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x + this.cellSize / 2, y - this.cellSize / 2, innerRadius, Math.PI / 2, Math.PI, false);
-          this.graphics.strokePath();
-        }
-        if (hasLeft && hasDown && !grid.getCell(col - 1, row + 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x - this.cellSize / 2, y + this.cellSize / 2, innerRadius, -Math.PI / 2, 0, false);
-          this.graphics.strokePath();
-        }
-        if (hasRight && hasDown && !grid.getCell(col + 1, row + 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x + this.cellSize / 2, y + this.cellSize / 2, innerRadius, Math.PI, -Math.PI / 2, false);
-          this.graphics.strokePath();
         }
       }
     }

@@ -13,6 +13,7 @@ export class JoystickVisualsComponent implements Component {
   private lastY: number = 0;
   private initialized: boolean = false;
   private playerEntity: Entity | null = null;
+  private isHudHidden: boolean = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -52,6 +53,13 @@ export class JoystickVisualsComponent implements Component {
       if (gameScene?.entityManager) {
         this.playerEntity = gameScene.entityManager.getFirst('player');
       }
+    }
+
+    if (this.isHudHidden) {
+      this.outerCircle.setVisible(false);
+      this.innerCircle.setVisible(false);
+      this.arrowsSprite.setVisible(false);
+      return;
     }
 
     // Check for remote input first (test mode)
@@ -94,6 +102,10 @@ export class JoystickVisualsComponent implements Component {
       this.innerCircle.setPosition(this.lastX, this.lastY);
       this.arrowsSprite.setPosition(this.lastX, this.lastY);
     }
+  }
+
+  setVisible(visible: boolean): void {
+    this.isHudHidden = !visible;
   }
 
   onDestroy(): void {
