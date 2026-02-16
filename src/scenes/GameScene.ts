@@ -41,7 +41,7 @@ export default class GameScene extends Phaser.Scene {
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
-  private currentLevelName: string = 'dungeon1';
+  private currentLevelName: string = 'grass_overworld1';
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;

@@ -251,7 +251,17 @@ Levels can specify default textures for all cells of a type in the level JSON:
     "platform_texture": "stone_floor",
     "stairs_texture": "stone_stairs",
     "wall_texture": "stone_wall",
-    "tile": 10
+    "tile": 10,
+    "overlays": {
+      "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
+      "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
+      "frequency": 10,
+      "seed": 12345
+    },
+    "edgeDarkening": {
+      "depth": 10,
+      "intensity": 0.8
+    }
   }
 }
 ```
@@ -261,6 +271,11 @@ Levels can specify default textures for all cells of a type in the level JSON:
 - `stairs_texture`: Rendered per cell at depth -5 (falls back to line rendering if not specified)
 - `wall_texture`: Rendered per cell at depth -5 (falls back to brick pattern if not specified)
 - `tile`: Chunk size for floor texture (e.g., 10 = 10x10 cells per sprite for performance)
+- `overlays`: Optional random decorative overlays (see Level Overlays section)
+- `edgeDarkening`: Optional progressive darkening of platforms near map edges
+  - `depth`: Number of cells from edge to darken (e.g., 10)
+  - `intensity`: Maximum darkness at edge (0.0-1.0, e.g., 0.8 = 80% black)
+  - Creates smooth gradient by subdividing cells into 4x4 sub-rectangles
 
 **Performance:**
 - Floor and cell textures are cached on first render (only created once)

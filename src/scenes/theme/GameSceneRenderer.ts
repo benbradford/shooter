@@ -293,6 +293,7 @@ export abstract class GameSceneRenderer {
 
     const darkenSteps = config.depth;
     const maxIntensity = config.intensity;
+    const stepsPerCell = 4;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -304,11 +305,29 @@ export abstract class GameSceneRenderer {
         if (distToEdge < darkenSteps) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
-          const intensity = 1 - distToEdge / darkenSteps;
-          const alpha = maxIntensity * intensity;
-          
-          this.edgeGraphics.fillStyle(0x000000, alpha);
-          this.edgeGraphics.fillRect(x, y, this.cellSize, this.cellSize);
+          const stepSize = this.cellSize / stepsPerCell;
+
+          for (let sy = 0; sy < stepsPerCell; sy++) {
+            for (let sx = 0; sx < stepsPerCell; sx++) {
+              const subX = x + sx * stepSize;
+              const subY = y + sy * stepSize;
+              
+              const subDistToEdge = Math.min(
+                col + sx / stepsPerCell,
+                row + sy / stepsPerCell,
+                grid.width - 1 - col - sx / stepsPerCell,
+                grid.height - 1 - row - sy / stepsPerCell
+              );
+              
+              const intensity = Math.max(0, 1 - subDistToEdge / darkenSteps);
+              const alpha = maxIntensity * intensity;
+              
+              if (alpha > 0.01) {
+                this.edgeGraphics.fillStyle(0x000000, alpha);
+                this.edgeGraphics.fillRect(subX, subY, stepSize, stepSize);
+              }
+            }
+          }
         }
       }
     }
