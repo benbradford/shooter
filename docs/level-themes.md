@@ -119,6 +119,9 @@ Levels can include random decorative overlays (dirt patches, cracked stone, skul
 - `seed`: Deterministic random seed for consistent placement
 - Only places on layer 0 cells with no properties and no existing texture
 - Overlays are applied once during level load via `SceneOverlays` class
+- **Priority-based placement**: Overlays cluster near walls, corners, and stairs (avoid room centers)
+- **Rotation**: Random ±30° rotation for natural variation
+- **Opacity**: Random 85-100% alpha for subtle variation
 
 ## Switching Themes in Editor
 

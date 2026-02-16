@@ -312,6 +312,10 @@ this.grid.setCell(15, 10, { layer: 1, properties: new Set(['platform']) });
   - `mustFaceEnemy = true`: Only punch enemies within 108° FOV cone
   - FOV visualization appears when C is also pressed
 
+- **V key** - Toggle HUD visibility
+  - Hides/shows movement joystick, attack button, slide button, health/ammo bars
+  - Useful for screenshots or cleaner view
+
 - **E key** - Enter level editor mode
   - Pauses game
   - Allows editing grid cells, moving player, resizing grid

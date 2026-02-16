@@ -53,6 +53,7 @@ export default class LevelSelectorScene extends Phaser.Scene {
         button.setBackgroundColor('#333333');
       });
       button.on('pointerdown', () => {
+        console.log(`[LevelSelector] Selecting level: ${levelName}`);
         void this.selectLevel(levelName);
       });
     });
@@ -85,8 +86,10 @@ export default class LevelSelectorScene extends Phaser.Scene {
   }
 
   private async selectLevel(levelName: string): Promise<void> {
+    console.log(`[LevelSelector] Loading level: ${levelName}`);
     const gameScene = this.scene.get('game') as GameScene;
     await gameScene.loadLevel(levelName);
+    console.log(`[LevelSelector] Level loaded, closing selector`);
     this.close();
   }
 

@@ -47,6 +47,7 @@ export abstract class GameSceneRenderer {
       this.renderEdges(grid);
     }
 
+    this.renderEdgeDarkening(grid, levelData);
     this.renderShadows(grid);
 
     if (!this.floorOverlay && levelData?.background) {
@@ -281,6 +282,33 @@ export abstract class GameSceneRenderer {
               this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y + this.cellSize, x + this.cellSize, y + this.cellSize));
             }
           }
+        }
+      }
+    }
+  }
+
+  private renderEdgeDarkening(grid: Grid, levelData?: LevelData): void {
+    const config = levelData?.background?.edgeDarkening;
+    if (!config) return;
+
+    const darkenSteps = config.depth;
+    const maxIntensity = config.intensity;
+
+    for (let row = 0; row < grid.height; row++) {
+      for (let col = 0; col < grid.width; col++) {
+        const cell = grid.getCell(col, row);
+        if (!cell || grid.getLayer(cell) < 1) continue;
+
+        const distToEdge = Math.min(col, row, grid.width - 1 - col, grid.height - 1 - row);
+        
+        if (distToEdge < darkenSteps) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          const intensity = 1 - distToEdge / darkenSteps;
+          const alpha = maxIntensity * intensity;
+          
+          this.edgeGraphics.fillStyle(0x000000, alpha);
+          this.edgeGraphics.fillRect(x, y, this.cellSize, this.cellSize);
         }
       }
     }

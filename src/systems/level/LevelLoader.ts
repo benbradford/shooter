@@ -14,6 +14,10 @@ export type LevelBackground = {
     frequency: number;
     seed: number;
   };
+  edgeDarkening?: {
+    depth: number;
+    intensity: number;
+  };
 }
 
 export type LevelCell = {
