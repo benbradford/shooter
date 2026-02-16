@@ -47,6 +47,7 @@ export default class GameScene extends Phaser.Scene {
   private sceneRenderer!: GameSceneRenderer;
   public layerDebugText?: Phaser.GameObjects.Text;
   private isEditorMode: boolean = false;
+  private sceneOverlays?: SceneOverlays;
 
   constructor() {
     super({ key: "game", active: true });
@@ -151,6 +152,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     const overlays = new SceneOverlays(this, this.levelData);
+    this.sceneOverlays = overlays;
     void overlays.init().then(() => {
       overlays.applyOverlays(this.grid);
       this.grid.render();
@@ -180,8 +182,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   resetScene(): void {
-    this.grid.destroy();
+    if (this.sceneOverlays) {
+      this.sceneOverlays.destroy();
+    }
 
+    this.grid.destroy();
     this.entityManager.destroyAll();
 
     this.initializeScene();
@@ -530,9 +535,17 @@ export default class GameScene extends Phaser.Scene {
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
 
+    // Clear all pending timer events
+    this.time.removeAllEvents();
+
     if (this.sceneRenderer) {
       this.sceneRenderer.destroy();
     }
+
+    // Destroy all game objects except HUD elements
+    this.children.list
+      .filter(obj => obj !== this.layerDebugText)
+      .forEach(obj => obj.destroy());
 
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
@@ -543,13 +556,6 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    }
-
-    if (this.background) {
-      this.background.destroy();
-    }
-    if (this.vignette) {
-      this.vignette.destroy();
     }
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);

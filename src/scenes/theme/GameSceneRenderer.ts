@@ -58,9 +58,16 @@ export abstract class GameSceneRenderer {
   destroy(): void {
     this.graphics.destroy();
     this.edgeGraphics.destroy();
-    if (this.floorOverlay) this.floorOverlay.destroy();
-    this.floorSprites.forEach(s => s.destroy());
-    this.cellSprites.forEach(s => s.destroy());
+    if (this.floorOverlay) {
+      this.floorOverlay.destroy();
+      this.floorOverlay = null;
+    }
+    for (const sprite of this.floorSprites) {
+      sprite.destroy();
+    }
+    for (const sprite of this.cellSprites) {
+      sprite.destroy();
+    }
   }
 
   private renderFloorOverlay(grid: Grid, _levelData: LevelData): void {

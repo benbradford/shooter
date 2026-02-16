@@ -10,6 +10,7 @@ type OverlaySprite = {
 
 export class SceneOverlays {
   private readonly overlaySprites: OverlaySprite[] = [];
+  private readonly overlayImages: Phaser.GameObjects.Image[] = [];
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -109,7 +110,14 @@ export class SceneOverlays {
 
       const alpha = 0.85 + rng() * 0.15;
       image.setAlpha(alpha);
+
+      this.overlayImages.push(image);
     }
+  }
+
+  destroy(): void {
+    this.overlayImages.forEach(img => img.destroy());
+    this.overlayImages.length = 0;
   }
 
   private seededRandom(seed: number): () => number {
