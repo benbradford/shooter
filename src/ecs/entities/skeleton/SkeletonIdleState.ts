@@ -9,7 +9,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 
 const IDLE_MIN_DURATION_MS = 500;
 const IDLE_MAX_DURATION_MS = 1000;
-const MAX_CHASE_DISTANCE_CELLS = 16;
+const MAX_CHASE_DISTANCE_CELLS = 30;
 const MAX_CHASE_DISTANCE_PX = 800;
 
 export class SkeletonIdleState implements IState {

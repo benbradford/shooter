@@ -6,7 +6,7 @@ import { BugSpawnerComponent } from '../ai/BugSpawnerComponent';
 import { createSmokeBurst } from './SmokeBurstHelper';
 
 const SPAWN_RANGE_PX = 200;
-const SCALE_IN_DURATION_MS = 3000;
+const SCALE_IN_DURATION_MS = 2000;
 const BURST_COUNT = 6;
 const BURST_INTERVAL_MS = 500;
 
@@ -24,10 +24,10 @@ export class BaseSpawnComponent implements Component {
 
   update(): void {
     const sprite = this.entity.require(SpriteComponent);
-    
+
     if (!this.hasSpawned && !this.isSpawning) {
       sprite.sprite.setVisible(false);
-      
+
       const transform = this.entity.require(TransformComponent);
       const playerTransform = this.playerEntity.require(TransformComponent);
 
@@ -52,7 +52,7 @@ export class BaseSpawnComponent implements Component {
       targets: transform,
       scale: this.targetScale,
       duration: SCALE_IN_DURATION_MS,
-      ease: 'Back.easeOut',
+      ease: 'Cubic.easeOut',
       onComplete: () => {
         this.hasSpawned = true;
         const spawner = this.entity.get(BugSpawnerComponent);

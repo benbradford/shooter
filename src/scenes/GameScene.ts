@@ -24,7 +24,7 @@ import { CELL_SIZE, CAMERA_ZOOM } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
-import { preloadAssets } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
@@ -534,6 +534,17 @@ export default class GameScene extends Phaser.Scene {
   async loadLevel(levelName: string): Promise<void> {
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
+
+    // Load assets for this level
+    preloadLevelAssets(this, this.levelData);
+    await new Promise<void>(resolve => {
+      if (this.load.isLoading()) {
+        this.load.once('complete', () => resolve());
+      } else {
+        resolve();
+      }
+      this.load.start();
+    });
 
     // Clear all pending timer events
     this.time.removeAllEvents();

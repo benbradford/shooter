@@ -367,6 +367,12 @@
       ]
     },
     {
+      "col": 18,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": "dungeon_door"
+    },
+    {
       "col": 21,
       "row": 13,
       "layer": 0,
@@ -565,6 +571,12 @@
       "properties": [
         "path"
       ]
+    },
+    {
+      "col": 23,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": "dungeon_key"
     },
     {
       "col": 28,

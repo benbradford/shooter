@@ -5180,7 +5180,7 @@
     {
       "col": 26,
       "row": 13,
-      "difficulty": "easy",
+      "difficulty": "hard",
       "waypoints": [
         {
           "col": 22,
@@ -5205,7 +5205,7 @@
     {
       "col": 16,
       "row": 12,
-      "difficulty": "easy"
+      "difficulty": "hard"
     }
   ],
   "throwers": [
@@ -5213,47 +5213,47 @@
       "id": "th1",
       "col": 25,
       "row": 21,
-      "difficulty": "easy"
+      "difficulty": "hard"
     },
     {
       "id": "th2",
       "col": 32,
       "row": 21,
-      "difficulty": "easy"
+      "difficulty": "hard"
     }
   ],
   "skeletons": [
     {
       "col": 32,
       "row": 16,
-      "difficulty": "easy"
+      "difficulty": "hard"
     },
     {
       "col": 23,
       "row": 17,
-      "difficulty": "easy"
+      "difficulty": "hard"
     },
     {
       "col": 22,
       "row": 23,
-      "difficulty": "easy"
+      "difficulty": "hard"
     },
     {
       "col": 28,
       "row": 13,
-      "difficulty": "easy"
+      "difficulty": "hard"
     },
     {
       "col": 34,
       "row": 22,
-      "difficulty": "easy"
+      "difficulty": "hard"
     }
   ],
   "bulletDudes": [
     {
       "col": 12,
       "row": 5,
-      "difficulty": "easy"
+      "difficulty": "hard"
     }
   ],
   "triggers": [

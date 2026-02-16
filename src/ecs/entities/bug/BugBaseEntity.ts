@@ -64,11 +64,11 @@ export function createBugBaseEntity(
         if (!spawner.isFullySpawned()) {
           return;
         }
-        
+
         if (health.getHealth() <= 0) {
           return;
         }
-        
+
         health.takeDamage(10);
 
         const hitFlash = entity.get(HitFlashComponent);

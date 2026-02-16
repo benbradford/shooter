@@ -177,3 +177,23 @@ export const ASSET_REGISTRY = {
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;
+
+/**
+ * Asset groups define which assets are needed for different entity types
+ */
+export const ASSET_GROUPS = {
+  // Core - always loaded
+  core: ['vignette', 'shadow'] as const,
+  
+  // Player and projectiles
+  player: ['player', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke', 'crosshair', 'slide_icon', 'arrows'] as const,
+  
+  // Enemies
+  stalking_robot: ['attacker'] as const,
+  floating_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
+  bug_base: ['bug_base', 'bug'] as const,
+  thrower: ['thrower', 'grenade'] as const,
+  skeleton: ['skeleton', 'bone_small'] as const,
+} as const;
+
+export type AssetGroupKey = keyof typeof ASSET_GROUPS;
