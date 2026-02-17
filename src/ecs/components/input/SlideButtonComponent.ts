@@ -3,18 +3,22 @@ import type { Entity } from '../../Entity';
 import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import type { AttackComboComponent } from '../combat/AttackComboComponent';
 
-const BUTTON_SCALE = 0.2;
+const BUTTON_SCALE = 0.16;
 const BUTTON_ALPHA_UNPRESSED = 0.4;
 const BUTTON_ALPHA_PRESSED = 0.9;
 const BUTTON_ALPHA_COOLDOWN = 0.2;
-const BUTTON_SCALE_PRESSED = 0.22;
+const BUTTON_SCALE_PRESSED = 0.176;
 const BUTTON_TINT_PRESSED = 0x6666ff;
 const POS_X = 0.75;
 const POS_Y = 0.85;
+const CIRCLE_RADIUS_PX = 60;
+const CIRCLE_COLOR = 0xffffff;
+const CIRCLE_ALPHA = 0.3;
 
 export class SlideButtonComponent implements Component {
   entity!: Entity;
   private readonly sprite: Phaser.GameObjects.Sprite;
+  private readonly circle: Phaser.GameObjects.Graphics;
   private readonly scene: Phaser.Scene;
   private readonly slideAbility: SlideAbilityComponent;
   private readonly attackCombo: AttackComboComponent;
@@ -34,6 +38,10 @@ export class SlideButtonComponent implements Component {
     this.sprite.setScrollFactor(0);
     this.sprite.setDepth(2000);
     this.sprite.setInteractive();
+
+    this.circle = scene.add.graphics();
+    this.circle.setScrollFactor(0);
+    this.circle.setDepth(1999);
 
     this.sprite.on('pointerdown', this.handlePointerDown, this);
     this.sprite.on('pointerup', this.handlePointerUp, this);
@@ -55,6 +63,10 @@ export class SlideButtonComponent implements Component {
     }
 
     this.sprite.setPosition(this.posX, this.posY);
+
+    this.circle.clear();
+    this.circle.lineStyle(2, CIRCLE_COLOR, CIRCLE_ALPHA);
+    this.circle.strokeCircle(this.posX, this.posY, CIRCLE_RADIUS_PX);
 
     const isPunching = this.attackCombo.isPunching();
     const canSlide = this.slideAbility.canSlide();
@@ -96,9 +108,11 @@ export class SlideButtonComponent implements Component {
 
   setVisible(visible: boolean): void {
     this.sprite.setVisible(visible);
+    this.circle.setVisible(visible);
   }
 
   onDestroy(): void {
     this.sprite.destroy();
+    this.circle.destroy();
   }
 }
