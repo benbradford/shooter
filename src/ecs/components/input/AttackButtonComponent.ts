@@ -5,6 +5,8 @@ const UNPRESSED_SCALE = 0.26;
 const PRESSED_SCALE = 0.28;
 const POS_X = 0.915;
 const POS_Y = 0.85;
+const ALPHA_UNPRESSED = 0.4;
+const ALPHA_PRESSED = 0.9;
 
 export class AttackButtonComponent implements Component {
   entity!: Entity;
@@ -19,7 +21,7 @@ export class AttackButtonComponent implements Component {
     this.sprite.setScale(UNPRESSED_SCALE);
     this.sprite.setScrollFactor(0);
     this.sprite.setDepth(2000);
-    this.sprite.setAlpha(0.7);
+    this.sprite.setAlpha(ALPHA_UNPRESSED);
   }
 
   init(): void {
@@ -43,6 +45,7 @@ export class AttackButtonComponent implements Component {
     if (distance <= radius) {
       this.isPressed = true;
       this.sprite.setScale(PRESSED_SCALE);
+      this.sprite.setAlpha(ALPHA_PRESSED);
       this.sprite.setTint(0x6666ff);
     }
   };
@@ -50,6 +53,7 @@ export class AttackButtonComponent implements Component {
   private readonly handlePointerUp = (): void => {
     this.isPressed = false;
     this.sprite.setScale(UNPRESSED_SCALE);
+    this.sprite.setAlpha(ALPHA_UNPRESSED);
     this.sprite.clearTint();
   };
 

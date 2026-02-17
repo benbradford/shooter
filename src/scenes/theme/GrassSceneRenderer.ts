@@ -22,7 +22,7 @@ export class GrassSceneRenderer extends GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (!cell || !cell.properties.has('path')) continue;
+        if (!cell?.properties.has('path')) continue;
 
         const x = col * this.cellSize + this.cellSize / 2;
         const y = row * this.cellSize + this.cellSize / 2;
@@ -68,7 +68,7 @@ export class GrassSceneRenderer extends GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (!cell || !cell?.properties.has('path')) continue;
+        if (!cell?.properties.has('path')) continue;
 
         const x = col * this.cellSize + this.cellSize / 2;
         const y = row * this.cellSize + this.cellSize / 2;

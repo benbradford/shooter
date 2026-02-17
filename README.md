@@ -297,7 +297,9 @@ npx eslint src --ext .ts     # Code quality check - MUST pass
 - **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, layer-based collision, scene setup
 - **[Input Systems](./docs/input-systems.md)** - Joystick controls, keyboard input, touch firing
 - **[Level System](./docs/level-system.md)** - Loading levels from JSON, level data structure, creating levels
+- **[Level Loading](./docs/level-loading.md)** - Dynamic asset loading, asset registry, scene cleanup
 - **[Level Editor](./docs/level-editor.md)** - Editor mode, scene overlay system, future features
+- **[HUD System](./docs/hud-system.md)** - HUD components, button states, touch input handling
 - **[Adding Enemies](./docs/adding-enemies.md)** - Complete guide for implementing new enemy types with state machines and components
 - **[Particle Effects](./docs/particle-effects.md)** - Creating particle effects, entity ownership, following transforms, common patterns
 - **[Hit Flash System](./docs/hit-flash-system.md)** - Reusable damage feedback component for all entities

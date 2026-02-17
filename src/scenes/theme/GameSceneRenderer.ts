@@ -114,10 +114,10 @@ export abstract class GameSceneRenderer {
         const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
         const hasTexture = !!levelCell?.backgroundTexture;
 
-        const isStairs = cell && grid.isTransition(cell);
+        const isStairs = cell?.properties.has('stairs');
         const isElevated = cell && grid.getLayer(cell) >= 1;
-        const isWall = cell && cell.properties.has('wall');
-        const isPlatform = cell && cell.properties.has('platform');
+        const isWall = cell?.properties.has('wall');
+        const isPlatform = cell?.properties.has('platform');
 
         const x = col * this.cellSize;
         const y = row * this.cellSize;
@@ -132,12 +132,12 @@ export abstract class GameSceneRenderer {
         if (isElevated || isStairs) {
           // Render textures from background config (cache on first render)
           if (hasBackgroundConfig && !hasTexture && levelData.background && !this.isCached) {
-            if (isStairs && levelData.background.stairs_texture) {
+            if (isStairs && levelData.background?.stairs_texture) {
               const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
               sprite.setDisplaySize(this.cellSize, this.cellSize);
               sprite.setDepth(-5);
               this.cellSprites.push(sprite);
-            } else if (isWall && levelData.background.wall_texture) {
+            } else if (isWall && levelData.background?.wall_texture) {
               const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.wall_texture);
               sprite.setDisplaySize(this.cellSize, this.cellSize);
               sprite.setDepth(-5);
@@ -220,11 +220,12 @@ export abstract class GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
+        if (!cell) continue;
 
-        const isStairs = cell && grid.isTransition(cell);
-        const isElevated = cell && grid.getLayer(cell) >= 1;
-        const isWall = cell && cell.properties.has('wall');
-        const isPlatform = cell && cell.properties.has('platform');
+        const isStairs = cell.properties.has('stairs');
+        const isElevated = grid.getLayer(cell) >= 1;
+        const isWall = cell.properties.has('wall');
+        const isPlatform = cell.properties.has('platform');
 
         if (isElevated || isStairs) {
           const x = col * this.cellSize;
@@ -238,9 +239,9 @@ export abstract class GameSceneRenderer {
             const rightCell = grid.cells[row][col + 1];
             const rightLayer = grid.getLayer(rightCell);
             const rightIsLower = rightLayer < currentLayer && !grid.isTransition(rightCell);
-            const rightIsPlatform = rightCell && rightCell.properties.has('platform');
+            const rightIsPlatform = rightCell?.properties.has('platform');
             const rightIsStairs = rightCell && grid.isTransition(rightCell);
-            const rightIsWall = rightCell && rightCell.properties.has('wall');
+            const rightIsWall = rightCell?.properties.has('wall');
 
             if (rightIsLower || (isWall && rightIsPlatform && !rightIsStairs) || (isStairs && rightIsWall) || (isWall && rightIsStairs)) {
               this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(
@@ -254,9 +255,9 @@ export abstract class GameSceneRenderer {
             const leftCell = grid.cells[row][col - 1];
             const leftLayer = grid.getLayer(leftCell);
             const leftIsLower = leftLayer < currentLayer && !grid.isTransition(leftCell);
-            const leftIsPlatform = leftCell && leftCell.properties.has('platform');
+            const leftIsPlatform = leftCell?.properties.has('platform');
             const leftIsStairs = leftCell && grid.isTransition(leftCell);
-            const leftIsWall = leftCell && leftCell.properties.has('wall');
+            const leftIsWall = leftCell?.properties.has('wall');
 
             if (leftIsLower || (isWall && leftIsPlatform && !leftIsStairs) || (isStairs && leftIsWall) || (isWall && leftIsStairs)) {
               this.edgeGraphics.lineStyle(edgeThickness / 2, edgeColor, 1);
@@ -269,9 +270,9 @@ export abstract class GameSceneRenderer {
             const topCell = grid.cells[row - 1][col];
             const topLayer = grid.getLayer(topCell);
             const topIsLower = topLayer < currentLayer && !grid.isTransition(topCell);
-            const topIsPlatform = topCell && topCell.properties.has('platform');
+            const topIsPlatform = topCell?.properties.has('platform');
             const topIsStairs = topCell && grid.isTransition(topCell);
-            const topIsWall = topCell && topCell.properties.has('wall');
+            const topIsWall = topCell?.properties.has('wall');
 
             if (((topIsLower || (isWall && topIsPlatform && !topIsStairs) || (isStairs && topIsWall) || (isWall && topIsStairs)) && !isStairs) || (isPlatform && topIsStairs)) {
               this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
@@ -282,7 +283,7 @@ export abstract class GameSceneRenderer {
             const bottomCell = grid.cells[row + 1][col];
             const bottomLayer = grid.getLayer(bottomCell);
             const bottomIsLower = bottomLayer < currentLayer && !grid.isTransition(bottomCell);
-            const bottomIsPlatform = bottomCell && bottomCell.properties.has('platform');
+            const bottomIsPlatform = bottomCell?.properties.has('platform');
             const bottomIsStairs = bottomCell && grid.isTransition(bottomCell);
 
             if (bottomIsLower || (isWall && bottomIsPlatform && !bottomIsStairs)) {

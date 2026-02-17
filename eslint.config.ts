@@ -45,6 +45,7 @@ export default defineConfig([
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "@typescript-eslint/default-param-last": "error",
       "@typescript-eslint/prefer-nullish-coalescing": "warn",
+      "@typescript-eslint/require-array-sort-compare": ["error", { "ignoreStringArrays": false }],
       "no-dupe-else-if": "error",
       "no-else-return": "error",
       "no-lonely-if": "error",
@@ -68,7 +69,9 @@ export default defineConfig([
       "unicorn/prefer-number-properties": "warn",
       "unicorn/prefer-class-fields": "error",
       "unicorn/no-useless-fallback-in-spread": "error",
-      "unicorn/prefer-global-this": "error"
+      "unicorn/prefer-global-this": "error",
+      "unicorn/no-array-method-this-argument": "error",
+      "unicorn/prefer-array-find": "error"
     }
   },
   tseslint.configs.recommended,

@@ -171,7 +171,7 @@ export class SpawnerEditorState extends EditorState {
     emptyOption.textContent = '-- Select Event --';
     eventSelect.appendChild(emptyOption);
 
-    for (const eventName of Array.from(availableEvents).sort()) {
+    for (const eventName of Array.from(availableEvents).sort((a, b) => a.localeCompare(b))) {
       const option = document.createElement('option');
       option.value = eventName;
       option.textContent = eventName;
@@ -202,7 +202,7 @@ export class SpawnerEditorState extends EditorState {
 
     const selectedIds = new Set(spawner.enemyIds);
 
-    for (const enemyId of Array.from(availableEnemyIds).sort()) {
+    for (const enemyId of Array.from(availableEnemyIds).sort((a, b) => a.localeCompare(b))) {
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.value = enemyId;

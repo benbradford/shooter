@@ -4,8 +4,9 @@ import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import type { AttackComboComponent } from '../combat/AttackComboComponent';
 
 const BUTTON_SCALE = 0.2;
-const BUTTON_ALPHA_ACTIVE = 0.7;
-const BUTTON_ALPHA_COOLDOWN = 0.3;
+const BUTTON_ALPHA_UNPRESSED = 0.4;
+const BUTTON_ALPHA_PRESSED = 0.9;
+const BUTTON_ALPHA_COOLDOWN = 0.2;
 const BUTTON_SCALE_PRESSED = 0.22;
 const BUTTON_TINT_PRESSED = 0x6666ff;
 const POS_X = 0.75;
@@ -29,7 +30,7 @@ export class SlideButtonComponent implements Component {
 
     this.sprite = scene.add.sprite(0, 0, 'slide_icon');
     this.sprite.setScale(BUTTON_SCALE);
-    this.sprite.setAlpha(BUTTON_ALPHA_ACTIVE);
+    this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
     this.sprite.setScrollFactor(0);
     this.sprite.setDepth(2000);
     this.sprite.setInteractive();
@@ -60,8 +61,10 @@ export class SlideButtonComponent implements Component {
 
     if (isPunching || !canSlide) {
       this.sprite.setAlpha(BUTTON_ALPHA_COOLDOWN);
+    } else if (this.isPressed) {
+      this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
     } else {
-      this.sprite.setAlpha(this.isPressed ? 1 : BUTTON_ALPHA_ACTIVE);
+      this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
     }
 
     if (this.isPressed) {
