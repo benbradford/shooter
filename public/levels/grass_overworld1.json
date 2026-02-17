@@ -370,7 +370,7 @@
       "col": 18,
       "row": 13,
       "layer": 0,
-      "backgroundTexture": "dungeon_door"
+      "backgroundTexture": { "name": "dungeon_door" }
     },
     {
       "col": 21,
@@ -576,7 +576,7 @@
       "col": 23,
       "row": 16,
       "layer": 0,
-      "backgroundTexture": "dungeon_key"
+      "backgroundTexture": { "name": "dungeon_key" }
     },
     {
       "col": 28,

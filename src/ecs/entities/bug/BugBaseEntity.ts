@@ -51,7 +51,7 @@ export function createBugBaseEntity(
   const health = entity.add(new HealthComponent({ maxHealth: config.baseHealth }));
   entity.add(new HitFlashComponent());
   entity.add(new BaseExplosionComponent(scene, grid.cellSize));
-  entity.add(new BaseSpawnComponent(scene, playerEntity, grid.cellSize, scale));
+  entity.add(new BaseSpawnComponent(scene, playerEntity, grid.cellSize, scale * 0.3));
   entity.add(new BugSpawnerComponent(playerEntity, onSpawnBug, config.spawnIntervalMs, grid));
   entity.add(new DifficultyComponent<EnemyDifficulty>(difficulty));
 

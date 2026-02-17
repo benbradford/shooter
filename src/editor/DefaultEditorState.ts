@@ -201,6 +201,29 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterTriggerMode();
     });
 
+    // Level Exit button
+    const levelExitButton = this.scene.add.text(centerX + buttonSpacing * 5, buttonY, 'Portal', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    levelExitButton.setOrigin(0.5);
+    levelExitButton.setScrollFactor(0);
+    levelExitButton.setInteractive({ useHandCursor: true });
+    levelExitButton.setDepth(1000);
+    this.buttons.push(levelExitButton);
+
+    levelExitButton.on('pointerover', () => {
+      levelExitButton.setBackgroundColor('#555555');
+    });
+    levelExitButton.on('pointerout', () => {
+      levelExitButton.setBackgroundColor('#333333');
+    });
+    levelExitButton.on('pointerdown', () => {
+      this.scene.enterExitMode();
+    });
+
     // Spawner button (second row)
     const spawnerButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY + 60, 'Spawner', {
       fontSize: '24px',
@@ -260,6 +283,21 @@ export class DefaultEditorState extends EditorState {
           if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
             this.scene.enterTriggerMode(i);
             return;
+          }
+        }
+      }
+    }
+
+    // Check for exit click
+    if (levelData.exits) {
+      for (const exit of levelData.exits) {
+        const trigger = levelData.triggers?.find((t) => t.eventName === exit.eventName);
+        if (trigger) {
+          for (const cell of trigger.triggerCells) {
+            if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
+              this.scene.enterExitMode(exit);
+              return;
+            }
           }
         }
       }

@@ -55,7 +55,7 @@ export class AttackButtonComponent implements Component {
       this.isPressed = true;
       this.sprite.setScale(PRESSED_SCALE);
       this.sprite.setAlpha(ALPHA_PRESSED);
-      this.sprite.setTint(0x6666ff);
+      this.sprite.setTint(0xff6666);
     }
   };
 

@@ -40,6 +40,7 @@ export default class EditorScene extends Phaser.Scene {
   private readonly cameraSpeed = 400;
   private triggerGraphics: Phaser.GameObjects.Graphics | null = null;
   private inTriggerState: boolean = false;
+  private cellHoverText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'EditorScene' });
@@ -90,6 +91,16 @@ export default class EditorScene extends Phaser.Scene {
     this.title.setOrigin(0.5);
     this.title.setScrollFactor(0);
     this.title.setDepth(1000);
+
+    // Cell hover text
+    this.cellHoverText = this.add.text(10, 10, '', {
+      fontSize: '20px',
+      color: '#ffffff',
+      backgroundColor: '#000000',
+      padding: { x: 10, y: 5 }
+    });
+    this.cellHoverText.setScrollFactor(0);
+    this.cellHoverText.setDepth(1000);
 
     // Setup input
     const keyboard = this.input.keyboard;
@@ -142,6 +153,24 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine.update(delta);
     this.handleCameraMovement(delta);
     this.renderTriggers();
+    this.updateCellHover();
+  }
+
+  private updateCellHover(): void {
+    const pointer = this.input.activePointer;
+    const gameScene = this.scene.get('game') as GameScene;
+    const camera = gameScene.cameras.main;
+    const worldX = camera.scrollX + pointer.x / camera.zoom;
+    const worldY = camera.scrollY + pointer.y / camera.zoom;
+
+    const grid = this.getGrid();
+    const cell = grid.worldToCell(worldX, worldY);
+
+    if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
+      this.cellHoverText.setText(`Col: ${cell.col}, Row: ${cell.row}`);
+    } else {
+      this.cellHoverText.setText('');
+    }
   }
 
   private renderTriggers(): void {
@@ -200,7 +229,7 @@ export default class EditorScene extends Phaser.Scene {
   setCellData(col: number, row: number, data: { layer?: number; properties?: Set<CellProperty>; backgroundTexture?: string }): void {
     const grid = this.getGrid();
     grid.setCell(col, row, data);
-    grid.render(); // Force re-render to show changes
+    grid.render();
   }
 
   hasUnsavedChanges(): boolean {
@@ -233,6 +262,7 @@ export default class EditorScene extends Phaser.Scene {
         }
       }
     }
+   
     return cells;
   }
 
@@ -391,6 +421,7 @@ export default class EditorScene extends Phaser.Scene {
       bulletDudes: bulletDudes.length > 0 ? bulletDudes : undefined,
       triggers: existingLevelData.triggers,
       spawners: existingLevelData.spawners,
+      exits: existingLevelData.exits,
       levelTheme: existingLevelData.levelTheme,
       background: existingLevelData.background
     };
@@ -527,6 +558,23 @@ export default class EditorScene extends Phaser.Scene {
     } else {
       this.stateMachine.enter('trigger', triggerIndex as unknown as void | Entity | MoveEditorStateProps);
     }
+  }
+
+  enterExitMode(exitData?: { eventName: string; targetLevel: string; targetCol: number; targetRow: number }): void {
+    this.inTriggerState = true;
+    if (this.triggerGraphics) {
+      this.triggerGraphics.destroy();
+      this.triggerGraphics = null;
+    }
+    if (exitData) {
+      this.stateMachine.enter('exit', { data: exitData } as unknown as void | Entity | MoveEditorStateProps);
+    } else {
+      this.stateMachine.enter('exit');
+    }
+  }
+
+  enterSpritesheetPickerMode(): void {
+    this.stateMachine.enter('spritesheetPicker');
   }
 
 

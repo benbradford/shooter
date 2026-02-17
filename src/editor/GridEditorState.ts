@@ -164,7 +164,8 @@ export class GridEditorState extends EditorState {
     if (this.selectedLayer === -1) {
       this.scene.setCellData(cell.col, cell.row, { 
         layer: 0,
-        properties: new Set()
+        properties: new Set(),
+        backgroundTexture: ''
       });
       return;
     }

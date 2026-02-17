@@ -1,0 +1,380 @@
+🧱 2D Dungeon Action Game — Visual & Sprite Sheet Spec (Draft v1)
+1. Game Overview (Context I Should Always Assume)
+
+Game type: 2D top-down action game
+
+Camera: Orthographic, fixed top-down
+
+Grid system:
+
+World is built on a 64×64 pixel grid
+
+One tile = one gameplay cell
+
+Art inspiration: Metal Slug
+
+Cartoon-realistic
+
+Chunky shapes
+
+High readability
+
+Stylized, not photoreal
+
+2. Core Rendering Rules (Very Important)
+
+These are non-negotiable unless you explicitly say otherwise:
+
+❌ No baked lighting
+
+❌ No gradients
+
+❌ No vignettes
+
+❌ No soft shadows
+
+❌ No ambient shading
+
+✅ Uniform brightness edge-to-edge
+
+✅ All depth/readability comes from:
+
+Line work
+
+Color contrast
+
+Texture variation
+
+3. Tile & Sprite Rules
+Tile Size
+
+All tiles: 64×64 px
+
+Walls, floors, platforms each consume exactly one grid cell
+
+Never mix wall + floor + platform in the same tile
+
+Seamlessness
+
+Floor & platform tiles must be:
+
+Seamless horizontally and vertically
+
+No visible seams when tiled repeatedly
+
+4. Floors (Dungeon)
+Dirt-Over-Stone Floor
+
+Mostly compacted brown dirt
+
+Subtle stone texture showing through
+
+❌ No obvious tile-shaped stones
+
+Small bones / debris:
+
+Baked into the base texture
+
+Not overlays unless explicitly requested
+
+Cartoon-realistic texture density
+
+Fully seamless
+
+5. Walls
+
+Walls are separate sprites from floors/platforms
+
+Consume exactly 1 grid cell
+
+Styled to match dungeon:
+
+Aged stone
+
+Chunky outlines
+
+High contrast edges
+
+Never appear inside floor or platform tiles
+
+6. Platforms (Raised Walkable Areas)
+
+Platforms are flat walkable surfaces
+
+No wall faces baked in
+
+No side shading
+
+Platform height is implied by:
+
+Walls
+
+Edges (handled separately)
+
+Platform Tops
+
+Stone-based texture
+
+Subtle noise / cracks
+
+No obvious repetition
+
+Seamless
+
+Uniform brightness
+
+Platform Edges
+
+Not required in the base tile
+
+May be:
+
+Separate sprites
+
+Or drawn procedurally by the game
+
+Sprite variants are acceptable only if:
+
+Each variant is still 64×64
+
+Alpha background
+
+No wall faces baked in
+
+7. Sprite Sheets
+Padding
+
+4 px padding between sprites (minimum)
+
+Transparent background (alpha)
+
+Consistency
+
+All sprites in a sheet:
+
+Same dimensions
+
+Same brightness range
+
+Same line thickness
+
+No beige/halo artifacts
+
+No semi-transparent edge pixels unless intentional
+
+Engine Safety
+
+Sprites must be extractable by:
+
+Fixed coordinates
+
+Fixed widths/heights
+
+No visual bleed across sprite bounds
+
+8. Overlays & Decals
+
+Used sparingly
+
+Must be:
+
+Pixel-crisp
+
+Hard edges
+
+No soft alpha fades
+
+Purpose:
+
+Break repetition
+
+Add grime, bones, cracks
+
+Must not introduce lighting cues
+
+9. UI / HUD Icons
+
+Square icons
+
+Pixel-art
+
+High contrast
+
+Readable at small sizes
+
+Clear silhouette first, detail second
+
+Same stylistic family as world art
+
+10. What You Can Assume About My Behavior
+
+When working on this project, I should:
+
+Think in engine constraints first
+
+Ask before violating any rule above
+
+Prefer specs and coordinates over vibes
+
+Treat image generation as final-asset-ready, not concept art
+
+
+---
+
+❌ HARD “DO NOT DO” RULES — Ground Overlays & Hole Sprites
+
+These are non-negotiable constraints for this project.
+
+1. ❌ NEVER bake ground into overlay sprites
+
+Hole sprites must NEVER include any surrounding dirt, stone, floor, or fill
+
+The floor already exists underneath
+
+The sprite must visually “sit on top” of any floor type
+
+Correct:
+
+Only the hole rim + interior darkness + debris
+Incorrect:
+
+Hole + square of dirt around it
+
+Hole blended into a fake ground patch
+
+Hole with feathered background
+
+2. ❌ NO opaque or semi-opaque backgrounds
+
+Background must be 100% transparent (true alpha)
+
+No beige, brown, grey, blurred, vignetted, or “helper” background
+
+No soft edge fade into transparency
+
+Allowed pixels:
+
+Fully opaque (hole rim, debris)
+
+Fully transparent (everything else)
+
+Disallowed:
+
+5–20% alpha pixels
+
+Soft shadows fading into nothing
+
+Anti-aliased transparency halos
+
+3. ❌ NO text, labels, guides, or framing
+
+No words like “Active / Damaged / Destroyed”
+
+No outlines, borders, boxes, or preview framing
+
+Spritesheets are raw assets, not presentation images
+
+4. ❌ NO lighting, shading, or fake depth from the environment
+
+The hole provides its own internal depth only
+
+No directional light
+
+No shadow cast onto the ground
+
+No vignette inside the tile bounds
+
+Depth should come from:
+
+Darker interior color
+
+Broken rim silhouette
+
+Pixel contrast — not gradients
+
+5. ❌ NO tile-bound assumptions
+
+Hole sprites are not tiles
+
+They do not align to grid seams
+
+They may overlap multiple underlying tiles visually
+
+They must work when:
+
+scaled in
+
+scaled out
+
+animated
+
+placed on any floor texture
+
+✅ POSITIVE CONSTRAINTS (What SHOULD happen)
+Hole Sprite Definition
+
+Canvas: 64×64 (or explicitly defined size)
+
+Background: 100% transparent
+
+Content:
+
+Jagged rim
+
+Interior darkness
+
+Optional debris (bones, stones)
+
+Edges: Hard pixel edges (Metal Slug–ish)
+
+State Variants (If using a mini-sheet)
+
+Each state differs only in damage, never in background:
+
+Active
+
+Clean rim
+
+Deep interior
+
+Damaged
+
+Cracked rim
+
+Chipped stones
+
+Destroyed
+
+Collapsed rim
+
+Rubble filling hole
+
+Still transparent outside rubble
+
+🔁 Why this matters (engine-side)
+
+Because you:
+
+Scale the sprite in/out
+
+Layer it over procedural floors
+
+Use particle effects
+
+Reuse it across biomes
+
+Any baked ground or semi-alpha instantly:
+
+Reveals scaling artifacts
+
+Creates visible squares
+
+Breaks tiling illusion
+
+Fights your floor texture work
+
+🧠 Internal reminder for me (plain English)
+
+If the sprite wouldn’t look correct pasted over any random floor, it’s wrong.
+
+No exceptions.

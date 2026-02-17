@@ -12,7 +12,7 @@
       "row": 7,
       "layer": 0,
       "properties": ["exit"],
-      "backgroundTexture": "dungeon_door"
+      "backgroundTexture": "dungeon_door" 
     }
   ],
   "triggers": [

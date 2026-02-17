@@ -2500,8 +2500,7 @@
       "layer": 1,
       "properties": [
         "wall"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 23,
@@ -2655,6 +2654,7 @@
         "platform"
       ]
     },
+
     {
       "col": 20,
       "row": 17,
@@ -3992,22 +3992,6 @@
       ]
     },
     {
-      "col": 12,
-      "row": 26,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 13,
-      "row": 26,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
       "col": 14,
       "row": 26,
       "layer": 1,
@@ -4305,22 +4289,6 @@
     },
     {
       "col": 11,
-      "row": 27,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 12,
-      "row": 27,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 13,
       "row": 27,
       "layer": 1,
       "properties": [
@@ -4632,22 +4600,6 @@
       ]
     },
     {
-      "col": 12,
-      "row": 28,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 13,
-      "row": 28,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
       "col": 14,
       "row": 28,
       "layer": 1,
@@ -4945,22 +4897,6 @@
     },
     {
       "col": 11,
-      "row": 29,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 12,
-      "row": 29,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 13,
       "row": 29,
       "layer": 1,
       "properties": [
@@ -5278,6 +5214,20 @@
         }
       ],
       "oneShot": true
+    },
+    {
+      "eventName": "exit_to_overworld1",
+      "triggerCells": [
+        {
+          "col": 12,
+          "row": 29
+        },
+        {
+          "col": 13,
+          "row": 29
+        }
+      ],
+      "oneShot": false
     }
   ],
   "spawners": [
@@ -5288,6 +5238,14 @@
         "th2"
       ],
       "spawnDelayMs": 0
+    }
+  ],
+  "exits": [
+    {
+      "eventName": "exit_to_overworld1",
+      "targetLevel": "grass_overworld1",
+      "targetCol": 2,
+      "targetRow": 2
     }
   ],
   "levelTheme": "dungeon",
