@@ -15,6 +15,7 @@ import { createGrenadeEntity } from "../ecs/entities/projectile/GrenadeEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { createTriggerEntity } from "../trigger/TriggerEntity";
 import { createEnemySpawnerEntity } from "../spawner/EnemySpawnerEntity";
+import { createLevelExitEntity } from "../exit/LevelExitEntity";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { BugSpawnerComponent } from "../ecs/components/ai/BugSpawnerComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
@@ -466,6 +467,23 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.add(spawner);
       }
     }
+
+    // Spawn level exits from level data
+    if (level.exits && level.exits.length > 0) {
+      for (const exitData of level.exits) {
+        const exit = createLevelExitEntity({
+          eventManager: this.eventManager,
+          eventName: exitData.eventName,
+          targetLevel: exitData.targetLevel,
+          targetCol: exitData.targetCol,
+          targetRow: exitData.targetRow,
+          onTransition: (targetLevel, targetCol, targetRow) => {
+            void this.transitionToLevel(targetLevel, targetCol, targetRow);
+          }
+        });
+        this.entityManager.add(exit);
+      }
+    }
   }
 
   update(_time: number, delta: number): void {
@@ -531,9 +549,63 @@ export default class GameScene extends Phaser.Scene {
     this.scene.launch('LevelSelectorScene');
   }
 
-  async loadLevel(levelName: string): Promise<void> {
+  private transitionToLevel(targetLevel: string, spawnCol: number, spawnRow: number): void {
+    const cam = this.cameras.main;
+    const fadeRect = this.add.rectangle(
+      0,
+      0,
+      cam.width / cam.zoom,
+      cam.height / cam.zoom,
+      0x000000
+    );
+    fadeRect.setOrigin(0, 0);
+    fadeRect.setScrollFactor(0);
+    fadeRect.setDepth(100000);
+    fadeRect.setAlpha(0);
+
+    this.tweens.add({
+      targets: fadeRect,
+      alpha: 1,
+      duration: 500,
+      ease: 'Linear',
+      onComplete: () => {
+        void this.loadLevel(targetLevel, spawnCol, spawnRow).then(() => {
+          const newFadeRect = this.add.rectangle(
+            0,
+            0,
+            this.cameras.main.width / this.cameras.main.zoom,
+            this.cameras.main.height / this.cameras.main.zoom,
+            0x000000
+          );
+          newFadeRect.setOrigin(0, 0);
+          newFadeRect.setScrollFactor(0);
+          newFadeRect.setDepth(100000);
+          newFadeRect.setAlpha(1);
+
+          this.tweens.add({
+            targets: newFadeRect,
+            alpha: 0,
+            duration: 500,
+            ease: 'Linear',
+            onComplete: () => {
+              newFadeRect.destroy();
+            }
+          });
+        }).catch((error: unknown) => {
+          console.error(`Failed to transition to level ${targetLevel}:`, error);
+        });
+      }
+    });
+  }
+
+
+  async loadLevel(levelName: string, spawnCol?: number, spawnRow?: number): Promise<void> {
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
+
+    if (spawnCol !== undefined && spawnRow !== undefined) {
+      this.levelData.playerStart = { x: spawnCol, y: spawnRow };
+    }
 
     // Load assets for this level
     preloadLevelAssets(this, this.levelData);

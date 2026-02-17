@@ -74,6 +74,14 @@ export type LevelSpawner = {
   spawnDelayMs: number;
 }
 
+export type LevelExit = {
+  eventName: string;
+  targetLevel: string;
+  targetCol: number;
+  targetRow: number;
+  description?: string;
+}
+
 export type LevelData = {
   width: number;
   height: number;
@@ -89,6 +97,7 @@ export type LevelData = {
   bulletDudes?: LevelBulletDude[];
   triggers?: LevelTrigger[];
   spawners?: LevelSpawner[];
+  exits?: LevelExit[];
   levelTheme?: LevelTheme;
   background?: LevelBackground;
 }
