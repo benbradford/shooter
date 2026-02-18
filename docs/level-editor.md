@@ -132,14 +132,19 @@ States can specify their data type and access it via `props.data` in `onEnter()`
 
 The initial mode when entering the editor. Shows buttons at the bottom and allows clicking entities:
 
-**Buttons:**
+**Buttons (Top Row):**
+- **Theme** - Opens theme selector to switch between dungeon/swamp/grass themes
 - **Exit** - Returns to game (also ESC key)
 - **Grid** - Enters grid editing mode
 - **Add** - Enters add mode to place new entities
 - **Texture** - Enters texture mode to paint background textures
 - **Resize** - Enters resize mode for adding/removing rows/columns
-- **Theme** - Opens theme selector to switch between dungeon/swamp themes
 - **Log** - Logs level JSON to console and copies to clipboard
+- **Trigger** - Creates event triggers
+
+**Buttons (Bottom Row):**
+- **Spawner** - Creates enemy spawners
+- **Portal** - Creates level exits/transitions
 
 **Entity Interaction:**
 - **Click Player** - Enters Move mode for player
@@ -342,9 +347,38 @@ Allows creating and editing event triggers - invisible areas that fire events wh
 - Triggers are invisible during gameplay (only visible in editor)
 - Events are raised through `EventManagerSystem.raiseEvent(eventName)`
 
+### Portal Mode
+
+Allows creating level exits/transitions - portals that transport the player to another level.
+
+**UI Panel (right side):**
+- **Event Name** input - Unique event name for this portal
+- **Target Level** input - Level filename without .json (e.g., "dungeon2", "grass_overworld")
+- **Spawn Col/Row** inputs - Where player spawns in target level
+- **Add Portal** button - Creates portal with trigger and exit data
+- **Back** button - Returns to default mode
+
+**Usage:**
+1. Click **Portal** button in default mode
+2. Click a cell to place the portal (yellow highlight appears)
+3. Enter event name (e.g., "exit_to_dungeon2")
+4. Enter target level name
+5. Enter spawn coordinates in target level
+6. Click **Add Portal**
+
+**What it creates:**
+- Trigger with `oneShot: true` at selected cell
+- Exit data linking event to target level and spawn position
+- Sets cell's `backgroundTexture` to 'dungeon_door'
+
+**Important:**
+- Always use `oneShot: true` for exits to prevent multiple transitions
+- Portal cells should have a door texture for visual distinction
+- Bidirectional travel requires creating portals in both levels
+
 ### Theme Mode
 
-Allows switching between available level themes (dungeon, swamp).
+Allows switching between available level themes (dungeon, swamp, grass).
 
 **UI:**
 - Shows list of available themes as buttons
@@ -450,10 +484,14 @@ The editor uses Phaser's scene overlay system:
 ### State Machine
 
 **EditorState** - Base class for all editor states
-- `DefaultEditorState` - Main menu with save/exit/grid/move/resize buttons
+- `DefaultEditorState` - Main menu with buttons (two rows)
 - `GridEditorState` - Cell selection and editing with keyboard navigation
 - `MoveEditorState` - Entity repositioning with drag-and-drop
 - `ResizeEditorState` - Row/column selection and removal
+- `TriggerEditorState` - Event trigger creation and editing
+- `PortalEditorState` - Level exit/transition creation
+- `TextureEditorState` - Background texture painting
+- `ThemeEditorState` - Theme selection
 
 Each state manages its own UI elements and cleans up on exit.
 

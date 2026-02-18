@@ -25,6 +25,7 @@ import { SpawnerEditorState } from "../editor/SpawnerEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
 import { TriggerEditorState } from "../editor/TriggerEditorState";
+import { PortalEditorState } from "../editor/PortalEditorState";
 import { PatrolComponent } from "../ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
@@ -139,7 +140,8 @@ export default class EditorScene extends Phaser.Scene {
       spawner: new SpawnerEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
-      trigger: new TriggerEditorState(this) as unknown as import('../systems/state/IState').IState<void | Entity | MoveEditorStateProps | number>
+      trigger: new TriggerEditorState(this) as unknown as import('../systems/state/IState').IState<void | Entity | MoveEditorStateProps | number>,
+      exit: new PortalEditorState(this)
     }, 'default');
 
     // Event listeners

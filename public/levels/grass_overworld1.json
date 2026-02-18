@@ -2,10 +2,64 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 20,
-    "y": 15
+    "x": 21,
+    "y": 2
   },
   "cells": [
+    {
+      "col": 17,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ],
+      "backgroundTexture": "stone_wall"
+    },
+    {
+      "col": 18,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ],
+      "backgroundTexture": "stone_wall"
+    },
+    {
+      "col": 19,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ],
+      "backgroundTexture": "wall_torch"
+    },
+    {
+      "col": 23,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ],
+      "backgroundTexture": "wall_torch"
+    },
+    {
+      "col": 24,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ],
+      "backgroundTexture": "stone_wall"
+    },
+    {
+      "col": 25,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ],
+      "backgroundTexture": "stone_wall"
+    },
     {
       "col": 20,
       "row": 2,
@@ -370,7 +424,9 @@
       "col": 18,
       "row": 13,
       "layer": 0,
-      "backgroundTexture": { "name": "dungeon_door" }
+      "backgroundTexture": {
+        "name": "dungeon_door"
+      }
     },
     {
       "col": 21,
@@ -576,7 +632,9 @@
       "col": 23,
       "row": 16,
       "layer": 0,
-      "backgroundTexture": { "name": "dungeon_key" }
+      "backgroundTexture": {
+        "name": "dungeon_key"
+      }
     },
     {
       "col": 28,
@@ -921,6 +979,34 @@
       "properties": [
         "path"
       ]
+    }
+  ],
+  "triggers": [
+    {
+      "eventName": "exit_to_dungeon1",
+      "triggerCells": [
+        {
+          "col": 21,
+          "row": 0
+        },
+        {
+          "col": 20,
+          "row": 0
+        },
+        {
+          "col": 22,
+          "row": 0
+        }
+      ],
+      "oneShot": true
+    }
+  ],
+  "exits": [
+    {
+      "eventName": "exit_to_dungeon1",
+      "targetLevel": "dungeon1",
+      "targetCol": 12,
+      "targetRow": 28
     }
   ],
   "levelTheme": "grass"

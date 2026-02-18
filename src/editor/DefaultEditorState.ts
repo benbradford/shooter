@@ -10,8 +10,9 @@ export class DefaultEditorState extends EditorState {
     
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
-    const buttonY = height - 50;
-    const buttonSpacing = 120;
+    const buttonY = height - 100;
+    const buttonY2 = height - 50;
+    const buttonSpacing = 100;
     const centerX = width / 2;
 
     // Setup click handler for robot selection
@@ -201,31 +202,8 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterTriggerMode();
     });
 
-    // Level Exit button
-    const levelExitButton = this.scene.add.text(centerX + buttonSpacing * 5, buttonY, 'Portal', {
-      fontSize: '24px',
-      color: '#ffffff',
-      backgroundColor: '#333333',
-      padding: { x: 20, y: 10 }
-    });
-    levelExitButton.setOrigin(0.5);
-    levelExitButton.setScrollFactor(0);
-    levelExitButton.setInteractive({ useHandCursor: true });
-    levelExitButton.setDepth(1000);
-    this.buttons.push(levelExitButton);
-
-    levelExitButton.on('pointerover', () => {
-      levelExitButton.setBackgroundColor('#555555');
-    });
-    levelExitButton.on('pointerout', () => {
-      levelExitButton.setBackgroundColor('#333333');
-    });
-    levelExitButton.on('pointerdown', () => {
-      this.scene.enterExitMode();
-    });
-
     // Spawner button (second row)
-    const spawnerButton = this.scene.add.text(centerX - buttonSpacing * 2, buttonY + 60, 'Spawner', {
+    const spawnerButton = this.scene.add.text(centerX - buttonSpacing, buttonY2, 'Spawner', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -245,6 +223,30 @@ export class DefaultEditorState extends EditorState {
     });
     spawnerButton.on('pointerdown', () => {
       this.scene.enterSpawnerMode();
+    });
+
+    // Level Exit button (second row, next to spawner)
+    const levelExitButton = this.scene.add.text(centerX, buttonY2, 'Portal', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    levelExitButton.setOrigin(0.5);
+    levelExitButton.setScrollFactor(0);
+    levelExitButton.setInteractive({ useHandCursor: true });
+    levelExitButton.setDepth(1000);
+    this.buttons.push(levelExitButton);
+
+    levelExitButton.on('pointerover', () => {
+      levelExitButton.setBackgroundColor('#555555');
+    });
+    levelExitButton.on('pointerout', () => {
+      levelExitButton.setBackgroundColor('#333333');
+    });
+    levelExitButton.on('pointerdown', () => {
+      console.log('[Editor] Portal button clicked');
+      this.scene.enterExitMode();
     });
   }
 

@@ -566,7 +566,7 @@ export default class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: fadeRect,
       alpha: 1,
-      duration: 500,
+      duration: 300,
       ease: 'Linear',
       onComplete: () => {
         void this.loadLevel(targetLevel, spawnCol, spawnRow).then(() => {
@@ -585,7 +585,7 @@ export default class GameScene extends Phaser.Scene {
           this.tweens.add({
             targets: newFadeRect,
             alpha: 0,
-            duration: 500,
+            duration: 300,
             ease: 'Linear',
             onComplete: () => {
               newFadeRect.destroy();
@@ -607,7 +607,6 @@ export default class GameScene extends Phaser.Scene {
       this.levelData.playerStart = { x: spawnCol, y: spawnRow };
     }
 
-    // Load assets for this level
     preloadLevelAssets(this, this.levelData);
     await new Promise<void>(resolve => {
       if (this.load.isLoading()) {
@@ -618,14 +617,12 @@ export default class GameScene extends Phaser.Scene {
       this.load.start();
     });
 
-    // Clear all pending timer events
     this.time.removeAllEvents();
 
     if (this.sceneRenderer) {
       this.sceneRenderer.destroy();
     }
 
-    // Destroy all game objects except HUD elements
     this.children.list
       .filter(obj => obj !== this.layerDebugText)
       .forEach(obj => obj.destroy());

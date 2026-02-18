@@ -37,6 +37,7 @@ export abstract class GameSceneRenderer {
           const sprite = this.scene.add.image(x + width / 2, y + height / 2, texture);
           sprite.setDisplaySize(width, height);
           sprite.setDepth(-1000);
+          sprite.setAlpha(0.7);
           this.floorSprites.push(sprite);
         }
       }
@@ -125,13 +126,13 @@ export abstract class GameSceneRenderer {
         if (hasTexture && levelCell?.backgroundTexture && !this.isCached) {
           const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelCell.backgroundTexture);
           sprite.setDisplaySize(this.cellSize, this.cellSize);
-          sprite.setDepth(-100);
+          sprite.setDepth(-4);
           this.cellSprites.push(sprite);
         }
 
         if (isElevated || isStairs) {
           // Render textures from background config (cache on first render)
-          if (hasBackgroundConfig && !hasTexture && levelData.background && !this.isCached) {
+          if (hasBackgroundConfig && levelData.background && !this.isCached) {
             if (isStairs && levelData.background?.stairs_texture) {
               const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
               sprite.setDisplaySize(this.cellSize, this.cellSize);

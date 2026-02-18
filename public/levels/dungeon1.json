@@ -1524,8 +1524,7 @@
       "layer": 1,
       "properties": [
         "platform"
-      ],
-      "backgroundTexture": "pillar"
+      ]
     },
     {
       "col": 36,
@@ -3144,8 +3143,7 @@
       "layer": 1,
       "properties": [
         "wall"
-      ],
-      "backgroundTexture": "wall_torch"
+      ]
     },
     {
       "col": 27,
@@ -3153,14 +3151,15 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "wall_torch"
     },
     {
       "col": 28,
       "row": 20,
       "layer": 1,
       "properties": [
-        "wall"
+        "stairs"
       ]
     },
     {
@@ -3177,7 +3176,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "wall_torch"
     },
     {
       "col": 31,
@@ -3185,8 +3185,7 @@
       "layer": 1,
       "properties": [
         "wall"
-      ],
-      "backgroundTexture": "wall_torch"
+      ]
     },
     {
       "col": 32,
@@ -3736,7 +3735,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "wall_torch"
     },
     {
       "col": 28,
@@ -3751,7 +3751,7 @@
       "row": 24,
       "layer": 1,
       "properties": [
-        "wall"
+        "stairs"
       ]
     },
     {
@@ -3760,7 +3760,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "wall_torch"
     },
     {
       "col": 31,
@@ -5254,7 +5255,7 @@
           "row": 29
         }
       ],
-      "oneShot": false
+      "oneShot": true
     }
   ],
   "spawners": [
@@ -5271,7 +5272,7 @@
     {
       "eventName": "exit_to_overworld1",
       "targetLevel": "grass_overworld1",
-      "targetCol": 2,
+      "targetCol": 21,
       "targetRow": 2
     }
   ],

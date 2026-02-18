@@ -62,7 +62,10 @@ The player uses a melee punch attack system:
 - Stops on walls
 - Cannot move or attack while sliding
 - 3 second cooldown after slide
-- Slide button shows reduced alpha (0.3) during cooldown
+- Slide button visual feedback:
+  - Unpressed: 0.7 alpha (more visible)
+  - Pressed/Sliding: Red tint, 0.9 alpha, no circle
+  - Cooldown: 0.3 alpha with partial circle showing remaining time
 
 **Debug Mode (Press P):**
 - Toggle between two targeting modes:
