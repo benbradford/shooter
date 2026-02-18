@@ -1524,7 +1524,8 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
+      ],
+      "backgroundTexture": "pillar"
     },
     {
       "col": 36,
@@ -1605,6 +1606,24 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 31,
+      "row": 8,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 32,
+      "row": 8,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 33,
+      "row": 8,
+      "layer": 0,
+      "backgroundTexture": "pillar"
     },
     {
       "col": 35,
@@ -2654,7 +2673,6 @@
         "platform"
       ]
     },
-
     {
       "col": 20,
       "row": 17,
@@ -3101,7 +3119,8 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 21,
@@ -3125,7 +3144,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "wall_torch"
     },
     {
       "col": 27,
@@ -3165,7 +3185,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "wall_torch"
     },
     {
       "col": 32,
@@ -3406,6 +3427,12 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 27,
+      "row": 22,
+      "layer": 0,
+      "backgroundTexture": "dungeon_key"
     },
     {
       "col": 32,

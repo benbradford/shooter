@@ -3,17 +3,17 @@ import type { Entity } from '../../Entity';
 import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import type { AttackComboComponent } from '../combat/AttackComboComponent';
 
-const BUTTON_SCALE = 0.16;
-const BUTTON_ALPHA_UNPRESSED = 0.4;
+const BUTTON_SCALE = 0.14;
+const BUTTON_ALPHA_UNPRESSED = 0.7;
 const BUTTON_ALPHA_PRESSED = 0.9;
-const BUTTON_ALPHA_COOLDOWN = 0.2;
-const BUTTON_SCALE_PRESSED = 0.176;
-const BUTTON_TINT_PRESSED = 0x6666ff;
+const BUTTON_ALPHA_COOLDOWN = 0.3;
+const BUTTON_SCALE_PRESSED = BUTTON_SCALE;
+const BUTTON_TINT_PRESSED = 0xff0000;
 const POS_X = 0.75;
 const POS_Y = 0.85;
 const CIRCLE_RADIUS_PX = 60;
 const CIRCLE_COLOR = 0xffffff;
-const CIRCLE_ALPHA = 0.3;
+const CIRCLE_ALPHA = 0.5;
 
 export class SlideButtonComponent implements Component {
   entity!: Entity;
@@ -64,22 +64,37 @@ export class SlideButtonComponent implements Component {
 
     this.sprite.setPosition(this.posX, this.posY);
 
-    this.circle.clear();
-    this.circle.lineStyle(2, CIRCLE_COLOR, CIRCLE_ALPHA);
-    this.circle.strokeCircle(this.posX, this.posY, CIRCLE_RADIUS_PX);
-
     const isPunching = this.attackCombo.isPunching();
     const canSlide = this.slideAbility.canSlide();
+    const isSliding = this.slideAbility.getIsSliding();
+
+    this.circle.clear();
+
+    if (isSliding) {
+      // No circle while sliding
+    } else if (!canSlide) {
+      const cooldownRatio = this.slideAbility.getCooldownRatio();
+      const startAngle = -Math.PI / 2;
+      const endAngle = startAngle + (Math.PI * 2 * cooldownRatio);
+
+      this.circle.lineStyle(4, CIRCLE_COLOR, CIRCLE_ALPHA);
+      this.circle.beginPath();
+      this.circle.arc(this.posX, this.posY, CIRCLE_RADIUS_PX, startAngle, endAngle, false);
+      this.circle.strokePath();
+    } else {
+      this.circle.lineStyle(2, CIRCLE_COLOR, CIRCLE_ALPHA);
+      this.circle.strokeCircle(this.posX, this.posY, CIRCLE_RADIUS_PX);
+    }
 
     if (isPunching || !canSlide) {
       this.sprite.setAlpha(BUTTON_ALPHA_COOLDOWN);
-    } else if (this.isPressed) {
+    } else if (this.isPressed || isSliding) {
       this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
     } else {
       this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
     }
 
-    if (this.isPressed) {
+    if (this.isPressed || isSliding) {
       this.sprite.setScale(BUTTON_SCALE_PRESSED);
       this.sprite.setTint(BUTTON_TINT_PRESSED);
     } else {

@@ -128,6 +128,16 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_door.png',
     type: 'image' as const,
   },
+  wall_torch: {
+    key: 'wall_torch',
+    path: 'assets/cell_drawables/wall_torch.png',
+    type: 'image' as const,
+  },
+  pillar: {
+    key: 'pillar',
+    path: 'assets/cell_drawables/pillar.png',
+    type: 'image' as const,
+  },
   rock: {
     key: 'rock',
     path: 'assets/generic/rock.png',

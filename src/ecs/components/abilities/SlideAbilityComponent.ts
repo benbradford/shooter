@@ -8,7 +8,7 @@ import { CollisionComponent } from '../combat/CollisionComponent';
 const SLIDE_DISTANCE_PX = 350;
 const SLIDE_SPEED_PX_PER_SEC = 1200;
 const SLIDE_FRICTION = 0.05;
-const SLIDE_COOLDOWN_MS = 1000;
+const SLIDE_COOLDOWN_MS = 3000;
 
 export class SlideAbilityComponent implements Component {
   entity!: Entity;
@@ -102,6 +102,15 @@ export class SlideAbilityComponent implements Component {
 
   canSlide(): boolean {
     return !this.isSliding && this.cooldownMs <= 0;
+  }
+
+  getIsSliding(): boolean {
+    return this.isSliding;
+  }
+
+  getCooldownRatio(): number {
+    if (this.cooldownMs <= 0) return 1;
+    return 1 - (this.cooldownMs / SLIDE_COOLDOWN_MS);
   }
 
   onDestroy(): void {
