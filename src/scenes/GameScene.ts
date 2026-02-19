@@ -92,7 +92,12 @@ export default class GameScene extends Phaser.Scene {
     this.collisionSystem = new CollisionSystem(this, this.grid);
     
     this.stateMachine = new StateMachine({
-      inGame: new InGameState(this.entityManager, this.collisionSystem, this.grid, () => this.levelData)
+      inGame: new InGameState(
+        () => this.entityManager,
+        () => this.collisionSystem,
+        () => this.grid,
+        () => this.levelData
+      )
     }, 'inGame');
 
     this.layerDebugText = this.add.text(10, 10, '', {
@@ -376,11 +381,6 @@ export default class GameScene extends Phaser.Scene {
     this.vignette = rendered.vignette;
 
     this.resetScene();
-    
-    // Recreate state machine with new grid reference
-    this.stateMachine = new StateMachine({
-      inGame: new InGameState(this.entityManager, this.collisionSystem, this.grid, () => this.levelData)
-    }, 'inGame');
   }
 
   getCurrentLevelName(): string {

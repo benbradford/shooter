@@ -6,9 +6,9 @@ import type { LevelData } from '../../systems/level/LevelLoader';
 
 export class InGameState implements IState {
   constructor(
-    private readonly entityManager: EntityManager,
-    private readonly collisionSystem: CollisionSystem,
-    private readonly grid: Grid,
+    private readonly getEntityManager: () => EntityManager,
+    private readonly getCollisionSystem: () => CollisionSystem,
+    private readonly getGrid: () => Grid,
     private readonly getLevelData: () => LevelData
   ) {}
 
@@ -22,12 +22,12 @@ export class InGameState implements IState {
 
   onUpdate(delta: number): void {
     // Update all entities
-    this.entityManager.update(delta);
+    this.getEntityManager().update(delta);
 
     // Check collisions
-    this.collisionSystem.update(this.entityManager.getAll());
+    this.getCollisionSystem().update(this.getEntityManager().getAll());
 
     // Render grid debug
-    this.grid.render(this.entityManager, this.getLevelData());
+    this.getGrid().render(this.getEntityManager(), this.getLevelData());
   }
 }

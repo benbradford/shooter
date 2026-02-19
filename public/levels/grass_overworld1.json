@@ -3,7 +3,7 @@
   "height": 30,
   "playerStart": {
     "x": 21,
-    "y": 2
+    "y": 1
   },
   "cells": [
     {
@@ -981,6 +981,31 @@
       ]
     }
   ],
-  "entities": [],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "dungeon1",
+        "targetCol": 13,
+        "targetRow": 26,
+        "triggerCells": [
+          {
+            "col": 20,
+            "row": 0
+          },
+          {
+            "col": 21,
+            "row": 0
+          },
+          {
+            "col": 22,
+            "row": 0
+          }
+        ],
+        "oneShot": true
+      }
+    }
+  ],
   "levelTheme": "grass"
 }
