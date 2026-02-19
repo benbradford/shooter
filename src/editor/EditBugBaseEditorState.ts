@@ -20,6 +20,26 @@ export class EditBugBaseEditorState extends EditorState {
     const backButton = this.createBackButton();
     this.buttons.push(backButton);
 
+    const deleteButton = this.createButton(this.scene.cameras.main.width / 2, 100, 'Delete', () => {
+      if (this.bugBase && confirm('Delete this entity?')) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        
+        if (levelData.entities) {
+          levelData.entities = levelData.entities.filter(e => e.id !== this.bugBase!.id);
+        }
+        
+        this.bugBase.destroy();
+        gameScene.resetScene();
+        this.scene.enterDefaultMode();
+      }
+    });
+    const deleteBg = deleteButton.getAt(0);
+    if (deleteBg instanceof Phaser.GameObjects.Rectangle) {
+      deleteBg.setFillStyle(0xd32f2f);
+    }
+    this.buttons.push(deleteButton);
+
     this.createDifficultyButtons();
 
     this.scene.input.on('pointerdown', this.handlePointerDown, this);

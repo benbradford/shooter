@@ -191,14 +191,31 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     });
     this.phaserUIContainer.add(backButton);
 
+    // Delete button
+    const deleteButton = this.createButton(0, 110, 'Delete', () => {
+      if (this.selectedRobot && confirm('Delete this entity?')) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        
+        if (levelData.entities) {
+          levelData.entities = levelData.entities.filter(e => e.id !== this.selectedRobot!.id);
+        }
+        
+        this.selectedRobot.destroy();
+        gameScene.resetScene();
+        this.scene.enterDefaultMode();
+      }
+    });
+    this.phaserUIContainer.add(deleteButton);
+
     // Add Waypoint button
-    const addWaypointButton = this.createButton(0, 110, 'Add Waypoint', () => {
+    const addWaypointButton = this.createButton(0, 150, 'Add Waypoint', () => {
       this.addWaypoint();
     });
     this.phaserUIContainer.add(addWaypointButton);
 
     // Delete Waypoint button
-    const deleteWaypointButton = this.createButton(0, 150, 'Delete Waypoint', () => {
+    const deleteWaypointButton = this.createButton(0, 190, 'Delete Waypoint', () => {
       this.deleteWaypoint();
     });
     this.phaserUIContainer.add(deleteWaypointButton);

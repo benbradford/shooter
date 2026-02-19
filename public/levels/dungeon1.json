@@ -5141,75 +5141,7 @@
     }
   ],
   "entities": [
-    {
-      "id": "skeleton0",
-      "type": "skeleton",
-      "data": {
-        "col": 9,
-        "row": 23,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "thrower",
-      "type": "thrower",
-      "data": {
-        "col": 16,
-        "row": 23,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "stalking_robot",
-      "type": "stalking_robot",
-      "data": {
-        "col": 18,
-        "row": 23,
-        "difficulty": "easy",
-        "waypoints": [
-          {
-            "col": 18,
-            "row": 23
-          }
-        ]
-      }
-    },
-    {
-      "id": "skeleton1",
-      "type": "skeleton",
-      "data": {
-        "col": 12,
-        "row": 20,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "skeleton2",
-      "type": "skeleton",
-      "data": {
-        "col": 15,
-        "row": 19,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "skeleton3",
-      "type": "skeleton",
-      "data": {
-        "col": 14,
-        "row": 21,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "skeleton4",
-      "type": "skeleton",
-      "data": {
-        "col": 9,
-        "row": 20,
-        "difficulty": "easy"
-      }
-    }
+
   ],
   "levelTheme": "dungeon",
   "background": {

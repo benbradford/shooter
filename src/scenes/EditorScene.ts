@@ -9,18 +9,14 @@ import { DefaultEditorState } from "../editor/DefaultEditorState";
 import { GridEditorState } from "../editor/GridEditorState";
 import { ResizeEditorState } from "../editor/ResizeEditorState";
 import { MoveEditorState, type MoveEditorStateProps } from "../editor/MoveEditorState";
-import { EditRobotEditorState } from "../editor/EditRobotEditorState";
-import { EditBugBaseEditorState } from "../editor/EditBugBaseEditorState";
-import { EditThrowerEditorState } from "../editor/EditThrowerEditorState";
-import { EditSkeletonEditorState } from "../editor/EditSkeletonEditorState";
-import { EditBulletDudeEditorState } from "../editor/EditBulletDudeEditorState";
+import { EditEntityEditorState } from "../editor/EditEntityEditorState";
 import { AddEntityEditorState } from "../editor/AddEntityEditorState";
 import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
 import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
 import { AddSkeletonEditorState } from "../editor/AddSkeletonEditorState";
 import { AddBulletDudeEditorState } from "../editor/AddBulletDudeEditorState";
-import { SpawnerEditorState } from "../editor/SpawnerEditorState";
+import { EventChainerEditorState } from "../editor/EventChainerEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
 import { TriggerEditorState } from "../editor/TriggerEditorState";
@@ -126,18 +122,14 @@ export default class EditorScene extends Phaser.Scene {
       grid: new GridEditorState(this),
       resize: new ResizeEditorState(this),
       move: new MoveEditorState(this),
-      editRobot: new EditRobotEditorState(this),
-      editBugBase: new EditBugBaseEditorState(this),
-      editThrower: new EditThrowerEditorState(this),
-      editSkeleton: new EditSkeletonEditorState(this),
-      editBulletDude: new EditBulletDudeEditorState(this),
+      editEntity: new EditEntityEditorState(this),
       add: new AddEntityEditorState(this),
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
       addThrower: new AddThrowerEditorState(this),
       addSkeleton: new AddSkeletonEditorState(this),
       addBulletDude: new AddBulletDudeEditorState(this),
-      spawner: new SpawnerEditorState(this),
+      spawner: new EventChainerEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
       trigger: new TriggerEditorState(this) as unknown as import('../systems/state/IState').IState<void | Entity | MoveEditorStateProps | number>,
@@ -413,8 +405,29 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine.enter('move', { entity, returnState });
   }
 
-  enterEditRobotMode(robot?: Entity): void {
-    this.stateMachine.enter('editRobot', robot);
+  enterEditEntityMode(entity: Entity): void {
+    this.stateMachine.enter('editEntity', entity);
+  }
+
+  // Legacy methods for compatibility
+  enterEditRobotMode(entity: Entity): void {
+    this.enterEditEntityMode(entity);
+  }
+
+  enterEditBugBaseMode(entity: Entity): void {
+    this.enterEditEntityMode(entity);
+  }
+
+  enterEditThrowerMode(entity: Entity): void {
+    this.enterEditEntityMode(entity);
+  }
+
+  enterEditSkeletonMode(entity: Entity): void {
+    this.enterEditEntityMode(entity);
+  }
+
+  enterEditBulletDudeMode(entity: Entity): void {
+    this.enterEditEntityMode(entity);
   }
 
   enterAddMode(): void {
@@ -429,32 +442,16 @@ export default class EditorScene extends Phaser.Scene {
     this.stateMachine.enter('addBugBase');
   }
 
-  enterEditBugBaseMode(bugBase: Entity): void {
-    this.stateMachine.enter('editBugBase', bugBase);
-  }
-
   enterAddThrowerMode(): void {
     this.stateMachine.enter('addThrower');
-  }
-
-  enterEditThrowerMode(thrower: Entity): void {
-    this.stateMachine.enter('editThrower', thrower);
   }
 
   enterAddSkeletonMode(): void {
     this.stateMachine.enter('addSkeleton');
   }
 
-  enterEditSkeletonMode(skeleton: Entity): void {
-    this.stateMachine.enter('editSkeleton', skeleton);
-  }
-
   enterAddBulletDudeMode(): void {
     this.stateMachine.enter('addBulletDude');
-  }
-
-  enterEditBulletDudeMode(bulletDude: Entity): void {
-    this.stateMachine.enter('editBulletDude', bulletDude);
   }
 
   enterSpawnerMode(): void {

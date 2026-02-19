@@ -293,24 +293,8 @@ export class DefaultEditorState extends EditorState {
       const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
       if (distance < 64) {
         this.showEntityId(entity.id);
-        
-        // Determine type from entity ID
-        if (entity.id.startsWith('stalking_robot') || entity.id.startsWith('robot')) {
-          this.scene.enterEditRobotMode(entity);
-          return;
-        } else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) {
-          this.scene.enterEditBugBaseMode(entity);
-          return;
-        } else if (entity.id.startsWith('thrower')) {
-          this.scene.enterEditThrowerMode(entity);
-          return;
-        } else if (entity.id.startsWith('skeleton')) {
-          this.scene.enterEditSkeletonMode(entity);
-          return;
-        } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
-          this.scene.enterEditBulletDudeMode(entity);
-          return;
-        }
+        this.scene.enterEditEntityMode(entity);
+        return;
       }
     }
 

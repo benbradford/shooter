@@ -101,6 +101,34 @@ export class EditThrowerEditorState extends EditorState {
     backButton.onclick = () => this.scene.enterDefaultMode();
     this.uiContainer.appendChild(backButton);
 
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.style.cssText = `
+      padding: 10px 20px;
+      margin: 10px 5px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: monospace;
+    `;
+    deleteButton.onclick = () => {
+      if (this.thrower && confirm('Delete this entity?')) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        
+        if (levelData.entities) {
+          levelData.entities = levelData.entities.filter(e => e.id !== this.thrower!.id);
+        }
+        
+        this.thrower.destroy();
+        gameScene.resetScene();
+        this.scene.enterDefaultMode();
+      }
+    };
+    this.uiContainer.appendChild(deleteButton);
+
     document.body.appendChild(this.uiContainer);
   }
 

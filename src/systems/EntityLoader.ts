@@ -18,6 +18,7 @@ import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProject
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { getBugBaseDifficultyConfig } from '../ecs/entities/bug/BugBaseDifficulty';
+import { EditorLabelComponent } from '../ecs/components/editor/EditorLabelComponent';
 
 export class EntityLoader {
   constructor(
@@ -52,8 +53,18 @@ export class EntityLoader {
       } else {
         const entity = creatorFunc();
         this.entityManager.add(entity);
+        
+        // Add editor labels for bug_base and thrower
+        if ((entityDef.type === 'bug_base' || entityDef.type === 'thrower') && this.isEditorMode()) {
+          const label = entityDef.type === 'bug_base' ? 'BB' : 'T';
+          entity.add(new EditorLabelComponent(this.scene, label));
+        }
       }
     }
+  }
+
+  private isEditorMode(): boolean {
+    return this.scene.scene.isActive('EditorScene');
   }
 
   private createEntityCreator(entityDef: LevelEntity, player: Entity, _levelData: LevelData): (() => Entity) | null {
