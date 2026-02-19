@@ -1,13 +1,17 @@
-export function createSmokeBurst(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  cellSize: number,
-  burstCount: number,
-  intervalMs: number,
-  texture: string = 'smoke',
-  spreadRadius: number = cellSize * 0.8
-): void {
+export type SmokeBurstConfig = {
+  scene: Phaser.Scene;
+  x: number;
+  y: number;
+  cellSize: number;
+  burstCount: number;
+  intervalMs: number;
+  texture?: string;
+  spreadRadius?: number;
+}
+
+export function createSmokeBurst(config: SmokeBurstConfig): void {
+  const { scene, x, y, cellSize, burstCount, intervalMs, texture = 'smoke', spreadRadius = cellSize * 0.8 } = config;
+  
   for (let i = 0; i < burstCount; i++) {
     scene.time.delayedCall(i * intervalMs, () => {
       const offsetX = (Math.random() - 0.5) * spreadRadius;

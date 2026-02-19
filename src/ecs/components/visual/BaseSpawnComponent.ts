@@ -62,7 +62,14 @@ export class BaseSpawnComponent implements Component {
       }
     });
 
-    createSmokeBurst(this.scene, transform.x, transform.y, this.cellSize, BURST_COUNT, BURST_INTERVAL_MS);
+    createSmokeBurst({
+      scene: this.scene,
+      x: transform.x,
+      y: transform.y,
+      cellSize: this.cellSize,
+      burstCount: BURST_COUNT,
+      intervalMs: BURST_INTERVAL_MS
+    });
   }
 
   onDestroy(): void {

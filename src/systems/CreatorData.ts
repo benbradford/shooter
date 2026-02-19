@@ -3,7 +3,7 @@ import type { EntityManager } from '../ecs/EntityManager';
 import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
 import type { Grid } from '../systems/grid/Grid';
 
-export interface CreatorData {
+export type CreatorData = {
   scene: Phaser.Scene;
   grid: Grid;
   entityId: string;

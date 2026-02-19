@@ -164,5 +164,7 @@ export class PortalEditorState extends EditorState {
     this.selectionRectangle.setDepth(1000);
   };
 
-  onUpdate(): void {}
+  onUpdate(_delta: number): void {
+    // Intentionally empty - no per-frame updates needed
+  }
 }

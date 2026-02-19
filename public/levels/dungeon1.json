@@ -5170,6 +5170,15 @@
       }
     },
     {
+      "id": "bulletdude0",
+      "type": "bullet_dude",
+      "data": {
+        "col": 25,
+        "row": 20,
+        "difficulty": "medium"
+      }
+    },
+    {
       "id": "skeleton1",
       "type": "skeleton",
       "createOnEvent": "sk1",
@@ -5180,14 +5189,74 @@
       }
     },
     {
+      "id": "skeleton2",
+      "type": "skeleton",
+      "createOnEvent": "sk2",
+      "data": {
+        "col": 17,
+        "row": 23,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "id": "thrower0",
+      "type": "thrower",
+      "createOnEvent": "th1",
+      "data": {
+        "col": 19,
+        "row": 23,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "bugbase0",
+      "type": "bug_base",
+      "data": {
+        "col": 10,
+        "row": 20,
+        "difficulty": "easy"
+      }
+    },
+    {
+      "id": "robot0",
+      "type": "stalking_robot",
+      "createOnEvent": "rb1",
+      "data": {
+        "col": 23,
+        "row": 23,
+        "difficulty": "medium",
+        "waypoints": [
+          {"col": 23, "row": 23},
+          {"col": 23, "row": 25},
+          {"col": 25, "row": 25},
+          {"col": 25, "row": 23}
+        ]
+      }
+    },
+    {
       "id": "trigger1",
       "type": "trigger",
       "data": {
-        "eventToRaise": "sk1",
+        "eventToRaise": "spawn_wave",
         "triggerCells": [
           {"col": 12, "row": 23}
         ],
         "oneShot": true
+      }
+    },
+    {
+      "id": "eventchainer1",
+      "type": "eventchainer",
+      "createOnEvent": "spawn_wave",
+      "data": {
+        "col": 14,
+        "row": 23,
+        "eventsToRaise": [
+          {"event": "sk1", "delayMs": 0},
+          {"event": "sk2", "delayMs": 1000},
+          {"event": "th1", "delayMs": 500},
+          {"event": "rb1", "delayMs": 1200}
+        ]
       }
     },
     {

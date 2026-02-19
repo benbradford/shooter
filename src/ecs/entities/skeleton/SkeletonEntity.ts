@@ -31,7 +31,7 @@ const SKELETON_KNOCKBACK_FORCE_PX = 400;
 const HIT_DURATION_MS = 300;
 const BULLET_DAMAGE = 10;
 
-export interface SkeletonCreatorData extends CreatorData {
+export type SkeletonCreatorData = CreatorData & {
   col: number;
   row: number;
   difficulty: SkeletonDifficulty;
