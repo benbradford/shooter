@@ -4,14 +4,16 @@ export function createSmokeBurst(
   y: number,
   cellSize: number,
   burstCount: number,
-  intervalMs: number
+  intervalMs: number,
+  texture: string = 'smoke',
+  spreadRadius: number = cellSize * 0.8
 ): void {
   for (let i = 0; i < burstCount; i++) {
     scene.time.delayedCall(i * intervalMs, () => {
-      const offsetX = (Math.random() - 0.5) * cellSize * 0.8;
-      const offsetY = (Math.random() - 0.5) * cellSize * 0.8;
+      const offsetX = (Math.random() - 0.5) * spreadRadius;
+      const offsetY = (Math.random() - 0.5) * spreadRadius;
 
-      const emitter = scene.add.particles(x + offsetX, y + offsetY, 'smoke', {
+      const emitter = scene.add.particles(x + offsetX, y + offsetY, texture, {
         speed: { min: 40, max: 80 },
         angle: { min: 0, max: 360 },
         scale: { start: 3, end: 0 },

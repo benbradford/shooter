@@ -83,7 +83,7 @@ export function createBugBaseEntity(
           if (explosion) {
             explosion.explode();
           }
-          scene.time.delayedCall(3000, () => entity.destroy());
+         
         }
 
         scene.time.delayedCall(0, () => other.destroy());

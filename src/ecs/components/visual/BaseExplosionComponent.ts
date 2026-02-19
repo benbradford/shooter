@@ -1,60 +1,60 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import { TransformComponent } from '../core/TransformComponent';
-import { createSmokeBurst } from './SmokeBurstHelper';
+import { SpriteComponent } from '../core/SpriteComponent';
+import { CollisionComponent } from '../combat/CollisionComponent';
 
 export class BaseExplosionComponent implements Component {
   entity!: Entity;
   private readonly scene: Phaser.Scene;
-  private readonly cellSize: number;
-  private shakeOffsetX = 0;
-  private shakeOffsetY = 0;
-  private originalX = 0;
-  private originalY = 0;
 
-  constructor(scene: Phaser.Scene, cellSize: number) {
+  constructor(scene: Phaser.Scene, _cellSize: number) {
     this.scene = scene;
-    this.cellSize = cellSize;
   }
 
   update(): void {
-    if (this.shakeOffsetX !== 0 || this.shakeOffsetY !== 0) {
-      const transform = this.entity.get(TransformComponent);
-      if (transform) {
-        transform.x = this.originalX + this.shakeOffsetX;
-        transform.y = this.originalY + this.shakeOffsetY;
-      }
-    }
+    // No update needed
   }
 
   explode(): void {
-    const transform = this.entity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
+    const collision = this.entity.get(CollisionComponent);
 
-    this.originalX = transform.x;
-    this.originalY = transform.y;
+    // Disable collision
+    if (collision) {
+      collision.enabled = false;
+    }
 
-    this.scene.tweens.add({
-      targets: transform,
-      scale: 0,
-      duration: 3000,
-      ease: 'Power2'
+    sprite.sprite.clearTint();
+    this.scene.time.delayedCall(150, () => {
+        sprite.sprite.setTexture('base_destroyed');
+
     });
+    // Change to destroyed texture, clear tint, and use current scale
 
-    this.scene.tweens.add({
-      targets: this,
-      shakeOffsetX: 3,
-      shakeOffsetY: 3,
-      duration: 100,
-      yoyo: true,
-      repeat: 30,
-      ease: 'Sine.easeInOut',
-      onComplete: () => {
-        this.shakeOffsetX = 0;
-        this.shakeOffsetY = 0;
+
+    // Stop all updates
+    this.entity.setUpdateOrder([]);
+
+    // Create particle burst
+    const emitter = this.scene.add.particles(sprite.sprite.x, sprite.sprite.y, 'base_particle', {
+      speed: { min: 40, max: 80 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 1.3, end: 0 },
+      alpha: { start: 1, end: 0 },
+      lifespan: 700,
+      frequency: 5,
+      quantity: 70,
+      tint: [0xc8a078, 0x966e4b, 0xdcbe8c, 0xaf825f],
+      blendMode: 'NORMAL',
+      emitZone: {
+        type: 'random' as const,
+        source: new Phaser.Geom.Circle(0, 0, 55) as Phaser.Types.GameObjects.Particles.RandomZoneSource
       }
     });
 
-    createSmokeBurst(this.scene, transform.x, transform.y, this.cellSize, 6, 500);
+    emitter.setDepth(1000);
+    this.scene.time.delayedCall(200, () => emitter.stop());
+    this.scene.time.delayedCall(800, () => emitter.destroy());
   }
 
 }
