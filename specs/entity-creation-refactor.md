@@ -4,7 +4,7 @@
 
 ## Overview
 
-Unify entity creation through an event-driven system where all entities are defined in a single `entities` array in level JSON. Entities can be created immediately on level load or delayed until an event fires.
+Unify entity creation through an event-driven system where all entities are defined in a single `entities` array in level JSON. Entities can be created immediately on level load or delayed until an event fires. final spec in ./entity-creation-final-spec.md
 
 ## Goals
 
@@ -218,7 +218,7 @@ export class EntityCreatorManager {
     this.firedEvents.add(createOnEvent);
     const entity = creator();
     this.creators.delete(createOnEvent); // Unsubscribe after creation
-    
+
     return entity;
   }
 
@@ -234,7 +234,7 @@ export class EntityCreatorManager {
 ```typescript
 async loadLevel(levelName: string): Promise<void> {
   const level = await LevelLoader.load(levelName);
-  
+
   // Validate unique IDs
   const ids = new Set<string>();
   for (const entity of level.entities ?? []) {
@@ -243,11 +243,11 @@ async loadLevel(levelName: string): Promise<void> {
     }
     ids.add(entity.id);
   }
-  
+
   // Create player first
   const player = createPlayerEntity({...});
   this.entityManager.add(player);
-  
+
   // Load entities
   for (const entityDef of level.entities ?? []) {
     const baseData: CreatorData = {
@@ -258,13 +258,13 @@ async loadLevel(levelName: string): Promise<void> {
       entityManager: this.entityManager,
       eventManager: this.eventManager
     };
-    
+
     const creatorFunc = this.createEntityCreator(entityDef, baseData);
-    
+
     if (!creatorFunc) {
       throw new Error(`Unknown entity type: ${entityDef.type}`);
     }
-    
+
     if (entityDef.createOnEvent) {
       // Delayed creation - register with EntityCreatorManager
       this.entityCreatorManager.register(entityDef.createOnEvent, creatorFunc);
@@ -278,32 +278,32 @@ async loadLevel(levelName: string): Promise<void> {
 
 private createEntityCreator(entityDef: LevelEntity, baseData: CreatorData): EntityCreator | null {
   const data = { ...baseData, ...entityDef.data };
-  
+
   switch (entityDef.type) {
     case 'skeleton':
       return () => createSkeletonEntity(data as SkeletonCreatorData);
-    
+
     case 'thrower':
       return () => createThrowerEntity(data as ThrowerCreatorData);
-    
+
     case 'stalking_robot':
       return () => createStalkingRobotEntity(data as RobotCreatorData);
-    
+
     case 'bug_base':
       return () => createBugBaseEntity(data as BugBaseCreatorData);
-    
+
     case 'bullet_dude':
       return () => createBulletDudeEntity(data as BulletDudeCreatorData);
-    
+
     case 'eventchainer':
       return () => createEventChainerEntity(data as EventChainerCreatorData);
-    
+
     case 'trigger':
       return () => createTriggerEntity(data as TriggerCreatorData);
-    
+
     case 'exit':
       return () => createLevelExitEntity(data as ExitCreatorData);
-    
+
     default:
       return null;
   }
@@ -543,11 +543,11 @@ this.entityCreatorManager = new EntityCreatorManager(this.entityManager);
 // During entity loading
 for (const entityDef of level.entities ?? []) {
   const creatorFunc = this.createEntityCreator(entityDef, baseData);
-  
+
   if (entityDef.createOnEvent) {
     // Register creator
     this.entityCreatorManager.register(entityDef.createOnEvent, creatorFunc);
-    
+
     // Register EntityCreatorManager as listener for this event
     this.eventManager.register(entityDef.createOnEvent, this.entityCreatorManager);
   } else {
@@ -607,16 +607,16 @@ Update `EditorScene.getCurrentLevelData()`:
 ```typescript
 private extractEntities(entityManager: EntityManager, grid: Grid): LevelEntity[] {
   const entities: LevelEntity[] = [];
-  
+
   // Extract each entity type
   for (const entity of entityManager.getAll()) {
     if (entity.id === 'player') continue; // Skip player
-    
+
     const type = this.getEntityType(entity);
     if (!type) continue;
-    
+
     const data = this.extractEntityData(entity, type, grid);
-    
+
     entities.push({
       id: entity.id,
       type,
@@ -624,7 +624,7 @@ private extractEntities(entityManager: EntityManager, grid: Grid): LevelEntity[]
       data
     });
   }
-  
+
   return entities;
 }
 ```
@@ -635,7 +635,7 @@ Store ID on Entity instance:
 // In Entity class
 export class Entity {
   readonly id: string;
-  
+
   constructor(id: string) {
     this.id = id;
   }
@@ -671,7 +671,7 @@ export function createEventChainerEntity(data: EventChainerCreatorData): Entity 
   const centerY = worldPos.y + data.grid.cellSize / 2;
 
   entity.add(new TransformComponent(centerX, centerY, 0, 1));
-  
+
   const chainer = entity.add(new EventChainerComponent(
     data.eventManager,
     data.eventsToRaise,

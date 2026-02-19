@@ -1,5 +1,7 @@
 # Entity Creation System Refactor - Final Spec
 
+original draft in ./entity-creation-refactor.md - familiarise yourself with that
+
 ## All Decisions
 
 1. ✅ **Entity IDs** - Manual in JSON, editor auto-generates, throw error on duplicates
