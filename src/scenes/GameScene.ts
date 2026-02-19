@@ -8,6 +8,8 @@ import type HudScene from "./HudScene";
 import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
+import { StateMachine } from "../systems/state/StateMachine";
+import { InGameState } from "./states/InGameState";
 import { CELL_SIZE, CAMERA_ZOOM } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
@@ -26,6 +28,7 @@ export default class GameScene extends Phaser.Scene {
   private eventManager!: EventManagerSystem;
   private entityCreatorManager!: EntityCreatorManager;
   private entityLoader!: EntityLoader;
+  private stateMachine!: StateMachine<void>;
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
@@ -87,6 +90,10 @@ export default class GameScene extends Phaser.Scene {
     this.initializeScene();
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
+    
+    this.stateMachine = new StateMachine({
+      inGame: new InGameState(this.entityManager, this.collisionSystem, this.grid, () => this.levelData)
+    }, 'inGame');
 
     this.layerDebugText = this.add.text(10, 10, '', {
       fontSize: '24px',
@@ -219,15 +226,10 @@ export default class GameScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     // Wait for async create to finish
-    if (!this.entityManager || !this.grid) return;
+    if (!this.entityManager || !this.grid || !this.stateMachine) return;
 
-    // Update all entities (automatically filters destroyed ones)
-    this.entityManager.update(delta);
-
-    // Check collisions
-    this.collisionSystem.update(this.entityManager.getAll());
-
-    this.grid.render(this.entityManager, this.levelData);
+    // Update state machine (delegates to InGameState)
+    this.stateMachine.update(delta);
 
     // Update layer debug text
     const player = this.entityManager.getFirst('player');
@@ -374,6 +376,11 @@ export default class GameScene extends Phaser.Scene {
     this.vignette = rendered.vignette;
 
     this.resetScene();
+    
+    // Recreate state machine with new grid reference
+    this.stateMachine = new StateMachine({
+      inGame: new InGameState(this.entityManager, this.collisionSystem, this.grid, () => this.levelData)
+    }, 'inGame');
   }
 
   getCurrentLevelName(): string {

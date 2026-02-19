@@ -203,8 +203,8 @@ export class DefaultEditorState extends EditorState {
       this.scene.enterTriggerMode();
     });
 
-    // Spawner button (second row)
-    const spawnerButton = this.scene.add.text(centerX - buttonSpacing, buttonY2, 'Spawner', {
+    // Event Chainer button (second row)
+    const spawnerButton = this.scene.add.text(centerX - buttonSpacing, buttonY2, 'Event Chainer', {
       fontSize: '24px',
       color: '#ffffff',
       backgroundColor: '#333333',

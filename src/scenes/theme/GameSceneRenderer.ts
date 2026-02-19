@@ -57,7 +57,9 @@ export abstract class GameSceneRenderer {
   }
 
   destroy(): void {
+    this.graphics.clear();
     this.graphics.destroy();
+    this.edgeGraphics.clear();
     this.edgeGraphics.destroy();
     if (this.floorOverlay) {
       this.floorOverlay.destroy();
@@ -66,9 +68,11 @@ export abstract class GameSceneRenderer {
     for (const sprite of this.floorSprites) {
       sprite.destroy();
     }
+    this.floorSprites.length = 0;
     for (const sprite of this.cellSprites) {
       sprite.destroy();
     }
+    this.cellSprites.length = 0;
   }
 
   private renderFloorOverlay(grid: Grid, _levelData: LevelData): void {

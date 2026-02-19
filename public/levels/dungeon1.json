@@ -5141,7 +5141,54 @@
     }
   ],
   "entities": [
-
+    {
+      "id": "eventchainer0",
+      "type": "eventchainer",
+      "data": {
+        "col": 11,
+        "row": 28,
+        "eventsToRaise": [
+          {
+            "event": "sk1",
+            "delayMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "eventchainer1",
+      "type": "eventchainer",
+      "data": {
+        "col": 13,
+        "row": 28,
+        "eventsToRaise": [
+          {
+            "event": "sk2",
+            "delayMs": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworld1",
+        "targetCol": 21,
+        "targetRow": 1,
+        "triggerCells": [
+          {
+            "col": 12,
+            "row": 28
+          },
+          {
+            "col": 13,
+            "row": 28
+          }
+        ],
+        "oneShot": true
+      }
+    }
   ],
   "levelTheme": "dungeon",
   "background": {

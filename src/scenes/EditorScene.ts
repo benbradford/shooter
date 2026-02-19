@@ -36,6 +36,7 @@ export default class EditorScene extends Phaser.Scene {
   private originalLevelData!: string;
   private readonly cameraSpeed = 400;
   private triggerGraphics: Phaser.GameObjects.Graphics | null = null;
+  private editorLabels: Map<string, Phaser.GameObjects.Text> = new Map();
   private inTriggerState: boolean = false;
   private cellHoverText!: Phaser.GameObjects.Text;
 
@@ -148,6 +149,51 @@ export default class EditorScene extends Phaser.Scene {
     this.handleCameraMovement(delta);
     this.renderTriggers();
     this.updateCellHover();
+    this.renderEditorLabels();
+  }
+
+  private renderEditorLabels(): void {
+    const gameScene = this.scene.get('game') as GameScene;
+    const entityManager = gameScene.getEntityManager();
+    
+    // Clear existing labels
+    if (!this.editorLabels) {
+      this.editorLabels = new Map();
+    }
+
+    // Render labels for bug_base and thrower
+    for (const entity of entityManager.getAll()) {
+      if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase') || entity.id.startsWith('thrower')) {
+        const transform = entity.get(TransformComponent);
+        if (!transform) continue;
+
+        let label = this.editorLabels.get(entity.id);
+        if (!label) {
+          const text = entity.id.startsWith('thrower') ? 'T' : 'BB';
+          label = gameScene.add.text(transform.x, transform.y, text, {
+            fontSize: '48px',
+            color: '#ffffff',
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 },
+            fontStyle: 'bold'
+          });
+          label.setOrigin(0.5, 0.5);
+          label.setDepth(1000);
+          this.editorLabels.set(entity.id, label);
+        }
+        
+        label.setPosition(transform.x, transform.y);
+      }
+    }
+
+    // Clean up labels for destroyed entities
+    for (const [id, label] of this.editorLabels.entries()) {
+      const entity = Array.from(entityManager.getAll()).find(e => e.id === id);
+      if (!entity) {
+        label.destroy();
+        this.editorLabels.delete(id);
+      }
+    }
   }
 
   private updateCellHover(): void {
@@ -329,12 +375,30 @@ export default class EditorScene extends Phaser.Scene {
       } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
         type = 'bullet_dude';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('eventchainer')) {
+        type = 'eventchainer';
+        // EventChainers store their data in the level data already, just extract position
+        const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
+        const existingChainer = existingLevelData.entities?.find(e => e.id === entity.id);
+        if (existingChainer) {
+          data = existingChainer.data;
+        } else {
+          data = { col: cell.col, row: cell.row, eventsToRaise: [] };
+        }
       }
       
       if (type) {
         entities.push({ id: entity.id, type, data });
       }
     }
+    
+    // Add triggers and exits from level data (they don't have entity instances)
+    const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
+    const existingTriggers = (existingLevelData.entities ?? []).filter(e => e.type === 'trigger');
+    const existingExits = (existingLevelData.entities ?? []).filter(e => e.type === 'exit');
+    
+    entities.push(...existingTriggers);
+    entities.push(...existingExits);
     
     return entities;
   }
@@ -586,6 +650,12 @@ export default class EditorScene extends Phaser.Scene {
       this.triggerGraphics.destroy();
       this.triggerGraphics = null;
     }
+
+    // Destroy editor labels
+    for (const label of this.editorLabels.values()) {
+      label.destroy();
+    }
+    this.editorLabels.clear();
 
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;

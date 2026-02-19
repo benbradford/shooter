@@ -1,80 +1,46 @@
-every entity has an id, created automatically: name+number. must be unique
-change entity to have an optional eventName, if this is set, then only spawn when that event is fired, otherwise spawn from the start. we need a new spawn manager. if eventName is specified, then register event and creator function with spawn manager. the creation is delayed until the event is fired. The spawnManager listens for spawnEvents and then calls the appropriate delayed spawn function for that entity.
-change spawners to fire events, not spawn enemies. then the enemies can listen for those events. this simplifies the logic as right now there are 2 ways to spawn throwers, from level load, or from a spawner. when a spawner is loaded from a level, all it has to do is raise an event.
-change the layout of the level.json files. All entities must be under and entity section and each has an id, so it looks like this:
+i want to create a cutsceneeventmanager. with this, i can register for events like this:
 
-entities: {
-    [
-        {
-            id: skeleton0
-            type: skeleton,
-            data: {
-                ... data related to the player
-            },
-        }, {
-            id: skeleton1,
-            type: skeleton,
-            eventName: sk1:,
-            data: {
-                "col": 32,
-                "row": 16,
-                "difficulty": "easy"
 
-            }
-        }, {
-            id: thrower1,
-            type: thrower,
-            data: { ...}
-        }, {
-            id: spawner1,
-            type: spawner,
-            eventName: sp1,
-            data: {
-                eventsToRaise: [
-                    sk1
-                ],
-                spawnDelayMs: 0
-            }
-        }, {
-            id: trigger1,
-            type: trigger,
-            data: {
-                "eventName": "trigger_g",
-                "triggerCells": [
-                {
-                    "col": 28,
-                    "row": 21
-                },
-                {
-                    "col": 29,
-                    "row": 21
-                },
-            ],
-            "oneShot": true
-            }
-        }
-    ]
-},
-exits: { .. as before },
-cells: { .. as before },
-levelTheme: { .. as before },
-background: { .. as before },
-  "width": 40,
-  "height": 30,
-  "playerStart": {
-    // as before
-  }
+cutSceneManager.registerEvent(eventName, cutSceneName);
 
-entity loading logic is now like:
+then when that event fires, it initiates a cutScene.
 
-for e in entities {
-    id = e.id
-    type = e.type
-    eventToListenFor = e.type
-    
-    if (eventToListenFor) {
+cutScenes are defined in files under public/cutscenes
 
-    } else {
+a cutscene file will look like this
 
-    }
-}
+```
+player.moveTo(10,5, 20)
+player.look(down_left)
+wait(500)
+player.look(up)
+wait(500)
+say("player", "oh wow, look what I see over there!", 20, 3000)
+
+```
+
+When a cutScene initiates, the stateMachine enters into a CutSceneState with the cutscene data as a param. in cutScene state, we do not update all entities, only the one that are under a current instruction. There is no user movement and the hud icons disappear. the cutscene state is responsible for executing the commands in a cut scene. Each command performs one action and blocks until the action is completed
+
+possible commands are
+
+1. entity commands
+<entity>.<command>(<params>)
+
+where entity is the entityId to take an action on
+ command are:
+    - moveTo(col,row, speed)
+      - this will use the pathfinder to move the entity to that position. i am unsure exactly how to do this right now. i think we might need to add a new CutSceneWalkComponent that knows how to use the pathfinder to reach a desintation at a certain speed. it should also know how to play the correct animations for the direction of travel. when an entity is being moved, its entity.update should be called. let's only allow the player entity to be moved right now, we will add more entities later that can move
+    - look(direction)
+      - this will cause the entity to look in a certain direction. We might need to add a new CutSceneLookComponent that knows which sprite to use to face in a certain direction. let's only allow the player entity to look right now, we can add this capability to other entitiers later.
+
+2. scene commands
+
+    - wait(timeInMs)
+      - the cutscene just freezes for this amount of time
+
+    - say(name, text, talkSpeedInMs, timeoutInMs)
+      - the cutscene creates a speach box on the screen. the speech box has the name of the person talking at the top, then below it it has the text that that person is saying. The text is nicely cropped to the speech window so it never overlaps. the text should appear a letter at a time with talkSpeedInMs delay between each character appearing. If the player presses space or touches the screen, then all of the text should just appear at once. once all of the characters are displayed, it will remain on screen for timeoutInMs OR the user touches the screen (or presses space) at which point the command ends and the speech box disappears
+
+Once all commands have completed, then we exit the CutSceneState and return to the InGameState
+
+We will need to add cutscenes to the editor at some point, we can follow up on that.

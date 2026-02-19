@@ -1,8 +1,8 @@
 import { EditorState } from './EditorState';
 
 export class PortalEditorState extends EditorState {
-  private selectedCell: { col: number; row: number } | null = null;
-  private selectionRectangle: Phaser.GameObjects.Rectangle | null = null;
+  private selectedCells: Set<string> = new Set();
+  private selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
 
   onEnter(): void {
     this.createUI();
@@ -12,10 +12,13 @@ export class PortalEditorState extends EditorState {
   onExit(): void {
     this.scene.input.off('pointerdown', this.handlePointerDown, this);
     this.destroyUI();
-    if (this.selectionRectangle) {
-      this.selectionRectangle.destroy();
-      this.selectionRectangle = null;
-    }
+    this.clearSelectionRectangles();
+  }
+
+  private clearSelectionRectangles(): void {
+    this.selectionRectangles.forEach(rect => rect.destroy());
+    this.selectionRectangles.clear();
+    this.selectedCells.clear();
   }
 
   private createUI(): void {
@@ -23,7 +26,8 @@ export class PortalEditorState extends EditorState {
     container.style.cssText = `
       position: fixed;
       top: 20px;
-      right: 20px; max-width: 300px;
+      right: 20px;
+      max-width: 400px;
       background: rgba(0,0,0,0.8);
       color: white;
       padding: 20px;
@@ -39,17 +43,10 @@ export class PortalEditorState extends EditorState {
     container.appendChild(title);
 
     const instructions = document.createElement('div');
-    instructions.textContent = 'Click a cell to place portal';
+    instructions.textContent = 'Click cells to select portal area';
     instructions.style.marginBottom = '15px';
     instructions.style.fontSize = '12px';
     container.appendChild(instructions);
-
-    const eventInput = document.createElement('input');
-    eventInput.placeholder = 'Event name';
-    eventInput.style.cssText = 'width: 200px; margin-bottom: 10px; padding: 5px;';
-    eventInput.addEventListener('keydown', (e) => e.stopPropagation());
-    container.appendChild(eventInput);
-    container.appendChild(document.createElement('br'));
 
     const levelInput = document.createElement('input');
     levelInput.placeholder = 'Target level';
@@ -77,42 +74,42 @@ export class PortalEditorState extends EditorState {
     addButton.textContent = 'Add Portal';
     addButton.style.cssText = 'margin-right: 10px; padding: 5px 15px;';
     addButton.onclick = () => {
-      if (!this.selectedCell || !eventInput.value || !levelInput.value || !colInput.value || !rowInput.value) {
-        alert('Please select a cell and fill all fields');
+      if (this.selectedCells.size === 0 || !levelInput.value || !colInput.value || !rowInput.value) {
+        alert('Please select cells and fill all fields');
         return;
       }
 
-      const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+      const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
       const levelData = gameScene.getLevelData();
 
-      if (!levelData.triggers) levelData.triggers = [];
-      if (!levelData.exits) levelData.exits = [];
+      if (!levelData.entities) levelData.entities = [];
 
-      levelData.triggers.push({
-        eventName: eventInput.value,
-        triggerCells: [{ col: this.selectedCell.col, row: this.selectedCell.row }],
-        oneShot: true
-      });
-
-      levelData.exits.push({
-        eventName: eventInput.value,
-        targetLevel: levelInput.value,
-        targetCol: Number.parseInt(colInput.value),
-        targetRow: Number.parseInt(rowInput.value)
-      });
-
-      const cell = levelData.cells.find(c => c.col === this.selectedCell!.col && c.row === this.selectedCell!.row);
-      if (cell) {
-        cell.backgroundTexture = 'dungeon_door';
-      } else {
-        levelData.cells.push({
-          col: this.selectedCell.col,
-          row: this.selectedCell.row,
-          layer: 0,
-          backgroundTexture: 'dungeon_door'
-        });
+      // Generate unique ID
+      let idNum = 0;
+      let newId = `exit${idNum}`;
+      while (levelData.entities.some(e => e.id === newId)) {
+        idNum++;
+        newId = `exit${idNum}`;
       }
 
+      const triggerCells = Array.from(this.selectedCells).map(cellKey => {
+        const [col, row] = cellKey.split(',').map(Number);
+        return { col, row };
+      });
+
+      levelData.entities.push({
+        id: newId,
+        type: 'exit',
+        data: {
+          targetLevel: levelInput.value,
+          targetCol: Number.parseInt(colInput.value),
+          targetRow: Number.parseInt(rowInput.value),
+          triggerCells,
+          oneShot: true
+        }
+      });
+
+      gameScene.resetScene();
       this.scene.enterDefaultMode();
     };
     container.appendChild(addButton);
@@ -145,26 +142,34 @@ export class PortalEditorState extends EditorState {
     
     const grid = this.scene.getGrid();
     const cell = grid.worldToCell(worldX, worldY);
+    const cellKey = `${cell.col},${cell.row}`;
     
-    this.selectedCell = { col: cell.col, row: cell.row };
-    
-    if (this.selectionRectangle) {
-      this.selectionRectangle.destroy();
+    // Toggle cell selection
+    if (this.selectedCells.has(cellKey)) {
+      this.selectedCells.delete(cellKey);
+      const rect = this.selectionRectangles.get(cellKey);
+      if (rect) {
+        rect.destroy();
+        this.selectionRectangles.delete(cellKey);
+      }
+    } else {
+      this.selectedCells.add(cellKey);
+      
+      const worldPos = grid.cellToWorld(cell.col, cell.row);
+      const rect = gameScene.add.rectangle(
+        worldPos.x + grid.cellSize / 2,
+        worldPos.y + grid.cellSize / 2,
+        grid.cellSize,
+        grid.cellSize
+      );
+      rect.setStrokeStyle(3, 0xffffff);
+      rect.setFillStyle(0x000000, 0);
+      rect.setDepth(1000);
+      this.selectionRectangles.set(cellKey, rect);
     }
-    
-    const worldPos = grid.cellToWorld(cell.col, cell.row);
-    this.selectionRectangle = gameScene.add.rectangle(
-      worldPos.x + grid.cellSize / 2,
-      worldPos.y + grid.cellSize / 2,
-      grid.cellSize,
-      grid.cellSize
-    );
-    this.selectionRectangle.setStrokeStyle(3, 0xffff00);
-    this.selectionRectangle.setFillStyle(0x000000, 0);
-    this.selectionRectangle.setDepth(1000);
   };
 
   onUpdate(_delta: number): void {
-    // Intentionally empty - no per-frame updates needed
+    // Intentionally empty
   }
 }
