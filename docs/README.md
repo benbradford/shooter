@@ -93,14 +93,21 @@ When asked to "update the docs":
 
 10. **[Level Editor](./level-editor.md)** - In-game level editor
    - Level data structure and loading
-   - Editor modes (default, grid, move, resize, edit robot)
+   - Editor modes (default, grid, move, resize, add entity, edit entity)
    - Saving workflow
    - State machine architecture
    - Common issues and solutions
 
+11. **[Entity Creation System](./entity-creation-system.md)** - Unified entity system
+   - Entity IDs and types
+   - Event-driven spawning
+   - EventChainers for sequential spawning
+   - Triggers and exits
+   - Editor integration
+
 ## Adding Content
 
-11. **[Adding Enemies](./adding-enemies.md)** - Complete enemy implementation guide
+12. **[Adding Enemies](./adding-enemies.md)** - Complete enemy implementation guide
    - Asset preparation
    - Component creation
    - State machine setup

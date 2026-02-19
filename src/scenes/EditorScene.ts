@@ -2,9 +2,8 @@ import Phaser from "phaser";
 import type GameScene from "./GameScene";
 import type HudScene from "./HudScene";
 import type { Grid, CellProperty } from "../systems/grid/Grid";
-import type { LevelData, LevelBugBase } from "../systems/level/LevelLoader";
+import type { LevelData } from "../systems/level/LevelLoader";
 import type { Entity } from "../ecs/Entity";
-import type { EnemyDifficulty } from "../constants/EnemyDifficulty";
 import { StateMachine } from "../systems/state/StateMachine";
 import { DefaultEditorState } from "../editor/DefaultEditorState";
 import { GridEditorState } from "../editor/GridEditorState";
@@ -15,7 +14,7 @@ import { EditBugBaseEditorState } from "../editor/EditBugBaseEditorState";
 import { EditThrowerEditorState } from "../editor/EditThrowerEditorState";
 import { EditSkeletonEditorState } from "../editor/EditSkeletonEditorState";
 import { EditBulletDudeEditorState } from "../editor/EditBulletDudeEditorState";
-import { AddEditorState } from "../editor/AddEditorState";
+import { AddEntityEditorState } from "../editor/AddEntityEditorState";
 import { AddRobotEditorState } from "../editor/AddRobotEditorState";
 import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
 import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
@@ -30,6 +29,7 @@ import { PatrolComponent } from "../ecs/components/ai/PatrolComponent";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
+import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { EntityManager } from "../ecs/EntityManager";
 
 export default class EditorScene extends Phaser.Scene {
@@ -131,7 +131,7 @@ export default class EditorScene extends Phaser.Scene {
       editThrower: new EditThrowerEditorState(this),
       editSkeleton: new EditSkeletonEditorState(this),
       editBulletDude: new EditBulletDudeEditorState(this),
-      add: new AddEditorState(this),
+      add: new AddEntityEditorState(this),
       addRobot: new AddRobotEditorState(this),
       addBugBase: new AddBugBaseEditorState(this),
       addThrower: new AddThrowerEditorState(this),
@@ -268,139 +268,13 @@ export default class EditorScene extends Phaser.Scene {
     return cells;
   }
 
-  private extractRobots(entityManager: EntityManager, grid: Grid): Array<{
-    col: number;
-    row: number;
-    difficulty: EnemyDifficulty;
-    waypoints: Array<{ col: number; row: number }>;
-  }> {
-    const robots: Array<{
-      col: number;
-      row: number;
-      difficulty: EnemyDifficulty;
-      waypoints: Array<{ col: number; row: number }>;
-    }> = [];
-
-    const entities = entityManager.getAll();
-    for (const entity of entities) {
-      const patrol = entity.get(PatrolComponent);
-      if (patrol) {
-        const sprite = entity.get(SpriteComponent);
-        const difficultyComp = entity.get(DifficultyComponent);
-        if (sprite && difficultyComp) {
-          const cell = grid.worldToCell(sprite.sprite.x, sprite.sprite.y);
-          robots.push({
-            col: cell.col,
-            row: cell.row,
-            difficulty: difficultyComp.difficulty as EnemyDifficulty,
-            waypoints: [...patrol.waypoints]
-          });
-        }
-      }
-    }
-    return robots;
-  }
-
-  private extractBugBases(entityManager: EntityManager, grid: Grid): LevelBugBase[] {
-    const bugBases: LevelBugBase[] = [];
-    const bugBaseEntities = entityManager.getByType('bug_base');
-
-    for (const bugBase of bugBaseEntities) {
-      const transform = bugBase.get(TransformComponent);
-      const difficulty = bugBase.get(DifficultyComponent);
-
-      if (transform) {
-        const cell = grid.worldToCell(transform.x, transform.y);
-
-        bugBases.push({
-          col: cell.col,
-          row: cell.row,
-          difficulty: difficulty?.difficulty ?? 'medium'
-        });
-      }
-    }
-    return bugBases;
-  }
-
-  private extractThrowers(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelThrower[] {
-    const throwers: import('../systems/level/LevelLoader').LevelThrower[] = [];
-    const throwerEntities = entityManager.getByType('thrower');
-
-    for (const thrower of throwerEntities) {
-      const transform = thrower.get(TransformComponent);
-      const difficulty = thrower.get(DifficultyComponent);
-
-      if (transform) {
-        const cell = grid.worldToCell(transform.x, transform.y);
-
-        throwers.push({
-          id: thrower.entityId,
-          col: cell.col,
-          row: cell.row,
-          difficulty: difficulty?.difficulty ?? 'medium'
-        });
-      }
-    }
-    return throwers;
-  }
-
-  private extractSkeletons(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelSkeleton[] {
-    const skeletons: import('../systems/level/LevelLoader').LevelSkeleton[] = [];
-    const skeletonEntities = entityManager.getByType('skeleton');
-
-    for (const skeleton of skeletonEntities) {
-      const transform = skeleton.get(TransformComponent);
-      const difficulty = skeleton.get(DifficultyComponent);
-
-      if (transform) {
-        const cell = grid.worldToCell(transform.x, transform.y);
-        const id = (skeleton as { skeletonId?: string }).skeletonId;
-
-        skeletons.push({
-          col: cell.col,
-          row: cell.row,
-          difficulty: difficulty?.difficulty ?? 'easy',
-          id: id ?? undefined
-        });
-      }
-    }
-    return skeletons;
-  }
-
-  private extractBulletDudes(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelBulletDude[] {
-    const bulletDudes: import('../systems/level/LevelLoader').LevelBulletDude[] = [];
-    const bulletDudeEntities = entityManager.getByType('bulletdude');
-
-    for (const bulletDude of bulletDudeEntities) {
-      const transform = bulletDude.get(TransformComponent);
-      const difficulty = bulletDude.get(DifficultyComponent);
-
-      if (transform) {
-        const cell = grid.worldToCell(transform.x, transform.y);
-        const id = (bulletDude as { spawnerId?: string }).spawnerId;
-
-        bulletDudes.push({
-          col: cell.col,
-          row: cell.row,
-          difficulty: difficulty?.difficulty ?? 'easy',
-          id: id ?? undefined
-        });
-      }
-    }
-    return bulletDudes;
-  }
-
   getCurrentLevelData(): LevelData {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
     const entityManager = gameScene.getEntityManager();
 
     const cells = this.extractGridCells(grid);
-    const robots = this.extractRobots(entityManager, grid);
-    const bugBases = this.extractBugBases(entityManager, grid);
-    const throwers = this.extractThrowers(entityManager, grid);
-    const skeletons = this.extractSkeletons(entityManager, grid);
-    const bulletDudes = this.extractBulletDudes(entityManager, grid);
+    const entities = this.extractEntities(entityManager, grid);
 
     const player = entityManager.getFirst('player');
     const playerTransform = player?.get(TransformComponent);
@@ -408,7 +282,6 @@ export default class EditorScene extends Phaser.Scene {
       ? grid.worldToCell(playerTransform.x, playerTransform.y)
       : { col: 10, row: 10 };
 
-    // Get existing level data to preserve triggers and spawners added in editor
     const existingLevelData = gameScene.getLevelData();
 
     const result = {
@@ -416,19 +289,62 @@ export default class EditorScene extends Phaser.Scene {
       height: grid.height,
       playerStart: { x: playerStart.col, y: playerStart.row },
       cells,
-      robots: robots.length > 0 ? robots : undefined,
-      bugBases: bugBases.length > 0 ? bugBases : undefined,
-      throwers: throwers.length > 0 ? throwers : undefined,
-      skeletons: skeletons.length > 0 ? skeletons : undefined,
-      bulletDudes: bulletDudes.length > 0 ? bulletDudes : undefined,
-      triggers: existingLevelData.triggers,
-      spawners: existingLevelData.spawners,
-      exits: existingLevelData.exits,
+      entities: entities.length > 0 ? entities : [],
       levelTheme: existingLevelData.levelTheme,
       background: existingLevelData.background
     };
 
     return result;
+  }
+
+  private extractEntities(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelEntity[] {
+    const entities: import('../systems/level/LevelLoader').LevelEntity[] = [];
+    
+    for (const entity of entityManager.getAll()) {
+      if (entity.id === 'player') continue;
+      
+      const transform = entity.get(TransformComponent);
+      const gridPos = entity.get(GridPositionComponent);
+      const difficulty = entity.get(DifficultyComponent);
+      
+      if (!transform && !gridPos) continue;
+      
+      const cell = gridPos 
+        ? { col: gridPos.currentCell.col, row: gridPos.currentCell.row }
+        : grid.worldToCell(transform!.x, transform!.y);
+      
+      let type: import('../systems/level/LevelLoader').EntityType | null = null;
+      let data: Record<string, unknown> = { col: cell.col, row: cell.row };
+      
+      if (entity.id.startsWith('stalking_robot') || entity.id.startsWith('robot')) {
+        type = 'stalking_robot';
+        const patrol = entity.get(PatrolComponent);
+        data = {
+          col: cell.col,
+          row: cell.row,
+          difficulty: difficulty?.difficulty ?? 'medium',
+          waypoints: patrol?.waypoints ?? []
+        };
+      } else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) {
+        type = 'bug_base';
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('thrower')) {
+        type = 'thrower';
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('skeleton')) {
+        type = 'skeleton';
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
+        type = 'bullet_dude';
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      }
+      
+      if (type) {
+        entities.push({ id: entity.id, type, data });
+      }
+    }
+    
+    return entities;
   }
 
   saveLevel(): void {

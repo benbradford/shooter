@@ -242,54 +242,82 @@ export function createYourEnemyEntity(
 
 ### 5. Add to Level System
 
-**Update LevelLoader.ts:**
-```typescript
-export interface LevelRobot {
-  col: number;
-  row: number;
-  health: number;
-  speed: number;
-  waypoints: Array<{ col: number; row: number }>;
-  fireballSpeed: number;
-  fireballDuration: number;
-}
+All entities are now defined in the unified `entities` array. See [Entity Creation System](./entity-creation-system.md) for complete details.
 
-export interface LevelData {
-  width: number;
-  height: number;
-  playerStart: { x: number; y: number };
-  cells: Array<{ col: number; row: number; layer: number }>;
-  robots?: LevelRobot[]; // Optional array of robots
+**Add entity to level JSON:**
+```json
+{
+  "entities": [
+    {
+      "id": "myenemy0",
+      "type": "skeleton",
+      "data": {
+        "col": 10,
+        "row": 5,
+        "difficulty": "easy"
+      }
+    }
+  ]
 }
 ```
 
-**Note:** Currently only robots are supported. To add other enemy types, you would need to create a generic `LevelEnemy` interface with a `type` field and type-specific properties.
-
-**Update GameScene.ts:**
-```typescript
-// In create() after loading level
-if (level.robots && level.robots.length > 0) {
-  for (const robotData of level.robots) {
-    const x = robotData.col * this.grid.cellSize + this.grid.cellSize / 2;
-    const y = robotData.row * this.grid.cellSize + this.grid.cellSize / 2;
-    
-    const robot = createStalkingRobotEntity(
-      this, x, y, this.grid, player,
-      robotData.waypoints,
-      robotData.health,
-      robotData.speed,
-      robotData.fireballSpeed,
-      robotData.fireballDuration
-    );
-    
-    this.entityManager.add(robot);
-  }
+**For event-driven spawning:**
+```json
+{
+  "entities": [
+    {
+      "id": "trigger1",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "spawn_enemy",
+        "triggerCells": [{"col": 12, "row": 23}],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "myenemy1",
+      "type": "skeleton",
+      "createOnEvent": "spawn_enemy",
+      "data": {
+        "col": 15,
+        "row": 10,
+        "difficulty": "medium"
+      }
+    }
+  ]
 }
 ```
 
-### 6. Add to Level JSON
+### 6. Add Entity Creator to EntityLoader
 
-**Example level with robots:**
+Add your entity type to the switch statement in `src/systems/EntityLoader.ts`:
+
+```typescript
+case 'my_enemy':
+  return () => createMyEnemyEntity({
+    scene: this.scene,
+    grid: this.grid,
+    entityId: entityDef.id,
+    playerEntity: player,
+    entityManager: this.entityManager,
+    eventManager: this.eventManager,
+    col: data.col as number,
+    row: data.row as number,
+    difficulty: data.difficulty as EnemyDifficulty,
+    // ... other props
+  });
+```
+
+### 7. Use Editor to Place Entities
+
+**In-game:**
+1. Press **E** to enter editor
+2. Click **Add** button
+3. Select entity type from dropdown
+4. Click to place (ID auto-generated)
+5. Click **Log** to save level JSON
+
+**Example level with enemies:**
 ```json
 {
   "width": 40,
@@ -299,24 +327,27 @@ if (level.robots && level.robots.length > 0) {
     "y": 9
   },
   "cells": [...],
-  "robots": [
+  "entities": [
     {
-      "col": 12,
-      "row": 9,
-      "health": 100,
-      "speed": 100,
-      "waypoints": [
-        { "col": 12, "row": 9 },
-        { "col": 15, "row": 9 }
-      ],
-      "fireballSpeed": 400,
-      "fireballDuration": 2000
+      "id": "robot0",
+      "type": "stalking_robot",
+      "data": {
+        "col": 12,
+        "row": 9,
+        "difficulty": "medium",
+        "waypoints": [
+          {"col": 12, "row": 9},
+          {"col": 15, "row": 9}
+        ]
+      }
     }
   ]
 }
 ```
 
 ## Adding Invisible/System Entities (like Triggers)
+
+Triggers, exits, and event chainers are now part of the unified entity system. See [Entity Creation System](./entity-creation-system.md) for details.
 
 For entities that don't have sprites but provide game functionality:
 
@@ -325,11 +356,11 @@ For entities that don't have sprites but provide game functionality:
 ```typescript
 export class TriggerComponent implements Component {
   entity!: Entity;
-  public readonly eventName: string;
+  public readonly eventToRaise: string;
   public readonly triggerCells: Array<{ col: number; row: number }>;
   
   constructor(props: TriggerComponentProps) {
-    this.eventName = props.eventName;
+    this.eventToRaise = props.eventToRaise;
     this.triggerCells = props.triggerCells;
   }
   

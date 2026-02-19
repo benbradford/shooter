@@ -6,7 +6,10 @@ const ENTITY_TYPES: Array<{ type: EntityType; label: string }> = [
   { type: 'thrower', label: 'Thrower' },
   { type: 'stalking_robot', label: 'Robot' },
   { type: 'bug_base', label: 'Bug Base' },
-  { type: 'bullet_dude', label: 'Bullet Dude' }
+  { type: 'bullet_dude', label: 'Bullet Dude' },
+  { type: 'trigger', label: 'Trigger' },
+  { type: 'exit', label: 'Exit/Portal' },
+  { type: 'eventchainer', label: 'Event Chainer' }
 ];
 
 export class AddEntityEditorState extends EditorState {

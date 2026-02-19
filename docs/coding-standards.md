@@ -1,5 +1,14 @@
 # Coding Standards
 
+## ⚠️ CRITICAL: NEVER USE GIT COMMANDS ⚠️
+
+**AI assistants must NEVER run git commands (checkout, reset, revert, stash, etc.)**
+- Git operations can lose work and cause major problems
+- If code needs to be reverted, manually undo the changes
+- If you make a mistake, fix it by editing the files, don't use git
+
+---
+
 ## ⚠️ MANDATORY: Build and Lint After Every Change ⚠️
 
 **Run these commands after EVERY code modification:**
