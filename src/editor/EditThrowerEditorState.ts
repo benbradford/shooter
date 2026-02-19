@@ -29,7 +29,7 @@ export class EditThrowerEditorState extends EditorState {
     this.uiContainer.style.cssText = `
       position: fixed;
       top: 20px;
-      right: 20px;
+      right: 20px; max-width: 400px;
       background: rgba(0,0,0,0.8);
       color: white;
       padding: 20px;
@@ -43,29 +43,9 @@ export class EditThrowerEditorState extends EditorState {
     title.style.marginTop = '0';
     this.uiContainer.appendChild(title);
 
-    // ID input
-    const idLabel = document.createElement('label');
-    idLabel.textContent = 'ID (optional, for spawners):';
-    idLabel.style.display = 'block';
-    idLabel.style.marginTop = '10px';
-    this.uiContainer.appendChild(idLabel);
-
-    const idInput = document.createElement('input');
-    idInput.type = 'text';
-    idInput.value = (this.thrower as { throwerId?: string }).throwerId ?? '';
-    idInput.style.cssText = `
-      width: 100%;
-      padding: 5px;
-      margin: 5px 0;
-      font-family: monospace;
-    `;
-    idInput.addEventListener('keydown', (e) => e.stopPropagation());
-    this.uiContainer.appendChild(idInput);
-
-    // Difficulty buttons
     const diffLabel = document.createElement('div');
     diffLabel.textContent = `Difficulty: ${difficulty.difficulty}`;
-    diffLabel.style.marginTop = '20px';
+    diffLabel.style.marginTop = '10px';
     diffLabel.style.marginBottom = '10px';
     this.uiContainer.appendChild(diffLabel);
 
@@ -88,34 +68,22 @@ export class EditThrowerEditorState extends EditorState {
           const diffComp = this.thrower.get(DifficultyComponent);
           if (diffComp) {
             (diffComp as { difficulty: string }).difficulty = diff;
+            
+            // Update level data
+            const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+            const levelData = gameScene.getLevelData();
+            const entityDef = levelData.entities?.find(e => e.id === this.thrower!.id);
+            if (entityDef && entityDef.data) {
+              (entityDef.data as { difficulty: string }).difficulty = diff;
+            }
+            
+            this.destroyUI();
+            this.createUI();
           }
-          this.scene.enterEditThrowerMode(this.thrower);
         }
       };
       this.uiContainer?.appendChild(button);
     });
-
-    // Save ID button
-    const saveIdButton = document.createElement('button');
-    saveIdButton.textContent = 'Save ID';
-    saveIdButton.style.cssText = `
-      padding: 10px 20px;
-      margin: 10px 5px;
-      background: #2196F3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: monospace;
-      display: block;
-    `;
-    saveIdButton.onclick = () => {
-      if (this.thrower) {
-        (this.thrower as { throwerId?: string }).throwerId = idInput.value.trim() || undefined;
-        alert('ID saved');
-      }
-    };
-    this.uiContainer.appendChild(saveIdButton);
 
     // Back button
     const backButton = document.createElement('button');

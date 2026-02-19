@@ -5,6 +5,7 @@ export class DefaultEditorState extends EditorState {
   private exitButton!: Phaser.GameObjects.Text;
   private gridButton!: Phaser.GameObjects.Text;
   private buttons: Phaser.GameObjects.Text[] = [];
+  private entityIdText: Phaser.GameObjects.Text | null = null;
 
   onEnter(): void {
     
@@ -254,6 +255,11 @@ export class DefaultEditorState extends EditorState {
     this.scene.input.off('pointerdown', this.handleClick, this);
     this.buttons.forEach(btn => btn.destroy());
     this.buttons = [];
+    
+    if (this.entityIdText) {
+      this.entityIdText.destroy();
+      this.entityIdText = null;
+    }
   }
 
   onUpdate(_delta: number): void {
@@ -275,6 +281,38 @@ export class DefaultEditorState extends EditorState {
     
     const grid = this.scene.getGrid();
     const clickedCell = grid.worldToCell(worldX, worldY);
+    const entityManager = gameScene.getEntityManager();
+
+    // Check for any entity click and show ID
+    for (const entity of entityManager.getAll()) {
+      if (entity.id === 'player') continue;
+      
+      const transform = entity.get(TransformComponent);
+      if (!transform) continue;
+      
+      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
+      if (distance < 64) {
+        this.showEntityId(entity.id);
+        
+        // Determine type from entity ID
+        if (entity.id.startsWith('stalking_robot') || entity.id.startsWith('robot')) {
+          this.scene.enterEditRobotMode(entity);
+          return;
+        } else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) {
+          this.scene.enterEditBugBaseMode(entity);
+          return;
+        } else if (entity.id.startsWith('thrower')) {
+          this.scene.enterEditThrowerMode(entity);
+          return;
+        } else if (entity.id.startsWith('skeleton')) {
+          this.scene.enterEditSkeletonMode(entity);
+          return;
+        } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
+          this.scene.enterEditBulletDudeMode(entity);
+          return;
+        }
+      }
+    }
 
     // Check for trigger click
     const levelData = gameScene.getLevelData();
@@ -306,7 +344,6 @@ export class DefaultEditorState extends EditorState {
     }
 
     // Check for player click
-    const entityManager = gameScene.getEntityManager();
     const player = entityManager.getFirst('player');
     if (player) {
       const transform = player.get(TransformComponent);
@@ -318,75 +355,23 @@ export class DefaultEditorState extends EditorState {
         }
       }
     }
+  }
 
-    // Check for robot click
-    const robots = entityManager.getByType('stalking_robot');
-
-    for (const robot of robots) {
-      const transform = robot.get(TransformComponent);
-      if (!transform) continue;
-
-      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-      if (distance < 64) {
-        this.scene.enterEditRobotMode(robot);
-        return;
-      }
+  private showEntityId(entityId: string): void {
+    if (this.entityIdText) {
+      this.entityIdText.destroy();
     }
 
-    // Check for bug base click
-    const bugBases = entityManager.getByType('bug_base');
-
-    for (const bugBase of bugBases) {
-      const transform = bugBase.get(TransformComponent);
-      if (!transform) continue;
-
-      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-      if (distance < 64) {
-        this.scene.enterEditBugBaseMode(bugBase);
-        return;
-      }
-    }
-
-    // Check for thrower click
-    const throwers = entityManager.getByType('thrower');
-
-    for (const thrower of throwers) {
-      const transform = thrower.get(TransformComponent);
-      if (!transform) continue;
-
-      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-      if (distance < 64) {
-        this.scene.enterEditThrowerMode(thrower);
-        return;
-      }
-    }
-
-    // Check for skeleton click
-    const skeletons = entityManager.getByType('skeleton');
-
-    for (const skeleton of skeletons) {
-      const transform = skeleton.get(TransformComponent);
-      if (!transform) continue;
-
-      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-      if (distance < 64) {
-        this.scene.enterEditSkeletonMode(skeleton);
-        return;
-      }
-    }
-
-    // Check for bulletDude click
-    const bulletDudes = entityManager.getByType('bulletdude');
-
-    for (const bulletDude of bulletDudes) {
-      const transform = bulletDude.get(TransformComponent);
-      if (!transform) continue;
-
-      const distance = Math.hypot(worldX - transform.x, worldY - transform.y);
-      if (distance < 64) {
-        this.scene.enterEditBulletDudeMode(bulletDude);
-        return;
-      }
-    }
+    const width = this.scene.cameras.main.width;
+    
+    this.entityIdText = this.scene.add.text(width - 150, 20, `ID: ${entityId}`, {
+      fontSize: '18px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 10, y: 5 }
+    });
+    this.entityIdText.setOrigin(0, 0);
+    this.entityIdText.setScrollFactor(0);
+    this.entityIdText.setDepth(1000);
   }
 }

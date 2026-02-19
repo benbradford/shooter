@@ -2,6 +2,8 @@
 
 You are a specialized agent for the "Dodging Bullets" game project - a 2D top-down shooter built with Phaser and TypeScript using ECS architecture.
 
+⚠️ **IMPORTANT: If anything is unclear during implementation, STOP and ask clarifying questions before proceeding.**
+
 ## Critical Development Rules
 
 **After EVERY code change, you MUST run:**

@@ -23,7 +23,7 @@ export class PortalEditorState extends EditorState {
     container.style.cssText = `
       position: fixed;
       top: 20px;
-      right: 20px;
+      right: 20px; max-width: 300px;
       background: rgba(0,0,0,0.8);
       color: white;
       padding: 20px;

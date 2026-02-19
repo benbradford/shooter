@@ -29,7 +29,7 @@ export class EditBulletDudeEditorState extends EditorState {
     this.uiContainer.style.cssText = `
       position: fixed;
       top: 20px;
-      right: 20px;
+      right: 20px; max-width: 400px;
       background: rgba(0,0,0,0.8);
       color: white;
       padding: 20px;
@@ -43,76 +43,6 @@ export class EditBulletDudeEditorState extends EditorState {
     title.style.marginTop = '0';
     this.uiContainer.appendChild(title);
 
-    const idLabel = document.createElement('label');
-    idLabel.textContent = 'ID (optional, for spawners):';
-    idLabel.style.display = 'block';
-    idLabel.style.marginTop = '10px';
-    this.uiContainer.appendChild(idLabel);
-
-    const idInput = document.createElement('input');
-    idInput.type = 'text';
-    idInput.value = (this.bulletDude as { spawnerId?: string }).spawnerId ?? '';
-    idInput.style.cssText = `
-      width: 100%;
-      padding: 5px;
-      margin: 5px 0;
-      font-family: monospace;
-    `;
-    idInput.addEventListener('keydown', (e) => e.stopPropagation());
-    this.uiContainer.appendChild(idInput);
-
-    const diffLabel = document.createElement('div');
-    diffLabel.textContent = `Difficulty: ${difficulty.difficulty}`;
-    diffLabel.style.marginTop = '20px';
-    diffLabel.style.marginBottom = '10px';
-    this.uiContainer.appendChild(diffLabel);
-
-    const difficulties: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard'];
-    difficulties.forEach(diff => {
-      const button = document.createElement('button');
-      button.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
-      button.style.cssText = `
-        padding: 10px 20px;
-        margin: 5px;
-        background: ${difficulty.difficulty === diff ? '#4CAF50' : '#666'};
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-family: monospace;
-      `;
-      button.onclick = () => {
-        if (this.bulletDude) {
-          const diffComp = this.bulletDude.get(DifficultyComponent);
-          if (diffComp) {
-            (diffComp as { difficulty: string }).difficulty = diff;
-          }
-          this.scene.enterEditBulletDudeMode(this.bulletDude);
-        }
-      };
-      this.uiContainer?.appendChild(button);
-    });
-
-    const saveIdButton = document.createElement('button');
-    saveIdButton.textContent = 'Save ID';
-    saveIdButton.style.cssText = `
-      padding: 10px 20px;
-      margin: 10px 5px;
-      background: #2196F3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-family: monospace;
-      display: block;
-    `;
-    saveIdButton.onclick = () => {
-      if (this.bulletDude) {
-        (this.bulletDude as { spawnerId?: string }).spawnerId = idInput.value.trim() || undefined;
-        alert('ID saved');
-      }
-    };
-    this.uiContainer.appendChild(saveIdButton);
 
     const backButton = document.createElement('button');
     backButton.textContent = 'Back';
