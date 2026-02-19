@@ -2,6 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
+import { GridCellBlocker } from '../movement/GridCellBlocker';
 
 export class BaseExplosionComponent implements Component {
   entity!: Entity;
@@ -17,12 +18,10 @@ export class BaseExplosionComponent implements Component {
 
   explode(): void {
     const sprite = this.entity.require(SpriteComponent);
-    const collision = this.entity.get(CollisionComponent);
+    const collision = this.entity.require(CollisionComponent);
 
-    // Disable collision
-    if (collision) {
-      collision.enabled = false;
-    }
+    collision.enabled = false;
+    this.entity.remove(GridCellBlocker);
 
     sprite.sprite.clearTint();
     this.scene.time.delayedCall(150, () => {
@@ -44,7 +43,7 @@ export class BaseExplosionComponent implements Component {
       lifespan: 700,
       frequency: 5,
       quantity: 70,
-      tint: [0xc8a078, 0x966e4b, 0xdcbe8c, 0xaf825f],
+      tint: [0xc8a078, 0x966e4b, 0xdcbe8c, 0xaf825f, 0x888888],
       blendMode: 'NORMAL',
       emitZone: {
         type: 'random' as const,
