@@ -5,32 +5,17 @@
     "x": 17,
     "y": 7
   },
-  "levelTheme": "swamp",
   "cells": [
     {
       "col": 1,
       "row": 7,
       "layer": 0,
-      "properties": ["exit"],
-      "backgroundTexture": "dungeon_door" 
-    }
-  ],
-  "triggers": [
-    {
-      "eventName": "exit_to_room1",
-      "triggerCells": [
-        { "col": 1, "row": 7 }
+      "properties": [
+        "exit"
       ],
-      "oneShot": false
+      "backgroundTexture": "dungeon_door"
     }
   ],
-  "exits": [
-    {
-      "eventName": "exit_to_room1",
-      "targetLevel": "test_room1",
-      "targetCol": 17,
-      "targetRow": 7,
-      "description": "Exit to Room 1"
-    }
-  ]
+  "entities": [],
+  "levelTheme": "swamp"
 }

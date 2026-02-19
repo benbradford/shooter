@@ -20,7 +20,7 @@ import { SkeletonDeathState } from './SkeletonDeathState';
 import { getSkeletonDifficultyConfig, type SkeletonDifficulty } from './SkeletonDifficultyConfig';
 import { createSkeletonAnimations } from './SkeletonAnimations';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { CreatorData } from '../../../systems/CreatorData';
 
 const SKELETON_SCALE = 1.6;
 const SKELETON_GRID_COLLISION_BOX = { offsetX: 6, offsetY: 16, width: 24, height: 14 };
@@ -31,18 +31,15 @@ const SKELETON_KNOCKBACK_FORCE_PX = 400;
 const HIT_DURATION_MS = 300;
 const BULLET_DAMAGE = 10;
 
-export type CreateSkeletonProps = {
-  scene: Phaser.Scene;
+export interface SkeletonCreatorData extends CreatorData {
   col: number;
   row: number;
-  grid: Grid;
-  playerEntity: Entity;
   difficulty: SkeletonDifficulty;
   onThrowBone: (x: number, y: number, dirX: number, dirY: number) => void;
 }
 
-export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
-  const { scene, col, row, grid, playerEntity, difficulty, onThrowBone } = props;
+export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
+  const { scene, col, row, grid, playerEntity, difficulty, onThrowBone, entityId } = data;
   const config = getSkeletonDifficultyConfig(difficulty);
 
   createSkeletonAnimations(scene);
@@ -51,7 +48,7 @@ export function createSkeletonEntity(props: CreateSkeletonProps): Entity {
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
-  const entity = new Entity('skeleton');
+  const entity = new Entity(entityId);
   entity.tags.add('enemy');
 
   const transform = entity.add(new TransformComponent(x, y, 0, SKELETON_SCALE));

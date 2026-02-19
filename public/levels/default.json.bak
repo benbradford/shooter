@@ -2474,15 +2474,5 @@
       "layer": 1
     }
   ],
-  "entities": [
-    {
-      "id": "skeleton0",
-      "type": "skeleton",
-      "data": {
-        "col": 10,
-        "row": 10,
-        "difficulty": "easy"
-      }
-    }
-  ]
+  "entities": []
 }

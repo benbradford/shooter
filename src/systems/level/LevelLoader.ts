@@ -2,6 +2,23 @@ import type { CellProperty } from '../grid/Grid';
 
 export type LevelTheme = 'dungeon' | 'swamp' | 'grass';
 
+export type EntityType = 
+  | 'stalking_robot' 
+  | 'bug_base' 
+  | 'thrower' 
+  | 'skeleton' 
+  | 'bullet_dude' 
+  | 'eventchainer'
+  | 'trigger'
+  | 'exit';
+
+export type LevelEntity = {
+  id: string;
+  type: EntityType;
+  createOnEvent?: string;
+  data: Record<string, unknown>;
+}
+
 export type LevelBackground = {
   floor_texture: string;
   platform_texture: string;
@@ -90,6 +107,11 @@ export type LevelData = {
     y: number;
   };
   cells: LevelCell[];
+  entities?: LevelEntity[];
+  levelTheme?: LevelTheme;
+  background?: LevelBackground;
+  
+  // Legacy fields (deprecated)
   robots?: LevelRobot[];
   bugBases?: LevelBugBase[];
   throwers?: LevelThrower[];
@@ -98,8 +120,6 @@ export type LevelData = {
   triggers?: LevelTrigger[];
   spawners?: LevelSpawner[];
   exits?: LevelExit[];
-  levelTheme?: LevelTheme;
-  background?: LevelBackground;
 }
 
 export class LevelLoader {

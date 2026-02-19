@@ -1884,6 +1884,93 @@
       ]
     }
   ],
-  "entities": [],
+  "robots": [
+    {
+      "col": 10,
+      "row": 33,
+      "difficulty": "easy",
+      "waypoints": [
+        {
+          "col": 10,
+          "row": 33
+        },
+        {
+          "col": 10,
+          "row": 28
+        }
+      ]
+    }
+  ],
+  "throwers": [
+    {
+      "id": "th1",
+      "col": 4,
+      "row": 32,
+      "difficulty": "easy"
+    },
+    {
+      "id": "th2",
+      "col": 8,
+      "row": 32,
+      "difficulty": "easy"
+    },
+    {
+      "id": "th3",
+      "col": 6,
+      "row": 32,
+      "difficulty": "easy"
+    },
+    {
+      "col": 9,
+      "row": 38,
+      "difficulty": "medium"
+    }
+  ],
+  "skeletons": [
+    {
+      "col": 2,
+      "row": 34,
+      "difficulty": "easy"
+    }
+  ],
+  "triggers": [
+    {
+      "eventName": "trig1",
+      "triggerCells": [
+        {
+          "col": 4,
+          "row": 29
+        },
+        {
+          "col": 5,
+          "row": 29
+        },
+        {
+          "col": 6,
+          "row": 29
+        },
+        {
+          "col": 7,
+          "row": 29
+        },
+        {
+          "col": 8,
+          "row": 29
+        }
+      ],
+      "oneShot": true
+    }
+  ],
+  "spawners": [
+    {
+      "eventName": "trig1",
+      "enemyIds": [
+        "th1",
+        "th2",
+        "th3"
+      ],
+      "spawnDelayMs": 0
+    }
+  ],
   "levelTheme": "dungeon"
 }

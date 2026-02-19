@@ -981,6 +981,33 @@
       ]
     }
   ],
-  "entities": [],
+  "triggers": [
+    {
+      "eventName": "exit_to_dungeon1",
+      "triggerCells": [
+        {
+          "col": 21,
+          "row": 0
+        },
+        {
+          "col": 20,
+          "row": 0
+        },
+        {
+          "col": 22,
+          "row": 0
+        }
+      ],
+      "oneShot": true
+    }
+  ],
+  "exits": [
+    {
+      "eventName": "exit_to_dungeon1",
+      "targetLevel": "dungeon1",
+      "targetCol": 12,
+      "targetRow": 28
+    }
+  ],
   "levelTheme": "grass"
 }

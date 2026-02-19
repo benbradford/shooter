@@ -1,7 +1,9 @@
 import Phaser from "phaser";
 import { Grid } from "../systems/grid/Grid";
-import { LevelLoader, type LevelData } from "../systems/level/LevelLoader";
+import { LevelLoader, type LevelData, type LevelEntity } from "../systems/level/LevelLoader";
+import { Entity } from "../ecs/Entity";
 import { EntityManager } from "../ecs/EntityManager";
+import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import type HudScene from "./HudScene";
 import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
 import { createStalkingRobotEntity } from "../ecs/entities/robot/StalkingRobotEntity";
@@ -38,6 +40,7 @@ export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
   private eventManager!: EventManagerSystem;
+  private entityCreatorManager!: EntityCreatorManager;
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
@@ -70,6 +73,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.entityManager = new EntityManager();
     this.eventManager = new EventManagerSystem();
+    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
 
     createThrowerAnimations(this);
 
@@ -213,7 +217,13 @@ export default class GameScene extends Phaser.Scene {
       vignetteSprite: this.vignette
     }));
 
+    // Load entities from new format
+    if (level.entities && level.entities.length > 0) {
+      this.loadEntitiesFromNewFormat(player);
+      return; // Skip legacy loading
+    }
 
+    // Legacy loading (will be removed after migration)
 
     // Spawn robots from level data
     if (level.robots && level.robots.length > 0) {
@@ -326,6 +336,9 @@ export default class GameScene extends Phaser.Scene {
           row: skeletonData.row,
           grid: this.grid,
           playerEntity: player,
+          entityId: `skeleton_legacy_${skeletonData.col}_${skeletonData.row}`,
+          entityManager: this.entityManager,
+          eventManager: this.eventManager,
           difficulty: skeletonData.difficulty as EnemyDifficulty,
           onThrowBone: (x, y, dirX, dirY) => {
             const gridPos = skeleton.require(GridPositionComponent);
@@ -429,6 +442,9 @@ export default class GameScene extends Phaser.Scene {
                 row: skeletonData.row,
                 grid: this.grid,
                 playerEntity: player,
+                entityId: skeletonData.id ?? `skeleton_spawned_${enemyId}`,
+                entityManager: this.entityManager,
+                eventManager: this.eventManager,
                 difficulty: skeletonData.difficulty as EnemyDifficulty,
                 onThrowBone: (x, y, dirX, dirY) => {
                   const gridPos = skeleton.require(GridPositionComponent);
@@ -483,6 +499,107 @@ export default class GameScene extends Phaser.Scene {
         });
         this.entityManager.add(exit);
       }
+    }
+  }
+
+  private loadEntitiesFromNewFormat(player: Entity): void {
+    const level = this.levelData;
+    
+    // Validate unique IDs
+    const ids = new Set<string>();
+    for (const entityDef of level.entities ?? []) {
+      if (ids.has(entityDef.id)) {
+        throw new Error(`Duplicate entity ID: ${entityDef.id}`);
+      }
+      ids.add(entityDef.id);
+    }
+
+    // Load entities
+    for (const entityDef of level.entities ?? []) {
+      const creatorFunc = this.createEntityCreator(entityDef, player);
+      
+      if (!creatorFunc) {
+        throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
+      }
+      
+      if (entityDef.createOnEvent) {
+        this.entityCreatorManager.register(entityDef.createOnEvent, creatorFunc);
+      } else {
+        const entity = creatorFunc();
+        this.entityManager.add(entity);
+      }
+    }
+  }
+
+  private createEntityCreator(entityDef: LevelEntity, player: Entity): (() => Entity) | null {
+    const data = entityDef.data as Record<string, unknown>;
+    
+    switch (entityDef.type) {
+      case 'skeleton': {
+        const skeletonData: import('../ecs/entities/skeleton/SkeletonEntity').SkeletonCreatorData = {
+          scene: this,
+          grid: this.grid,
+          entityId: entityDef.id,
+          playerEntity: player,
+          entityManager: this.entityManager,
+          eventManager: this.eventManager,
+          col: data.col as number,
+          row: data.row as number,
+          difficulty: data.difficulty as EnemyDifficulty,
+          onThrowBone: (x, y, dirX, dirY) => {
+            const bone = createBoneProjectileEntity({
+              scene: this,
+              x, y, dirX, dirY,
+              grid: this.grid,
+              layer: player.require(GridPositionComponent).currentLayer
+            });
+            this.entityManager.add(bone);
+          }
+        };
+        return () => createSkeletonEntity(skeletonData);
+      }
+      
+      case 'trigger': {
+        const triggerData = data as { eventToRaise: string; triggerCells: Array<{ col: number; row: number }>; oneShot: boolean };
+        return () => createTriggerEntity({
+          grid: this.grid,
+          eventManager: this.eventManager,
+          eventName: triggerData.eventToRaise,
+          triggerCells: triggerData.triggerCells,
+          oneShot: triggerData.oneShot ?? true
+        });
+      }
+      
+      case 'exit': {
+        const exitData = data as { targetLevel: string; targetCol: number; targetRow: number; triggerCells: Array<{ col: number; row: number }>; oneShot?: boolean };
+        const eventName = `exit_${entityDef.id}`;
+        return () => {
+          const trigger = createTriggerEntity({
+            grid: this.grid,
+            eventManager: this.eventManager,
+            eventName,
+            triggerCells: exitData.triggerCells,
+            oneShot: exitData.oneShot ?? true
+          });
+          this.entityManager.add(trigger);
+          
+          const exit = createLevelExitEntity({
+            eventManager: this.eventManager,
+            eventName,
+            targetLevel: exitData.targetLevel,
+            targetCol: exitData.targetCol,
+            targetRow: exitData.targetRow,
+            onTransition: (targetLevel, targetCol, targetRow) => {
+              void this.transitionToLevel(targetLevel, targetCol, targetRow);
+            }
+          });
+          return exit;
+        };
+      }
+      
+      default:
+        console.warn(`[EntityCreator] Unknown entity type: ${entityDef.type}`);
+        return null;
     }
   }
 

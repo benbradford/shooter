@@ -5140,7 +5140,142 @@
       ]
     }
   ],
-  "entities": [],
+  "robots": [
+    {
+      "col": 26,
+      "row": 13,
+      "difficulty": "easy",
+      "waypoints": [
+        {
+          "col": 22,
+          "row": 13
+        },
+        {
+          "col": 22,
+          "row": 10
+        },
+        {
+          "col": 22,
+          "row": 13
+        },
+        {
+          "col": 30,
+          "row": 13
+        }
+      ]
+    }
+  ],
+  "bugBases": [
+    {
+      "col": 16,
+      "row": 12,
+      "difficulty": "easy"
+    }
+  ],
+  "throwers": [
+    {
+      "id": "th1",
+      "col": 25,
+      "row": 21,
+      "difficulty": "easy"
+    },
+    {
+      "id": "th2",
+      "col": 32,
+      "row": 21,
+      "difficulty": "easy"
+    }
+  ],
+  "skeletons": [
+    {
+      "col": 32,
+      "row": 16,
+      "difficulty": "easy"
+    },
+    {
+      "col": 23,
+      "row": 17,
+      "difficulty": "easy"
+    },
+    {
+      "col": 22,
+      "row": 23,
+      "difficulty": "easy"
+    },
+    {
+      "col": 28,
+      "row": 13,
+      "difficulty": "easy"
+    },
+    {
+      "col": 34,
+      "row": 22,
+      "difficulty": "easy"
+    }
+  ],
+  "bulletDudes": [
+    {
+      "col": 12,
+      "row": 5,
+      "difficulty": "easy"
+    }
+  ],
+  "triggers": [
+    {
+      "eventName": "trigger_g",
+      "triggerCells": [
+        {
+          "col": 28,
+          "row": 21
+        },
+        {
+          "col": 29,
+          "row": 21
+        },
+        {
+          "col": 27,
+          "row": 21
+        },
+        {
+          "col": 30,
+          "row": 21
+        }
+      ],
+      "oneShot": true
+    },
+    {
+      "eventName": "exit_to_overworld1",
+      "triggerCells": [
+        {
+          "col": 12,
+          "row": 29
+        },
+        {
+          "col": 13,
+          "row": 29
+        }
+      ],
+      "oneShot": true
+    }
+  ],
+  "spawners": [
+    {
+      "eventName": "trigger_g",
+      "enemyIds": [
+        "th1",
+        "th2"
+      ],
+      "spawnDelayMs": 0
+    }
+  ],
+  "exits": [
+    {
+      "eventName": "exit_to_overworld1",
+      "targetLevel": "grass_overworld1",
+      "targetCol": 21,
+      "targetRow": 2
+    }
+  ],
   "levelTheme": "dungeon",
   "background": {
     "floor_texture": "dungeon_floor",
@@ -5158,51 +5293,5 @@
       "depth": 6,
       "intensity": 0.7
     }
-  },
-  "entities": [
-    {
-      "id": "skeleton0",
-      "type": "skeleton",
-      "data": {
-        "col": 18,
-        "row": 20,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "skeleton1",
-      "type": "skeleton",
-      "createOnEvent": "sk1",
-      "data": {
-        "col": 15,
-        "row": 23,
-        "difficulty": "medium"
-      }
-    },
-    {
-      "id": "trigger1",
-      "type": "trigger",
-      "data": {
-        "eventToRaise": "sk1",
-        "triggerCells": [
-          {"col": 12, "row": 23}
-        ],
-        "oneShot": true
-      }
-    },
-    {
-      "id": "exit1",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworld1",
-        "targetCol": 21,
-        "targetRow": 1,
-        "triggerCells": [
-          {"col": 12, "row": 28},
-          {"col": 13, "row": 28}
-        ],
-        "oneShot": true
-      }
-    }
-  ]
+  }
 }

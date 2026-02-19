@@ -1,0 +1,36 @@
+{
+  "width": 20,
+  "height": 15,
+  "playerStart": {
+    "x": 17,
+    "y": 7
+  },
+  "levelTheme": "swamp",
+  "cells": [
+    {
+      "col": 1,
+      "row": 7,
+      "layer": 0,
+      "properties": ["exit"],
+      "backgroundTexture": "dungeon_door" 
+    }
+  ],
+  "triggers": [
+    {
+      "eventName": "exit_to_room1",
+      "triggerCells": [
+        { "col": 1, "row": 7 }
+      ],
+      "oneShot": false
+    }
+  ],
+  "exits": [
+    {
+      "eventName": "exit_to_room1",
+      "targetLevel": "test_room1",
+      "targetCol": 17,
+      "targetRow": 7,
+      "description": "Exit to Room 1"
+    }
+  ]
+}
