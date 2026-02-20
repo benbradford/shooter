@@ -783,6 +783,60 @@ update(_delta: number): void {
 
 ## Visual Effects Best Practices
 
+### Spawn Animations
+
+For enemies that should rise from the ground (skeletons, undead):
+
+```typescript
+// SkeletonRiseComponent
+export class SkeletonRiseComponent implements Component {
+  private startY = 0;
+  private targetY = 0;
+  
+  update(delta: number): void {
+    if (this.elapsedMs === 0) {
+      // Start below ground
+      this.targetY = transform.y;
+      this.startY = this.targetY + sprite.sprite.displayHeight;
+      transform.y = this.startY;
+      
+      // Hide shadow and disable collision
+      shadow.shadow.setVisible(false);
+      collision.enabled = false;
+      
+      // Spawn smoke at feet
+      createSmokeBurst({
+        scene, x: transform.x, y: this.targetY,
+        cellSize: sprite.sprite.displayHeight,
+        burstCount: 3, intervalMs: 100
+      });
+    }
+    
+    // Move upward
+    transform.y = this.startY + (this.targetY - this.startY) * progress;
+    
+    // Reveal top-to-bottom with mask
+    const maskY = sprite.sprite.y - spriteHeight / 2;
+    const maskHeight = spriteHeight * progress;
+    
+    if (progress >= 1) {
+      shadow.shadow.setVisible(true);
+      collision.enabled = true;
+      stateMachine.enter('idle');
+    }
+  }
+}
+```
+
+**Key points:**
+- Start sprite below ground (y + displayHeight)
+- Move upward to final position over 1 second
+- Mask reveals from top to bottom (head first)
+- Hide shadow until fully risen
+- Disable collision until fully risen
+- Smoke burst at feet position
+- Transition to idle state when complete
+
 ### Sprite Shattering Effect
 
 For breakable objects, create realistic destruction by dividing the sprite into a 3x3 grid of shards:

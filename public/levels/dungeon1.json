@@ -5672,6 +5672,15 @@
       }
     },
     {
+      "id": "skeleton5",
+      "type": "skeleton",
+      "data": {
+        "col": 15,
+        "row": 22,
+        "difficulty": "medium"
+      }
+    },
+    {
       "id": "trigger0",
       "type": "trigger",
       "data": {

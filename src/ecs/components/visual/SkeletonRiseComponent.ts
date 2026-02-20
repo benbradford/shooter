@@ -5,6 +5,7 @@ import { SpriteComponent } from '../core/SpriteComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { ShadowComponent } from './ShadowComponent';
+import { createSmokeBurst } from './SmokeBurstHelper';
 
 export type SkeletonRiseComponentProps = {
   scene: Phaser.Scene;
@@ -38,6 +39,15 @@ export class SkeletonRiseComponent implements Component {
         this.targetY = transform.y;
         this.startY = this.targetY + sprite.sprite.displayHeight;
         transform.y = this.startY;
+
+        createSmokeBurst({
+          scene: this.scene,
+          x: transform.x,
+          y: this.targetY + 32,
+          cellSize: sprite.sprite.displayHeight * 0.3,
+          burstCount: 5,
+          intervalMs: 75
+        });
       }
 
       this.elapsedMs += delta;
