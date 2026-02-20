@@ -3,12 +3,13 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { RarityComponent } from '../core/RarityComponent';
-import { RARITY_COIN_COUNTS } from '../../../constants/Rarity';
+import { RARITY_COIN_COUNTS, RARITY_MEDIPACK_CHANCE } from '../../../constants/Rarity';
 
 export type BreakableComponentProps = {
   maxHealth: number;
   scene: Phaser.Scene;
   onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
+  onSpawnMedipack: (x: number, y: number) => void;
 }
 
 export class BreakableComponent implements Component {
@@ -16,11 +17,13 @@ export class BreakableComponent implements Component {
   private currentHealth: number;
   private readonly scene: Phaser.Scene;
   private readonly onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
+  private readonly onSpawnMedipack: (x: number, y: number) => void;
 
   constructor(props: BreakableComponentProps) {
     this.currentHealth = props.maxHealth;
     this.scene = props.scene;
     this.onSpawnCoin = props.onSpawnCoin;
+    this.onSpawnMedipack = props.onSpawnMedipack;
   }
 
   takeDamage(amount: number): void {
@@ -135,6 +138,7 @@ export class BreakableComponent implements Component {
     const sprite = this.entity.require(SpriteComponent);
 
     this.spawnCoins(transform, sprite);
+    this.spawnMedipack(transform, sprite);
 
     const GRID_SIZE = 3;
     const FADE_DURATION_MS = 2000;
@@ -233,6 +237,17 @@ export class BreakableComponent implements Component {
       const targetY = cellBottom - 10 + Math.random() * 20;
 
       this.onSpawnCoin(transform.x, transform.y, velocityX, velocityY, targetY);
+    }
+  }
+
+  private spawnMedipack(transform: TransformComponent, sprite: SpriteComponent): void {
+    const rarity = this.entity.get(RarityComponent);
+    if (!rarity) return;
+
+    const chance = RARITY_MEDIPACK_CHANCE[rarity.rarity];
+    if (Math.random() < chance) {
+      const cellBottom = transform.y + sprite.sprite.displayHeight / 2;
+      this.onSpawnMedipack(transform.x, cellBottom - 10);
     }
   }
 

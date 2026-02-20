@@ -5,13 +5,11 @@ import { SpriteComponent } from '../core/SpriteComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 
 export type CoinComponentProps = {
-  scene: Phaser.Scene;
   targetY: number;
   velocityX: number;
   velocityY: number;
   grid: Grid;
   playerEntity: Entity;
-  baseScale: number;
   coinSize: number;
 }
 
@@ -20,31 +18,24 @@ const COLLECTION_DISTANCE_PX = 40;
 const COLLECTION_DELAY_MS = 500;
 const COIN_LIFETIME_MS = 8000;
 const COIN_FADE_START_MS = 4000;
-const SPIN_SPEED = 0.5;
-const SPIN_SLOWDOWN_RATE = 0.0005;
 
 export class CoinComponent implements Component {
   entity!: Entity;
-  private readonly scene: Phaser.Scene;
   private readonly targetY: number;
   private velocityX: number;
   private velocityY: number;
   private readonly grid: Grid;
   private readonly playerEntity: Entity;
-  private readonly baseScale: number;
   private readonly coinSize: number;
   private hasLanded = false;
   private elapsedMs = 0;
-  private currentSpinSpeed = SPIN_SPEED;
 
   constructor(props: CoinComponentProps) {
-    this.scene = props.scene;
     this.targetY = props.targetY;
     this.velocityX = props.velocityX;
     this.velocityY = props.velocityY;
     this.grid = props.grid;
     this.playerEntity = props.playerEntity;
-    this.baseScale = props.baseScale;
     this.coinSize = props.coinSize;
   }
 

@@ -13,6 +13,7 @@ import { TouchJoystickComponent } from '../../components/input/TouchJoystickComp
 import { AttackButtonComponent } from '../../components/input/AttackButtonComponent';
 import { ControlModeComponent } from '../../components/input/ControlModeComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
+import { MedipackHealerComponent } from '../../components/core/MedipackHealerComponent';
 import { HudBarComponent } from '../../components/ui/HudBarComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
@@ -151,6 +152,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new GridCollisionComponent(grid));
 
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
+  entity.add(new MedipackHealerComponent());
 
   const hudBars = entity.add(new HudBarComponent(scene, [
     { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y_PX, fillColor: 0x00ff00 },
@@ -213,6 +215,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     SlideAbilityComponent,
     CollisionComponent,
     HealthComponent,
+    MedipackHealerComponent,
     VignetteHealthComponent,
     HitFlashComponent,
     HudBarComponent,

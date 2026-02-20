@@ -90,6 +90,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/pickups/coin.png',
     type: 'image' as const,
   },
+  medi_pack: {
+    key: 'medi_pack',
+    path: 'assets/pickups/medi_pack.png',
+    type: 'image' as const,
+  },
   vignette: {
     key: 'vignette',
     path: 'assets/generic/vin.png',

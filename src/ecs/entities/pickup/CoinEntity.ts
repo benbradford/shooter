@@ -17,9 +17,6 @@ export type CreateCoinProps = {
   coinSize: number;
 }
 
-const COIN_SCALE = 0.2;
-const COIN_SIZE_PX = 32;
-
 export function createCoinEntity(props: CreateCoinProps): Entity {
   const { scene, x, y, velocityX, velocityY, targetY, grid, playerEntity, scale, coinSize } = props;
   
@@ -28,7 +25,7 @@ export function createCoinEntity(props: CreateCoinProps): Entity {
 
   const transform = entity.add(new TransformComponent(x, y, 0, scale));
   entity.add(new SpriteComponent(scene, 'coin', transform));
-  entity.add(new CoinComponent({ scene, targetY, velocityX, velocityY, grid, playerEntity, baseScale: scale, coinSize }));
+  entity.add(new CoinComponent({ targetY, velocityX, velocityY, grid, playerEntity, coinSize }));
 
   entity.setUpdateOrder([
     TransformComponent,

@@ -16,6 +16,7 @@ import { createTriggerEntity } from '../trigger/TriggerEntity';
 import { createLevelExitEntity } from '../exit/LevelExitEntity';
 import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
 import { createCoinEntity } from '../ecs/entities/pickup/CoinEntity';
+import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
@@ -146,6 +147,14 @@ export class EntityLoader {
                 coinSize: 32
               });
               this.entityManager.add(coin);
+            },
+            onSpawnMedipack: (x, y) => {
+              const medipack = createMedipackEntity({
+                scene: this.scene,
+                x, y,
+                playerEntity: player
+              });
+              this.entityManager.add(medipack);
             }
           });
         };

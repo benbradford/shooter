@@ -2,8 +2,17 @@ export type Rarity = 'nothing' | 'rare' | 'epic' | 'mythic' | 'legendary';
 
 export const RARITY_COIN_COUNTS: Record<Rarity, { min: number; max: number }> = {
   nothing: { min: 0, max: 0 },
-  rare: { min: 1, max: 2 },
-  epic: { min: 3, max: 5 },
-  mythic: { min: 6, max: 8 },
-  legendary: { min: 10, max: 15 }
+  rare: { min: -2, max: 2 },
+  epic: { min: -1, max: 5 },
+  mythic: { min: 0, max: 10 },
+  legendary: { min: 10, max: 20 }
 };
+
+export const RARITY_MEDIPACK_CHANCE: Record<Rarity, number> = {
+  nothing: 0,
+  rare: 0.05,
+  epic: 0.10,
+  mythic: 0.20,
+  legendary: 0.30
+};
+
