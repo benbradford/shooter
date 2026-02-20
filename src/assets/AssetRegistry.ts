@@ -107,11 +107,6 @@ export const ASSET_REGISTRY = {
     path: 'assets/bug/base_destroyed.png',
     type: 'image' as const,
   },
-  base_particle: {
-    key: 'base_particle',
-    path: 'assets/bug/base_particle.png',
-    type: 'image' as const,
-  },
   arrows: {
     key: 'arrows',
     path: 'assets/player/arrows.png',
@@ -216,7 +211,7 @@ export const ASSET_GROUPS = {
   // Enemies
   stalking_robot: ['attacker'] as const,
   floating_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
-  bug_base: ['bug_base', 'base_destroyed', 'base_particle', 'bug'] as const,
+  bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small'] as const,
 } as const;

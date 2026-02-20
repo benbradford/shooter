@@ -8,7 +8,7 @@ import type { LevelData } from '../systems/level/LevelLoader';
  * @param keys - Optional array of asset keys to load. If not provided, loads all assets
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'slide_icon', 'fireball', 'fire', 'shadow', 'vignette', 'bug', 'bug_base', 'base_destroyed', 'base_particle', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'dungeon_overlays', 'wall_torch', 'pillar', 'dungeon_vase'];
+  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'slide_icon', 'fireball', 'fire', 'shadow', 'vignette', 'bug', 'bug_base', 'base_destroyed', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'dungeon_overlays', 'wall_torch', 'pillar', 'dungeon_vase'];
   keysToLoad.forEach((key: AssetKey) => {
     loadAsset(scene, key);
   });
@@ -66,7 +66,7 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
  */
 function getBackgroundTextures(levelData: LevelData): AssetKey[] {
   const textures: AssetKey[] = [];
-  
+
   if (levelData.background) {
     const bg = levelData.background;
     if (bg.floor_texture) textures.push(bg.floor_texture as AssetKey);

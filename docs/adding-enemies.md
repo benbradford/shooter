@@ -55,6 +55,20 @@ if (pathDistance > MAX_CHASE_DISTANCE_CELLS * CHASE_STOP_MULTIPLIER ||
 - **Chase state:** Check during path recalculation (every 500ms)
 - **Patrol state:** Check when player enters line of sight
 
+### Player Position for Pathfinding
+
+**Critical:** Always use the player's feet position (center of grid collision box) for pathfinding, not their transform center:
+
+```typescript
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
+
+// In enemy state
+const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
+const path = this.pathfinder.findPath(enemyCol, enemyRow, playerCell.col, playerCell.row, layer);
+```
+
+**Why:** The player's sprite overlaps walls above them in top-down view. Using transform center can make pathfinding think the player is inside a wall cell. The feet position (bottom center of collision box) represents where the player is actually standing.
+
 ### Spawner Distance Checks
 
 Spawners should also respect distance limits:

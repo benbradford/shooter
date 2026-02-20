@@ -783,6 +783,50 @@ update(_delta: number): void {
 
 ## Visual Effects Best Practices
 
+### Sprite Shattering Effect
+
+For breakable objects, create realistic destruction by dividing the sprite into a 3x3 grid of shards:
+
+```typescript
+// In BreakableComponent.breakApart()
+const GRID_SIZE = 3;
+const pieceWidth = frame.width / GRID_SIZE;
+const pieceHeight = frame.height / GRID_SIZE;
+
+for (let row = 0; row < GRID_SIZE; row++) {
+  for (let col = 0; col < GRID_SIZE; col++) {
+    const shard = scene.add.sprite(x, y, texture);
+    shard.setCrop(cropX, cropY, pieceWidth, pieceHeight);
+    
+    // Physics-based motion
+    shard.x = startX + velocityX * time;
+    shard.y = startY + velocityY * time - upwardVelocity * time + (gravity * time²) / 2;
+    
+    // Rotation based on position (left = counter-clockwise, right = clockwise)
+    shard.angle = rotationDir * rotationSpeed * time;
+    
+    // Center column: Y-axis scale oscillation to simulate flipping
+    if (col === 1) {
+      shard.scaleY = scale * Math.sin(progress * Math.PI * 4);
+    }
+  }
+}
+```
+
+**Key points:**
+- Use absolute position calculation (not incremental) to prevent rotation affecting trajectory
+- Add randomness to velocity, rotation, and gravity for natural variation
+- Clamp Y position to prevent falling below original sprite
+- Left/right pieces rotate in opposite directions
+- Center pieces use Y-scale oscillation instead of rotation
+
+### Non-Lethal Hit Feedback
+
+For objects that take multiple hits:
+- Spawn single random shard on hit
+- Shake sprite slightly (3px, 100ms)
+- No hit flash (looks strange on objects)
+
 ### Creating Particle Effects (Shell Casings, Debris)
 
 1. **Use physics-based motion**
@@ -810,6 +854,35 @@ update(_delta: number): void {
 5. **No grid interaction needed**
    - Skip GridPositionComponent and GridCollisionComponent
    - Visual effects don't occupy cells
+
+### Varied Particle Textures
+
+Create runtime textures by sampling from existing sprites:
+
+```typescript
+// Sample 6 random pieces from center 40% of texture
+const centerX = frame.cutX + frame.width / 2;
+const centerY = frame.cutY + frame.height / 2;
+const sampleAreaSize = frame.width * 0.4;
+
+for (let i = 0; i < 6; i++) {
+  const srcX = centerX - sampleAreaSize/2 + Math.random() * sampleAreaSize;
+  const srcY = centerY - sampleAreaSize/2 + Math.random() * sampleAreaSize;
+  ctx.drawImage(sourceImage, srcX, srcY, 8, 8, i * 8, 0, 8, 8);
+}
+
+// Use as spritesheet
+scene.textures.addSpriteSheet('rubble', canvas.canvas, {
+  frameWidth: 8,
+  frameHeight: 8
+});
+
+// Particles randomly pick frames
+particles.add.particles(x, y, 'rubble', {
+  frame: [0, 1, 2, 3, 4, 5],
+  // ... other config
+});
+```
 
 ## Performance Tips
 
