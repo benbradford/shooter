@@ -2,8 +2,10 @@ import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
+import { RarityComponent } from '../ecs/components/core/RarityComponent';
 import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
 import type { IStateEnterProps } from '../systems/state/IState';
+import type { Rarity } from '../constants/Rarity';
 
 export class EditEntityEditorState extends EditorState {
   private entity: Entity | null = null;
@@ -166,7 +168,9 @@ export class EditEntityEditorState extends EditorState {
     this.entityPanel.appendChild(title);
 
     // Add entity-specific content
-    if (entityType === 'Skeleton' || entityType === 'Thrower' || entityType === 'Bullet Dude' || entityType === 'Bug Base') {
+    if (entityType === 'Breakable') {
+      this.addRarityControls();
+    } else if (entityType === 'Skeleton' || entityType === 'Thrower' || entityType === 'Bullet Dude' || entityType === 'Bug Base') {
       this.addDifficultyControls();
     } else if (entityType === 'Robot') {
       this.addDifficultyControls();
@@ -179,6 +183,7 @@ export class EditEntityEditorState extends EditorState {
   private getEntityType(): string {
     if (!this.entity) return 'Unknown';
     
+    if (this.entity.id.startsWith('breakable')) return 'Breakable';
     if (this.entity.id.startsWith('skeleton')) return 'Skeleton';
     if (this.entity.id.startsWith('thrower')) return 'Thrower';
     if (this.entity.id.startsWith('stalking_robot') || this.entity.id.startsWith('robot')) return 'Robot';
@@ -226,6 +231,54 @@ export class EditEntityEditorState extends EditorState {
             const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
             if (entityDef && entityDef.data) {
               (entityDef.data as { difficulty: string }).difficulty = diff;
+            }
+            
+            this.destroyUI();
+            this.createUI();
+          }
+        }
+      };
+      this.entityPanel?.appendChild(button);
+    });
+  }
+
+  private addRarityControls(): void {
+    if (!this.entityPanel || !this.entity) return;
+
+    const rarity = this.entity.get(RarityComponent);
+    if (!rarity) return;
+
+    const rarityLabel = document.createElement('div');
+    rarityLabel.textContent = `Rarity: ${rarity.rarity}`;
+    rarityLabel.style.marginTop = '10px';
+    rarityLabel.style.marginBottom = '10px';
+    this.entityPanel.appendChild(rarityLabel);
+
+    const rarities: Rarity[] = ['nothing', 'rare', 'epic', 'mythic', 'legendary'];
+    rarities.forEach(r => {
+      const button = document.createElement('button');
+      button.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+      button.style.cssText = `
+        padding: 10px 20px;
+        margin: 5px;
+        background: ${rarity.rarity === r ? '#4CAF50' : '#666'};
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: monospace;
+      `;
+      button.onclick = () => {
+        if (this.entity) {
+          const rarityComp = this.entity.get(RarityComponent);
+          if (rarityComp) {
+            rarityComp.rarity = r;
+            
+            const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+            const levelData = gameScene.getLevelData();
+            const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
+            if (entityDef && entityDef.data) {
+              (entityDef.data as { rarity: string }).rarity = r;
             }
             
             this.destroyUI();

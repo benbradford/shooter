@@ -6,7 +6,9 @@ import { GridCollisionComponent } from '../../components/movement/GridCollisionC
 import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { BreakableComponent } from '../../components/breakable/BreakableComponent';
+import { RarityComponent } from '../../components/core/RarityComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { Rarity } from '../../../constants/Rarity';
 
 export type CreateBreakableProps = {
   scene: Phaser.Scene;
@@ -16,10 +18,13 @@ export type CreateBreakableProps = {
   texture: string;
   health: number;
   entityId: string;
+  rarity: Rarity;
+  playerEntity: Entity;
+  onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
 }
 
 export function createBreakableEntity(props: CreateBreakableProps): Entity {
-  const { scene, col, row, grid, texture, health, entityId } = props;
+  const { scene, col, row, grid, texture, health, entityId, rarity, onSpawnCoin } = props;
   const entity = new Entity(entityId);
   entity.tags.add('breakable');
 
@@ -55,8 +60,9 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   entity.add(new GridPositionComponent(col, row, COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
   entity.add(new GridCellBlocker());
+  entity.add(new RarityComponent(rarity));
 
-  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene }));
+  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene, onSpawnCoin }));
 
   entity.add(new CollisionComponent({
     box: ENTITY_COLLISION_BOX,

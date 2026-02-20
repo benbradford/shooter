@@ -254,7 +254,7 @@ export class AddEntityEditorState extends EditorState {
         col,
         row,
         ...(this.selectedType === 'breakable'
-          ? { texture: this.selectedTexture, health: 1 }
+          ? { texture: this.selectedTexture, health: 1, rarity: 'epic' }
           : { difficulty: 'medium' }),
         ...(this.selectedType === 'stalking_robot' ? { waypoints: [{ col, row }] } : {})
       }

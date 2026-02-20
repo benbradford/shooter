@@ -4,6 +4,7 @@ import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
 import type { Grid } from '../systems/grid/Grid';
 import type { LevelData, LevelEntity } from '../systems/level/LevelLoader';
 import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
+import type { Rarity } from '../constants/Rarity';
 import { EntityCreatorManager } from './EntityCreatorManager';
 import { createSkeletonEntity } from '../ecs/entities/skeleton/SkeletonEntity';
 import { createThrowerEntity } from '../ecs/entities/thrower/ThrowerEntity';
@@ -13,12 +14,13 @@ import { createBugBaseEntity } from '../ecs/entities/bug/BugBaseEntity';
 import { createBugEntity } from '../ecs/entities/bug/BugEntity';
 import { createTriggerEntity } from '../trigger/TriggerEntity';
 import { createLevelExitEntity } from '../exit/LevelExitEntity';
+import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
+import { createCoinEntity } from '../ecs/entities/pickup/CoinEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { getBugBaseDifficultyConfig } from '../ecs/entities/bug/BugBaseDifficulty';
-import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
 
 export class EntityLoader {
   constructor(
@@ -123,7 +125,7 @@ export class EntityLoader {
       
       case 'breakable':
         return () => {
-          const breakableData = data as { col: number; row: number; texture: string; health: number };
+          const breakableData = data as { col: number; row: number; texture: string; health: number; rarity?: string };
           return createBreakableEntity({
             scene: this.scene,
             col: breakableData.col,
@@ -131,7 +133,20 @@ export class EntityLoader {
             grid: this.grid,
             texture: breakableData.texture,
             health: breakableData.health,
-            entityId: entityDef.id
+            entityId: entityDef.id,
+            rarity: (breakableData.rarity as Rarity) ?? 'epic',
+            playerEntity: player,
+            onSpawnCoin: (x, y, velocityX, velocityY, targetY) => {
+              const coin = createCoinEntity({
+                scene: this.scene,
+                x, y, velocityX, velocityY, targetY,
+                grid: this.grid,
+                playerEntity: player,
+                scale: 0.2,
+                coinSize: 32
+              });
+              this.entityManager.add(coin);
+            }
           });
         };
       

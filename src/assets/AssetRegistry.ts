@@ -85,6 +85,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/generic/shadow.png',
     type: 'image' as const,
   },
+  coin: {
+    key: 'coin',
+    path: 'assets/pickups/coin.png',
+    type: 'image' as const,
+  },
   vignette: {
     key: 'vignette',
     path: 'assets/generic/vin.png',

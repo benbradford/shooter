@@ -27,6 +27,7 @@ import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { BreakableComponent } from "../ecs/components/breakable/BreakableComponent";
+import { RarityComponent } from "../ecs/components/core/RarityComponent";
 import { EntityManager } from "../ecs/EntityManager";
 
 export default class EditorScene extends Phaser.Scene {
@@ -396,11 +397,13 @@ export default class EditorScene extends Phaser.Scene {
         type = 'breakable';
         const sprite = entity.get(SpriteComponent);
         const breakable = entity.get(BreakableComponent);
+        const rarity = entity.get(RarityComponent);
         data = {
           col: cell.col,
           row: cell.row,
           texture: sprite?.sprite.texture.key ?? 'dungeon_vase',
-          health: breakable?.getHealth() ?? 1
+          health: breakable?.getHealth() ?? 1,
+          rarity: rarity?.rarity ?? 'epic'
         };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
