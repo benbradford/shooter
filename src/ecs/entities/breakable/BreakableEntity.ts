@@ -28,16 +28,16 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
-  const transform = entity.add(new TransformComponent(x, y, 0, 1));
+  const targetSize = grid.cellSize * 0.9;
+  const textureObj = scene.textures.get(texture);
+  const frame = textureObj.get(0);
+  const maxDimension = Math.max(frame.width, frame.height);
+  const scale = targetSize / maxDimension;
+
+  const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(scene, texture, transform));
   sprite.sprite.setOrigin(0.5, 0.5);
-  sprite.sprite.setDepth(-3);
-
-  const spriteWidth = sprite.sprite.width;
-  const spriteHeight = sprite.sprite.height;
-  const maxDimension = Math.max(spriteWidth, spriteHeight);
-  const scale = (grid.cellSize * 0.9) / maxDimension;
-  transform.scale = scale;
+  sprite.sprite.setDepth(-5);
 
   const COLLISION_SIZE = grid.cellSize * 1;
   const COLLISION_BOX = {

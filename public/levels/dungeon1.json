@@ -2116,30 +2116,54 @@
       "col": 10,
       "row": 13,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 11,
       "row": 13,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 12,
       "row": 13,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 13,
       "row": 13,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 14,
       "row": 13,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 15,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
@@ -2250,12 +2274,18 @@
       "col": 10,
       "row": 14,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
-      "col": 14,
+      "col": 15,
       "row": 14,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
@@ -2363,9 +2393,12 @@
       ]
     },
     {
-      "col": 14,
+      "col": 15,
       "row": 15,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
@@ -2548,12 +2581,18 @@
       "col": 10,
       "row": 16,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
-      "col": 14,
+      "col": 15,
       "row": 16,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
@@ -2736,30 +2775,54 @@
       "col": 10,
       "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 11,
       "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 12,
       "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 13,
       "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 14,
       "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 15,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
@@ -5454,7 +5517,7 @@
         "col": 10,
         "row": 15,
         "texture": "pillar",
-        "health": 50
+        "health": 1
       }
     },
     {
@@ -5464,6 +5527,36 @@
         "col": 10,
         "row": 15,
         "texture": "pillar",
+        "health": 50
+      }
+    },
+    {
+      "id": "breakable19",
+      "type": "breakable",
+      "data": {
+        "col": 14,
+        "row": 14,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable20",
+      "type": "breakable",
+      "data": {
+        "col": 14,
+        "row": 15,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable21",
+      "type": "breakable",
+      "data": {
+        "col": 14,
+        "row": 16,
+        "texture": "dungeon_vase",
         "health": 1
       }
     },

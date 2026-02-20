@@ -122,8 +122,11 @@ export class AddEntityEditorState extends EditorState {
     this.ghostSprite.setDepth(1000);
     
     if (this.selectedType === 'breakable') {
-      const maxDimension = Math.max(this.ghostSprite.width, this.ghostSprite.height);
-      const scale = (grid.cellSize * 0.9) / maxDimension;
+      const targetSize = grid.cellSize * 0.9;
+      const textureObj = gameScene.textures.get(texture);
+      const frame = textureObj.get(0);
+      const maxDimension = Math.max(frame.width, frame.height);
+      const scale = targetSize / maxDimension;
       this.ghostSprite.setScale(scale);
     } else {
       this.ghostSprite.setScale(2);

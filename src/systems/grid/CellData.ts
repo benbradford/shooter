@@ -1,6 +1,6 @@
 import type { Entity } from '../../ecs/Entity';
 
-export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path';
+export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'blocked';
 
 export type CellData = {
   layer: number;

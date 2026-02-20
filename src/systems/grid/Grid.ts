@@ -112,7 +112,7 @@ export class Grid {
    * Helper to check if cell is a wall
    */
   isWall(cell: CellData): boolean {
-    return cell.properties.has('wall');
+    return cell.properties.has('wall') || cell.properties.has('blocked');
   }
 
   /**
@@ -289,6 +289,18 @@ export class Grid {
         for (const cell of trigger.triggerCells) {
           const worldPos = this.cellToWorld(cell.col, cell.row);
           this.graphics.lineStyle(3, 0xffff00, 1);
+          this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
+        }
+      }
+    }
+
+    // Draw blocked cells with black outline
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        const cell = this.getCell(col, row);
+        if (cell?.properties.has('blocked')) {
+          const worldPos = this.cellToWorld(col, row);
+          this.graphics.lineStyle(3, 0x000000, 1);
           this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
         }
       }
