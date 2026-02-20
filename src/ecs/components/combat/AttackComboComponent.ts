@@ -4,6 +4,7 @@ import { EntityManager } from '../../EntityManager';
 import { TransformComponent } from '../core/TransformComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
+import { MedipackHealerComponent } from '../core/MedipackHealerComponent';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
@@ -52,6 +53,11 @@ export class AttackComboComponent implements Component {
   }
 
   update(delta: number): void {
+    const healer = this.entity.get(MedipackHealerComponent);
+    const hasOverheal = (healer?.getOverhealAmount() ?? 0) > 0;
+    const punchDuration = hasOverheal ? PUNCH_DURATION_MS / 2 : PUNCH_DURATION_MS;
+    const animSpeed = hasOverheal ? 2 : 1;
+
     if (this.currentPhase === 'punch') {
       this.phaseTimer += delta;
 
@@ -60,7 +66,7 @@ export class AttackComboComponent implements Component {
         this.createPunchHitbox();
       }
 
-      if (this.phaseTimer >= PUNCH_DURATION_MS) {
+      if (this.phaseTimer >= punchDuration) {
         if (this.isHoldingAttack) {
           this.phaseTimer = 0;
           this.hitboxCreated = false;
@@ -69,7 +75,7 @@ export class AttackComboComponent implements Component {
           const walk = this.entity.get(WalkComponent);
           const anim = this.entity.get(AnimationComponent);
           if (walk && anim) {
-            anim.animationSystem.play(`punch_${walk.lastDir}`);
+            anim.animationSystem.play(`punch_${walk.lastDir}`, animSpeed);
           }
         } else {
           this.currentPhase = 'idle';
@@ -212,7 +218,9 @@ export class AttackComboComponent implements Component {
 
     const anim = this.entity.get(AnimationComponent);
     if (anim) {
-      anim.animationSystem.play(`punch_${walk.lastDir}`);
+      const healer = this.entity.get(MedipackHealerComponent);
+      const animSpeed = (healer && healer.getOverhealAmount() > 0) ? 2 : 1;
+      anim.animationSystem.play(`punch_${walk.lastDir}`, animSpeed);
     }
 
     this.currentPhase = 'punch';

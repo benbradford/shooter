@@ -10,7 +10,7 @@ export class AnimationSystem {
     this.current = animations.get(defaultKey);
   }
 
-  play(animKey: string) {
+  play(animKey: string, speedMultiplier: number = 1) {
     const next = this.animations.get(animKey);
 
     if (!next) {
@@ -20,11 +20,13 @@ export class AnimationSystem {
     
     if (next === this.current) {
       this.current.reset();
+      this.setTimeScale(speedMultiplier);
       return;
     }
 
     this.current = next;
     this.current.reset();
+    this.setTimeScale(speedMultiplier);
   }
 
   setTimeScale(scale: number) {
