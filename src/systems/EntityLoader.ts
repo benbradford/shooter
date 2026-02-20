@@ -18,6 +18,7 @@ import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProject
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { getBugBaseDifficultyConfig } from '../ecs/entities/bug/BugBaseDifficulty';
+import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
 
 export class EntityLoader {
   constructor(
@@ -120,6 +121,19 @@ export class EntityLoader {
           });
         };
       
+      case 'breakable':
+        return () => {
+          const breakableData = data as { col: number; row: number; texture: string; health: number };
+          return createBreakableEntity({
+            scene: this.scene,
+            col: breakableData.col,
+            row: breakableData.row,
+            grid: this.grid,
+            texture: breakableData.texture,
+            health: breakableData.health
+          });
+        };
+      
       case 'stalking_robot':
         return () => {
           const robotData = data as { col: number; row: number; difficulty: EnemyDifficulty; waypoints: Array<{ col: number; row: number }> };
@@ -183,8 +197,8 @@ export class EntityLoader {
             (spawnCol, spawnRow) => {
               const bug = createBugEntity({
                 scene: this.scene,
-                col: spawnCol,
-                row: spawnRow,
+                col: bugBaseData.col,
+                row: bugBaseData.row,
                 spawnCol,
                 spawnRow,
                 grid: this.grid,

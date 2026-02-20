@@ -5,7 +5,7 @@ cutSceneManager.registerEvent(eventName, cutSceneName);
 
 then when that event fires, it initiates a cutScene.
 
-cutScenes are defined in files under public/cutscenes
+cutScenes are defined in files under public/assets/cutscenes
 
 a cutscene file will look like this
 
@@ -19,7 +19,7 @@ say("player", "oh wow, look what I see over there!", 20, 3000)
 
 ```
 
-When a cutScene initiates, the stateMachine enters into a CutSceneState with the cutscene data as a param. in cutScene state, we do not update all entities, only the one that are under a current instruction. There is no user movement and the hud icons disappear. the cutscene state is responsible for executing the commands in a cut scene. Each command performs one action and blocks until the action is completed
+When a cutScene initiates, the stateMachine enters into a CutSceneState with the cutscene data as a param. in cutScene state, there is no user movement and the hud icons disappear. the cutscene state is responsible for executing the commands in a cut scene. Each command performs one action and blocks until the action is completed
 
 possible commands are
 
@@ -29,7 +29,7 @@ possible commands are
 where entity is the entityId to take an action on
  command are:
     - moveTo(col,row, speed)
-      - this will use the pathfinder to move the entity to that position. i am unsure exactly how to do this right now. i think we might need to add a new CutSceneWalkComponent that knows how to use the pathfinder to reach a desintation at a certain speed. it should also know how to play the correct animations for the direction of travel. when an entity is being moved, its entity.update should be called. let's only allow the player entity to be moved right now, we will add more entities later that can move
+      - this will use the pathfinder to move the entity to that position. i am unsure exactly how to do this right now. i think we might need to add a new CutSceneWalkComponent that knows how to use the pathfinder to reach a desintation at a certain speed. it should also know how to play the correct animations for the direction of travel. let's only allow the player entity to be moved right now, we will add more entities later that can move
     - look(direction)
       - this will cause the entity to look in a certain direction. We might need to add a new CutSceneLookComponent that knows which sprite to use to face in a certain direction. let's only allow the player entity to look right now, we can add this capability to other entitiers later.
 

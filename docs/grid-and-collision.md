@@ -344,40 +344,46 @@ const bullet = createBulletEntity({
 
 ### GameScene Structure
 
+GameScene uses a state machine to manage game states. Currently has one state:
+- **InGameState** - Handles entity updates, collision checks, and grid rendering
+
 ```typescript
 class GameScene extends Phaser.Scene {
   private grid!: Grid;
-  private player!: Entity;
-  private joystick!: Entity;
-  private bullets: Entity[] = [];
-  private shells: Entity[] = [];
+  private entityManager!: EntityManager;
+  private collisionSystem!: CollisionSystem;
+  private stateMachine!: StateMachine<void>;
   
   preload(): void {
     preloadAssets(this);
   }
   
   create(): void {
-    // 1. Create grid
+    // 1. Initialize managers
+    this.entityManager = new EntityManager();
+    this.eventManager = new EventManagerSystem();
+    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
+    
+    // 2. Create grid
     this.grid = new Grid(this, 40, 30, 64);
     
-    // 2. Set up layers and transitions
-    this.setupLayers();
+    // 3. Create collision system
+    this.collisionSystem = new CollisionSystem(this, this.grid);
     
-    // 3. Create joystick
-    this.joystick = createJoystickEntity(this);
+    // 4. Create state machine with InGameState
+    this.stateMachine = new StateMachine({
+      inGame: new InGameState(
+        () => this.entityManager,
+        () => this.collisionSystem,
+        () => this.grid,
+        () => this.levelData
+      )
+    }, 'inGame');
     
-    // 4. Create player
-    this.player = createPlayerEntity(
-      this,
-      startX,
-      startY,
-      this.grid,
-      this.onFire.bind(this),
-      this.onShellEject.bind(this),
-      this.joystick
-    );
+    // 5. Load level and spawn entities
+    this.initializeScene();
     
-    // 5. Setup camera
+    // 6. Setup camera
     this.cameras.main.setBounds(0, 0, gridWidth, gridHeight);
     this.cameras.main.startFollow(this.player.get(TransformComponent)!.sprite, true, 0.1, 0.1);
     
@@ -388,30 +394,47 @@ class GameScene extends Phaser.Scene {
   }
   
   update(_time: number, delta: number): void {
-    // Update all entities
-    this.joystick.update(delta);
-    this.player.update(delta);
-    
-    // Update and filter bullets
-    this.bullets = this.bullets.filter(bullet => {
-      if (bullet.isDestroyed) return false;
-      bullet.update(delta);
-      return true;
-    });
-    
-    // Update and filter shells
-    this.shells = this.shells.filter(shell => {
-      if (shell.isDestroyed) return false;
-      shell.update(delta);
-      return true;
-    });
-    
-    // Render debug
-    this.grid.render();
+    // Wait for async create to finish
+    if (!this.entityManager || !this.grid || !this.stateMachine) return;
+
+    // Update state machine (delegates to InGameState)
+    this.stateMachine.update(delta);
+
+    // Update layer debug text
+    const player = this.entityManager.getFirst('player');
+    if (player && this.layerDebugText) {
+      const gridPos = player.get(GridPositionComponent);
+      if (gridPos) {
+        this.layerDebugText.setText(`Layer: ${gridPos.currentLayer}`);
+      }
+    }
   }
-  
-  private onFire(x: number, y: number, dirX: number, dirY: number): void {
-    const bullet = createBulletEntity(this, x, y, dirX, dirY, this.grid);
+}
+```
+
+### InGameState
+
+Handles all game update logic:
+
+```typescript
+class InGameState implements IState {
+  onUpdate(delta: number): void {
+    // Update all entities
+    this.getEntityManager().update(delta);
+
+    // Check collisions
+    this.getCollisionSystem().update(this.getEntityManager().getAll());
+
+    // Render grid
+    this.getGrid().render(this.getEntityManager(), this.getLevelData());
+  }
+}
+```
+
+**Key Points:**
+- Uses getter functions to access current grid/entityManager/collisionSystem
+- Always renders with current level data
+- No need to recreate state machine when loading new levels
     this.bullets.push(bullet);
   }
   

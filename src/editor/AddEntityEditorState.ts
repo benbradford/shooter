@@ -140,7 +140,8 @@ export class AddEntityEditorState extends EditorState {
     
     if (hitObjects.length > 0) {
       for (const obj of hitObjects) {
-        if ((obj as { depth?: number }).depth && (obj as { depth?: number }).depth! >= 1000) {
+        const depth = (obj as { depth?: number }).depth;
+        if (depth !== undefined && depth >= 1000) {
           return;
         }
       }
@@ -175,9 +176,7 @@ export class AddEntityEditorState extends EditorState {
     }
     
     // Add to level data
-    if (!levelData.entities) {
-      levelData.entities = [];
-    }
+    levelData.entities ??= [];
     
     const newEntity: import('../systems/level/LevelLoader').LevelEntity = {
       id: newId,
@@ -194,6 +193,10 @@ export class AddEntityEditorState extends EditorState {
     
     // Reload scene to spawn entity
     gameScene.resetScene();
+    
+    // Stop camera following player (resetScene re-enables it)
+    const camera = gameScene.cameras.main;
+    camera.stopFollow();
     
     // Stay in add mode
     this.scene.enterAddMode();

@@ -300,32 +300,10 @@ export class DefaultEditorState extends EditorState {
 
     // Check for trigger click
     const levelData = gameScene.getLevelData();
-    if (levelData.triggers) {
-      for (let i = 0; i < levelData.triggers.length; i++) {
-        const trigger = levelData.triggers[i];
-        for (const cell of trigger.triggerCells) {
-          if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
-            this.scene.enterTriggerMode(i);
-            return;
-          }
-        }
-      }
-    }
+    if (this.checkTriggerClick(levelData, clickedCell)) return;
 
     // Check for exit click
-    if (levelData.exits) {
-      for (const exit of levelData.exits) {
-        const trigger = levelData.triggers?.find((t) => t.eventName === exit.eventName);
-        if (trigger) {
-          for (const cell of trigger.triggerCells) {
-            if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
-              this.scene.enterExitMode(exit);
-              return;
-            }
-          }
-        }
-      }
-    }
+    if (this.checkExitClick(levelData, clickedCell)) return;
 
     // Check for player click
     const player = entityManager.getFirst('player');
@@ -339,6 +317,38 @@ export class DefaultEditorState extends EditorState {
         }
       }
     }
+  }
+
+  private checkTriggerClick(levelData: import('../systems/level/LevelLoader').LevelData, clickedCell: { col: number; row: number }): boolean {
+    if (!levelData.triggers) return false;
+    
+    for (let i = 0; i < levelData.triggers.length; i++) {
+      const trigger = levelData.triggers[i];
+      for (const cell of trigger.triggerCells) {
+        if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
+          this.scene.enterTriggerMode(i);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private checkExitClick(levelData: import('../systems/level/LevelLoader').LevelData, clickedCell: { col: number; row: number }): boolean {
+    if (!levelData.exits) return false;
+    
+    for (const exit of levelData.exits) {
+      const trigger = levelData.triggers?.find((t) => t.eventName === exit.eventName);
+      if (trigger) {
+        for (const cell of trigger.triggerCells) {
+          if (cell.col === clickedCell.col && cell.row === clickedCell.row) {
+            this.scene.enterExitMode(exit);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private showEntityId(entityId: string): void {

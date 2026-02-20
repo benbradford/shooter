@@ -5142,6 +5142,16 @@
   ],
   "entities": [
     {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 10,
+        "row": 20,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
       "id": "eventchainer0",
       "type": "eventchainer",
       "data": {
@@ -5167,6 +5177,15 @@
             "delayMs": 0
           }
         ]
+      }
+    },
+    {
+      "id": "bug_base",
+      "type": "bug_base",
+      "data": {
+        "col": 12,
+        "row": 21,
+        "difficulty": "easy"
       }
     },
     {

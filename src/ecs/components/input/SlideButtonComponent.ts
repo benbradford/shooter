@@ -72,7 +72,9 @@ export class SlideButtonComponent implements Component {
 
     if (isSliding) {
       // No circle while sliding
-    } else if (!canSlide) {
+    } else if (canSlide) {
+      // No circle when ready
+    } else {
       const cooldownRatio = this.slideAbility.getCooldownRatio();
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + (Math.PI * 2 * cooldownRatio);
@@ -81,9 +83,6 @@ export class SlideButtonComponent implements Component {
       this.circle.beginPath();
       this.circle.arc(this.posX, this.posY, CIRCLE_RADIUS_PX, startAngle, endAngle, false);
       this.circle.strokePath();
-    } else {
-      this.circle.lineStyle(2, CIRCLE_COLOR, CIRCLE_ALPHA);
-      this.circle.strokeCircle(this.posX, this.posY, CIRCLE_RADIUS_PX);
     }
 
     if (isPunching || !canSlide) {

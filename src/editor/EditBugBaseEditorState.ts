@@ -25,11 +25,12 @@ export class EditBugBaseEditorState extends EditorState {
         const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
         const levelData = gameScene.getLevelData();
         
-        if (levelData.entities) {
-          levelData.entities = levelData.entities.filter(e => e.id !== this.bugBase!.id);
+        if (levelData.entities && this.bugBase) {
+          const bugBaseId = this.bugBase.id;
+          levelData.entities = levelData.entities.filter(e => e.id !== bugBaseId);
+          this.bugBase.destroy();
         }
         
-        this.bugBase.destroy();
         gameScene.resetScene();
         this.scene.enterDefaultMode();
       }

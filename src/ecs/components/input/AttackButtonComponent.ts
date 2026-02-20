@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 
 const UNPRESSED_SCALE = 1.26;
-const PRESSED_SCALE = 1.40;
+const PRESSED_SCALE = 1.4;
 const POS_X = 0.915;
 const POS_Y = 0.85;
 const ALPHA_UNPRESSED = 0.4;

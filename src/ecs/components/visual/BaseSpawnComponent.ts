@@ -6,7 +6,7 @@ import { BugSpawnerComponent } from '../ai/BugSpawnerComponent';
 import { createSmokeBurst } from './SmokeBurstHelper';
 
 const SPAWN_RANGE_PX = 250;
-const SCALE_IN_DURATION_MS = 2000;
+const SCALE_IN_DURATION_MS = 1500;
 const BURST_COUNT = 6;
 const BURST_INTERVAL_MS = 500;
 

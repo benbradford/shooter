@@ -1,0 +1,91 @@
+import { Entity } from '../../Entity';
+import { TransformComponent } from '../../components/core/TransformComponent';
+import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
+import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
+import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
+import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
+import { BreakableComponent } from '../../components/breakable/BreakableComponent';
+import type { Grid } from '../../../systems/grid/Grid';
+
+export type CreateBreakableProps = {
+  scene: Phaser.Scene;
+  col: number;
+  row: number;
+  grid: Grid;
+  texture: string;
+  health: number;
+}
+
+export function createBreakableEntity(props: CreateBreakableProps): Entity {
+  const { scene, col, row, grid, texture, health } = props;
+  const entity = new Entity('breakable');
+  entity.tags.add('breakable');
+
+  const worldPos = grid.cellToWorld(col, row);
+  const x = worldPos.x + grid.cellSize / 2;
+  const y = worldPos.y + grid.cellSize / 2;
+
+  const transform = entity.add(new TransformComponent(x, y, 0, 1));
+  const sprite = entity.add(new SpriteComponent(scene, texture, transform));
+  sprite.sprite.setOrigin(0.5, 0.5);
+  sprite.sprite.setDepth(-3);
+
+  const spriteWidth = sprite.sprite.width;
+  const spriteHeight = sprite.sprite.height;
+  const maxDimension = Math.max(spriteWidth, spriteHeight);
+  const scale = (grid.cellSize * 0.9) / maxDimension;
+  transform.scale = scale;
+
+  const COLLISION_SIZE = grid.cellSize * 0.8;
+  const COLLISION_BOX = {
+    offsetX: 0,
+    offsetY: 0,
+    width: COLLISION_SIZE,
+    height: COLLISION_SIZE
+  };
+  const ENTITY_COLLISION_BOX = {
+    offsetX: -COLLISION_SIZE / 2,
+    offsetY: -COLLISION_SIZE / 2,
+    width: COLLISION_SIZE,
+    height: COLLISION_SIZE
+  };
+
+  entity.add(new GridPositionComponent(col, row, COLLISION_BOX));
+  entity.add(new GridCollisionComponent(grid));
+  entity.add(new GridCellBlocker());
+  entity.add(new HitFlashComponent());
+
+  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene }));
+
+  entity.add(new CollisionComponent({
+    box: ENTITY_COLLISION_BOX,
+    collidesWith: ['player_projectile'],
+    onHit: (other) => {
+      if (other.tags.has('player_projectile')) {
+        breakable.takeDamage(10);
+
+        const hitFlash = entity.get(HitFlashComponent);
+        if (hitFlash && breakable.getHealth() > 0) {
+          hitFlash.flash(300);
+        }
+
+        scene.time.delayedCall(0, () => other.destroy());
+      }
+    }
+  }));
+
+  entity.setUpdateOrder([
+    TransformComponent,
+    HitFlashComponent,
+    SpriteComponent,
+    GridPositionComponent,
+    GridCollisionComponent,
+    GridCellBlocker,
+    BreakableComponent,
+    CollisionComponent
+  ]);
+
+  return entity;
+}

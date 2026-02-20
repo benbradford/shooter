@@ -138,6 +138,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_door.png',
     type: 'image' as const,
   },
+  dungeon_vase: {
+    key: 'dungeon_vase',
+    path: 'assets/breakables/dungeon_vase.png',
+    type: 'image' as const,
+  },
   wall_torch: {
     key: 'wall_torch',
     path: 'assets/cell_drawables/wall_torch.png',
@@ -204,10 +209,10 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
 export const ASSET_GROUPS = {
   // Core - always loaded
   core: ['vignette', 'shadow'] as const,
-  
+
   // Player and projectiles
   player: ['player', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke', 'crosshair', 'slide_icon', 'arrows'] as const,
-  
+
   // Enemies
   stalking_robot: ['attacker'] as const,
   floating_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,

@@ -260,13 +260,15 @@ The initial mode when entering the editor. Shows buttons at the bottom and allow
 - **Trigger** - Creates event triggers (also available in Add menu)
 
 **Buttons (Bottom Row):**
-- **Spawner** - Creates event chainers (also available in Add menu)
-- **Portal** - Creates level exits/transitions (also available in Add menu)
+- **Event Chainer** - Creates event chainers for sequential event spawning
+- **Portal** - Creates level exits/transitions
 
 **Entity Interaction:**
-- **Click any entity** - Shows entity ID in top-right corner and enters edit mode
+- **Click any entity** - Shows entity ID in top-right corner and enters unified edit mode
 - Entity ID format: `{type}{number}` (e.g., skeleton0, thrower1, robot2)
-- Edit mode shows difficulty buttons and allows moving/deleting entity
+- **Common panel (bottom-left)**: Back and Delete buttons
+- **Entity panel (top-right)**: Difficulty controls, waypoint editing (for robots)
+- **Editor labels**: Bug bases show "BB", throwers show "T" for visibility
 
 ### Add Entity Mode
 
@@ -283,7 +285,7 @@ Unified entity placement with dropdown selection:
 
 **Entity Types:**
 - **Skeleton, Thrower, Robot, Bug Base, Bullet Dude** - Place directly with default difficulty (medium)
-- **Trigger, Exit, Event Chainer** - Redirects to specialized editor for configuration
+- Trigger, Exit, Event Chainer - Use dedicated buttons (not in Add menu)
 
 ### Move Mode
 
@@ -619,18 +621,16 @@ The editor uses Phaser's scene overlay system:
 - `GridEditorState` - Cell selection and editing with keyboard navigation
 - `MoveEditorState` - Entity repositioning with drag-and-drop
 - `ResizeEditorState` - Row/column selection and removal
-- `EditSkeletonEditorState` - Edit skeleton difficulty
-- `EditThrowerEditorState` - Edit thrower difficulty
-- `EditRobotEditorState` - Edit robot difficulty and waypoints
-- `EditBugBaseEditorState` - Edit bug base difficulty
-- `EditBulletDudeEditorState` - Edit bullet dude difficulty
-- `TriggerEditorState` - Event trigger creation
-- `PortalEditorState` - Level exit/transition creation
-- `SpawnerEditorState` - Event chainer creation
+- `EditEntityEditorState` - Unified entity editor with common panel (Back/Delete) and entity-specific panel (difficulty, waypoints)
+- `TriggerEditorState` - Event trigger creation and editing
+- `PortalEditorState` - Level exit/transition creation (supports multiple cells)
+- `EventChainerEditorState` - Event chainer creation and editing (list view with edit/delete)
 - `TextureEditorState` - Background texture painting
 - `ThemeEditorState` - Theme selection
 
 Each state manages its own UI elements and cleans up on exit.
+
+**Note:** Individual edit states (EditSkeletonEditorState, etc.) have been replaced by the unified EditEntityEditorState.
 
 ## Implementation Details
 

@@ -10,7 +10,8 @@ export type EntityType =
   | 'bullet_dude' 
   | 'eventchainer'
   | 'trigger'
-  | 'exit';
+  | 'exit'
+  | 'breakable';
 
 export type LevelEntity = {
   id: string;

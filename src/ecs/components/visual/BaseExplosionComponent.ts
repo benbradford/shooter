@@ -7,16 +7,26 @@ import { GridCellBlocker } from '../movement/GridCellBlocker';
 export class BaseExplosionComponent implements Component {
   entity!: Entity;
   private readonly scene: Phaser.Scene;
+  private changeSpriteTime = 0;
+  private hasExploded = false;
 
   constructor(scene: Phaser.Scene, _cellSize: number) {
     this.scene = scene;
   }
 
-  update(): void {
-    // No update needed
+  update(delta: number): void {
+    const sprite = this.entity.require(SpriteComponent);
+    if (this.hasExploded) {
+      this.changeSpriteTime += delta;
+      if (this.changeSpriteTime > 300) {
+        this.entity.setUpdateOrder([]);
+        sprite.sprite.setTexture('base_destroyed');
+      }
+    }
   }
 
   explode(): void {
+    this.hasExploded = true;
     const sprite = this.entity.require(SpriteComponent);
     const collision = this.entity.require(CollisionComponent);
 
@@ -24,29 +34,26 @@ export class BaseExplosionComponent implements Component {
     this.entity.remove(GridCellBlocker);
 
     sprite.sprite.clearTint();
-    sprite.sprite.setTexture('base_destroyed');
-
-    this.entity.setUpdateOrder([]);
+    this.entity.setUpdateOrder([BaseExplosionComponent]);
 
     const emitter = this.scene.add.particles(sprite.sprite.x, sprite.sprite.y, 'base_particle', {
-      speed: { min: 40, max: 80 },
+      speed: { min: 20, max: 70 },
       angle: { min: 0, max: 360 },
-      scale: { start: 1.3, end: 0 },
+      scale: { start: 0.4, end: 0.1 },
       alpha: { start: 1, end: 0 },
-      lifespan: 700,
-      frequency: 5,
-      quantity: 70,
-      tint: [0xc8a078, 0x966e4b, 0xdcbe8c, 0xaf825f, 0x888888],
+      lifespan: 1200,
+      frequency: 25,
+      quantity: 10,
       blendMode: 'NORMAL',
       emitZone: {
         type: 'random' as const,
-        source: new Phaser.Geom.Circle(0, 0, 55) as Phaser.Types.GameObjects.Particles.RandomZoneSource
+        source: new Phaser.Geom.Circle(0, 0, 40) as Phaser.Types.GameObjects.Particles.RandomZoneSource
       }
     });
 
     emitter.setDepth(1000);
-    this.scene.time.delayedCall(200, () => emitter.stop());
-    this.scene.time.delayedCall(800, () => emitter.destroy());
+    this.scene.time.delayedCall(300, () => emitter.stop());
+    this.scene.time.delayedCall(3000, () => emitter.destroy());
   }
 
 }

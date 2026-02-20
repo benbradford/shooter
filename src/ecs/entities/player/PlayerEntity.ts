@@ -173,11 +173,9 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   entity.add(new SlideAbilityComponent(scene));
 
-  const slideButton = entity.add(new SlideButtonComponent(
-    scene, 
-    entity.get(SlideAbilityComponent)!, 
-    entity.get(AttackComboComponent)!
-  ));
+  const slideAbility = entity.require(SlideAbilityComponent);
+  const attackCombo = entity.require(AttackComboComponent);
+  const slideButton = entity.add(new SlideButtonComponent(scene, slideAbility, attackCombo));
   slideButton.init();
 
   const stateMachine = new StateMachine(

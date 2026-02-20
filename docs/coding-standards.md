@@ -9,6 +9,17 @@
 
 ---
 
+## ⚠️ CRITICAL: NEVER MODIFY IMAGE ASSETS ⚠️
+
+**AI assistants must NEVER modify image files unless explicitly requested**
+- Do NOT resize, crop, convert, or otherwise modify images
+- Do NOT run ImageMagick, sips, or any image processing commands
+- If an image appears too large/small, adjust sprite scaling in code
+- Only modify images when user explicitly says "resize the image" or similar
+- If you accidentally modify an image, restore it with `git restore <path>`
+
+---
+
 ## ⚠️ MANDATORY: Build and Lint After Every Change ⚠️
 
 **Run these commands after EVERY code modification:**
