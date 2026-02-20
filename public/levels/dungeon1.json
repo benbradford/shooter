@@ -5332,15 +5332,6 @@
       }
     },
     {
-      "id": "skeleton0",
-      "type": "skeleton",
-      "data": {
-        "col": 16,
-        "row": 15,
-        "difficulty": "medium"
-      }
-    },
-    {
       "id": "breakable0",
       "type": "breakable",
       "data": {
@@ -5558,6 +5549,78 @@
         "row": 16,
         "texture": "dungeon_vase",
         "health": 1
+      }
+    },
+    {
+      "id": "skeleton4",
+      "type": "skeleton",
+      "data": {
+        "col": 16,
+        "row": 17,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "hidden"
+    },
+    {
+      "id": "skeleton0",
+      "type": "skeleton",
+      "data": {
+        "col": 16,
+        "row": 16,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "hidden"
+    },
+    {
+      "id": "skeleton1",
+      "type": "skeleton",
+      "data": {
+        "col": 16,
+        "row": 15,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "hidden"
+    },
+    {
+      "id": "skeleton2",
+      "type": "skeleton",
+      "data": {
+        "col": 16,
+        "row": 14,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "hidden"
+    },
+    {
+      "id": "skeleton3",
+      "type": "skeleton",
+      "data": {
+        "col": 16,
+        "row": 13,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "hidden"
+    },
+    {
+      "id": "trigger0",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "hidden",
+        "triggerCells": [
+          {
+            "col": 14,
+            "row": 16
+          },
+          {
+            "col": 14,
+            "row": 15
+          },
+          {
+            "col": 14,
+            "row": 14
+          }
+        ],
+        "oneShot": true
       }
     },
     {

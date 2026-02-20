@@ -209,6 +209,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.grid.destroy();
     this.entityManager.destroyAll();
+    this.entityCreatorManager.clear();
 
     this.initializeScene();
     
@@ -238,7 +239,7 @@ export default class GameScene extends Phaser.Scene {
     }));
 
     // Load entities from new format
-    this.entityLoader.loadEntities(level, player);
+    this.entityLoader.loadEntities(level, player, this.isEditorMode);
   }
 
 

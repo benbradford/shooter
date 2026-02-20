@@ -85,7 +85,17 @@ export class ProjectileComponent implements Component {
 
     const cellLayer = this.grid.getLayer(cellData);
     
-    if (this.grid.isWall(cellData)) return;
+    if (cellData.properties.has('blocked')) {
+      this.onWallHit?.(transform.x, transform.y);
+      this.entity.destroy();
+      return;
+    }
+    
+    if (this.grid.isWall(cellData)) {
+      this.onWallHit?.(transform.x, transform.y);
+      this.entity.destroy();
+      return;
+    }
     
     let shouldBlock = false;
     

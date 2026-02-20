@@ -162,15 +162,31 @@ export default class EditorScene extends Phaser.Scene {
       this.editorLabels = new Map();
     }
 
-    // Render labels for bug_base and thrower
+    // Render labels for entities with createOnEvent or specific types
+    const levelData = gameScene.getLevelData();
+    
     for (const entity of entityManager.getAll()) {
-      if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase') || entity.id.startsWith('thrower')) {
+      const entityData = levelData.entities?.find(e => e.id === entity.id);
+      const hasCreateOnEvent = entityData?.createOnEvent;
+      
+      const shouldShowLabel = hasCreateOnEvent || 
+        entity.id.startsWith('bug_base') || 
+        entity.id.startsWith('bugbase') || 
+        entity.id.startsWith('thrower') ||
+        entity.id.startsWith('skeleton');
+      
+      if (shouldShowLabel) {
         const transform = entity.get(TransformComponent);
         if (!transform) continue;
 
         let label = this.editorLabels.get(entity.id);
         if (!label) {
-          const text = entity.id.startsWith('thrower') ? 'T' : 'BB';
+          let text = '';
+          if (entity.id.startsWith('thrower')) text = 'T';
+          else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) text = 'BB';
+          else if (entity.id.startsWith('skeleton')) text = 'S';
+          else if (hasCreateOnEvent) text = 'E';
+          
           label = gameScene.add.text(transform.x, transform.y, text, {
             fontSize: '48px',
             color: '#ffffff',
@@ -399,7 +415,21 @@ export default class EditorScene extends Phaser.Scene {
       }
 
       if (type) {
-        entities.push({ id: entity.id, type, data });
+        const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
+        const existingEntity = existingLevelData.entities?.find(e => e.id === entity.id);
+        const createOnEvent = existingEntity?.createOnEvent;
+        
+        const entityData: import('../systems/level/LevelLoader').LevelEntity = {
+          id: entity.id,
+          type,
+          data
+        };
+        
+        if (createOnEvent) {
+          entityData.createOnEvent = createOnEvent;
+        }
+        
+        entities.push(entityData);
       }
     }
 

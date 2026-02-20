@@ -4,7 +4,7 @@ import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import type { AttackComboComponent } from '../combat/AttackComboComponent';
 
 const BUTTON_SCALE = 0.14;
-const BUTTON_ALPHA_UNPRESSED = 0.7;
+const BUTTON_ALPHA_UNPRESSED = 0.5;
 const BUTTON_ALPHA_PRESSED = 0.9;
 const BUTTON_ALPHA_COOLDOWN = 0.3;
 const BUTTON_SCALE_PRESSED = BUTTON_SCALE;
@@ -13,7 +13,6 @@ const POS_X = 0.75;
 const POS_Y = 0.85;
 const CIRCLE_RADIUS_PX = 60;
 const CIRCLE_COLOR = 0xffffff;
-const CIRCLE_ALPHA = 0.5;
 
 export class SlideButtonComponent implements Component {
   entity!: Entity;
@@ -73,13 +72,17 @@ export class SlideButtonComponent implements Component {
     if (isSliding) {
       // No circle while sliding
     } else if (canSlide) {
-      // No circle when ready
+      // Full circle when ready (cooldown = 0)
+      this.circle.lineStyle(4, CIRCLE_COLOR, BUTTON_ALPHA_UNPRESSED);
+      this.circle.beginPath();
+      this.circle.arc(this.posX, this.posY, CIRCLE_RADIUS_PX, 0, Math.PI * 2, false);
+      this.circle.strokePath();
     } else {
       const cooldownRatio = this.slideAbility.getCooldownRatio();
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + (Math.PI * 2 * cooldownRatio);
 
-      this.circle.lineStyle(4, CIRCLE_COLOR, CIRCLE_ALPHA);
+      this.circle.lineStyle(4, CIRCLE_COLOR, BUTTON_ALPHA_COOLDOWN);
       this.circle.beginPath();
       this.circle.arc(this.posX, this.posY, CIRCLE_RADIUS_PX, startAngle, endAngle, false);
       this.circle.strokePath();

@@ -10,7 +10,7 @@ const ALPHA_PRESSED = 0.9;
 
 const CIRCLE_RADIUS_PX = 60;
 const CIRCLE_COLOR = 0xffffff;
-const CIRCLE_ALPHA = 0.3;
+const CIRCLE_ALPHA = 0.6;
 
 export class AttackButtonComponent implements Component {
   entity!: Entity;

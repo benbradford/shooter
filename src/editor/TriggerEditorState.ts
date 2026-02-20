@@ -1,5 +1,4 @@
 import { EditorState } from './EditorState';
-import type { LevelTrigger } from '../systems/level/LevelLoader';
 import type { IStateEnterProps } from '../systems/state/IState';
 
 const SELECTED_CELL_COLOR = 0xffffff;
@@ -23,13 +22,15 @@ export class TriggerEditorState extends EditorState<number> {
   }
 
   private loadExistingTrigger(): void {
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
     const levelData = gameScene.getLevelData();
-    const trigger = levelData.triggers?.[this.editingTriggerIndex];
+    const triggers = levelData.entities?.filter(e => e.type === 'trigger') ?? [];
+    const trigger = triggers[this.editingTriggerIndex];
     
     if (!trigger) return;
     
-    for (const cell of trigger.triggerCells) {
+    const data = trigger.data as { triggerCells: Array<{ col: number; row: number }> };
+    for (const cell of data.triggerCells) {
       this.selectedCells.add(`${cell.col},${cell.row}`);
     }
   }
@@ -68,9 +69,11 @@ export class TriggerEditorState extends EditorState<number> {
   }
 
   private createUI(): void {
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
     const levelData = gameScene.getLevelData();
-    const trigger = this.editingTriggerIndex >= 0 ? levelData.triggers?.[this.editingTriggerIndex] : null;
+    const triggers = levelData.entities?.filter(e => e.type === 'trigger') ?? [];
+    const triggerEntity = this.editingTriggerIndex >= 0 ? triggers[this.editingTriggerIndex] : null;
+    const triggerData = triggerEntity?.data as { eventToRaise: string; oneShot: boolean } | undefined;
 
     const container = document.createElement('div');
     container.style.cssText = `
@@ -94,7 +97,7 @@ export class TriggerEditorState extends EditorState<number> {
     this.eventNameInput = document.createElement('input');
     this.eventNameInput.type = 'text';
     this.eventNameInput.placeholder = 'trigger_name';
-    this.eventNameInput.value = trigger?.eventName ?? '';
+    this.eventNameInput.value = triggerData?.eventToRaise ?? '';
     this.eventNameInput.style.cssText = `
       width: 100%;
       padding: 5px;
@@ -114,7 +117,7 @@ export class TriggerEditorState extends EditorState<number> {
     const oneShotCheckbox = document.createElement('input');
     oneShotCheckbox.type = 'checkbox';
     oneShotCheckbox.id = 'oneShot';
-    oneShotCheckbox.checked = trigger?.oneShot ?? true;
+    oneShotCheckbox.checked = triggerData?.oneShot ?? true;
     
     const oneShotLabel = document.createElement('label');
     oneShotLabel.htmlFor = 'oneShot';
@@ -171,10 +174,10 @@ export class TriggerEditorState extends EditorState<number> {
       return;
     }
 
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
     const levelData = gameScene.getLevelData();
     
-    levelData.triggers ??= [];
+    levelData.entities ??= [];
 
     const triggerCells = Array.from(this.selectedCells).map(cellKey => {
       const [col, row] = cellKey.split(',').map(Number);
@@ -184,27 +187,49 @@ export class TriggerEditorState extends EditorState<number> {
     const oneShotCheckbox = document.getElementById('oneShot') as HTMLInputElement;
     const oneShot = oneShotCheckbox?.checked ?? true;
 
-    const newTrigger: LevelTrigger = {
-      eventName,
-      triggerCells,
-      oneShot
-    };
-
     if (this.editingTriggerIndex >= 0) {
-      levelData.triggers[this.editingTriggerIndex] = newTrigger;
+      const triggers = levelData.entities.filter(e => e.type === 'trigger');
+      const triggerToEdit = triggers[this.editingTriggerIndex];
+      if (triggerToEdit) {
+        triggerToEdit.data = {
+          eventToRaise: eventName,
+          triggerCells,
+          oneShot
+        };
+      }
     } else {
-      levelData.triggers.push(newTrigger);
+      const existingIds = levelData.entities.map(e => e.id);
+      let idNum = 0;
+      let newId = `trigger${idNum}`;
+      while (existingIds.includes(newId)) {
+        idNum++;
+        newId = `trigger${idNum}`;
+      }
+
+      levelData.entities.push({
+        id: newId,
+        type: 'trigger',
+        data: {
+          eventToRaise: eventName,
+          triggerCells,
+          oneShot
+        }
+      });
     }
     
     this.scene.enterDefaultMode();
   }
 
   private deleteTrigger(): void {
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => import('../systems/level/LevelLoader').LevelData };
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
     const levelData = gameScene.getLevelData();
     
-    if (levelData.triggers && this.editingTriggerIndex >= 0 && this.editingTriggerIndex < levelData.triggers.length) {
-      levelData.triggers.splice(this.editingTriggerIndex, 1);
+    if (levelData.entities && this.editingTriggerIndex >= 0) {
+      const triggers = levelData.entities.filter(e => e.type === 'trigger');
+      const triggerToDelete = triggers[this.editingTriggerIndex];
+      if (triggerToDelete) {
+        levelData.entities = levelData.entities.filter(e => e.id !== triggerToDelete.id);
+      }
     }
     
     this.scene.enterDefaultMode();

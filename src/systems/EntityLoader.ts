@@ -30,7 +30,7 @@ export class EntityLoader {
     private readonly onTransition: (targetLevel: string, targetCol: number, targetRow: number) => void
   ) {}
 
-  loadEntities(levelData: LevelData, player: Entity): void {
+  loadEntities(levelData: LevelData, player: Entity, isEditorMode: boolean = false): void {
     // Validate unique IDs
     const ids = new Set<string>();
     for (const entityDef of levelData.entities ?? []) {
@@ -48,7 +48,7 @@ export class EntityLoader {
         throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
       }
       
-      if (entityDef.createOnEvent) {
+      if (entityDef.createOnEvent && !isEditorMode) {
         this.entityCreatorManager.register(entityDef.createOnEvent, creatorFunc);
       } else {
         const entity = creatorFunc();

@@ -96,6 +96,49 @@ export class EditEntityEditorState extends EditorState {
     };
     this.commonPanel.appendChild(deleteButton);
 
+    const eventLabel = document.createElement('div');
+    eventLabel.textContent = 'Spawn Event:';
+    eventLabel.style.cssText = 'margin-top: 10px; margin-bottom: 5px; font-size: 14px;';
+    this.commonPanel.appendChild(eventLabel);
+
+    const eventInput = document.createElement('input');
+    eventInput.type = 'text';
+    eventInput.placeholder = 'Leave empty for immediate spawn';
+    eventInput.style.cssText = `
+      width: 200px;
+      padding: 5px;
+      font-family: monospace;
+      margin-bottom: 5px;
+    `;
+    eventInput.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+    });
+    
+    if (this.entity) {
+      const levelData = (this.scene.scene.get('game') as import('../scenes/GameScene').default).getLevelData();
+      const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+      if (entityData?.createOnEvent) {
+        eventInput.value = entityData.createOnEvent;
+      }
+    }
+    
+    eventInput.addEventListener('input', () => {
+      if (this.entity) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+        if (entityData) {
+          if (eventInput.value.trim()) {
+            entityData.createOnEvent = eventInput.value.trim();
+          } else {
+            delete entityData.createOnEvent;
+          }
+        }
+      }
+    });
+    
+    this.commonPanel.appendChild(eventInput);
+
     document.body.appendChild(this.commonPanel);
   }
 
