@@ -268,7 +268,7 @@ The initial mode when entering the editor. Shows buttons at the bottom and allow
 - Entity ID format: `{type}{number}` (e.g., skeleton0, thrower1, robot2)
 - **Common panel (bottom-left)**: Back and Delete buttons
 - **Entity panel (top-right)**: Difficulty controls, waypoint editing (for robots)
-- **Editor labels**: Bug bases show "BB", throwers show "T" for visibility
+- **Editor labels**: Skeletons show "S", throwers show "T", bug bases show "BB", entities with createOnEvent show "E"
 
 ### Add Entity Mode
 

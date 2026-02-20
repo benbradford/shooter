@@ -40,6 +40,7 @@ Player → Trigger → EventChainer → Entities
 ## Important Rules
 
 - Entity IDs must be unique (editor auto-generates)
+- Multiple entities can share the same createOnEvent (all spawn when event fires)
 - createOnEvent can only fire once (EntityCreatorManager prevents duplicates)
 - oneShot should be true for triggers/exits (prevents multiple firings)
 - EventChainers start immediately when created (don't need another event)

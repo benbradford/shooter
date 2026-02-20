@@ -56,7 +56,6 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   entity.add(new GridPositionComponent(col, row, COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
   entity.add(new GridCellBlocker());
-  entity.add(new HitFlashComponent());
 
   const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene }));
 
@@ -66,12 +65,6 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
         breakable.takeDamage(10);
-
-        const hitFlash = entity.get(HitFlashComponent);
-        if (hitFlash && breakable.getHealth() > 0) {
-          hitFlash.flash(300);
-        }
-
         scene.time.delayedCall(0, () => other.destroy());
       }
     }
@@ -79,7 +72,6 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
 
   entity.setUpdateOrder([
     TransformComponent,
-    HitFlashComponent,
     SpriteComponent,
     GridPositionComponent,
     GridCollisionComponent,

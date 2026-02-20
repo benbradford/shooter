@@ -120,16 +120,17 @@ Manages event-driven entity creation:
 ```typescript
 class EntityCreatorManager implements EventListener {
   register(createOnEvent: string, creator: () => Entity): void
-  onEvent(createOnEvent: string): void  // Creates entity when event fires
+  onEvent(createOnEvent: string): void  // Creates all entities registered for this event
   clear(): void
 }
 ```
 
 - Implements EventListener to receive events from EventManagerSystem
 - Registers entity creators for delayed spawning
-- Creates entity when event fires and adds to EntityManager
+- **Supports multiple entities per event** - all spawn when event fires
+- Creates entities when event fires and adds to EntityManager
 - Automatically deregisters after creation
-- Throws error if same event fires twice
+- Prevents same event from firing twice
 
 ### EntityLoader
 
@@ -137,13 +138,14 @@ Handles entity loading from level JSON:
 
 ```typescript
 class EntityLoader {
-  loadEntities(levelData: LevelData, player: Entity): void
+  loadEntities(levelData: LevelData, player: Entity, isEditorMode: boolean = false): void
 }
 ```
 
 - Validates unique entity IDs
 - Creates entity creators for each entity definition
-- Registers event-driven entities with EntityCreatorManager
+- **In game mode**: Registers event-driven entities with EntityCreatorManager
+- **In editor mode**: Spawns all entities immediately (ignores createOnEvent)
 - Creates immediate entities and adds to EntityManager
 
 ### Entity Creation Flow
@@ -259,9 +261,19 @@ Flow:
 
 1. Click any entity
 2. Entity ID shows in top-right corner
-3. Edit panel appears with difficulty buttons
+3. Edit panel appears with:
+   - **Spawn Event** input (common panel, bottom-left) - Set createOnEvent for delayed spawning
+   - Difficulty buttons (entity panel, top-right)
+   - Waypoint editing for robots
 4. Click difficulty to change (updates both component and level data)
 5. Click entity again to move it
+
+**Editor Labels:**
+- Entities with createOnEvent show "E" label
+- Skeletons show "S"
+- Throwers show "T"
+- Bug bases show "BB"
+- Labels help identify entities that would otherwise be invisible
 
 ### Saving
 

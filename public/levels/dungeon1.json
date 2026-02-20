@@ -5502,16 +5502,6 @@
       }
     },
     {
-      "id": "breakable17",
-      "type": "breakable",
-      "data": {
-        "col": 10,
-        "row": 15,
-        "texture": "pillar",
-        "health": 1
-      }
-    },
-    {
       "id": "breakable18",
       "type": "breakable",
       "data": {
@@ -5600,6 +5590,86 @@
         "difficulty": "easy"
       },
       "createOnEvent": "hidden"
+    },
+    {
+      "id": "breakable17",
+      "type": "breakable",
+      "data": {
+        "col": 19,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable22",
+      "type": "breakable",
+      "data": {
+        "col": 18,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable23",
+      "type": "breakable",
+      "data": {
+        "col": 18,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable24",
+      "type": "breakable",
+      "data": {
+        "col": 19,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable25",
+      "type": "breakable",
+      "data": {
+        "col": 6,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable26",
+      "type": "breakable",
+      "data": {
+        "col": 7,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable27",
+      "type": "breakable",
+      "data": {
+        "col": 7,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable28",
+      "type": "breakable",
+      "data": {
+        "col": 6,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
     },
     {
       "id": "trigger0",
