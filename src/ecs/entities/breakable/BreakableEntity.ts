@@ -16,11 +16,12 @@ export type CreateBreakableProps = {
   grid: Grid;
   texture: string;
   health: number;
+  entityId: string;
 }
 
 export function createBreakableEntity(props: CreateBreakableProps): Entity {
-  const { scene, col, row, grid, texture, health } = props;
-  const entity = new Entity('breakable');
+  const { scene, col, row, grid, texture, health, entityId } = props;
+  const entity = new Entity(entityId);
   entity.tags.add('breakable');
 
   const worldPos = grid.cellToWorld(col, row);
@@ -38,7 +39,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const scale = (grid.cellSize * 0.9) / maxDimension;
   transform.scale = scale;
 
-  const COLLISION_SIZE = grid.cellSize * 0.8;
+  const COLLISION_SIZE = grid.cellSize * 1;
   const COLLISION_BOX = {
     offsetX: 0,
     offsetY: 0,

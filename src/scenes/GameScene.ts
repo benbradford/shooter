@@ -39,6 +39,7 @@ export default class GameScene extends Phaser.Scene {
   private sceneRenderer!: GameSceneRenderer;
   public layerDebugText?: Phaser.GameObjects.Text;
   private sceneOverlays?: SceneOverlays;
+  private isEditorMode: boolean = false;
 
   constructor() {
     super({ key: "game", active: true });
@@ -122,9 +123,15 @@ export default class GameScene extends Phaser.Scene {
       const editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
       editorKey.on('down', () => {
         if (this.scene.isActive()) {
-          this.resetScene();
-          this.scene.pause();
-          this.scene.launch('EditorScene');
+          this.isEditorMode = !this.isEditorMode;
+          if (this.isEditorMode) {
+            this.resetScene();
+            this.scene.pause();
+            this.scene.launch('EditorScene');
+          } else {
+            this.scene.resume();
+            this.scene.stop('EditorScene');
+          }
         }
       });
 
@@ -182,9 +189,9 @@ export default class GameScene extends Phaser.Scene {
     
     this.spawnEntities();
 
-    // Camera follow player's sprite
+    // Camera follow player's sprite (unless in editor mode)
     const player = this.entityManager.getFirst('player');
-    if (player) {
+    if (player && !this.isEditorMode) {
       const spriteComp = player.get(SpriteComponent);
       if (spriteComp) {
         this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
@@ -194,6 +201,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   resetScene(): void {
+    const wasGridDebugEnabled = this.grid.gridDebugEnabled;
+    
     if (this.sceneOverlays) {
       this.sceneOverlays.destroy();
     }
@@ -202,6 +211,10 @@ export default class GameScene extends Phaser.Scene {
     this.entityManager.destroyAll();
 
     this.initializeScene();
+    
+    if (wasGridDebugEnabled) {
+      this.grid.setGridDebugEnabled(true);
+    }
   }
 
   // eslint-disable-next-line complexity

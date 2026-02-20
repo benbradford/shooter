@@ -26,6 +26,7 @@ import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { DifficultyComponent } from "../ecs/components/ai/DifficultyComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
+import { BreakableComponent } from "../ecs/components/breakable/BreakableComponent";
 import { EntityManager } from "../ecs/EntityManager";
 
 export default class EditorScene extends Phaser.Scene {
@@ -155,7 +156,7 @@ export default class EditorScene extends Phaser.Scene {
   private renderEditorLabels(): void {
     const gameScene = this.scene.get('game') as GameScene;
     const entityManager = gameScene.getEntityManager();
-    
+
     // Clear existing labels
     if (!this.editorLabels) {
       this.editorLabels = new Map();
@@ -181,7 +182,7 @@ export default class EditorScene extends Phaser.Scene {
           label.setDepth(1000);
           this.editorLabels.set(entity.id, label);
         }
-        
+
         label.setPosition(transform.x, transform.y);
       }
     }
@@ -302,7 +303,7 @@ export default class EditorScene extends Phaser.Scene {
         }
       }
     }
-   
+
     return cells;
   }
 
@@ -337,23 +338,23 @@ export default class EditorScene extends Phaser.Scene {
 
   private extractEntities(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelEntity[] {
     const entities: import('../systems/level/LevelLoader').LevelEntity[] = [];
-    
+
     for (const entity of entityManager.getAll()) {
       if (entity.id === 'player') continue;
-      
+
       const transform = entity.get(TransformComponent);
       const gridPos = entity.get(GridPositionComponent);
       const difficulty = entity.get(DifficultyComponent);
-      
+
       if (!transform && !gridPos) continue;
-      
-      const cell = gridPos 
+
+      const cell = gridPos
         ? { col: gridPos.currentCell.col, row: gridPos.currentCell.row }
         : grid.worldToCell(transform!.x, transform!.y);
-      
+
       let type: import('../systems/level/LevelLoader').EntityType | null = null;
       let data: Record<string, unknown> = { col: cell.col, row: cell.row };
-      
+
       if (entity.id.startsWith('stalking_robot') || entity.id.startsWith('robot')) {
         type = 'stalking_robot';
         const patrol = entity.get(PatrolComponent);
@@ -375,6 +376,16 @@ export default class EditorScene extends Phaser.Scene {
       } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
         type = 'bullet_dude';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('breakable')) {
+        type = 'breakable';
+        const sprite = entity.get(SpriteComponent);
+        const breakable = entity.get(BreakableComponent);
+        data = {
+          col: cell.col,
+          row: cell.row,
+          texture: sprite?.sprite.texture.key ?? 'dungeon_vase',
+          health: breakable?.getHealth() ?? 1
+        };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
         // EventChainers store their data in the level data already, just extract position
@@ -386,20 +397,20 @@ export default class EditorScene extends Phaser.Scene {
           data = { col: cell.col, row: cell.row, eventsToRaise: [] };
         }
       }
-      
+
       if (type) {
         entities.push({ id: entity.id, type, data });
       }
     }
-    
+
     // Add triggers and exits from level data (they don't have entity instances)
     const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
     const existingTriggers = (existingLevelData.entities ?? []).filter(e => e.type === 'trigger');
     const existingExits = (existingLevelData.entities ?? []).filter(e => e.type === 'exit');
-    
+
     entities.push(...existingTriggers);
     entities.push(...existingExits);
-    
+
     return entities;
   }
 

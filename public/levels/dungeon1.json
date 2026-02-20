@@ -2113,6 +2113,36 @@
       ]
     },
     {
+      "col": 10,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 11,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 12,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 13,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 14,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
       "col": 20,
       "row": 13,
       "layer": 1,
@@ -2217,6 +2247,18 @@
       ]
     },
     {
+      "col": 10,
+      "row": 14,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 14,
+      "row": 14,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
       "col": 20,
       "row": 14,
       "layer": 1,
@@ -2319,6 +2361,12 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 14,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": "pillar"
     },
     {
       "col": 20,
@@ -2497,6 +2545,18 @@
       ]
     },
     {
+      "col": 10,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 14,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
       "col": 20,
       "row": 16,
       "layer": 1,
@@ -2671,6 +2731,36 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 10,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 11,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 12,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 13,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 14,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": "pillar"
     },
     {
       "col": 20,
@@ -5142,16 +5232,6 @@
   ],
   "entities": [
     {
-      "id": "breakable0",
-      "type": "breakable",
-      "data": {
-        "col": 10,
-        "row": 20,
-        "texture": "dungeon_vase",
-        "health": 1
-      }
-    },
-    {
       "id": "eventchainer0",
       "type": "eventchainer",
       "data": {
@@ -5186,6 +5266,205 @@
         "col": 12,
         "row": 21,
         "difficulty": "easy"
+      }
+    },
+    {
+      "id": "skeleton0",
+      "type": "skeleton",
+      "data": {
+        "col": 16,
+        "row": 15,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 19,
+        "row": 25,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 19,
+        "row": 24,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 18,
+        "row": 24,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable3",
+      "type": "breakable",
+      "data": {
+        "col": 18,
+        "row": 25,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable4",
+      "type": "breakable",
+      "data": {
+        "col": 7,
+        "row": 25,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable5",
+      "type": "breakable",
+      "data": {
+        "col": 6,
+        "row": 25,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable6",
+      "type": "breakable",
+      "data": {
+        "col": 6,
+        "row": 24,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable7",
+      "type": "breakable",
+      "data": {
+        "col": 7,
+        "row": 24,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable8",
+      "type": "breakable",
+      "data": {
+        "col": 11,
+        "row": 14,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable9",
+      "type": "breakable",
+      "data": {
+        "col": 12,
+        "row": 14,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable10",
+      "type": "breakable",
+      "data": {
+        "col": 13,
+        "row": 14,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable11",
+      "type": "breakable",
+      "data": {
+        "col": 13,
+        "row": 15,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable12",
+      "type": "breakable",
+      "data": {
+        "col": 12,
+        "row": 15,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable13",
+      "type": "breakable",
+      "data": {
+        "col": 11,
+        "row": 15,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable14",
+      "type": "breakable",
+      "data": {
+        "col": 11,
+        "row": 16,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable15",
+      "type": "breakable",
+      "data": {
+        "col": 12,
+        "row": 16,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable16",
+      "type": "breakable",
+      "data": {
+        "col": 13,
+        "row": 16,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable17",
+      "type": "breakable",
+      "data": {
+        "col": 10,
+        "row": 15,
+        "texture": "pillar",
+        "health": 50
+      }
+    },
+    {
+      "id": "breakable18",
+      "type": "breakable",
+      "data": {
+        "col": 10,
+        "row": 15,
+        "texture": "pillar",
+        "health": 1
       }
     },
     {

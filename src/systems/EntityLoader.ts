@@ -130,7 +130,8 @@ export class EntityLoader {
             row: breakableData.row,
             grid: this.grid,
             texture: breakableData.texture,
-            health: breakableData.health
+            health: breakableData.health,
+            entityId: entityDef.id
           });
         };
       

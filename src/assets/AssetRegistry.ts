@@ -150,7 +150,7 @@ export const ASSET_REGISTRY = {
   },
   pillar: {
     key: 'pillar',
-    path: 'assets/cell_drawables/pillar.png',
+    path: 'assets/breakables/pillar.png',
     type: 'image' as const,
   },
   rock: {

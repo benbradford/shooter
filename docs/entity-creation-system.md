@@ -277,6 +277,163 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/editor/AddEntityEditorState.ts` - Unified entity placement
 - `src/scenes/EditorScene.ts` - Entity extraction to JSON
 
+## Adding New Entity Types to Editor
+
+When adding a new entity type that should be placeable in the editor, you must update **THREE** files:
+
+### 1. Add to EntityType (LevelLoader.ts)
+
+```typescript
+// src/systems/level/LevelLoader.ts
+export type EntityType = 
+  | 'stalking_robot' 
+  | 'bug_base' 
+  | 'thrower' 
+  | 'skeleton' 
+  | 'bullet_dude' 
+  | 'eventchainer'
+  | 'trigger'
+  | 'exit'
+  | 'breakable'  // Add your new type here
+  | 'your_new_type';
+```
+
+### 2. Add to AddEntityEditorState.ts
+
+Add to the ENTITY_TYPES array:
+
+```typescript
+// src/editor/AddEntityEditorState.ts
+const ENTITY_TYPES: Array<{ type: EntityType; label: string }> = [
+  { type: 'skeleton', label: 'Skeleton' },
+  { type: 'thrower', label: 'Thrower' },
+  { type: 'stalking_robot', label: 'Robot' },
+  { type: 'bug_base', label: 'Bug Base' },
+  { type: 'bullet_dude', label: 'Bullet Dude' },
+  { type: 'breakable', label: 'Breakable' },
+  { type: 'your_new_type', label: 'Your New Type' }  // Add here
+];
+```
+
+Add ghost sprite texture mapping:
+
+```typescript
+// In createGhostSprite() method
+let texture = 'bug_base';
+if (this.selectedType === 'skeleton') texture = 'skeleton';
+else if (this.selectedType === 'thrower') texture = 'thrower';
+else if (this.selectedType === 'stalking_robot') texture = 'attacker';
+else if (this.selectedType === 'bullet_dude') texture = 'attacker';
+else if (this.selectedType === 'breakable') texture = this.selectedTexture;
+else if (this.selectedType === 'your_new_type') texture = 'your_texture';  // Add here
+```
+
+Add data structure in placeEntity():
+
+```typescript
+// In placeEntity() method
+const newEntity: import('../systems/level/LevelLoader').LevelEntity = {
+  id: newId,
+  type: this.selectedType,
+  data: {
+    col,
+    row,
+    ...(this.selectedType === 'breakable' 
+      ? { texture: this.selectedTexture, health: 30 }
+      : this.selectedType === 'your_new_type'
+      ? { yourCustomField: 'value' }  // Add custom data here
+      : { difficulty: 'medium' }),
+    ...(this.selectedType === 'stalking_robot' ? { waypoints: [{ col, row }] } : {})
+  }
+};
+```
+
+### 3. Add to EditorScene.extractEntities()
+
+**CRITICAL:** This is where entities are extracted to JSON when you click Log/Save.
+
+```typescript
+// src/scenes/EditorScene.ts - in extractEntities() method
+} else if (entity.id.startsWith('breakable')) {
+  type = 'breakable';
+  const sprite = entity.get(SpriteComponent);
+  const breakable = entity.get(BreakableComponent);
+  data = { 
+    col: cell.col, 
+    row: cell.row, 
+    texture: sprite?.sprite.texture.key ?? 'dungeon_vase',
+    health: breakable?.getHealth() ?? 1
+  };
+} else if (entity.id.startsWith('your_new_type')) {  // Add your extraction here
+  type = 'your_new_type';
+  const yourComponent = entity.get(YourComponent);
+  data = { 
+    col: cell.col, 
+    row: cell.row, 
+    yourCustomField: yourComponent?.getValue() ?? 'default'
+  };
+}
+```
+
+**Why this is critical:** Without this, your entities won't appear in the saved JSON even though they're visible in the editor.
+
+### 4. Update Entity Factory to Accept entityId
+
+**CRITICAL:** Entity factories must accept and use the entityId parameter for unique IDs.
+
+```typescript
+// src/ecs/entities/your_entity/YourEntity.ts
+export type CreateYourEntityProps = {
+  scene: Phaser.Scene;
+  col: number;
+  row: number;
+  grid: Grid;
+  entityId: string;  // Add this
+  // ... other props
+}
+
+export function createYourEntity(props: CreateYourEntityProps): Entity {
+  const { scene, col, row, grid, entityId } = props;
+  const entity = new Entity(entityId);  // Use entityId, not hardcoded string
+  entity.tags.add('your_entity_tag');
+  // ... rest of entity setup
+}
+```
+
+### 5. Update EntityLoader to Pass entityId
+
+```typescript
+// src/systems/EntityLoader.ts
+case 'your_new_type':
+  return () => {
+    const data = entityDef.data as { col: number; row: number; /* other fields */ };
+    return createYourEntity({
+      scene: this.scene,
+      col: data.col,
+      row: data.row,
+      grid: this.grid,
+      entityId: entityDef.id,  // Pass the ID from level JSON
+      // ... other props
+    });
+  };
+```
+
+**Why this is critical:** Without passing entityId, all entities of the same type will have the same ID, breaking the editor's ability to track and save them individually.
+
+### Checklist for New Entity Types
+
+- [ ] Added to EntityType in LevelLoader.ts
+- [ ] Added to ENTITY_TYPES array in AddEntityEditorState.ts
+- [ ] Added ghost sprite texture mapping in createGhostSprite()
+- [ ] Added data structure in placeEntity()
+- [ ] **Added extraction logic in EditorScene.extractEntities()** ← Most commonly forgotten!
+- [ ] **Updated entity factory to accept entityId parameter** ← Required for unique IDs!
+- [ ] **Updated EntityLoader to pass entityId** ← Required for unique IDs!
+- [ ] Tested placing entity in editor
+- [ ] Tested clicking Log button shows entity in JSON
+- [ ] Tested loading level with entity from JSON
+- [ ] Tested placing multiple entities of same type (should have unique IDs: type0, type1, type2...)
+
 ## Migration Notes
 
 All levels have been converted to the new format. Old fields (robots, bugBases, throwers, skeletons, bulletDudes, triggers, spawners, exits) are no longer used.
