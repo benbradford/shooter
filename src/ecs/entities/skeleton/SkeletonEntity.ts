@@ -9,9 +9,11 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
+import { SkeletonRiseComponent } from '../../components/visual/SkeletonRiseComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { StateMachine } from '../../../systems/state/StateMachine';
+import { SkeletonRiseState } from './SkeletonRiseState';
 import { SkeletonIdleState } from './SkeletonIdleState';
 import { SkeletonWalkState } from './SkeletonWalkState';
 import { SkeletonAttackState } from './SkeletonAttackState';
@@ -55,9 +57,12 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
 
   const sprite = entity.add(new SpriteComponent(scene, 'skeleton', transform));
   sprite.sprite.setDepth(10);
+  sprite.sprite.setFrame(0);
 
   const shadow = entity.add(new ShadowComponent(scene, SKELETON_SHADOW_PROPS));
   shadow.init();
+
+  entity.add(new SkeletonRiseComponent({ scene }));
 
   entity.add(new GridPositionComponent(col, row, SKELETON_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
@@ -127,12 +132,13 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
   }));
 
   const stateMachine = new StateMachine({
+    rise: new SkeletonRiseState(),
     idle: new SkeletonIdleState(entity, playerEntity, grid),
     walk: new SkeletonWalkState(entity, playerEntity, grid),
     attack: new SkeletonAttackState(entity, playerEntity, onThrowBone),
     hit: new SkeletonHitState(entity),
     death: new SkeletonDeathState(entity, scene)
-  }, 'idle');
+  }, 'rise');
 
   entity.add(new StateMachineComponent(stateMachine));
 
@@ -141,6 +147,7 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
     HitFlashComponent,
     SpriteComponent,
     ShadowComponent,
+    SkeletonRiseComponent,
     KnockbackComponent,
     GridPositionComponent,
     GridCollisionComponent,

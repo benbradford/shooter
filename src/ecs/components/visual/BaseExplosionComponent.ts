@@ -38,11 +38,12 @@ export class BaseExplosionComponent implements Component {
 
     const RUBBLE_PIECE_COUNT = 6;
     const RUBBLE_PIECE_SIZE = 8;
+    const textureKey = 'base_rubble_sheet';
 
-    if (!this.scene.textures.exists('base_rubble')) {
+    if (!this.scene.textures.exists(textureKey)) {
       const baseTexture = this.scene.textures.get('base_destroyed');
       const baseFrame = baseTexture.get(0);
-      const canvas = this.scene.textures.createCanvas('base_rubble', RUBBLE_PIECE_SIZE * RUBBLE_PIECE_COUNT, RUBBLE_PIECE_SIZE);
+      const canvas = this.scene.textures.createCanvas(textureKey, RUBBLE_PIECE_SIZE * RUBBLE_PIECE_COUNT, RUBBLE_PIECE_SIZE);
       const ctx = canvas?.context;
 
       if (ctx && baseTexture.source[0]) {
@@ -63,14 +64,14 @@ export class BaseExplosionComponent implements Component {
         }
         canvas.refresh();
 
-        this.scene.textures.addSpriteSheet('base_rubble_sheet', canvas.canvas, {
+        this.scene.textures.addSpriteSheet(textureKey, canvas, {
           frameWidth: RUBBLE_PIECE_SIZE,
           frameHeight: RUBBLE_PIECE_SIZE
         });
       }
     }
 
-    const emitter = this.scene.add.particles(sprite.sprite.x, sprite.sprite.y, 'base_rubble_sheet', {
+    const emitter = this.scene.add.particles(sprite.sprite.x, sprite.sprite.y, textureKey, {
       speed: { min: 40, max: 80 },
       angle: { min: -120, max: -60 },
       scale: { start: 0.5, end: 0.2 },
