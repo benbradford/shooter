@@ -10,6 +10,7 @@ import { HealthComponent } from '../../components/core/HealthComponent';
 import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 const FRAME_DURATION_MS = 125;
 const ATTACK_RANGE_PX = 100;
@@ -121,13 +122,13 @@ export class BugChaseState implements IState {
     return false;
   }
 
-  private updatePath(delta: number, transform: TransformComponent, playerTransform: TransformComponent): void {
+  private updatePath(delta: number, transform: TransformComponent, _playerTransform: TransformComponent): void {
     this.pathRecalcTimer += delta;
     if (this.pathRecalcTimer < PATH_RECALC_INTERVAL_MS && this.path !== null) return;
 
     this.pathRecalcTimer = 0;
     const bugCell = this.grid.worldToCell(transform.x, transform.y);
-    const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+    const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
     const gridPos = this.entity.require(GridPositionComponent);
 
     this.path = this.pathfinder.findPath(

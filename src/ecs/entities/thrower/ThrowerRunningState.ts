@@ -9,6 +9,7 @@ import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import type { Grid } from '../../../systems/grid/Grid';
 import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 export class ThrowerRunningState implements IState {
   private readonly pathfinder: Pathfinder;
@@ -102,8 +103,7 @@ export class ThrowerRunningState implements IState {
   }
 
   private findCoverPosition(): void {
-    const playerTransform = this.playerEntity.require(TransformComponent);
-    const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+    const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
     const playerGridPos = this.playerEntity.require(GridPositionComponent);
     
     const searchRadius = 10;

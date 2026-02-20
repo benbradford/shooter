@@ -5,7 +5,6 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
-import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { BreakableComponent } from '../../components/breakable/BreakableComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 

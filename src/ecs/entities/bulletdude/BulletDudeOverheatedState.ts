@@ -10,6 +10,7 @@ import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getBulletDudeDifficultyConfig, type BulletDudeDifficulty, type BulletDudeDifficultyConfig } from './BulletDudeDifficulty';
 import type { Grid } from '../../../systems/grid/Grid';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { BULLET_DUDE_EMITTER_OFFSETS } from './BulletDudeConstants';
 
 const OVERHEAT_CHASE_SPEED_PX_PER_SEC = 75;
@@ -132,7 +133,7 @@ export class BulletDudeOverheatedState implements IState {
     }
   }
 
-  private updateMovement(delta: number, transform: TransformComponent, playerTransform: TransformComponent): void {
+  private updateMovement(delta: number, transform: TransformComponent, _playerTransform: TransformComponent): void {
     const gridPos = this.entity.require(GridPositionComponent);
     const sprite = this.entity.require(SpriteComponent);
 
@@ -140,7 +141,7 @@ export class BulletDudeOverheatedState implements IState {
       this.pathRecalcTimerMs = 0;
 
       const bulletDudeCell = this.grid.worldToCell(transform.x, transform.y);
-      const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+      const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
       this.path = this.pathfinder.findPath(
         bulletDudeCell.col,

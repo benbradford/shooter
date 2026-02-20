@@ -8,6 +8,7 @@ import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getSkeletonDifficultyConfig, type SkeletonDifficulty } from './SkeletonDifficultyConfig';
 import { dirFromDelta, Direction } from '../../../constants/Direction';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import type { Grid } from '../../../systems/grid/Grid';
 
 const WALK_IDLE_PAUSE_MIN_MS = 3000;
@@ -97,7 +98,7 @@ export class SkeletonWalkState implements IState {
       this.pathRecalcTimerMs = 0;
 
       const skeletonCell = this.grid.worldToCell(transform.x, transform.y);
-      const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+      const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
       this.path = this.pathfinder.findPath(
         skeletonCell.col,

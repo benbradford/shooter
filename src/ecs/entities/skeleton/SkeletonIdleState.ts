@@ -6,6 +6,7 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { Direction } from '../../../constants/Direction';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import type { Grid } from '../../../systems/grid/Grid';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 const IDLE_MIN_DURATION_MS = 500;
 const IDLE_MAX_DURATION_MS = 1000;
@@ -42,7 +43,7 @@ export class SkeletonIdleState implements IState {
       const playerTransform = this.playerEntity.require(TransformComponent);
 
       const skeletonCell = this.grid.worldToCell(transform.x, transform.y);
-      const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+      const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
       const path = this.pathfinder.findPath(
         skeletonCell.col,

@@ -8,6 +8,7 @@ import { PatrolComponent } from '../../components/ai/PatrolComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import type { Grid } from '../../../systems/grid/Grid';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 // Stalking state configuration
 const ATTACK_RANGE_PX = 500;
@@ -93,7 +94,7 @@ export class RobotStalkingState implements IState {
     if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL_MS || this.path === null) {
       this.pathRecalcTimer = 0;
       const robotCell = this.grid.worldToCell(transform.x, transform.y);
-      const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+      const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
       this.path = this.pathfinder.findPath(
         robotCell.col,

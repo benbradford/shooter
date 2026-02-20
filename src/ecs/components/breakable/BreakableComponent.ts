@@ -171,7 +171,6 @@ export class BreakableComponent implements Component {
         const rotationDir = col > 1 ? 1 : col < 1 ? -1 : 0;
         const rotationSpeed = rotationDir * ROTATION_SPEED_DEG_PER_SEC * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
         const gravityMultiplier = 1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2;
-        const scaleMultiplier = (0.2 + Math.random() * 0.2) * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
 
         const startTime = this.scene.time.now;
         const startX = shard.x;
