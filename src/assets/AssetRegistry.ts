@@ -143,6 +143,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_door.png',
     type: 'image' as const,
   },
+  dungeon_window: {
+    key: 'dungeon_window',
+    path: 'assets/cell_drawables/dungeon_window.png',
+    type: 'image' as const,
+  },
   dungeon_vase: {
     key: 'dungeon_vase',
     path: 'assets/breakables/dungeon_vase.png',

@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 12,
-    "y": 25
+    "x": 13,
+    "y": 26
   },
   "cells": [
     {
@@ -460,7 +460,8 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 17,
@@ -548,7 +549,8 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 28,
@@ -612,7 +614,8 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 36,
@@ -708,7 +711,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 8,
@@ -724,7 +728,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 10,
@@ -732,7 +737,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "dungeon_window"
     },
     {
       "col": 11,
@@ -740,7 +746,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 12,
@@ -756,7 +763,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 14,
@@ -764,7 +772,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 15,
@@ -772,7 +781,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "dungeon_window"
     },
     {
       "col": 16,
@@ -788,7 +798,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 18,
@@ -836,7 +847,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 24,
@@ -852,7 +864,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 26,
@@ -868,7 +881,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 28,
@@ -892,7 +906,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "dungeon_window"
     },
     {
       "col": 31,
@@ -900,7 +915,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 32,
@@ -908,7 +924,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "dungeon_door"
     },
     {
       "col": 33,
@@ -916,7 +933,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 34,
@@ -924,7 +942,8 @@
       "layer": 1,
       "properties": [
         "wall"
-      ]
+      ],
+      "backgroundTexture": "dungeon_window"
     },
     {
       "col": 35,
@@ -1610,18 +1629,27 @@
       "col": 31,
       "row": 8,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 32,
       "row": 8,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 33,
       "row": 8,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
@@ -5706,7 +5734,16 @@
       "data": {
         "col": 15,
         "row": 22,
-        "difficulty": "medium"
+        "difficulty": "easy"
+      }
+    },
+    {
+      "id": "skeleton6",
+      "type": "skeleton",
+      "data": {
+        "col": 15,
+        "row": 18,
+        "difficulty": "easy"
       }
     },
     {
