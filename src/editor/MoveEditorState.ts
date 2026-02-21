@@ -4,6 +4,7 @@ import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../systems/state/IState';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 
 export type MoveEditorStateProps = {
   entity: Entity;
@@ -115,10 +116,25 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
     // Move entity
     const transform = this.entity.get(TransformComponent);
     const sprite = this.entity.get(SpriteComponent);
+    const gridPos = this.entity.get(GridPositionComponent);
+    
     if (transform && sprite) {
       transform.x = centerX;
       transform.y = centerY;
       sprite.sprite.setPosition(centerX, centerY);
+      
+      if (gridPos) {
+        gridPos.currentCell.col = cell.col;
+        gridPos.currentCell.row = cell.row;
+      }
+      
+      const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+      const levelData = gameScene.getLevelData();
+      const entityDef = levelData.entities?.find(e => e.id === this.entity?.id);
+      if (entityDef && entityDef.data) {
+        (entityDef.data as { col: number; row: number }).col = cell.col;
+        (entityDef.data as { col: number; row: number }).row = cell.row;
+      }
     }
   }
 

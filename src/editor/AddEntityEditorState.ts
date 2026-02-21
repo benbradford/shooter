@@ -239,10 +239,14 @@ export class AddEntityEditorState extends EditorState {
 
     let idNum = 0;
     let newId = `${this.selectedType}${idNum}`;
+    console.log('[AddEntity] Initial ID:', newId, 'type:', this.selectedType, 'num:', idNum);
+    
     while (allIds.includes(newId)) {
       idNum++;
       newId = `${this.selectedType}${idNum}`;
     }
+
+    console.log('[AddEntity] Final ID:', newId);
 
     // Add to level data
     levelData.entities ??= [];

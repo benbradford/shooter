@@ -15,21 +15,25 @@ import { getBugBaseDifficultyConfig } from './BugBaseDifficulty';
 import type { EnemyDifficulty } from '../../../constants/EnemyDifficulty';
 import type { Grid } from '../../../systems/grid/Grid';
 
-export function createBugBaseEntity(
-  scene: Phaser.Scene,
-  col: number,
-  row: number,
-  grid: Grid,
-  playerEntity: Entity,
-  onSpawnBug: (col: number, row: number) => void,
-  difficulty: EnemyDifficulty = 'medium'
-): Entity {
+export type CreateBugBaseProps = {
+  scene: Phaser.Scene;
+  col: number;
+  row: number;
+  grid: Grid;
+  playerEntity: Entity;
+  onSpawnBug: (col: number, row: number) => void;
+  difficulty: EnemyDifficulty;
+  entityId: string;
+}
+
+export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
+  const { scene, col, row, grid, playerEntity, onSpawnBug, difficulty, entityId } = props;
   const BUG_BASE_COLLISION_SIZE = grid.cellSize * 0.75;
   const BASE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: BUG_BASE_COLLISION_SIZE, height: BUG_BASE_COLLISION_SIZE };
   const BASE_ENTITY_COLLISION_BOX = { offsetX: -BUG_BASE_COLLISION_SIZE / 2, offsetY: -BUG_BASE_COLLISION_SIZE / 2, width: BUG_BASE_COLLISION_SIZE, height: BUG_BASE_COLLISION_SIZE };
 
   const config = getBugBaseDifficultyConfig(difficulty);
-  const entity = new Entity('bug_base');
+  const entity = new Entity(entityId);
   entity.tags.add('enemy');
 
   const worldPos = grid.cellToWorld(col, row);

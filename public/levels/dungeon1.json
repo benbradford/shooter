@@ -5351,11 +5351,11 @@
       }
     },
     {
-      "id": "bug_base",
+      "id": "bug_base1",
       "type": "bug_base",
       "data": {
-        "col": 12,
-        "row": 21,
+        "col": 18,
+        "row": 7,
         "difficulty": "easy"
       }
     },
@@ -5732,8 +5732,8 @@
       "id": "skeleton5",
       "type": "skeleton",
       "data": {
-        "col": 15,
-        "row": 22,
+        "col": 10,
+        "row": 18,
         "difficulty": "easy"
       }
     },
@@ -5745,6 +5745,86 @@
         "row": 18,
         "difficulty": "easy"
       }
+    },
+    {
+      "id": "skeleton7",
+      "type": "skeleton",
+      "data": {
+        "col": 24,
+        "row": 17,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "narrow"
+    },
+    {
+      "id": "skeleton8",
+      "type": "skeleton",
+      "data": {
+        "col": 33,
+        "row": 17,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "narrow"
+    },
+    {
+      "id": "skeleton9",
+      "type": "skeleton",
+      "data": {
+        "col": 33,
+        "row": 25,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "narrow"
+    },
+    {
+      "id": "skeleton10",
+      "type": "skeleton",
+      "data": {
+        "col": 24,
+        "row": 25,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "narrow"
+    },
+    {
+      "id": "skeleton11",
+      "type": "skeleton",
+      "data": {
+        "col": 32,
+        "row": 18,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "narrow"
+    },
+    {
+      "id": "skeleton12",
+      "type": "skeleton",
+      "data": {
+        "col": 25,
+        "row": 18,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "narrow"
+    },
+    {
+      "id": "thrower1",
+      "type": "thrower",
+      "data": {
+        "col": 32,
+        "row": 21,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "throwers"
+    },
+    {
+      "id": "thrower2",
+      "type": "thrower",
+      "data": {
+        "col": 25,
+        "row": 21,
+        "difficulty": "easy"
+      },
+      "createOnEvent": "throwers"
     },
     {
       "id": "trigger0",
@@ -5763,6 +5843,58 @@
           {
             "col": 14,
             "row": 14
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger1",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "narrow",
+        "triggerCells": [
+          {
+            "col": 31,
+            "row": 15
+          },
+          {
+            "col": 32,
+            "row": 15
+          },
+          {
+            "col": 33,
+            "row": 15
+          },
+          {
+            "col": 34,
+            "row": 15
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger2",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "throwers",
+        "triggerCells": [
+          {
+            "col": 28,
+            "row": 21
+          },
+          {
+            "col": 29,
+            "row": 21
+          },
+          {
+            "col": 30,
+            "row": 21
+          },
+          {
+            "col": 27,
+            "row": 21
           }
         ],
         "oneShot": true

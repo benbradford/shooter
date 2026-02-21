@@ -38,18 +38,19 @@ export type CreateThrowerProps = {
   grid: Grid;
   playerEntity: Entity;
   difficulty: ThrowerDifficulty;
+  entityId: string;
   onThrow: (x: number, y: number, dirX: number, dirY: number, throwDistancePx: number, throwSpeedPxPerSec: number) => void;
 }
 
 export function createThrowerEntity(props: CreateThrowerProps): Entity {
-  const { scene, col, row, grid, playerEntity, difficulty, onThrow } = props;
+  const { scene, col, row, grid, playerEntity, difficulty, entityId, onThrow } = props;
   const config = getThrowerDifficultyConfig(difficulty);
 
   const worldPos = grid.cellToWorld(col, row);
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
-  const entity = new Entity('thrower');
+  const entity = new Entity(entityId);
   entity.tags.add('enemy');
 
   const transform = entity.add(new TransformComponent(x, y, 0, THROWER_SCALE));

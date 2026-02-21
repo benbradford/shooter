@@ -184,6 +184,7 @@ export class EntityLoader {
             grid: this.grid,
             playerEntity: player,
             difficulty: throwerData.difficulty,
+            entityId: entityDef.id,
             onThrow: (x, y, dirX, dirY, maxDistancePx, speedPxPerSec) => {
               const grenade = createGrenadeEntity({
                 scene: this.scene,
@@ -213,13 +214,15 @@ export class EntityLoader {
         return () => {
           const bugBaseData = data as { col: number; row: number; difficulty: EnemyDifficulty };
           const config = getBugBaseDifficultyConfig(bugBaseData.difficulty);
-          return createBugBaseEntity(
-            this.scene,
-            bugBaseData.col,
-            bugBaseData.row,
-            this.grid,
-            player,
-            (spawnCol, spawnRow) => {
+          return createBugBaseEntity({
+            scene: this.scene,
+            col: bugBaseData.col,
+            row: bugBaseData.row,
+            grid: this.grid,
+            playerEntity: player,
+            difficulty: bugBaseData.difficulty,
+            entityId: entityDef.id,
+            onSpawnBug: (spawnCol, spawnRow) => {
               const bug = createBugEntity({
                 scene: this.scene,
                 col: bugBaseData.col,
@@ -232,9 +235,8 @@ export class EntityLoader {
                 health: config.bugHealth
               });
               this.entityManager.add(bug);
-            },
-            bugBaseData.difficulty
-          );
+            }
+          });
         };
       
       case 'eventchainer':

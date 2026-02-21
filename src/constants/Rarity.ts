@@ -11,8 +11,8 @@ export const RARITY_COIN_COUNTS: Record<Rarity, { min: number; max: number }> = 
 export const RARITY_MEDIPACK_CHANCE: Record<Rarity, number> = {
   nothing: 0,
   rare: 0.05,
-  epic: 0.10,
-  mythic: 0.20,
-  legendary: 0.30
+  epic: 0.1,
+  mythic: 0.2,
+  legendary: 0.3
 };
 

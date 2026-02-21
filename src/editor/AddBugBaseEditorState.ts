@@ -78,25 +78,35 @@ export class AddBugBaseEditorState extends EditorState {
   private addBugBase(gameScene: GameScene, col: number, row: number): Entity {
     const grid = this.scene.getGrid();
     const entityManager = gameScene.getEntityManager();
+    const levelData = gameScene.getLevelData();
 
     const player = entityManager.getFirst('player');
     if (!player) {
       throw new Error('Player not found');
     }
 
+    const existingIds = (levelData.entities ?? []).map(e => e.id);
+    const allIds = [...existingIds, ...Array.from(entityManager.getAll()).map(e => e.id)];
 
-    // Default to medium difficulty
-    const bugBase = createBugBaseEntity(
-      gameScene,
+    let idNum = 0;
+    let newId = `bug_base${idNum}`;
+    while (allIds.includes(newId)) {
+      idNum++;
+      newId = `bug_base${idNum}`;
+    }
+
+    const bugBase = createBugBaseEntity({
+      scene: gameScene,
       col,
       row,
       grid,
-      player,
-      (_spawnCol, _spawnRow) => {
+      playerEntity: player,
+      difficulty: 'medium',
+      entityId: newId,
+      onSpawnBug: (_spawnCol: number, _spawnRow: number) => {
         // Bug spawning handled by BugSpawnerComponent
-      },
-      'medium'
-    );
+      }
+    });
 
     entityManager.add(bugBase);
     return bugBase;
