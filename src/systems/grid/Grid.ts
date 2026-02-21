@@ -146,7 +146,7 @@ export class Grid {
     if (data.properties) {
       cell.properties = new Set(data.properties);
     }
-    if (data.backgroundTexture !== undefined) {
+    if ('backgroundTexture' in data) {
       cell.backgroundTexture = data.backgroundTexture;
     }
 
@@ -178,8 +178,7 @@ export class Grid {
     }
 
     // Handle background texture changes
-    if (data.backgroundTexture !== undefined) {
-      // Remove old sprite if texture changed
+    if ('backgroundTexture' in data) {
       if (oldTexture !== data.backgroundTexture) {
         const oldSprite = this.backgroundSprites.get(key);
         if (oldSprite) {
@@ -188,7 +187,6 @@ export class Grid {
         }
       }
 
-      // Add new sprite if texture is set
       if (data.backgroundTexture) {
         const worldPos = this.cellToWorld(col, row);
         const sprite = this.scene.add.image(

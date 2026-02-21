@@ -17,6 +17,7 @@ import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
 import { AddSkeletonEditorState } from "../editor/AddSkeletonEditorState";
 import { AddBulletDudeEditorState } from "../editor/AddBulletDudeEditorState";
 import { EventChainerEditorState } from "../editor/EventChainerEditorState";
+import { CellModifierEditorState } from "../editor/CellModifierEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
 import { ThemeEditorState } from "../editor/ThemeEditorState";
 import { TriggerEditorState } from "../editor/TriggerEditorState";
@@ -133,6 +134,7 @@ export default class EditorScene extends Phaser.Scene {
       addSkeleton: new AddSkeletonEditorState(this),
       addBulletDude: new AddBulletDudeEditorState(this),
       spawner: new EventChainerEditorState(this),
+      cellmodifier: new CellModifierEditorState(this),
       texture: new TextureEditorState(this),
       theme: new ThemeEditorState(this),
       trigger: new TriggerEditorState(this) as unknown as import('../systems/state/IState').IState<void | Entity | MoveEditorStateProps | number>,
@@ -436,13 +438,15 @@ export default class EditorScene extends Phaser.Scene {
       }
     }
 
-    // Add triggers and exits from level data (they don't have entity instances)
+    // Add triggers, exits, and cellmodifiers from level data (they don't have entity instances)
     const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
     const existingTriggers = (existingLevelData.entities ?? []).filter(e => e.type === 'trigger');
     const existingExits = (existingLevelData.entities ?? []).filter(e => e.type === 'exit');
+    const existingCellModifiers = (existingLevelData.entities ?? []).filter(e => e.type === 'cellmodifier');
 
     entities.push(...existingTriggers);
     entities.push(...existingExits);
+    entities.push(...existingCellModifiers);
 
     return entities;
   }
@@ -564,6 +568,10 @@ export default class EditorScene extends Phaser.Scene {
 
   enterSpawnerMode(): void {
     this.stateMachine.enter('spawner');
+  }
+
+  enterCellModifierMode(): void {
+    this.stateMachine.enter('cellmodifier');
   }
 
   enterTextureMode(): void {

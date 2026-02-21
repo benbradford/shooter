@@ -5873,6 +5873,20 @@
       }
     },
     {
+      "id": "trigger3",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "key_pickup",
+        "triggerCells": [
+          {
+            "col": 27,
+            "row": 22
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -5890,6 +5904,23 @@
           }
         ],
         "oneShot": true
+      }
+    },
+    {
+      "id": "cellmodifier0",
+      "type": "cellmodifier",
+      "createOnEvent": "key_pickup",
+      "data": {
+        "cellsToModify": [
+          {
+            "col": 27,
+            "row": 22
+          },
+          {
+            "col": 32,
+            "row": 8
+          }
+        ]
       }
     }
   ],

@@ -31,6 +31,7 @@ export { ShadowComponent } from './components/visual/ShadowComponent';
 export { AimJoystickVisualsComponent } from './components/ui/AimJoystickVisualsComponent';
 export { SpawnSmokeComponent } from './components/visual/SpawnSmokeComponent';
 export { TriggerComponent } from './components/core/TriggerComponent';
+export { CellModifierComponent } from './components/core/CellModifierComponent';
 export { EnemySpawnComponent } from './components/spawner/EnemySpawnComponent';
 export { LevelExitComponent } from './components/level/LevelExitComponent';
 export { PunchParticlesComponent } from './components/visual/PunchParticlesComponent';

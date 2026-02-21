@@ -11,7 +11,8 @@ export type EntityType =
   | 'eventchainer'
   | 'trigger'
   | 'exit'
-  | 'breakable';
+  | 'breakable'
+  | 'cellmodifier';
 
 export type LevelEntity = {
   id: string;

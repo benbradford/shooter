@@ -249,6 +249,29 @@ export class DefaultEditorState extends EditorState {
       console.log('[Editor] Portal button clicked');
       this.scene.enterExitMode();
     });
+
+    // Cell Modifier button (second row, next to portal)
+    const cellModifierButton = this.scene.add.text(centerX + buttonSpacing, buttonY2, 'Cell Modifier', {
+      fontSize: '24px',
+      color: '#ffffff',
+      backgroundColor: '#333333',
+      padding: { x: 20, y: 10 }
+    });
+    cellModifierButton.setOrigin(0.5);
+    cellModifierButton.setScrollFactor(0);
+    cellModifierButton.setInteractive({ useHandCursor: true });
+    cellModifierButton.setDepth(1000);
+    this.buttons.push(cellModifierButton);
+
+    cellModifierButton.on('pointerover', () => {
+      cellModifierButton.setBackgroundColor('#555555');
+    });
+    cellModifierButton.on('pointerout', () => {
+      cellModifierButton.setBackgroundColor('#333333');
+    });
+    cellModifierButton.on('pointerdown', () => {
+      this.scene.enterCellModifierMode();
+    });
   }
 
   onExit(): void {

@@ -75,6 +75,32 @@ export abstract class GameSceneRenderer {
     this.cellSprites.length = 0;
   }
 
+  invalidateCache(): void {
+    console.log('[GameSceneRenderer] Invalidating cache - destroying', this.cellSprites.length, 'sprites');
+    for (const sprite of this.cellSprites) {
+      sprite.destroy();
+    }
+    this.cellSprites.length = 0;
+    this.isCached = false;
+  }
+
+  invalidateCells(cells: Array<{ col: number; row: number }>): void {
+    for (const cell of cells) {
+      const index = this.cellSprites.findIndex(sprite => {
+        const spriteX = sprite.x - this.cellSize / 2;
+        const spriteY = sprite.y - this.cellSize / 2;
+        const col = Math.round(spriteX / this.cellSize);
+        const row = Math.round(spriteY / this.cellSize);
+        return col === cell.col && row === cell.row;
+      });
+      
+      if (index >= 0) {
+        this.cellSprites[index].destroy();
+        this.cellSprites.splice(index, 1);
+      }
+    }
+  }
+
   private renderFloorOverlay(grid: Grid, _levelData: LevelData): void {
     const worldWidth = grid.width * this.cellSize;
     const worldHeight = grid.height * this.cellSize;

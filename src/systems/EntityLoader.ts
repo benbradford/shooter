@@ -1,7 +1,7 @@
 import type { Entity } from '../ecs/Entity';
 import type { EntityManager } from '../ecs/EntityManager';
 import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
-import type { Grid } from '../systems/grid/Grid';
+import type { Grid, CellProperty } from '../systems/grid/Grid';
 import type { LevelData, LevelEntity } from '../systems/level/LevelLoader';
 import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 import type { Rarity } from '../constants/Rarity';
@@ -18,6 +18,7 @@ import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity
 import { createCoinEntity } from '../ecs/entities/pickup/CoinEntity';
 import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
+import { createCellModifierEntity } from '../cellmodifier/CellModifierEntity';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
@@ -241,14 +242,22 @@ export class EntityLoader {
       
       case 'eventchainer':
         return () => createEventChainerEntity({
-          grid: this.grid,
-          col: data.col as number,
-          row: data.row as number,
           eventManager: this.eventManager,
           eventsToRaise: data.eventsToRaise as Array<{ event: string; delayMs: number }>,
           startOnEvent: undefined,
           entityId: entityDef.id
         });
+      
+      case 'cellmodifier':
+        return () => {
+          const cellModifierData = data as { cellsToModify: Array<{ col: number; row: number; properties?: CellProperty[]; backgroundTexture?: string; layer?: number }> };
+          return createCellModifierEntity({
+            grid: this.grid,
+            scene: this.scene,
+            entityId: entityDef.id,
+            cellsToModify: cellModifierData.cellsToModify
+          });
+        };
       
       default:
         console.warn(`[EntityLoader] Unknown entity type: ${entityDef.type}`);
