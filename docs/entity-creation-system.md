@@ -21,13 +21,15 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `trigger` - Invisible area that fires event when player enters
 - `exit` - Level transition portal
 - `eventchainer` - Raises multiple events sequentially with delays
+- `cellmodifier` - Modifies grid cells (properties, textures, layers) when event fires
 
 ### Event-Driven Creation
-- Entities have optional `createOnEvent` field
-- If `createOnEvent` set: Entity spawns when that event fires
-- If no `createOnEvent`: Entity spawns immediately on level load
+- Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
+- `createOnAnyEvent`: Array of events - entity spawns when ANY event fires (removes listener after first)
+- `createOnAllEvents`: Array of events - entity spawns when ALL events have fired
+- Mutually exclusive - error thrown if both are present
+- If neither set: Entity spawns immediately on level load
 - EntityCreatorManager handles registration and creation
-- Once event fires, EntityCreatorManager unsubscribes (event can only fire once)
 
 ## Level JSON Format
 
