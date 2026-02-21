@@ -1,26 +1,63 @@
 import type { Component } from '../../Component';
-import type { Entity } from '../../Entity';
+import type { EntityManager } from '../../EntityManager';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
 import { GridCellBlocker } from '../movement/GridCellBlocker';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { createExhaustedBugBaseEntity } from '../../entities/bug/ExhaustedBugBaseEntity';
+import type { Grid } from '../../../systems/grid/Grid';
+
+export type BaseExplosionComponentProps = {
+  scene: Phaser.Scene;
+  grid: Grid;
+  col: number;
+  row: number;
+  entityManager: EntityManager;
+}
 
 export class BaseExplosionComponent implements Component {
-  entity!: Entity;
+  entity!: import('../../Entity').Entity;
   private readonly scene: Phaser.Scene;
+  private readonly grid: Grid;
+  private readonly col: number;
+  private readonly row: number;
+  private readonly entityManager: EntityManager;
   private changeSpriteTime = 0;
   private hasExploded = false;
 
-  constructor(scene: Phaser.Scene, _cellSize: number) {
-    this.scene = scene;
+  constructor(props: BaseExplosionComponentProps) {
+    this.scene = props.scene;
+    this.grid = props.grid;
+    this.col = props.col;
+    this.row = props.row;
+    this.entityManager = props.entityManager;
   }
 
   update(delta: number): void {
-    const sprite = this.entity.require(SpriteComponent);
     if (this.hasExploded) {
       this.changeSpriteTime += delta;
       if (this.changeSpriteTime > 300) {
-        this.entity.setUpdateOrder([]);
-        sprite.sprite.setTexture('base_destroyed');
+        const exhaustedId = `${this.entity.id}_exhausted`;
+        console.log(`[BaseExplosion] Creating exhausted entity: ${exhaustedId}, levelName: ${this.entity.levelName}`);
+        
+        const exhaustedEntity = createExhaustedBugBaseEntity({
+          scene: this.scene,
+          col: this.col,
+          row: this.row,
+          grid: this.grid,
+          entityId: exhaustedId
+        });
+        exhaustedEntity.levelName = this.entity.levelName;
+        
+        this.entityManager.add(exhaustedEntity);
+        
+        if (this.entity.levelName) {
+          const worldState = WorldStateManager.getInstance();
+          worldState.addLiveEntity(this.entity.levelName, exhaustedId);
+          console.log(`[BaseExplosion] Added ${exhaustedId} to liveEntities for ${this.entity.levelName}`);
+        }
+        
+        this.scene.time.delayedCall(0, () => this.entity.destroy());
       }
     }
   }

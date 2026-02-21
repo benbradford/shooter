@@ -6,7 +6,7 @@ The world state system maintains game progress across level transitions, ensurin
 - Destroyed enemies stay destroyed when re-entering levels
 - Spawned enemies (from events) persist if not killed
 - Cell modifications persist (doors opened, walls removed)
-- Player health carries between levels
+- Player health and overheal carry between levels
 - Exit triggers don't cause infinite loops
 
 ## Usage
@@ -39,6 +39,13 @@ else if entity.id in destroyedEntities → don't spawn (was killed)
 else → don't spawn (event hasn't fired yet)
 ```
 
+### Entity Tracking
+
+Only entities from level JSON are tracked (ID pattern: `{type}{number}` like "skeleton0", "bug_base1"):
+- Each entity has a `levelName` property set when spawned
+- Temporary entities (bullets, coins, particles) are not tracked
+- Entities are only added to `destroyedEntities` for their own level
+
 ### Trigger Handling
 
 **Exit triggers:**
@@ -60,25 +67,33 @@ else → don't spawn (event hasn't fired yet)
 
 ### Cell Modifications
 
-Modified cells are tracked and reapplied on level load:
-- Doors opened by cellModifiers stay open
-- Walls removed stay removed
-- Textures changed stay changed
+Modified cells are tracked in two ways:
+1. **cellModifierCells** - Tracks which cells were touched by cellModifiers (always saved)
+2. **modifiedCells** - Stores final cell state (properties, texture, layer)
+
+When loading, modified cells override level JSON and renderer cache is invalidated.
 
 ## State Updates
 
 **On entity spawn (via event):**
+- Set `entity.levelName` to current level
 - Add to `liveEntities`
 
 **On entity destruction:**
+- Check if entity has `levelName` and matches pattern `{type}{number}`
 - Remove from `liveEntities` (if present)
-- Add to `destroyedEntities`
+- Add to `destroyedEntities` for that level
+- **Not tracked during `resetScene()`** (level transitions)
 
 **On trigger fire:**
 - Add to `firedTriggers`
 
+**On cellModifier execution:**
+- Add modified cells to `cellModifierCells`
+- Ensures cells are saved even if they look the same as original
+
 **On level transition:**
-- Update player health
+- Update player health and overheal
 - Update current level
 - Update spawn position
 - Scan and save modified cells
@@ -96,6 +111,7 @@ Modified cells are tracked and reapplied on level load:
 - `src/systems/EntityCreatorManager.ts` - Track liveEntities on spawn
 - `src/ecs/Entity.ts` - Track destroyedEntities on destroy
 - `src/ecs/components/core/TriggerComponent.ts` - Track firedTriggers
+- `src/ecs/components/core/CellModifierComponent.ts` - Track cellModifierCells
 - `src/scenes/GameScene.ts` - Load/save world state, apply to level
 - `public/states/default.json` - Saved state file (gitignored)
 

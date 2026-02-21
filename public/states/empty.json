@@ -1,0 +1,11 @@
+{
+  "player": {
+    "health": 100,
+    "currentLevel": "dungeon1",
+    "entryCell": {
+      "col": 0,
+      "row": 0
+    }
+  },
+  "levels": {}
+}

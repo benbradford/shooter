@@ -54,6 +54,10 @@ export class WorldStateManager {
   getPlayerHealth(): number {
     return this.worldState.player.health;
   }
+  
+  getPlayerOverheal(): number {
+    return this.worldState.player.overheal;
+  }
 
   getPlayerSpawnPosition(): { col?: number; row?: number } {
     return {
@@ -77,6 +81,10 @@ export class WorldStateManager {
 
   setPlayerHealth(health: number): void {
     this.worldState.player.health = health;
+  }
+  
+  setPlayerOverheal(overheal: number): void {
+    this.worldState.player.overheal = overheal;
   }
 
   setCurrentLevel(levelName: string): void {
@@ -190,6 +198,7 @@ export class WorldStateManager {
     return {
       player: {
         health: 100,
+        overheal: 0,
         currentLevel: DEFAULT_STARTING_LEVEL,
         entryCell: { col: 0, row: 0 }
       },

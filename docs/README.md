@@ -67,22 +67,29 @@ When asked to "update the docs":
    - Triggers and event flow
    - One-shot vs repeating triggers
 
+8. **[World State System](./world-state-system.md)** - Save/load game progress
+   - Persistent entity destruction
+   - Event-spawned entity tracking
+   - Cell modification persistence
+   - Player health and overheal
+   - Press Y to save state
+
 ## Input and Controls
 
-8. **[Input Systems](./input-systems.md)** - Player controls
+9. **[Input Systems](./input-systems.md)** - Player controls
    - Touch joystick (movement)
    - Crosshair button (firing)
    - Keyboard controls
    - Momentum-based movement
 
-8. **[Screen Scaling and HUD](./screen-scaling-and-hud.md)** - Critical quirks
+10. **[Screen Scaling and HUD](./screen-scaling-and-hud.md)** - Critical quirks
    - Screen scaling, coordinate systems
    - HUD positioning
    - Android compatibility
 
 ## Testing
 
-9. **[Testing](./testing.md)** - Automated browser testing
+11. **[Testing](./testing.md)** - Automated browser testing
    - Running tests with Puppeteer
    - RemoteInputComponent for test control
    - Writing new tests
@@ -91,7 +98,7 @@ When asked to "update the docs":
 
 ## Level Design
 
-10. **[Level Editor](./level-editor.md)** - In-game level editor
+12. **[Level Editor](./level-editor.md)** - In-game level editor
    - Level data structure and loading
    - Editor modes (default, grid, move, resize, add entity, edit entity)
    - Saving workflow
@@ -113,14 +120,14 @@ When asked to "update the docs":
    - State machine setup
    - Level integration
 
-11. **[Spawner Entities](./spawner-entities.md)** - Creating entities that spawn other entities
+13. **[Spawner Entities](./spawner-entities.md)** - Creating entities that spawn other entities
    - Spawner component design
    - Spawned entity movement (GridPositionComponent critical)
    - Difficulty system
    - Editor integration
    - Common pitfalls and solutions
 
-12. **[Visual Effects](./visual-effects.md)** - Hit flashes, particles, shadows
+14. **[Visual Effects](./visual-effects.md)** - Hit flashes, particles, shadows
     - HitFlashComponent usage
     - Particle system patterns
     - Shadow component

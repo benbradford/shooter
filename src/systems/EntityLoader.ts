@@ -13,6 +13,7 @@ import { createStalkingRobotEntity } from '../ecs/entities/robot/StalkingRobotEn
 import { createBulletDudeEntity } from '../ecs/entities/bulletdude/BulletDudeEntity';
 import { createBugBaseEntity } from '../ecs/entities/bug/BugBaseEntity';
 import { createBugEntity } from '../ecs/entities/bug/BugEntity';
+import { createExhaustedBugBaseEntity } from '../ecs/entities/bug/ExhaustedBugBaseEntity';
 import { createTriggerEntity } from '../trigger/TriggerEntity';
 import { createLevelExitEntity } from '../exit/LevelExitEntity';
 import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
@@ -49,6 +50,29 @@ export class EntityLoader {
       
       if (entityDef.createOnAnyEvent && entityDef.createOnAllEvents) {
         throw new Error(`Entity ${entityDef.id} has both createOnAnyEvent and createOnAllEvents - only one is allowed`);
+      }
+    }
+    
+    // Spawn exhausted bug bases from liveEntities
+    if (!isEditorMode) {
+      for (const liveEntityId of levelState.liveEntities) {
+        if (liveEntityId.endsWith('_exhausted')) {
+          const baseId = liveEntityId.replace('_exhausted', '');
+          const baseEntity = levelData.entities?.find(e => e.id === baseId && e.type === 'bug_base');
+          if (baseEntity) {
+            const bugBaseData = baseEntity.data as { col: number; row: number };
+            console.log(`[EntityLoader] Spawning exhausted entity from liveEntities: ${liveEntityId}`);
+            const exhaustedEntity = createExhaustedBugBaseEntity({
+              scene: this.scene,
+              col: bugBaseData.col,
+              row: bugBaseData.row,
+              grid: this.grid,
+              entityId: liveEntityId
+            });
+            exhaustedEntity.levelName = levelData.name;
+            this.entityManager.add(exhaustedEntity);
+          }
+        }
       }
     }
 
@@ -122,8 +146,10 @@ export class EntityLoader {
     }
   }
 
-  private createEntityCreator(entityDef: LevelEntity, player: Entity, _levelData: LevelData): (() => Entity) | null {
+  private createEntityCreator(entityDef: LevelEntity, player: Entity, levelData: LevelData): (() => Entity) | null {
     const data = entityDef.data;
+    const worldState = WorldStateManager.getInstance();
+    const levelState = worldState.getLevelState(levelData.name!);
     
     switch (entityDef.type) {
       case 'skeleton':
@@ -275,6 +301,20 @@ export class EntityLoader {
       case 'bug_base':
         return () => {
           const bugBaseData = data as { col: number; row: number; difficulty: EnemyDifficulty };
+          
+          // If bug base was destroyed, spawn exhausted entity instead
+          if (levelState.destroyedEntities.includes(entityDef.id)) {
+            const exhaustedId = `${entityDef.id}_exhausted`;
+            console.log(`[EntityLoader] Bug base ${entityDef.id} destroyed, spawning exhausted: ${exhaustedId}`);
+            return createExhaustedBugBaseEntity({
+              scene: this.scene,
+              col: bugBaseData.col,
+              row: bugBaseData.row,
+              grid: this.grid,
+              entityId: exhaustedId
+            });
+          }
+          
           const config = getBugBaseDifficultyConfig(bugBaseData.difficulty);
           return createBugBaseEntity({
             scene: this.scene,
@@ -284,6 +324,7 @@ export class EntityLoader {
             playerEntity: player,
             difficulty: bugBaseData.difficulty,
             entityId: entityDef.id,
+            entityManager: this.entityManager,
             onSpawnBug: (spawnCol, spawnRow) => {
               const bug = createBugEntity({
                 scene: this.scene,

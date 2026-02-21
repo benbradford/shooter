@@ -319,6 +319,11 @@ this.grid.setCell(15, 10, { layer: 1, properties: new Set(['platform']) });
   - Hides/shows movement joystick, attack button, slide button, health/ammo bars
   - Useful for screenshots or cleaner view
 
+- **Y key** - Save world state
+  - Copies world state JSON to clipboard
+  - Logs to console
+  - Paste into `public/states/default.json` to persist
+
 - **E key** - Enter level editor mode
   - Pauses game
   - Allows editing grid cells, moving player, resizing grid

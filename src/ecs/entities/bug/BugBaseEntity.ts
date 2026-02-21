@@ -1,4 +1,5 @@
 import { Entity } from '../../Entity';
+import type { EntityManager } from '../../EntityManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
@@ -24,10 +25,11 @@ export type CreateBugBaseProps = {
   onSpawnBug: (col: number, row: number) => void;
   difficulty: EnemyDifficulty;
   entityId: string;
+  entityManager: EntityManager;
 }
 
 export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
-  const { scene, col, row, grid, playerEntity, onSpawnBug, difficulty, entityId } = props;
+  const { scene, col, row, grid, playerEntity, onSpawnBug, difficulty, entityId, entityManager } = props;
   const BUG_BASE_COLLISION_SIZE = grid.cellSize * 0.75;
   const BASE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: BUG_BASE_COLLISION_SIZE, height: BUG_BASE_COLLISION_SIZE };
   const BASE_ENTITY_COLLISION_BOX = { offsetX: -BUG_BASE_COLLISION_SIZE / 2, offsetY: -BUG_BASE_COLLISION_SIZE / 2, width: BUG_BASE_COLLISION_SIZE, height: BUG_BASE_COLLISION_SIZE };
@@ -54,7 +56,7 @@ export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
 
   const health = entity.add(new HealthComponent({ maxHealth: config.baseHealth }));
   entity.add(new HitFlashComponent());
-  entity.add(new BaseExplosionComponent(scene, grid.cellSize));
+  entity.add(new BaseExplosionComponent({ scene, grid, col, row, entityManager }));
   entity.add(new BaseSpawnComponent(scene, playerEntity, grid.cellSize, scale * 0.3));
   entity.add(new BugSpawnerComponent(playerEntity, onSpawnBug, config.spawnIntervalMs, grid));
   entity.add(new DifficultyComponent<EnemyDifficulty>(difficulty));

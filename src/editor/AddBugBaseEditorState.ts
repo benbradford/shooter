@@ -103,6 +103,7 @@ export class AddBugBaseEditorState extends EditorState {
       playerEntity: player,
       difficulty: 'medium',
       entityId: newId,
+      entityManager: gameScene.getEntityManager(),
       onSpawnBug: (_spawnCol: number, _spawnRow: number) => {
         // Bug spawning handled by BugSpawnerComponent
       }

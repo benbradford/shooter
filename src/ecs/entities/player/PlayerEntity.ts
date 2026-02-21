@@ -55,10 +55,11 @@ export type CreatePlayerEntityProps = {
   entityManager: EntityManager;
   vignetteSprite?: Phaser.GameObjects.Image;
   initialHealth?: number;
+  initialOverheal?: number;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite, initialHealth } = props;
+  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite, initialHealth, initialOverheal } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -158,7 +159,11 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     health.setHealth(initialHealth);
   }
   
-  entity.add(new MedipackHealerComponent());
+  const healer = entity.add(new MedipackHealerComponent());
+  
+  if (initialOverheal !== undefined) {
+    healer.setOverheal(initialOverheal);
+  }
 
   const hudBars = entity.add(new HudBarComponent(scene, [
     { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y_PX, fillColor: 0x00ff00 },

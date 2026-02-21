@@ -15,6 +15,10 @@ export class MedipackHealerComponent implements Component {
   addMedipack(): void {
     this.pendingHeal += MEDIPACK_HEAL_AMOUNT;
   }
+  
+  setOverheal(amount: number): void {
+    this.overhealAmount = Math.max(0, Math.min(OVERHEAL_MAX - 100, amount));
+  }
 
   update(delta: number): void {
     const health = this.entity.require(HealthComponent);

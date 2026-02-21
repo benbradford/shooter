@@ -15,6 +15,7 @@ import { CELL_SIZE, CAMERA_ZOOM } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
+import { MedipackHealerComponent } from "../ecs/components/core/MedipackHealerComponent";
 import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
@@ -287,6 +288,7 @@ export default class GameScene extends Phaser.Scene {
     }
     
     const playerHealth = worldState.getPlayerHealth();
+    const playerOverheal = worldState.getPlayerOverheal();
     
     const player = this.entityManager.add(createPlayerEntity({
       scene: this,
@@ -297,7 +299,8 @@ export default class GameScene extends Phaser.Scene {
       getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
       entityManager: this.entityManager,
       vignetteSprite: this.vignette,
-      initialHealth: playerHealth
+      initialHealth: playerHealth,
+      initialOverheal: playerOverheal
     }));
 
     // Load entities from new format
@@ -372,6 +375,11 @@ export default class GameScene extends Phaser.Scene {
       if (health) {
         worldState.setPlayerHealth(health.getHealth());
       }
+      
+      const healer = player.get(MedipackHealerComponent);
+      if (healer) {
+        worldState.setPlayerOverheal(healer.getOverhealAmount());
+      }
     }
     
     worldState.updateModifiedCells(this.currentLevelName, this.grid, this.levelData);
@@ -429,12 +437,17 @@ export default class GameScene extends Phaser.Scene {
   private saveWorldState(): void {
     const worldState = WorldStateManager.getInstance();
     
-    // Update player health
+    // Update player health and overheal
     const player = this.entityManager.getFirst('player');
     if (player) {
       const health = player.get(HealthComponent);
       if (health) {
         worldState.setPlayerHealth(health.getHealth());
+      }
+      
+      const healer = player.get(MedipackHealerComponent);
+      if (healer) {
+        worldState.setPlayerOverheal(healer.getOverhealAmount());
       }
     }
     
