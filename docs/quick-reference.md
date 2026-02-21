@@ -834,7 +834,7 @@ export class SkeletonRiseComponent implements Component {
 - Mask reveals from top to bottom (head first)
 - Hide shadow until fully risen
 - Disable collision until fully risen
-- Smoke burst at feet position
+- Smoke burst at feet position (targetY, not startY)
 - Transition to idle state when complete
 
 ### Sprite Shattering Effect
@@ -873,6 +873,7 @@ for (let row = 0; row < GRID_SIZE; row++) {
 - Clamp Y position to prevent falling below original sprite
 - Left/right pieces rotate in opposite directions
 - Center pieces use Y-scale oscillation instead of rotation
+- Position shards with minimal offset: `offsetX = (col - 1)`, `offsetY = (row - 1)` for tight grid
 
 ### Non-Lethal Hit Feedback
 
@@ -880,6 +881,32 @@ For objects that take multiple hits:
 - Spawn single random shard on hit
 - Shake sprite slightly (3px, 100ms)
 - No hit flash (looks strange on objects)
+
+### Coin and Medipack Pickups
+
+**Coins:**
+- Spawn from breakables based on rarity (0-20 coins)
+- Physics-based: fly outward, arc upward, fall with gravity
+- Stop at walls (check both X and Y collision separately)
+- Can't be collected for first 500ms
+- Lifetime: 8 seconds, fade after 4 seconds
+- Collection distance: 25px
+
+**Medipacks:**
+- Drop chance based on rarity (0% to 30%)
+- Spawn at bottom center of breakable's cell
+- Gradual healing: 50 HP/sec for 2 seconds (100 total)
+- Overheal: Up to 200 max, decays at 5 HP/sec
+- Overheal benefits: 1.5x movement speed, 2x punch speed
+- Damage consumes overheal first, then main health
+- Natural regen disabled when total health > 150
+- Lifetime: 8 seconds, fade after 4 seconds
+- Collection distance: 40px, 500ms delay
+
+**Overheal HUD:**
+- Purple bar overlays green health bar from left
+- Sparkles at right edge during healing
+- Bar stays visible during healing or overheal
 
 ### Creating Particle Effects (Shell Casings, Debris)
 

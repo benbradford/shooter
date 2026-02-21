@@ -26,9 +26,12 @@ export class SkeletonRiseComponent implements Component {
 
   update(delta: number): void {
     if (this.isRising) {
-      const sprite = this.entity.require(SpriteComponent);
-      const transform = this.entity.require(TransformComponent);
-      const collision = this.entity.require(CollisionComponent);
+      const sprite = this.entity.get(SpriteComponent);
+      const transform = this.entity.get(TransformComponent);
+      const collision = this.entity.get(CollisionComponent);
+      
+      if (!sprite || !transform || !collision) return;
+      
       const shadow = this.entity.get(ShadowComponent);
 
       if (this.elapsedMs === 0) {

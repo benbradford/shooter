@@ -291,7 +291,9 @@ Click **Log** button to save level JSON with all entities in the new format.
 
 ## Adding New Entity Types to Editor
 
-When adding a new entity type that should be placeable in the editor, you must update **THREE** files:
+⚠️ **MOST COMMON BUG:** Forgetting to add `entityId` parameter to entity factory causes "Duplicate entity ID" errors. Every entity factory MUST accept `entityId: string` in props and use it in `new Entity(entityId)`.
+
+When adding a new entity type that should be placeable in the editor, you must update **FIVE** files:
 
 ### 1. Add to EntityType (LevelLoader.ts)
 
@@ -400,7 +402,7 @@ export type CreateYourEntityProps = {
   col: number;
   row: number;
   grid: Grid;
-  entityId: string;  // Add this
+  entityId: string;  // Add this - REQUIRED
   // ... other props
 }
 
@@ -410,6 +412,15 @@ export function createYourEntity(props: CreateYourEntityProps): Entity {
   entity.tags.add('your_entity_tag');
   // ... rest of entity setup
 }
+```
+
+**Common mistake:** Using hardcoded entity type instead of entityId parameter:
+```typescript
+// ❌ WRONG - causes duplicate ID errors
+const entity = new Entity('thrower');
+
+// ✅ CORRECT - uses unique ID from level data
+const entity = new Entity(entityId);
 ```
 
 ### 5. Update EntityLoader to Pass entityId
@@ -440,11 +451,33 @@ case 'your_new_type':
 - [ ] Added data structure in placeEntity()
 - [ ] **Added extraction logic in EditorScene.extractEntities()** ← Most commonly forgotten!
 - [ ] **Updated entity factory to accept entityId parameter** ← Required for unique IDs!
+- [ ] **Entity factory uses entityId in new Entity(entityId)** ← Not hardcoded string!
 - [ ] **Updated EntityLoader to pass entityId** ← Required for unique IDs!
 - [ ] Tested placing entity in editor
 - [ ] Tested clicking Log button shows entity in JSON
 - [ ] Tested loading level with entity from JSON
 - [ ] Tested placing multiple entities of same type (should have unique IDs: type0, type1, type2...)
+- [ ] **Tested moving entity in editor and saving (position should persist)** ← Requires GridPositionComponent update
+
+## Common Issues
+
+### Entity Positions Reset After Moving
+
+**Symptom:** Move an entity in the editor, then move another entity or perform other actions. When you click Log, the first entity is back at its original position.
+
+**Cause:** When you move an entity, the Transform and Sprite are updated, but GridPositionComponent.currentCell is not. When extractEntities() runs, it reads from GridPositionComponent.currentCell which still has the old position.
+
+**Solution:** MoveEditorState now updates GridPositionComponent.currentCell when moving entities:
+
+```typescript
+// In MoveEditorState.handlePointerMove()
+if (gridPos) {
+  gridPos.currentCell.col = cell.col;
+  gridPos.currentCell.row = cell.row;
+}
+```
+
+This ensures the entity's grid position stays in sync with its visual position.
 
 ## Migration Notes
 
