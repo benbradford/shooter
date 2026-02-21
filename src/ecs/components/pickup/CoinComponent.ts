@@ -15,8 +15,8 @@ export type CoinComponentProps = {
 }
 
 const GRAVITY_PX_PER_SEC_SQ = 400;
-const COLLECTION_DISTANCE_PX = 50;
-const COLLECTION_DELAY_MS = 500;
+const COLLECTION_DISTANCE_PX = 70;
+const COLLECTION_DELAY_MS = 200;
 const COIN_LIFETIME_MS = 8000;
 const COIN_FADE_START_MS = 4000;
 const FLY_TO_HUD_SPEED_PX_PER_SEC = 1200;
@@ -49,30 +49,30 @@ export class CoinComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const sprite = this.entity.require(SpriteComponent);
     const deltaInSec = delta / 1000;
-    
+
     if (this.flyingToHud) {
       const scene = sprite.sprite.scene;
       const camera = scene.cameras.main;
       const displayWidth = scene.scale.displaySize.width;
       const displayHeight = scene.scale.displaySize.height;
-      
+
       const hudScreenX = displayWidth * 0.05;
       const hudScreenY = displayHeight * 0.05;
       const hudWorldX = camera.scrollX + hudScreenX / camera.zoom;
       const hudWorldY = camera.scrollY + hudScreenY / camera.zoom;
-      
+
       const dx = hudWorldX - transform.x;
       const dy = hudWorldY - transform.y;
       const distance = Math.hypot(dx, dy);
-      
+
       if (distance < 10) {
         this.entity.destroy();
         return;
       }
-      
+
       this.flySpeed += FLY_TO_HUD_ACCELERATION * this.flySpeed * deltaInSec;
       const moveDistance = this.flySpeed * deltaInSec;
-      
+
       transform.x += (dx / distance) * moveDistance;
       transform.y += (dy / distance) * moveDistance;
       return;
@@ -141,7 +141,7 @@ export class CoinComponent implements Component {
       }
     }
   }
-  
+
   onDestroy(): void {
     if (this.flyingToHud) {
       const worldState = WorldStateManager.getInstance();

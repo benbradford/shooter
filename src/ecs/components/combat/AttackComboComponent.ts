@@ -2,9 +2,9 @@ import type { Component } from '../../Component';
 import { Entity } from '../../Entity';
 import { EntityManager } from '../../EntityManager';
 import { TransformComponent } from '../core/TransformComponent';
+import { HealthComponent } from '../core/HealthComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
-import { MedipackHealerComponent } from '../core/MedipackHealerComponent';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
@@ -53,8 +53,8 @@ export class AttackComboComponent implements Component {
   }
 
   update(delta: number): void {
-    const healer = this.entity.get(MedipackHealerComponent);
-    const hasOverheal = (healer?.getOverhealAmount() ?? 0) > 0;
+    const health = this.entity.require(HealthComponent);
+    const hasOverheal = health.isOverhealed();
     const punchDuration = hasOverheal ? PUNCH_DURATION_MS / 2 : PUNCH_DURATION_MS;
     const animSpeed = hasOverheal ? 2 : 1;
 
@@ -175,6 +175,7 @@ export class AttackComboComponent implements Component {
 
     const transform = this.entity.require(TransformComponent);
     const walk = this.entity.require(WalkComponent);
+    const health = this.entity.require(HealthComponent);
     const enemies = this.getEnemies();
 
     let nearestEnemy: Entity | null = null;
@@ -218,8 +219,7 @@ export class AttackComboComponent implements Component {
 
     const anim = this.entity.get(AnimationComponent);
     if (anim) {
-      const healer = this.entity.get(MedipackHealerComponent);
-      const animSpeed = (healer && healer.getOverhealAmount() > 0) ? 2 : 1;
+      const animSpeed = health.isOverhealed() ? 2 : 1;
       anim.animationSystem.play(`punch_${walk.lastDir}`, animSpeed);
     }
 

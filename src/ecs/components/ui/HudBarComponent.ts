@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
+import { HealthComponent } from '../core/HealthComponent';
 import { MedipackHealerComponent } from '../core/MedipackHealerComponent';
 
 export type HudBarDataSource = {
@@ -123,12 +124,13 @@ export class HudBarComponent implements Component {
 
   update(delta: number): void {
     const transform = this.entity.require(TransformComponent);
+    const health = this.entity.require(HealthComponent);
     const healer = this.entity.get(MedipackHealerComponent);
     
     for (const bar of this.bars) {
       const ratio = bar.dataSource.getRatio();
       const isHealing = healer?.isHealing() ?? false;
-      const hasOverheal = (healer?.getOverhealAmount() ?? 0) > 0;
+      const hasOverheal = health.isOverhealed();
       
       if (ratio >= 1 && !isHealing && !hasOverheal) {
         bar.fullTimer += delta;
@@ -172,7 +174,7 @@ export class HudBarComponent implements Component {
       bar.fill.setPosition(fillX, barY);
       
       if (healer && bar.overhealFill) {
-        const overhealAmount = healer.getOverhealAmount();
+        const overhealAmount = health.getOverhealAmount();
         const maxHealth = bar.dataSource.getMaxHealth?.() ?? 100;
         const overhealRatio = overhealAmount / maxHealth;
         const overhealWidth = this.barWidth * overhealRatio;

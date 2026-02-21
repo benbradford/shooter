@@ -1,7 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { HudBarDataSource } from '../ui/HudBarComponent';
-import { MedipackHealerComponent } from './MedipackHealerComponent';
 
 const REGEN_DELAY_MS = 3000;
 const REGEN_RATE_PER_SEC = 20;
@@ -38,40 +37,35 @@ export class HealthComponent implements Component, HudBarDataSource {
   }
 
   getRatio(): number {
-    return this.currentHealth / this.maxHealth;
+    return Math.min(1, this.currentHealth / this.maxHealth);
+  }
+  
+  getOverhealAmount(): number {
+    return Math.max(0, this.currentHealth - this.maxHealth);
+  }
+  
+  isOverhealed(): boolean {
+    return this.currentHealth > this.maxHealth;
   }
 
   takeDamage(amount: number): void {
-    const healer = this.entity.get(MedipackHealerComponent);
-    if (healer) {
-      const overheal = healer.getOverhealAmount();
-      if (overheal > 0) {
-        const damageToOverheal = Math.min(amount, overheal);
-        healer.removeOverheal(damageToOverheal);
-        amount -= damageToOverheal;
-      }
-    }
-    
-    if (amount > 0) {
-      this.currentHealth = Math.max(0, this.currentHealth - amount);
-      this.timeSinceLastDamageMs = 0;
-    }
+    this.currentHealth = Math.max(0, this.currentHealth - amount);
+    this.timeSinceLastDamageMs = 0;
   }
 
   heal(amount: number): void {
-    this.currentHealth = Math.min(this.maxHealth, this.currentHealth + amount);
+    const maxOverheal = 200;
+    this.currentHealth = Math.min(maxOverheal, this.currentHealth + amount);
   }
 
   setHealth(value: number): void {
     this.currentHealth = Math.max(0, value);
-    this.maxHealth = Math.max(this.maxHealth, this.currentHealth);
   }
 
   update(delta: number): void {
     if (!this.enableRegen || this.currentHealth >= this.maxHealth) return;
     
-    const healer = this.entity.get(MedipackHealerComponent);
-    if (healer && healer.getTotalHealth() > 150) return;
+    if (this.currentHealth > 150) return;
     
     this.timeSinceLastDamageMs += delta;
     

@@ -3,9 +3,9 @@ import type { Entity } from '../../Entity';
 import type { TransformComponent } from '../core/TransformComponent';
 import type { InputComponent } from '../input/InputComponent';
 import type { ControlModeComponent } from '../input/ControlModeComponent';
+import { HealthComponent } from '../core/HealthComponent';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
-import { MedipackHealerComponent } from '../core/MedipackHealerComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 export type WalkProps = {
@@ -72,8 +72,8 @@ export class WalkComponent implements Component {
       this.applyStopThreshold();
     }
 
-    const healer = this.entity.get(MedipackHealerComponent);
-    const speedMultiplier = (healer && healer.getOverhealAmount() > 0) ? 1.5 : 1;
+    const health = this.entity.require(HealthComponent);
+    const speedMultiplier = health.isOverhealed() ? 1.5 : 1;
 
     this.transformComp.x += this.velocityX * speedMultiplier * (delta / 1000);
     this.transformComp.y += this.velocityY * speedMultiplier * (delta / 1000);

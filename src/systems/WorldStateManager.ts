@@ -55,10 +55,6 @@ export class WorldStateManager {
     return this.worldState.player.health;
   }
   
-  getPlayerOverheal(): number {
-    return this.worldState.player.overheal;
-  }
-  
   getPlayerCoins(): number {
     return this.worldState.player.coins ?? 0;
   }
@@ -85,10 +81,6 @@ export class WorldStateManager {
 
   setPlayerHealth(health: number): void {
     this.worldState.player.health = health;
-  }
-  
-  setPlayerOverheal(overheal: number): void {
-    this.worldState.player.overheal = overheal;
   }
   
   addCoins(amount: number): void {
@@ -202,7 +194,6 @@ export class WorldStateManager {
     return {
       player: {
         health: 100,
-        overheal: 0,
         coins: 0,
         currentLevel: DEFAULT_STARTING_LEVEL,
         entryCell: { col: 0, row: 0 }
