@@ -98,48 +98,92 @@ export class EditEntityEditorState extends EditorState {
     };
     this.commonPanel.appendChild(deleteButton);
 
-    const eventLabel = document.createElement('div');
-    eventLabel.textContent = 'Spawn Event:';
-    eventLabel.style.cssText = 'margin-top: 10px; margin-bottom: 5px; font-size: 14px;';
-    this.commonPanel.appendChild(eventLabel);
+    const anyEventLabel = document.createElement('div');
+    anyEventLabel.textContent = 'Spawn on Any Event:';
+    anyEventLabel.style.cssText = 'margin-top: 10px; margin-bottom: 5px; font-size: 14px;';
+    this.commonPanel.appendChild(anyEventLabel);
 
-    const eventInput = document.createElement('input');
-    eventInput.type = 'text';
-    eventInput.placeholder = 'Leave empty for immediate spawn';
-    eventInput.style.cssText = `
+    const anyEventInput = document.createElement('input');
+    anyEventInput.type = 'text';
+    anyEventInput.placeholder = 'Comma-separated: ev1,ev2,ev3';
+    anyEventInput.style.cssText = `
       width: 200px;
       padding: 5px;
       font-family: monospace;
       margin-bottom: 5px;
     `;
-    eventInput.addEventListener('keydown', (e) => {
+    anyEventInput.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+    });
+    
+    const allEventLabel = document.createElement('div');
+    allEventLabel.textContent = 'Spawn on All Events:';
+    allEventLabel.style.cssText = 'margin-top: 10px; margin-bottom: 5px; font-size: 14px;';
+    this.commonPanel.appendChild(allEventLabel);
+
+    const allEventInput = document.createElement('input');
+    allEventInput.type = 'text';
+    allEventInput.placeholder = 'Comma-separated: ev1,ev2,ev3';
+    allEventInput.style.cssText = `
+      width: 200px;
+      padding: 5px;
+      font-family: monospace;
+      margin-bottom: 5px;
+    `;
+    allEventInput.addEventListener('keydown', (e) => {
       e.stopPropagation();
     });
     
     if (this.entity) {
       const levelData = (this.scene.scene.get('game') as import('../scenes/GameScene').default).getLevelData();
       const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
-      if (entityData?.createOnEvent) {
-        eventInput.value = entityData.createOnEvent;
+      if (entityData?.createOnAnyEvent) {
+        anyEventInput.value = entityData.createOnAnyEvent.join(',');
+      }
+      if (entityData?.createOnAllEvents) {
+        allEventInput.value = entityData.createOnAllEvents.join(',');
       }
     }
     
-    eventInput.addEventListener('input', () => {
+    anyEventInput.addEventListener('input', () => {
       if (this.entity) {
         const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
         const levelData = gameScene.getLevelData();
         const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
         if (entityData) {
-          if (eventInput.value.trim()) {
-            entityData.createOnEvent = eventInput.value.trim();
+          const value = anyEventInput.value.trim();
+          if (value) {
+            entityData.createOnAnyEvent = value.split(',').map(s => s.trim()).filter(s => s);
+            delete entityData.createOnAllEvents;
+            allEventInput.value = '';
           } else {
-            delete entityData.createOnEvent;
+            delete entityData.createOnAnyEvent;
           }
         }
       }
     });
     
-    this.commonPanel.appendChild(eventInput);
+    allEventInput.addEventListener('input', () => {
+      if (this.entity) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+        if (entityData) {
+          const value = allEventInput.value.trim();
+          if (value) {
+            entityData.createOnAllEvents = value.split(',').map(s => s.trim()).filter(s => s);
+            delete entityData.createOnAnyEvent;
+            anyEventInput.value = '';
+          } else {
+            delete entityData.createOnAllEvents;
+          }
+        }
+      }
+    });
+    
+    this.commonPanel.appendChild(anyEventInput);
+    this.commonPanel.appendChild(allEventLabel);
+    this.commonPanel.appendChild(allEventInput);
 
     document.body.appendChild(this.commonPanel);
   }

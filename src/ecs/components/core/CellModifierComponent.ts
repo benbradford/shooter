@@ -15,6 +15,8 @@ export type CellModifierComponentProps = {
   scene: Phaser.Scene;
 }
 
+const FADE_DURATION_MS = 500;
+
 export class CellModifierComponent implements Component {
   entity!: import('../../Entity').Entity;
   public readonly cellsToModify: CellModification[];
@@ -67,6 +69,7 @@ export class CellModifierComponent implements Component {
     
     if (gameScene.sceneRenderer && gameScene.getLevelData) {
       const levelData = gameScene.getLevelData();
+      const cellsWithNewTextures: Array<{ col: number; row: number; texture: string }> = [];
       
       for (const mod of this.cellsToModify) {
         const levelCell = levelData.cells.find(c => c.col === mod.col && c.row === mod.row);
@@ -74,6 +77,7 @@ export class CellModifierComponent implements Component {
           if ('backgroundTexture' in mod) {
             if (mod.backgroundTexture) {
               levelCell.backgroundTexture = mod.backgroundTexture;
+              cellsWithNewTextures.push({ col: mod.col, row: mod.row, texture: mod.backgroundTexture });
             } else {
               delete levelCell.backgroundTexture;
             }
@@ -84,6 +88,24 @@ export class CellModifierComponent implements Component {
       }
       
       gameScene.sceneRenderer.invalidateCells(this.cellsToModify);
+      
+      for (const cell of cellsWithNewTextures) {
+        const worldPos = this.grid.cellToWorld(cell.col, cell.row);
+        const sprite = this.scene.add.image(
+          worldPos.x + this.grid.cellSize / 2,
+          worldPos.y + this.grid.cellSize / 2,
+          cell.texture
+        );
+        sprite.setDisplaySize(this.grid.cellSize, this.grid.cellSize);
+        sprite.setDepth(-4);
+        sprite.setAlpha(0);
+        
+        this.scene.tweens.add({
+          targets: sprite,
+          alpha: 1,
+          duration: FADE_DURATION_MS
+        });
+      }
     }
     
     this.entity.destroy();

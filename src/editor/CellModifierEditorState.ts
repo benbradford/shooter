@@ -16,15 +16,16 @@ export class CellModifierEditorState extends EditorState {
   }
 
   private loadCellModifiers(): void {
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => { entities?: Array<{ id: string; type: string; createOnEvent?: string; data: Record<string, unknown> }> } };
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => { entities?: Array<{ id: string; type: string; createOnAnyEvent?: string[]; createOnAllEvents?: string[]; data: Record<string, unknown> }> } };
     const levelData = gameScene.getLevelData();
     
     this.cellModifiers = [];
     for (const entity of levelData.entities ?? []) {
       if (entity.type === 'cellmodifier') {
+        const eventName = entity.createOnAnyEvent?.[0] ?? entity.createOnAllEvents?.join(',') ?? '';
         this.cellModifiers.push({
           id: entity.id,
-          eventName: entity.createOnEvent ?? '',
+          eventName,
           cellsToModify: entity.data.cellsToModify as CellModification[]
         });
       }
@@ -273,7 +274,7 @@ export class CellModifierEditorState extends EditorState {
   }
 
   private saveCellModifier(existingId: string | null, eventName: string, cellsToModify: CellModification[]): void {
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => { entities?: Array<{ id: string; type: string; createOnEvent?: string; data: Record<string, unknown> }> } };
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => { entities?: Array<{ id: string; type: string; createOnAnyEvent?: string[]; createOnAllEvents?: string[]; data: Record<string, unknown> }> } };
     const levelData = gameScene.getLevelData();
 
     levelData.entities ??= [];
@@ -282,7 +283,8 @@ export class CellModifierEditorState extends EditorState {
       const index = levelData.entities.findIndex((e) => e.id === existingId);
       if (index >= 0) {
         levelData.entities[index].data = { cellsToModify };
-        levelData.entities[index].createOnEvent = eventName;
+        levelData.entities[index].createOnAnyEvent = [eventName];
+        delete levelData.entities[index].createOnAllEvents;
       }
     } else {
       let id = 'cellmodifier0';
@@ -295,7 +297,7 @@ export class CellModifierEditorState extends EditorState {
       levelData.entities.push({
         id,
         type: 'cellmodifier',
-        createOnEvent: eventName,
+        createOnAnyEvent: [eventName],
         data: { cellsToModify }
       });
     }
@@ -309,7 +311,7 @@ export class CellModifierEditorState extends EditorState {
     if (this.selectedIndex < 0) return;
 
     const cm = this.cellModifiers[this.selectedIndex];
-    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => { entities?: Array<{ id: string; type: string; createOnEvent?: string; data: Record<string, unknown> }> } };
+    const gameScene = this.scene.scene.get('game') as unknown as { getLevelData: () => { entities?: Array<{ id: string; type: string; createOnAnyEvent?: string[]; createOnAllEvents?: string[]; data: Record<string, unknown> }> } };
     const levelData = gameScene.getLevelData();
 
     const index = levelData.entities?.findIndex((e) => e.id === cm.id) ?? -1;

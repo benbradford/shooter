@@ -1,7 +1,13 @@
 import type { Entity } from './Entity';
+import type { EventManagerSystem } from './systems/EventManagerSystem';
 
 export class EntityManager {
   private entities: Entity[] = [];
+  private eventManager?: EventManagerSystem;
+
+  setEventManager(eventManager: EventManagerSystem): void {
+    this.eventManager = eventManager;
+  }
 
   add(entity: Entity): Entity {
     this.entities.push(entity);
@@ -13,20 +19,27 @@ export class EntityManager {
     if (index > -1) {
       this.entities[index].destroy();
       this.entities.splice(index, 1);
+      if (this.eventManager) {
+        this.eventManager.raiseEvent(`${entity.id}_destroyed`);
+      }
     }
   }
 
   update(delta: number): void {
-    // Update only non-destroyed entities
     for (const entity of this.entities) {
       if (!entity.isDestroyed) {
         entity.update(delta);
       }
     }
-  
 
-    // Remove destroyed entities
+    const destroyedEntities = this.entities.filter(entity => entity.isDestroyed);
     this.entities = this.entities.filter(entity => !entity.isDestroyed);
+    
+    if (this.eventManager) {
+      for (const entity of destroyedEntities) {
+        this.eventManager.raiseEvent(`${entity.id}_destroyed`);
+      }
+    }
   }
 
   getByType(type: string): Entity[] {

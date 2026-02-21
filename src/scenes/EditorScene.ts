@@ -165,14 +165,14 @@ export default class EditorScene extends Phaser.Scene {
       this.editorLabels = new Map();
     }
 
-    // Render labels for entities with createOnEvent or specific types
+    // Render labels for entities with createOnAnyEvent/createOnAllEvents or specific types
     const levelData = gameScene.getLevelData();
     
     for (const entity of entityManager.getAll()) {
       const entityData = levelData.entities?.find(e => e.id === entity.id);
-      const hasCreateOnEvent = entityData?.createOnEvent;
+      const hasEventSpawn = entityData?.createOnAnyEvent || entityData?.createOnAllEvents;
       
-      const shouldShowLabel = hasCreateOnEvent || 
+      const shouldShowLabel = hasEventSpawn || 
         entity.id.startsWith('bug_base') || 
         entity.id.startsWith('bugbase') || 
         entity.id.startsWith('thrower') ||
@@ -188,7 +188,7 @@ export default class EditorScene extends Phaser.Scene {
           if (entity.id.startsWith('thrower')) text = 'T';
           else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) text = 'BB';
           else if (entity.id.startsWith('skeleton')) text = 'S';
-          else if (hasCreateOnEvent) text = 'E';
+          else if (hasEventSpawn) text = 'E';
           
           label = gameScene.add.text(transform.x, transform.y, text, {
             fontSize: '48px',
@@ -422,7 +422,8 @@ export default class EditorScene extends Phaser.Scene {
       if (type) {
         const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
         const existingEntity = existingLevelData.entities?.find(e => e.id === entity.id);
-        const createOnEvent = existingEntity?.createOnEvent;
+        const createOnAnyEvent = existingEntity?.createOnAnyEvent;
+        const createOnAllEvents = existingEntity?.createOnAllEvents;
         
         const entityData: import('../systems/level/LevelLoader').LevelEntity = {
           id: entity.id,
@@ -430,8 +431,11 @@ export default class EditorScene extends Phaser.Scene {
           data
         };
         
-        if (createOnEvent) {
-          entityData.createOnEvent = createOnEvent;
+        if (createOnAnyEvent) {
+          entityData.createOnAnyEvent = createOnAnyEvent;
+        }
+        if (createOnAllEvents) {
+          entityData.createOnAllEvents = createOnAllEvents;
         }
         
         entities.push(entityData);

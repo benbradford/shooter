@@ -85,6 +85,8 @@ export abstract class GameSceneRenderer {
   }
 
   invalidateCells(cells: Array<{ col: number; row: number }>): void {
+    const FADE_DURATION_MS = 500;
+    
     for (const cell of cells) {
       const index = this.cellSprites.findIndex(sprite => {
         const spriteX = sprite.x - this.cellSize / 2;
@@ -95,7 +97,15 @@ export abstract class GameSceneRenderer {
       });
       
       if (index >= 0) {
-        this.cellSprites[index].destroy();
+        const sprite = this.cellSprites[index];
+        this.scene.tweens.add({
+          targets: sprite,
+          alpha: 0,
+          duration: FADE_DURATION_MS,
+          onComplete: () => {
+            sprite.destroy();
+          }
+        });
         this.cellSprites.splice(index, 1);
       }
     }

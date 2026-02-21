@@ -42,6 +42,10 @@ export class EntityLoader {
         throw new Error(`Duplicate entity ID: ${entityDef.id}`);
       }
       ids.add(entityDef.id);
+      
+      if (entityDef.createOnAnyEvent && entityDef.createOnAllEvents) {
+        throw new Error(`Entity ${entityDef.id} has both createOnAnyEvent and createOnAllEvents - only one is allowed`);
+      }
     }
 
     // Load entities
@@ -52,8 +56,14 @@ export class EntityLoader {
         throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
       }
       
-      if (entityDef.createOnEvent && !isEditorMode) {
-        this.entityCreatorManager.register(entityDef.createOnEvent, creatorFunc);
+      if ((entityDef.createOnAnyEvent || entityDef.createOnAllEvents) && !isEditorMode) {
+        if (entityDef.createOnAnyEvent) {
+          for (const event of entityDef.createOnAnyEvent) {
+            this.entityCreatorManager.registerAny(event, creatorFunc);
+          }
+        } else if (entityDef.createOnAllEvents) {
+          this.entityCreatorManager.registerAll(entityDef.createOnAllEvents, creatorFunc);
+        }
       } else {
         const entity = creatorFunc();
         this.entityManager.add(entity);

@@ -17,7 +17,8 @@ export type EntityType =
 export type LevelEntity = {
   id: string;
   type: EntityType;
-  createOnEvent?: string;
+  createOnAnyEvent?: string[];
+  createOnAllEvents?: string[];
   data: Record<string, unknown>;
 }
 

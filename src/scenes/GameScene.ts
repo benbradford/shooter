@@ -61,7 +61,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.entityManager = new EntityManager();
     this.eventManager = new EventManagerSystem();
-    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
+    this.entityManager.setEventManager(this.eventManager);
     this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
 
     createThrowerAnimations(this);
