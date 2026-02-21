@@ -71,7 +71,9 @@ export default defineConfig([
       "unicorn/no-useless-fallback-in-spread": "error",
       "unicorn/prefer-global-this": "error",
       "unicorn/no-array-method-this-argument": "error",
-      "unicorn/prefer-array-find": "error"
+      "unicorn/prefer-array-find": "error",
+      "unicorn/no-array-push-push": "warn",
+      "unicorn/prefer-set-has": "warn"
     }
   },
   tseslint.configs.recommended,

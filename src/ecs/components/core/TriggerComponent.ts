@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type TriggerComponentProps = {
   eventName: string;
@@ -45,7 +46,11 @@ export class TriggerComponent implements Component {
       if (playerCell.col === triggerCell.col && playerCell.row === triggerCell.row) {
         this.triggered = true;
         this.eventManager.raiseEvent(this.eventName);
+        
         if (this.oneShot) {
+          const worldState = WorldStateManager.getInstance();
+          const currentLevel = worldState.getCurrentLevelName();
+          worldState.addFiredTrigger(currentLevel, this.eventName);
           this.entity.destroy();
         }
         return;

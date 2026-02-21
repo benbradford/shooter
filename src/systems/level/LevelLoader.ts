@@ -103,6 +103,7 @@ export type LevelExit = {
 }
 
 export type LevelData = {
+  name?: string;
   width: number;
   height: number;
   playerStart: {
@@ -132,7 +133,9 @@ export class LevelLoader {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return await response.json() as LevelData;
+      const data = await response.json() as LevelData;
+      data.name = levelName;
+      return data;
     } catch (error) {
       console.error(`Failed to load level ${levelName}:`, error);
       throw error;

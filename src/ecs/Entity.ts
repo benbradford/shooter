@@ -1,11 +1,13 @@
 import type { Component } from './Component';
+import { WorldStateManager } from '../systems/WorldStateManager';
 
 export class Entity {
   private readonly components: Map<string, Component> = new Map();
   private updateOrder: Component[] = [];
   public isDestroyed: boolean = false;
   public readonly tags: Set<string> = new Set();
-  public entityId?: string; // used by the editor to reference specific entities
+  public entityId?: string;
+  public levelName?: string;
 
   constructor(public readonly id: string) {}
 
@@ -69,9 +71,17 @@ export class Entity {
 
   destroy(): void {
     this.isDestroyed = true;
+    
+    // Only track level entities (not temporary like punches, bullets, coins)
+    const worldState = WorldStateManager.getInstance();
+    if (worldState.shouldTrackDestructions() && this.levelName && this.id && /^[a-z_]+\d+$/.test(this.id)) {
+      worldState.addDestroyedEntity(this.levelName, this.id);
+    }
+    
     this.components.forEach(component => component.onDestroy?.());
     this.components.clear();
     this.updateOrder = [];
   }
 
 }
+

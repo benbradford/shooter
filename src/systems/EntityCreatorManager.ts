@@ -2,6 +2,7 @@ import type { Entity } from '../ecs/Entity';
 import type { EntityManager } from '../ecs/EntityManager';
 import type { EventListener } from '../ecs/systems/EventListener';
 import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
+import { WorldStateManager } from './WorldStateManager';
 
 export type EntityCreator = () => Entity;
 
@@ -9,10 +10,11 @@ type AllEventsTracker = {
   events: Set<string>;
   firedEvents: Set<string>;
   creator: EntityCreator;
+  entityId: string;
 }
 
 export class EntityCreatorManager implements EventListener {
-  private readonly anyEventCreators: Map<string, EntityCreator[]> = new Map();
+  private readonly anyEventCreators: Map<string, Array<{ creator: EntityCreator; entityId: string }>> = new Map();
   private readonly allEventsCreators: AllEventsTracker[] = [];
   private readonly firedEvents: Set<string> = new Set();
 
@@ -21,19 +23,20 @@ export class EntityCreatorManager implements EventListener {
     private readonly eventManager: EventManagerSystem
   ) {}
 
-  registerAny(createOnEvent: string, creator: EntityCreator): void {
+  registerAny(createOnEvent: string, creator: EntityCreator, entityId: string): void {
     if (!this.anyEventCreators.has(createOnEvent)) {
       this.anyEventCreators.set(createOnEvent, []);
       this.eventManager.register(createOnEvent, this);
     }
-    this.anyEventCreators.get(createOnEvent)!.push(creator);
+    this.anyEventCreators.get(createOnEvent)!.push({ creator, entityId });
   }
 
-  registerAll(events: string[], creator: EntityCreator): void {
+  registerAll(events: string[], creator: EntityCreator, entityId: string): void {
     const tracker: AllEventsTracker = {
       events: new Set(events),
       firedEvents: new Set(),
-      creator
+      creator,
+      entityId
     };
     this.allEventsCreators.push(tracker);
     
@@ -50,12 +53,16 @@ export class EntityCreatorManager implements EventListener {
     }
 
     this.firedEvents.add(eventName);
+    const worldState = WorldStateManager.getInstance();
+    const currentLevel = worldState.getCurrentLevelName();
     
     const anyCreators = this.anyEventCreators.get(eventName);
     if (anyCreators) {
-      for (const creator of anyCreators) {
+      for (const { creator, entityId } of anyCreators) {
         const entity = creator();
+        entity.levelName = currentLevel;
         this.entityManager.add(entity);
+        worldState.addLiveEntity(currentLevel, entityId);
       }
       
       this.anyEventCreators.delete(eventName);
@@ -73,7 +80,9 @@ export class EntityCreatorManager implements EventListener {
         
         if (tracker.firedEvents.size === tracker.events.size) {
           const entity = tracker.creator();
+          entity.levelName = currentLevel;
           this.entityManager.add(entity);
+          worldState.addLiveEntity(currentLevel, tracker.entityId);
           
           const index = this.allEventsCreators.indexOf(tracker);
           if (index >= 0) {

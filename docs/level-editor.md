@@ -449,29 +449,26 @@ Levels can specify default textures for all cells of a type in the level JSON:
 
 ### Trigger Mode
 
-Allows creating event triggers - invisible areas that fire events when the player enters them.
+Allows managing event triggers - invisible areas that fire events when the player enters them.
 
-**Note:** Triggers are now part of the unified entity system. They can be added via:
-- **Add** button → Select "Trigger" from dropdown → Redirects to Trigger editor
-- **Trigger** button (direct access)
-
-**UI Panel (right side):**
-- **Event Name** input - Name of the event to raise (e.g., "spawn_wave", "door_open")
-- **One-shot trigger** checkbox - If checked, trigger fires once and destroys itself (default: true)
-- **Instructions** - "Click grid cells to select trigger area"
-- **Add Trigger** button - Creates new trigger
-- **Back** button - Returns to default mode
+**UI:**
+- Shows list of all triggers with IDs, event names, and cell counts
+- Click trigger to select and view cells in yellow
+- Edit/Delete buttons for selected trigger
+- Add New button to create trigger
 
 **Usage:**
-1. Click **Trigger** button or select from Add menu
-2. Enter event name (this is the `eventToRaise` value)
-3. Check/uncheck "One-shot trigger" (default: true)
-4. Click grid cells to select trigger area (white borders appear)
-5. Click **Add Trigger** to create
-6. Trigger saved to entities array with auto-generated ID
+1. Click **Trigger** button
+2. Select existing trigger to view/edit/delete, or click "Add New"
+3. In edit mode:
+   - Enter event name (this is the `eventToRaise` value)
+   - Check/uncheck "One-shot trigger" (default: true)
+   - Click grid cells to select trigger area (white borders appear)
+   - Click **Save** to create/update
+4. Selected trigger cells shown in yellow when viewing
 
 **Visual Feedback:**
-- Yellow boxes with semi-transparent fill show trigger areas in editor
+- Yellow boxes with semi-transparent fill show trigger areas when selected
 - White borders show selected cells while editing
 - Triggers are invisible during gameplay (only visible in editor)
 
@@ -507,6 +504,41 @@ Allows creating level exits/transitions - portals that transport the player to a
 - Always use `oneShot: true` for exits to prevent multiple transitions
 - Portal cells should have a door texture for visual distinction
 - Bidirectional travel requires creating portals in both levels
+
+### Cell Modifier Mode
+
+Allows managing cell modifiers - entities that modify grid cells when events fire.
+
+**UI:**
+- Shows list of all cell modifiers with IDs, event names, and cell counts
+- Click to select
+- Edit/Delete buttons for selected modifier
+- Add New button to create modifier
+
+**Usage:**
+1. Click **Cell Modifier** button
+2. Select existing modifier to edit/delete, or click "Add New"
+3. In edit mode:
+   - Enter event name (the event that triggers this modifier)
+   - Add cells with col/row inputs
+   - For each cell, optionally specify:
+     - Layer (leave empty to keep existing)
+     - Background Texture (leave empty to remove)
+     - Properties (comma-separated: wall,platform,stairs - leave empty to clear all)
+   - Click **Save** to create/update
+4. Cell modifications execute immediately when the event fires
+
+**Cell Modification Rules:**
+- `properties` not specified → clears all properties
+- `backgroundTexture` not specified → removes texture
+- `layer` not specified → keeps existing layer
+- Textures fade in/out over 500ms for smooth transitions
+
+**Important:**
+- CellModifiers are entities with type "cellmodifier"
+- Always have `createOnAnyEvent` set (they're event-driven)
+- Execute once and destroy themselves
+- No position required (default to 0,0)
 
 ### Theme Mode
 

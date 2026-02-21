@@ -13,6 +13,9 @@ dist-ssr
 *.local
 tmp/
 
+# World state (user-specific save files)
+public/states/default.json
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

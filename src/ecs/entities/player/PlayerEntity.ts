@@ -54,10 +54,11 @@ export type CreatePlayerEntityProps = {
   getEnemies: () => Entity[];
   entityManager: EntityManager;
   vignetteSprite?: Phaser.GameObjects.Image;
+  initialHealth?: number;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite } = props;
+  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite, initialHealth } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -152,6 +153,11 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new GridCollisionComponent(grid));
 
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
+  
+  if (initialHealth !== undefined) {
+    health.setHealth(initialHealth);
+  }
+  
   entity.add(new MedipackHealerComponent());
 
   const hudBars = entity.add(new HudBarComponent(scene, [

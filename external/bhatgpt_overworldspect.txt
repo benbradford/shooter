@@ -1,0 +1,189 @@
+1. Overworld Grass: base tile spec (engine-safe)
+
+Assuming you’re still on your 64×64 world grid, here’s what will behave best long-term.
+
+Base grass tile (FOUNDATION)
+
+Purpose: fill 90% of the map without drawing attention to itself
+
+Spec
+
+Size: 64×64 px
+
+Edges: fully seamless on all sides
+
+Lighting: flat (no directional shadows, no vignette)
+
+Contrast: lower than dungeon floors
+
+Hue: slightly warm green (Metal Slug grass is never neon)
+
+Pixel characteristics
+
+Large color clusters (3–6 px blobs)
+
+Very subtle hue noise (olive → yellow-green)
+
+Almost no sharp outlines
+
+Think “painted ground”, not “lawn texture”.
+
+2. Grass variation tiles (same collision, visual only)
+
+Instead of one noisy tile, you want controlled variation.
+
+I’d recommend 4–6 variants, same size, same palette.
+
+Variants to include
+
+Grass A: clean / default
+
+Grass B: slightly darker patches
+
+Grass C: sparse dry blades
+
+Grass D: tiny flowers (1–2 px dots, very rare)
+
+Grass E (optional): faint trampled look
+
+👉 These should differ by 5–10%, not more.
+If you notice the tile, it’s too strong.
+
+3. Grass overlays (this is where it gets juicy)
+
+Overlays are how you keep the base calm but still get richness.
+
+Overlay rules (important)
+
+Alpha background
+
+Non-tiling
+
+Placed sparingly
+
+Never touch tile edges perfectly (avoid grid look)
+
+First overlay set (starter pack)
+1️⃣ Grass clumps
+
+Size: ~20–40 px wide
+
+Taller blades, darker base
+
+Slight shadow baked into the clump only (okay here)
+
+2️⃣ Weeds / wildflowers
+
+Very small clusters
+
+Yellow / white dots, very rare
+
+Great near paths and buildings
+
+3️⃣ Dirt scuffs
+
+Light brown patches
+
+Irregular, soft edges
+
+Perfect near entrances, markets, wells
+
+4. Path integration (important for readability)
+
+Your current debug path is doing the job logically 👍
+When you replace it, keep these principles:
+
+Path should be higher contrast than grass
+
+Slightly desaturated vs grass
+
+Soft edges (grass encroaching in places)
+
+Later you can add:
+
+Path edge overlays (grass nibbling in)
+
+Occasional stones embedded in path
+
+5. Prop roadmap (don’t jump too early)
+
+Once grass + overlays feel good, then add props in this order:
+
+Small props
+
+Crates
+
+Barrels
+
+Signposts
+
+Fence segments
+
+Medium props
+
+Market stalls
+
+Carts
+
+Wells
+
+Large props
+
+Houses
+
+Towers
+
+Gates
+
+Metal Slug magic comes from layering, not density.
+
+6. Visual contrast vs dungeon (you’re doing this right)
+
+Dungeon:
+
+High contrast
+
+Hard edges
+
+Cold palette
+
+Enclosed
+
+Overworld:
+
+Lower contrast
+
+Softer edges
+
+Warmer palette
+
+Open space
+
+If you ever feel the overworld getting “muddy”, it usually means:
+➡️ too much texture in the base tile, not the overlays.
+
+Suggested next concrete step (very specific)
+
+If you want to stay efficient, I’d do this next:
+
+1 base grass tile
+
+2 grass variants
+
+3 overlays (clump, weed, dirt)
+
+Test them for 5 minutes in-engine
+
+Then iterate
+
+If you want, next message you can say:
+
+“Write the grass tile spec”
+
+“Design the grass overlay set”
+
+“Palette guidance to match Metal Slug”
+
+“Overworld props style rules”
+
+You’re honestly setting this up the right way. This already feels like a game, not a prototype.

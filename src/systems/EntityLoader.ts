@@ -6,6 +6,7 @@ import type { LevelData, LevelEntity } from '../systems/level/LevelLoader';
 import type { EnemyDifficulty } from '../constants/EnemyDifficulty';
 import type { Rarity } from '../constants/Rarity';
 import { EntityCreatorManager } from './EntityCreatorManager';
+import { WorldStateManager } from './WorldStateManager';
 import { createSkeletonEntity } from '../ecs/entities/skeleton/SkeletonEntity';
 import { createThrowerEntity } from '../ecs/entities/thrower/ThrowerEntity';
 import { createStalkingRobotEntity } from '../ecs/entities/robot/StalkingRobotEntity';
@@ -35,6 +36,9 @@ export class EntityLoader {
   ) {}
 
   loadEntities(levelData: LevelData, player: Entity, isEditorMode: boolean = false): void {
+    const worldState = WorldStateManager.getInstance();
+    const levelState = worldState.getLevelState(levelData.name!);
+    
     // Validate unique IDs
     const ids = new Set<string>();
     for (const entityDef of levelData.entities ?? []) {
@@ -50,6 +54,52 @@ export class EntityLoader {
 
     // Load entities
     for (const entityDef of levelData.entities ?? []) {
+      // Check if entity should be spawned based on world state
+      if (!isEditorMode) {
+        // Skip if destroyed
+        if (levelState.destroyedEntities.includes(entityDef.id)) {
+          continue;
+        }
+        
+        // Skip triggers that already fired
+        if (entityDef.type === 'trigger') {
+          const triggerData = entityDef.data as { eventToRaise: string };
+          if (levelState.firedTriggers.includes(triggerData.eventToRaise)) {
+            continue;
+          }
+        }
+        
+        // For event-driven entities
+        if (entityDef.createOnAnyEvent || entityDef.createOnAllEvents) {
+          if (levelState.liveEntities.includes(entityDef.id)) {
+            // Spawn it directly (was spawned and still alive)
+            const creatorFunc = this.createEntityCreator(entityDef, player, levelData);
+            if (!creatorFunc) {
+              throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
+            }
+            const entity = creatorFunc();
+            entity.levelName = levelData.name;
+            this.entityManager.add(entity);
+            continue;
+          } else {
+            // Not spawned yet - register with creator manager
+            const creatorFunc = this.createEntityCreator(entityDef, player, levelData);
+            if (!creatorFunc) {
+              throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
+            }
+            
+            if (entityDef.createOnAnyEvent) {
+              for (const event of entityDef.createOnAnyEvent) {
+                this.entityCreatorManager.registerAny(event, creatorFunc, entityDef.id);
+              }
+            } else if (entityDef.createOnAllEvents) {
+              this.entityCreatorManager.registerAll(entityDef.createOnAllEvents, creatorFunc, entityDef.id);
+            }
+            continue;
+          }
+        }
+      }
+      
       const creatorFunc = this.createEntityCreator(entityDef, player, levelData);
       
       if (!creatorFunc) {
@@ -59,13 +109,14 @@ export class EntityLoader {
       if ((entityDef.createOnAnyEvent || entityDef.createOnAllEvents) && !isEditorMode) {
         if (entityDef.createOnAnyEvent) {
           for (const event of entityDef.createOnAnyEvent) {
-            this.entityCreatorManager.registerAny(event, creatorFunc);
+            this.entityCreatorManager.registerAny(event, creatorFunc, entityDef.id);
           }
         } else if (entityDef.createOnAllEvents) {
-          this.entityCreatorManager.registerAll(entityDef.createOnAllEvents, creatorFunc);
+          this.entityCreatorManager.registerAll(entityDef.createOnAllEvents, creatorFunc, entityDef.id);
         }
       } else {
         const entity = creatorFunc();
+        entity.levelName = levelData.name;
         this.entityManager.add(entity);
       }
     }

@@ -322,7 +322,8 @@ this.grid.setCell(15, 10, { layer: 1, properties: new Set(['platform']) });
 - **E key** - Enter level editor mode
   - Pauses game
   - Allows editing grid cells, moving player, resizing grid
-  - **Trigger button** - Add invisible trigger areas that fire events
+  - **Trigger button** - Manage event triggers (list/edit/delete)
+  - **Cell Modifier button** - Manage cell modifications (list/edit/delete)
   - Click Save to export level JSON (logs to console + downloads file)
 
 ### Managing Entities

@@ -86,11 +86,11 @@ export class AddBugBaseEditorState extends EditorState {
     }
 
     const existingIds = (levelData.entities ?? []).map(e => e.id);
-    const allIds = [...existingIds, ...Array.from(entityManager.getAll()).map(e => e.id)];
+    const allIds = new Set([...existingIds, ...Array.from(entityManager.getAll()).map(e => e.id)]);
 
     let idNum = 0;
     let newId = `bug_base${idNum}`;
-    while (allIds.includes(newId)) {
+    while (allIds.has(newId)) {
       idNum++;
       newId = `bug_base${idNum}`;
     }

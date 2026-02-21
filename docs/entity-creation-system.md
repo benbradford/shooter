@@ -51,7 +51,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
     {
       "id": "skeleton1",
       "type": "skeleton",
-      "createOnEvent": "sk1",
+      "createOnAnyEvent": ["sk1"],
       "data": {
         "col": 15,
         "row": 10,
@@ -70,13 +70,25 @@ All entities in the game are defined in a unified `entities` array in level JSON
     {
       "id": "eventchainer1",
       "type": "eventchainer",
-      "createOnEvent": "spawn_wave",
+      "createOnAnyEvent": ["spawn_wave"],
       "data": {
-        "col": 14,
-        "row": 23,
         "eventsToRaise": [
           {"event": "sk1", "delayMs": 0},
           {"event": "sk2", "delayMs": 1000}
+        ]
+      }
+    },
+    {
+      "id": "cellmodifier0",
+      "type": "cellmodifier",
+      "createOnAnyEvent": ["door_open"],
+      "data": {
+        "cellsToModify": [
+          {
+            "col": 10,
+            "row": 5,
+            "backgroundTexture": "door_open"
+          }
         ]
       }
     }
@@ -90,8 +102,8 @@ All entities in the game are defined in a unified `entities` array in level JSON
 ## Entity Data Fields
 
 ### Common Fields (all entities)
-- `col`: Grid column position
-- `row`: Grid row position
+- `col`: Grid column position (optional for positionless entities like eventchainer, cellmodifier)
+- `row`: Grid row position (optional for positionless entities)
 
 ### Enemy Entities (skeleton, thrower, robot, bug_base, bullet_dude)
 - `difficulty`: "easy" | "medium" | "hard"
@@ -112,6 +124,18 @@ All entities in the game are defined in a unified `entities` array in level JSON
 ### EventChainer
 - `eventsToRaise`: Array of {event: string, delayMs: number}
 - Raises events sequentially with specified delays
+- No position required (defaults to 0,0)
+
+### CellModifier
+- `cellsToModify`: Array of cell modifications
+  - `col`: number
+  - `row`: number
+  - `properties`: CellProperty[] (optional - if not specified, clears all properties)
+  - `backgroundTexture`: string (optional - if not specified, removes texture)
+  - `layer`: number (optional - if not specified, keeps existing layer)
+- Executes immediately when created
+- Fades textures in/out over 500ms
+- No position required (defaults to 0,0)
 
 ## How It Works
 
@@ -121,18 +145,19 @@ Manages event-driven entity creation:
 
 ```typescript
 class EntityCreatorManager implements EventListener {
-  register(createOnEvent: string, creator: () => Entity): void
-  onEvent(createOnEvent: string): void  // Creates all entities registered for this event
+  registerAny(event: string, creator: () => Entity): void
+  registerAll(events: string[], creator: () => Entity): void
+  onEvent(event: string): void
   clear(): void
 }
 ```
 
 - Implements EventListener to receive events from EventManagerSystem
-- Registers entity creators for delayed spawning
+- `registerAny`: Entity spawns when ANY of the events fires (removes listener after first)
+- `registerAll`: Entity spawns when ALL events have fired
 - **Supports multiple entities per event** - all spawn when event fires
 - Creates entities when event fires and adds to EntityManager
 - Automatically deregisters after creation
-- Prevents same event from firing twice
 
 ### EntityLoader
 
@@ -190,7 +215,7 @@ class EntityLoader {
 {
   "id": "skeleton1",
   "type": "skeleton",
-  "createOnEvent": "spawn_wave",
+  "createOnAnyEvent": ["spawn_wave"],
   "data": {"col": 15, "row": 10, "difficulty": "medium"}
 }
 ```
@@ -210,10 +235,8 @@ class EntityLoader {
 {
   "id": "eventchainer1",
   "type": "eventchainer",
-  "createOnEvent": "start_wave",
+  "createOnAnyEvent": ["start_wave"],
   "data": {
-    "col": 14,
-    "row": 23,
     "eventsToRaise": [
       {"event": "sk1", "delayMs": 0},
       {"event": "sk2", "delayMs": 1000},
@@ -224,19 +247,18 @@ class EntityLoader {
 {
   "id": "skeleton1",
   "type": "skeleton",
-  "createOnEvent": "sk1",
   "data": {"col": 15, "row": 10, "difficulty": "medium"}
 },
 {
   "id": "skeleton2",
   "type": "skeleton",
-  "createOnEvent": "sk2",
+  "createOnAnyEvent": ["sk2"],
   "data": {"col": 17, "row": 10, "difficulty": "hard"}
 },
 {
   "id": "thrower1",
   "type": "thrower",
-  "createOnEvent": "th1",
+  "createOnAnyEvent": ["th1"],
   "data": {"col": 19, "row": 10, "difficulty": "medium"}
 }
 ```
@@ -264,18 +286,33 @@ Flow:
 1. Click any entity
 2. Entity ID shows in top-right corner
 3. Edit panel appears with:
-   - **Spawn Event** input (common panel, bottom-left) - Set createOnEvent for delayed spawning
+   - **Spawn on Any Event** input (common panel, bottom-left) - Comma-separated list of events (spawns when ANY fires)
+   - **Spawn on All Events** input (common panel, bottom-left) - Comma-separated list of events (spawns when ALL fire)
    - Difficulty buttons (entity panel, top-right)
    - Waypoint editing for robots
 4. Click difficulty to change (updates both component and level data)
 5. Click entity again to move it
 
 **Editor Labels:**
-- Entities with createOnEvent show "E" label
+- Entities with createOnAnyEvent/createOnAllEvents show "E" label
 - Skeletons show "S"
 - Throwers show "T"
 - Bug bases show "BB"
 - Labels help identify entities that would otherwise be invisible
+
+### Managing Triggers and Cell Modifiers
+
+**Trigger Button:**
+- Opens list of all triggers
+- Click trigger to select and view cells in yellow
+- Edit/Delete buttons for selected trigger
+- Add New to create trigger with grid selection
+
+**Cell Modifier Button:**
+- Opens list of all cell modifiers
+- Click to select
+- Edit/Delete buttons for selected modifier
+- Add New to create modifier with manual cell input
 
 ### Saving
 
@@ -287,9 +324,17 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/systems/EntityLoader.ts` - Entity loading from JSON
 - `src/systems/level/LevelLoader.ts` - LevelEntity and EntityType definitions
 - `src/eventchainer/EventChainerEntity.ts` - EventChainer entity
+- `src/cellmodifier/CellModifierEntity.ts` - CellModifier entity
 - `src/ecs/components/eventchainer/EventChainerComponent.ts` - EventChainer logic
+- `src/ecs/components/core/CellModifierComponent.ts` - CellModifier logic
 - `src/editor/AddEntityEditorState.ts` - Unified entity placement
+- `src/editor/TriggerEditorState.ts` - Trigger list/edit UI
+- `src/editor/CellModifierEditorState.ts` - CellModifier list/edit UI
 - `src/scenes/EditorScene.ts` - Entity extraction to JSON
+
+## Entity Destruction Events
+
+When any entity is destroyed, an event `{entityId}_destroyed` is automatically raised. This allows other entities to react to destruction (e.g., spawn reinforcements when boss dies).
 
 ## Adding New Entity Types to Editor
 

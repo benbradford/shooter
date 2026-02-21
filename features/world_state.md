@@ -6,11 +6,13 @@ this world_state should look something like this:
     {
        "player": {
            "health": 75,
-           .. other state later once we have added it, such as numCoins.
+           "currentLevel": "dungeon1",
+           "entryCell": { row: 3, col: 5},
+           .. other state later once we have added it, such as numCoins, powerUps
        }
-    }
-    "levels": [
-        {
+
+        "levels": [
+            {
             "dungeon1": {
                 destroyedEntities: [
                     "trigger1",
@@ -19,7 +21,10 @@ this world_state should look something like this:
                     "cellModifier1",
                     "eventChainer1",
                 ],
+                ... anything else?
 
+            }, "grassoverworld1": {
+               ... etc.
             }
         }
     ]
