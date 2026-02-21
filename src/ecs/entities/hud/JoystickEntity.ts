@@ -3,8 +3,10 @@ import { TouchJoystickComponent } from '../../components/input/TouchJoystickComp
 import { JoystickVisualsComponent } from '../../components/ui/JoystickVisualsComponent';
 import { AttackButtonComponent } from '../../components/input/AttackButtonComponent';
 import { ControlModeComponent } from '../../components/input/ControlModeComponent';
+import { CoinCounterComponent } from '../../components/ui/CoinCounterComponent';
+import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
-export function createJoystickEntity(scene: Phaser.Scene): Entity {
+export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventManagerSystem): Entity {
   const entity = new Entity('joystick');
 
   const joystick = entity.add(new TouchJoystickComponent(scene, {
@@ -22,12 +24,16 @@ export function createJoystickEntity(scene: Phaser.Scene): Entity {
 
   const controlMode = entity.add(new ControlModeComponent(scene));
   controlMode.init();
+  
+  const coinCounter = entity.add(new CoinCounterComponent(scene, eventManager));
+  coinCounter.init();
 
   entity.setUpdateOrder([
     TouchJoystickComponent,
     JoystickVisualsComponent,
     AttackButtonComponent,
     ControlModeComponent,
+    CoinCounterComponent,
   ]);
 
   return entity;

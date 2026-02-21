@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { EntityManager } from '../ecs/EntityManager';
+import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
 import { createJoystickEntity } from '../ecs/entities/hud/JoystickEntity';
 import type { Entity } from '../ecs/Entity';
 import { JoystickVisualsComponent } from '../ecs/components/ui/JoystickVisualsComponent';
@@ -19,7 +20,15 @@ export default class HudScene extends Phaser.Scene {
 
   create(): void {
     this.entityManager = new EntityManager();
-    this.joystickEntity = createJoystickEntity(this);
+    
+    const gameScene = this.scene.get('game');
+    const eventManager = (gameScene as { eventManager?: EventManagerSystem }).eventManager;
+    
+    if (!eventManager) {
+      throw new Error('[HudScene] EventManager not found in GameScene');
+    }
+    
+    this.joystickEntity = createJoystickEntity(this, eventManager);
     this.entityManager.add(this.joystickEntity);
 
     this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.V).on('down', () => {

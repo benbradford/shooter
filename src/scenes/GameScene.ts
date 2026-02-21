@@ -28,7 +28,7 @@ import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
   public collisionSystem!: CollisionSystem;
-  private eventManager!: EventManagerSystem;
+  public eventManager!: EventManagerSystem;
   private entityCreatorManager!: EntityCreatorManager;
   private entityLoader!: EntityLoader;
   private stateMachine!: StateMachine<void>;
@@ -58,6 +58,12 @@ export default class GameScene extends Phaser.Scene {
     const worldState = WorldStateManager.getInstance();
     await worldState.loadFromFile();
     
+    // Initialize event manager first (needed by HudScene)
+    this.entityManager = new EntityManager();
+    this.eventManager = new EventManagerSystem();
+    this.entityManager.setEventManager(this.eventManager);
+    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
+    
     // Wait for HudScene to be ready
     if (!this.scene.isActive('HudScene')) {
       this.scene.launch('HudScene');
@@ -65,11 +71,6 @@ export default class GameScene extends Phaser.Scene {
         this.scene.get('HudScene').events.once('create', () => resolve());
       });
     }
-
-    this.entityManager = new EntityManager();
-    this.eventManager = new EventManagerSystem();
-    this.entityManager.setEventManager(this.eventManager);
-    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
 
     createThrowerAnimations(this);
 
@@ -241,6 +242,8 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
       }
     }
+    
+    this.eventManager.raiseEvent('level_loaded');
   }
 
   resetScene(): void {

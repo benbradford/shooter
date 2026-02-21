@@ -5570,7 +5570,9 @@
         "row": 17,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["hidden"]
+      "createOnAnyEvent": [
+        "hidden"
+      ]
     },
     {
       "id": "skeleton0",
@@ -5580,7 +5582,9 @@
         "row": 16,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["hidden"]
+      "createOnAnyEvent": [
+        "hidden"
+      ]
     },
     {
       "id": "skeleton1",
@@ -5590,7 +5594,9 @@
         "row": 15,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["hidden"]
+      "createOnAnyEvent": [
+        "hidden"
+      ]
     },
     {
       "id": "skeleton2",
@@ -5600,7 +5606,9 @@
         "row": 14,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["hidden"]
+      "createOnAnyEvent": [
+        "hidden"
+      ]
     },
     {
       "id": "skeleton3",
@@ -5610,7 +5618,9 @@
         "row": 13,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["hidden"]
+      "createOnAnyEvent": [
+        "hidden"
+      ]
     },
     {
       "id": "breakable17",
@@ -5726,7 +5736,9 @@
         "row": 17,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["narrow"]
+      "createOnAnyEvent": [
+        "narrow"
+      ]
     },
     {
       "id": "skeleton8",
@@ -5736,7 +5748,9 @@
         "row": 17,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["narrow"]
+      "createOnAnyEvent": [
+        "narrow"
+      ]
     },
     {
       "id": "skeleton9",
@@ -5746,7 +5760,9 @@
         "row": 24,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["narrow"]
+      "createOnAnyEvent": [
+        "narrow"
+      ]
     },
     {
       "id": "skeleton10",
@@ -5756,7 +5772,9 @@
         "row": 24,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["narrow"]
+      "createOnAnyEvent": [
+        "narrow"
+      ]
     },
     {
       "id": "skeleton11",
@@ -5766,7 +5784,9 @@
         "row": 18,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["narrow"]
+      "createOnAnyEvent": [
+        "narrow"
+      ]
     },
     {
       "id": "skeleton12",
@@ -5776,7 +5796,9 @@
         "row": 18,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["narrow"]
+      "createOnAnyEvent": [
+        "narrow"
+      ]
     },
     {
       "id": "thrower1",
@@ -5786,7 +5808,9 @@
         "row": 21,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["throwers"]
+      "createOnAnyEvent": [
+        "throwers"
+      ]
     },
     {
       "id": "thrower2",
@@ -5796,7 +5820,9 @@
         "row": 21,
         "difficulty": "easy"
       },
-      "createOnAnyEvent": ["throwers"]
+      "createOnAnyEvent": [
+        "throwers"
+      ]
     },
     {
       "id": "trigger0",
@@ -5909,7 +5935,9 @@
     {
       "id": "cellmodifier0",
       "type": "cellmodifier",
-      "createOnAnyEvent": ["key_pickup"],
+      "createOnAnyEvent": [
+        "key_pickup"
+      ],
       "data": {
         "cellsToModify": [
           {

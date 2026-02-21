@@ -38,7 +38,6 @@ export class BaseExplosionComponent implements Component {
       this.changeSpriteTime += delta;
       if (this.changeSpriteTime > 300) {
         const exhaustedId = `${this.entity.id}_exhausted`;
-        console.log(`[BaseExplosion] Creating exhausted entity: ${exhaustedId}, levelName: ${this.entity.levelName}`);
         
         const exhaustedEntity = createExhaustedBugBaseEntity({
           scene: this.scene,
@@ -54,7 +53,6 @@ export class BaseExplosionComponent implements Component {
         if (this.entity.levelName) {
           const worldState = WorldStateManager.getInstance();
           worldState.addLiveEntity(this.entity.levelName, exhaustedId);
-          console.log(`[BaseExplosion] Added ${exhaustedId} to liveEntities for ${this.entity.levelName}`);
         }
         
         this.scene.time.delayedCall(0, () => this.entity.destroy());

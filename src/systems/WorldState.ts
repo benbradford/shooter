@@ -2,6 +2,7 @@ export type WorldState = {
   player: {
     health: number;
     overheal: number;
+    coins: number;
     currentLevel: string;
     spawnCol?: number;
     spawnRow?: number;

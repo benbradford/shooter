@@ -58,6 +58,10 @@ export class WorldStateManager {
   getPlayerOverheal(): number {
     return this.worldState.player.overheal;
   }
+  
+  getPlayerCoins(): number {
+    return this.worldState.player.coins ?? 0;
+  }
 
   getPlayerSpawnPosition(): { col?: number; row?: number } {
     return {
@@ -85,6 +89,13 @@ export class WorldStateManager {
   
   setPlayerOverheal(overheal: number): void {
     this.worldState.player.overheal = overheal;
+  }
+  
+  addCoins(amount: number): void {
+    if (this.worldState.player.coins === undefined) {
+      this.worldState.player.coins = 0;
+    }
+    this.worldState.player.coins += amount;
   }
 
   setCurrentLevel(levelName: string): void {
@@ -169,12 +180,6 @@ export class WorldStateManager {
           currentTexture !== originalTexture;
 
         if (hasChanged || wasTouchedByCellModifier) {
-          console.log(`[WorldState] Cell (${col},${row}) ${wasTouchedByCellModifier ? '(cellModifier)' : '(changed)'}:`, {
-            layer: { original: originalLayer, current: currentCell.layer },
-            props: { original: Array.from(originalProps), current: currentProps },
-            texture: { original: originalTexture, current: currentTexture }
-          });
-          
           modifiedCells.push({
             col,
             row,
@@ -186,7 +191,6 @@ export class WorldStateManager {
       }
     }
 
-    console.log(`[WorldState] Found ${modifiedCells.length} modified cells for ${levelName}`);
     levelState.modifiedCells = modifiedCells;
   }
 
@@ -199,6 +203,7 @@ export class WorldStateManager {
       player: {
         health: 100,
         overheal: 0,
+        coins: 0,
         currentLevel: DEFAULT_STARTING_LEVEL,
         entryCell: { col: 0, row: 0 }
       },

@@ -6,7 +6,7 @@ The world state system maintains game progress across level transitions, ensurin
 - Destroyed enemies stay destroyed when re-entering levels
 - Spawned enemies (from events) persist if not killed
 - Cell modifications persist (doors opened, walls removed)
-- Player health and overheal carry between levels
+- Player health, overheal, and coins carry between levels
 - Exit triggers don't cause infinite loops
 
 ## Usage
@@ -73,6 +73,21 @@ Modified cells are tracked in two ways:
 
 When loading, modified cells override level JSON and renderer cache is invalidated.
 
+### Coin Collection
+
+Coins collected are tracked globally:
+- Coins fly to HUD counter when collected
+- Count persists across level transitions
+- Displayed in top-left corner with coin icon
+
+### Exhausted Bug Bases
+
+When bug bases are destroyed:
+- Bug base entity destroyed and tracked in `destroyedEntities`
+- Exhausted entity (`bug_base1_exhausted`) created showing destroyed sprite
+- Exhausted entity added to `liveEntities`
+- On level re-entry, exhausted entity spawns instead of bug base
+
 ## State Updates
 
 **On entity spawn (via event):**
@@ -92,8 +107,12 @@ When loading, modified cells override level JSON and renderer cache is invalidat
 - Add modified cells to `cellModifierCells`
 - Ensures cells are saved even if they look the same as original
 
+**On coin collection:**
+- Coin flies to HUD counter
+- Adds 1 to player coins when reaching HUD
+
 **On level transition:**
-- Update player health and overheal
+- Update player health, overheal, and coins
 - Update current level
 - Update spawn position
 - Scan and save modified cells
@@ -112,22 +131,27 @@ When loading, modified cells override level JSON and renderer cache is invalidat
 - `src/ecs/Entity.ts` - Track destroyedEntities on destroy
 - `src/ecs/components/core/TriggerComponent.ts` - Track firedTriggers
 - `src/ecs/components/core/CellModifierComponent.ts` - Track cellModifierCells
+- `src/ecs/components/pickup/CoinComponent.ts` - Add coins when collected
+- `src/ecs/components/ui/CoinCounterComponent.ts` - Display coin count
+- `src/ecs/components/visual/BaseExplosionComponent.ts` - Create exhausted entities
+- `src/ecs/entities/bug/ExhaustedBugBaseEntity.ts` - Exhausted bug base factory
 - `src/scenes/GameScene.ts` - Load/save world state, apply to level
 - `public/states/default.json` - Saved state file (gitignored)
 
 ## Testing
 
-1. Start game (loads dungeon1 with 100 health)
+1. Start game (loads dungeon1 with 100 health, 0 coins)
 2. Kill an enemy (e.g., skeleton0)
-3. Exit to another level
-4. Return to dungeon1
-5. Verify skeleton0 is still dead
-6. Press Y to save state
-7. Refresh browser
-8. Verify game loads with saved state (skeleton0 still dead, same health)
+3. Collect coins from breakables
+4. Exit to another level
+5. Return to dungeon1
+6. Verify skeleton0 is still dead and coin count persists
+7. Press Y to save state
+8. Refresh browser
+9. Verify game loads with saved state (skeleton0 still dead, same health, same coins)
 
 ## Known Limitations
 
-- Pickups (coins, medipacks) are not tracked - they respawn on re-entry
+- Pickups (medipacks) are not tracked - they respawn on re-entry
 - Player death/respawn not yet implemented (uses `entryCell` for future feature)
 - World state only persists via manual save (Y key) until mobile deployment

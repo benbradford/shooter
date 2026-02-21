@@ -61,7 +61,6 @@ export class EntityLoader {
           const baseEntity = levelData.entities?.find(e => e.id === baseId && e.type === 'bug_base');
           if (baseEntity) {
             const bugBaseData = baseEntity.data as { col: number; row: number };
-            console.log(`[EntityLoader] Spawning exhausted entity from liveEntities: ${liveEntityId}`);
             const exhaustedEntity = createExhaustedBugBaseEntity({
               scene: this.scene,
               col: bugBaseData.col,
@@ -302,10 +301,8 @@ export class EntityLoader {
         return () => {
           const bugBaseData = data as { col: number; row: number; difficulty: EnemyDifficulty };
           
-          // If bug base was destroyed, spawn exhausted entity instead
           if (levelState.destroyedEntities.includes(entityDef.id)) {
             const exhaustedId = `${entityDef.id}_exhausted`;
-            console.log(`[EntityLoader] Bug base ${entityDef.id} destroyed, spawning exhausted: ${exhaustedId}`);
             return createExhaustedBugBaseEntity({
               scene: this.scene,
               col: bugBaseData.col,
