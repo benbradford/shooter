@@ -39,11 +39,11 @@ export class HealthComponent implements Component, HudBarDataSource {
   getRatio(): number {
     return Math.min(1, this.currentHealth / this.maxHealth);
   }
-  
+
   getOverhealAmount(): number {
     return Math.max(0, this.currentHealth - this.maxHealth);
   }
-  
+
   isOverhealed(): boolean {
     return this.currentHealth > this.maxHealth;
   }
@@ -54,7 +54,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   }
 
   heal(amount: number): void {
-    const maxOverheal = 200;
+    const maxOverheal = this.maxHealth * 2;
     this.currentHealth = Math.min(maxOverheal, this.currentHealth + amount);
   }
 
@@ -64,11 +64,11 @@ export class HealthComponent implements Component, HudBarDataSource {
 
   update(delta: number): void {
     if (!this.enableRegen || this.currentHealth >= this.maxHealth) return;
-    
+
     if (this.currentHealth > 150) return;
-    
+
     this.timeSinceLastDamageMs += delta;
-    
+
     if (this.timeSinceLastDamageMs >= REGEN_DELAY_MS) {
       const regenAmount = REGEN_RATE_PER_SEC * (delta / 1000);
       this.heal(regenAmount);

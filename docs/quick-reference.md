@@ -894,25 +894,36 @@ For objects that take multiple hits:
 - Spawn from breakables based on rarity (0-20 coins)
 - Physics-based: fly outward, arc upward, fall with gravity
 - Stop at walls (check both X and Y collision separately)
-- Can't be collected for first 500ms
-- Lifetime: 8 seconds, fade after 4 seconds
-- Collection distance: 25px
+- Can't be collected for first 200ms
+- Fly to HUD counter when collected (accelerating flight)
+- Add to coin count when reaching HUD
+- Lifetime: 15 seconds, fade after 10 seconds
+- Collection distance: 70px
 
 **Medipacks:**
 - Drop chance based on rarity (0% to 30%)
 - Spawn at bottom center of breakable's cell
 - Gradual healing: 50 HP/sec for 2 seconds (100 total)
-- Overheal: Up to 200 max, decays at 5 HP/sec
+- Overheal: Health can go above 100, up to 200 max
 - Overheal benefits: 1.5x movement speed, 2x punch speed
-- Damage consumes overheal first, then main health
-- Natural regen disabled when total health > 150
-- Lifetime: 8 seconds, fade after 4 seconds
+- Overheal decays at 5 HP/sec when not healing
+- Damage consumes from total health (overheal consumed first automatically)
+- Natural regen disabled when health > 150
+- Lifetime: 15 seconds, fade after 10 seconds
 - Collection distance: 40px, 500ms delay
 
 **Overheal HUD:**
 - Purple bar overlays green health bar from left
 - Sparkles at right edge during healing
 - Bar stays visible during healing or overheal
+
+**Coin Counter:**
+- Displays in top-left corner with coin icon
+- Shows total coins collected
+- Coins fly to counter when collected
+- Counter fades out after 3 seconds of no collection
+- Reappears when collecting coins
+- Persists across level transitions
 
 ### Creating Particle Effects (Shell Casings, Debris)
 

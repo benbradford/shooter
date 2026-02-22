@@ -17,7 +17,7 @@ import { createExhaustedBugBaseEntity } from '../ecs/entities/bug/ExhaustedBugBa
 import { createTriggerEntity } from '../trigger/TriggerEntity';
 import { createLevelExitEntity } from '../exit/LevelExitEntity';
 import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
-import { createCoinEntity } from '../ecs/entities/pickup/CoinEntity';
+import { createCoinEntity, COIN_SPRITE_SCALE, COIN_SIZE_PX } from '../ecs/entities/pickup/CoinEntity';
 import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
 import { createCellModifierEntity } from '../cellmodifier/CellModifierEntity';
@@ -39,7 +39,7 @@ export class EntityLoader {
   loadEntities(levelData: LevelData, player: Entity, isEditorMode: boolean = false): void {
     const worldState = WorldStateManager.getInstance();
     const levelState = worldState.getLevelState(levelData.name!);
-    
+
     // Validate unique IDs
     const ids = new Set<string>();
     for (const entityDef of levelData.entities ?? []) {
@@ -47,12 +47,12 @@ export class EntityLoader {
         throw new Error(`Duplicate entity ID: ${entityDef.id}`);
       }
       ids.add(entityDef.id);
-      
+
       if (entityDef.createOnAnyEvent && entityDef.createOnAllEvents) {
         throw new Error(`Entity ${entityDef.id} has both createOnAnyEvent and createOnAllEvents - only one is allowed`);
       }
     }
-    
+
     // Spawn exhausted bug bases from liveEntities
     if (!isEditorMode) {
       for (const liveEntityId of levelState.liveEntities) {
@@ -83,7 +83,7 @@ export class EntityLoader {
         if (levelState.destroyedEntities.includes(entityDef.id)) {
           continue;
         }
-        
+
         // Skip triggers that already fired
         if (entityDef.type === 'trigger') {
           const triggerData = entityDef.data as { eventToRaise: string };
@@ -91,7 +91,7 @@ export class EntityLoader {
             continue;
           }
         }
-        
+
         // For event-driven entities
         if (entityDef.createOnAnyEvent || entityDef.createOnAllEvents) {
           if (levelState.liveEntities.includes(entityDef.id)) {
@@ -110,7 +110,7 @@ export class EntityLoader {
             if (!creatorFunc) {
               throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
             }
-            
+
             if (entityDef.createOnAnyEvent) {
               for (const event of entityDef.createOnAnyEvent) {
                 this.entityCreatorManager.registerAny(event, creatorFunc, entityDef.id);
@@ -122,13 +122,13 @@ export class EntityLoader {
           }
         }
       }
-      
+
       const creatorFunc = this.createEntityCreator(entityDef, player, levelData);
-      
+
       if (!creatorFunc) {
         throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
       }
-      
+
       if ((entityDef.createOnAnyEvent || entityDef.createOnAllEvents) && !isEditorMode) {
         if (entityDef.createOnAnyEvent) {
           for (const event of entityDef.createOnAnyEvent) {
@@ -149,7 +149,7 @@ export class EntityLoader {
     const data = entityDef.data;
     const worldState = WorldStateManager.getInstance();
     const levelState = worldState.getLevelState(levelData.name!);
-    
+
     switch (entityDef.type) {
       case 'skeleton':
         return () => createSkeletonEntity({
@@ -172,7 +172,7 @@ export class EntityLoader {
             this.entityManager.add(bone);
           }
         });
-      
+
       case 'trigger':
         return () => {
           const triggerData = data as { eventToRaise: string; triggerCells: Array<{ col: number; row: number }>; oneShot: boolean };
@@ -184,12 +184,12 @@ export class EntityLoader {
             oneShot: triggerData.oneShot ?? true
           });
         };
-      
+
       case 'exit':
         return () => {
           const exitData = data as { targetLevel: string; targetCol: number; targetRow: number; triggerCells: Array<{ col: number; row: number }>; oneShot?: boolean };
           const eventName = `exit_${entityDef.id}`;
-          
+
           const trigger = createTriggerEntity({
             grid: this.grid,
             eventManager: this.eventManager,
@@ -198,7 +198,7 @@ export class EntityLoader {
             oneShot: exitData.oneShot ?? true
           });
           this.entityManager.add(trigger);
-          
+
           return createLevelExitEntity({
             eventManager: this.eventManager,
             eventName,
@@ -210,7 +210,7 @@ export class EntityLoader {
             }
           });
         };
-      
+
       case 'breakable':
         return () => {
           const breakableData = data as { col: number; row: number; texture: string; health: number; rarity?: string };
@@ -230,8 +230,8 @@ export class EntityLoader {
                 x, y, velocityX, velocityY, targetY,
                 grid: this.grid,
                 playerEntity: player,
-                scale: 0.2,
-                coinSize: 32
+                scale: COIN_SPRITE_SCALE,
+                coinSize: COIN_SIZE_PX
               });
               this.entityManager.add(coin);
             },
@@ -245,7 +245,7 @@ export class EntityLoader {
             }
           });
         };
-      
+
       case 'stalking_robot':
         return () => {
           const robotData = data as { col: number; row: number; difficulty: EnemyDifficulty; waypoints: Array<{ col: number; row: number }> };
@@ -260,7 +260,7 @@ export class EntityLoader {
             difficulty: robotData.difficulty
           });
         };
-      
+
       case 'thrower':
         return () => {
           const throwerData = data as { col: number; row: number; difficulty: EnemyDifficulty };
@@ -281,7 +281,7 @@ export class EntityLoader {
             }
           });
         };
-      
+
       case 'bullet_dude':
         return () => {
           const bulletDudeData = data as { col: number; row: number; difficulty: EnemyDifficulty };
@@ -296,11 +296,11 @@ export class EntityLoader {
             id: entityDef.id
           });
         };
-      
+
       case 'bug_base':
         return () => {
           const bugBaseData = data as { col: number; row: number; difficulty: EnemyDifficulty };
-          
+
           if (levelState.destroyedEntities.includes(entityDef.id)) {
             const exhaustedId = `${entityDef.id}_exhausted`;
             return createExhaustedBugBaseEntity({
@@ -311,7 +311,7 @@ export class EntityLoader {
               entityId: exhaustedId
             });
           }
-          
+
           const config = getBugBaseDifficultyConfig(bugBaseData.difficulty);
           return createBugBaseEntity({
             scene: this.scene,
@@ -338,7 +338,7 @@ export class EntityLoader {
             }
           });
         };
-      
+
       case 'eventchainer':
         return () => createEventChainerEntity({
           eventManager: this.eventManager,
@@ -346,7 +346,7 @@ export class EntityLoader {
           startOnEvent: undefined,
           entityId: entityDef.id
         });
-      
+
       case 'cellmodifier':
         return () => {
           const cellModifierData = data as { cellsToModify: Array<{ col: number; row: number; properties?: CellProperty[]; backgroundTexture?: string; layer?: number }> };
@@ -357,7 +357,7 @@ export class EntityLoader {
             cellsToModify: cellModifierData.cellsToModify
           });
         };
-      
+
       default:
         console.warn(`[EntityLoader] Unknown entity type: ${entityDef.type}`);
         return null;

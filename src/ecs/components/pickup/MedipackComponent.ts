@@ -6,8 +6,8 @@ import { MedipackHealerComponent } from '../core/MedipackHealerComponent';
 
 const COLLECTION_DISTANCE_PX = 40;
 const COLLECTION_DELAY_MS = 500;
-const MEDIPACK_LIFETIME_MS = 8000;
-const MEDIPACK_FADE_START_MS = 4000;
+const MEDIPACK_LIFETIME_MS = 15000;
+const MEDIPACK_FADE_START_MS = 10000;
 
 export class MedipackComponent implements Component {
   entity!: Entity;

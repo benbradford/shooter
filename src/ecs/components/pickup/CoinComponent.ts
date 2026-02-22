@@ -14,13 +14,23 @@ export type CoinComponentProps = {
   coinSize: number;
 }
 
-const GRAVITY_PX_PER_SEC_SQ = 400;
+const GRAVITY_PX_PER_SEC_SQ = 600;
 const COLLECTION_DISTANCE_PX = 70;
-const COLLECTION_DELAY_MS = 200;
-const COIN_LIFETIME_MS = 8000;
-const COIN_FADE_START_MS = 4000;
+const COLLECTION_DELAY_MS = 500;
+const COIN_LIFETIME_MS = 15000;
+const COIN_FADE_START_MS = 10000;
 const FLY_TO_HUD_SPEED_PX_PER_SEC = 1200;
 const FLY_TO_HUD_ACCELERATION = 2;
+
+export const COIN_SPAWN_ANGLE_RANDOMNESS_RAD = 0.5;
+export const COIN_SPAWN_MIN_SPEED_PX_PER_SEC = 120;
+export const COIN_SPAWN_SPEED_RANGE_PX_PER_SEC = 100;
+export const COIN_SPAWN_MIN_UPWARD_VELOCITY_PX_PER_SEC = 130;
+export const COIN_SPAWN_UPWARD_VELOCITY_RANGE_PX_PER_SEC = 200;
+export const COIN_SPAWN_TARGET_Y_OFFSET_PX = -10;
+export const COIN_SPAWN_TARGET_Y_RANDOMNESS_PX = 20;
+export const COIN_SPRITE_SCALE = 0.15;
+export const COIN_SIZE_PX = 24;
 
 export class CoinComponent implements Component {
   entity!: Entity;
@@ -104,21 +114,28 @@ export class CoinComponent implements Component {
         transform.x = nextX;
       }
 
+      const cellAbove = this.grid.getCell(
+        Math.floor(transform.x / this.grid.cellSize),
+        Math.floor((nextY - halfCoin) / this.grid.cellSize)
+      );
       const cellBelow = this.grid.getCell(
         Math.floor(transform.x / this.grid.cellSize),
         Math.floor((nextY + halfCoin) / this.grid.cellSize)
       );
 
-      if (isBlocked(cellBelow)) {
+      if (this.velocityY < 0 && isBlocked(cellAbove)) {
+        this.velocityY = 0;
+      } else if (this.velocityY > 0 && isBlocked(cellBelow)) {
         this.hasLanded = true;
       } else {
         transform.y = nextY;
-        this.velocityY += GRAVITY_PX_PER_SEC_SQ * deltaInSec;
+      }
 
-        if (transform.y >= this.targetY) {
-          transform.y = this.targetY;
-          this.hasLanded = true;
-        }
+      this.velocityY += GRAVITY_PX_PER_SEC_SQ * deltaInSec;
+
+      if (transform.y >= this.targetY) {
+        transform.y = this.targetY;
+        this.hasLanded = true;
       }
     }
 

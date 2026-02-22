@@ -198,6 +198,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_overlays_spritesheet.png',
     type: 'image' as const,
   },
+  grass1: {
+    key: 'grass1',
+    path: 'assets/cell_drawables/grass1.png',
+    type: 'image' as const,
+  },
+  grass2: {
+    key: 'grass2',
+    path: 'assets/cell_drawables/grass2.png',
+    type: 'image' as const,
+  },
+  tree1: {
+    key: 'tree1',
+    path: 'assets/cell_drawables/tree1.png',
+    type: 'image' as const,
+  },
   skeleton: {
     key: 'skeleton',
     path: 'assets/skeleton/skeleton-spritesheet.png',

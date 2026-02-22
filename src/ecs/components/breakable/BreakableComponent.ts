@@ -4,6 +4,15 @@ import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { RarityComponent } from '../core/RarityComponent';
 import { RARITY_COIN_COUNTS, RARITY_MEDIPACK_CHANCE } from '../../../constants/Rarity';
+import {
+  COIN_SPAWN_ANGLE_RANDOMNESS_RAD,
+  COIN_SPAWN_MIN_SPEED_PX_PER_SEC,
+  COIN_SPAWN_SPEED_RANGE_PX_PER_SEC,
+  COIN_SPAWN_MIN_UPWARD_VELOCITY_PX_PER_SEC,
+  COIN_SPAWN_UPWARD_VELOCITY_RANGE_PX_PER_SEC,
+  COIN_SPAWN_TARGET_Y_OFFSET_PX,
+  COIN_SPAWN_TARGET_Y_RANDOMNESS_PX
+} from '../pickup/CoinComponent';
 
 export type BreakableComponentProps = {
   maxHealth: number;
@@ -230,11 +239,11 @@ export class BreakableComponent implements Component {
     const cellBottom = transform.y + sprite.sprite.displayHeight / 2;
 
     for (let i = 0; i < coinCount; i++) {
-      const angle = (Math.PI * 2 * i) / coinCount + (Math.random() - 0.5) * 0.5;
-      const speed = 80 + Math.random() * 40;
+      const angle = (Math.PI * 2 * i) / coinCount + (Math.random() - 0.5) * COIN_SPAWN_ANGLE_RANDOMNESS_RAD;
+      const speed = COIN_SPAWN_MIN_SPEED_PX_PER_SEC + Math.random() * COIN_SPAWN_SPEED_RANGE_PX_PER_SEC;
       const velocityX = Math.cos(angle) * speed;
-      const velocityY = Math.sin(angle) * speed - (100 + Math.random() * 50);
-      const targetY = cellBottom - 10 + Math.random() * 20;
+      const velocityY = Math.sin(angle) * speed - (COIN_SPAWN_MIN_UPWARD_VELOCITY_PX_PER_SEC + Math.random() * COIN_SPAWN_UPWARD_VELOCITY_RANGE_PX_PER_SEC);
+      const targetY = cellBottom + COIN_SPAWN_TARGET_Y_OFFSET_PX + Math.random() * COIN_SPAWN_TARGET_Y_RANDOMNESS_PX;
 
       this.onSpawnCoin(transform.x, transform.y, velocityX, velocityY, targetY);
     }
