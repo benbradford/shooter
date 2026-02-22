@@ -188,6 +188,18 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/stone_floor.png',
     type: 'image' as const,
   },
+  stone_path_tileset: {
+    key: 'stone_path_tileset',
+    path: 'assets/cell_drawables/stone_path_tileset.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 64, frameHeight: 64 }
+  },
+  grass2_path_tileset: {
+    key: 'grass2_path_tileset',
+    path: 'assets/cell_drawables/grass2_path_tileset.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 64, frameHeight: 64 }
+  },
   dungeon_floor: {
     key: 'dungeon_floor',
     path: 'assets/cell_drawables/dungeon_floor.png',

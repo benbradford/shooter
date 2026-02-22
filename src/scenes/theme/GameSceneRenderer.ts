@@ -216,14 +216,6 @@ export abstract class GameSceneRenderer {
         if (isPath && pathTexture && this.scene.textures.exists(pathTexture) && !this.isCached) {
           const cellX = col * this.cellSize;
           const cellY = row * this.cellSize;
-
-          const sprite = this.scene.add.image(cellX + this.cellSize / 2, cellY + this.cellSize / 2, pathTexture);
-          sprite.setDisplaySize(this.cellSize, this.cellSize);
-          sprite.setDepth(-10);
-
-          const mask = this.scene.make.graphics({});
-          mask.setPosition(0, 0);
-
           const centerX = cellX + this.cellSize / 2;
           const centerY = cellY + this.cellSize / 2;
 
@@ -232,38 +224,33 @@ export abstract class GameSceneRenderer {
           const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
           const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
 
-          mask.fillStyle(0xffffff, 1);
-
-          if (hasLeft) {
-            mask.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-          }
-          if (hasRight) {
-            mask.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-          }
-          if (hasUp) {
-            mask.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
-          }
-          if (hasDown) {
-            mask.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
-          }
-
-          if (hasLeft && hasUp) {
-            mask.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasRight && hasUp) {
-            mask.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasLeft && hasDown) {
-            mask.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasRight && hasDown) {
-            mask.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          const connections = [hasUp, hasRight, hasDown, hasLeft];
+          const count = connections.filter(Boolean).length;
+          let frame = 0;
+          if (count === 1) {
+            if (hasUp) frame = 1;
+            else if (hasRight) frame = 2;
+            else if (hasDown) frame = 3;
+            else if (hasLeft) frame = 4;
+          } else if (count === 2) {
+            if (hasUp && hasDown) frame = 5;
+            else if (hasLeft && hasRight) frame = 6;
+            else if (hasUp && hasRight) frame = 7;
+            else if (hasUp && hasLeft) frame = 8;
+            else if (hasDown && hasRight) frame = 9;
+            else if (hasDown && hasLeft) frame = 10;
+          } else if (count === 3) {
+            if (hasUp && hasRight && hasDown) frame = 11;
+            else if (hasUp && hasRight && hasLeft) frame = 12;
+            else if (hasUp && hasDown && hasLeft) frame = 13;
+            else if (hasRight && hasDown && hasLeft) frame = 14;
+          } else if (count === 4) {
+            frame = 15;
           }
 
-          mask.fillCircle(centerX, centerY, radius);
-
-          const geomMask = mask.createGeometryMask();
-          sprite.setMask(geomMask);
+          const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
+          sprite.setDisplaySize(this.cellSize, this.cellSize);
+          sprite.setDepth(-10);
           this.cellSprites.push(sprite);
         }
 

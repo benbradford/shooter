@@ -382,6 +382,42 @@ Allows painting background textures onto grid cells.
 - Click cells to remove their background textures
 - Empty string (`''`) is passed to clear the texture
 
+### Path Textures
+
+Levels can use textured paths instead of the default grey paths. Path textures are generated from any square texture using a tileset generator script.
+
+**Generating a path tileset:**
+```bash
+node scripts/generate-path-tileset.js <input-texture> <output-tileset>
+
+# Examples:
+node scripts/generate-path-tileset.js public/assets/cell_drawables/stone_floor.png public/assets/cell_drawables/stone_path_tileset.png
+node scripts/generate-path-tileset.js public/assets/cell_drawables/grass2.png public/assets/cell_drawables/grass2_path_tileset.png
+```
+
+The script generates a 4x4 spritesheet (16 tiles) with all possible path connections:
+- Tile 0: No connections (isolated)
+- Tiles 1-4: Single direction (N, E, S, W)
+- Tiles 5-10: Two directions (straight, corners)
+- Tiles 11-14: Three directions (T-junctions)
+- Tile 15: Four directions (cross)
+
+**Using in level JSON:**
+```json
+{
+  "background": {
+    "floor_texture": "dungeon_floor",
+    "path_texture": "stone_path_tileset"
+  }
+}
+```
+
+**How it works:**
+- The script creates tiles with proper geometry matching the debug path rendering
+- Each tile is clipped to show only the path shape (rectangles, arcs, corners)
+- Black outlines are drawn around exposed edges
+- The game automatically selects the correct tile based on adjacent path cells
+
 **Level Background Config:**
 
 Levels can specify default textures for all cells of a type in the level JSON:

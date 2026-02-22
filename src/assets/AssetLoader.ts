@@ -8,7 +8,7 @@ import type { LevelData } from '../systems/level/LevelLoader';
  * @param keys - Optional array of asset keys to load. If not provided, loads all assets
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'slide_icon', 'fireball', 'fire', 'shadow', 'coin', 'medi_pack', 'vignette', 'bug', 'bug_base', 'base_destroyed', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'dungeon_overlays', 'wall_torch', 'pillar', 'dungeon_vase', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'house1', 'house2', 'house3'];
+  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'slide_icon', 'fireball', 'fire', 'shadow', 'coin', 'medi_pack', 'vignette', 'bug', 'bug_base', 'base_destroyed', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall', 'stone_floor', 'stone_path_tileset', 'grass2_path_tileset', 'dungeon_floor', 'dungeon_overlays', 'wall_torch', 'pillar', 'dungeon_vase', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'house1', 'house2', 'house3'];
   keysToLoad.forEach((key: AssetKey) => {
     loadAsset(scene, key);
   });

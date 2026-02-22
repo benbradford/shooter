@@ -3808,6 +3808,7 @@
     "platform_texture": "tree1",
     "platform_tile": 2,
     "hasEdges": false,
-    "hasShadows": false
+    "hasShadows": false,
+    "path_texture": "stone_path_tileset"
   }
 }

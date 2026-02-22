@@ -1,16 +1,10 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
-import type { Grid } from '../../systems/grid/Grid';
-import type { LevelData } from '../../systems/level/LevelLoader';
 
 const EDGE_COLOR = 0x3a5a2e;
 
 export class GrassSceneRenderer extends GameSceneRenderer {
   protected getEdgeColor(): number {
     return EDGE_COLOR;
-  }
-
-  renderGrid(grid: Grid, levelData?: LevelData): void {
-    super.renderGrid(grid, levelData);
   }
 
   renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image } {
