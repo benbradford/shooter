@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'wall_torch', 'pillar'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'wall_torch', 'pillar', 'tree1', 'fence1', 'bush1', 'house1'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];

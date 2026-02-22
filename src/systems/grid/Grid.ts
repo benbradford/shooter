@@ -163,7 +163,7 @@ export class Grid {
       }
     }
 
-    if (newLayer === 1) {
+    if (newLayer === 1 && this.isGridDebugEnabled) {
       const worldPos = this.cellToWorld(col, row);
       const rect = this.scene.add.rectangle(
         worldPos.x + this.cellSize / 2,

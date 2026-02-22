@@ -38,6 +38,8 @@ export type LevelBackground = {
     depth: number;
     intensity: number;
   };
+  hasShadows?: boolean;
+  hasEdges?: boolean;
 }
 
 export type LevelCell = {

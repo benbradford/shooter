@@ -44,12 +44,17 @@ export abstract class GameSceneRenderer {
 
       this.renderAllCells(grid, levelData);
       this.isCached = true;
-    } else if (this.isCached) {
+    }
+
+    if (levelData?.background?.hasEdges !== false) {
       this.renderEdges(grid);
     }
 
     this.renderEdgeDarkening(grid, levelData);
-    this.renderShadows(grid);
+    
+    if (levelData?.background?.hasShadows !== false) {
+      this.renderShadows(grid);
+    }
 
     if (!this.floorOverlay && levelData?.background) {
       this.renderFloorOverlay(grid, levelData);
@@ -165,7 +170,8 @@ export abstract class GameSceneRenderer {
 
         if (hasTexture && levelCell?.backgroundTexture && !this.isCached) {
           const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelCell.backgroundTexture);
-          sprite.setDisplaySize(this.cellSize, this.cellSize);
+          const size = levelCell.backgroundTexture === 'house1' ? this.cellSize * 4 : this.cellSize;
+          sprite.setDisplaySize(size, size);
           sprite.setDepth(-4);
           this.cellSprites.push(sprite);
         }
