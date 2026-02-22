@@ -1239,8 +1239,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 13,
@@ -1272,8 +1271,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 17,
@@ -1281,8 +1279,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 18,
@@ -1290,8 +1287,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 19,
@@ -1299,8 +1295,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 20,
@@ -1308,8 +1303,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 21,
@@ -1670,8 +1664,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 38,
@@ -1815,8 +1808,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 28,
@@ -1824,8 +1816,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 38,
@@ -2875,8 +2866,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 35,
@@ -3317,8 +3307,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 22,
@@ -3639,8 +3628,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 22,
@@ -3813,7 +3801,7 @@
       }
     }
   ],
-  "levelTheme": "grass",
+  "levelTheme": "grass_overworld1",
   "background": {
     "floor_texture": "grass1",
     "floor_tile": 8,
