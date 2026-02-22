@@ -1,6 +1,12 @@
 import type { Grid } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
 
+const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
+  house1: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
+  house2: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
+  house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 }
+};
+
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
   protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
@@ -24,7 +30,7 @@ export abstract class GameSceneRenderer {
     this.edgeGraphics.clear();
 
     if (!this.isCached && levelData?.background) {
-      const chunkSize = levelData.background.tile;
+      const chunkSize = levelData.background.floor_tile;
       const texture = levelData.background.floor_texture;
 
       for (let row = 0; row < grid.height; row += chunkSize) {
@@ -42,6 +48,38 @@ export abstract class GameSceneRenderer {
         }
       }
 
+      if (levelData.background.platform_tile && levelData.background.platform_texture) {
+        const platformTileSize = levelData.background.platform_tile;
+        const platformTexture = levelData.background.platform_texture;
+
+        for (let row = 0; row < grid.height; row += platformTileSize) {
+          for (let col = 0; col < grid.width; col += platformTileSize) {
+            let hasPlatform = false;
+            for (let r = row; r < Math.min(row + platformTileSize, grid.height); r++) {
+              for (let c = col; c < Math.min(col + platformTileSize, grid.width); c++) {
+                if (grid.getCell(c, r)?.properties.has('platform')) {
+                  hasPlatform = true;
+                  break;
+                }
+              }
+              if (hasPlatform) break;
+            }
+
+            if (hasPlatform) {
+              const x = col * this.cellSize;
+              const y = row * this.cellSize;
+              const width = platformTileSize * this.cellSize;
+              const height = platformTileSize * this.cellSize;
+
+              const sprite = this.scene.add.image(x + width / 2, y + height / 2, platformTexture);
+              sprite.setDisplaySize(width, height);
+              sprite.setDepth(-5);
+              this.floorSprites.push(sprite);
+            }
+          }
+        }
+      }
+
       this.renderAllCells(grid, levelData);
       this.isCached = true;
     }
@@ -51,9 +89,13 @@ export abstract class GameSceneRenderer {
     }
 
     this.renderEdgeDarkening(grid, levelData);
-    
+
     if (levelData?.background?.hasShadows !== false) {
       this.renderShadows(grid);
+    }
+    
+    if (!levelData?.background?.path_texture) {
+      this.renderGreyPaths(grid);
     }
 
     if (!this.floorOverlay && levelData?.background) {
@@ -91,7 +133,7 @@ export abstract class GameSceneRenderer {
 
   invalidateCells(cells: Array<{ col: number; row: number }>): void {
     const FADE_DURATION_MS = 500;
-    
+
     for (const cell of cells) {
       const index = this.cellSprites.findIndex(sprite => {
         const spriteX = sprite.x - this.cellSize / 2;
@@ -100,7 +142,7 @@ export abstract class GameSceneRenderer {
         const row = Math.round(spriteY / this.cellSize);
         return col === cell.col && row === cell.row;
       });
-      
+
       if (index >= 0) {
         const sprite = this.cellSprites[index];
         this.scene.tweens.add({
@@ -152,6 +194,8 @@ export abstract class GameSceneRenderer {
   private renderAllCells(grid: Grid, levelData?: LevelData): void {
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
+    const pathTexture = levelData?.background?.path_texture;
+    const radius = this.cellSize * 0.4;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -164,14 +208,78 @@ export abstract class GameSceneRenderer {
         const isElevated = cell && grid.getLayer(cell) >= 1;
         const isWall = cell?.properties.has('wall');
         const isPlatform = cell?.properties.has('platform');
+        const isPath = cell?.properties.has('path');
 
         const x = col * this.cellSize;
         const y = row * this.cellSize;
 
+        if (isPath && pathTexture && this.scene.textures.exists(pathTexture) && !this.isCached) {
+          const cellX = col * this.cellSize;
+          const cellY = row * this.cellSize;
+
+          const sprite = this.scene.add.image(cellX + this.cellSize / 2, cellY + this.cellSize / 2, pathTexture);
+          sprite.setDisplaySize(this.cellSize, this.cellSize);
+          sprite.setDepth(-10);
+
+          const mask = this.scene.make.graphics({});
+          mask.setPosition(0, 0);
+
+          const centerX = cellX + this.cellSize / 2;
+          const centerY = cellY + this.cellSize / 2;
+
+          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
+          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
+          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
+          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+
+          mask.fillStyle(0xffffff, 1);
+
+          if (hasLeft) {
+            mask.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+          }
+          if (hasRight) {
+            mask.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+          }
+          if (hasUp) {
+            mask.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
+          }
+          if (hasDown) {
+            mask.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
+          }
+
+          if (hasLeft && hasUp) {
+            mask.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasRight && hasUp) {
+            mask.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasLeft && hasDown) {
+            mask.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasRight && hasDown) {
+            mask.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+
+          mask.fillCircle(centerX, centerY, radius);
+
+          const geomMask = mask.createGeometryMask();
+          sprite.setMask(geomMask);
+          this.cellSprites.push(sprite);
+        }
+
         if (hasTexture && levelCell?.backgroundTexture && !this.isCached) {
-          const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelCell.backgroundTexture);
-          const size = levelCell.backgroundTexture === 'house1' ? this.cellSize * 4 : this.cellSize;
-          sprite.setDisplaySize(size, size);
+          const transform = BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES[levelCell.backgroundTexture];
+          const centerX = x + this.cellSize / 2;
+          const centerY = y + this.cellSize / 2;
+          const spriteX = transform ? centerX + transform.offsetX : centerX;
+          const spriteY = transform ? centerY + transform.offsetY : centerY;
+
+          const sprite = this.scene.add.image(spriteX, spriteY, levelCell.backgroundTexture);
+          if (transform) {
+            sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
+          } else {
+            sprite.setDisplaySize(this.cellSize, this.cellSize);
+          }
           sprite.setDepth(-4);
           this.cellSprites.push(sprite);
         }
@@ -194,13 +302,13 @@ export abstract class GameSceneRenderer {
 
           // Platform overlay (draw every frame)
           if (isPlatform) {
-            if (hasBackgroundConfig && levelData.background?.platform_texture) {
+            if (hasBackgroundConfig && levelData.background?.platform_texture && !levelData.background.platform_tile) {
               const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);
               sprite.setDisplaySize(this.cellSize, this.cellSize);
               sprite.setDepth(-5);
               this.cellSprites.push(sprite);
-            } else {
-             this.graphics.fillStyle(0x000000, 0.3);
+            } else if (!levelData?.background?.platform_tile) {
+              this.graphics.fillStyle(0x000000, 0.3);
               this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
             }
           }
@@ -255,6 +363,194 @@ export abstract class GameSceneRenderer {
               rowIndex++;
             }
           }
+        }
+      }
+    }
+
+    for (let row = 0; row < grid.height; row++) {
+      for (let col = 0; col < grid.width; col++) {
+        const cell = grid.getCell(col, row);
+        const isPath = cell?.properties.has('path');
+
+        if (isPath && !pathTexture) {
+          console.log('[GameSceneRenderer] Rendering grey path at', col, row);
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          const centerX = x + this.cellSize / 2;
+          const centerY = y + this.cellSize / 2;
+          const pathColor = 0x888888;
+          const outlineColor = 0x000000;
+
+          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
+          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
+          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
+          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+
+          this.graphics.fillStyle(pathColor, 1);
+
+          if (hasLeft) {
+            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+          }
+          if (hasRight) {
+            this.graphics.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+          }
+          if (hasUp) {
+            this.graphics.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
+          }
+          if (hasDown) {
+            this.graphics.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
+          }
+
+          if (hasLeft && hasUp) {
+            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasRight && hasUp) {
+            this.graphics.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasLeft && hasDown) {
+            this.graphics.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasRight && hasDown) {
+            this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+
+          this.graphics.fillCircle(centerX, centerY, radius);
+
+          this.graphics.lineStyle(2, outlineColor, 1);
+          this.graphics.strokeCircle(centerX, centerY, radius);
+        }
+      }
+    }
+  }
+
+  private renderGreyPaths(grid: Grid): void {
+    const pathColor = 0x888888;
+    const outlineColor = 0x000000;
+    const radius = this.cellSize * 0.4;
+
+    for (let row = 0; row < grid.height; row++) {
+      for (let col = 0; col < grid.width; col++) {
+        const cell = grid.getCell(col, row);
+        const isPath = cell?.properties.has('path');
+
+        if (isPath) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          const centerX = x + this.cellSize / 2;
+          const centerY = y + this.cellSize / 2;
+
+          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
+          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
+          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
+          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+
+          this.graphics.fillStyle(pathColor, 1);
+
+          if (hasLeft) {
+            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+          }
+          if (hasRight) {
+            this.graphics.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+          }
+          if (hasUp) {
+            this.graphics.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
+          }
+          if (hasDown) {
+            this.graphics.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
+          }
+
+          if (hasLeft && hasUp) {
+            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasRight && hasUp) {
+            this.graphics.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasLeft && hasDown) {
+            this.graphics.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+          if (hasRight && hasDown) {
+            this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+          }
+
+          this.graphics.fillCircle(centerX, centerY, radius);
+        }
+      }
+    }
+
+    this.graphics.lineStyle(3, outlineColor, 1);
+    for (let row = 0; row < grid.height; row++) {
+      for (let col = 0; col < grid.width; col++) {
+        const cell = grid.getCell(col, row);
+        if (!cell?.properties.has('path')) continue;
+
+        const x = col * this.cellSize + this.cellSize / 2;
+        const y = row * this.cellSize + this.cellSize / 2;
+
+        const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
+        const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
+        const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
+        const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+
+        if (!hasLeft && !hasUp) {
+          this.graphics.beginPath();
+          this.graphics.arc(x, y, radius, Math.PI, -Math.PI / 2, false);
+          this.graphics.strokePath();
+        } else if (!hasLeft && hasUp) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y - this.cellSize / 2));
+        } else if (hasLeft && !hasUp) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x - this.cellSize / 2, y - radius));
+        }
+
+        if (!hasRight && !hasUp) {
+          this.graphics.beginPath();
+          this.graphics.arc(x, y, radius, -Math.PI / 2, 0, false);
+          this.graphics.strokePath();
+        } else if (!hasRight && hasUp) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y - this.cellSize / 2));
+        } else if (hasRight && !hasUp) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x + this.cellSize / 2, y - radius));
+        }
+
+        if (!hasLeft && !hasDown) {
+          this.graphics.beginPath();
+          this.graphics.arc(x, y, radius, Math.PI / 2, Math.PI, false);
+          this.graphics.strokePath();
+        } else if (!hasLeft && hasDown) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y + this.cellSize / 2));
+        } else if (hasLeft && !hasDown) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x - this.cellSize / 2, y + radius));
+        }
+
+        if (!hasRight && !hasDown) {
+          this.graphics.beginPath();
+          this.graphics.arc(x, y, radius, 0, Math.PI / 2, false);
+          this.graphics.strokePath();
+        } else if (!hasRight && hasDown) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y + this.cellSize / 2));
+        } else if (hasRight && !hasDown) {
+          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x + this.cellSize / 2, y + radius));
+        }
+
+        const innerRadius = this.cellSize / 2 - radius;
+        if (hasLeft && hasUp && !grid.getCell(col - 1, row - 1)?.properties.has('path')) {
+          this.graphics.beginPath();
+          this.graphics.arc(x - this.cellSize / 2, y - this.cellSize / 2, innerRadius, 0, Math.PI / 2, false);
+          this.graphics.strokePath();
+        }
+        if (hasRight && hasUp && !grid.getCell(col + 1, row - 1)?.properties.has('path')) {
+          this.graphics.beginPath();
+          this.graphics.arc(x + this.cellSize / 2, y - this.cellSize / 2, innerRadius, Math.PI / 2, Math.PI, false);
+          this.graphics.strokePath();
+        }
+        if (hasLeft && hasDown && !grid.getCell(col - 1, row + 1)?.properties.has('path')) {
+          this.graphics.beginPath();
+          this.graphics.arc(x - this.cellSize / 2, y + this.cellSize / 2, innerRadius, -Math.PI / 2, 0, false);
+          this.graphics.strokePath();
+        }
+        if (hasRight && hasDown && !grid.getCell(col + 1, row + 1)?.properties.has('path')) {
+          this.graphics.beginPath();
+          this.graphics.arc(x + this.cellSize / 2, y + this.cellSize / 2, innerRadius, Math.PI, -Math.PI / 2, false);
+          this.graphics.strokePath();
         }
       }
     }
@@ -356,7 +652,7 @@ export abstract class GameSceneRenderer {
         if (!cell || grid.getLayer(cell) < 1) continue;
 
         const distToEdge = Math.min(col, row, grid.width - 1 - col, grid.height - 1 - row);
-        
+
         if (distToEdge < darkenSteps) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
@@ -366,17 +662,17 @@ export abstract class GameSceneRenderer {
             for (let sx = 0; sx < stepsPerCell; sx++) {
               const subX = x + sx * stepSize;
               const subY = y + sy * stepSize;
-              
+
               const subDistToEdge = Math.min(
                 col + sx / stepsPerCell,
                 row + sy / stepsPerCell,
                 grid.width - 1 - col - sx / stepsPerCell,
                 grid.height - 1 - row - sy / stepsPerCell
               );
-              
+
               const intensity = Math.max(0, 1 - subDistToEdge / darkenSteps);
               const alpha = maxIntensity * intensity;
-              
+
               if (alpha > 0.01) {
                 this.edgeGraphics.fillStyle(0x000000, alpha);
                 this.edgeGraphics.fillRect(subX, subY, stepSize, stepSize);

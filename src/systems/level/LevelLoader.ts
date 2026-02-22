@@ -27,7 +27,9 @@ export type LevelBackground = {
   platform_texture: string;
   stairs_texture: string;
   wall_texture: string;
-  tile: number;
+  path_texture?: string;
+  floor_tile: number;
+  platform_tile?: number;
   overlays?: {
     spritesheet: string;
     spriteList: string;

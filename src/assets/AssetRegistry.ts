@@ -228,6 +228,16 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/house1.png',
     type: 'image' as const,
   },
+  house2: {
+    key: 'house2',
+    path: 'assets/cell_drawables/house2.png',
+    type: 'image' as const,
+  },
+  house3: {
+    key: 'house3',
+    path: 'assets/cell_drawables/house3.png',
+    type: 'image' as const,
+  },
   skeleton: {
     key: 'skeleton',
     path: 'assets/skeleton/skeleton-spritesheet.png',

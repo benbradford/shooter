@@ -15,13 +15,13 @@ const DIFFICULTY_CONFIGS: Record<EnemyDifficulty, BugBaseDifficultyConfig> = {
     spawnIntervalMs: 4000
   },
   medium: {
-    baseHealth: 75,
+    baseHealth: 30,
     bugHealth: 1,
     bugSpeed: 150,
     spawnIntervalMs: 3000
   },
   hard: {
-    baseHealth: 100,
+    baseHealth: 50,
     bugHealth: 1,
     bugSpeed: 200,
     spawnIntervalMs: 2000

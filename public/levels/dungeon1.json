@@ -5955,7 +5955,7 @@
   "levelTheme": "dungeon",
   "background": {
     "floor_texture": "dungeon_floor",
-    "tile": 8,
+    "floor_tile": 8,
     "platform_texture": "stone_floor",
     "stairs_texture": "stone_stairs",
     "wall_texture": "stone_wall",

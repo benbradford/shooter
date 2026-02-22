@@ -1,6 +1,11 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
+import { SpriteComponent } from '../core/SpriteComponent';
+
+const RUBBLE_PIECE_COUNT = 6;
+const RUBBLE_PIECE_SIZE_PX = 8;
+const SAMPLE_AREA_PERCENT = 0.3;
 
 export class BugBurstComponent implements Component {
   entity!: Entity;
@@ -12,17 +17,51 @@ export class BugBurstComponent implements Component {
 
   burst(): void {
     const transform = this.entity.require(TransformComponent);
+    const sprite = this.entity.require(SpriteComponent);
 
-    const emitter = this.scene.add.particles(transform.x, transform.y, 'robot_hit_particle', {
-      speed: { min: 100, max: 200 },
+    const textureKey = 'bug_rubble_sheet';
+
+    if (!this.scene.textures.exists(textureKey)) {
+      const bugTexture = this.scene.textures.get('bug');
+      const bugFrame = bugTexture.get(sprite.sprite.frame.name);
+      const canvas = this.scene.textures.createCanvas(textureKey, RUBBLE_PIECE_SIZE_PX * RUBBLE_PIECE_COUNT, RUBBLE_PIECE_SIZE_PX);
+      const ctx = canvas?.context;
+
+      if (ctx && bugTexture.source[0]) {
+        const centerX = bugFrame.cutX + bugFrame.width / 2;
+        const centerY = bugFrame.cutY + bugFrame.height / 2;
+        const sampleAreaSize = bugFrame.width * SAMPLE_AREA_PERCENT;
+        const sampleAreaHalf = sampleAreaSize / 2;
+
+        for (let i = 0; i < RUBBLE_PIECE_COUNT; i++) {
+          const srcX = centerX - sampleAreaHalf + Math.random() * (sampleAreaSize - RUBBLE_PIECE_SIZE_PX);
+          const srcY = centerY - sampleAreaHalf + Math.random() * (sampleAreaSize - RUBBLE_PIECE_SIZE_PX);
+
+          ctx.drawImage(
+            bugTexture.source[0].source as HTMLImageElement,
+            srcX, srcY, RUBBLE_PIECE_SIZE_PX, RUBBLE_PIECE_SIZE_PX,
+            i * RUBBLE_PIECE_SIZE_PX, 0, RUBBLE_PIECE_SIZE_PX, RUBBLE_PIECE_SIZE_PX
+          );
+        }
+        canvas.refresh();
+
+        this.scene.textures.addSpriteSheet(textureKey, canvas, {
+          frameWidth: RUBBLE_PIECE_SIZE_PX,
+          frameHeight: RUBBLE_PIECE_SIZE_PX
+        });
+      }
+    }
+
+    const emitter = this.scene.add.particles(transform.x, transform.y, textureKey, {
+      speed: { min: 30, max: 90 },
       angle: { min: 0, max: 360 },
-      scale: { start: 0.4, end: 0 },
+      scale: { start: 0.7, end: 0 },
       alpha: { start: 1, end: 0 },
       lifespan: 600,
-      frequency: 2.5,
-      tint: [0x00bb00, 0x009900, 0x007700, 0x005500, 0x003300, 0x001100, 0x000000, 0xff6666],
+      frequency: 3,
+      frame: [0, 1, 2, 3, 4, 5],
       blendMode: 'NORMAL',
-      emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 16) } as Phaser.Types.GameObjects.Particles.EmitZoneData
+      emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 14) } as Phaser.Types.GameObjects.Particles.EmitZoneData
     });
 
     emitter.setDepth(1000);
