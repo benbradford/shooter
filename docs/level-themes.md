@@ -73,8 +73,9 @@ The base class handles all edge detection:
 ### Grass Theme
 - Bright green gradient background
 - Stone paths with connected circular shapes
-- Path cells render as grey circles with black outlines
+- Path cells render as grey circles with black outlines (or textured if `path_texture` specified)
 - Paths automatically connect between adjacent cells
+- Dead ends render with square caps instead of rounded
 - Inner and outer corner arcs for smooth perimeter
 - Green vignette
 - Edge color: `0x3a5a2e`

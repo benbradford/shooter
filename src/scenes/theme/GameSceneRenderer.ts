@@ -93,7 +93,7 @@ export abstract class GameSceneRenderer {
     if (levelData?.background?.hasShadows !== false) {
       this.renderShadows(grid);
     }
-    
+
     if (!levelData?.background?.path_texture) {
       this.renderGreyPaths(grid);
     }
@@ -373,7 +373,6 @@ export abstract class GameSceneRenderer {
         const isPath = cell?.properties.has('path');
 
         if (isPath && !pathTexture) {
-          console.log('[GameSceneRenderer] Rendering grey path at', col, row);
           const x = col * this.cellSize;
           const y = row * this.cellSize;
           const centerX = x + this.cellSize / 2;
@@ -443,6 +442,9 @@ export abstract class GameSceneRenderer {
           const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
           const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
           const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+          
+          const adjacentCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0) + (hasUp ? 1 : 0) + (hasDown ? 1 : 0);
+          const isDeadEnd = adjacentCount === 1;
 
           this.graphics.fillStyle(pathColor, 1);
 
@@ -472,7 +474,11 @@ export abstract class GameSceneRenderer {
             this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
           }
 
-          this.graphics.fillCircle(centerX, centerY, radius);
+          if (isDeadEnd) {
+            this.graphics.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
+          } else {
+            this.graphics.fillCircle(centerX, centerY, radius);
+          }
         }
       }
     }
@@ -490,45 +496,68 @@ export abstract class GameSceneRenderer {
         const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
         const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
         const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+        
+        const adjacentCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0) + (hasUp ? 1 : 0) + (hasDown ? 1 : 0);
+        const isDeadEnd = adjacentCount === 1;
 
-        if (!hasLeft && !hasUp) {
-          this.graphics.beginPath();
-          this.graphics.arc(x, y, radius, Math.PI, -Math.PI / 2, false);
-          this.graphics.strokePath();
-        } else if (!hasLeft && hasUp) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y - this.cellSize / 2));
-        } else if (hasLeft && !hasUp) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x - this.cellSize / 2, y - radius));
-        }
+        if (isDeadEnd) {
+          if (hasLeft) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));
+          } else if (hasRight) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));
+          } else if (hasUp) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - this.cellSize / 2, x - radius, y + radius));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - this.cellSize / 2, x + radius, y + radius));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));
+          } else if (hasDown) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x + radius, y - radius));
+          }
+        } else {
+          if (!hasLeft && !hasUp) {
+            this.graphics.beginPath();
+            this.graphics.arc(x, y, radius, Math.PI, -Math.PI / 2, false);
+            this.graphics.strokePath();
+          } else if (!hasLeft && hasUp) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y - this.cellSize / 2));
+          } else if (hasLeft && !hasUp) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x - this.cellSize / 2, y - radius));
+          }
 
-        if (!hasRight && !hasUp) {
-          this.graphics.beginPath();
-          this.graphics.arc(x, y, radius, -Math.PI / 2, 0, false);
-          this.graphics.strokePath();
-        } else if (!hasRight && hasUp) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y - this.cellSize / 2));
-        } else if (hasRight && !hasUp) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x + this.cellSize / 2, y - radius));
-        }
+          if (!hasRight && !hasUp) {
+            this.graphics.beginPath();
+            this.graphics.arc(x, y, radius, -Math.PI / 2, 0, false);
+            this.graphics.strokePath();
+          } else if (!hasRight && hasUp) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y - this.cellSize / 2));
+          } else if (hasRight && !hasUp) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x + this.cellSize / 2, y - radius));
+          }
 
-        if (!hasLeft && !hasDown) {
-          this.graphics.beginPath();
-          this.graphics.arc(x, y, radius, Math.PI / 2, Math.PI, false);
-          this.graphics.strokePath();
-        } else if (!hasLeft && hasDown) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y + this.cellSize / 2));
-        } else if (hasLeft && !hasDown) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x - this.cellSize / 2, y + radius));
-        }
+          if (!hasLeft && !hasDown) {
+            this.graphics.beginPath();
+            this.graphics.arc(x, y, radius, Math.PI / 2, Math.PI, false);
+            this.graphics.strokePath();
+          } else if (!hasLeft && hasDown) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y + this.cellSize / 2));
+          } else if (hasLeft && !hasDown) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x - this.cellSize / 2, y + radius));
+          }
 
-        if (!hasRight && !hasDown) {
-          this.graphics.beginPath();
-          this.graphics.arc(x, y, radius, 0, Math.PI / 2, false);
-          this.graphics.strokePath();
-        } else if (!hasRight && hasDown) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y + this.cellSize / 2));
-        } else if (hasRight && !hasDown) {
-          this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x + this.cellSize / 2, y + radius));
+          if (!hasRight && !hasDown) {
+            this.graphics.beginPath();
+            this.graphics.arc(x, y, radius, 0, Math.PI / 2, false);
+            this.graphics.strokePath();
+          } else if (!hasRight && hasDown) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y + this.cellSize / 2));
+          } else if (hasRight && !hasDown) {
+            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x + this.cellSize / 2, y + radius));
+          }
         }
 
         const innerRadius = this.cellSize / 2 - radius;

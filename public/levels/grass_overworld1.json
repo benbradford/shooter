@@ -3299,23 +3299,26 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 20,
       "row": 28,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "platform"
-      ]
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 21,
       "row": 28,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "platform"
-      ]
+        "path"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 22,
@@ -3624,18 +3627,20 @@
     {
       "col": 20,
       "row": 29,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "platform"
-      ]
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 21,
       "row": 29,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "platform"
-      ]
+        "path"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 22,

@@ -390,10 +390,12 @@ Levels can specify default textures for all cells of a type in the level JSON:
 {
   "background": {
     "floor_texture": "dungeon_floor",
+    "floor_tile": 10,
     "platform_texture": "stone_floor",
+    "platform_tile": 2,
     "stairs_texture": "stone_stairs",
     "wall_texture": "stone_wall",
-    "tile": 10,
+    "path_texture": "stone_path",
     "overlays": {
       "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
       "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
@@ -403,18 +405,27 @@ Levels can specify default textures for all cells of a type in the level JSON:
     "edgeDarkening": {
       "depth": 10,
       "intensity": 0.8
-    }
+    },
+    "hasShadows": true,
+    "hasEdges": true
   }
 }
 ```
 
-- `floor_texture`: Rendered in NxN chunks (specified by `tile`) at depth -1000 under everything
-- `platform_texture`: Not used - platforms show floor with dark overlay (0.3 alpha black)
+- `floor_texture`: Rendered in NxN chunks (specified by `floor_tile`) at depth -1000
+- `floor_tile`: Chunk size for floor texture (e.g., 10 = 10x10 cells per sprite)
+- `platform_texture`: Texture for platform cells
+- `platform_tile`: Optional - if set, platform texture is tiled (e.g., 2 = each 2x2 block shows full texture)
+- `path_texture`: Optional - texture for path cells (uses mask for curved shapes)
 - `stairs_texture`: Rendered per cell at depth -5 (falls back to line rendering if not specified)
 - `wall_texture`: Rendered per cell at depth -5 (falls back to brick pattern if not specified)
-- `tile`: Chunk size for floor texture (e.g., 10 = 10x10 cells per sprite for performance)
 - `overlays`: Optional random decorative overlays (see Level Overlays section)
 - `edgeDarkening`: Optional progressive darkening of platforms near map edges
+  - `depth`: Number of cells from edge to darken (e.g., 10)
+  - `intensity`: Maximum darkness at edge (0.0-1.0, e.g., 0.8 = 80% black)
+  - Creates smooth gradient by subdividing cells into 4x4 sub-rectangles
+- `hasShadows`: Optional (default true) - render shadows on elevated cells
+- `hasEdges`: Optional (default true) - render edge lines on elevated cells
   - `depth`: Number of cells from edge to darken (e.g., 10)
   - `intensity`: Maximum darkness at edge (0.0-1.0, e.g., 0.8 = 80% black)
   - Creates smooth gradient by subdividing cells into 4x4 sub-rectangles
@@ -443,7 +454,13 @@ Levels can specify default textures for all cells of a type in the level JSON:
    ```typescript
    const AVAILABLE_TEXTURES = ['door_closed', 'dungeon_door', 'your_texture'];
    ```
-5. Run `npm run build && npx eslint src --ext .ts`
+5. (Optional) For custom scaling/positioning, add to `BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES` in `src/scenes/theme/GameSceneRenderer.ts`:
+   ```typescript
+   const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
+     house1: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 }
+   };
+   ```
+6. Run `npm run build && npx eslint src --ext .ts`
 
 **Note:** Background textures are saved in the level JSON and persist across sessions.
 
