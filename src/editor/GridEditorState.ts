@@ -4,7 +4,7 @@ import type { CellProperty } from '../systems/grid/Grid';
 
 export class GridEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
-  private readonly checkboxes: Map<CellProperty, { box: Phaser.GameObjects.Rectangle; label: Phaser.GameObjects.Text; checked: boolean }> = new Map();
+  private readonly checkboxes: Map<CellProperty, { box: Phaser.GameObjects.Arc; label: Phaser.GameObjects.Text; checked: boolean }> = new Map();
   private selectionGraphics!: Phaser.GameObjects.Graphics;
   private isDragging: boolean = false;
   private selectedLayer: number = 0;
@@ -74,22 +74,22 @@ export class GridEditorState extends EditorState {
     });
     this.buttons.push(clearBtn);
 
-    // Tag checkboxes on right side
-    const tags: CellProperty[] = ['platform', 'wall', 'stairs', 'path', 'blocked'];
+    // Property radio buttons on right side
+    const properties: CellProperty[] = ['platform', 'wall', 'stairs', 'path', 'water', 'blocked'];
     const startY = 100;
     const spacing = 40;
 
-    tags.forEach((tag, index) => {
+    properties.forEach((prop, index) => {
       const y = startY + index * spacing;
       const x = width - 150;
 
-      const box = this.scene.add.rectangle(x, y, 20, 20, 0x333333);
-      box.setStrokeStyle(2, 0xffffff);
-      box.setScrollFactor(0);
-      box.setDepth(1000);
-      box.setInteractive({ useHandCursor: true });
+      const circle = this.scene.add.circle(x, y, 10, 0x333333);
+      circle.setStrokeStyle(2, 0xffffff);
+      circle.setScrollFactor(0);
+      circle.setDepth(1000);
+      circle.setInteractive({ useHandCursor: true });
 
-      const label = this.scene.add.text(x + 30, y, tag, {
+      const label = this.scene.add.text(x + 30, y, prop, {
         fontSize: '18px',
         color: '#ffffff'
       });
@@ -97,15 +97,22 @@ export class GridEditorState extends EditorState {
       label.setScrollFactor(0);
       label.setDepth(1000);
 
-      box.on('pointerdown', () => {
-        const checkbox = this.checkboxes.get(tag);
-        if (checkbox) {
-          checkbox.checked = !checkbox.checked;
-          box.setFillStyle(checkbox.checked ? 0x00ff00 : 0x333333);
+      circle.on('pointerdown', () => {
+        // Deselect all
+        this.checkboxes.forEach((data) => {
+          data.checked = false;
+          data.box.setFillStyle(0x333333);
+        });
+        
+        // Select this one
+        const data = this.checkboxes.get(prop);
+        if (data) {
+          data.checked = true;
+          circle.setFillStyle(0x00ff00);
         }
       });
 
-      this.checkboxes.set(tag, { box, label, checked: false });
+      this.checkboxes.set(prop, { box: circle, label, checked: false });
     });
 
     // Mouse events for painting
@@ -170,18 +177,14 @@ export class GridEditorState extends EditorState {
       return;
     }
 
-    const selectedTags = new Set<CellProperty>();
-    this.checkboxes.forEach((checkbox, tag) => {
-      if (checkbox.checked) {
-        selectedTags.add(tag);
-      }
-    });
-
-    if (selectedTags.size === 0) return;
+    const selectedProperty = Array.from(this.checkboxes.entries()).find(([_, data]) => data.checked)?.[0];
+    const properties = selectedProperty ? new Set([selectedProperty]) : new Set<CellProperty>();
+    
+    console.log('[GridEditor] Painting cell', cell.col, cell.row, 'layer:', this.selectedLayer, 'property:', selectedProperty);
 
     this.scene.setCellData(cell.col, cell.row, { 
       layer: this.selectedLayer,
-      properties: selectedTags 
+      properties 
     });
   }
 }

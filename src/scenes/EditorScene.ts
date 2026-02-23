@@ -287,8 +287,15 @@ export default class EditorScene extends Phaser.Scene {
   }
 
   setCellData(col: number, row: number, data: { layer?: number; properties?: Set<CellProperty>; backgroundTexture?: string }): void {
+    const gameScene = this.scene.get('game') as any;
     const grid = this.getGrid();
     grid.setCell(col, row, data);
+    
+    // Invalidate renderer cache so changes are visible
+    if (gameScene.sceneRenderer) {
+      gameScene.sceneRenderer.invalidateCache();
+    }
+    
     grid.render();
   }
 
@@ -311,12 +318,18 @@ export default class EditorScene extends Phaser.Scene {
         if (!cell) continue;
 
         const layer = grid.getLayer(cell);
-        if (layer !== 0 || cell.properties.size > 0 || cell.backgroundTexture) {
+        const hasProperties = cell.properties.size > 0;
+        
+        if (hasProperties) {
+          console.log(`[Extract] Cell (${col},${row}): layer=${layer}, props=[${Array.from(cell.properties).join(',')}]`);
+        }
+        
+        if (layer !== 0 || hasProperties || cell.backgroundTexture) {
           cells.push({
             col,
             row,
             layer,
-            properties: cell.properties.size > 0 ? Array.from(cell.properties) : undefined,
+            properties: hasProperties ? Array.from(cell.properties) : undefined,
             backgroundTexture: cell.backgroundTexture
           });
         }

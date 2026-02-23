@@ -1,9 +1,10 @@
 import type { Grid } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
+import type { CellProperty } from '../../systems/grid/CellData';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
-  house1: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
-  house2: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
+  house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
+  house2: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: -15 },
   house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 }
 };
 
@@ -94,7 +95,7 @@ export abstract class GameSceneRenderer {
       this.renderShadows(grid);
     }
 
-    if (!levelData?.background?.path_texture) {
+    if (!levelData?.background?.path_texture && !levelData?.background?.water_texture) {
       this.renderGreyPaths(grid);
     }
 
@@ -209,39 +210,45 @@ export abstract class GameSceneRenderer {
         const isWall = cell?.properties.has('wall');
         const isPlatform = cell?.properties.has('platform');
         const isPath = cell?.properties.has('path');
+        const isWater = cell?.properties.has('water');
 
         const x = col * this.cellSize;
         const y = row * this.cellSize;
 
-        if (isPath && pathTexture && this.scene.textures.exists(pathTexture) && !this.isCached) {
+        if ((isPath || isWater) && !this.isCached) {
+          const pathTexture = isWater ? levelData?.background?.water_texture : levelData?.background?.path_texture;
+
+          if (pathTexture && this.scene.textures.exists(pathTexture)) {
           const cellX = col * this.cellSize;
           const cellY = row * this.cellSize;
           const centerX = cellX + this.cellSize / 2;
           const centerY = cellY + this.cellSize / 2;
 
-          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
-          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
-          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
-          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
-          
+          const propertyType = isWater ? 'water' : 'path';
+
+          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has(propertyType);
+          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has(propertyType);
+          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has(propertyType);
+          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has(propertyType);
+
           // Check diagonals for interior detection
-          const hasUpLeft = col > 0 && row > 0 && grid.getCell(col - 1, row - 1)?.properties.has('path');
-          const hasUpRight = col < grid.width - 1 && row > 0 && grid.getCell(col + 1, row - 1)?.properties.has('path');
-          const hasDownLeft = col > 0 && row < grid.height - 1 && grid.getCell(col - 1, row + 1)?.properties.has('path');
-          const hasDownRight = col < grid.width - 1 && row < grid.height - 1 && grid.getCell(col + 1, row + 1)?.properties.has('path');
-          
-          const hasAllNeighbors = hasLeft && hasRight && hasUp && hasDown && 
+          const hasUpLeft = col > 0 && row > 0 && grid.getCell(col - 1, row - 1)?.properties.has(propertyType);
+          const hasUpRight = col < grid.width - 1 && row > 0 && grid.getCell(col + 1, row - 1)?.properties.has(propertyType);
+          const hasDownLeft = col > 0 && row < grid.height - 1 && grid.getCell(col - 1, row + 1)?.properties.has(propertyType);
+          const hasDownRight = col < grid.width - 1 && row < grid.height - 1 && grid.getCell(col + 1, row + 1)?.properties.has(propertyType);
+
+          const hasAllNeighbors = hasLeft && hasRight && hasUp && hasDown &&
                                    hasUpLeft && hasUpRight && hasDownLeft && hasDownRight;
-          
+
           const adjacentCount = [hasUp, hasRight, hasDown, hasLeft].filter(Boolean).length;
 
           let frame = 0;
-          
+
           if (hasAllNeighbors) {
             frame = 0;
           } else {
             const count = adjacentCount;
-            
+
             if (count === 1) {
               if (hasUp) frame = 1;
               else if (hasRight) frame = 2;
@@ -278,6 +285,7 @@ export abstract class GameSceneRenderer {
           sprite.setDisplaySize(this.cellSize, this.cellSize);
           sprite.setDepth(-10);
           this.cellSprites.push(sprite);
+          }
         }
 
         if (hasTexture && levelCell?.backgroundTexture && !this.isCached) {
@@ -436,30 +444,33 @@ export abstract class GameSceneRenderer {
   }
 
   private renderGreyPaths(grid: Grid): void {
-    const pathColor = 0x888888;
-    const outlineColor = 0x000000;
+    this.renderPathType(grid, 'path', 0x888888, 0x000000);
+    this.renderPathType(grid, 'water', 0x4488ff, 0x000000);
+  }
+
+  private renderPathType(grid: Grid, propertyType: CellProperty, fillColor: number, outlineColor: number): void {
     const radius = this.cellSize * 0.4;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        const isPath = cell?.properties.has('path');
+        const hasProperty = cell?.properties.has(propertyType);
 
-        if (isPath) {
+        if (hasProperty) {
           const x = col * this.cellSize;
           const y = row * this.cellSize;
           const centerX = x + this.cellSize / 2;
           const centerY = y + this.cellSize / 2;
 
-          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
-          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
-          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
-          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
-          
+          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has(propertyType);
+          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has(propertyType);
+          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has(propertyType);
+          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has(propertyType);
+
           const adjacentCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0) + (hasUp ? 1 : 0) + (hasDown ? 1 : 0);
           const isDeadEnd = adjacentCount === 1;
 
-          this.graphics.fillStyle(pathColor, 1);
+          this.graphics.fillStyle(fillColor, 1);
 
           if (hasLeft) {
             this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
@@ -500,16 +511,16 @@ export abstract class GameSceneRenderer {
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-        if (!cell?.properties.has('path')) continue;
+        if (!cell?.properties.has(propertyType)) continue;
 
         const x = col * this.cellSize + this.cellSize / 2;
         const y = row * this.cellSize + this.cellSize / 2;
 
-        const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
-        const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
-        const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
-        const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
-        
+        const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has(propertyType);
+        const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has(propertyType);
+        const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has(propertyType);
+        const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has(propertyType);
+
         const adjacentCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0) + (hasUp ? 1 : 0) + (hasDown ? 1 : 0);
         const isDeadEnd = adjacentCount === 1;
 
