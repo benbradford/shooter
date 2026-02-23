@@ -3,9 +3,12 @@ import type { Entity } from '../../Entity';
 import type { TransformComponent } from '../core/TransformComponent';
 import type { InputComponent } from '../input/InputComponent';
 import type { ControlModeComponent } from '../input/ControlModeComponent';
+import { GridPositionComponent } from './GridPositionComponent';
+import { GridCollisionComponent } from './GridCollisionComponent';
 import { HealthComponent } from '../core/HealthComponent';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
+import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 export type WalkProps = {
@@ -22,6 +25,15 @@ export class WalkComponent implements Component {
 
   private velocityX = 0;
   private velocityY = 0;
+  
+  getVelocityX(): number {
+    return this.velocityX;
+  }
+  
+  getVelocityY(): number {
+    return this.velocityY;
+  }
+  
   private readonly accelerationTime: number;
   private readonly decelerationTime: number;
   private readonly stopThreshold: number;
@@ -46,6 +58,11 @@ export class WalkComponent implements Component {
   }
 
   update(delta: number): void {
+    const waterEffect = this.entity.get(WaterEffectComponent);
+    if (waterEffect?.isHopping()) {
+      return;
+    }
+    
     const slide = this.entity.get(SlideAbilityComponent);
     if (slide?.isActive()) {
       return;
@@ -73,7 +90,15 @@ export class WalkComponent implements Component {
     }
 
     const health = this.entity.require(HealthComponent);
-    const speedMultiplier = health.isOverhealed() ? 1.5 : 1;
+    const gridPos = this.entity.get(GridPositionComponent);
+    const gridCollision = this.entity.get(GridCollisionComponent);
+    const grid = gridCollision?.getGrid();
+    const isInWater = grid && gridPos ? grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row)?.properties.has('water') : false;
+    
+    let speedMultiplier = health.isOverhealed() ? 1.5 : 1;
+    if (isInWater) {
+      speedMultiplier *= 0.7;
+    }
 
     this.transformComp.x += this.velocityX * speedMultiplier * (delta / 1000);
     this.transformComp.y += this.velocityY * speedMultiplier * (delta / 1000);

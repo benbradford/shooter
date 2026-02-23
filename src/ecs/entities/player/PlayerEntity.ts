@@ -18,6 +18,7 @@ import { HudBarComponent } from '../../components/ui/HudBarComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
+import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
@@ -210,6 +211,8 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     }
   }));
 
+  entity.add(new WaterEffectComponent());
+
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
@@ -229,6 +232,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     StateMachineComponent,
     AttackComboComponent,
     AnimationComponent,
+    WaterEffectComponent,
   ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);

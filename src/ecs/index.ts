@@ -36,3 +36,4 @@ export { EnemySpawnComponent } from './components/spawner/EnemySpawnComponent';
 export { LevelExitComponent } from './components/level/LevelExitComponent';
 export { PunchParticlesComponent } from './components/visual/PunchParticlesComponent';
 export { RotatingProjectileComponent } from './components/visual/RotatingProjectileComponent';
+export { WaterEffectComponent } from './components/visual/WaterEffectComponent';

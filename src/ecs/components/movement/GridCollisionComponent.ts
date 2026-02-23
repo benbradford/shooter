@@ -17,6 +17,10 @@ export class GridCollisionComponent implements Component {
   private occupiedCells: Set<string> = new Set(); // Track as "col,row" strings
 
   constructor(private readonly grid: Grid) {}
+  
+  getGrid(): Grid {
+    return this.grid;
+  }
 
   private wasCellOccupied(
     col: number,
