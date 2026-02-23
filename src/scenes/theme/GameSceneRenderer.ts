@@ -223,29 +223,55 @@ export abstract class GameSceneRenderer {
           const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
           const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
           const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+          
+          // Check diagonals for interior detection
+          const hasUpLeft = col > 0 && row > 0 && grid.getCell(col - 1, row - 1)?.properties.has('path');
+          const hasUpRight = col < grid.width - 1 && row > 0 && grid.getCell(col + 1, row - 1)?.properties.has('path');
+          const hasDownLeft = col > 0 && row < grid.height - 1 && grid.getCell(col - 1, row + 1)?.properties.has('path');
+          const hasDownRight = col < grid.width - 1 && row < grid.height - 1 && grid.getCell(col + 1, row + 1)?.properties.has('path');
+          
+          const hasAllNeighbors = hasLeft && hasRight && hasUp && hasDown && 
+                                   hasUpLeft && hasUpRight && hasDownLeft && hasDownRight;
+          
+          const adjacentCount = [hasUp, hasRight, hasDown, hasLeft].filter(Boolean).length;
 
-          const connections = [hasUp, hasRight, hasDown, hasLeft];
-          const count = connections.filter(Boolean).length;
           let frame = 0;
-          if (count === 1) {
-            if (hasUp) frame = 1;
-            else if (hasRight) frame = 2;
-            else if (hasDown) frame = 3;
-            else if (hasLeft) frame = 4;
-          } else if (count === 2) {
-            if (hasUp && hasDown) frame = 5;
-            else if (hasLeft && hasRight) frame = 6;
-            else if (hasUp && hasRight) frame = 7;
-            else if (hasUp && hasLeft) frame = 8;
-            else if (hasDown && hasRight) frame = 9;
-            else if (hasDown && hasLeft) frame = 10;
-          } else if (count === 3) {
-            if (hasUp && hasRight && hasDown) frame = 11;
-            else if (hasUp && hasRight && hasLeft) frame = 12;
-            else if (hasUp && hasDown && hasLeft) frame = 13;
-            else if (hasRight && hasDown && hasLeft) frame = 14;
-          } else if (count === 4) {
-            frame = 15;
+          
+          if (hasAllNeighbors) {
+            frame = 0;
+          } else {
+            const count = adjacentCount;
+            
+            if (count === 1) {
+              if (hasUp) frame = 1;
+              else if (hasRight) frame = 2;
+              else if (hasDown) frame = 3;
+              else if (hasLeft) frame = 4;
+            } else if (count === 2) {
+              if (hasUp && hasDown) frame = 5;
+              else if (hasLeft && hasRight) frame = 6;
+              else if (hasUp && hasRight) frame = hasUpRight ? 8 : 7;
+              else if (hasUp && hasLeft) frame = hasUpLeft ? 10 : 9;
+              else if (hasDown && hasRight) frame = hasDownRight ? 12 : 11;
+              else if (hasDown && hasLeft) frame = hasDownLeft ? 14 : 13;
+            } else if (count === 3) {
+              if (hasUp && hasRight && hasDown) {
+                const idx = (hasUpRight ? 1 : 0) | (hasDownRight ? 2 : 0);
+                frame = 15 + idx;
+              } else if (hasUp && hasRight && hasLeft) {
+                const idx = (hasUpRight ? 1 : 0) | (hasUpLeft ? 2 : 0);
+                frame = 19 + idx;
+              } else if (hasUp && hasDown && hasLeft) {
+                const idx = (hasUpLeft ? 1 : 0) | (hasDownLeft ? 2 : 0);
+                frame = 23 + idx;
+              } else if (hasRight && hasDown && hasLeft) {
+                const idx = (hasDownRight ? 1 : 0) | (hasDownLeft ? 2 : 0);
+                frame = 27 + idx;
+              }
+            } else if (count === 4) {
+              const idx = (hasUpLeft ? 1 : 0) | (hasUpRight ? 2 : 0) | (hasDownLeft ? 4 : 0) | (hasDownRight ? 8 : 0);
+              frame = 31 + idx;
+            }
           }
 
           const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
