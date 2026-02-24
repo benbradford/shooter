@@ -41,12 +41,14 @@ export type CreateBulletDudeProps = {
   playerEntity: Entity;
   difficulty: BulletDudeDifficulty;
   entityManager: import('../../EntityManager').EntityManager;
-  id?: string;
+  entityId: string;
 }
 
 export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
-  const { scene, col, row, grid, playerEntity, difficulty, entityManager, id } = props;
+  const { scene, col, row, grid, playerEntity, difficulty, entityManager, entityId } = props;
   const config = getBulletDudeDifficultyConfig(difficulty);
+
+  console.log('[BulletDude] Creating with entityId:', entityId);
 
   createBulletDudeAnimations(scene);
 
@@ -54,12 +56,8 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
-  const entity = new Entity('bulletdude');
+  const entity = new Entity(entityId);
   entity.tags.add('enemy');
-
-  if (id) {
-    (entity as Entity & { spawnerId?: string }).spawnerId = id;
-  }
 
   const transform = entity.add(new TransformComponent(x, y, 0, BULLET_DUDE_SCALE));
 

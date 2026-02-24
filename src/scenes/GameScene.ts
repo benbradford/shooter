@@ -528,11 +528,11 @@ export default class GameScene extends Phaser.Scene {
     this.background = rendered.background;
     this.vignette = rendered.vignette;
 
-    this.resetScene();
-    
-    // Save snapshot of world state when entering level
+    // Save snapshot of world state BEFORE spawning entities
     const worldState = WorldStateManager.getInstance();
     this.levelEntrySnapshot = worldState.serializeToJSON();
+
+    this.resetScene();
   }
 
   getCurrentLevelName(): string {

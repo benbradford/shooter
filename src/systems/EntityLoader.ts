@@ -293,7 +293,7 @@ export class EntityLoader {
             playerEntity: player,
             difficulty: bulletDudeData.difficulty,
             entityManager: this.entityManager,
-            id: entityDef.id
+            entityId: entityDef.id
           });
         };
 

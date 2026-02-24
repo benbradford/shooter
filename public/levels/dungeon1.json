@@ -5825,12 +5825,12 @@
       ]
     },
     {
-      "id": "bulletdude",
+      "id": "bullet_dude0",
       "type": "bullet_dude",
       "data": {
         "col": 13,
-        "row": 20,
-        "difficulty": "hard"
+        "row": 21,
+        "difficulty": "medium"
       }
     },
     {
