@@ -130,8 +130,35 @@ export class WaterEffectComponent implements Component {
       this.startX = transform.x;
       this.startY = transform.y;
 
-      // Always hop to center of current cell
-      const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+      // Find the target cell to hop to
+      let targetCol = gridPos.currentCell.col;
+      let targetRow = gridPos.currentCell.row;
+
+      if (nowInWater) {
+        // Entering water - find which adjacent cell has water
+        for (const corner of corners) {
+          const cornerCell = grid.worldToCell(corner.x, corner.y);
+          const cornerCellData = grid.getCell(cornerCell.col, cornerCell.row);
+          if (cornerCellData?.properties.has('water')) {
+            targetCol = cornerCell.col;
+            targetRow = cornerCell.row;
+            break;
+          }
+        }
+      } else {
+        // Exiting water - find which adjacent cell is dry
+        for (const corner of corners) {
+          const cornerCell = grid.worldToCell(corner.x, corner.y);
+          const cornerCellData = grid.getCell(cornerCell.col, cornerCell.row);
+          if (!cornerCellData?.properties.has('water')) {
+            targetCol = cornerCell.col;
+            targetRow = cornerCell.row;
+            break;
+          }
+        }
+      }
+
+      const cellWorld = grid.cellToWorld(targetCol, targetRow);
       const spriteHeight = sprite.sprite.displayHeight;
       this.targetX = cellWorld.x + grid.cellSize / 2;
       this.targetY = cellWorld.y + grid.cellSize / 2 - spriteHeight / 4;
