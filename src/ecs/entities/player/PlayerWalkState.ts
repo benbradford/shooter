@@ -7,6 +7,7 @@ import { InputComponent } from '../../components/input/InputComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
+import { HealthComponent } from '../../components/core/HealthComponent';
 import { handlePunchInput, handleSlideInput } from './PlayerStateHelpers';
 
 export class PlayerWalkState implements IState {
@@ -18,8 +19,9 @@ export class PlayerWalkState implements IState {
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
     const water = this.entity.get(WaterEffectComponent);
+    const health = this.entity.require(HealthComponent);
 
-    const prefix = water?.getIsInWater() ? 'swim' : 'walk';
+    const prefix = water?.getIsInWater() ? 'swim' : health.isOverhealed() ? 'run' : 'walk';
     this.lastAnimKey = `${prefix}_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
   }
@@ -33,6 +35,7 @@ export class PlayerWalkState implements IState {
     const attackCombo = this.entity.require(AttackComboComponent);
     const slide = this.entity.require(SlideAbilityComponent);
     const water = this.entity.get(WaterEffectComponent);
+    const health = this.entity.require(HealthComponent);
 
     if (handleSlideInput(input, slide, attackCombo)) {
       return;
@@ -49,7 +52,7 @@ export class PlayerWalkState implements IState {
       return;
     }
 
-    const prefix = water?.getIsInWater() ? 'swim' : 'walk';
+    const prefix = water?.getIsInWater() ? 'swim' : health.isOverhealed() ? 'run' : 'walk';
     const newKey = `${prefix}_${walk.lastDir}`;
     if (newKey !== this.lastAnimKey) {
       this.lastAnimKey = newKey;

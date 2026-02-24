@@ -7,6 +7,7 @@ import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
 import type HudScene from "./HudScene";
 import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
+import { PLAYER_MAX_HEALTH } from "../ecs/entities/player/PlayerEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { StateMachine } from "../systems/state/StateMachine";
@@ -18,6 +19,7 @@ import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
+import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
 import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
@@ -36,6 +38,7 @@ export default class GameScene extends Phaser.Scene {
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
   private currentLevelName: string = 'dungeon1';
+  private levelEntrySnapshot: string | null = null;
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
@@ -56,13 +59,13 @@ export default class GameScene extends Phaser.Scene {
     // Load world state
     const worldState = WorldStateManager.getInstance();
     await worldState.loadFromFile();
-    
+
     // Initialize event manager first (needed by HudScene)
     this.entityManager = new EntityManager();
     this.eventManager = new EventManagerSystem();
     this.entityManager.setEventManager(this.eventManager);
     this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
-    
+
     // Wait for HudScene to be ready
     if (!this.scene.isActive('HudScene')) {
       this.scene.launch('HudScene');
@@ -90,6 +93,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
     } else if (theme === 'grass') {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
+    } else if (theme === 'wilds') {
+      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
@@ -100,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
     this.initializeScene();
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
-    
+
     this.stateMachine = new StateMachine({
       inGame: new InGameState(
         () => this.entityManager,
@@ -148,7 +153,7 @@ export default class GameScene extends Phaser.Scene {
       punchModeKey.on('down', () => {
         toggleMustFaceEnemy();
       });
-      
+
       const worldStateKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Y);
       worldStateKey.on('down', () => {
         this.saveWorldState();
@@ -174,7 +179,7 @@ export default class GameScene extends Phaser.Scene {
         backgroundTexture: cell.backgroundTexture
       });
     }
-    
+
     // Apply modified cells from world state
     const cellsToInvalidate: Array<{ col: number; row: number }> = [];
     for (const modCell of levelState.modifiedCells) {
@@ -183,7 +188,7 @@ export default class GameScene extends Phaser.Scene {
         properties: new Set(modCell.properties as CellProperty[] ?? []),
         backgroundTexture: modCell.backgroundTexture ?? ''
       });
-      
+
       // Update level data to match
       const levelCell = level.cells.find(c => c.col === modCell.col && c.row === modCell.row);
       if (levelCell) {
@@ -193,10 +198,10 @@ export default class GameScene extends Phaser.Scene {
           delete levelCell.backgroundTexture;
         }
       }
-      
+
       cellsToInvalidate.push({ col: modCell.col, row: modCell.row });
     }
-    
+
     // Invalidate renderer cache for modified cells
     if (cellsToInvalidate.length > 0 && this.sceneRenderer) {
       this.sceneRenderer.invalidateCells(cellsToInvalidate);
@@ -220,16 +225,16 @@ export default class GameScene extends Phaser.Scene {
     this.cameras.main.setZoom(CAMERA_ZOOM);
 
     this.entityLoader = new EntityLoader(
-      this, 
-      this.grid, 
-      this.entityManager, 
-      this.eventManager, 
+      this,
+      this.grid,
+      this.entityManager,
+      this.eventManager,
       this.entityCreatorManager,
       (targetLevel, targetCol, targetRow) => {
-        void this.transitionToLevel(targetLevel, targetCol, targetRow);
+        this.transitionToLevel(targetLevel, targetCol, targetRow);
       }
     );
-    
+
     this.spawnEntities();
 
     // Camera follow player's sprite (unless in editor mode)
@@ -241,29 +246,29 @@ export default class GameScene extends Phaser.Scene {
         this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
       }
     }
-    
+
     this.eventManager.raiseEvent('level_loaded');
   }
 
   resetScene(): void {
     const wasGridDebugEnabled = this.grid.gridDebugEnabled;
-    
+
     if (this.sceneOverlays) {
       this.sceneOverlays.destroy();
     }
 
     this.grid.destroy();
-    
+
     // Don't track destructions during reset
     const worldState = WorldStateManager.getInstance();
     worldState.setTrackDestructions(false);
     this.entityManager.destroyAll();
     worldState.setTrackDestructions(true);
-    
+
     this.entityCreatorManager.clear();
 
     this.initializeScene();
-    
+
     if (wasGridDebugEnabled) {
       this.grid.setGridDebugEnabled(true);
     }
@@ -280,7 +285,7 @@ export default class GameScene extends Phaser.Scene {
 
     let startX: number;
     let startY: number;
-    
+
     if (spawnPos.col !== undefined && spawnPos.row !== undefined) {
       startX = this.grid.cellSize * spawnPos.col + this.grid.cellSize / 2;
       startY = this.grid.cellSize * spawnPos.row + this.grid.cellSize / 2;
@@ -288,9 +293,9 @@ export default class GameScene extends Phaser.Scene {
       startX = this.grid.cellSize * level.playerStart.x + this.grid.cellSize / 2;
       startY = this.grid.cellSize * level.playerStart.y + this.grid.cellSize / 2;
     }
-    
+
     const playerHealth = worldState.getPlayerHealth();
-    
+
     const player = this.entityManager.add(createPlayerEntity({
       scene: this,
       x: startX,
@@ -337,7 +342,7 @@ export default class GameScene extends Phaser.Scene {
     return this.levelData;
   }
 
-  setTheme(theme: 'dungeon' | 'swamp' | 'grass'): void {
+  setTheme(theme: 'dungeon' | 'swamp' | 'grass' | 'wilds'): void {
     this.levelData.levelTheme = theme;
 
     if (this.background) this.background.destroy();
@@ -352,6 +357,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
     } else if (theme === 'grass') {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
+    } else if (theme === 'wilds') {
+      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
     }
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
@@ -366,21 +373,40 @@ export default class GameScene extends Phaser.Scene {
     this.scene.launch('LevelSelectorScene');
   }
 
+  reloadCurrentLevel(): void {
+    const worldState = WorldStateManager.getInstance();
+    
+    // Restore world state to when we entered the level
+    if (this.levelEntrySnapshot) {
+      worldState.loadFromJSON(this.levelEntrySnapshot);
+    } else {
+      // Fallback: just restore health
+      worldState.setPlayerHealth(PLAYER_MAX_HEALTH);
+    }
+    
+    const state = worldState.getState();
+    const spawnCol = state.player.spawnCol ?? this.levelData.playerStart.x;
+    const spawnRow = state.player.spawnRow ?? this.levelData.playerStart.y;
+    
+    this.transitionToLevel(this.currentLevelName, spawnCol, spawnRow);
+  }
+
   private transitionToLevel(targetLevel: string, spawnCol: number, spawnRow: number): void {
     // Update world state before transition
     const worldState = WorldStateManager.getInstance();
     const player = this.entityManager.getFirst('player');
     if (player) {
       const health = player.get(HealthComponent);
-      if (health) {
+      // Only save health if player is alive
+      if (health && health.getHealth() > 0) {
         worldState.setPlayerHealth(health.getHealth());
       }
     }
-    
+
     worldState.updateModifiedCells(this.currentLevelName, this.grid, this.levelData);
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
-    
+
     const cam = this.cameras.main;
     const fadeRect = this.add.rectangle(
       0,
@@ -428,10 +454,10 @@ export default class GameScene extends Phaser.Scene {
       }
     });
   }
-  
+
   private saveWorldState(): void {
     const worldState = WorldStateManager.getInstance();
-    
+
     // Update player health
     const player = this.entityManager.getFirst('player');
     if (player) {
@@ -440,14 +466,14 @@ export default class GameScene extends Phaser.Scene {
         worldState.setPlayerHealth(health.getHealth());
       }
     }
-    
+
     // Update modified cells
     worldState.updateModifiedCells(this.currentLevelName, this.grid, this.levelData);
-    
+
     const json = worldState.serializeToJSON();
     console.log('World State (copy to public/states/default.json):');
     console.log(json);
-    
+
     // Copy to clipboard
     void navigator.clipboard.writeText(json).then(() => {
       console.log('[WorldState] Copied to clipboard');
@@ -492,6 +518,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
     } else if (theme === 'grass') {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
+    } else if (theme === 'wilds') {
+      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
@@ -501,6 +529,10 @@ export default class GameScene extends Phaser.Scene {
     this.vignette = rendered.vignette;
 
     this.resetScene();
+    
+    // Save snapshot of world state when entering level
+    const worldState = WorldStateManager.getInstance();
+    this.levelEntrySnapshot = worldState.serializeToJSON();
   }
 
   getCurrentLevelName(): string {

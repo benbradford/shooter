@@ -25,6 +25,7 @@ export class WalkComponent implements Component {
 
   private velocityX = 0;
   private velocityY = 0;
+  private enabled = true;
   
   getVelocityX(): number {
     return this.velocityX;
@@ -57,7 +58,19 @@ export class WalkComponent implements Component {
     this.controlMode = controlMode;
   }
 
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+    if (!enabled) {
+      this.velocityX = 0;
+      this.velocityY = 0;
+    }
+  }
+
   update(delta: number): void {
+    if (!this.enabled) {
+      return;
+    }
+    
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) {
       return;

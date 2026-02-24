@@ -30,6 +30,7 @@ import { Direction } from '../../../constants/Direction';
 import { StateMachine } from '../../../systems/state/StateMachine';
 import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
+import { PlayerDeathState } from './PlayerDeathState';
 import type { Grid } from '../../../systems/grid/Grid';
 
 import { CAN_SUBMERGE, SPRITE_SCALE } from '../../../constants/GameConstants';
@@ -42,7 +43,8 @@ const PLAYER_WALK_SPEED_PX_PER_SEC = 300;
 const PLAYER_ACCELERATION_TIME_MS = 300;
 const PLAYER_DECELERATION_TIME_MS = 100;
 const PLAYER_STOP_THRESHOLD = 120;
-const PLAYER_MAX_HEALTH = 100;
+
+export const PLAYER_MAX_HEALTH = 100;
 const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 50;
 const SLIDE_ANIM_SECONDS_PER_FRAME = 0.05;
 
@@ -90,6 +92,15 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`walk_${Direction.Left}`, new Animation(['480', '481', '482', '483'], 'repeat', 0.125));
   animMap.set(`walk_${Direction.DownLeft}`, new Animation(['484', '485', '486', '487'], 'repeat', 0.125));
 
+  animMap.set(`run_${Direction.Down}`, new Animation(['200', '201', '202', '203', '204', '205'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.DownRight}`, new Animation(['206', '207', '208', '209', '210', '211'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Right}`, new Animation(['212', '213', '214', '215', '216', '217'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.UpRight}`, new Animation(['218', '219', '220', '221', '222', '223'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Up}`, new Animation(['224', '225', '226', '227', '228', '229'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.UpLeft}`, new Animation(['230', '231', '232', '233', '234', '235'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Left}`, new Animation(['236', '237', '238', '239', '240', '241'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.DownLeft}`, new Animation(['242', '243', '244', '245', '246', '247'], 'repeat', 0.1));
+
   animMap.set(`swim_${Direction.Down}`, new Animation(['352', '353', '354', '355', '356', '357'], 'repeat', 0.125));
   animMap.set(`swim_${Direction.DownRight}`, new Animation(['358', '359', '360', '361', '362', '363'], 'repeat', 0.125));
   animMap.set(`swim_${Direction.Right}`, new Animation(['364', '365', '366', '367', '368', '369'], 'repeat', 0.125));
@@ -98,6 +109,15 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`swim_${Direction.UpLeft}`, new Animation(['382', '383', '384', '385', '386', '387'], 'repeat', 0.125));
   animMap.set(`swim_${Direction.Left}`, new Animation(['388', '389', '390', '391', '392', '393'], 'repeat', 0.125));
   animMap.set(`swim_${Direction.DownLeft}`, new Animation(['394', '395', '396', '397', '398', '399'], 'repeat', 0.125));
+
+  animMap.set(`death_${Direction.Down}`, new Animation(['56', '57', '58', '59', '60', '61', '62'], 'once', 0.15));
+  animMap.set(`death_${Direction.DownRight}`, new Animation(['63', '64', '65', '66', '67', '68', '69'], 'once', 0.15));
+  animMap.set(`death_${Direction.Right}`, new Animation(['70', '71', '72', '73', '74', '75', '76'], 'once', 0.15));
+  animMap.set(`death_${Direction.UpRight}`, new Animation(['77', '78', '79', '80', '81', '82', '83'], 'once', 0.15));
+  animMap.set(`death_${Direction.Up}`, new Animation(['84', '85', '86', '87', '88', '89', '90'], 'once', 0.15));
+  animMap.set(`death_${Direction.UpLeft}`, new Animation(['91', '92', '93', '94', '95', '96', '97'], 'once', 0.15));
+  animMap.set(`death_${Direction.Left}`, new Animation(['98', '99', '100', '101', '102', '103', '104'], 'once', 0.15));
+  animMap.set(`death_${Direction.DownLeft}`, new Animation(['105', '106', '107', '108', '109', '110', '111'], 'once', 0.15));
 
   animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19'], 'once', 0.0415));
@@ -203,6 +223,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     {
       idle: new PlayerIdleState(entity),
       walk: new PlayerWalkState(entity),
+      death: new PlayerDeathState(entity, scene),
     },
     'idle'
   );
@@ -216,6 +237,12 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
       if (other.tags.has('enemy_projectile')) {
         const damage = other.require(DamageComponent);
         health.takeDamage(damage.damage);
+
+        if (health.getHealth() <= 0) {
+          const sm = entity.require(StateMachineComponent);
+          sm.stateMachine.enter('death');
+          return;
+        }
 
         const hitFlash = entity.require(HitFlashComponent);
         hitFlash.flash(300);

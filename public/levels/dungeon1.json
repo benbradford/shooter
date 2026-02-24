@@ -5825,6 +5825,15 @@
       ]
     },
     {
+      "id": "bulletdude",
+      "type": "bullet_dude",
+      "data": {
+        "col": 13,
+        "row": 20,
+        "difficulty": "hard"
+      }
+    },
+    {
       "id": "trigger0",
       "type": "trigger",
       "data": {

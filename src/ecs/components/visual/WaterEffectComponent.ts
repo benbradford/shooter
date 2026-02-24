@@ -5,7 +5,7 @@ import { TransformComponent } from '../core/TransformComponent';
 import { ShadowComponent } from './ShadowComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import { WalkComponent } from '../movement/WalkComponent';
 
 export class WaterEffectComponent implements Component {
   entity!: Entity;
@@ -17,58 +17,11 @@ export class WaterEffectComponent implements Component {
   private startY: number = 0;
 
   getIsInWater(): boolean {
-    return this.isInWater;
+    return this.isInWater && this.hopProgress >= 1;
   }
 
   isHopping(): boolean {
     return this.hopProgress < 1;
-  }
-
-  private isPointInWater(x: number, y: number, grid: Grid, col: number, row: number): boolean {
-    const cellWorld = grid.cellToWorld(col, row);
-    const centerX = cellWorld.x + grid.cellSize / 2;
-    const centerY = cellWorld.y + grid.cellSize / 2;
-    const radius = grid.cellSize * 0.4;
-
-    // Check center circle
-    const distToCenter = Math.hypot(x - centerX, y - centerY);
-    if (distToCenter <= radius) return true;
-
-    // Check rectangles to neighbors
-    const hasLeft = grid.getCell(col - 1, row)?.properties.has('water');
-    const hasRight = grid.getCell(col + 1, row)?.properties.has('water');
-    const hasUp = grid.getCell(col, row - 1)?.properties.has('water');
-    const hasDown = grid.getCell(col, row + 1)?.properties.has('water');
-
-    if (hasLeft && x < centerX && Math.abs(y - centerY) <= radius) return true;
-    if (hasRight && x > centerX && Math.abs(y - centerY) <= radius) return true;
-    if (hasUp && y < centerY && Math.abs(x - centerX) <= radius) return true;
-    if (hasDown && y > centerY && Math.abs(x - centerX) <= radius) return true;
-
-    // Check corner fills
-    const innerRadius = grid.cellSize / 2 - radius;
-    if (hasLeft && hasUp) {
-      const dx = x - cellWorld.x;
-      const dy = y - cellWorld.y;
-      if (dx * dx + dy * dy >= innerRadius * innerRadius) return true;
-    }
-    if (hasRight && hasUp) {
-      const dx = x - (cellWorld.x + grid.cellSize);
-      const dy = y - cellWorld.y;
-      if (dx * dx + dy * dy >= innerRadius * innerRadius) return true;
-    }
-    if (hasLeft && hasDown) {
-      const dx = x - cellWorld.x;
-      const dy = y - (cellWorld.y + grid.cellSize);
-      if (dx * dx + dy * dy >= innerRadius * innerRadius) return true;
-    }
-    if (hasRight && hasDown) {
-      const dx = x - (cellWorld.x + grid.cellSize);
-      const dy = y - (cellWorld.y + grid.cellSize);
-      if (dx * dx + dy * dy >= innerRadius * innerRadius) return true;
-    }
-
-    return false;
   }
 
   update(delta: number): void {
@@ -77,46 +30,69 @@ export class WaterEffectComponent implements Component {
     const transform = this.entity.get(TransformComponent);
     const gridPos = this.entity.get(GridPositionComponent);
     const gridCollision = this.entity.get(GridCollisionComponent);
+    const walk = this.entity.get(WalkComponent);
 
     if (!sprite || !transform || !gridPos || !gridCollision) return;
 
     const grid = gridCollision.getGrid();
+    const currentCell = grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+    const isCurrentCellWater = currentCell?.properties.has('water') ?? false;
 
-    // Check all 4 corners of collision box
-    const boxLeft = transform.x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
-    const boxRight = transform.x + gridPos.collisionBox.offsetX + gridPos.collisionBox.width / 2;
-    const boxTop = transform.y + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
-    const boxBottom = transform.y + gridPos.collisionBox.offsetY + gridPos.collisionBox.height / 2;
-
-    const corners = [
-      { x: boxLeft, y: boxTop },
-      { x: boxRight, y: boxTop },
-      { x: boxLeft, y: boxBottom },
-      { x: boxRight, y: boxBottom }
-    ];
-
-    let waterCornerCount = 0;
-
-    for (const corner of corners) {
-      const cornerCell = grid.worldToCell(corner.x, corner.y);
-      const cornerCellData = grid.getCell(cornerCell.col, cornerCell.row);
-      const cornerCellHasWater = cornerCellData?.properties.has('water') ?? false;
-
-      if (cornerCellHasWater && this.isPointInWater(corner.x, corner.y, grid, cornerCell.col, cornerCell.row)) {
-        waterCornerCount++;
-      }
-    }
-
-    // Determine water state - require at least 2 corners in water to hop in, 3+ to stay in
+    // Determine water state
     let nowInWater = false;
-    if (!this.isInWater && waterCornerCount >= 2) {
-      nowInWater = true; // Hop in
-    } else if (this.isInWater && waterCornerCount >= 3) {
-      nowInWater = true; // Stay in
-    } else if (this.isInWater && waterCornerCount < 3) {
-      nowInWater = false; // Hop out
+
+    if (this.isInWater) {
+      // Already in water - check if should exit
+      if (walk && isCurrentCellWater) {
+        const moveX = walk.lastMoveX;
+        const moveY = walk.lastMoveY;
+        
+        if (moveX !== 0 || moveY !== 0) {
+          // Check cell in movement direction
+          const checkCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
+          const checkRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
+          const nextCell = grid.getCell(checkCol, checkRow);
+          const isNextCellDry = !nextCell?.properties.has('water');
+
+          if (isNextCellDry) {
+            // Check distance to edge in movement direction
+            const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+            const cellCenterX = cellWorld.x + grid.cellSize / 2;
+            const cellCenterY = cellWorld.y + grid.cellSize / 2;
+            const halfCell = grid.cellSize / 2;
+
+            // Calculate distance to the edge in movement direction
+            let distToEdge = Infinity;
+            if (moveX < 0) {
+              distToEdge = transform.x - (cellCenterX - halfCell); // Distance to left edge
+            } else if (moveX > 0) {
+              distToEdge = (cellCenterX + halfCell) - transform.x; // Distance to right edge
+            } else if (moveY < 0) {
+              distToEdge = transform.y - (cellCenterY - halfCell); // Distance to top edge
+            } else if (moveY > 0) {
+              distToEdge = (cellCenterY + halfCell) - transform.y; // Distance to bottom edge
+            }
+
+            console.log('[Water] Distance to edge:', distToEdge.toFixed(1), 'threshold:', (halfCell / 2).toFixed(1));
+
+            // Exit if within half cell of edge
+            if (distToEdge <= halfCell / 2) {
+              nowInWater = false;
+            } else {
+              nowInWater = true;
+            }
+          } else {
+            nowInWater = true;
+          }
+        } else {
+          nowInWater = isCurrentCellWater;
+        }
+      } else {
+        nowInWater = isCurrentCellWater;
+      }
     } else {
-      nowInWater = this.isInWater; // Keep current state
+      // Not in water - check if should enter
+      nowInWater = isCurrentCellWater;
     }
 
     if (shadow) {
@@ -135,27 +111,17 @@ export class WaterEffectComponent implements Component {
       let targetRow = gridPos.currentCell.row;
 
       if (nowInWater) {
-        // Entering water - find which adjacent cell has water
-        for (const corner of corners) {
-          const cornerCell = grid.worldToCell(corner.x, corner.y);
-          const cornerCellData = grid.getCell(cornerCell.col, cornerCell.row);
-          if (cornerCellData?.properties.has('water')) {
-            targetCol = cornerCell.col;
-            targetRow = cornerCell.row;
-            break;
-          }
-        }
-      } else {
-        // Exiting water - find which adjacent cell is dry
-        for (const corner of corners) {
-          const cornerCell = grid.worldToCell(corner.x, corner.y);
-          const cornerCellData = grid.getCell(cornerCell.col, cornerCell.row);
-          if (!cornerCellData?.properties.has('water')) {
-            targetCol = cornerCell.col;
-            targetRow = cornerCell.row;
-            break;
-          }
-        }
+        // Entering water - hop to current cell center
+        targetCol = gridPos.currentCell.col;
+        targetRow = gridPos.currentCell.row;
+        console.log('[Water] Entering water, hopping to current cell:', targetCol, targetRow);
+      } else if (walk) {
+        // Exiting water - hop to the adjacent dry cell in movement direction
+        const moveX = walk.lastMoveX;
+        const moveY = walk.lastMoveY;
+        targetCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
+        targetRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
+        console.log('[Water] Exiting water from', gridPos.currentCell.col, gridPos.currentCell.row, 'to', targetCol, targetRow, 'move:', moveX, moveY);
       }
 
       const cellWorld = grid.cellToWorld(targetCol, targetRow);

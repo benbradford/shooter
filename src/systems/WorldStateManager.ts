@@ -43,6 +43,10 @@ export class WorldStateManager {
     }
   }
 
+  loadFromJSON(json: string): void {
+    this.worldState = JSON.parse(json);
+  }
+
   getState(): WorldState {
     return this.worldState;
   }
