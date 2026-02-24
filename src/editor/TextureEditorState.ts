@@ -1,7 +1,31 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'dungeon_platform', 'wall_torch', 'pillar', 'tree1', 'fence1', 'bush1', 'house1', 'house2', 'house3', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6'];
+const AVAILABLE_TEXTURES: string[] = [
+  'bush1',
+  'door_closed',
+  'dungeon_door',
+  'dungeon_floor',
+  'dungeon_key',
+  'dungeon_platform',
+  'dungeon_window',
+  'fence1',
+  'house1',
+  'house2',
+  'house3',
+  'pillar',
+  'rocks1',
+  'rocks2',
+  'rocks3',
+  'rocks4',
+  'rocks5',
+  'rocks6',
+  'stone_floor',
+  'stone_stairs',
+  'stone_wall',
+  'tree1',
+  'wall_torch'
+];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -40,11 +64,11 @@ export class TextureEditorState extends EditorState {
     const endIndex = Math.min(startIndex + TEXTURES_PER_PAGE, AVAILABLE_TEXTURES.length);
     const pageTextures = AVAILABLE_TEXTURES.slice(startIndex, endIndex);
 
-    // Create texture buttons in columns (original layout)
+    // Create texture buttons in columns (left to right)
     pageTextures.forEach((textureName, index) => {
       const col = Math.floor(index / maxButtonsPerColumn);
       const row = index % maxButtonsPerColumn;
-      const buttonX = panelStartX - col * 200;
+      const buttonX = panelStartX - (2 - col) * 200; // Reverse column order
       const buttonY = panelY + row * buttonHeight;
       const container = this.createTextureButton(buttonX, buttonY, textureName);
       this.textureButtons.push(container);
@@ -199,7 +223,8 @@ export class TextureEditorState extends EditorState {
     
     if (hitObjects.length > 0) {
       for (const obj of hitObjects) {
-        if ((obj as any).depth >= 1000) {
+        const gameObj = obj as unknown as { depth?: number };
+        if (gameObj.depth !== undefined && gameObj.depth >= 1000) {
           return; // UI element clicked
         }
       }

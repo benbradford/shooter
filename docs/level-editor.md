@@ -358,17 +358,18 @@ Allows selecting and modifying individual grid cells using keyboard navigation o
 Allows painting background textures onto grid cells.
 
 **UI Panel (right side):**
-- Shows available textures with 60x60 previews
-- Currently includes:
-  - `door_closed` - Door texture
-  - `dungeon_door` - Dungeon door texture
-- **Clear** button - Removes texture from cells (highlights green when selected)
+- Shows available textures in a paginated 3-column grid
+- Each texture displayed with 60x60 preview
+- Pagination arrows at bottom to navigate pages
+- Clear button to remove textures
+- Currently includes: doors, dungeon elements, platforms, rocks, houses, trees, bushes, fences
 
 **Usage:**
 1. Click a texture in the panel to select it (highlights green)
-2. Click any grid cell to apply the selected texture
-3. Click "Clear" to deselect, then click cells to remove textures
-4. **Back** button returns to default mode
+2. Use left/right arrows to navigate pages if needed
+3. Click any grid cell to apply the selected texture
+4. Click "Clear" to deselect, then click cells to remove textures
+5. **Back** button returns to default mode
 
 **Visual Feedback:**
 - Selected texture has green background
@@ -381,6 +382,12 @@ Allows painting background textures onto grid cells.
 - Click "Clear" button (turns green)
 - Click cells to remove their background textures
 - Empty string (`''`) is passed to clear the texture
+
+**Pagination:**
+- Displays up to 15 textures per page (3 columns × 5 rows)
+- Left/Right arrows navigate between pages
+- Page indicator shows current/total (e.g., "1/2")
+- Arrows disabled (grey) when at first/last page
 
 ### Path Textures
 

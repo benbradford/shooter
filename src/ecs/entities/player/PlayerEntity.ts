@@ -32,7 +32,7 @@ import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import type { Grid } from '../../../systems/grid/Grid';
 
-import { CAN_WALK_ON_WATER, SPRITE_SCALE } from '../../../constants/GameConstants';
+import { CAN_SUBMERGE, SPRITE_SCALE } from '../../../constants/GameConstants';
 
 const PLAYER_SCALE = 2 * SPRITE_SCALE;
 const PLAYER_SPRITE_FRAME = 0;
@@ -81,14 +81,23 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`idle_${Direction.Down}`, new Animation(['6'], 'static', 0));
   animMap.set(`idle_${Direction.Left}`, new Animation(['7'], 'static', 0));
 
-  animMap.set(`walk_${Direction.Down}`, new Animation(['408', '409', '410', '411'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.DownRight}`, new Animation(['412', '413', '414', '415'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Right}`, new Animation(['416', '417', '418', '419'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.UpRight}`, new Animation(['420', '421', '422', '423'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Up}`, new Animation(['424', '425', '426', '427'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['428', '429', '430', '431'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Left}`, new Animation(['432', '433', '434', '435'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['436', '437', '438', '439'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Down}`, new Animation(['456', '457', '458', '459'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownRight}`, new Animation(['460', '461', '462', '463'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Right}`, new Animation(['464', '465', '466', '467'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpRight}`, new Animation(['468', '469', '470', '471'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Up}`, new Animation(['472', '473', '474', '475'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['476', '477', '478', '479'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Left}`, new Animation(['480', '481', '482', '483'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['484', '485', '486', '487'], 'repeat', 0.125));
+
+  animMap.set(`swim_${Direction.Down}`, new Animation(['352', '353', '354', '355', '356', '357'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.DownRight}`, new Animation(['358', '359', '360', '361', '362', '363'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Right}`, new Animation(['364', '365', '366', '367', '368', '369'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.UpRight}`, new Animation(['370', '371', '372', '373', '374', '375'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Up}`, new Animation(['376', '377', '378', '379', '380', '381'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.UpLeft}`, new Animation(['382', '383', '384', '385', '386', '387'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Left}`, new Animation(['388', '389', '390', '391', '392', '393'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.DownLeft}`, new Animation(['394', '395', '396', '397', '398', '399'], 'repeat', 0.125));
 
   animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19'], 'once', 0.0415));
@@ -215,7 +224,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   }));
 
 
-  if (!CAN_WALK_ON_WATER) {
+  if (CAN_SUBMERGE) {
     entity.add(new WaterEffectComponent());
   }
 
@@ -238,7 +247,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     StateMachineComponent,
     AttackComboComponent,
     AnimationComponent,
-    ...(CAN_WALK_ON_WATER ? [] : [WaterEffectComponent]),
+    ...(CAN_SUBMERGE ? [WaterEffectComponent] : []),
   ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);

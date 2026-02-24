@@ -18,7 +18,8 @@ When asked to "update the docs":
 3. Add new information for new features
 4. Keep docs accurate and minimal
 5. Update multiple doc files as needed
-6. **Ask clarifying questions if there's conflicting information or unclear behavior**
+6. **Update `.agents/summary` to keep it in sync with doc changes**
+7. **Ask clarifying questions if there's conflicting information or unclear behavior**
 
 ## 🚨 Start Here
 

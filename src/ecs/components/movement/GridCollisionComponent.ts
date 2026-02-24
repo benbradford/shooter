@@ -9,7 +9,7 @@ import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
 import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
-import { CAN_WALK_ON_WATER } from '../../../constants/GameConstants';
+import { CAN_SUBMERGE } from '../../../constants/GameConstants';
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -18,7 +18,7 @@ export class GridCollisionComponent implements Component {
   private occupiedCells: Set<string> = new Set(); // Track as "col,row" strings
 
   constructor(private readonly grid: Grid) {}
-  
+
   getGrid(): Grid {
     return this.grid;
   }
@@ -61,18 +61,18 @@ export class GridCollisionComponent implements Component {
     // Block movement into higher layers (unless transition or coming from transition)
     const toLayer = this.grid.getLayer(toCell);
     const fromLayer = this.grid.getLayer(fromCell);
-    
+
     if (toLayer > fromLayer && !this.grid.isTransition(fromCell) && !this.grid.isTransition(toCell)) {
       return false;
     }
-    
+
     // Block movement into walls specifically
     if (this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
       return false;
     }
-    
+
     // Block movement into water
-    if (!CAN_WALK_ON_WATER && toCell.properties.has('water')) {
+    if (!CAN_SUBMERGE && toCell.properties.has('water')) {
       return false;
     }
 
@@ -80,12 +80,12 @@ export class GridCollisionComponent implements Component {
     if (this.grid.isTransition(fromCell)) {
       // Allow movement to transitions
       if (this.grid.isTransition(toCell)) return true;
-      
+
       // Block movement into walls at any layer
       if (this.grid.isWall(toCell)) {
         return false;
       }
-      
+
       // Allow movement to adjacent layers
       if (toLayer >= fromLayer - 1 && toLayer <= fromLayer + 1) return true;
       return false;
@@ -103,7 +103,7 @@ export class GridCollisionComponent implements Component {
     if (fromCol !== toCol && fromRow !== toRow) {
       const cellX = this.grid.getCell(toCol, fromRow);
       const cellY = this.grid.getCell(fromCol, toRow);
-      
+
       // Block if EITHER intermediate cell is a different layer
       if (cellX && this.grid.getLayer(cellX) !== fromLayer && !this.grid.isTransition(cellX)) return false;
       if (cellY && this.grid.getLayer(cellY) !== fromLayer && !this.grid.isTransition(cellY)) return false;
@@ -139,12 +139,12 @@ export class GridCollisionComponent implements Component {
     const prevCenterY = this.previousY + gridPos.collisionBox.offsetY;
     const prevCenterCell = this.grid.worldToCell(prevCenterX, prevCenterY);
     const prevCenterCellData = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
-    
+
     // Check if ANY previously occupied cell was a transition
     let wasInTransition = prevCenterCellData ? this.grid.isTransition(prevCenterCellData) : false;
     let minTransitionLayer = prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer;
     let maxTransitionLayer = prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer;
-    
+
     for (let row = prevTopLeftCell.row; row <= prevBottomRightCell.row; row++) {
       for (let col = prevTopLeftCell.col; col <= prevBottomRightCell.col; col++) {
         const cell = this.grid.getCell(col, row);
@@ -156,7 +156,7 @@ export class GridCollisionComponent implements Component {
         }
       }
     }
-    
+
     // Also check if ANY new position cell is a transition
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
@@ -169,7 +169,7 @@ export class GridCollisionComponent implements Component {
         }
       }
     }
-    
+
     // When in or near a transition, allow all layers from min-1 to max+1
     const allowedLayers = new Set<number>();
     if (wasInTransition) {
@@ -184,7 +184,7 @@ export class GridCollisionComponent implements Component {
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
         const cell = this.grid.getCell(col, row);
-        
+
         // Block if any overlapping cell is a different layer (unless it's a transition or allowed)
         if (cell && !this.grid.isTransition(cell) && !allowedLayers.has(this.grid.getLayer(cell))) {
           return true; // blocked
@@ -317,7 +317,7 @@ export class GridCollisionComponent implements Component {
     const centerY = transform.y + gridPos.collisionBox.offsetY;
     const centerCell = this.grid.worldToCell(centerX, centerY);
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
-    
+
     if (centerCellData) {
       // Always update to the current cell's layer
       gridPos.currentLayer = this.grid.getLayer(centerCellData);

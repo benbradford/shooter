@@ -5,6 +5,7 @@ import { TransformComponent } from '../core/TransformComponent';
 import { ShadowComponent } from './ShadowComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
+import type { Grid } from '../../../systems/grid/Grid';
 
 export class WaterEffectComponent implements Component {
   entity!: Entity;
@@ -15,11 +16,15 @@ export class WaterEffectComponent implements Component {
   private startX: number = 0;
   private startY: number = 0;
 
+  getIsInWater(): boolean {
+    return this.isInWater;
+  }
+
   isHopping(): boolean {
     return this.hopProgress < 1;
   }
 
-  private isPointInWater(x: number, y: number, grid: any, col: number, row: number): boolean {
+  private isPointInWater(x: number, y: number, grid: Grid, col: number, row: number): boolean {
     const cellWorld = grid.cellToWorld(col, row);
     const centerX = cellWorld.x + grid.cellSize / 2;
     const centerY = cellWorld.y + grid.cellSize / 2;

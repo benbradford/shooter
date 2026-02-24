@@ -581,16 +581,21 @@ export class MyState implements IState {
 
 ### Sprite Sheet Frame Layout
 
-**Attacker sprite sheet** (672×672 pixels, 12×12 grid, 56×56 frames):
-- Frames 0-7: Idle (8 directions)
+**Attacker sprite sheet** (672×2072 pixels, 12×37 grid, 56×56 frames, 440 frames total):
+- Frames 0-7: Idle (8 directions, alphabetical order)
 - Frames 8-55: Cross-punch (6 frames × 8 directions)
-- Frames 56-87: Walking (4 frames × 8 directions)
-- Frames 88-115: Surprise uppercut (7 frames × 4 directions)
-- Frames 116-127: Running slide (6 frames × 2 directions)
-- Frames 128-133: Running (6 frames, south only)
-- Frames 134-140: Throw object (7 frames, east only)
+- Frames 56-111: Falling-back-death (7 frames × 8 directions)
+- Frames 112-151: Picking-up (5 frames × 8 directions)
+- Frames 152-199: Pushing (6 frames × 8 directions)
+- Frames 200-247: Running-6-frames (6 frames × 8 directions)
+- Frames 248-295: Running-slide (6 frames × 8 directions)
+- Frames 296-351: Surprise-uppercut (7 frames × 8 directions)
+- Frames 352-407: Throw-object (7 frames × 8 directions)
+- Frames 408-439: Walking-5 (4 frames × 8 directions)
 
-See `docs/attacker-spritesheet-reference.md` for complete frame mapping.
+**Note:** Idle frames (0-7) are in alphabetical order (east, north-east, north-west, north, south-east, south-west, south, west), not Direction enum order.
+
+See `docs/attacker-spritesheet-reference.md` for complete frame mapping and `agent-sops/updating-attacker-spritesheet.md` for regeneration process.
 
 **Skeleton sprite sheet** (288×1344 pixels, 6 columns × 28 rows, 48×48 frames):
 - Rows 0-7: Idle (1 frame, 8 directions)

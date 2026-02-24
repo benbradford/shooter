@@ -6,6 +6,7 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { InputComponent } from '../../components/input/InputComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
+import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { Direction } from '../../../constants/Direction';
 import { handlePunchInput, handleSlideInput } from './PlayerStateHelpers';
 
@@ -17,9 +18,11 @@ export class PlayerIdleState implements IState {
   onEnter(): void {
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
+    const water = this.entity.get(WaterEffectComponent);
     
     this.lastDir = walk.lastDir;
-    anim.animationSystem.play(`idle_${this.lastDir}`);
+    const prefix = water?.getIsInWater() ? 'swim' : 'idle';
+    anim.animationSystem.play(`${prefix}_${this.lastDir}`);
   }
 
 
@@ -29,6 +32,7 @@ export class PlayerIdleState implements IState {
     const input = this.entity.require(InputComponent);
     const attackCombo = this.entity.require(AttackComboComponent);
     const slide = this.entity.require(SlideAbilityComponent);
+    const water = this.entity.get(WaterEffectComponent);
     
     if (handleSlideInput(input, slide, attackCombo)) {
       return;
@@ -40,7 +44,8 @@ export class PlayerIdleState implements IState {
     
     if (walk.lastDir !== this.lastDir) {
       this.lastDir = walk.lastDir;
-      anim.animationSystem.play(`idle_${this.lastDir}`);
+      const prefix = water?.getIsInWater() ? 'swim' : 'idle';
+      anim.animationSystem.play(`${prefix}_${this.lastDir}`);
     }
     
     if (walk.isMoving()) {

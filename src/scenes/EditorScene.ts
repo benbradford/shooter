@@ -287,15 +287,8 @@ export default class EditorScene extends Phaser.Scene {
   }
 
   setCellData(col: number, row: number, data: { layer?: number; properties?: Set<CellProperty>; backgroundTexture?: string }): void {
-    const gameScene = this.scene.get('game') as any;
     const grid = this.getGrid();
     grid.setCell(col, row, data);
-    
-    // Invalidate renderer cache so changes are visible
-    if (gameScene.sceneRenderer) {
-      gameScene.sceneRenderer.invalidateCache();
-    }
-    
     grid.render();
   }
 

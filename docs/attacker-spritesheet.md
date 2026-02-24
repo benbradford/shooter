@@ -2,8 +2,8 @@
 
 **File:** `public/assets/attacker/attacker-spritesheet.png`  
 **Frame Size:** 56x56 pixels  
-**Sheet Dimensions:** 672×672 pixels (12×12 grid)
-**Total Frames:** 141 frames (3 empty slots at end)
+**Sheet Dimensions:** 672×2072 pixels (12×37 grid)
+**Total Frames:** 440 frames
 
 ## Frame Layout
 
@@ -37,66 +37,85 @@ Single frame per direction, no animation.
 | 44-49   | West        |
 | 50-55   | South-West  |
 
-### Walking Animation (Frames 56-87)
-4-frame walk animation for each direction (8 directions × 4 frames = 32 frames).
+### Falling-Back-Death (Frames 56-111)
+7-frame death animation (8 directions × 7 frames = 56 frames).
+
+### Picking-Up (Frames 112-151)
+5-frame pickup animation (8 directions × 5 frames = 40 frames).
+
+### Pushing (Frames 152-199)
+6-frame push animation (8 directions × 6 frames = 48 frames).
+
+### Running-6-Frames (Frames 200-247)
+6-frame running animation (8 directions × 6 frames = 48 frames).
+
+### Running-Slide (Frames 248-295)
+6-frame slide animation (8 directions × 6 frames = 48 frames).
 
 | Frames  | Direction    |
 |---------|-------------|
-| 56-59   | South       |
-| 60-63   | South-East  |
-| 64-67   | East        |
-| 68-71   | North-East  |
-| 72-75   | North       |
-| 76-79   | North-West  |
-| 80-83   | West        |
-| 84-87   | South-West  |
+| 248-253 | South       |
+| 254-259 | South-East  |
+| 260-265 | East        |
+| 266-271 | North-East  |
+| 272-277 | North       |
+| 278-283 | North-West  |
+| 284-289 | West        |
+| 290-295 | South-West  |
 
-### Surprise Uppercut (Frames 88-115)
-7-frame uppercut animation (4 directions × 7 frames = 28 frames).
+### Surprise-Uppercut (Frames 296-351)
+7-frame uppercut animation (8 directions × 7 frames = 56 frames).
 
-| Frames  | Direction |
-|---------|-----------|
-| 88-94   | South     |
-| 95-101  | East      |
-| 102-108 | North     |
-| 109-115 | West      |
+### Swimming (Frames 352-399)
+6-frame swimming animation (8 directions × 6 frames = 48 frames).
+Generated from pushing animation with dark blue overlay on bottom 40% to simulate water submersion.
 
-### Running Slide (Frames 116-127)
-6-frame slide animation (2 directions × 6 frames = 12 frames).
+### Throw-Object (Frames 400-455)
+7-frame throw animation (8 directions × 7 frames = 56 frames).
 
-| Frames  | Direction |
-|---------|-----------|
-| 116-121 | South     |
-| 122-127 | East      |
+### Walking-5 (Frames 456-487)
+4-frame walk animation (8 directions × 4 frames = 32 frames).
 
-### Running (Frames 128-133)
-6-frame running animation (South only).
-
-### Throw Object (Frames 134-140)
-7-frame throw animation (East only).
+| Frames  | Direction    |
+|---------|-------------|
+| 456-459 | South       |
+| 460-463 | South-East  |
+| 464-467 | East        |
+| 468-471 | North-East  |
+| 472-475 | North       |
+| 476-479 | North-West  |
+| 480-483 | West        |
+| 484-487 | South-West  |
 
 ## Regenerating the Sprite Sheet
 
-See `docs/attacker-spritesheet-reference.md` for complete instructions on regenerating the spritesheet from source images.
+Run the generation script:
+
+```bash
+node scripts/generate-attacker-spritesheet.js
+```
+
+This automatically discovers all animations in `public/assets/attacker/animations/` and generates the spritesheet.
+
+See `agent-sops/updating-attacker-spritesheet.md` for complete SOP.
 
 ## Usage in Code
 
 The player entity maps Direction enum values to frame indices:
 
 ```typescript
-// Idle - must explicitly map enum values to frame indices
+// Idle - alphabetical order
 animMap.set(`idle_${Direction.Right}`, new Animation(['0'], 'static', 0));
 animMap.set(`idle_${Direction.UpRight}`, new Animation(['1'], 'static', 0));
-animMap.set(`idle_${Direction.UpLeft}`, new Animation(['2'], 'static', 0));
-animMap.set(`idle_${Direction.Up}`, new Animation(['3'], 'static', 0));
-animMap.set(`idle_${Direction.DownRight}`, new Animation(['4'], 'static', 0));
-animMap.set(`idle_${Direction.DownLeft}`, new Animation(['5'], 'static', 0));
-animMap.set(`idle_${Direction.Down}`, new Animation(['6'], 'static', 0));
-animMap.set(`idle_${Direction.Left}`, new Animation(['7'], 'static', 0));
+// ... etc
 
-// Walk - direction order matches spritesheet
-animMap.set(`walk_${Direction.Down}`, new Animation(['56', '57', '58', '59'], 'repeat', 0.125));
+// Walk - frames 408-439
+animMap.set(`walk_${Direction.Down}`, new Animation(['408', '409', '410', '411'], 'repeat', 0.125));
+// ... etc
+
+// Slide - frames 248-295
+animMap.set(`slide_start_${Direction.Down}`, new Animation(['248', '249', '250', '251'], 'once', 0.0415));
 // ... etc
 ```
 
-**Critical:** The idle frame order (0-7) does NOT match the Direction enum order due to alphabetical sorting of source files. Walk and punch animations follow the standard South→South-East→East→... order.
+**Critical:** The idle frame order (0-7) does NOT match the Direction enum order due to alphabetical sorting of source files. All other animations follow the standard South→South-East→East→... order.
