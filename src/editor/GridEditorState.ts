@@ -8,8 +8,14 @@ export class GridEditorState extends EditorState {
   private selectionGraphics!: Phaser.GameObjects.Graphics;
   private isDragging: boolean = false;
   private selectedLayer: number = 0;
+  private justEntered: boolean = true;
 
   onEnter(): void {
+    this.justEntered = true;
+    this.scene.time.delayedCall(100, () => {
+      this.justEntered = false;
+    });
+    
     const width = this.scene.cameras.main.width;
 
     // Selection graphics
@@ -141,6 +147,8 @@ export class GridEditorState extends EditorState {
   }
 
   private handlePointerDown(pointer: Phaser.Input.Pointer): void {
+    if (this.justEntered) return;
+    
     if (pointer.y < 80 || pointer.y > this.scene.cameras.main.height - 80) return;
     if (pointer.x > this.scene.cameras.main.width - 200) return;
 

@@ -5956,7 +5956,7 @@
   "background": {
     "floor_texture": "dungeon_floor",
     "floor_tile": 8,
-    "platform_texture": "stone_floor",
+    "platform_texture": "dungeon_platform",
     "stairs_texture": "stone_stairs",
     "wall_texture": "stone_wall",
     "overlays": {

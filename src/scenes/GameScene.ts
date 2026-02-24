@@ -11,7 +11,7 @@ import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimatio
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { StateMachine } from "../systems/state/StateMachine";
 import { InGameState } from "./states/InGameState";
-import { CELL_SIZE, CAMERA_ZOOM } from "../constants/GameConstants";
+import { CELL_SIZE, CAMERA_ZOOM, CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y_PX } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
@@ -210,10 +210,10 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.cameras.main.setBounds(
-      0,
-      0,
-      level.width * this.grid.cellSize,
-      level.height * this.grid.cellSize
+      CAMERA_BOUNDS_INSET_X_PX,
+      CAMERA_BOUNDS_INSET_Y_PX,
+      level.width * this.grid.cellSize - CAMERA_BOUNDS_INSET_X_PX,
+      level.height * this.grid.cellSize - CAMERA_BOUNDS_INSET_Y_PX
     );
 
     // Set camera zoom - HUD scene is separate so this won't affect touch

@@ -32,7 +32,7 @@ import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import type { Grid } from '../../../systems/grid/Grid';
 
-import { SPRITE_SCALE } from '../../../constants/GameConstants';
+import { CAN_WALK_ON_WATER, SPRITE_SCALE } from '../../../constants/GameConstants';
 
 const PLAYER_SCALE = 2 * SPRITE_SCALE;
 const PLAYER_SPRITE_FRAME = 0;
@@ -81,14 +81,14 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`idle_${Direction.Down}`, new Animation(['6'], 'static', 0));
   animMap.set(`idle_${Direction.Left}`, new Animation(['7'], 'static', 0));
 
-  animMap.set(`walk_${Direction.Down}`, new Animation(['56', '57', '58', '59'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.DownRight}`, new Animation(['60', '61', '62', '63'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Right}`, new Animation(['64', '65', '66', '67'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.UpRight}`, new Animation(['68', '69', '70', '71'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Up}`, new Animation(['72', '73', '74', '75'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['76', '77', '78', '79'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Left}`, new Animation(['80', '81', '82', '83'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['84', '85', '86', '87'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Down}`, new Animation(['408', '409', '410', '411'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownRight}`, new Animation(['412', '413', '414', '415'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Right}`, new Animation(['416', '417', '418', '419'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpRight}`, new Animation(['420', '421', '422', '423'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Up}`, new Animation(['424', '425', '426', '427'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['428', '429', '430', '431'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Left}`, new Animation(['432', '433', '434', '435'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['436', '437', '438', '439'], 'repeat', 0.125));
 
   animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19'], 'once', 0.0415));
@@ -99,20 +99,23 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`punch_${Direction.Left}`, new Animation(['44', '45', '46', '47', '48', '49'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownLeft}`, new Animation(['50', '51', '52', '53', '54', '55'], 'once', 0.0415));
 
-  animMap.set(`slide_start_${Direction.Down}`, new Animation(['116', '117', '118', '119'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.DownRight}`, new Animation(['122', '123', '124', '125'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.Right}`, new Animation(['128', '129', '130', '131'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.UpRight}`, new Animation(['134', '135', '136', '137'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.Up}`, new Animation(['140', '141', '142', '143'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.UpLeft}`, new Animation(['146', '147', '148', '149'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.Left}`, new Animation(['152', '153', '154', '155'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.DownLeft}`, new Animation(['158', '159', '160', '161'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Down}`, new Animation(['248', '249', '250', '251'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.DownRight}`, new Animation(['254', '255', '256', '257'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Right}`, new Animation(['260', '261', '262', '263'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.UpRight}`, new Animation(['266', '267', '268', '269'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Up}`, new Animation(['272', '273', '274', '275'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.UpLeft}`, new Animation(['278', '279', '280', '281'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.Left}`, new Animation(['284', '285', '286', '287'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_start_${Direction.DownLeft}`, new Animation(['290', '291', '292', '293'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
 
-  animMap.set(`slide_end_${Direction.Down}`, new Animation(['120', '121'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.DownRight}`, new Animation(['126', '127'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.Right}`, new Animation(['132', '133'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.UpRight}`, new Animation(['138', '139'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.Up}`, new Animation(['144', '145'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Down}`, new Animation(['252', '253'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.DownRight}`, new Animation(['258', '259'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Right}`, new Animation(['264', '265'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.UpRight}`, new Animation(['270', '271'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Up}`, new Animation(['276', '277'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.UpLeft}`, new Animation(['282', '283'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.Left}`, new Animation(['288', '289'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
+  animMap.set(`slide_end_${Direction.DownLeft}`, new Animation(['294', '295'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
   animMap.set(`slide_end_${Direction.UpLeft}`, new Animation(['150', '151'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
   animMap.set(`slide_end_${Direction.Left}`, new Animation(['156', '157'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
   animMap.set(`slide_end_${Direction.DownLeft}`, new Animation(['162', '163'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
@@ -154,11 +157,11 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new GridCollisionComponent(grid));
 
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
-  
+
   if (initialHealth !== undefined) {
     health.setHealth(initialHealth);
   }
-  
+
   entity.add(new MedipackHealerComponent());
 
   const hudBars = entity.add(new HudBarComponent(scene, [
@@ -211,7 +214,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     }
   }));
 
-  entity.add(new WaterEffectComponent());
+
+  if (!CAN_WALK_ON_WATER) {
+    entity.add(new WaterEffectComponent());
+  }
 
   entity.setUpdateOrder([
     TransformComponent,
@@ -232,7 +238,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     StateMachineComponent,
     AttackComboComponent,
     AnimationComponent,
-    WaterEffectComponent,
+    ...(CAN_WALK_ON_WATER ? [] : [WaterEffectComponent]),
   ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);

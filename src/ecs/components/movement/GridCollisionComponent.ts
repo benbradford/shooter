@@ -9,6 +9,7 @@ import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
 import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
+import { CAN_WALK_ON_WATER } from '../../../constants/GameConstants';
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -67,6 +68,11 @@ export class GridCollisionComponent implements Component {
     
     // Block movement into walls specifically
     if (this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
+      return false;
+    }
+    
+    // Block movement into water
+    if (!CAN_WALK_ON_WATER && toCell.properties.has('water')) {
       return false;
     }
 

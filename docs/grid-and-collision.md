@@ -47,7 +47,7 @@ interface CellData {
   occupants: Set<Entity>;         // Which entities are in this cell
 }
 
-export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path';
+export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water';
 ```
 
 **Property Meanings:**

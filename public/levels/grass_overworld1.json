@@ -7,6 +7,70 @@
   },
   "cells": [
     {
+      "col": 0,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 8,
       "row": 0,
       "layer": 1,
@@ -73,27 +137,27 @@
     {
       "col": 16,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
     },
     {
       "col": 17,
       "row": 0,
       "layer": 1,
       "properties": [
-        "wall"
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
     },
     {
       "col": 18,
       "row": 0,
       "layer": 1,
       "properties": [
-        "wall"
+        "blocked"
       ],
       "backgroundTexture": "stone_wall"
     },
@@ -102,16 +166,16 @@
       "row": 0,
       "layer": 1,
       "properties": [
-        "wall"
+        "blocked"
       ],
       "backgroundTexture": "stone_wall"
     },
     {
       "col": 20,
       "row": 0,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "wall"
+        "path"
       ],
       "backgroundTexture": ""
     },
@@ -129,9 +193,9 @@
       "row": 0,
       "layer": 1,
       "properties": [
-        "wall"
+        "blocked"
       ],
-      "backgroundTexture": ""
+      "backgroundTexture": "stone_wall"
     },
     {
       "col": 23,
@@ -147,18 +211,18 @@
       "row": 0,
       "layer": 1,
       "properties": [
-        "wall"
+        "platform"
       ],
-      "backgroundTexture": "stone_wall"
+      "backgroundTexture": ""
     },
     {
       "col": 25,
       "row": 0,
       "layer": 1,
       "properties": [
-        "wall"
+        "platform"
       ],
-      "backgroundTexture": "stone_wall"
+      "backgroundTexture": ""
     },
     {
       "col": 26,
@@ -273,64 +337,68 @@
       ]
     },
     {
+      "col": 0,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 1,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 2,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 3,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ]
     },
     {
       "col": 4,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ]
     },
     {
       "col": 5,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ]
     },
     {
       "col": 6,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 7,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 8,
@@ -399,11 +467,27 @@
     {
       "col": 16,
       "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 17,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 1,
       "layer": 0,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "path"
+      ]
     },
     {
       "col": 21,
@@ -413,6 +497,22 @@
         "path"
       ],
       "backgroundTexture": ""
+    },
+    {
+      "col": 24,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
     },
     {
       "col": 26,
@@ -527,13 +627,20 @@
       ]
     },
     {
+      "col": 0,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 1,
       "row": 2,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 2,
@@ -557,8 +664,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "house1"
+      ]
     },
     {
       "col": 5,
@@ -571,19 +677,18 @@
     {
       "col": 6,
       "row": 2,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 2,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 8,
@@ -599,6 +704,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -683,15 +796,6 @@
       ]
     },
     {
-      "col": 1,
-      "row": 3,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
       "col": 2,
       "row": 3,
       "layer": 0,
@@ -705,14 +809,15 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": "house1"
     },
     {
       "col": 4,
       "row": 3,
       "layer": 0,
       "properties": [
-        "path"
+        "blocked"
       ]
     },
     {
@@ -726,19 +831,18 @@
     {
       "col": 6,
       "row": 3,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 3,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "platform"
+      ]
     },
     {
       "col": 8,
@@ -754,6 +858,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -839,16 +951,33 @@
       ]
     },
     {
+      "col": 0,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
       "col": 1,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 2,
       "row": 4,
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "bush1"
+      ]
     },
     {
-      "col": 4,
+      "col": 3,
       "row": 4,
       "layer": 0,
       "properties": [
@@ -856,13 +985,46 @@
       ]
     },
     {
-      "col": 7,
+      "col": 4,
       "row": 4,
       "layer": 0,
       "properties": [
         "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
+    },
+    {
+      "col": 7,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 20,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
     },
     {
       "col": 21,
@@ -870,7 +1032,8 @@
       "layer": 0,
       "properties": [
         "path"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 30,
@@ -945,13 +1108,22 @@
       ]
     },
     {
+      "col": 0,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
       "col": 1,
       "row": 5,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "fence1"
+      "backgroundTexture": ""
     },
     {
       "col": 2,
@@ -967,17 +1139,18 @@
       "row": 5,
       "layer": 0,
       "properties": [
-        "blocked"
+        "path"
       ],
-      "backgroundTexture": "fence1"
+      "backgroundTexture": ""
     },
     {
       "col": 4,
       "row": 5,
       "layer": 0,
       "properties": [
-        "path"
-      ]
+        "blocked"
+      ],
+      "backgroundTexture": "fence1"
     },
     {
       "col": 5,
@@ -991,29 +1164,27 @@
     {
       "col": 6,
       "row": 5,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "fence1"
+      "backgroundTexture": ""
     },
     {
       "col": 7,
       "row": 5,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "fence1"
+        "platform"
+      ]
     },
     {
-      "col": 8,
+      "col": 20,
       "row": 5,
       "layer": 0,
       "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "fence1"
+        "path"
+      ]
     },
     {
       "col": 21,
@@ -1021,7 +1192,8 @@
       "layer": 0,
       "properties": [
         "path"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 30,
@@ -1088,12 +1260,22 @@
       ]
     },
     {
+      "col": 3,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "path"
+      ],
+      "backgroundTexture": ""
+    },
+    {
       "col": 4,
       "row": 6,
       "layer": 0,
       "properties": [
         "path"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 5,
@@ -1157,7 +1339,8 @@
       "layer": 0,
       "properties": [
         "path"
-      ]
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 13,

@@ -206,6 +206,41 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  dungeon_platform: {
+    key: 'dungeon_platform',
+    path: 'assets/cell_drawables/dungeon_platform.png',
+    type: 'image' as const
+  },
+  rocks1: {
+    key: 'rocks1',
+    path: 'assets/cell_drawables/rocks/rocks1.png',
+    type: 'image' as const
+  },
+  rocks2: {
+    key: 'rocks2',
+    path: 'assets/cell_drawables/rocks/rocks2.png',
+    type: 'image' as const
+  },
+  rocks3: {
+    key: 'rocks3',
+    path: 'assets/cell_drawables/rocks/rocks3.png',
+    type: 'image' as const
+  },
+  rocks4: {
+    key: 'rocks4',
+    path: 'assets/cell_drawables/rocks/rocks4.png',
+    type: 'image' as const
+  },
+  rocks5: {
+    key: 'rocks5',
+    path: 'assets/cell_drawables/rocks/rocks5.png',
+    type: 'image' as const
+  },
+  rocks6: {
+    key: 'rocks6',
+    path: 'assets/cell_drawables/rocks/rocks6.png',
+    type: 'image' as const
+  },
   dungeon_floor: {
     key: 'dungeon_floor',
     path: 'assets/cell_drawables/dungeon_floor.png',

@@ -393,30 +393,46 @@ node scripts/generate-path-tileset.js <input-texture> <output-tileset>
 # Examples:
 node scripts/generate-path-tileset.js public/assets/cell_drawables/stone_floor.png public/assets/cell_drawables/stone_path_tileset.png
 node scripts/generate-path-tileset.js public/assets/cell_drawables/grass2.png public/assets/cell_drawables/grass2_path_tileset.png
+node scripts/generate-path-tileset.js public/assets/cell_drawables/water.png public/assets/cell_drawables/water_path_tileset.png
 ```
 
-The script generates a 4x4 spritesheet (16 tiles) with all possible path connections:
-- Tile 0: No connections (isolated)
-- Tiles 1-4: Single direction (N, E, S, W)
-- Tiles 5-10: Two directions (straight, corners)
-- Tiles 11-14: Three directions (T-junctions)
-- Tile 15: Four directions (cross)
+The script generates a 47-tile spritesheet (8x6 grid) with all possible path connections:
+- Tile 0: Solid fill (interior cells with all 8 neighbors)
+- Tiles 1-6: Single direction and straight paths
+- Tiles 7-14: Simple corners (2 variations each based on diagonal neighbor)
+- Tiles 15-30: T-junctions (4 variations each based on 2 diagonal neighbors)
+- Tiles 31-46: Cross (16 variations based on all 4 diagonal neighbors)
 
-**Using in level JSON:**
+**Multiple path types in one level:**
+
+Use different cell properties for different path types:
+
 ```json
 {
   "background": {
-    "floor_texture": "dungeon_floor",
-    "path_texture": "stone_path_tileset"
-  }
+    "floor_texture": "grass2",
+    "path_texture": "stone_path_tileset",
+    "water_texture": "water_path_tileset"
+  },
+  "cells": [
+    {"col": 10, "row": 5, "properties": ["path"]},
+    {"col": 15, "row": 5, "properties": ["water"]}
+  ]
 }
 ```
 
+**Cell properties:**
+- `'path'` - Stone/grass paths (uses `path_texture`)
+- `'water'` - Rivers/water (uses `water_texture`)
+- Each type only connects to cells of the same type
+
 **How it works:**
 - The script creates tiles with proper geometry matching the debug path rendering
-- Each tile is clipped to show only the path shape (rectangles, arcs, corners)
-- Black outlines are drawn around exposed edges
-- The game automatically selects the correct tile based on adjacent path cells
+- Each tile is clipped to show only the path shape (rectangles, arcs, corner fills)
+- Corner fills use arcs when diagonal neighbor is missing, rectangles when present
+- Black outlines (3px) drawn around exposed edges
+- The game checks all 8 neighbors and selects the correct tile
+- Interior cells (all 8 neighbors present) use tile 0 (solid fill, no borders)
 
 **Level Background Config:**
 

@@ -2,9 +2,10 @@
 
 /**
  * Generates a path tileset spritesheet from a source texture.
- * 
+ *
  * Usage: node scripts/generate-path-tileset.js <input-texture> <output-spritesheet>
- * 
+ * e.g. node scripts/generate-path-tileset.js public/assets/cell_drawables/stone_floor.png public/assets/cell_drawables/stone_path_tileset.png 
+ *
  * Generates 46 tiles (8x6 grid):
  * - Tiles 0-6: No corners (solid, single directions, straights)
  * - Tiles 7-14: Simple corners (2 variations each)
@@ -88,19 +89,19 @@ const TOTAL_TILES = TILE_CONFIGS.length;
 
 async function generateTileset(inputPath, outputPath) {
   const sourceImage = await loadImage(inputPath);
-  
+
   const sheetWidth = TILE_SIZE * TILES_PER_ROW;
   const sheetHeight = TILE_SIZE * Math.ceil(TOTAL_TILES / TILES_PER_ROW);
   const canvas = createCanvas(sheetWidth, sheetHeight);
   const ctx = canvas.getContext('2d');
-  
+
   for (let i = 0; i < TOTAL_TILES; i++) {
     const tileX = (i % TILES_PER_ROW) * TILE_SIZE;
     const tileY = Math.floor(i / TILES_PER_ROW) * TILE_SIZE;
-    
+
     drawPathTile(ctx, sourceImage, tileX, tileY, TILE_CONFIGS[i]);
   }
-  
+
   const buffer = canvas.toBuffer('image/png');
   fs.writeFileSync(outputPath, buffer);
   console.log(`Generated tileset: ${outputPath} (${TOTAL_TILES} tiles)`);
@@ -111,21 +112,21 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   const radius = TILE_SIZE * 0.4;
   const centerX = x + TILE_SIZE / 2;
   const centerY = y + TILE_SIZE / 2;
-  
+
   const adjacentCount = [north, east, south, west].filter(Boolean).length;
   const isDeadEnd = adjacentCount === 1;
-  
+
   // Tile 0: Solid fill
   if (adjacentCount === 0) {
     ctx.drawImage(sourceImage, 0, 0, sourceImage.width, sourceImage.height, x, y, TILE_SIZE, TILE_SIZE);
     return;
   }
-  
+
   ctx.save();
   ctx.beginPath();
-  
+
   const innerRadius = TILE_SIZE / 2 - radius;
-  
+
   // Large rectangles
   if (west) {
     ctx.rect(x, centerY - radius, TILE_SIZE / 2 + 1, radius * 2);
@@ -139,7 +140,7 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   if (south) {
     ctx.rect(centerX - radius, centerY - 1, radius * 2, TILE_SIZE / 2 + 1);
   }
-  
+
   // Corner fills - arc if diagonal missing, rectangle if present
   if (west && north) {
     if (!hasNW) {
@@ -184,24 +185,24 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
       ctx.rect(centerX + radius, centerY + radius, TILE_SIZE / 2 - radius, TILE_SIZE / 2 - radius);
     }
   }
-  
+
   // Center
   if (isDeadEnd) {
     ctx.rect(centerX - radius, centerY - radius, radius * 2, radius * 2);
   } else {
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   }
-  
+
   ctx.clip();
-  
+
   ctx.drawImage(sourceImage, 0, 0, sourceImage.width, sourceImage.height, x, y, TILE_SIZE, TILE_SIZE);
-  
+
   ctx.restore();
-  
+
   // Draw outlines - only where diagonal is missing
   ctx.strokeStyle = '#000000';
   ctx.lineWidth = 3;
-  
+
   if (isDeadEnd) {
     if (west) {
       ctx.beginPath();
@@ -257,7 +258,7 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
       ctx.lineTo(x, centerY - radius);
       ctx.stroke();
     }
-    
+
     if (!east && !north) {
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, -Math.PI / 2, 0, false);
@@ -273,7 +274,7 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
       ctx.lineTo(x + TILE_SIZE, centerY - radius);
       ctx.stroke();
     }
-    
+
     if (!west && !south) {
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, Math.PI / 2, Math.PI, false);
@@ -289,7 +290,7 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
       ctx.lineTo(x, centerY + radius);
       ctx.stroke();
     }
-    
+
     if (!east && !south) {
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, Math.PI / 2, false);
@@ -305,7 +306,7 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
       ctx.lineTo(x + TILE_SIZE, centerY + radius);
       ctx.stroke();
     }
-    
+
     // Inner corner arcs - only draw if diagonal is missing
     if (west && north && !hasNW) {
       ctx.beginPath();

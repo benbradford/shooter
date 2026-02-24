@@ -1,37 +1,47 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
-const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'wall_torch', 'pillar', 'tree1', 'fence1', 'bush1', 'house1', 'house2', 'house3'];
+const AVAILABLE_TEXTURES: string[] = ['door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_floor', 'dungeon_platform', 'wall_torch', 'pillar', 'tree1', 'fence1', 'bush1', 'house1', 'house2', 'house3', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6'];
 
 export class TextureEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
   private selectedTexture: string | null = null;
   private textureButtons: Phaser.GameObjects.Container[] = [];
   private clearButton!: Phaser.GameObjects.Text;
+  private justClickedUI: boolean = false;
+  private currentPage: number = 0;
+  private leftArrow!: Phaser.GameObjects.Text;
+  private rightArrow!: Phaser.GameObjects.Text;
 
   onEnter(): void {
+    this.buttons.push(this.createBackButton());
+    this.renderPage();
+    this.scene.input.on('pointerdown', this.handleClick, this);
+  }
+  
+  private renderPage(): void {
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
 
-    this.buttons.push(this.createBackButton());
+    // Clear existing texture buttons
+    this.textureButtons.forEach(btn => btn.destroy());
+    this.textureButtons = [];
+    if (this.clearButton) this.clearButton.destroy();
+    if (this.leftArrow) this.leftArrow.destroy();
+    if (this.rightArrow) this.rightArrow.destroy();
 
     const panelStartX = width - 200;
     const panelY = 80;
     const buttonHeight = 60;
-    const maxButtonsPerColumn = Math.floor((height - panelY - 80) / buttonHeight);
+    const maxButtonsPerColumn = Math.floor((height - panelY - 150) / buttonHeight);
+    const TEXTURES_PER_PAGE = maxButtonsPerColumn * 3;
 
-    const title = this.scene.add.text(panelStartX, panelY - 30, 'Textures', {
-      fontSize: '20px',
-      color: '#ffffff',
-      fontStyle: 'bold'
-    });
-    title.setOrigin(0.5);
-    title.setScrollFactor(0);
-    title.setDepth(1000);
-    this.buttons.push(title);
+    const startIndex = this.currentPage * TEXTURES_PER_PAGE;
+    const endIndex = Math.min(startIndex + TEXTURES_PER_PAGE, AVAILABLE_TEXTURES.length);
+    const pageTextures = AVAILABLE_TEXTURES.slice(startIndex, endIndex);
 
-    // Create texture buttons in columns
-    AVAILABLE_TEXTURES.forEach((textureName, index) => {
+    // Create texture buttons in columns (original layout)
+    pageTextures.forEach((textureName, index) => {
       const col = Math.floor(index / maxButtonsPerColumn);
       const row = index % maxButtonsPerColumn;
       const buttonX = panelStartX - col * 200;
@@ -40,13 +50,10 @@ export class TextureEditorState extends EditorState {
       this.textureButtons.push(container);
     });
 
-    // Clear button below last column
-    const lastCol = Math.floor((AVAILABLE_TEXTURES.length - 1) / maxButtonsPerColumn);
-    const lastRow = AVAILABLE_TEXTURES.length % maxButtonsPerColumn;
-    const clearX = panelStartX - lastCol * 200;
-    const clearY = panelY + lastRow * buttonHeight + 20;
+    // Clear button at bottom
+    const clearY = height - 100;
     
-    this.clearButton = this.scene.add.text(clearX, clearY, 'Clear', {
+    this.clearButton = this.scene.add.text(panelStartX, clearY, 'Clear', {
       fontSize: '18px',
       color: '#ffffff',
       backgroundColor: '#333333',
@@ -59,12 +66,68 @@ export class TextureEditorState extends EditorState {
     this.buttons.push(this.clearButton);
 
     this.clearButton.on('pointerdown', () => {
+      this.justClickedUI = true;
       this.selectedTexture = null;
       this.updateSelection();
     });
-
-    // Click to apply texture
-    this.scene.input.on('pointerdown', this.handleClick, this);
+    
+    // Pagination arrows below all content
+    const totalPages = Math.ceil(AVAILABLE_TEXTURES.length / TEXTURES_PER_PAGE);
+    
+    if (totalPages > 1) {
+      const arrowY = height - 50;
+      const arrowX = width - 200;
+      
+      this.leftArrow = this.scene.add.text(arrowX - 50, arrowY, '<', {
+        fontSize: '24px',
+        color: '#ffffff',
+        backgroundColor: this.currentPage > 0 ? '#333333' : '#666666',
+        padding: { x: 10, y: 5 }
+      });
+      this.leftArrow.setOrigin(0.5);
+      this.leftArrow.setScrollFactor(0);
+      this.leftArrow.setDepth(1000);
+      this.buttons.push(this.leftArrow);
+      
+      if (this.currentPage > 0) {
+        this.leftArrow.setInteractive({ useHandCursor: true });
+        this.leftArrow.on('pointerdown', () => {
+          this.justClickedUI = true;
+          this.currentPage--;
+          this.renderPage();
+        });
+      }
+      
+      this.rightArrow = this.scene.add.text(arrowX + 50, arrowY, '>', {
+        fontSize: '24px',
+        color: '#ffffff',
+        backgroundColor: this.currentPage < totalPages - 1 ? '#333333' : '#666666',
+        padding: { x: 10, y: 5 }
+      });
+      this.rightArrow.setOrigin(0.5);
+      this.rightArrow.setScrollFactor(0);
+      this.rightArrow.setDepth(1000);
+      this.buttons.push(this.rightArrow);
+      
+      if (this.currentPage < totalPages - 1) {
+        this.rightArrow.setInteractive({ useHandCursor: true });
+        this.rightArrow.on('pointerdown', () => {
+          this.justClickedUI = true;
+          this.currentPage++;
+          this.renderPage();
+        });
+      }
+      
+      // Page indicator
+      const pageText = this.scene.add.text(arrowX, arrowY, `${this.currentPage + 1}/${totalPages}`, {
+        fontSize: '16px',
+        color: '#ffffff'
+      });
+      pageText.setOrigin(0.5);
+      pageText.setScrollFactor(0);
+      pageText.setDepth(1000);
+      this.buttons.push(pageText);
+    }
   }
 
   onExit(): void {
@@ -102,6 +165,7 @@ export class TextureEditorState extends EditorState {
       bg.setFillStyle(this.selectedTexture === textureName ? 0x00ff00 : 0x333333);
     });
     bg.on('pointerdown', () => {
+      this.justClickedUI = true;
       this.selectedTexture = textureName;
       this.updateSelection();
     });
@@ -123,10 +187,27 @@ export class TextureEditorState extends EditorState {
   }
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
+    // Skip if just clicked UI
+    if (this.justClickedUI) {
+      this.justClickedUI = false;
+      return;
+    }
+    
+    // Check if clicking UI elements
+    const gameScene = this.scene.scene.get('game') as GameScene;
+    const hitObjects = gameScene.input.hitTestPointer(pointer);
+    
+    if (hitObjects.length > 0) {
+      for (const obj of hitObjects) {
+        if ((obj as any).depth >= 1000) {
+          return; // UI element clicked
+        }
+      }
+    }
+    
     if (pointer.y > this.scene.cameras.main.height - 100) return;
     if (pointer.x > this.scene.cameras.main.width - 250) return;
 
-    const gameScene = this.scene.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
     const grid = this.scene.getGrid();
 
