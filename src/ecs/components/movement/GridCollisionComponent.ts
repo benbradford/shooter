@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import type { Grid } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
+import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { WalkComponent } from './WalkComponent';
 import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
@@ -73,6 +74,18 @@ export class GridCollisionComponent implements Component {
 
     // Block movement into water
     if (!CAN_SUBMERGE && toCell.properties.has('water')) {
+      return false;
+    }
+
+    // Block walking from bridge onto water (without bridge) - but allow if swimming
+    const waterEffect = this.entity.get(WaterEffectComponent);
+    const isSwimming = waterEffect?.getIsInWater() ?? false;
+    if (!isSwimming && fromCell.properties.has('bridge') && toCell.properties.has('water') && !toCell.properties.has('bridge')) {
+      return false;
+    }
+
+    // Block swimming from bridge+water onto dry land
+    if (isSwimming && fromCell.properties.has('bridge') && fromCell.properties.has('water') && !toCell.properties.has('water')) {
       return false;
     }
 

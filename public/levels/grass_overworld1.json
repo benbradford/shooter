@@ -2232,6 +2232,31 @@
       ]
     },
     {
+      "col": 2,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
       "col": 5,
       "row": 14,
       "layer": 0,
@@ -2344,6 +2369,31 @@
       ]
     },
     {
+      "col": 2,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
       "col": 5,
       "row": 15,
       "layer": 0,
@@ -2441,6 +2491,15 @@
       ]
     },
     {
+      "col": 5,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
       "col": 7,
       "row": 16,
       "layer": 0,
@@ -2531,6 +2590,15 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 5,
+      "row": 17,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 7,
@@ -2631,6 +2699,15 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 5,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 7,
@@ -2741,6 +2818,15 @@
       ]
     },
     {
+      "col": 5,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
       "col": 7,
       "row": 19,
       "layer": 0,
@@ -2831,6 +2917,15 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 5,
+      "row": 20,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 7,
@@ -2956,6 +3051,15 @@
       "properties": [
         "platform"
       ]
+    },
+    {
+      "col": 5,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 7,
@@ -3405,6 +3509,22 @@
       ]
     },
     {
+      "col": 6,
+      "row": 24,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 24,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 20,
       "row": 24,
       "layer": 0,
@@ -3480,6 +3600,22 @@
     },
     {
       "col": 1,
+      "row": 25,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 25,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
       "row": 25,
       "layer": 1,
       "properties": [
@@ -3563,6 +3699,22 @@
     },
     {
       "col": 1,
+      "row": 26,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 26,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
       "row": 26,
       "layer": 1,
       "properties": [
@@ -3654,6 +3806,22 @@
     },
     {
       "col": 1,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
       "row": 27,
       "layer": 1,
       "properties": [

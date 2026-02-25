@@ -55,27 +55,25 @@ export class WaterEffectComponent implements Component {
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextCellDry = !nextCell?.properties.has('water');
           const isNextCellBridge = nextCell?.properties.has('bridge') ?? false;
+          const isNextCellBlocked = nextCell?.properties.has('blocked') || nextCell?.properties.has('platform') || nextCell?.properties.has('wall') || false;
 
-          if (isNextCellDry && !isCurrentCellBridge && !isNextCellBridge) {
-            // Check distance to edge in movement direction
+          if (isNextCellDry && !isNextCellBridge && !isCurrentCellBridge && !isNextCellBlocked) {
             const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
             const cellCenterX = cellWorld.x + grid.cellSize / 2;
             const cellCenterY = cellWorld.y + grid.cellSize / 2;
             const halfCell = grid.cellSize / 2;
 
-            // Calculate distance to the edge in movement direction
             let distToEdge = Infinity;
             if (moveX < 0) {
-              distToEdge = transform.x - (cellCenterX - halfCell); // Distance to left edge
+              distToEdge = transform.x - (cellCenterX - halfCell);
             } else if (moveX > 0) {
-              distToEdge = (cellCenterX + halfCell) - transform.x; // Distance to right edge
+              distToEdge = (cellCenterX + halfCell) - transform.x;
             } else if (moveY < 0) {
-              distToEdge = transform.y - (cellCenterY - halfCell); // Distance to top edge
+              distToEdge = transform.y - (cellCenterY - halfCell);
             } else if (moveY > 0) {
-              distToEdge = (cellCenterY + halfCell) - transform.y; // Distance to bottom edge
+              distToEdge = (cellCenterY + halfCell) - transform.y;
             }
 
-            // Exit if within half cell of edge
             if (distToEdge <= halfCell / 2) {
               nowInWater = false;
             } else {
@@ -85,10 +83,10 @@ export class WaterEffectComponent implements Component {
             nowInWater = true;
           }
         } else {
-          nowInWater = isCurrentCellWater;
+          nowInWater = isCurrentCellWater || isCurrentCellBridge;
         }
       } else {
-        nowInWater = isCurrentCellWater;
+        nowInWater = isCurrentCellWater || isCurrentCellBridge;
       }
     } else {
       // Not in water - check if should enter
@@ -127,8 +125,15 @@ export class WaterEffectComponent implements Component {
         // Exiting water - hop to the adjacent dry cell in movement direction
         const moveX = walk.lastMoveX;
         const moveY = walk.lastMoveY;
-        targetCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
-        targetRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
+        
+        // If already in dry cell, stay there; otherwise move to next cell
+        if (isCurrentCellWater) {
+          targetCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
+          targetRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
+        } else {
+          targetCol = gridPos.currentCell.col;
+          targetRow = gridPos.currentCell.row;
+        }
       }
 
       const cellWorld = grid.cellToWorld(targetCol, targetRow);
