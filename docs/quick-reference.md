@@ -496,6 +496,24 @@ entity.setUpdateOrder([
 ]);
 ```
 
+### Water Ripples
+
+Water ripples automatically appear when the player walks on water cells:
+
+```typescript
+// Added to player entity
+entity.add(new WaterRippleComponent(scene, grid));
+```
+
+**Behavior:**
+- Spawns every 150ms (±50ms random variance) while on water
+- Random offset (±15px) from player center
+- 4-frame animation at 12 fps
+- Pauses during water hop in/out animations
+- Uses `water_ripple` spritesheet (860×600, 2×2 grid, 430×300 frames)
+
+**Asset:** `public/assets/cell_drawables/water_ripple_spritesheet.png`
+
 ### Touch Joystick Visual Components
 
 The game uses two visual joystick components for touch controls:

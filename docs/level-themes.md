@@ -80,6 +80,22 @@ The base class handles all edge detection:
 - Green vignette
 - Edge color: `0x3a5a2e`
 
+### Wilds Theme
+- Desolate grey/brown gradient background
+- Animated mist layers that drift slowly eastward
+- Mist density increases toward the south (fog gradient)
+- Mist fades in/out over 6-10 second lifespan
+- Brown vignette
+- Edge color: `0x4a3a2a`
+
+### Wilds Theme
+- Desolate grey/brown gradient background
+- Animated mist layers that drift slowly eastward
+- Mist density increases toward the south (fog gradient)
+- Mist fades in/out over 6-10 second lifespan
+- Brown vignette
+- Edge color: `0x4a3a2a`
+
 ## Using a Theme
 
 In your level JSON file, specify the theme:
