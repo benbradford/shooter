@@ -5,7 +5,9 @@ import type { CellProperty } from '../../systems/grid/CellData';
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
   house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
   house2: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: -15 },
-  house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 }
+  house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
+  bridge_v: {scaleX: 3, scaleY: 3, offsetX: 0, offsetY: -32 },
+  bridge_h: {scaleX: 3, scaleY: 3, offsetX: -32, offsetY: 0 },
 };
 
 export abstract class GameSceneRenderer {

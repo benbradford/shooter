@@ -37,6 +37,7 @@ export class WaterEffectComponent implements Component {
     const grid = gridCollision.getGrid();
     const currentCell = grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
     const isCurrentCellWater = currentCell?.properties.has('water') ?? false;
+    const isCurrentCellBridge = currentCell?.properties.has('bridge') ?? false;
 
     // Determine water state
     let nowInWater = false;
@@ -53,8 +54,9 @@ export class WaterEffectComponent implements Component {
           const checkRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextCellDry = !nextCell?.properties.has('water');
+          const isNextCellBridge = nextCell?.properties.has('bridge') ?? false;
 
-          if (isNextCellDry) {
+          if (isNextCellDry && !isCurrentCellBridge && !isNextCellBridge) {
             // Check distance to edge in movement direction
             const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
             const cellCenterX = cellWorld.x + grid.cellSize / 2;
@@ -90,11 +92,20 @@ export class WaterEffectComponent implements Component {
       }
     } else {
       // Not in water - check if should enter
-      nowInWater = isCurrentCellWater;
+      nowInWater = isCurrentCellWater && !isCurrentCellBridge;
     }
 
     if (shadow) {
       shadow.shadow.setVisible(!nowInWater);
+    }
+
+    // Adjust sprite depth based on swimming state
+    if (nowInWater && this.hopProgress >= 1) {
+      // Swimming - render above water (-10) but below bridge textures (-5)
+      sprite.sprite.setDepth(-7);
+    } else {
+      // Walking - render at normal depth
+      sprite.sprite.setDepth(0);
     }
 
     // Detect water entry/exit (only when not already hopping)

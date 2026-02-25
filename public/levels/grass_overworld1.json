@@ -2837,16 +2837,20 @@
       "row": 20,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "bridge"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 8,
       "row": 20,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "bridge"
+      ],
+      "backgroundTexture": "bridge_h"
     },
     {
       "col": 20,
@@ -3096,7 +3100,8 @@
       "row": 22,
       "layer": 0,
       "properties": [
-        "water"
+        "water",
+        "bridge"
       ]
     },
     {
@@ -3258,8 +3263,10 @@
       "row": 23,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "bridge"
+      ],
+      "backgroundTexture": "bridge_v"
     },
     {
       "col": 5,

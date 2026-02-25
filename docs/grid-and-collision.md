@@ -43,11 +43,11 @@ Each grid cell tracks:
 ```typescript
 interface CellData {
   layer: number;                  // Vertical layer (-1 = pit, 0 = ground, 1 = platform/wall)
-  properties: Set<CellProperty>;  // 'platform', 'wall', or 'stairs'
+  properties: Set<CellProperty>;  // 'platform', 'wall', 'stairs', 'path', 'water', 'bridge'
   occupants: Set<Entity>;         // Which entities are in this cell
 }
 
-export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water';
+export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water' | 'blocked' | 'bridge';
 ```
 
 **Property Meanings:**
@@ -55,6 +55,13 @@ export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water';
 - **'wall'**: Solid barrier (layer 1) - blocks movement, renders with brick/stone pattern
 - **'stairs'**: Transition between layers - allows vertical movement only
 - **'path'**: Stone path (grass theme only) - walkable, renders as connected grey stones with black outlines
+- **'water'**: Water cells - player swims at reduced speed (70%), triggers water effects
+- **'bridge'**: Bridge over water - when combined with 'water' property, allows walking over water at full speed
+  - Walking onto bridge+water: Player continues walking (doesn't enter water)
+  - Swimming under bridge+water: Player continues swimming at reduced speed
+  - Ripples only appear when swimming under bridge, not when walking over
+  - Player renders at depth -7 when swimming (below bridge textures at -5, above water at -10)
+  - **Known issue**: Player can currently hop out through bridge cells (needs fix)
 
 ### Layer System
 

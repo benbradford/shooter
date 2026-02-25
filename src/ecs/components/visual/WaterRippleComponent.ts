@@ -36,7 +36,10 @@ export class WaterRippleComponent implements Component {
       if (!gridPos) return;
 
       const cell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
-      if (cell?.properties.has('water')) {
+      const isWater = cell?.properties.has('water') ?? false;
+      const isBridge = cell?.properties.has('bridge') ?? false;
+      
+      if (isWater && (!isBridge || water?.getIsInWater())) {
         const transform = this.entity.require(TransformComponent);
         const offsetX = (Math.random() - 0.5) * RIPPLE_OFFSET_VARIANCE_PX;
         const offsetY = (Math.random() - 0.5) * RIPPLE_OFFSET_VARIANCE_PX;
@@ -51,7 +54,7 @@ export class WaterRippleComponent implements Component {
   private spawnRipple(x: number, y: number): void {
     const ripple = this.scene.add.sprite(x, y, 'water_ripple', 0);
     ripple.setScale(RIPPLE_SCALE);
-    ripple.setDepth(-5);
+    ripple.setDepth(-8);
     ripple.play({ key: 'water_ripple_anim', frameRate: RIPPLE_FRAME_RATE, repeat: 0 });
     ripple.on('animationcomplete', () => ripple.destroy());
   }

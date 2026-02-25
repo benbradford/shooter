@@ -2,6 +2,8 @@ import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 
 const AVAILABLE_TEXTURES: string[] = [
+  'bridge_h',
+  'bridge_v',
   'bush1',
   'door_closed',
   'dungeon_door',

@@ -106,10 +106,13 @@ export class WalkComponent implements Component {
     const gridPos = this.entity.get(GridPositionComponent);
     const gridCollision = this.entity.get(GridCollisionComponent);
     const grid = gridCollision?.getGrid();
-    const isInWater = grid && gridPos ? grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row)?.properties.has('water') : false;
+    const cell = grid && gridPos ? grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row) : null;
+    const isInWater = cell?.properties.has('water') ?? false;
+    const isBridge = cell?.properties.has('bridge') ?? false;
+    const isSwimming = waterEffect?.getIsInWater() ?? false;
     
     let speedMultiplier = health.isOverhealed() ? 1.5 : 1;
-    if (isInWater) {
+    if (isInWater && (!isBridge || isSwimming)) {
       speedMultiplier *= 0.7;
     }
 
