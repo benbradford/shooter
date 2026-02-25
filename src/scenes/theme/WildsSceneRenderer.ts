@@ -67,20 +67,21 @@ export class WildsSceneRenderer extends GameSceneRenderer {
         scale: {
           onEmit: (particle: Phaser.GameObjects.Particles.Particle | undefined) => {
             if (!particle) return 120;
+            (particle as any).initialY = particle.y;
             const yRatio = particle.y / worldHeight;
-            const baseScale = 40 + (yRatio * 50);
+            const baseScale = 45 + (yRatio * 50);
             return baseScale + (Math.random() * 30 - 10);
           }
         },
         alpha: {
           onUpdate: (particle: Phaser.GameObjects.Particles.Particle) => {
             const life = particle.lifeT;
-            const yRatio = particle.y / worldHeight;
+            const initialY = (particle as any).initialY || particle.y;
+            const yRatio = initialY / worldHeight;
             const baseAlpha = 0.3 + (yRatio * 0.7);
-            let fadeAlpha = baseAlpha;
-            if (life < 0.3) fadeAlpha *= life / 0.3;
-            if (life > 0.7) fadeAlpha *= (1 - life) / 0.3;
-            return fadeAlpha;
+            if (life < 0.3) return baseAlpha * (life / 0.3);
+            if (life > 0.7) return baseAlpha * ((1 - life) / 0.3);
+            return baseAlpha;
           }
         },
         lifespan: { min: 6000, max: 10000 },

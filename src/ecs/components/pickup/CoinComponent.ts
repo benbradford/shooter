@@ -44,6 +44,8 @@ export class CoinComponent implements Component {
   private elapsedMs = 0;
   private flyingToHud = false;
   private flySpeed = FLY_TO_HUD_SPEED_PX_PER_SEC;
+  private hudTargetX = 0;
+  private hudTargetY = 0;
 
   constructor(props: CoinComponentProps) {
     this.targetY = props.targetY;
@@ -61,18 +63,8 @@ export class CoinComponent implements Component {
     const deltaInSec = delta / 1000;
 
     if (this.flyingToHud) {
-      const scene = sprite.sprite.scene;
-      const camera = scene.cameras.main;
-      const displayWidth = scene.scale.displaySize.width;
-      const displayHeight = scene.scale.displaySize.height;
-
-      const hudScreenX = displayWidth * 0.05;
-      const hudScreenY = displayHeight * 0.05;
-      const hudWorldX = camera.scrollX + hudScreenX / camera.zoom;
-      const hudWorldY = camera.scrollY + hudScreenY / camera.zoom;
-
-      const dx = hudWorldX - transform.x;
-      const dy = hudWorldY - transform.y;
+      const dx = this.hudTargetX - transform.x;
+      const dy = this.hudTargetY - transform.y;
       const distance = Math.hypot(dx, dy);
 
       if (distance < 10) {
@@ -153,6 +145,16 @@ export class CoinComponent implements Component {
       const playerTransform = this.playerEntity.require(TransformComponent);
       const distance = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
       if (distance < COLLECTION_DISTANCE_PX) {
+        const scene = sprite.sprite.scene;
+        const camera = scene.cameras.main;
+        const displayWidth = scene.scale.displaySize.width;
+        const displayHeight = scene.scale.displaySize.height;
+
+        const hudScreenX = displayWidth * 0.05;
+        const hudScreenY = displayHeight * 0.05;
+        this.hudTargetX = camera.scrollX + hudScreenX / camera.zoom;
+        this.hudTargetY = camera.scrollY + hudScreenY / camera.zoom;
+
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);
       }
