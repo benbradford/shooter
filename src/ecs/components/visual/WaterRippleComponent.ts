@@ -55,6 +55,4 @@ export class WaterRippleComponent implements Component {
     ripple.play({ key: 'water_ripple_anim', frameRate: RIPPLE_FRAME_RATE, repeat: 0 });
     ripple.on('animationcomplete', () => ripple.destroy());
   }
-
-  onDestroy(): void {}
 }

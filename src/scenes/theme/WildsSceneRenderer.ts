@@ -59,24 +59,35 @@ export class WildsSceneRenderer extends GameSceneRenderer {
   }
 
   private createMistLayers(worldWidth: number, worldHeight: number): void {
+
     for (let layer = 0; layer < 3; layer++) {
       const emitter = this.scene.add.particles(0, 0, 'smoke', {
         x: { min: 0, max: worldWidth },
         y: { min: 0, max: worldHeight },
-        scale: { min: 15, max: 25 },
+        scale: {
+          onEmit: (particle: Phaser.GameObjects.Particles.Particle | undefined) => {
+            if (!particle) return 120;
+            const yRatio = particle.y / worldHeight;
+            const baseScale = 40 + (yRatio * 50);
+            return baseScale + (Math.random() * 30 - 10);
+          }
+        },
         alpha: {
           onUpdate: (particle: Phaser.GameObjects.Particles.Particle) => {
             const life = particle.lifeT;
-            if (life < 0.3) return life / 0.3;
-            if (life > 0.7) return (1 - life) / 0.3;
-            return 1;
+            const yRatio = particle.y / worldHeight;
+            const baseAlpha = 0.3 + (yRatio * 0.7);
+            let fadeAlpha = baseAlpha;
+            if (life < 0.3) fadeAlpha *= life / 0.3;
+            if (life > 0.7) fadeAlpha *= (1 - life) / 0.3;
+            return fadeAlpha;
           }
         },
         lifespan: { min: 6000, max: 10000 },
         tint: 0xffffff,
-        speedX: MIST_DRIFT_SPEED_PX_PER_SEC * (1 + layer * 0.3),
+        speedX: { min: MIST_DRIFT_SPEED_PX_PER_SEC * (1 + layer * 0.3) * 0.8, max: MIST_DRIFT_SPEED_PX_PER_SEC * (1 + layer * 0.3) * 1.2 },
         speedY: 0,
-        frequency: 200,
+        frequency: 100,
         blendMode: 'SCREEN'
       });
 

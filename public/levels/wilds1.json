@@ -2,378 +2,626 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 21,
-    "y": 1
+    "x": 20,
+    "y": 2
   },
   "cells": [
     {
       "col": 8,
       "row": 0,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks6"
+    },
+    {
+      "col": 20,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
     },
     {
       "col": 30,
       "row": 1,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 35,
       "row": 2,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 3,
       "row": 3,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 15,
       "row": 5,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 2,
       "row": 6,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks4"
     },
     {
       "col": 12,
       "row": 6,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 16,
       "row": 6,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 17,
       "row": 6,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 31,
       "row": 8,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 3,
       "row": 9,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 24,
       "row": 10,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks6"
     },
     {
       "col": 12,
       "row": 11,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 14,
       "row": 12,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 19,
       "row": 12,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 32,
       "row": 12,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 12,
       "row": 13,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks4"
     },
     {
       "col": 5,
       "row": 14,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 37,
       "row": 14,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 9,
       "row": 16,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks4"
     },
     {
       "col": 13,
       "row": 16,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 20,
       "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks5"
     },
     {
       "col": 27,
       "row": 18,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 2,
       "row": 19,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 17,
       "row": 19,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 34,
       "row": 19,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 38,
       "row": 19,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 10,
       "row": 21,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 24,
       "row": 21,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks5"
     },
     {
       "col": 32,
       "row": 21,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 20,
       "row": 22,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 0,
       "row": 23,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 23,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 27,
       "row": 23,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 0,
       "row": 24,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 24,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 9,
       "row": 24,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks4"
     },
     {
       "col": 17,
       "row": 24,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 0,
       "row": 25,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 25,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 32,
       "row": 25,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks5"
     },
     {
       "col": 35,
       "row": 25,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 0,
       "row": 26,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 26,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 22,
       "row": 26,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks6"
     },
     {
       "col": 26,
       "row": 26,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks1"
     },
     {
       "col": 0,
       "row": 27,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 27,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 12,
       "row": 27,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks3"
     },
     {
       "col": 0,
       "row": 28,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 28,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 19,
       "row": 28,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks2"
     },
     {
       "col": 0,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 1,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 2,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 3,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 4,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 5,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 6,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 7,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "pillar"
     },
     {
       "col": 37,
       "row": 29,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "rocks6"
     }
   ],
-  "entities": [],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworld1",
+        "targetCol": 20,
+        "targetRow": 28,
+        "triggerCells": [
+          {
+            "col": 20,
+            "row": 0
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworld1",
+        "targetCol": 21,
+        "targetRow": 28,
+        "triggerCells": [
+          {
+            "col": 21,
+            "row": 0
+          }
+        ],
+        "oneShot": true
+      }
+    }
+  ],
   "levelTheme": "wilds",
   "background": {
     "floor_texture": "grass1",

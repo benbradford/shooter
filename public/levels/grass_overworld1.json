@@ -1463,6 +1463,14 @@
       ]
     },
     {
+      "col": 20,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 21,
       "row": 7,
       "layer": 0,
@@ -1517,6 +1525,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -1664,6 +1680,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 31,
       "row": 9,
       "layer": 0,
@@ -1741,6 +1773,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -1837,6 +1885,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -1968,6 +2032,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 31,
       "row": 12,
       "layer": 0,
@@ -2096,6 +2176,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 31,
       "row": 13,
       "layer": 0,
@@ -2192,6 +2288,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 14,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 14,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 31,
       "row": 14,
       "layer": 0,
@@ -2272,6 +2384,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 31,
       "row": 15,
       "layer": 0,
@@ -2329,6 +2457,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 31,
       "row": 16,
       "layer": 0,
@@ -2402,6 +2546,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -2486,6 +2646,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -2581,6 +2757,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 33,
       "row": 19,
       "layer": 0,
@@ -2654,6 +2846,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 20,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 20,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -2759,6 +2967,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 21,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 21,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -2908,6 +3132,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 22,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 22,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 30,
       "row": 22,
       "layer": 1,
@@ -3054,6 +3294,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 23,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 23,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 30,
       "row": 23,
       "layer": 1,
@@ -3142,6 +3398,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 24,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 24,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 30,
       "row": 24,
       "layer": 1,
@@ -3205,6 +3477,22 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 25,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 25,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -3275,6 +3563,22 @@
       ]
     },
     {
+      "col": 20,
+      "row": 26,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 26,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 30,
       "row": 26,
       "layer": 1,
@@ -3347,6 +3651,22 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 27,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 27,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -3587,9 +3907,17 @@
       "row": 28,
       "layer": 0,
       "properties": [
-        "blocked"
+        "path"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
+    },
+    {
+      "col": 21,
+      "row": 28,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
     },
     {
       "col": 22,
@@ -3892,9 +4220,17 @@
       "row": 29,
       "layer": 0,
       "properties": [
-        "blocked"
+        "path"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
+    },
+    {
+      "col": 21,
+      "row": 29,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
     },
     {
       "col": 22,
@@ -4057,6 +4393,38 @@
         ],
         "oneShot": true
       }
+    },
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "wilds1",
+        "targetCol": 20,
+        "targetRow": 1,
+        "triggerCells": [
+          {
+            "col": 20,
+            "row": 29
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "exit2",
+      "type": "exit",
+      "data": {
+        "targetLevel": "wilds1",
+        "targetCol": 21,
+        "targetRow": 1,
+        "triggerCells": [
+          {
+            "col": 21,
+            "row": 29
+          }
+        ],
+        "oneShot": true
+      }
     }
   ],
   "levelTheme": "grass_overworld1",
@@ -4069,6 +4437,5 @@
     "hasShadows": false,
     "path_texture": "stone_path_tileset",
     "water_texture": "water_path_tileset"
-
   }
 }
