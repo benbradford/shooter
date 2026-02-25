@@ -19,6 +19,7 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
+import { WaterRippleComponent } from '../../components/visual/WaterRippleComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
@@ -255,6 +256,8 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     entity.add(new WaterEffectComponent());
   }
 
+  entity.add(new WaterRippleComponent(scene, grid));
+
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
@@ -274,6 +277,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     StateMachineComponent,
     AttackComboComponent,
     AnimationComponent,
+    WaterRippleComponent,
     ...(CAN_SUBMERGE ? [WaterEffectComponent] : []),
   ]);
 

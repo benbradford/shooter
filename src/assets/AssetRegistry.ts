@@ -212,6 +212,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  water_ripple: {
+    key: 'water_ripple',
+    path: 'assets/cell_drawables/water_ripple_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 430, frameHeight: 300 }
+  },
   dungeon_platform: {
     key: 'dungeon_platform',
     path: 'assets/cell_drawables/dungeon_platform.png',

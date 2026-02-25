@@ -75,6 +75,13 @@ export default class GameScene extends Phaser.Scene {
 
     createThrowerAnimations(this);
 
+    this.anims.create({
+      key: 'water_ripple_anim',
+      frames: this.anims.generateFrameNumbers('water_ripple', { start: 0, end: 3 }),
+      frameRate: 12,
+      repeat: 0
+    });
+
     const params = new URLSearchParams(globalThis.location.search);
     const levelParam = params.get('level');
     if (levelParam) {
