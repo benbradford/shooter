@@ -46,7 +46,7 @@ export class WaterEffectComponent implements Component {
       if (walk && isCurrentCellWater) {
         const moveX = walk.lastMoveX;
         const moveY = walk.lastMoveY;
-        
+
         if (moveX !== 0 || moveY !== 0) {
           // Check cell in movement direction
           const checkCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
@@ -72,8 +72,6 @@ export class WaterEffectComponent implements Component {
             } else if (moveY > 0) {
               distToEdge = (cellCenterY + halfCell) - transform.y; // Distance to bottom edge
             }
-
-            console.log('[Water] Distance to edge:', distToEdge.toFixed(1), 'threshold:', (halfCell / 2).toFixed(1));
 
             // Exit if within half cell of edge
             if (distToEdge <= halfCell / 2) {
@@ -114,14 +112,12 @@ export class WaterEffectComponent implements Component {
         // Entering water - hop to current cell center
         targetCol = gridPos.currentCell.col;
         targetRow = gridPos.currentCell.row;
-        console.log('[Water] Entering water, hopping to current cell:', targetCol, targetRow);
-      } else if (walk) {
+       } else if (walk) {
         // Exiting water - hop to the adjacent dry cell in movement direction
         const moveX = walk.lastMoveX;
         const moveY = walk.lastMoveY;
         targetCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
         targetRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
-        console.log('[Water] Exiting water from', gridPos.currentCell.col, gridPos.currentCell.row, 'to', targetCol, targetRow, 'move:', moveX, moveY);
       }
 
       const cellWorld = grid.cellToWorld(targetCol, targetRow);
@@ -136,8 +132,6 @@ export class WaterEffectComponent implements Component {
 
       transform.x = this.startX + (this.targetX - this.startX) * this.hopProgress;
       transform.y = this.startY + (this.targetY - this.startY) * this.hopProgress;
-
-      console.log('[Water] Hopping progress:', this.hopProgress.toFixed(2), 'pos:', transform.x.toFixed(0), transform.y.toFixed(0));
 
       const hopHeight = Math.sin(this.hopProgress * Math.PI) * -20;
       sprite.sprite.y = transform.y + hopHeight;

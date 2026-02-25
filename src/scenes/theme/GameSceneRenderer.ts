@@ -217,6 +217,7 @@ export abstract class GameSceneRenderer {
 
         if ((isPath || isWater) && !this.isCached) {
           const pathTexture = isWater ? levelData?.background?.water_texture : levelData?.background?.path_texture;
+          const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
 
           if (pathTexture && this.scene.textures.exists(pathTexture)) {
           const cellX = col * this.cellSize;
@@ -244,9 +245,7 @@ export abstract class GameSceneRenderer {
 
           let frame = 0;
 
-          if (hasAllNeighbors) {
-            frame = 0;
-          } else {
+          if (!hasAllNeighbors) {
             const count = adjacentCount;
 
             if (count === 1) {
@@ -281,10 +280,20 @@ export abstract class GameSceneRenderer {
             }
           }
 
-          const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
-          sprite.setDisplaySize(this.cellSize, this.cellSize);
-          sprite.setDepth(-10);
-          this.cellSprites.push(sprite);
+          if (isWater && edgesTexture && this.scene.textures.exists(edgesTexture)) {
+            const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture, frame);
+            tileSprite.setDepth(-10);
+
+            const edgeSprite = this.scene.add.sprite(centerX, centerY, edgesTexture, frame);
+            edgeSprite.setDisplaySize(this.cellSize, this.cellSize);
+            edgeSprite.setDepth(-9);
+            this.cellSprites.push(edgeSprite);
+          } else {
+             const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
+            sprite.setDisplaySize(this.cellSize, this.cellSize);
+            sprite.setDepth(-10);
+            this.cellSprites.push(sprite);
+          }
           }
         }
 
@@ -525,11 +534,7 @@ export abstract class GameSceneRenderer {
         const isDeadEnd = adjacentCount === 1;
 
         if (isDeadEnd) {
-          if (hasLeft) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));
-          } else if (hasRight) {
+          if (hasLeft || hasRight) {
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));

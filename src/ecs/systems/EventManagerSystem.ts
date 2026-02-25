@@ -23,11 +23,12 @@ export class EventManagerSystem {
   }
 
   raiseEvent(eventName: string): void {
-    console.log(`🎯 TRIGGER EVENT: ${eventName}`);
-    
+    // NOSONAR - Keep for debugging
+    // console.log(`🎯 TRIGGER EVENT: ${eventName}`);
+
     const list = this.listeners.get(eventName);
     if (!list) return;
-    
+
     const copy = [...list];
     for (const listener of copy) {
       if (list.includes(listener)) {

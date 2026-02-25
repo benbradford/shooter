@@ -59,8 +59,6 @@ export class WildsSceneRenderer extends GameSceneRenderer {
   }
 
   private createMistLayers(worldWidth: number, worldHeight: number): void {
-    console.log('[WildsRenderer] Creating mist layers, world size:', worldWidth, worldHeight);
-    
     for (let layer = 0; layer < 3; layer++) {
       const emitter = this.scene.add.particles(0, 0, 'smoke', {
         x: { min: 0, max: worldWidth },
@@ -85,12 +83,6 @@ export class WildsSceneRenderer extends GameSceneRenderer {
       emitter.start();
       emitter.setDepth(1500 + layer);
       this.mistEmitters.push(emitter);
-      
-      console.log('[WildsRenderer] Created emitter', layer, 'depth:', 1500 + layer, 'active:', emitter.active);
-      
-      setTimeout(() => {
-        console.log('[WildsRenderer] Emitter', layer, 'particle count:', emitter.getAliveParticleCount());
-      }, 500);
 
       this.scene.events.on('update', () => {
         emitter.forEachAlive((particle: Phaser.GameObjects.Particles.Particle) => {

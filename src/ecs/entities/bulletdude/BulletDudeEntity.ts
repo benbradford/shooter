@@ -48,8 +48,6 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
   const { scene, col, row, grid, playerEntity, difficulty, entityManager, entityId } = props;
   const config = getBulletDudeDifficultyConfig(difficulty);
 
-  console.log('[BulletDude] Creating with entityId:', entityId);
-
   createBulletDudeAnimations(scene);
 
   const worldPos = grid.cellToWorld(col, row);

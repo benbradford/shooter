@@ -6,8 +6,7 @@ import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
 import type HudScene from "./HudScene";
-import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
-import { PLAYER_MAX_HEALTH } from "../ecs/entities/player/PlayerEntity";
+import { PLAYER_MAX_HEALTH, createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
 import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { StateMachine } from "../systems/state/StateMachine";
@@ -375,7 +374,7 @@ export default class GameScene extends Phaser.Scene {
 
   reloadCurrentLevel(): void {
     const worldState = WorldStateManager.getInstance();
-    
+
     // Restore world state to when we entered the level
     if (this.levelEntrySnapshot) {
       worldState.loadFromJSON(this.levelEntrySnapshot);
@@ -383,11 +382,11 @@ export default class GameScene extends Phaser.Scene {
       // Fallback: just restore health
       worldState.setPlayerHealth(PLAYER_MAX_HEALTH);
     }
-    
+
     const state = worldState.getState();
     const spawnCol = state.player.spawnCol ?? this.levelData.playerStart.x;
     const spawnRow = state.player.spawnRow ?? this.levelData.playerStart.y;
-    
+
     this.transitionToLevel(this.currentLevelName, spawnCol, spawnRow);
   }
 

@@ -71,16 +71,13 @@ export class Entity {
 
   destroy(): void {
     this.isDestroyed = true;
-    
+
     // Only track level entities (not temporary like punches, bullets, coins)
     const worldState = WorldStateManager.getInstance();
     if (worldState.shouldTrackDestructions() && this.levelName && this.id && /^[a-z_]+\d+$/.test(this.id)) {
-      console.log('[Entity] Tracking destruction:', this.id, 'level:', this.levelName);
       worldState.addDestroyedEntity(this.levelName, this.id);
-    } else {
-      console.log('[Entity] NOT tracking:', this.id, 'levelName:', this.levelName, 'matches:', /^[a-z_]+\d+$/.test(this.id));
     }
-    
+
     this.components.forEach(component => component.onDestroy?.());
     this.components.clear();
     this.updateOrder = [];

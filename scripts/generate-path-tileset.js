@@ -4,8 +4,8 @@
  * Generates a path tileset spritesheet from a source texture.
  *
  * Usage: node scripts/generate-path-tileset.js <input-texture> <output-spritesheet>
- * e.g. node scripts/generate-path-tileset.js public/assets/cell_drawables/stone_floor.png public/assets/cell_drawables/stone_path_tileset.png 
- *
+ * e.g. node scripts/generate-path-tileset.js public/assets/cell_drawables/stone_floor.png public/assets/cell_drawables/stone_path_tileset.png
+ * 
  * Generates 46 tiles (8x6 grid):
  * - Tiles 0-6: No corners (solid, single directions, straights)
  * - Tiles 7-14: Simple corners (2 variations each)
@@ -87,7 +87,7 @@ for (let i = 0; i < 16; i++) {
 
 const TOTAL_TILES = TILE_CONFIGS.length;
 
-async function generateTileset(inputPath, outputPath) {
+async function generateTileset(inputPath, outputPath, separateEdges = false) {
   const sourceImage = await loadImage(inputPath);
 
   const sheetWidth = TILE_SIZE * TILES_PER_ROW;
@@ -95,23 +95,34 @@ async function generateTileset(inputPath, outputPath) {
   const canvas = createCanvas(sheetWidth, sheetHeight);
   const ctx = canvas.getContext('2d');
 
+  const edgesCanvas = separateEdges ? createCanvas(sheetWidth, sheetHeight) : null;
+  const edgesCtx = edgesCanvas?.getContext('2d');
+
   for (let i = 0; i < TOTAL_TILES; i++) {
     const tileX = (i % TILES_PER_ROW) * TILE_SIZE;
     const tileY = Math.floor(i / TILES_PER_ROW) * TILE_SIZE;
 
-    drawPathTile(ctx, sourceImage, tileX, tileY, TILE_CONFIGS[i]);
+    drawPathTile(ctx, edgesCtx, sourceImage, tileX, tileY, TILE_CONFIGS[i], separateEdges);
   }
 
   const buffer = canvas.toBuffer('image/png');
   fs.writeFileSync(outputPath, buffer);
   console.log(`Generated tileset: ${outputPath} (${TOTAL_TILES} tiles)`);
+
+  if (separateEdges && edgesCanvas) {
+    const edgesPath = outputPath.replace('.png', '_edges.png');
+    const edgesBuffer = edgesCanvas.toBuffer('image/png');
+    fs.writeFileSync(edgesPath, edgesBuffer);
+    console.log(`Generated edges: ${edgesPath} (${TOTAL_TILES} tiles)`);
+  }
 }
 
-function drawPathTile(ctx, sourceImage, x, y, config) {
+function drawPathTile(ctx, edgesCtx, sourceImage, x, y, config, separateEdges) {
   const [north, east, south, west, hasNW = false, hasNE = false, hasSW = false, hasSE = false] = config;
   const radius = TILE_SIZE * 0.4;
   const centerX = x + TILE_SIZE / 2;
   const centerY = y + TILE_SIZE / 2;
+  const outlineCtx = separateEdges ? edgesCtx : ctx;
 
   const adjacentCount = [north, east, south, west].filter(Boolean).length;
   const isDeadEnd = adjacentCount === 1;
@@ -144,10 +155,10 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   // Corner fills - arc if diagonal missing, rectangle if present
   if (west && north) {
     if (!hasNW) {
-      ctx.moveTo(x, y + innerRadius);
-      ctx.arc(x, y, innerRadius, Math.PI / 2, 0, true);
-      ctx.lineTo(x, y);
-      ctx.lineTo(x + innerRadius, y);
+      outlineCtx.moveTo(x, y + innerRadius);
+      outlineCtx.arc(x, y, innerRadius, Math.PI / 2, 0, true);
+      outlineCtx.lineTo(x, y);
+      outlineCtx.lineTo(x + innerRadius, y);
       ctx.closePath();
     } else {
       ctx.rect(x, y, TILE_SIZE / 2 - radius, TILE_SIZE / 2 - radius);
@@ -155,10 +166,10 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   }
   if (east && north) {
     if (!hasNE) {
-      ctx.moveTo(x + TILE_SIZE - innerRadius, y);
-      ctx.lineTo(x + TILE_SIZE, y);
-      ctx.lineTo(x + TILE_SIZE, y + innerRadius);
-      ctx.arc(x + TILE_SIZE, y, innerRadius, Math.PI / 2, Math.PI, true);
+      outlineCtx.moveTo(x + TILE_SIZE - innerRadius, y);
+      outlineCtx.lineTo(x + TILE_SIZE, y);
+      outlineCtx.lineTo(x + TILE_SIZE, y + innerRadius);
+      outlineCtx.arc(x + TILE_SIZE, y, innerRadius, Math.PI / 2, Math.PI, true);
       ctx.closePath();
     } else {
       ctx.rect(centerX + radius, y, TILE_SIZE / 2 - radius, TILE_SIZE / 2 - radius);
@@ -166,10 +177,10 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   }
   if (west && south) {
     if (!hasSW) {
-      ctx.moveTo(x, y + TILE_SIZE - innerRadius);
-      ctx.lineTo(x, y + TILE_SIZE);
-      ctx.lineTo(x + innerRadius, y + TILE_SIZE);
-      ctx.arc(x, y + TILE_SIZE, innerRadius, 0, Math.PI / 2);
+      outlineCtx.moveTo(x, y + TILE_SIZE - innerRadius);
+      outlineCtx.lineTo(x, y + TILE_SIZE);
+      outlineCtx.lineTo(x + innerRadius, y + TILE_SIZE);
+      outlineCtx.arc(x, y + TILE_SIZE, innerRadius, 0, Math.PI / 2);
       ctx.closePath();
     } else {
       ctx.rect(x, centerY + radius, TILE_SIZE / 2 - radius, TILE_SIZE / 2 - radius);
@@ -177,9 +188,9 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   }
   if (east && south) {
     if (!hasSE) {
-      ctx.moveTo(x + TILE_SIZE - innerRadius, y + TILE_SIZE);
-      ctx.arc(x + TILE_SIZE, y + TILE_SIZE, innerRadius, Math.PI, Math.PI / 2, true);
-      ctx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
+      outlineCtx.moveTo(x + TILE_SIZE - innerRadius, y + TILE_SIZE);
+      outlineCtx.arc(x + TILE_SIZE, y + TILE_SIZE, innerRadius, Math.PI, Math.PI / 2, true);
+      outlineCtx.lineTo(x + TILE_SIZE, y + TILE_SIZE);
       ctx.closePath();
     } else {
       ctx.rect(centerX + radius, centerY + radius, TILE_SIZE / 2 - radius, TILE_SIZE / 2 - radius);
@@ -190,7 +201,7 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   if (isDeadEnd) {
     ctx.rect(centerX - radius, centerY - radius, radius * 2, radius * 2);
   } else {
-    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    outlineCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   }
 
   ctx.clip();
@@ -200,144 +211,149 @@ function drawPathTile(ctx, sourceImage, x, y, config) {
   ctx.restore();
 
   // Draw outlines - only where diagonal is missing
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 3;
+  if (!outlineCtx) return;
+
+  outlineCtx.strokeStyle = '#000000';
+  outlineCtx.lineWidth = 3;
 
   if (isDeadEnd) {
     if (west) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - radius, centerY - radius);
-      ctx.lineTo(centerX - radius, y);
-      ctx.moveTo(centerX + radius, centerY - radius);
-      ctx.lineTo(centerX + radius, y);
-      ctx.moveTo(centerX - radius, centerY + radius);
-      ctx.lineTo(centerX + radius, centerY + radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX - radius, centerY - radius);
+      outlineCtx.lineTo(centerX - radius, y);
+      outlineCtx.moveTo(centerX + radius, centerY - radius);
+      outlineCtx.lineTo(centerX + radius, y);
+      outlineCtx.moveTo(centerX - radius, centerY + radius);
+      outlineCtx.lineTo(centerX + radius, centerY + radius);
+      outlineCtx.stroke();
     } else if (east) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - radius, centerY - radius);
-      ctx.lineTo(centerX - radius, y);
-      ctx.moveTo(centerX + radius, centerY - radius);
-      ctx.lineTo(centerX + radius, y);
-      ctx.moveTo(centerX - radius, centerY + radius);
-      ctx.lineTo(centerX + radius, centerY + radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX - radius, centerY - radius);
+      outlineCtx.lineTo(centerX - radius, y);
+      outlineCtx.moveTo(centerX + radius, centerY - radius);
+      outlineCtx.lineTo(centerX + radius, y);
+      outlineCtx.moveTo(centerX - radius, centerY + radius);
+      outlineCtx.lineTo(centerX + radius, centerY + radius);
+      outlineCtx.stroke();
     } else if (north) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - radius, y);
-      ctx.lineTo(centerX - radius, centerY + radius);
-      ctx.moveTo(centerX + radius, y);
-      ctx.lineTo(centerX + radius, centerY + radius);
-      ctx.moveTo(centerX - radius, centerY + radius);
-      ctx.lineTo(centerX + radius, centerY + radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX - radius, y);
+      outlineCtx.lineTo(centerX - radius, centerY + radius);
+      outlineCtx.moveTo(centerX + radius, y);
+      outlineCtx.lineTo(centerX + radius, centerY + radius);
+      outlineCtx.moveTo(centerX - radius, centerY + radius);
+      outlineCtx.lineTo(centerX + radius, centerY + radius);
+      outlineCtx.stroke();
     } else if (south) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - radius, centerY - radius);
-      ctx.lineTo(centerX - radius, y + TILE_SIZE);
-      ctx.moveTo(centerX + radius, centerY - radius);
-      ctx.lineTo(centerX + radius, y + TILE_SIZE);
-      ctx.moveTo(centerX - radius, centerY - radius);
-      ctx.lineTo(centerX + radius, centerY - radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX - radius, centerY - radius);
+      outlineCtx.lineTo(centerX - radius, y + TILE_SIZE);
+      outlineCtx.moveTo(centerX + radius, centerY - radius);
+      outlineCtx.lineTo(centerX + radius, y + TILE_SIZE);
+      outlineCtx.moveTo(centerX - radius, centerY - radius);
+      outlineCtx.lineTo(centerX + radius, centerY - radius);
+      outlineCtx.stroke();
     }
   } else {
     // Outer corner arcs
     if (!west && !north) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, Math.PI, -Math.PI / 2, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(centerX, centerY, radius, Math.PI, -Math.PI / 2, false);
+      outlineCtx.stroke();
     } else if (!west && north) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - radius, centerY);
-      ctx.lineTo(centerX - radius, y);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX - radius, centerY);
+      outlineCtx.lineTo(centerX - radius, y);
+      outlineCtx.stroke();
     } else if (west && !north) {
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY - radius);
-      ctx.lineTo(x, centerY - radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX, centerY - radius);
+      outlineCtx.lineTo(x, centerY - radius);
+      outlineCtx.stroke();
     }
 
     if (!east && !north) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, -Math.PI / 2, 0, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(centerX, centerY, radius, -Math.PI / 2, 0, false);
+      outlineCtx.stroke();
     } else if (!east && north) {
-      ctx.beginPath();
-      ctx.moveTo(centerX + radius, centerY);
-      ctx.lineTo(centerX + radius, y);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX + radius, centerY);
+      outlineCtx.lineTo(centerX + radius, y);
+      outlineCtx.stroke();
     } else if (east && !north) {
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY - radius);
-      ctx.lineTo(x + TILE_SIZE, centerY - radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX, centerY - radius);
+      outlineCtx.lineTo(x + TILE_SIZE, centerY - radius);
+      outlineCtx.stroke();
     }
 
     if (!west && !south) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, Math.PI / 2, Math.PI, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(centerX, centerY, radius, Math.PI / 2, Math.PI, false);
+      outlineCtx.stroke();
     } else if (!west && south) {
-      ctx.beginPath();
-      ctx.moveTo(centerX - radius, centerY);
-      ctx.lineTo(centerX - radius, y + TILE_SIZE);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX - radius, centerY);
+      outlineCtx.lineTo(centerX - radius, y + TILE_SIZE);
+      outlineCtx.stroke();
     } else if (west && !south) {
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY + radius);
-      ctx.lineTo(x, centerY + radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX, centerY + radius);
+      outlineCtx.lineTo(x, centerY + radius);
+      outlineCtx.stroke();
     }
 
     if (!east && !south) {
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI / 2, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(centerX, centerY, radius, 0, Math.PI / 2, false);
+      outlineCtx.stroke();
     } else if (!east && south) {
-      ctx.beginPath();
-      ctx.moveTo(centerX + radius, centerY);
-      ctx.lineTo(centerX + radius, y + TILE_SIZE);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX + radius, centerY);
+      outlineCtx.lineTo(centerX + radius, y + TILE_SIZE);
+      outlineCtx.stroke();
     } else if (east && !south) {
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY + radius);
-      ctx.lineTo(x + TILE_SIZE, centerY + radius);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.moveTo(centerX, centerY + radius);
+      outlineCtx.lineTo(x + TILE_SIZE, centerY + radius);
+      outlineCtx.stroke();
     }
 
     // Inner corner arcs - only draw if diagonal is missing
     if (west && north && !hasNW) {
-      ctx.beginPath();
-      ctx.arc(x, y, innerRadius, 0, Math.PI / 2, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(x, y, innerRadius, 0, Math.PI / 2, false);
+      outlineCtx.stroke();
     }
     if (east && north && !hasNE) {
-      ctx.beginPath();
-      ctx.arc(x + TILE_SIZE, y, innerRadius, Math.PI / 2, Math.PI, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(x + TILE_SIZE, y, innerRadius, Math.PI / 2, Math.PI, false);
+      outlineCtx.stroke();
     }
     if (west && south && !hasSW) {
-      ctx.beginPath();
-      ctx.arc(x, y + TILE_SIZE, innerRadius, -Math.PI / 2, 0, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(x, y + TILE_SIZE, innerRadius, -Math.PI / 2, 0, false);
+      outlineCtx.stroke();
     }
     if (east && south && !hasSE) {
-      ctx.beginPath();
-      ctx.arc(x + TILE_SIZE, y + TILE_SIZE, innerRadius, Math.PI, -Math.PI / 2, false);
-      ctx.stroke();
+      outlineCtx.beginPath();
+      outlineCtx.arc(x + TILE_SIZE, y + TILE_SIZE, innerRadius, Math.PI, -Math.PI / 2, false);
+      outlineCtx.stroke();
     }
   }
 }
 
 const args = process.argv.slice(2);
-if (args.length !== 2) {
-  console.error('Usage: node generate-path-tileset.js <input-texture> <output-spritesheet>');
+const separateEdges = args.includes('--separate-edges');
+const fileArgs = args.filter(arg => !arg.startsWith('--'));
+
+if (fileArgs.length !== 2) {
+  console.error('Usage: node generate-path-tileset.js <input-texture> <output-spritesheet> [--separate-edges]');
   process.exit(1);
 }
 
-generateTileset(args[0], args[1]).catch(err => {
+generateTileset(fileArgs[0], fileArgs[1], separateEdges).catch(err => {
   console.error('Error:', err);
   process.exit(1);
 });

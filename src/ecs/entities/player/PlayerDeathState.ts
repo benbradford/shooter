@@ -9,7 +9,7 @@ const FADE_DURATION_MS = 1000;
 
 export class PlayerDeathState implements IState {
   private elapsedMs = 0;
-  private scene: Phaser.Scene;
+  private readonly scene: Phaser.Scene;
   private hasReloaded = false;
 
   constructor(private readonly entity: Entity, scene: Phaser.Scene) {
@@ -42,8 +42,8 @@ export class PlayerDeathState implements IState {
   }
 
   private reloadLevel(): void {
-    const gameScene = this.scene.scene.get('game') as any;
-    if (gameScene && gameScene.reloadCurrentLevel) {
+    const gameScene = this.scene.scene.get('game') as { reloadCurrentLevel?: () => void };
+    if (gameScene?.reloadCurrentLevel) {
       gameScene.reloadCurrentLevel();
     }
   }

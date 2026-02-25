@@ -206,6 +206,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  water_path_tileset_edges: {
+    key: 'water_path_tileset_edges',
+    path: 'assets/cell_drawables/water_path_tileset_edges.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 64, frameHeight: 64 }
+  },
   dungeon_platform: {
     key: 'dungeon_platform',
     path: 'assets/cell_drawables/dungeon_platform.png',
