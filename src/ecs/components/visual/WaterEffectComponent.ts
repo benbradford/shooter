@@ -94,7 +94,16 @@ export class WaterEffectComponent implements Component {
     }
 
     if (shadow) {
-      shadow.shadow.setVisible(!nowInWater);
+      const shouldBeVisible = !nowInWater && this.hopProgress >= 1;
+      if (shadow.shadow.visible !== shouldBeVisible) {
+        console.log('[WaterEffect] Setting shadow visibility:', {
+          from: shadow.shadow.visible,
+          to: shouldBeVisible,
+          nowInWater,
+          hopProgress: this.hopProgress
+        });
+        shadow.shadow.setVisible(shouldBeVisible);
+      }
     }
 
     // Adjust sprite depth based on swimming state

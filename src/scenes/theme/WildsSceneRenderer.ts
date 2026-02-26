@@ -67,7 +67,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
         scale: {
           onEmit: (particle: Phaser.GameObjects.Particles.Particle | undefined) => {
             if (!particle) return 120;
-            (particle as any).initialY = particle.y;
+            (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY = particle.y;
             const yRatio = particle.y / worldHeight;
             const baseScale = 45 + (yRatio * 50);
             return baseScale + (Math.random() * 30 - 10);
@@ -76,7 +76,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
         alpha: {
           onUpdate: (particle: Phaser.GameObjects.Particles.Particle) => {
             const life = particle.lifeT;
-            const initialY = (particle as any).initialY || particle.y;
+            const initialY = (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY || particle.y;
             const yRatio = initialY / worldHeight;
             const baseAlpha = 0.3 + (yRatio * 0.7);
             if (life < 0.3) return baseAlpha * (life / 0.3);

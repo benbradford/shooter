@@ -61,7 +61,18 @@ export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water' | '
   - Swimming under bridge+water: Player continues swimming at reduced speed
   - Ripples only appear when swimming under bridge, not when walking over
   - Player renders at depth -7 when swimming (below bridge textures at -5, above water at -10)
-  - **Known issue**: Player can currently hop out through bridge cells (needs fix)
+  - Cannot hop out through bridge cells (blocked in all directions)
+  - Cannot walk from bridge onto water without bridge
+  - Cannot hop out to blocked/platform/wall cells
+  - **Known issue**: Player sprite can visually overlap dry cells while swimming near water edges
+    - Root cause: Grid collision uses feet position (PLAYER_GRID_COLLISION_BOX), but sprite extends beyond feet
+    - Player can swim close to edges because feet are still in water, but sprite top overlaps land
+    - This is a fundamental limitation of feet-based positioning
+    - Fix would require: sprite-based collision for water boundaries (complex) or larger grid collision box (affects all movement)
+  - **Known issue (Android only)**: Shadow may remain visible while swimming
+    - Works correctly on Mac/desktop
+    - Investigating platform-specific rendering or state management issue
+    - Debug logging added to diagnose when deployed to Android
 
 ### Layer System
 

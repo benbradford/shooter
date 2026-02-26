@@ -42,7 +42,7 @@ export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
   const spriteX = worldPos.x + grid.cellSize / 2;
   const spriteY = worldPos.y + grid.cellSize / 2;
 
-  const scale = (grid.cellSize / 153) * 1.2;
+  const scale = (grid.cellSize / 153) * 1.2 * 2;
   const transform = entity.add(new TransformComponent(spriteX, spriteY, 0, 0));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug_base', transform));

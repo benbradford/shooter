@@ -85,11 +85,6 @@ export const ASSET_REGISTRY = {
     path: 'assets/generic/shadow.png',
     type: 'image' as const,
   },
-  mist: {
-    key: 'mist',
-    path: 'assets/generic/mist.png',
-    type: 'image' as const,
-  },
   coin: {
     key: 'coin',
     path: 'assets/pickups/coin.png',
@@ -338,7 +333,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded
-  core: ['vignette', 'shadow', 'mist'] as const,
+  core: ['vignette', 'shadow'] as const,
 
   // Player and projectiles
   player: ['player', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke', 'crosshair', 'slide_icon', 'arrows'] as const,
