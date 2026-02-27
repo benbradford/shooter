@@ -74,6 +74,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
           }
         },
         alpha: {
+          onEmit: () => 0,
           onUpdate: (particle: Phaser.GameObjects.Particles.Particle) => {
             const life = particle.lifeT;
             const initialY = (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY || particle.y;

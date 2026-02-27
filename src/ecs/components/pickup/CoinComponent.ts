@@ -46,7 +46,6 @@ export class CoinComponent implements Component {
   private flySpeed = FLY_TO_HUD_SPEED_PX_PER_SEC;
   private hudTargetX = 0;
   private hudTargetY = 0;
-  private targetSetFrame = 0;
 
   constructor(props: CoinComponentProps) {
     this.targetY = props.targetY;
@@ -156,7 +155,6 @@ export class CoinComponent implements Component {
         const hudScreenY = displayHeight * 0.05;
         this.hudTargetX = camera.scrollX + hudScreenX / camera.zoom;
         this.hudTargetY = camera.scrollY + hudScreenY / camera.zoom;
-        this.targetSetFrame = Date.now();
 
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);

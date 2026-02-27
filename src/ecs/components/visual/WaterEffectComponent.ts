@@ -95,14 +95,20 @@ export class WaterEffectComponent implements Component {
 
     if (shadow) {
       const shouldBeVisible = !nowInWater && this.hopProgress >= 1;
-      if (shadow.shadow.visible !== shouldBeVisible) {
-        console.log('[WaterEffect] Setting shadow visibility:', {
-          from: shadow.shadow.visible,
-          to: shouldBeVisible,
-          nowInWater,
-          hopProgress: this.hopProgress
-        });
-        shadow.shadow.setVisible(shouldBeVisible);
+      
+      if (nowInWater && this.hopProgress >= 1) {
+        // Shadow visible but faded and below player when swimming
+        shadow.shadow.setVisible(true);
+        shadow.shadow.setAlpha(0.6);
+        shadow.shadow.setDepth(-8);
+      } else if (shouldBeVisible) {
+        // Normal shadow when not in water
+        shadow.shadow.setVisible(true);
+        shadow.shadow.setAlpha(1);
+        shadow.shadow.setDepth(-1);
+      } else {
+        // Hidden during hop
+        shadow.shadow.setVisible(false);
       }
     }
 

@@ -6,6 +6,14 @@
 
 **AI assistants must NEVER delete asset files. Only show audit results.**
 
+When asked to "audit the assets":
+1. Run the audit script below to identify potentially unused assets
+2. Show the list of unreferenced assets
+3. Show the list of largest assets
+4. Let the user decide what to do
+
+**Note:** The audit script may incorrectly flag assets as unreferenced if they are loaded dynamically or used in ways the script doesn't detect.
+
 To identify unused and oversized assets:
 
 ```bash
