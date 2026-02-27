@@ -42,6 +42,11 @@ export class SceneOverlays {
 
   applyOverlays(grid: Grid): void {
     if (!this.levelData.background?.overlays || this.overlaySprites.length === 0) return;
+    
+    // Check if overlay texture is loaded
+    if (!this.scene.textures.exists('dungeon_overlays')) {
+      return;
+    }
 
     const { frequency, seed } = this.levelData.background.overlays;
     const rng = this.seededRandom(seed);

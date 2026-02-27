@@ -36,14 +36,14 @@ export function createBulletDudeAnimations(scene: Phaser.Scene): void {
 
     scene.anims.create({
       key: `bulletdude_idle_${dirName}`,
-      frames: [{ key: 'player', frame: getIdleFrame(direction) }],
+      frames: [{ key: 'bullet_dude_sprite', frame: getIdleFrame(direction) }],
       frameRate: 1,
       repeat: 0
     });
 
     scene.anims.create({
       key: `bulletdude_walk_${dirName}`,
-      frames: getWalkFrames(direction).map(frame => ({ key: 'player', frame })),
+      frames: getWalkFrames(direction).map(frame => ({ key: 'bullet_dude_sprite', frame })),
       frameRate: 4,
       repeat: -1,
       yoyo: true

@@ -59,7 +59,7 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
 
   const transform = entity.add(new TransformComponent(x, y, 0, BULLET_DUDE_SCALE));
 
-  const sprite = entity.add(new SpriteComponent(scene, 'player', transform));
+  const sprite = entity.add(new SpriteComponent(scene, 'bullet_dude_sprite', transform));
   sprite.sprite.setDepth(10);
 
   const shadow = entity.add(new ShadowComponent(scene, BULLET_DUDE_SHADOW_PROPS));

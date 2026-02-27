@@ -15,7 +15,8 @@ import { CELL_SIZE, CAMERA_ZOOM, CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
-import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets, getBackgroundTextures } from "../assets/AssetLoader";
+import type { AssetKey } from "../assets/AssetRegistry";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
@@ -73,15 +74,6 @@ export default class GameScene extends Phaser.Scene {
       });
     }
 
-    createThrowerAnimations(this);
-
-    this.anims.create({
-      key: 'water_ripple_anim',
-      frames: this.anims.generateFrameNumbers('water_ripple', { start: 0, end: 3 }),
-      frameRate: 12,
-      repeat: 0
-    });
-
     const params = new URLSearchParams(globalThis.location.search);
     const levelParam = params.get('level');
     if (levelParam) {
@@ -91,6 +83,30 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
+    
+    // Load level-specific textures
+    const levelTextures = getBackgroundTextures(this.levelData);
+    console.log('[AssetLoader] Loading level textures:', levelTextures);
+    
+    preloadLevelAssets(this, this.levelData);
+    await new Promise<void>(resolve => {
+      if (this.load.isLoading()) {
+        this.load.once('complete', () => resolve());
+      } else {
+        resolve();
+      }
+      this.load.start();
+    });
+
+    // Create animations after assets load
+    createThrowerAnimations(this);
+
+    this.anims.create({
+      key: 'water_ripple_anim',
+      frames: this.anims.generateFrameNumbers('water_ripple', { start: 0, end: 3 }),
+      frameRate: 12,
+      repeat: 0
+    });
 
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
@@ -490,11 +506,30 @@ export default class GameScene extends Phaser.Scene {
 
 
   async loadLevel(levelName: string, spawnCol?: number, spawnRow?: number): Promise<void> {
+    // Track what textures were used in previous level
+    const prevLevelTextures = this.levelData ? getBackgroundTextures(this.levelData) : [];
+    
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
 
     if (spawnCol !== undefined && spawnRow !== undefined) {
       this.levelData.playerStart = { x: spawnCol, y: spawnRow };
+    }
+
+    // Get textures needed for new level
+    const newLevelTextures = getBackgroundTextures(this.levelData);
+    
+    // Log texture deltas (deduplicated)
+    const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
+    const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
+    
+    if (prevLevelTextures.length > 0) {
+      if (newTextures.length > 0) {
+        console.log('[AssetLoader] New textures to load:', newTextures);
+      }
+      if (unusedTextures.length > 0) {
+        console.log('[AssetLoader] Textures that could be unloaded:', unusedTextures);
+      }
     }
 
     preloadLevelAssets(this, this.levelData);

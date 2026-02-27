@@ -11,8 +11,8 @@ export type AssetDefinition = {
 }
 
 export const ASSET_REGISTRY = {
-  player: {
-    key: 'player',
+  bullet_dude_sprite: {
+    key: 'bullet_dude_sprite',
     path: 'assets/player/player-spritesheet.png',
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
@@ -333,10 +333,10 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded
-  core: ['vignette', 'shadow'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'water_ripple'] as const,
 
   // Player and projectiles
-  player: ['player', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke', 'crosshair', 'slide_icon', 'arrows'] as const,
+  player: ['attacker', 'crosshair', 'slide_icon', 'arrows'] as const,
 
   // Enemies
   stalking_robot: ['attacker'] as const,
@@ -344,6 +344,10 @@ export const ASSET_GROUPS = {
   bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small'] as const,
+  bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
+  
+  // Breakables
+  breakables: ['dungeon_vase', 'pillar'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

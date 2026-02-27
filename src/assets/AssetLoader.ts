@@ -8,7 +8,17 @@ import type { LevelData } from '../systems/level/LevelLoader';
  * @param keys - Optional array of asset keys to load. If not provided, loads all assets
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  const keysToLoad: AssetKey[] = keys ?? ['player', 'attacker', 'floating_robot', 'exclamation', 'bullet_default', 'bullet_default_shell', 'smoke', 'robot_hit_particle', 'crosshair', 'slide_icon', 'fireball', 'fire', 'shadow', 'coin', 'medi_pack', 'vignette', 'bug', 'bug_base', 'base_destroyed', 'arrows', 'thrower', 'grenade', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_key', 'rock', 'skeleton', 'bone_small', 'stone_stairs', 'stone_wall', 'stone_floor', 'stone_path_tileset', 'grass2_path_tileset', 'water_path_tileset', 'water_path_tileset_edges', 'water_ripple', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'dungeon_overlays', 'wall_torch', 'pillar', 'dungeon_vase', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3'];
+  // Core assets - sprites, enemies, UI (no level-specific textures)
+  const coreAssets: AssetKey[] = [
+    'attacker', 'floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle',
+    'crosshair', 'slide_icon', 'arrows', 'shadow', 'coin', 'medi_pack', 'vignette',
+    'bug', 'bug_base', 'base_destroyed', 'thrower', 'grenade', 'skeleton', 'bone_small',
+    'bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke',
+    'stone_path_tileset', 'grass2_path_tileset', 'water_path_tileset', 'water_path_tileset_edges', 'water_ripple',
+    'dungeon_vase', 'pillar'
+  ];
+  
+  const keysToLoad: AssetKey[] = keys ?? coreAssets;
   keysToLoad.forEach((key: AssetKey) => {
     loadAsset(scene, key);
   });
@@ -38,24 +48,27 @@ function loadAsset(scene: Phaser.Scene, key: AssetKey): void {
  * Determines which asset groups are needed for a level
  */
 export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
-  const groups: AssetGroupKey[] = ['core', 'player'];
+  const groups: AssetGroupKey[] = ['core', 'player', 'breakables'];
 
-  // Enemies
-  if (levelData.robots && levelData.robots.length > 0) {
-    groups.push('stalking_robot');
-  }
-  if (levelData.bugBases && levelData.bugBases.length > 0) {
-    groups.push('bug_base');
-  }
-  if (levelData.throwers && levelData.throwers.length > 0) {
-    groups.push('thrower');
-  }
-  if (levelData.skeletons && levelData.skeletons.length > 0) {
-    groups.push('skeleton');
-  }
-  if (levelData.bulletDudes && levelData.bulletDudes.length > 0) {
-    // bulletDude uses attacker sprite
-    groups.push('stalking_robot');
+  // Check entities array for enemy types
+  if (levelData.entities) {
+    const entityTypes = new Set(levelData.entities.map(e => e.type));
+    
+    if (entityTypes.has('stalking_robot')) {
+      groups.push('stalking_robot');
+    }
+    if (entityTypes.has('bullet_dude')) {
+      groups.push('bullet_dude');
+    }
+    if (entityTypes.has('bug_base')) {
+      groups.push('bug_base');
+    }
+    if (entityTypes.has('thrower')) {
+      groups.push('thrower');
+    }
+    if (entityTypes.has('skeleton')) {
+      groups.push('skeleton');
+    }
   }
 
   return groups;
@@ -64,7 +77,7 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
 /**
  * Extracts texture keys from level background config
  */
-function getBackgroundTextures(levelData: LevelData): AssetKey[] {
+export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
   const textures: AssetKey[] = [];
 
   if (levelData.background) {

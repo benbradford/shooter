@@ -624,7 +624,7 @@
   ],
   "levelTheme": "wilds",
   "background": {
-    "floor_texture": "grass1",
+    "floor_texture": "grass2",
     "floor_tile": 8,
     "platform_texture": "tree1",
     "platform_tile": 2,

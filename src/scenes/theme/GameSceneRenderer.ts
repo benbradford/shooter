@@ -35,6 +35,11 @@ export abstract class GameSceneRenderer {
     if (!this.isCached && levelData?.background) {
       const chunkSize = levelData.background.floor_tile;
       const texture = levelData.background.floor_texture;
+      
+      // Only cache if texture is loaded
+      if (!this.scene.textures.exists(texture)) {
+        return;
+      }
 
       for (let row = 0; row < grid.height; row += chunkSize) {
         for (let col = 0; col < grid.width; col += chunkSize) {
@@ -54,6 +59,11 @@ export abstract class GameSceneRenderer {
       if (levelData.background.platform_tile && levelData.background.platform_texture) {
         const platformTileSize = levelData.background.platform_tile;
         const platformTexture = levelData.background.platform_texture;
+        
+        // Only cache if texture is loaded
+        if (!this.scene.textures.exists(platformTexture)) {
+          return;
+        }
 
         for (let row = 0; row < grid.height; row += platformTileSize) {
           for (let col = 0; col < grid.width; col += platformTileSize) {
