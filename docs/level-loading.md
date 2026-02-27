@@ -49,6 +49,16 @@ When loading a level, the system:
 2. **Extracts background textures** - Reads `background.floor_texture`, `background.wall_texture`, etc.
 3. **Checks cell textures** - Looks for custom `backgroundTexture` on individual cells
 4. **Loads required assets** - Only loads what's needed for that level
+5. **Unloads unused textures** - Removes textures from previous level that aren't needed
+
+### Texture Loading Order
+
+Critical: All texture existence checks must happen before creating sprites to prevent `__MISSING` texture placeholders:
+
+- `GameSceneRenderer.renderGrid()` - Waits for `assetsReady` flag before rendering
+- `Grid.setCell()` - Checks `textures.exists()` before creating background sprites
+- `GameSceneRenderer.renderAllCells()` - Checks texture existence for stairs/walls/platforms
+- Asset loading callback sets `assetsReady` flag after 'complete' event fires
 
 ### Example Level JSON
 
@@ -154,3 +164,22 @@ Asset loading logs to console:
 ```
 
 To see what's loaded, check the browser console after switching levels (press L in-game).
+
+## Troubleshooting
+
+### __MISSING Texture Sprites
+
+**Symptom:** Pink/white placeholder sprites appear behind textures.
+
+**Cause:** Sprites created before textures finish loading.
+
+**Solution:** The system prevents this by:
+- Waiting for `assetsReady` flag before rendering
+- Checking `textures.exists()` before all `scene.add.image()` calls
+- Destroying sprites before unloading textures during level transitions
+
+**Key locations with texture checks:**
+- `GameSceneRenderer.renderGrid()` - Early return if `!assetsReady`
+- `Grid.setCell()` - Checks texture exists before creating background sprites
+- `GameSceneRenderer.renderAllCells()` - Checks all background config textures
+- `GameSceneRenderer.addImage()` - Wrapper that logs if `__MISSING` sprite created

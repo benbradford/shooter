@@ -18,6 +18,7 @@ export abstract class GameSceneRenderer {
   private readonly cellSprites: Phaser.GameObjects.Image[] = [];
   private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image> = new Map();
   private isCached: boolean = false;
+  private assetsReady: boolean = false;
 
   constructor(protected readonly scene: Phaser.Scene, protected readonly cellSize: number) {
     this.graphics = scene.add.graphics();
@@ -26,36 +27,36 @@ export abstract class GameSceneRenderer {
     this.edgeGraphics.setDepth(0);
   }
 
+  markAssetsReady(): void {
+    this.assetsReady = true;
+  }
+
+  protected addImage(x: number, y: number, texture: string): Phaser.GameObjects.Image {
+    const img = this.scene.add.image(x, y, texture);
+    if (img.texture.key === '__MISSING') {
+      console.error(`[GameSceneRenderer] Created __MISSING sprite for texture: ${texture}`, new Error().stack);
+    }
+    return img;
+  }
+
   abstract renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image };
   protected abstract getEdgeColor(): number;
 
   renderGrid(grid: Grid, levelData?: LevelData): void {
+    // Don't render until assets are ready
+    if (!this.assetsReady) {
+      return;
+    }
+    
     this.graphics.clear();
     this.edgeGraphics.clear();
-
-    // Destroy any __MISSING texture sprites
-    const allImages = this.scene.children.list.filter(obj => obj.type === 'Image') as Phaser.GameObjects.Image[];
-    for (const img of allImages) {
-      if (img.texture.key === '__MISSING') {
-        img.destroy();
-      }
-    }
 
     if (!this.isCached && levelData?.background) {
       const chunkSize = levelData.background.floor_tile;
       const texture = levelData.background.floor_texture;
       
-      // Wait for all required textures before caching
+      // Wait for floor texture
       if (!this.scene.textures.exists(texture)) {
-        return;
-      }
-      if (levelData.background.platform_texture && !this.scene.textures.exists(levelData.background.platform_texture)) {
-        return;
-      }
-      if (levelData.background.stairs_texture && !this.scene.textures.exists(levelData.background.stairs_texture)) {
-        return;
-      }
-      if (levelData.background.wall_texture && !this.scene.textures.exists(levelData.background.wall_texture)) {
         return;
       }
 
@@ -66,7 +67,7 @@ export abstract class GameSceneRenderer {
           const width = Math.min(chunkSize, grid.width - col) * this.cellSize;
           const height = Math.min(chunkSize, grid.height - row) * this.cellSize;
 
-          const sprite = this.scene.add.image(x + width / 2, y + height / 2, texture);
+          const sprite = this.addImage(x + width / 2, y + height / 2, texture);
           sprite.setDisplaySize(width, height);
           sprite.setDepth(-1000);
           sprite.setAlpha(0.7);
@@ -102,13 +103,24 @@ export abstract class GameSceneRenderer {
               const width = platformTileSize * this.cellSize;
               const height = platformTileSize * this.cellSize;
 
-              const sprite = this.scene.add.image(x + width / 2, y + height / 2, platformTexture);
+              const sprite = this.addImage(x + width / 2, y + height / 2, platformTexture);
               sprite.setDisplaySize(width, height);
               sprite.setDepth(-5);
               this.floorSprites.push(sprite);
             }
           }
         }
+      }
+
+      // Wait for all cell textures before calling renderAllCells
+      if (levelData.background.platform_texture && !this.scene.textures.exists(levelData.background.platform_texture)) {
+        return;
+      }
+      if (levelData.background.stairs_texture && !this.scene.textures.exists(levelData.background.stairs_texture)) {
+        return;
+      }
+      if (levelData.background.wall_texture && !this.scene.textures.exists(levelData.background.wall_texture)) {
+        return;
       }
 
       this.renderAllCells(grid, levelData);
@@ -139,7 +151,7 @@ export abstract class GameSceneRenderer {
           const spriteX = transform ? centerX + transform.offsetX : centerX;
           const spriteY = transform ? centerY + transform.offsetY : centerY;
 
-          const sprite = this.scene.add.image(spriteX, spriteY, cell.backgroundTexture);
+          const sprite = this.addImage(spriteX, spriteY, cell.backgroundTexture);
           if (transform) {
             sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
           } else {
@@ -273,7 +285,7 @@ export abstract class GameSceneRenderer {
 
     canvas?.refresh();
 
-    this.floorOverlay = this.scene.add.image(0, 0, 'floor_gradient_overlay');
+    this.floorOverlay = this.addImage(0, 0, 'floor_gradient_overlay');
     this.floorOverlay.setOrigin(0, 0);
     this.floorOverlay.setDisplaySize(worldWidth, worldHeight);
     this.floorOverlay.setDepth(-4);
@@ -388,26 +400,32 @@ export abstract class GameSceneRenderer {
         if (isElevated || isStairs) {
           // Render textures from background config (cache on first render)
           if (hasBackgroundConfig && levelData.background && !this.isCached) {
-            if (isStairs && levelData.background?.stairs_texture && this.scene.textures.exists(levelData.background.stairs_texture)) {
-              const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
-              sprite.setDisplaySize(this.cellSize, this.cellSize);
-              sprite.setDepth(-5);
-              this.cellSprites.push(sprite);
-            } else if (isWall && levelData.background?.wall_texture && this.scene.textures.exists(levelData.background.wall_texture)) {
-              const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.wall_texture);
-              sprite.setDisplaySize(this.cellSize, this.cellSize);
-              sprite.setDepth(-5);
-              this.cellSprites.push(sprite);
+            if (isStairs && levelData.background?.stairs_texture) {
+              if (this.scene.textures.exists(levelData.background.stairs_texture)) {
+                const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
+                sprite.setDisplaySize(this.cellSize, this.cellSize);
+                sprite.setDepth(-5);
+                this.cellSprites.push(sprite);
+              }
+            } else if (isWall && levelData.background?.wall_texture) {
+              if (this.scene.textures.exists(levelData.background.wall_texture)) {
+                const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.wall_texture);
+                sprite.setDisplaySize(this.cellSize, this.cellSize);
+                sprite.setDepth(-5);
+                this.cellSprites.push(sprite);
+              }
             }
           }
 
-          // Platform overlay (draw every frame)
-          if (isPlatform) {
+          // Platform overlay (cached on first render)
+          if (isPlatform && !this.isCached) {
             if (hasBackgroundConfig && levelData.background?.platform_texture && !levelData.background.platform_tile) {
-              const sprite = this.scene.add.image(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);
-              sprite.setDisplaySize(this.cellSize, this.cellSize);
-              sprite.setDepth(-5);
-              this.cellSprites.push(sprite);
+              if (this.scene.textures.exists(levelData.background.platform_texture)) {
+                const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);
+                sprite.setDisplaySize(this.cellSize, this.cellSize);
+                sprite.setDepth(-5);
+                this.cellSprites.push(sprite);
+              }
             } else if (!levelData?.background?.platform_tile) {
               this.graphics.fillStyle(0x000000, 0.3);
               this.graphics.fillRect(x, y, this.cellSize, this.cellSize);

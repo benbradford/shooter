@@ -64,14 +64,7 @@ export class CoinComponent implements Component {
     const deltaInSec = delta / 1000;
 
     if (this.flyingToHud) {
-      if (Date.now() - this.targetSetFrame < 100) {
-        console.log('[Coin] Flying to:', { 
-          target: `${this.hudTargetX},${this.hudTargetY}`,
-          current: `${transform.x},${transform.y}`,
-          elapsed: Date.now() - this.targetSetFrame
-        });
-      }
-      
+
       const dx = this.hudTargetX - transform.x;
       const dy = this.hudTargetY - transform.y;
       const distance = Math.hypot(dx, dy);
@@ -164,15 +157,6 @@ export class CoinComponent implements Component {
         this.hudTargetX = camera.scrollX + hudScreenX / camera.zoom;
         this.hudTargetY = camera.scrollY + hudScreenY / camera.zoom;
         this.targetSetFrame = Date.now();
-
-        console.log('[Coin] Target set:', { 
-          hudTargetX: this.hudTargetX, 
-          hudTargetY: this.hudTargetY,
-          displayWidth,
-          displayHeight,
-          scrollX: camera.scrollX,
-          scrollY: camera.scrollY
-        });
 
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);

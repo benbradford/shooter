@@ -88,7 +88,9 @@ export default class GameScene extends Phaser.Scene {
     const levelTextures = getBackgroundTextures(this.levelData);
     console.log('[AssetLoader] Loading level textures:', levelTextures);
     
-    preloadLevelAssets(this, this.levelData);
+    preloadLevelAssets(this, this.levelData, () => {
+      this.sceneRenderer.markAssetsReady();
+    });
     await new Promise<void>(resolve => {
       if (this.load.isLoading()) {
         this.load.once('complete', () => resolve());
@@ -519,22 +521,23 @@ export default class GameScene extends Phaser.Scene {
     // Get textures needed for new level
     const newLevelTextures = getBackgroundTextures(this.levelData);
     
-    // Calculate texture deltas (deduplicated)
+    // Calculate texture deltas
     const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
     const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
     
-    // Destroy old sprites BEFORE unloading textures to prevent missing texture placeholders
+    // Cleanup before loading new level
+    this.time.removeAllEvents();
+
+    if (this.sceneRenderer) {
+      this.sceneRenderer.destroy();
+    }
+
+    this.children.list
+      .filter(obj => obj !== this.layerDebugText)
+      .forEach(obj => obj.destroy());
+    
+    // Unload unused textures after destroying sprites
     if (prevLevelTextures.length > 0) {
-      this.time.removeAllEvents();
-
-      if (this.sceneRenderer) {
-        this.sceneRenderer.destroy();
-      }
-
-      this.children.list
-        .filter(obj => obj !== this.layerDebugText)
-        .forEach(obj => obj.destroy());
-      
       if (newTextures.length > 0) {
         console.log('[AssetLoader] New textures to load:', newTextures);
       }
@@ -548,7 +551,10 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    preloadLevelAssets(this, this.levelData);
+    // Load new level assets
+    preloadLevelAssets(this, this.levelData, () => {
+      this.sceneRenderer.markAssetsReady();
+    });
     await new Promise<void>(resolve => {
       if (this.load.isLoading()) {
         this.load.once('complete', () => resolve());

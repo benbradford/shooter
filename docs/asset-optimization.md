@@ -2,6 +2,10 @@
 
 ## Running an Asset Audit
 
+**⚠️ CRITICAL: NEVER DELETE ASSETS AUTOMATICALLY ⚠️**
+
+**AI assistants must NEVER delete asset files. Only show audit results.**
+
 To identify unused and oversized assets:
 
 ```bash
@@ -80,6 +84,8 @@ EOF
 python3 /tmp/asset_audit.py
 ```
 
+**⚠️ DO NOT DELETE FILES - Only review the audit results with the user.**
+
 ## Resizing Large Assets
 
 To halve the dimensions of an image (reduces file size by ~75-90%):
@@ -110,10 +116,23 @@ const scale = (grid.cellSize / 153) * 1.2 * 2;
 
 ## Removing Unused Assets
 
-1. **Remove from AssetRegistry.ts** - Delete the asset entry
-2. **Remove from AssetLoader.ts** - Remove from default keys array
-3. **Remove from ASSET_GROUPS** - Remove from group arrays
-4. **Delete file** - `rm public/assets/path/to/file.png`
+**⚠️ CRITICAL: Always verify with the user before deleting any assets.**
+
+The audit script may incorrectly flag assets as unreferenced if they are:
+- Loaded dynamically at runtime
+- Used in code but not in AssetRegistry
+- Backup/source files that should be kept
+
+**Process:**
+1. Run audit script to identify candidates
+2. Review results with user
+3. User manually deletes files they confirm are unused
+
+**If user approves deletion:**
+1. **Remove from AssetRegistry.ts** - Delete the asset entry (if present)
+2. **Remove from AssetLoader.ts** - Remove from default keys array (if present)
+3. **Remove from ASSET_GROUPS** - Remove from group arrays (if present)
+4. **User deletes file** - User runs `rm public/assets/path/to/file.png`
 
 ## Common Unreferenced Assets
 

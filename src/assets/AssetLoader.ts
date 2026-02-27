@@ -135,7 +135,7 @@ export function preloadAssetGroups(scene: Phaser.Scene, groups: AssetGroupKey[])
 /**
  * Loads assets for a specific level (groups + background textures)
  */
-export function preloadLevelAssets(scene: Phaser.Scene, levelData: LevelData): void {
+export function preloadLevelAssets(scene: Phaser.Scene, levelData: LevelData, onComplete?: () => void): void {
   const groups = getRequiredAssetGroups(levelData);
   preloadAssetGroups(scene, groups);
 
@@ -150,5 +150,8 @@ export function preloadLevelAssets(scene: Phaser.Scene, levelData: LevelData): v
     const loadedTextures = scene.textures.getTextureKeys().filter(key => key !== '__DEFAULT' && key !== '__MISSING');
     const sorted = [...loadedTextures].sort((a, b) => a.localeCompare(b));
     console.log(`[AssetLoader] Loaded ${loadedTextures.length} textures:`, sorted);
+    if (onComplete) {
+      onComplete();
+    }
   });
 }

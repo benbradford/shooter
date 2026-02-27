@@ -187,7 +187,7 @@ export class Grid {
         }
       }
 
-      if (data.backgroundTexture) {
+      if (data.backgroundTexture && this.scene.textures.exists(data.backgroundTexture)) {
         const worldPos = this.cellToWorld(col, row);
         const sprite = this.scene.add.image(
           worldPos.x + this.cellSize / 2,
