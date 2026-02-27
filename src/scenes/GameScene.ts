@@ -519,16 +519,32 @@ export default class GameScene extends Phaser.Scene {
     // Get textures needed for new level
     const newLevelTextures = getBackgroundTextures(this.levelData);
     
-    // Log texture deltas (deduplicated)
+    // Calculate texture deltas (deduplicated)
     const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
     const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
     
+    // Destroy old sprites BEFORE unloading textures to prevent missing texture placeholders
     if (prevLevelTextures.length > 0) {
+      this.time.removeAllEvents();
+
+      if (this.sceneRenderer) {
+        this.sceneRenderer.destroy();
+      }
+
+      this.children.list
+        .filter(obj => obj !== this.layerDebugText)
+        .forEach(obj => obj.destroy());
+      
       if (newTextures.length > 0) {
         console.log('[AssetLoader] New textures to load:', newTextures);
       }
       if (unusedTextures.length > 0) {
-        console.log('[AssetLoader] Textures that could be unloaded:', unusedTextures);
+        console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
+        unusedTextures.forEach(tex => {
+          if (this.textures.exists(tex)) {
+            this.textures.remove(tex);
+          }
+        });
       }
     }
 
@@ -541,16 +557,6 @@ export default class GameScene extends Phaser.Scene {
       }
       this.load.start();
     });
-
-    this.time.removeAllEvents();
-
-    if (this.sceneRenderer) {
-      this.sceneRenderer.destroy();
-    }
-
-    this.children.list
-      .filter(obj => obj !== this.layerDebugText)
-      .forEach(obj => obj.destroy());
 
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {

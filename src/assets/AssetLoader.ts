@@ -78,22 +78,22 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
  * Extracts texture keys from level background config
  */
 export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
-  const textures: AssetKey[] = [];
+  const textureSet = new Set<AssetKey>();
 
   if (levelData.background) {
     const bg = levelData.background;
-    if (bg.floor_texture) textures.push(bg.floor_texture as AssetKey);
-    if (bg.platform_texture) textures.push(bg.platform_texture as AssetKey);
-    if (bg.stairs_texture) textures.push(bg.stairs_texture as AssetKey);
-    if (bg.wall_texture) textures.push(bg.wall_texture as AssetKey);
-    if (bg.path_texture) textures.push(bg.path_texture as AssetKey);
-    if (bg.water_texture) textures.push(bg.water_texture as AssetKey);
-    if (bg.water_texture_edges) textures.push(bg.water_texture_edges as AssetKey);
+    if (bg.floor_texture) textureSet.add(bg.floor_texture as AssetKey);
+    if (bg.platform_texture) textureSet.add(bg.platform_texture as AssetKey);
+    if (bg.stairs_texture) textureSet.add(bg.stairs_texture as AssetKey);
+    if (bg.wall_texture) textureSet.add(bg.wall_texture as AssetKey);
+    if (bg.path_texture) textureSet.add(bg.path_texture as AssetKey);
+    if (bg.water_texture) textureSet.add(bg.water_texture as AssetKey);
+    if (bg.water_texture_edges) textureSet.add(bg.water_texture_edges as AssetKey);
     if (bg.overlays?.spritesheet) {
       // Extract key from path like "assets/cell_drawables/dungeon_overlays_spritesheet.png"
       const key = bg.overlays.spritesheet.split('/').pop()?.replace('.png', '');
       if (key && key in ASSET_REGISTRY) {
-        textures.push(key as AssetKey);
+        textureSet.add(key as AssetKey);
       }
     }
   }
@@ -102,12 +102,14 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
   if (levelData.cells) {
     for (const cell of levelData.cells) {
       if (cell.backgroundTexture && cell.backgroundTexture in ASSET_REGISTRY) {
-        textures.push(cell.backgroundTexture as AssetKey);
+        textureSet.add(cell.backgroundTexture as AssetKey);
+      } else if (cell.backgroundTexture && cell.backgroundTexture !== '') {
+        console.warn('[AssetLoader] Cell texture not in registry:', cell.backgroundTexture);
       }
     }
   }
 
-  return textures;
+  return Array.from(textureSet);
 }
 
 /**
