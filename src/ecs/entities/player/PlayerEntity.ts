@@ -255,7 +255,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
 
   if (CAN_SUBMERGE) {
-    entity.add(new WaterEffectComponent());
+    entity.add(new WaterEffectComponent(scene));
   }
 
   entity.add(new WaterRippleComponent(scene, grid));

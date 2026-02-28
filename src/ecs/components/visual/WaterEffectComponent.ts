@@ -21,6 +21,8 @@ export class WaterEffectComponent implements Component {
   private shadowMaskGraphics?: Phaser.GameObjects.Graphics;
   private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
 
+  constructor(private readonly scene: Phaser.Scene) {}
+
   getIsInWater(): boolean {
     return this.isInWater && this.hopProgress >= 1;
   }
@@ -100,13 +102,13 @@ export class WaterEffectComponent implements Component {
 
     if (shadow) {
       const shouldBeVisible = !nowInWater && this.hopProgress >= 1;
-      
+
       if (nowInWater && this.hopProgress >= 1) {
         // Shadow visible but faded and below player when swimming
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(0.6);
         shadow.shadow.setDepth(Depth.shadowSwimming);
-        
+
         // Update shadow mask if player moved to different cell
         if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
           this.updateShadowMask(shadow, gridPos, gridCollision.getGrid());
@@ -153,7 +155,7 @@ export class WaterEffectComponent implements Component {
         // Exiting water - hop to the adjacent dry cell in movement direction
         const moveX = walk.lastMoveX;
         const moveY = walk.lastMoveY;
-        
+
         // If already in dry cell, stay there; otherwise move to next cell
         if (isCurrentCellWater) {
           targetCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
@@ -179,51 +181,73 @@ export class WaterEffectComponent implements Component {
 
       const hopHeight = Math.sin(this.hopProgress * Math.PI) * -20;
       sprite.sprite.y = transform.y + hopHeight;
+
+      if (this.hopProgress >= 1 && this.isInWater) {
+        this.createSplashEffect(transform.x, transform.y);
+      }
     } else {
       sprite.sprite.y = transform.y;
     }
   }
-  
+
   private updateShadowMask(shadow: ShadowComponent, gridPos: GridPositionComponent, grid: Grid): void {
     // Destroy old mask
     if (this.shadowMaskGraphics) {
       this.shadowMaskGraphics.destroy();
     }
-    
+
     // Create new mask for nearby water cells
     this.shadowMaskGraphics = shadow.shadow.scene.add.graphics();
     this.shadowMaskGraphics.fillStyle(0xffffff);
     this.shadowMaskGraphics.setVisible(false);
-    
+
     const centerCell = gridPos.currentCell;
     const cellRadius = 2; // Check 2 cells around player
     const inset = 8;
-    
+
     for (let row = centerCell.row - cellRadius; row <= centerCell.row + cellRadius; row++) {
       for (let col = centerCell.col - cellRadius; col <= centerCell.col + cellRadius; col++) {
         const cell = grid.getCell(col, row);
         if (cell?.properties.has('water')) {
           const world = grid.cellToWorld(col, row);
-          
+
           // Check neighbors to determine which edges border land
           const hasWaterLeft = grid.getCell(col - 1, row)?.properties.has('water') ?? false;
           const hasWaterRight = grid.getCell(col + 1, row)?.properties.has('water') ?? false;
           const hasWaterUp = grid.getCell(col, row - 1)?.properties.has('water') ?? false;
           const hasWaterDown = grid.getCell(col, row + 1)?.properties.has('water') ?? false;
-          
+
           // Inset edges that border land
           const left = world.x + (hasWaterLeft ? 0 : inset);
           const top = world.y + (hasWaterUp ? 0 : inset);
           const right = world.x + grid.cellSize - (hasWaterRight ? 0 : inset);
           const bottom = world.y + grid.cellSize - (hasWaterDown ? 0 : inset);
-          
+
           this.shadowMaskGraphics.fillRect(left, top, right - left, bottom - top);
         }
       }
     }
-    
+
     this.shadowMask = this.shadowMaskGraphics.createGeometryMask();
     shadow.shadow.setMask(this.shadowMask);
+  }
+
+  private createSplashEffect(x: number, y: number): void {
+    const emitter = this.scene.add.particles(x, y, 'water_ripple', {
+      frame: 0,
+      speed: { min: 100, max: 150 },
+      angle: { min: 0, max: -180 },
+      scale: { start: 0.06, end: 0 },
+      alpha: { start: 1, end: 0 },
+      lifespan: 800,
+      frequency: 3,
+      blendMode: 'NORMAL',
+      gravityY: 300
+    });
+
+    emitter.setDepth(Depth.particle);
+    this.scene.time.delayedCall(50, () => emitter.stop());
+    this.scene.time.delayedCall(800, () => emitter.destroy());
   }
 
   onDestroy(): void {

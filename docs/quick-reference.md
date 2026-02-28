@@ -505,6 +505,12 @@ entity.setUpdateOrder([
 - Water ripples spawn every 150ms while swimming
 - Shadow fades to 60% alpha and renders at depth -8 when swimming
 
+**River Current:**
+- Water with `flowDirection` applies force to push player
+- Force configurable via `force` field (pixels/second)
+- Stops when within 20px of blocker in flow direction
+- Player can swim against current (harder) or with it (easier)
+
 **Water + Blocked Cells:**
 - Combine 'water' and 'blocked' properties to create impassable water obstacles
 - Use at corners to prevent swimming into land where sprite would overlap

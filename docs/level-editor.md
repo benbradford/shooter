@@ -461,7 +461,14 @@ Levels can specify default textures for all cells of a type in the level JSON:
     "platform_tile": 2,
     "stairs_texture": "stone_stairs",
     "wall_texture": "stone_wall",
-    "path_texture": "stone_path",
+    "path_texture": "stone_floor",
+    "water": {
+      "sourceImage": "water2",
+      "flowDirection": "left",
+      "numFrames": 4,
+      "animSpeedMs": 250,
+      "force": 60
+    },
     "overlays": {
       "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
       "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
@@ -477,6 +484,16 @@ Levels can specify default textures for all cells of a type in the level JSON:
   }
 }
 ```
+
+**Runtime Tileset Generation:**
+- `path_texture`: Specify source image (e.g., "stone_floor") - tileset generated at runtime
+- `water`: Animated water with runtime tileset generation
+  - `sourceImage`: Source water texture
+  - `flowDirection`: "left", "right", "up", or "down"
+  - `numFrames`: Number of animation frames (generates offset textures)
+  - `animSpeedMs`: Milliseconds between frames
+  - `force`: Current force in pixels/second (pushes player in flow direction)
+- Tilesets are generated once per level load and cleaned up on level transition
 
 - `floor_texture`: Rendered in NxN chunks (specified by `floor_tile`) at depth -1000
 - `floor_tile`: Chunk size for floor texture (e.g., 10 = 10x10 cells per sprite)

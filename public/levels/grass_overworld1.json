@@ -4790,10 +4790,10 @@
     "path_texture": "stone_floor",
     "water": {
       "sourceImage": "water2",
-      "flowDirection": "left",
-      "numFrames": 10,
-      "animSpeedMs": 250,
-      "force": 60
+      "flowDirection": "up",
+      "numFrames": 20,
+      "animSpeedMs": 100,
+      "force": 120
     }
   }
 }
