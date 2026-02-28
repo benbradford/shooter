@@ -25,6 +25,7 @@ const AVAILABLE_TEXTURES: string[] = [
   'stone_floor',
   'stone_stairs',
   'stone_wall',
+  'submerged_rock1',
   'tree1',
   'wall_torch'
 ];

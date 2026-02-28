@@ -171,15 +171,13 @@ To see what's loaded, check the browser console after switching levels (press L 
 
 **Symptom:** Pink/white placeholder sprites appear behind textures.
 
-**Cause:** Sprites created before textures finish loading.
+**Cause:** Sprites created before textures finish loading, or textures removed while sprites still reference them.
 
 **Solution:** The system prevents this by:
-- Waiting for `assetsReady` flag before rendering
-- Checking `textures.exists()` before all `scene.add.image()` calls
-- Destroying sprites before unloading textures during level transitions
-
-**Key locations with texture checks:**
-- `GameSceneRenderer.renderGrid()` - Early return if `!assetsReady`
-- `Grid.setCell()` - Checks texture exists before creating background sprites
-- `GameSceneRenderer.renderAllCells()` - Checks all background config textures
+- `GameSceneRenderer.renderGrid()` - Waits for `assetsReady` flag before rendering
+- `Grid.setCell()` - Checks `textures.exists()` before creating background sprites
+- `GameSceneRenderer.renderAllCells()` - Checks texture existence for stairs/walls/platforms
 - `GameSceneRenderer.addImage()` - Wrapper that logs if `__MISSING` sprite created
+- Sprites destroyed before textures unloaded during level transitions
+
+**Key fix:** Added texture existence check in `Grid.setCell()` which was creating sprites for modified cells before textures loaded.

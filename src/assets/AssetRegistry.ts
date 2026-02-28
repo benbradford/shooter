@@ -173,6 +173,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_key.png',
     type: 'image' as const,
   },
+  submerged_rock1: {
+    key: 'submerged_rock1',
+    path: 'assets/cell_drawables/rocks/submerged_rock1.png',
+    type: 'image' as const,
+  },
   stone_stairs: {
     key: 'stone_stairs',
     path: 'assets/cell_drawables/stone_stairs.png',

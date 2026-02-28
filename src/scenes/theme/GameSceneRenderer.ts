@@ -47,14 +47,14 @@ export abstract class GameSceneRenderer {
     if (!this.assetsReady) {
       return;
     }
-    
+
     this.graphics.clear();
     this.edgeGraphics.clear();
 
     if (!this.isCached && levelData?.background) {
       const chunkSize = levelData.background.floor_tile;
       const texture = levelData.background.floor_texture;
-      
+
       // Wait for floor texture
       if (!this.scene.textures.exists(texture)) {
         return;
@@ -78,7 +78,7 @@ export abstract class GameSceneRenderer {
       if (levelData.background.platform_tile && levelData.background.platform_texture) {
         const platformTileSize = levelData.background.platform_tile;
         const platformTexture = levelData.background.platform_texture;
-        
+
         // Only cache if texture is loaded
         if (!this.scene.textures.exists(platformTexture)) {
           return;
@@ -132,17 +132,17 @@ export abstract class GameSceneRenderer {
       for (const cell of levelData.cells) {
         if (cell.backgroundTexture && cell.backgroundTexture !== '') {
           const key = `${cell.col},${cell.row}`;
-          
+
           // Skip if already rendered
           if (this.renderedCellTextures.has(key)) {
             continue;
           }
-          
+
           // Skip if texture doesn't exist yet (still loading)
           if (!this.scene.textures.exists(cell.backgroundTexture)) {
             continue;
           }
-          
+
           const transform = BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES[cell.backgroundTexture];
           const x = cell.col * this.cellSize;
           const y = cell.row * this.cellSize;
@@ -157,7 +157,14 @@ export abstract class GameSceneRenderer {
           } else {
             sprite.setDisplaySize(this.cellSize, this.cellSize);
           }
-          sprite.setDepth(-4);
+
+          // Set depth based on cell properties
+          const cellData = grid.getCell(cell.col, cell.row);
+          const isWater = cellData?.properties.has('water') ?? false;
+          const isBridge = cellData?.properties.has('bridge') ?? false;
+
+          const depth = isBridge ? -5 : isWater ? -8 : -4;
+          sprite.setDepth(depth);
           this.renderedCellTextures.set(key, sprite);
         }
       }

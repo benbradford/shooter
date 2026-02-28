@@ -56,6 +56,11 @@ export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water' | '
 - **'stairs'**: Transition between layers - allows vertical movement only
 - **'path'**: Stone path (grass theme only) - walkable, renders as connected grey stones with black outlines
 - **'water'**: Water cells - player swims at reduced speed (70%), triggers water effects
+  - Uses `PLAYER_SWIMMING_GRID_COLLISION_BOX` (64×64) for collision detection while swimming
+  - Prevents sprite overlap with blocked cells in all directions
+  - Can be combined with 'blocked' property to create impassable water obstacles
+  - Background textures on water cells render at depth -8 (below swimming player at -7)
+- **'blocked'**: Blocks all movement - can be combined with 'water' to create obstacles in water
 - **'bridge'**: Bridge over water - when combined with 'water' property, allows walking over water at full speed
   - Walking onto bridge+water: Player continues walking (doesn't enter water)
   - Swimming under bridge+water: Player continues swimming at reduced speed
@@ -64,15 +69,9 @@ export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water' | '
   - Cannot hop out through bridge cells (blocked in all directions)
   - Cannot walk from bridge onto water without bridge
   - Cannot hop out to blocked/platform/wall cells
-  - **Known issue**: Player sprite can visually overlap dry cells while swimming near water edges
-    - Root cause: Grid collision uses feet position (PLAYER_GRID_COLLISION_BOX), but sprite extends beyond feet
-    - Player can swim close to edges because feet are still in water, but sprite top overlaps land
-    - This is a fundamental limitation of feet-based positioning
-    - Fix would require: sprite-based collision for water boundaries (complex) or larger grid collision box (affects all movement)
-  - **Known issue (Android only)**: Shadow may remain visible while swimming
-    - Works correctly on Mac/desktop
-    - Investigating platform-specific rendering or state management issue
-    - Debug logging added to diagnose when deployed to Android
+  - **Workaround**: Use 'blocked' property on water cells at corners to prevent swimming into land
+    - Mark corner water cells as 'water + blocked' to create invisible barriers
+    - Prevents visual overlap issues where sprite extends beyond collision box
 
 ### Layer System
 

@@ -338,7 +338,14 @@ Allows selecting and modifying individual grid cells using keyboard navigation o
 - **Back** - Return to default mode
 - **Layer 0-3** - Set cell to specified layer
 - **Clear** - Reset cell to layer 0, no properties, no texture
-- **Checkboxes** (right side) - Select properties: platform, wall, stairs
+- **Property Controls** (right side):
+  - **Water, Bridge** - Checkboxes (can be combined with other properties)
+  - **Platform, Wall, Stairs, Path, Blocked** - Radio buttons (mutually exclusive)
+
+**Combining Properties:**
+- Water + Blocked: Creates impassable water obstacles (prevents swimming into corners)
+- Water + Bridge: Creates walkable bridges over water
+- Only one non-water/bridge property can be selected at a time
 
 **Painting:**
 - Click and drag to paint multiple cells

@@ -80,8 +80,8 @@ export class GridEditorState extends EditorState {
     });
     this.buttons.push(clearBtn);
 
-    // Property radio buttons on right side
-    const properties: CellProperty[] = ['platform', 'wall', 'stairs', 'path', 'water', 'blocked'];
+    // Property checkboxes on right side
+    const properties: CellProperty[] = ['platform', 'wall', 'stairs', 'path', 'water', 'blocked', 'bridge'];
     const startY = 100;
     const spacing = 40;
 
@@ -104,15 +104,21 @@ export class GridEditorState extends EditorState {
       label.setDepth(1000);
 
       circle.on('pointerdown', () => {
-        // Deselect all
-        this.checkboxes.forEach((data) => {
-          data.checked = false;
-          data.box.setFillStyle(0x333333);
-        });
-        
-        // Select this one
         const data = this.checkboxes.get(prop);
-        if (data) {
+        if (!data) return;
+        
+        if (prop === 'water' || prop === 'bridge') {
+          // Water and bridge are checkboxes - toggle
+          data.checked = !data.checked;
+          circle.setFillStyle(data.checked ? 0x00ff00 : 0x333333);
+        } else {
+          // Others are radio buttons - deselect all, select this one
+          this.checkboxes.forEach((d, p) => {
+            if (p !== 'water' && p !== 'bridge') {
+              d.checked = false;
+              d.box.setFillStyle(0x333333);
+            }
+          });
           data.checked = true;
           circle.setFillStyle(0x00ff00);
         }
@@ -185,10 +191,12 @@ export class GridEditorState extends EditorState {
       return;
     }
 
-    const selectedProperty = Array.from(this.checkboxes.entries()).find(([_, data]) => data.checked)?.[0];
-    const properties = selectedProperty ? new Set([selectedProperty]) : new Set<CellProperty>();
+    const selectedProperties = Array.from(this.checkboxes.entries())
+      .filter(([_, data]) => data.checked)
+      .map(([prop, _]) => prop);
+    const properties = new Set<CellProperty>(selectedProperties);
     
-    console.log('[GridEditor] Painting cell', cell.col, cell.row, 'layer:', this.selectedLayer, 'property:', selectedProperty);
+    console.log('[GridEditor] Painting cell', cell.col, cell.row, 'layer:', this.selectedLayer, 'properties:', Array.from(properties));
 
     this.scene.setCellData(cell.col, cell.row, { 
       layer: this.selectedLayer,
