@@ -98,9 +98,7 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
 
-    preloadLevelAssets(this, this.levelData, () => {
-      this.sceneRenderer.markAssetsReady();
-    });
+    preloadLevelAssets(this, this.levelData);
     await new Promise<void>(resolve => {
       if (this.load.isLoading()) {
         this.load.once('complete', () => resolve());
@@ -111,6 +109,7 @@ export default class GameScene extends Phaser.Scene {
     });
 
     await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
+    this.sceneRenderer.markAssetsReady();
 
     createThrowerAnimations(this);
 
