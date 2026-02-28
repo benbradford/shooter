@@ -223,6 +223,11 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  water2: {
+    key: 'water2',
+    path: 'assets/cell_drawables/water2.png',
+    type: 'image' as const
+  },
   water_ripple: {
     key: 'water_ripple',
     path: 'assets/cell_drawables/water_ripple_spritesheet.png',

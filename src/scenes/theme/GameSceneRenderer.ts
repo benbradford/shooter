@@ -2,6 +2,8 @@ import type { Grid } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
+import { WaterAnimator } from './WaterAnimator';
+import type { WaterConfig } from './WaterAnimator';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
   house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
@@ -21,8 +23,7 @@ export abstract class GameSceneRenderer {
   private isCached: boolean = false;
   private assetsReady: boolean = false;
   private readonly waterSprites: Array<Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
-  private waterAnimationIndex: number = 0;
-  private waterAnimationTimerMs: number = 0;
+  private waterAnimator: WaterAnimator | null = null;
 
   constructor(protected readonly scene: Phaser.Scene, protected readonly cellSize: number) {
     this.graphics = scene.add.graphics();
@@ -35,24 +36,9 @@ export abstract class GameSceneRenderer {
     this.assetsReady = true;
   }
 
-  update(delta: number, levelData?: LevelData): void {
-    const waterTextures = Array.isArray(levelData?.background?.water_texture) 
-      ? levelData.background.water_texture 
-      : null;
-
-    if (waterTextures && waterTextures.length > 1 && this.waterSprites.length > 0) {
-      this.waterAnimationTimerMs += delta;
-
-      if (this.waterAnimationTimerMs >= 250) {
-        this.waterAnimationTimerMs = 0;
-        
-        for (let i = 0; i < this.waterSprites.length; i++) {
-          const textureIndex = i % waterTextures.length;
-          this.waterSprites[i].setVisible(textureIndex === this.waterAnimationIndex);
-        }
-        
-        this.waterAnimationIndex = (this.waterAnimationIndex + 1) % waterTextures.length;
-      }
+  update(delta: number): void {
+    if (this.waterAnimator) {
+      this.waterAnimator.update(delta, this.waterSprites);
     }
   }
 
@@ -66,6 +52,17 @@ export abstract class GameSceneRenderer {
 
   abstract renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image };
   protected abstract getEdgeColor(): number;
+
+  private async initializeWaterAnimation(waterConfig: WaterConfig): Promise<void> {
+    this.waterAnimator = new WaterAnimator(this.scene, waterConfig);
+    await this.waterAnimator.generateTextures();
+  }
+
+  async prepareWaterAnimation(levelData: LevelData): Promise<void> {
+    if (levelData.background?.water) {
+      await this.initializeWaterAnimation(levelData.background.water);
+    }
+  }
 
   renderGrid(grid: Grid, levelData?: LevelData): void {
     // Don't render until assets are ready
@@ -238,6 +235,10 @@ export abstract class GameSceneRenderer {
       sprite.destroy();
     }
     this.waterSprites.length = 0;
+    if (this.waterAnimator) {
+      this.waterAnimator.destroy();
+      this.waterAnimator = null;
+    }
     for (const sprite of this.renderedCellTextures.values()) {
       sprite.destroy();
     }
@@ -355,9 +356,14 @@ export abstract class GameSceneRenderer {
         const y = row * this.cellSize;
 
         if ((isPath || isWater) && !this.isCached) {
-          const pathTextures = isWater && Array.isArray(levelData?.background?.water_texture) 
-            ? levelData.background.water_texture 
-            : null;
+          let pathTextures: string[] | null = null;
+          
+          if (isWater && levelData?.background?.water) {
+            pathTextures = this.waterAnimator?.getTilesetKeys() ?? null;
+          } else if (isWater && Array.isArray(levelData?.background?.water_texture)) {
+            pathTextures = levelData.background.water_texture;
+          }
+          
           const pathTexture = pathTextures ? pathTextures[0] : (isWater ? levelData?.background?.water_texture : levelData?.background?.path_texture);
           const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
 

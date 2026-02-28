@@ -123,6 +123,9 @@ export default class GameScene extends Phaser.Scene {
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
+    
+    await this.sceneRenderer.prepareWaterAnimation(this.levelData);
+    
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
     this.vignette = rendered.vignette;
@@ -346,7 +349,7 @@ export default class GameScene extends Phaser.Scene {
     this.stateMachine.update(delta);
 
     // Update scene renderer (for water animation)
-    this.sceneRenderer.update(delta, this.levelData);
+    this.sceneRenderer.update(delta);
 
     // Update layer debug text
     const player = this.entityManager.getFirst('player');
