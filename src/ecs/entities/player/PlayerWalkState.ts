@@ -37,11 +37,11 @@ export class PlayerWalkState implements IState {
     const water = this.entity.get(WaterEffectComponent);
     const health = this.entity.require(HealthComponent);
 
-    if (handleSlideInput(input, slide, attackCombo)) {
+    if (handleSlideInput(input, slide, attackCombo, water)) {
       return;
     }
 
-    if (handlePunchInput(input, attackCombo)) {
+    if (handlePunchInput(input, attackCombo, water)) {
       return;
     }
 

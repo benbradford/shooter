@@ -34,11 +34,11 @@ export class PlayerIdleState implements IState {
     const slide = this.entity.require(SlideAbilityComponent);
     const water = this.entity.get(WaterEffectComponent);
     
-    if (handleSlideInput(input, slide, attackCombo)) {
+    if (handleSlideInput(input, slide, attackCombo, water)) {
       return;
     }
     
-    if (handlePunchInput(input, attackCombo)) {
+    if (handlePunchInput(input, attackCombo, water)) {
       return;
     }
     
