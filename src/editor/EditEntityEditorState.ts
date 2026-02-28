@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 import type { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
@@ -551,7 +552,7 @@ export class EditEntityEditorState extends EditorState {
       }).setOrigin(0.5);
       container.add(text);
 
-      container.setDepth(1000);
+      container.setDepth(DEPTH_EDITOR);
       this.waypointMarkers.push(container);
     });
   }

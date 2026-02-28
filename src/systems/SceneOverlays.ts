@@ -1,5 +1,6 @@
 import type { Grid } from './grid/Grid';
 import type { LevelData } from './level/LevelLoader';
+import { DEPTH_OVERLAY } from '../constants/DepthConstants';
 
 type OverlaySprite = {
   x: number;
@@ -108,7 +109,7 @@ export class SceneOverlays {
       image.setOrigin(0.5, 0.5);
       image.setCrop(sprite.x, sprite.y, sprite.width, sprite.height);
       image.setDisplaySize(sprite.width * 1.5, sprite.height * 1.5);
-      image.setDepth(-100);
+      image.setDepth(DEPTH_OVERLAY);
 
       const rotation = (rng() - 0.5) * 0.52;
       image.setRotation(rotation);

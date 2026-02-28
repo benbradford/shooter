@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_HUD_OVERHEAL, DEPTH_HUD_SPARKLES } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { HealthComponent } from '../core/HealthComponent';
@@ -89,7 +90,7 @@ export class HudBarComponent implements Component {
         this.barHeight,
         0xff00ff
       );
-      overhealFill.setDepth(1002);
+      overhealFill.setDepth(DEPTH_HUD_OVERHEAL);
       
       const sparkles = this.scene.add.particles(transform.x, transform.y + config.offsetY, 'coin', {
         speed: { min: 10, max: 30 },
@@ -101,7 +102,7 @@ export class HudBarComponent implements Component {
         blendMode: 'ADD',
         emitting: false
       });
-      sparkles.setDepth(1003);
+      sparkles.setDepth(DEPTH_HUD_SPARKLES);
       
       this.bars.push({
         background,

@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 import type GameScene from '../scenes/GameScene';
 
 export class AddThrowerEditorState extends EditorState {
@@ -12,7 +13,7 @@ export class AddThrowerEditorState extends EditorState {
     this.ghostSprite = gameScene.add.sprite(0, 0, 'thrower', 0);
     this.ghostSprite.setDisplaySize(grid.cellSize, grid.cellSize);
     this.ghostSprite.setAlpha(0.6);
-    this.ghostSprite.setDepth(1000);
+    this.ghostSprite.setDepth(DEPTH_EDITOR);
 
     this.scene.input.on('pointermove', this.handlePointerMove, this);
     this.scene.input.on('pointerdown', this.handlePointerDown, this);

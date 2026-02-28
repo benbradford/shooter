@@ -1,4 +1,5 @@
 import { Entity } from '../../Entity';
+import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
@@ -53,7 +54,7 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
         tint: [0xffff00, 0xff5500],
         blendMode: 'ADD'
       });
-      emitter.setDepth(1000);
+      emitter.setDepth(DEPTH_PARTICLE);
       scene.time.delayedCall(300, () => emitter.destroy());
     }
   }));

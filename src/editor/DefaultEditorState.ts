@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 
 export class DefaultEditorState extends EditorState {
@@ -29,7 +30,7 @@ export class DefaultEditorState extends EditorState {
     this.exitButton.setOrigin(0.5);
     this.exitButton.setScrollFactor(0);
     this.exitButton.setInteractive({ useHandCursor: true });
-    this.exitButton.setDepth(1000);
+    this.exitButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(this.exitButton);
 
     this.exitButton.on('pointerover', () => {
@@ -52,7 +53,7 @@ export class DefaultEditorState extends EditorState {
     this.gridButton.setOrigin(0.5);
     this.gridButton.setScrollFactor(0);
     this.gridButton.setInteractive({ useHandCursor: true });
-    this.gridButton.setDepth(1000);
+    this.gridButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(this.gridButton);
 
     this.gridButton.on('pointerover', () => {
@@ -75,7 +76,7 @@ export class DefaultEditorState extends EditorState {
     addButton.setOrigin(0.5);
     addButton.setScrollFactor(0);
     addButton.setInteractive({ useHandCursor: true });
-    addButton.setDepth(1000);
+    addButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(addButton);
 
     addButton.on('pointerover', () => {
@@ -98,7 +99,7 @@ export class DefaultEditorState extends EditorState {
     textureButton.setOrigin(0.5);
     textureButton.setScrollFactor(0);
     textureButton.setInteractive({ useHandCursor: true });
-    textureButton.setDepth(1000);
+    textureButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(textureButton);
 
     textureButton.on('pointerover', () => {
@@ -121,7 +122,7 @@ export class DefaultEditorState extends EditorState {
     resizeButton.setOrigin(0.5);
     resizeButton.setScrollFactor(0);
     resizeButton.setInteractive({ useHandCursor: true });
-    resizeButton.setDepth(1000);
+    resizeButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(resizeButton);
 
     resizeButton.on('pointerover', () => {
@@ -144,7 +145,7 @@ export class DefaultEditorState extends EditorState {
     logButton.setOrigin(0.5);
     logButton.setScrollFactor(0);
     logButton.setInteractive({ useHandCursor: true });
-    logButton.setDepth(1000);
+    logButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(logButton);
 
     logButton.on('pointerover', () => {
@@ -167,7 +168,7 @@ export class DefaultEditorState extends EditorState {
     themeButton.setOrigin(0.5);
     themeButton.setScrollFactor(0);
     themeButton.setInteractive({ useHandCursor: true });
-    themeButton.setDepth(1000);
+    themeButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(themeButton);
 
     themeButton.on('pointerover', () => {
@@ -190,7 +191,7 @@ export class DefaultEditorState extends EditorState {
     triggerButton.setOrigin(0.5);
     triggerButton.setScrollFactor(0);
     triggerButton.setInteractive({ useHandCursor: true });
-    triggerButton.setDepth(1000);
+    triggerButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(triggerButton);
 
     triggerButton.on('pointerover', () => {
@@ -213,7 +214,7 @@ export class DefaultEditorState extends EditorState {
     spawnerButton.setOrigin(0.5);
     spawnerButton.setScrollFactor(0);
     spawnerButton.setInteractive({ useHandCursor: true });
-    spawnerButton.setDepth(1000);
+    spawnerButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(spawnerButton);
 
     spawnerButton.on('pointerover', () => {
@@ -236,7 +237,7 @@ export class DefaultEditorState extends EditorState {
     levelExitButton.setOrigin(0.5);
     levelExitButton.setScrollFactor(0);
     levelExitButton.setInteractive({ useHandCursor: true });
-    levelExitButton.setDepth(1000);
+    levelExitButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(levelExitButton);
 
     levelExitButton.on('pointerover', () => {
@@ -260,7 +261,7 @@ export class DefaultEditorState extends EditorState {
     cellModifierButton.setOrigin(0.5);
     cellModifierButton.setScrollFactor(0);
     cellModifierButton.setInteractive({ useHandCursor: true });
-    cellModifierButton.setDepth(1000);
+    cellModifierButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(cellModifierButton);
 
     cellModifierButton.on('pointerover', () => {
@@ -389,6 +390,6 @@ export class DefaultEditorState extends EditorState {
     });
     this.entityIdText.setOrigin(0, 0);
     this.entityIdText.setScrollFactor(0);
-    this.entityIdText.setDepth(1000);
+    this.entityIdText.setDepth(DEPTH_EDITOR);
   }
 }

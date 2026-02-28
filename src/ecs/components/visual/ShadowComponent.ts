@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_SHADOW } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
@@ -20,7 +21,7 @@ export class ShadowComponent implements Component {
   init(): void {
     this.shadow = this.scene.add.image(0, 0, 'shadow');
     this.shadow.setScale(this.props.scale);
-    this.shadow.setDepth(-1);
+    this.shadow.setDepth(DEPTH_SHADOW);
   }
 
   update(): void {

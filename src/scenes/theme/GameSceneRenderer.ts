@@ -1,6 +1,7 @@
 import type { Grid } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
+import { DEPTH_RENDERER_GRAPHICS, DEPTH_EDGE_GRAPHICS, DEPTH_FLOOR, DEPTH_STAIRS, DEPTH_CELL_TEXTURE_MODIFIED, DEPTH_WATER_TILE_EDGE, DEPTH_WATER_TILE } from '../../constants/DepthConstants';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
   house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
@@ -22,9 +23,9 @@ export abstract class GameSceneRenderer {
 
   constructor(protected readonly scene: Phaser.Scene, protected readonly cellSize: number) {
     this.graphics = scene.add.graphics();
-    this.graphics.setDepth(-10);
+    this.graphics.setDepth(DEPTH_RENDERER_GRAPHICS);
     this.edgeGraphics = scene.add.graphics();
-    this.edgeGraphics.setDepth(0);
+    this.edgeGraphics.setDepth(DEPTH_EDGE_GRAPHICS);
   }
 
   markAssetsReady(): void {
@@ -69,7 +70,7 @@ export abstract class GameSceneRenderer {
 
           const sprite = this.addImage(x + width / 2, y + height / 2, texture);
           sprite.setDisplaySize(width, height);
-          sprite.setDepth(-1000);
+          sprite.setDepth(DEPTH_FLOOR);
           sprite.setAlpha(0.7);
           this.floorSprites.push(sprite);
         }
@@ -105,7 +106,7 @@ export abstract class GameSceneRenderer {
 
               const sprite = this.addImage(x + width / 2, y + height / 2, platformTexture);
               sprite.setDisplaySize(width, height);
-              sprite.setDepth(-5);
+              sprite.setDepth(DEPTH_STAIRS);
               this.floorSprites.push(sprite);
             }
           }
@@ -295,7 +296,7 @@ export abstract class GameSceneRenderer {
     this.floorOverlay = this.addImage(0, 0, 'floor_gradient_overlay');
     this.floorOverlay.setOrigin(0, 0);
     this.floorOverlay.setDisplaySize(worldWidth, worldHeight);
-    this.floorOverlay.setDepth(-4);
+    this.floorOverlay.setDepth(DEPTH_CELL_TEXTURE_MODIFIED);
     this.floorOverlay.setBlendMode(Phaser.BlendModes.OVERLAY);
   }
 
@@ -389,16 +390,16 @@ export abstract class GameSceneRenderer {
 
           if (isWater && edgesTexture && this.scene.textures.exists(edgesTexture)) {
             const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture, frame);
-            tileSprite.setDepth(-10);
+            tileSprite.setDepth(DEPTH_WATER_TILE);
 
             const edgeSprite = this.scene.add.sprite(centerX, centerY, edgesTexture, frame);
             edgeSprite.setDisplaySize(this.cellSize, this.cellSize);
-            edgeSprite.setDepth(-9);
+            edgeSprite.setDepth(DEPTH_WATER_TILE_EDGE);
             this.cellSprites.push(edgeSprite);
           } else {
              const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
             sprite.setDisplaySize(this.cellSize, this.cellSize);
-            sprite.setDepth(-10);
+            sprite.setDepth(DEPTH_WATER_TILE);
             this.cellSprites.push(sprite);
           }
           }
@@ -411,14 +412,14 @@ export abstract class GameSceneRenderer {
               if (this.scene.textures.exists(levelData.background.stairs_texture)) {
                 const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
                 sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(-5);
+                sprite.setDepth(DEPTH_STAIRS);
                 this.cellSprites.push(sprite);
               }
             } else if (isWall && levelData.background?.wall_texture) {
               if (this.scene.textures.exists(levelData.background.wall_texture)) {
                 const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.wall_texture);
                 sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(-5);
+                sprite.setDepth(DEPTH_STAIRS);
                 this.cellSprites.push(sprite);
               }
             }
@@ -430,7 +431,7 @@ export abstract class GameSceneRenderer {
               if (this.scene.textures.exists(levelData.background.platform_texture)) {
                 const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);
                 sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(-5);
+                sprite.setDepth(DEPTH_STAIRS);
                 this.cellSprites.push(sprite);
               }
             } else if (!levelData?.background?.platform_tile) {

@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_EDITOR } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
@@ -22,7 +23,7 @@ export class LockOnIndicatorComponent implements Component {
   constructor(props: LockOnIndicatorComponentProps) {
     this.targetEntity = props.targetEntity;
     this.circle = props.scene.add.graphics();
-    this.circle.setDepth(1000);
+    this.circle.setDepth(DEPTH_EDITOR);
   }
 
   update(delta: number): void {

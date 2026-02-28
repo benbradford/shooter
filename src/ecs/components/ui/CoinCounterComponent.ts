@@ -1,4 +1,5 @@
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { DEPTH_HUD } from '../../../constants/DepthConstants';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { BaseEventComponent } from '../core/BaseEventComponent';
 
@@ -30,7 +31,7 @@ export class CoinCounterComponent extends BaseEventComponent {
     this.coinIcon = this.scene.add.image(x, y, 'coin');
     this.coinIcon.setDisplaySize(COIN_ICON_SIZE_PX, COIN_ICON_SIZE_PX);
     this.coinIcon.setScrollFactor(0);
-    this.coinIcon.setDepth(2000);
+    this.coinIcon.setDepth(DEPTH_HUD);
     this.coinIcon.setAlpha(1);
     
     this.coinText = this.scene.add.text(x + COIN_ICON_SIZE_PX, y, '0', {
@@ -40,7 +41,7 @@ export class CoinCounterComponent extends BaseEventComponent {
     });
     this.coinText.setOrigin(0, 0.5);
     this.coinText.setScrollFactor(0);
-    this.coinText.setDepth(2000);
+    this.coinText.setDepth(DEPTH_HUD);
     this.coinText.setAlpha(1);
     
     this.registerEvent('level_loaded');

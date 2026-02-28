@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_HUD, DEPTH_HUD_CIRCLE } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import type { AttackComboComponent } from '../combat/AttackComboComponent';
@@ -35,12 +36,12 @@ export class SlideButtonComponent implements Component {
     this.sprite.setScale(BUTTON_SCALE);
     this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
     this.sprite.setScrollFactor(0);
-    this.sprite.setDepth(2000);
+    this.sprite.setDepth(DEPTH_HUD);
     this.sprite.setInteractive();
 
     this.circle = scene.add.graphics();
     this.circle.setScrollFactor(0);
-    this.circle.setDepth(1999);
+    this.circle.setDepth(DEPTH_HUD_CIRCLE);
 
     this.sprite.on('pointerdown', this.handlePointerDown, this);
     this.sprite.on('pointerup', this.handlePointerUp, this);

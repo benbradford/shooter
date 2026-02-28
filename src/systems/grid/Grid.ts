@@ -8,6 +8,7 @@ import { WalkComponent } from "../../ecs/components/movement/WalkComponent";
 import { getMustFaceEnemy } from "../../ecs/components/combat/AttackComboComponent";
 import type { CellData } from './CellData';
 import type { LevelData } from '../level/LevelLoader';
+import { DEPTH_BRIDGE, DEPTH_STAIRS, DEPTH_DEBUG_TEXT } from '../../constants/DepthConstants';
 export type { CellProperty, CellData } from './CellData';
 
 export class Grid {
@@ -173,7 +174,7 @@ export class Grid {
         0x4a4a5e,
         0.9
       );
-      rect.setDepth(-50);
+      rect.setDepth(DEPTH_BRIDGE);
       this.layer1Sprites.set(key, rect as unknown as Phaser.GameObjects.Rectangle);
     }
 
@@ -195,7 +196,7 @@ export class Grid {
           data.backgroundTexture
         );
         sprite.setDisplaySize(this.cellSize, this.cellSize);
-        sprite.setDepth(-5);
+        sprite.setDepth(DEPTH_STAIRS);
         this.backgroundSprites.set(key, sprite);
       }
     }
@@ -365,7 +366,7 @@ export class Grid {
           fontSize: '8px',
           color: '#000000'
         });
-        text.setDepth(10001);
+        text.setDepth(DEPTH_DEBUG_TEXT);
 
         // Destroy after one frame (we redraw each frame)
         this.scene.time.delayedCall(0, () => text.destroy());

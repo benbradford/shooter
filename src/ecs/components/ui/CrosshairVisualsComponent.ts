@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_HUD } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from '../input/TouchJoystickComponent';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
@@ -29,7 +30,7 @@ export class CrosshairVisualsComponent implements Component {
     this.sprite.setScrollFactor(0);
 
     // High depth to stay on top
-    this.sprite.setDepth(2000);
+    this.sprite.setDepth(DEPTH_HUD);
 
     // Set touch bounds on joystick component
     const radius = (this.sprite.width / 2) * this.scale;

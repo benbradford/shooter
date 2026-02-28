@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
 import type { EntityManager } from '../../EntityManager';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
@@ -123,7 +124,7 @@ export class BaseExplosionComponent implements Component {
       }
     });
 
-    emitter.setDepth(1000);
+    emitter.setDepth(DEPTH_PARTICLE);
     this.scene.time.delayedCall(300, () => emitter.stop());
     this.scene.time.delayedCall(3000, () => emitter.destroy());
   }

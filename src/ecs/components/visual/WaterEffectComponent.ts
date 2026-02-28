@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_SHADOW_SWIMMING, DEPTH_SHADOW, DEPTH_PLAYER_SWIMMING, DEPTH_PLAYER } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { TransformComponent } from '../core/TransformComponent';
@@ -104,7 +105,7 @@ export class WaterEffectComponent implements Component {
         // Shadow visible but faded and below player when swimming
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(0.6);
-        shadow.shadow.setDepth(-8);
+        shadow.shadow.setDepth(DEPTH_SHADOW_SWIMMING);
         
         // Update shadow mask if player moved to different cell
         if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
@@ -115,7 +116,7 @@ export class WaterEffectComponent implements Component {
         // Normal shadow when not in water
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(1);
-        shadow.shadow.setDepth(-1);
+        shadow.shadow.setDepth(DEPTH_SHADOW);
         shadow.shadow.clearMask();
       } else {
         // Hidden during hop
@@ -127,10 +128,10 @@ export class WaterEffectComponent implements Component {
     // Adjust sprite depth based on swimming state
     if (nowInWater && this.hopProgress >= 1) {
       // Swimming - render above water (-10) but below bridge textures (-5)
-      sprite.sprite.setDepth(-7);
+      sprite.sprite.setDepth(DEPTH_PLAYER_SWIMMING);
     } else {
       // Walking - render at normal depth
-      sprite.sprite.setDepth(0);
+      sprite.sprite.setDepth(DEPTH_PLAYER);
     }
 
     // Detect water entry/exit (only when not already hopping)

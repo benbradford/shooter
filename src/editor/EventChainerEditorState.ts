@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 
 export class EventChainerEditorState extends EditorState {
   private selectedCell: { col: number; row: number } | null = null;
@@ -352,7 +353,7 @@ export class EventChainerEditorState extends EditorState {
     );
     this.selectionRectangle.setStrokeStyle(3, 0xffff00);
     this.selectionRectangle.setFillStyle(0x000000, 0);
-    this.selectionRectangle.setDepth(1000);
+    this.selectionRectangle.setDepth(DEPTH_EDITOR);
   };
 
   onUpdate(): void {

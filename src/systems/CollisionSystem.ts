@@ -3,6 +3,7 @@ import { CollisionComponent } from '../ecs/components/combat/CollisionComponent'
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import type { Grid } from './grid/Grid';
+import { DEPTH_DEBUG_TEXT } from '../constants/DepthConstants';
 
 export class CollisionSystem {
   private readonly scene: Phaser.Scene;
@@ -19,7 +20,7 @@ export class CollisionSystem {
     this.debugEnabled = enabled;
     if (enabled && !this.debugGraphics) {
       this.debugGraphics = this.scene.add.graphics();
-      this.debugGraphics.setDepth(10000);
+      this.debugGraphics.setDepth(DEPTH_DEBUG_TEXT);
     }
   }
 

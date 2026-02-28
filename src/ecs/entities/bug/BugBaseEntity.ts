@@ -1,4 +1,5 @@
 import { Entity } from '../../Entity';
+import { DEPTH_EXHAUSTED_BASE } from '../../../constants/DepthConstants';
 import type { EntityManager } from '../../EntityManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
@@ -47,7 +48,7 @@ export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug_base', transform));
   sprite.sprite.setOrigin(0.5, 0.5);
-  sprite.sprite.setDepth(-50);
+  sprite.sprite.setDepth(DEPTH_EXHAUSTED_BASE);
   sprite.sprite.setAlpha(0);
 
   entity.add(new GridPositionComponent(col, row, BASE_GRID_COLLISION_BOX));

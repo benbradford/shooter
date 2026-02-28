@@ -1,4 +1,5 @@
 import { Entity } from '../../Entity';
+import { DEPTH_ENEMY_FLYING } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ShadowComponent } from '../../components/core/ShadowComponent';
@@ -54,7 +55,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
 
   const sprite = entity.add(new SpriteComponent(scene, 'bug', transform));
   sprite.sprite.setScale(BUG_SCALE);
-  sprite.sprite.setDepth(10);
+  sprite.sprite.setDepth(DEPTH_ENEMY_FLYING);
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 10 }));
   shadow.init();

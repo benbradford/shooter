@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 import type GameScene from '../scenes/GameScene';
 
 const AVAILABLE_TEXTURES: string[] = [
@@ -89,7 +90,7 @@ export class TextureEditorState extends EditorState {
     this.clearButton.setOrigin(0.5);
     this.clearButton.setScrollFactor(0);
     this.clearButton.setInteractive({ useHandCursor: true });
-    this.clearButton.setDepth(1000);
+    this.clearButton.setDepth(DEPTH_EDITOR);
     this.buttons.push(this.clearButton);
 
     this.clearButton.on('pointerdown', () => {
@@ -113,7 +114,7 @@ export class TextureEditorState extends EditorState {
       });
       this.leftArrow.setOrigin(0.5);
       this.leftArrow.setScrollFactor(0);
-      this.leftArrow.setDepth(1000);
+      this.leftArrow.setDepth(DEPTH_EDITOR);
       this.buttons.push(this.leftArrow);
       
       if (this.currentPage > 0) {
@@ -133,7 +134,7 @@ export class TextureEditorState extends EditorState {
       });
       this.rightArrow.setOrigin(0.5);
       this.rightArrow.setScrollFactor(0);
-      this.rightArrow.setDepth(1000);
+      this.rightArrow.setDepth(DEPTH_EDITOR);
       this.buttons.push(this.rightArrow);
       
       if (this.currentPage < totalPages - 1) {
@@ -152,7 +153,7 @@ export class TextureEditorState extends EditorState {
       });
       pageText.setOrigin(0.5);
       pageText.setScrollFactor(0);
-      pageText.setDepth(1000);
+      pageText.setDepth(DEPTH_EDITOR);
       this.buttons.push(pageText);
     }
   }
@@ -168,7 +169,7 @@ export class TextureEditorState extends EditorState {
   private createTextureButton(x: number, y: number, textureName: string): Phaser.GameObjects.Container {
     const container = this.scene.add.container(x, y);
     container.setScrollFactor(0);
-    container.setDepth(1000);
+    container.setDepth(DEPTH_EDITOR);
 
     const bg = this.scene.add.rectangle(0, 0, 180, 55, 0x333333);
     bg.setInteractive({ useHandCursor: true });

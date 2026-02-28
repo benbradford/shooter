@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 import type { EntityType } from '../systems/level/LevelLoader';
 
 const ENTITY_TYPES: Array<{ type: EntityType; label: string }> = [
@@ -119,7 +120,7 @@ export class AddEntityEditorState extends EditorState {
 
     this.ghostSprite = gameScene.add.sprite(0, 0, texture, 0);
     this.ghostSprite.setAlpha(0.6);
-    this.ghostSprite.setDepth(1000);
+    this.ghostSprite.setDepth(DEPTH_EDITOR);
     
     if (this.selectedType === 'breakable') {
       const targetSize = grid.cellSize * 0.9;

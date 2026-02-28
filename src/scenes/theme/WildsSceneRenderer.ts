@@ -1,4 +1,5 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
+import { DEPTH_FLOOR, DEPTH_VIGNETTE, DEPTH_MIST } from '../../constants/DepthConstants';
 
 const EDGE_COLOR = 0x4a3a2a;
 const MIST_DRIFT_SPEED_PX_PER_SEC = 20;
@@ -44,13 +45,13 @@ export class WildsSceneRenderer extends GameSceneRenderer {
     const background = this.scene.add.image(0, 0, 'wilds_gradient');
     background.setOrigin(0, 0);
     background.setDisplaySize(worldWidth, worldHeight);
-    background.setDepth(-1000);
+    background.setDepth(DEPTH_FLOOR);
 
     this.createMistLayers(worldWidth, worldHeight);
 
     const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
     vignette.setDisplaySize(worldWidth, worldHeight);
-    vignette.setDepth(1000);
+    vignette.setDepth(DEPTH_VIGNETTE);
     vignette.setAlpha(0.3);
     vignette.setTint(0x4a4a42);
     vignette.setBlendMode(2);
@@ -94,7 +95,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
       });
 
       emitter.start();
-      emitter.setDepth(1500 + layer);
+      emitter.setDepth(DEPTH_MIST + layer);
       this.mistEmitters.push(emitter);
 
       this.scene.events.on('update', () => {

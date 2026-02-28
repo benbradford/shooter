@@ -1,3 +1,5 @@
+import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+
 export type SmokeBurstConfig = {
   scene: Phaser.Scene;
   x: number;
@@ -28,7 +30,7 @@ export function createSmokeBurst(config: SmokeBurstConfig): void {
         blendMode: 'NORMAL'
       });
 
-      emitter.setDepth(1000);
+      emitter.setDepth(DEPTH_PARTICLE);
       scene.time.delayedCall(150, () => emitter.stop());
       scene.time.delayedCall(550, () => emitter.destroy());
     });

@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 
 export class PortalEditorState extends EditorState {
   private selectedCells: Set<string> = new Set();
@@ -164,7 +165,7 @@ export class PortalEditorState extends EditorState {
       );
       rect.setStrokeStyle(3, 0xffffff);
       rect.setFillStyle(0x000000, 0);
-      rect.setDepth(1000);
+      rect.setDepth(DEPTH_EDITOR);
       this.selectionRectangles.set(cellKey, rect);
     }
   };

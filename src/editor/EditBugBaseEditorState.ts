@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 import type { Entity } from '../ecs/Entity';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
@@ -95,7 +96,7 @@ export class EditBugBaseEditorState extends EditorState {
   private createButton(x: number, y: number, text: string, onClick: () => void): Phaser.GameObjects.Container {
     const container = this.scene.add.container(x, y);
     container.setScrollFactor(0);
-    container.setDepth(1000);
+    container.setDepth(DEPTH_EDITOR);
 
     const bg = this.scene.add.rectangle(0, 0, 200, 40, 0x333333);
     bg.setInteractive({ useHandCursor: true });

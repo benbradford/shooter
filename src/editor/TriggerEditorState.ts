@@ -1,4 +1,5 @@
 import { EditorState } from './EditorState';
+import { DEPTH_EDITOR } from '../constants/DepthConstants';
 
 const SELECTED_CELL_COLOR = 0xffffff;
 const TRIGGER_CELL_COLOR = 0xffff00;
@@ -145,7 +146,7 @@ export class TriggerEditorState extends EditorState {
       );
       rect.setStrokeStyle(3, TRIGGER_CELL_COLOR);
       rect.setFillStyle(TRIGGER_CELL_COLOR, 0.2);
-      rect.setDepth(1000);
+      rect.setDepth(DEPTH_EDITOR);
       this.triggerCellRectangles.set(`${cell.col},${cell.row}`, rect);
     }
   }
@@ -288,7 +289,7 @@ export class TriggerEditorState extends EditorState {
       );
       border.setStrokeStyle(3, SELECTED_CELL_COLOR);
       border.setFillStyle(0x000000, 0);
-      border.setDepth(1000);
+      border.setDepth(DEPTH_EDITOR);
       this.selectionRectangles.set(cellKey, border);
     }
   }
@@ -339,7 +340,7 @@ export class TriggerEditorState extends EditorState {
       );
       border.setStrokeStyle(3, SELECTED_CELL_COLOR);
       border.setFillStyle(0x000000, 0);
-      border.setDepth(1000);
+      border.setDepth(DEPTH_EDITOR);
       this.selectionRectangles.set(cellKey, border);
     }
   };

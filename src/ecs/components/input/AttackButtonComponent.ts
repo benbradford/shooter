@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_HUD, DEPTH_HUD_CIRCLE } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 
 const UNPRESSED_SCALE = 1.26;
@@ -25,12 +26,12 @@ export class AttackButtonComponent implements Component {
     this.sprite = scene.add.sprite(0, 0, 'crosshair');
     this.sprite.setScale(UNPRESSED_SCALE);
     this.sprite.setScrollFactor(0);
-    this.sprite.setDepth(2000);
+    this.sprite.setDepth(DEPTH_HUD);
     this.sprite.setAlpha(ALPHA_UNPRESSED);
 
     this.circle = scene.add.graphics();
     this.circle.setScrollFactor(0);
-    this.circle.setDepth(1999);
+    this.circle.setDepth(DEPTH_HUD_CIRCLE);
   }
 
   init(): void {

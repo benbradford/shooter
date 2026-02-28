@@ -1,4 +1,5 @@
 import type { Component } from '../../Component';
+import { DEPTH_HUD, DEPTH_HUD_FRONT } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import type { TouchJoystickComponent } from '../input/TouchJoystickComponent';
 import { RemoteInputComponent } from '../input/RemoteInputComponent';
@@ -25,7 +26,7 @@ export class JoystickVisualsComponent implements Component {
     this.outerCircle = this.scene.add.circle(0, 0, this.joystick.maxRadius * TOUCH_CONTROLS_SCALE);
     this.outerCircle.setStrokeStyle(5 * TOUCH_CONTROLS_SCALE, 0xcccccc);
     this.outerCircle.setFillStyle(0x000000, 0); // Transparent fill
-    this.outerCircle.setDepth(2000); // Very high depth for HUD
+    this.outerCircle.setDepth(DEPTH_HUD); // Very high depth for HUD
     this.outerCircle.setVisible(false);
     this.outerCircle.setScrollFactor(0); // Fixed to camera
 
@@ -33,14 +34,14 @@ export class JoystickVisualsComponent implements Component {
     this.innerCircle = this.scene.add.circle(0, 0, this.joystick.innerRadius * TOUCH_CONTROLS_SCALE);
     this.innerCircle.setStrokeStyle(3 * TOUCH_CONTROLS_SCALE, 0xcccccc);
     this.innerCircle.setFillStyle(0x000000, 0); // Transparent fill
-    this.innerCircle.setDepth(2000);
+    this.innerCircle.setDepth(DEPTH_HUD);
     this.innerCircle.setVisible(false);
     this.innerCircle.setScrollFactor(0);
 
     // Create arrows sprite
     this.arrowsSprite = this.scene.add.sprite(0, 0, 'arrows');
     this.arrowsSprite.setScale(TOUCH_CONTROLS_SCALE);
-    this.arrowsSprite.setDepth(2001);
+    this.arrowsSprite.setDepth(DEPTH_HUD_FRONT);
     this.arrowsSprite.setVisible(false);
     this.arrowsSprite.setScrollFactor(0); // Fixed to camera
   }

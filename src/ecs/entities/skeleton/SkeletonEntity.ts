@@ -1,4 +1,5 @@
 import { Entity } from '../../Entity';
+import { DEPTH_ENEMY_FLYING } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
@@ -56,7 +57,7 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
   const transform = entity.add(new TransformComponent(x, y, 0, SKELETON_SCALE));
 
   const sprite = entity.add(new SpriteComponent(scene, 'skeleton', transform));
-  sprite.sprite.setDepth(10);
+  sprite.sprite.setDepth(DEPTH_ENEMY_FLYING);
   sprite.sprite.setFrame(0);
 
   const shadow = entity.add(new ShadowComponent(scene, SKELETON_SHADOW_PROPS));
