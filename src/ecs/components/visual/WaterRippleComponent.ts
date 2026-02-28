@@ -54,7 +54,7 @@ export class WaterRippleComponent implements Component {
   private spawnRipple(x: number, y: number): void {
     const ripple = this.scene.add.sprite(x, y, 'water_ripple', 0);
     ripple.setScale(RIPPLE_SCALE);
-    ripple.setDepth(-8);
+    ripple.setDepth(-9);
     
     // Create mask for this ripple based on water cells it overlaps
     const rippleRadius = (ripple.displayWidth / 2) * RIPPLE_SCALE;
@@ -69,6 +69,7 @@ export class WaterRippleComponent implements Component {
     for (let row = centerCell.row - cellRadius; row <= centerCell.row + cellRadius; row++) {
       for (let col = centerCell.col - cellRadius; col <= centerCell.col + cellRadius; col++) {
         const cell = this.grid.getCell(col, row);
+        
         if (cell?.properties.has('water')) {
           const world = this.grid.cellToWorld(col, row);
           

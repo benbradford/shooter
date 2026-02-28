@@ -37,7 +37,7 @@ export default class GameScene extends Phaser.Scene {
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
-  private currentLevelName: string = 'dungeon1';
+  private currentLevelName: string = 'grass_overworld1';
   private levelEntrySnapshot: string | null = null;
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;
@@ -83,11 +83,11 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
-    
+
     // Load level-specific textures
     const levelTextures = getBackgroundTextures(this.levelData);
     console.log('[AssetLoader] Loading level textures:', levelTextures);
-    
+
     preloadLevelAssets(this, this.levelData, () => {
       this.sceneRenderer.markAssetsReady();
     });
@@ -510,10 +510,10 @@ export default class GameScene extends Phaser.Scene {
   async loadLevel(levelName: string, spawnCol?: number, spawnRow?: number): Promise<void> {
     // Pause game during level transition
     this.scene.pause();
-    
+
     // Track what textures were used in previous level
     const prevLevelTextures = this.levelData ? getBackgroundTextures(this.levelData) : [];
-    
+
     this.currentLevelName = levelName;
     this.levelData = await LevelLoader.load(levelName);
 
@@ -523,11 +523,11 @@ export default class GameScene extends Phaser.Scene {
 
     // Get textures needed for new level
     const newLevelTextures = getBackgroundTextures(this.levelData);
-    
+
     // Calculate texture deltas
     const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
     const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
-    
+
     // Cleanup before loading new level
     this.time.removeAllEvents();
 
@@ -538,7 +538,7 @@ export default class GameScene extends Phaser.Scene {
     this.children.list
       .filter(obj => obj !== this.layerDebugText)
       .forEach(obj => obj.destroy());
-    
+
     // Unload unused textures after destroying sprites
     if (prevLevelTextures.length > 0) {
       if (newTextures.length > 0) {
@@ -589,7 +589,7 @@ export default class GameScene extends Phaser.Scene {
     this.levelEntrySnapshot = worldState.serializeToJSON();
 
     this.resetScene();
-    
+
     // Resume game after level is fully loaded
     this.scene.resume();
   }

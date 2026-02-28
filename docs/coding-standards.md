@@ -58,6 +58,27 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 
 ## Comments
 
+
+## ⚠️ MANDATORY: Use Depth Constants ⚠️
+
+**Always use depth constants from `src/constants/DepthConstants.ts` - never hardcode depth values.**
+
+```typescript
+// DO ✅
+import { DEPTH_PLAYER, DEPTH_SHADOW } from '../constants/DepthConstants';
+sprite.setDepth(DEPTH_PLAYER);
+shadow.setDepth(DEPTH_SHADOW);
+
+// DON'T ❌
+sprite.setDepth(0);
+shadow.setDepth(-1);
+```
+
+**When adding new sprites:**
+1. Check `DepthConstants.ts` for appropriate depth
+2. If no suitable constant exists, add one in the correct category
+3. Update the file to maintain reverse depth order (lowest first)
+4. Use generic categories (DEPTH_ENEMY not DEPTH_SKELETON)
 ### No Redundant Comments
 
 **Comments should only explain WHY, not WHAT. The code itself should be self-documenting.**
