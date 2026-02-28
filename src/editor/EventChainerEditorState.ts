@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 
 export class EventChainerEditorState extends EditorState {
   private selectedCell: { col: number; row: number } | null = null;
@@ -233,7 +233,7 @@ export class EventChainerEditorState extends EditorState {
     for (const line of lines) {
       const [event, delayStr] = line.split(',').map(s => s.trim());
       if (event && delayStr) {
-        eventsToRaise.push({ event, delayMs: Number.parseInt(delayStr) || 0 });
+        eventsToRaise.push({ event, delayMs: Number.parseInt(delayStr) ?? 0 });
       }
     }
 
@@ -278,7 +278,7 @@ export class EventChainerEditorState extends EditorState {
     for (const line of lines) {
       const [event, delayStr] = line.split(',').map(s => s.trim());
       if (event && delayStr) {
-        eventsToRaise.push({ event, delayMs: Number.parseInt(delayStr) || 0 });
+        eventsToRaise.push({ event, delayMs: Number.parseInt(delayStr) ?? 0 });
       }
     }
 
@@ -291,7 +291,7 @@ export class EventChainerEditorState extends EditorState {
     const levelData = gameScene.getLevelData();
     const chainer = levelData.entities?.find(e => e.id === chainerId);
     
-    if (chainer && chainer.data) {
+    if (chainer?.data) {
       (chainer.data as { eventsToRaise: Array<{ event: string; delayMs: number }> }).eventsToRaise = eventsToRaise;
     }
 
@@ -353,7 +353,7 @@ export class EventChainerEditorState extends EditorState {
     );
     this.selectionRectangle.setStrokeStyle(3, 0xffff00);
     this.selectionRectangle.setFillStyle(0x000000, 0);
-    this.selectionRectangle.setDepth(DEPTH_EDITOR);
+    this.selectionRectangle.setDepth(Depth.editor);
   };
 
   onUpdate(): void {

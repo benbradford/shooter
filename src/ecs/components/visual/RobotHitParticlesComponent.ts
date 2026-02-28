@@ -1,5 +1,5 @@
 import type { Component } from '../../Component';
-import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 
@@ -42,7 +42,7 @@ export class RobotHitParticlesComponent implements Component {
       blendMode: 'ADD'
     });
 
-    emitter.setDepth(DEPTH_PARTICLE);
+    emitter.setDepth(Depth.particle);
     this.activeEmitters.push(emitter);
 
     // Stop emitting after 200ms
@@ -74,7 +74,7 @@ export class RobotHitParticlesComponent implements Component {
       blendMode: 'ADD'
     });
 
-    emitter.setDepth(DEPTH_PARTICLE);
+    emitter.setDepth(Depth.particle);
     this.activeEmitters.push(emitter);
 
     // Stop emitting after 150ms

@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type { Entity } from '../ecs/Entity';
 import { createBugBaseEntity } from '../ecs/entities/bug/BugBaseEntity';
 import type GameScene from '../scenes/GameScene';
@@ -15,7 +15,7 @@ export class AddBugBaseEditorState extends EditorState {
     this.ghostSprite = gameScene.add.sprite(0, 0, 'bug_base', 0);
     this.ghostSprite.setDisplaySize(grid.cellSize, grid.cellSize);
     this.ghostSprite.setAlpha(0.6);
-    this.ghostSprite.setDepth(DEPTH_EDITOR);
+    this.ghostSprite.setDepth(Depth.editor);
 
     this.backButton = this.createBackButton();
 

@@ -1,5 +1,5 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
-import { DEPTH_FLOOR, DEPTH_VIGNETTE } from '../../constants/DepthConstants';
+import { Depth } from '../../constants/DepthConstants';
 
 const EDGE_COLOR = 0x2a3a2e;
 
@@ -36,11 +36,11 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     const background = this.scene.add.image(0, 0, 'swamp_gradient');
     background.setOrigin(0, 0);
     background.setDisplaySize(worldWidth, worldHeight);
-    background.setDepth(DEPTH_FLOOR);
+    background.setDepth(Depth.floor);
 
     const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
     vignette.setDisplaySize(worldWidth, worldHeight);
-    vignette.setDepth(DEPTH_VIGNETTE);
+    vignette.setDepth(Depth.vignette);
     vignette.setAlpha(0.3);
     vignette.setTint(0x113311);
     vignette.setBlendMode(2);

@@ -1,5 +1,5 @@
 import { Entity } from '../../Entity';
-import { DEPTH_ENEMY_FLYING } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
@@ -57,7 +57,7 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
   const transform = entity.add(new TransformComponent(x, y, 0, THROWER_SCALE));
 
   const sprite = entity.add(new SpriteComponent(scene, 'thrower', transform));
-  sprite.sprite.setDepth(DEPTH_ENEMY_FLYING);
+  sprite.sprite.setDepth(Depth.enemyFlying);
 
   entity.add(new SpawnSmokeComponent(scene, x, y));
 

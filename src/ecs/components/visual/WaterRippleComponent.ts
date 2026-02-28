@@ -1,5 +1,5 @@
 import type { Component } from '../../Component';
-import { DEPTH_WATER_TILE_EDGE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
@@ -55,7 +55,7 @@ export class WaterRippleComponent implements Component {
   private spawnRipple(x: number, y: number): void {
     const ripple = this.scene.add.sprite(x, y, 'water_ripple', 0);
     ripple.setScale(RIPPLE_SCALE);
-    ripple.setDepth(DEPTH_WATER_TILE_EDGE);
+    ripple.setDepth(Depth.ripple);
     
     // Create mask for this ripple based on water cells it overlaps
     const rippleRadius = (ripple.displayWidth / 2) * RIPPLE_SCALE;

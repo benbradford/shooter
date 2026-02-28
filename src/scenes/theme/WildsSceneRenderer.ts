@@ -1,5 +1,5 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
-import { DEPTH_FLOOR, DEPTH_VIGNETTE, DEPTH_MIST } from '../../constants/DepthConstants';
+import { Depth } from '../../constants/DepthConstants';
 
 const EDGE_COLOR = 0x4a3a2a;
 const MIST_DRIFT_SPEED_PX_PER_SEC = 20;
@@ -45,13 +45,13 @@ export class WildsSceneRenderer extends GameSceneRenderer {
     const background = this.scene.add.image(0, 0, 'wilds_gradient');
     background.setOrigin(0, 0);
     background.setDisplaySize(worldWidth, worldHeight);
-    background.setDepth(DEPTH_FLOOR);
+    background.setDepth(Depth.floor);
 
     this.createMistLayers(worldWidth, worldHeight);
 
     const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
     vignette.setDisplaySize(worldWidth, worldHeight);
-    vignette.setDepth(DEPTH_VIGNETTE);
+    vignette.setDepth(Depth.vignette);
     vignette.setAlpha(0.3);
     vignette.setTint(0x4a4a42);
     vignette.setBlendMode(2);
@@ -78,7 +78,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
           onEmit: () => 0,
           onUpdate: (particle: Phaser.GameObjects.Particles.Particle) => {
             const life = particle.lifeT;
-            const initialY = (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY || particle.y;
+            const initialY = (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY ?? particle.y;
             const yRatio = initialY / worldHeight;
             const baseAlpha = 0.3 + (yRatio * 0.7);
             if (life < 0.3) return baseAlpha * (life / 0.3);
@@ -95,7 +95,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
       });
 
       emitter.start();
-      emitter.setDepth(DEPTH_MIST + layer);
+      emitter.setDepth(Depth.mist + layer);
       this.mistEmitters.push(emitter);
 
       this.scene.events.on('update', () => {

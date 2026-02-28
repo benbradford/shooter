@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { GridPositionComponent } from './GridPositionComponent';
-import { DEPTH_ENEMY_FLYING } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 const HOP_DURATION_MS = 500;
 const HOP_HEIGHT_PX = 30;
@@ -60,12 +60,12 @@ export class BugHopComponent implements Component {
 
     const hopOffset = Math.sin(progress * Math.PI) * HOP_HEIGHT_PX;
     sprite.sprite.y = transform.y - hopOffset;
-    sprite.sprite.setDepth(DEPTH_ENEMY_FLYING + Math.floor(hopOffset));
+    sprite.sprite.setDepth(Depth.enemyFlying + Math.floor(hopOffset));
 
     if (progress >= 1) {
       this.isHopping = false;
       sprite.sprite.y = transform.y;
-      sprite.sprite.setDepth(DEPTH_ENEMY_FLYING);
+      sprite.sprite.setDepth(Depth.enemyFlying);
       transform.x = this.targetX;
       transform.y = this.targetY;
 

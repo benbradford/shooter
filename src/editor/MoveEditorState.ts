@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR, DEPTH_EDITOR_HIGHLIGHT } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type GameScene from '../scenes/GameScene';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../systems/state/IState';
@@ -39,7 +39,7 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
     this.backButton.setOrigin(0.5);
     this.backButton.setScrollFactor(0);
     this.backButton.setInteractive({ useHandCursor: true });
-    this.backButton.setDepth(DEPTH_EDITOR);
+    this.backButton.setDepth(Depth.editor);
 
     this.backButton.on('pointerover', () => {
       this.backButton.setBackgroundColor('#555555');
@@ -60,7 +60,7 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
     const grid = this.scene.getGrid();
     this.highlight = gameScene.add.rectangle(0, 0, grid.cellSize, grid.cellSize, 0x00ff00, 0.3);
     this.highlight.setStrokeStyle(2, 0x00ff00);
-    this.highlight.setDepth(DEPTH_EDITOR_HIGHLIGHT);
+    this.highlight.setDepth(Depth.editorHighlight);
 
     // Start dragging immediately
     this.isDragging = true;
@@ -132,7 +132,7 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
       const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
       const levelData = gameScene.getLevelData();
       const entityDef = levelData.entities?.find(e => e.id === this.entity?.id);
-      if (entityDef && entityDef.data) {
+      if (entityDef?.data) {
         (entityDef.data as { col: number; row: number }).col = cell.col;
         (entityDef.data as { col: number; row: number }).row = cell.row;
       }

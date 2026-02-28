@@ -1,5 +1,5 @@
 import type { IState } from '../../../systems/state/IState';
-import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { dirFromDelta, Direction } from '../../../constants/Direction';
 import type Phaser from 'phaser';
@@ -55,7 +55,7 @@ export class BulletDudeOverheatedState implements IState {
       emitting: false,
       tint: 0xffffff,
     });
-    this.smokeParticles.setDepth(DEPTH_PARTICLE);
+    this.smokeParticles.setDepth(Depth.particle);
 
     this.fireParticles = this.scene.add.particles(0, 0, 'fire', {
       speed: { min: 80, max: 150 },
@@ -69,7 +69,7 @@ export class BulletDudeOverheatedState implements IState {
       tint: [0xffffff, 0xff8800, 0xff0000],
       blendMode: 'ADD' as unknown as number,
     });
-    this.fireParticles.setDepth(DEPTH_PARTICLE);
+    this.fireParticles.setDepth(Depth.particle);
   }
 
   onExit(): void {

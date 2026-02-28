@@ -401,7 +401,7 @@ export class AddBugBaseEditorState extends EditorState {
     this.ghostSprite = gameScene.add.sprite(0, 0, 'bug_base', 0);
     this.ghostSprite.setDisplaySize(grid.cellSize, grid.cellSize);
     this.ghostSprite.setAlpha(0.6);
-    this.ghostSprite.setDepth(1000);
+    this.ghostSprite.setDepth(Depth.editor);
     
     // Register events
     this.scene.input.on('pointermove', this.handlePointerMove, this);

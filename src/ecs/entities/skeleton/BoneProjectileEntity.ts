@@ -7,7 +7,7 @@ import { DamageComponent } from '../../components/core/DamageComponent';
 import { RotatingProjectileComponent } from '../../components/visual/RotatingProjectileComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import type { Grid } from '../../../systems/grid/Grid';
-import { DEPTH_PROJECTILE_HIGH } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 const BONE_SPEED_PX_PER_SEC = 250;
 const BONE_MAX_DISTANCE_PX = 300;
@@ -33,7 +33,7 @@ export function createBoneProjectileEntity(props: CreateBoneProjectileProps): En
   const transform = entity.add(new TransformComponent(x, y, 0, BONE_SCALE));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bone_small', transform));
-  sprite.sprite.setDepth(DEPTH_PROJECTILE_HIGH);
+  sprite.sprite.setDepth(Depth.projectileHigh);
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 30 }));
   shadow.init();

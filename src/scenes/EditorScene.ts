@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { DEPTH_EDITOR, DEPTH_EDITOR_TRIGGER } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type GameScene from "./GameScene";
 import type HudScene from "./HudScene";
 import type { Grid, CellProperty } from "../systems/grid/Grid";
@@ -92,7 +92,7 @@ export default class EditorScene extends Phaser.Scene {
     });
     this.title.setOrigin(0.5);
     this.title.setScrollFactor(0);
-    this.title.setDepth(DEPTH_EDITOR);
+    this.title.setDepth(Depth.editor);
 
     // Cell hover text
     this.cellHoverText = this.add.text(10, 10, '', {
@@ -102,7 +102,7 @@ export default class EditorScene extends Phaser.Scene {
       padding: { x: 10, y: 5 }
     });
     this.cellHoverText.setScrollFactor(0);
-    this.cellHoverText.setDepth(DEPTH_EDITOR);
+    this.cellHoverText.setDepth(Depth.editor);
 
     // Setup input
     const keyboard = this.input.keyboard;
@@ -199,7 +199,7 @@ export default class EditorScene extends Phaser.Scene {
             fontStyle: 'bold'
           });
           label.setOrigin(0.5, 0.5);
-          label.setDepth(DEPTH_EDITOR);
+          label.setDepth(Depth.editor);
           this.editorLabels.set(entity.id, label);
         }
 
@@ -249,7 +249,7 @@ export default class EditorScene extends Phaser.Scene {
     if (!levelData.triggers || levelData.triggers.length === 0) return;
 
     this.triggerGraphics = gameScene.add.graphics();
-    this.triggerGraphics.setDepth(DEPTH_EDITOR_TRIGGER);
+    this.triggerGraphics.setDepth(Depth.editorTrigger);
 
     for (const trigger of levelData.triggers) {
       this.triggerGraphics.lineStyle(3, 0xffff00, 0.8);

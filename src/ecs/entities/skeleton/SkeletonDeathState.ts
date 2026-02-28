@@ -1,5 +1,5 @@
 import type { IState } from '../../../systems/state/IState';
-import { DEPTH_PLAYER } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
@@ -46,7 +46,7 @@ export class SkeletonDeathState implements IState {
         blendMode: 'NORMAL'
       });
 
-      emitter.setDepth(DEPTH_PLAYER);
+      emitter.setDepth(Depth.player);
 
       this.scene.time.delayedCall(DEATH_PARTICLE_LIFESPAN_MS / 2, () => {
         emitter.stop();

@@ -1,5 +1,5 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
-import { DEPTH_FLOOR, DEPTH_VIGNETTE } from '../../constants/DepthConstants';
+import { Depth } from '../../constants/DepthConstants';
 
 const LAYER1_EDGE_COLOR = 0x222222;
 
@@ -37,11 +37,11 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     const background = this.scene.add.image(0, 0, 'gradient');
     background.setOrigin(0, 0);
     background.setDisplaySize(worldWidth, worldHeight);
-    background.setDepth(DEPTH_FLOOR);
+    background.setDepth(Depth.floor);
 
     const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
     vignette.setDisplaySize(worldWidth, worldHeight);
-    vignette.setDepth(DEPTH_VIGNETTE);
+    vignette.setDepth(Depth.vignette);
     vignette.setAlpha(0.2);
     vignette.setTint(0x221111);
     vignette.setBlendMode(2);

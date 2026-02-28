@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
-import { DEPTH_EDITOR } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 export class EditorLabelComponent implements Component {
   entity!: Entity;
@@ -16,7 +16,7 @@ export class EditorLabelComponent implements Component {
       fontStyle: 'bold'
     });
     this.text.setOrigin(0.5, 0.5);
-    this.text.setDepth(DEPTH_EDITOR);
+    this.text.setDepth(Depth.editor);
     this.text.setScrollFactor(1);
   }
 

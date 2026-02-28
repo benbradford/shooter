@@ -21,7 +21,9 @@ export class PlayerWalkState implements IState {
     const water = this.entity.get(WaterEffectComponent);
     const health = this.entity.require(HealthComponent);
 
-    const prefix = water?.getIsInWater() ? 'swim' : health.isOverhealed() ? 'run' : 'walk';
+    let prefix = 'walk';
+    if (water?.getIsInWater()) prefix = 'swim';
+    else if (health.isOverhealed()) prefix = 'run';
     this.lastAnimKey = `${prefix}_${walk.lastDir}`;
     anim.animationSystem.play(this.lastAnimKey);
   }
@@ -52,7 +54,9 @@ export class PlayerWalkState implements IState {
       return;
     }
 
-    const prefix = water?.getIsInWater() ? 'swim' : health.isOverhealed() ? 'run' : 'walk';
+    let prefix = 'walk';
+    if (water?.getIsInWater()) prefix = 'swim';
+    else if (health.isOverhealed()) prefix = 'run';
     const newKey = `${prefix}_${walk.lastDir}`;
     if (newKey !== this.lastAnimKey) {
       this.lastAnimKey = newKey;

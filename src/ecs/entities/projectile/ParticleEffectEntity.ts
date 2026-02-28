@@ -1,5 +1,5 @@
 import { Entity } from '../../Entity';
-import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 export function createParticleEffectEntity(
   scene: Phaser.Scene,
@@ -13,7 +13,7 @@ export function createParticleEffectEntity(
   const entity = new Entity('particle_effect');
 
   const emitter = scene.add.particles(x, y, texture, config);
-  emitter.setDepth(DEPTH_PARTICLE);
+  emitter.setDepth(Depth.particle);
 
   scene.time.delayedCall(emitDurationMs, () => {
     emitter.stop();

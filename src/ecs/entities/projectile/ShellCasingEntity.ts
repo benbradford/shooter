@@ -1,5 +1,5 @@
 import { Entity } from '../../Entity';
-import { DEPTH_PARTICLE_BEHIND, DEPTH_PROJECTILE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ShellCasingComponent } from '../../components/visual/ShellCasingComponent';
@@ -20,7 +20,7 @@ export function createShellCasingEntity(
 
   // Set depth based on player facing direction
   const facingUp = [Direction.Up, Direction.UpLeft, Direction.UpRight].includes(playerDirection);
-  sprite.sprite.setDepth(facingUp ? DEPTH_PARTICLE_BEHIND : DEPTH_PROJECTILE);
+  sprite.sprite.setDepth(facingUp ? Depth.particleBehind : Depth.projectile);
 
   const floorY = characterY + 40;
   entity.add(new ShellCasingComponent(direction, floorY, sprite));

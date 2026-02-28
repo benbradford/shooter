@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from './TransformComponent';
+import { Depth } from '../../../constants/DepthConstants';
 
 export type ShadowComponentProps = {
   scale: number;
@@ -29,7 +30,7 @@ export class ShadowComponent implements Component {
 
     this.shadow = this.scene.add.sprite(transform.x + this.offsetX, transform.y + this.offsetY, 'shadow');
     this.shadow.setScale(this.scale);
-    this.shadow.setDepth(-1);
+    this.shadow.setDepth(Depth.shadow);
   }
 
   update(_delta: number): void {

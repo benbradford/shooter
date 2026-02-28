@@ -1,5 +1,5 @@
 import type { Component } from '../../Component';
-import { DEPTH_SPAWN_SMOKE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 
 const SMOKE_DURATION_MS = 500;
@@ -24,7 +24,7 @@ export class SpawnSmokeComponent implements Component {
       quantity: 60,
       blendMode: 'ADD'
     });
-    this.emitter.setDepth(DEPTH_SPAWN_SMOKE);
+    this.emitter.setDepth(Depth.spawnSmoke);
     this.emitter.explode();
   }
 

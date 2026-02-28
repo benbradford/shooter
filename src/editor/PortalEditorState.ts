@@ -1,9 +1,9 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 
 export class PortalEditorState extends EditorState {
-  private selectedCells: Set<string> = new Set();
-  private selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
+  private readonly selectedCells: Set<string> = new Set();
+  private readonly selectionRectangles: Map<string, Phaser.GameObjects.Rectangle> = new Map();
 
   onEnter(): void {
     this.createUI();
@@ -165,7 +165,7 @@ export class PortalEditorState extends EditorState {
       );
       rect.setStrokeStyle(3, 0xffffff);
       rect.setFillStyle(0x000000, 0);
-      rect.setDepth(DEPTH_EDITOR);
+      rect.setDepth(Depth.editor);
       this.selectionRectangles.set(cellKey, rect);
     }
   };

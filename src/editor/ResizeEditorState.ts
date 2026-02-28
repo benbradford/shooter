@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR, DEPTH_VIGNETTE } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type GameScene from '../scenes/GameScene';
 
 export class ResizeEditorState extends EditorState {
@@ -18,7 +18,7 @@ export class ResizeEditorState extends EditorState {
 
     // Highlight graphics
     this.highlightGraphics = this.scene.add.graphics();
-    this.highlightGraphics.setDepth(DEPTH_VIGNETTE);
+    this.highlightGraphics.setDepth(Depth.vignette);
 
     // Back button (shared)
     this.buttons.push(this.createBackButton());
@@ -59,7 +59,7 @@ export class ResizeEditorState extends EditorState {
     });
     this.sizeText.setOrigin(0.5);
     this.sizeText.setScrollFactor(0);
-    this.sizeText.setDepth(DEPTH_EDITOR);
+    this.sizeText.setDepth(Depth.editor);
 
     // Click to select row/column
     this.scene.input.on('pointerdown', this.handleSelection, this);
@@ -91,7 +91,7 @@ export class ResizeEditorState extends EditorState {
     button.setOrigin(0.5);
     button.setScrollFactor(0);
     button.setInteractive({ useHandCursor: true });
-    button.setDepth(DEPTH_EDITOR);
+    button.setDepth(Depth.editor);
     this.buttons.push(button);
 
     button.on('pointerover', () => button.setBackgroundColor('#555555'));

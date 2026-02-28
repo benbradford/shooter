@@ -18,7 +18,7 @@ export abstract class GameSceneRenderer {
   
   constructor(protected readonly scene: Phaser.Scene) {
     this.graphics = scene.add.graphics();
-    this.graphics.setDepth(-10); // Render behind player
+    this.graphics.setDepth(Depth.rendererGraphics); // Render behind player
   }
   
   abstract renderGrid(grid: Grid): void;
@@ -219,12 +219,12 @@ export class CaveSceneRenderer extends GameSceneRenderer {
     const background = this.scene.add.image(0, 0, 'cave_gradient');
     background.setOrigin(0, 0);
     background.setDisplaySize(worldWidth, worldHeight);
-    background.setDepth(-1000);
+    background.setDepth(Depth.floor);
 
     // Create vignette
     const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
     vignette.setDisplaySize(worldWidth, worldHeight);
-    vignette.setDepth(1000);
+    vignette.setDepth(Depth.vignette);
     vignette.setAlpha(0.4);
     vignette.setTint(0x004400); // Your tint color
     vignette.setBlendMode(2); // MULTIPLY
@@ -384,7 +384,7 @@ Standard vignette setup:
 ```typescript
 const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
 vignette.setDisplaySize(worldWidth, worldHeight);
-vignette.setDepth(1000);
+vignette.setDepth(Depth.vignette);
 vignette.setAlpha(0.2-0.5); // Adjust for theme
 vignette.setTint(0x221111); // Theme color
 vignette.setBlendMode(2); // MULTIPLY for darkening effect

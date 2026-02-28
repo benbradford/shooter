@@ -1,5 +1,5 @@
 import type { IState, IStateEnterProps } from '../systems/state/IState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type EditorScene from '../scenes/EditorScene';
 
 export abstract class EditorState<TData = void> implements IState<TData> {
@@ -32,7 +32,7 @@ export abstract class EditorState<TData = void> implements IState<TData> {
     backButton.setOrigin(0.5);
     backButton.setScrollFactor(0);
     backButton.setInteractive({ useHandCursor: true });
-    backButton.setDepth(DEPTH_EDITOR);
+    backButton.setDepth(Depth.editor);
 
     backButton.on('pointerover', () => {
       backButton.setBackgroundColor('#555555');

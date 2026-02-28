@@ -1,5 +1,5 @@
 import type { Component } from '../../Component';
-import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
@@ -65,7 +65,7 @@ export class BugBurstComponent implements Component {
       emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 14) } as Phaser.Types.GameObjects.Particles.EmitZoneData
     });
 
-    emitter.setDepth(DEPTH_PARTICLE);
+    emitter.setDepth(Depth.particle);
 
     this.scene.time.delayedCall(200, () => {
       emitter.stop();

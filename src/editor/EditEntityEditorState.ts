@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
@@ -274,7 +274,7 @@ export class EditEntityEditorState extends EditorState {
             const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
             const levelData = gameScene.getLevelData();
             const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
-            if (entityDef && entityDef.data) {
+            if (entityDef?.data) {
               (entityDef.data as { difficulty: string }).difficulty = diff;
             }
             
@@ -322,7 +322,7 @@ export class EditEntityEditorState extends EditorState {
             const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
             const levelData = gameScene.getLevelData();
             const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
-            if (entityDef && entityDef.data) {
+            if (entityDef?.data) {
               (entityDef.data as { rarity: string }).rarity = r;
             }
             
@@ -383,7 +383,7 @@ export class EditEntityEditorState extends EditorState {
         const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
         const levelData = gameScene.getLevelData();
         const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
-        if (entityDef && entityDef.data) {
+        if (entityDef?.data) {
           (entityDef.data as { waypoints: Array<{ col: number; row: number }> }).waypoints = patrol.waypoints;
         }
         
@@ -414,7 +414,7 @@ export class EditEntityEditorState extends EditorState {
         const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
         const levelData = gameScene.getLevelData();
         const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
-        if (entityDef && entityDef.data) {
+        if (entityDef?.data) {
           (entityDef.data as { waypoints: Array<{ col: number; row: number }> }).waypoints = patrol.waypoints;
         }
         
@@ -502,7 +502,7 @@ export class EditEntityEditorState extends EditorState {
       // Update level data
       const levelData = (gameScene as import('../scenes/GameScene').default).getLevelData();
       const entityDef = levelData.entities?.find((e: { id: string }) => e.id === this.entity!.id);
-      if (entityDef && entityDef.data) {
+      if (entityDef?.data) {
         (entityDef.data as { waypoints: Array<{ col: number; row: number }> }).waypoints = patrol.waypoints;
       }
     }
@@ -552,7 +552,7 @@ export class EditEntityEditorState extends EditorState {
       }).setOrigin(0.5);
       container.add(text);
 
-      container.setDepth(DEPTH_EDITOR);
+      container.setDepth(Depth.editor);
       this.waypointMarkers.push(container);
     });
   }

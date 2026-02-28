@@ -5,7 +5,7 @@ import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import type { Component } from '../../Component';
-import { DEPTH_PARTICLE, DEPTH_PROJECTILE_HIGH } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 const GRENADE_DAMAGE = 25;
 const GRENADE_ARC_HEIGHT_PX = 80;
@@ -73,7 +73,7 @@ class GrenadeArcComponent implements Component {
       blendMode: 'ADD'
     });
 
-    emitter.setDepth(DEPTH_PARTICLE);
+    emitter.setDepth(Depth.particle);
     this.scene.time.delayedCall(80, () => emitter.stop());
     this.scene.time.delayedCall(480, () => emitter.destroy());
 
@@ -122,7 +122,7 @@ export function createGrenadeEntity(props: CreateGrenadeProps): Entity {
 
   const transform = entity.add(new TransformComponent(x, y, 0, 1));
   const sprite = entity.add(new SpriteComponent(scene, 'grenade', transform));
-  sprite.sprite.setDepth(DEPTH_PROJECTILE_HIGH);
+  sprite.sprite.setDepth(Depth.projectileHigh);
 
   const shadow = entity.add(new ShadowComponent(scene, {
     scale: 0.8,

@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type { Entity } from '../ecs/Entity';
 import { createStalkingRobotEntity } from '../ecs/entities/robot/StalkingRobotEntity';
 import type GameScene from '../scenes/GameScene';
@@ -17,7 +17,7 @@ export class AddRobotEditorState extends EditorState {
     this.ghostSprite = gameScene.add.sprite(0, 0, 'floating_robot', ROBOT_SPRITE_FRAME);
     this.ghostSprite.setScale(ROBOT_SCALE);
     this.ghostSprite.setAlpha(0.6);
-    this.ghostSprite.setDepth(DEPTH_EDITOR);
+    this.ghostSprite.setDepth(Depth.editor);
 
     this.backButton = this.createBackButton();
 

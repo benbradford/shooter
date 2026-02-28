@@ -65,20 +65,32 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 
 ```typescript
 // DO ✅
-import { DEPTH_PLAYER, DEPTH_SHADOW } from '../constants/DepthConstants';
-sprite.setDepth(DEPTH_PLAYER);
-shadow.setDepth(DEPTH_SHADOW);
+import { Depth } from '../constants/DepthConstants';
+sprite.setDepth(Depth.player);
+shadow.setDepth(Depth.shadow);
+particles.setDepth(Depth.particle);
 
 // DON'T ❌
 sprite.setDepth(0);
 shadow.setDepth(-1);
+particles.setDepth(1000);
 ```
 
 **When adding new sprites:**
 1. Check `DepthConstants.ts` for appropriate depth
 2. If no suitable constant exists, add one in the correct category
-3. Update the file to maintain reverse depth order (lowest first)
-4. Use generic categories (DEPTH_ENEMY not DEPTH_SKELETON)
+3. Use generic categories (Depth.enemy not Depth.skeleton, Depth.particle not Depth.smokeParticle)
+4. Keep granularity low - group similar elements together
+
+**Granularity Guidelines:**
+- ✅ `Depth.enemy` - All enemies at same depth
+- ✅ `Depth.particle` - All particles at same depth
+- ✅ `Depth.hud` - All HUD elements at same depth
+- ❌ `Depth.skeleton`, `Depth.robot`, `Depth.thrower` - Too granular
+- ❌ `Depth.smokeParticle`, `Depth.fireParticle` - Too granular
+- ❌ `Depth.healthBar`, `Depth.ammoBar` - Too granular
+
+**Exception:** Use `sprite.sprite.depth` to inherit depth from parent sprite (e.g., shards inheriting from breakable).
 ### No Redundant Comments
 
 **Comments should only explain WHY, not WHAT. The code itself should be self-documenting.**

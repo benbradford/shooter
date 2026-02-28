@@ -73,7 +73,7 @@ export class EditThrowerEditorState extends EditorState {
             const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
             const levelData = gameScene.getLevelData();
             const entityDef = levelData.entities?.find(e => e.id === this.thrower!.id);
-            if (entityDef && entityDef.data) {
+            if (entityDef?.data) {
               (entityDef.data as { difficulty: string }).difficulty = diff;
             }
             

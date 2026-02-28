@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DEPTH_EDITOR, DEPTH_EDITOR_FRONT } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import { EditorState } from './EditorState';
 import type { Entity } from '../ecs/Entity';
 import type { IStateEnterProps } from '../systems/state/IState';
@@ -227,13 +227,13 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
 
     const bg = this.scene.add.rectangle(0, 0, 50, 30, 0x444444);
     bg.setInteractive({ useHandCursor: true });
-    bg.setDepth(DEPTH_EDITOR_FRONT); // Above UI container
+    bg.setDepth(Depth.editorFront); // Above UI container
 
     const label = this.scene.add.text(0, 0, text, {
       fontSize: '14px',
       color: '#ffffff'
     }).setOrigin(0.5);
-    label.setDepth(DEPTH_EDITOR_FRONT);
+    label.setDepth(Depth.editorFront);
 
     bg.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       pointer.event.stopPropagation();
@@ -323,7 +323,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
       }).setOrigin(0.5);
       container.add(text);
 
-      container.setDepth(DEPTH_EDITOR);
+      container.setDepth(Depth.editor);
 
       this.waypointMarkers.push(container);
     });

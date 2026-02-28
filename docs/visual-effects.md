@@ -91,7 +91,7 @@ function createBurstEffect(scene: Phaser.Scene, x: number, y: number): void {
     blendMode: 'ADD'
   });
 
-  emitter.setDepth(1000);
+  emitter.setDepth(Depth.particle);
   scene.time.delayedCall(100, () => emitter.stop());
   scene.time.delayedCall(500, () => emitter.destroy());
 }
@@ -132,7 +132,7 @@ function createFireballBurst(scene: Phaser.Scene, x: number, y: number): void {
     blendMode: 'ADD'
   });
 
-  emitter.setDepth(1000);
+  emitter.setDepth(Depth.particle);
   scene.time.delayedCall(100, () => emitter.stop());
   scene.time.delayedCall(500, () => emitter.destroy());
 }
@@ -493,7 +493,7 @@ export class BaseExplosionComponent implements Component {
           blendMode: 'NORMAL'
         });
         
-        emitter.setDepth(1000);
+        emitter.setDepth(Depth.particle);
         this.scene.time.delayedCall(150, () => emitter.stop());
         this.scene.time.delayedCall(550, () => emitter.destroy());
       });

@@ -678,8 +678,8 @@ If `sprite.setDisplaySize()` doesn't work:
 
 **Depth sorting:**
 - Set sprite depth based on context (player direction, Y position)
-- Behind player: `sprite.setDepth(-1)`
-- In front: `sprite.setDepth(1)`
+- Behind player: `sprite.setDepth(Depth.particleBehind)`
+- In front: `sprite.setDepth(Depth.projectile)`
 
 **Physics-based motion:**
 - Use velocity + gravity, not sine waves

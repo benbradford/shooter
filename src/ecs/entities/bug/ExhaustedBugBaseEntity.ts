@@ -1,5 +1,5 @@
 import { Entity } from '../../Entity';
-import { DEPTH_EXHAUSTED_BASE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import type { Grid } from '../../../systems/grid/Grid';
@@ -24,7 +24,7 @@ export function createExhaustedBugBaseEntity(props: CreateExhaustedBugBaseProps)
   const entity = new Entity(entityId);
   const transform = entity.add(new TransformComponent(x, y, 0, finalScale));
   const sprite = entity.add(new SpriteComponent(scene, 'base_destroyed', transform));
-  sprite.sprite.setDepth(DEPTH_EXHAUSTED_BASE);
+  sprite.sprite.setDepth(Depth.exhaustedBase);
   entity.setUpdateOrder([TransformComponent, SpriteComponent]);
 
   return entity;

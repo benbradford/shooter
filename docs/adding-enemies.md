@@ -473,7 +473,7 @@ const triggerButton = this.scene.add.text(centerX + buttonSpacing * 4, buttonY, 
 triggerButton.setOrigin(0.5);
 triggerButton.setScrollFactor(0);
 triggerButton.setInteractive({ useHandCursor: true });
-triggerButton.setDepth(1000);
+triggerButton.setDepth(Depth.editor);
 this.buttons.push(triggerButton);
 
 triggerButton.on('pointerdown', () => {

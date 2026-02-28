@@ -139,7 +139,7 @@ export class MyEditorState extends EditorState {
     );
     visual.setStrokeStyle(3, 0xff0000); // Red outline
     visual.setFillStyle(0x000000, 0); // Transparent fill
-    visual.setDepth(1000);
+    visual.setDepth(Depth.editor);
     
     this.visualElements.set(cellKey, visual);
   }
@@ -212,7 +212,7 @@ const myButton = this.scene.add.text(centerX + buttonSpacing * 5, buttonY, 'My M
 myButton.setOrigin(0.5);
 myButton.setScrollFactor(0);
 myButton.setInteractive({ useHandCursor: true });
-myButton.setDepth(1000);
+myButton.setDepth(Depth.editor);
 this.buttons.push(myButton);
 
 myButton.on('pointerdown', () => {

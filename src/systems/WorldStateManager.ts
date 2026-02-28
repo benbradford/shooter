@@ -88,9 +88,7 @@ export class WorldStateManager {
   }
   
   addCoins(amount: number): void {
-    if (this.worldState.player.coins === undefined) {
-      this.worldState.player.coins = 0;
-    }
+    this.worldState.player.coins ??= 0;
     this.worldState.player.coins += amount;
   }
 

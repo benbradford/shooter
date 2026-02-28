@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 
 export class AddEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -22,7 +22,7 @@ export class AddEditorState extends EditorState {
     robotButton.setOrigin(0.5);
     robotButton.setScrollFactor(0);
     robotButton.setInteractive({ useHandCursor: true });
-    robotButton.setDepth(DEPTH_EDITOR);
+    robotButton.setDepth(Depth.editor);
     this.buttons.push(robotButton);
 
     robotButton.on('pointerover', () => {
@@ -44,7 +44,7 @@ export class AddEditorState extends EditorState {
     bugBaseButton.setOrigin(0.5);
     bugBaseButton.setScrollFactor(0);
     bugBaseButton.setInteractive({ useHandCursor: true });
-    bugBaseButton.setDepth(DEPTH_EDITOR);
+    bugBaseButton.setDepth(Depth.editor);
     this.buttons.push(bugBaseButton);
 
     bugBaseButton.on('pointerover', () => {
@@ -67,7 +67,7 @@ export class AddEditorState extends EditorState {
     throwerButton.setOrigin(0.5);
     throwerButton.setScrollFactor(0);
     throwerButton.setInteractive({ useHandCursor: true });
-    throwerButton.setDepth(DEPTH_EDITOR);
+    throwerButton.setDepth(Depth.editor);
     this.buttons.push(throwerButton);
 
     throwerButton.on('pointerover', () => {
@@ -90,7 +90,7 @@ export class AddEditorState extends EditorState {
     skeletonButton.setOrigin(0.5);
     skeletonButton.setScrollFactor(0);
     skeletonButton.setInteractive({ useHandCursor: true });
-    skeletonButton.setDepth(DEPTH_EDITOR);
+    skeletonButton.setDepth(Depth.editor);
     this.buttons.push(skeletonButton);
 
     skeletonButton.on('pointerover', () => {
@@ -113,7 +113,7 @@ export class AddEditorState extends EditorState {
     bulletDudeButton.setOrigin(0.5);
     bulletDudeButton.setScrollFactor(0);
     bulletDudeButton.setInteractive({ useHandCursor: true });
-    bulletDudeButton.setDepth(DEPTH_EDITOR);
+    bulletDudeButton.setDepth(Depth.editor);
     this.buttons.push(bulletDudeButton);
 
     bulletDudeButton.on('pointerover', () => {

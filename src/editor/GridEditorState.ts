@@ -1,7 +1,7 @@
 import { EditorState } from './EditorState';
 import type GameScene from '../scenes/GameScene';
 import type { CellProperty } from '../systems/grid/Grid';
-import { DEPTH_EDITOR, DEPTH_DEBUG } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 
 export class GridEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -21,7 +21,7 @@ export class GridEditorState extends EditorState {
 
     // Selection graphics
     this.selectionGraphics = this.scene.add.graphics();
-    this.selectionGraphics.setDepth(DEPTH_DEBUG);
+    this.selectionGraphics.setDepth(Depth.debug);
 
     // Back button
     this.buttons.push(this.createBackButton());
@@ -45,7 +45,7 @@ export class GridEditorState extends EditorState {
       );
       btn.setOrigin(0.5);
       btn.setScrollFactor(0);
-      btn.setDepth(DEPTH_EDITOR);
+      btn.setDepth(Depth.editor);
       btn.setInteractive({ useHandCursor: true });
       
       btn.on('pointerdown', () => {
@@ -73,7 +73,7 @@ export class GridEditorState extends EditorState {
     );
     clearBtn.setOrigin(0.5);
     clearBtn.setScrollFactor(0);
-    clearBtn.setDepth(DEPTH_EDITOR);
+    clearBtn.setDepth(Depth.editor);
     clearBtn.setInteractive({ useHandCursor: true });
     clearBtn.on('pointerdown', () => {
       this.selectedLayer = -1;
@@ -93,7 +93,7 @@ export class GridEditorState extends EditorState {
       const circle = this.scene.add.circle(x, y, 10, 0x333333);
       circle.setStrokeStyle(2, 0xffffff);
       circle.setScrollFactor(0);
-      circle.setDepth(DEPTH_EDITOR);
+      circle.setDepth(Depth.editor);
       circle.setInteractive({ useHandCursor: true });
 
       const label = this.scene.add.text(x + 30, y, prop, {
@@ -102,7 +102,7 @@ export class GridEditorState extends EditorState {
       });
       label.setOrigin(0, 0.5);
       label.setScrollFactor(0);
-      label.setDepth(DEPTH_EDITOR);
+      label.setDepth(Depth.editor);
 
       circle.on('pointerdown', () => {
         const data = this.checkboxes.get(prop);

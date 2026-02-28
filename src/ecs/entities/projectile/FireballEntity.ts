@@ -1,5 +1,5 @@
 import { Entity } from '../../Entity';
-import { DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
@@ -34,7 +34,7 @@ function createFireballBurst(scene: Phaser.Scene, x: number, y: number): void {
     blendMode: 'ADD'
   });
 
-  emitter.setDepth(DEPTH_PARTICLE);
+  emitter.setDepth(Depth.particle);
   scene.time.delayedCall(100, () => emitter.stop());
   scene.time.delayedCall(500, () => emitter.destroy());
 }

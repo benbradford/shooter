@@ -1,5 +1,5 @@
 import type { Component } from '../../Component';
-import { DEPTH_HUD, DEPTH_HUD_FRONT } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import type { AimJoystickComponent } from '../input/AimJoystickComponent';
 import { RemoteInputComponent } from '../input/RemoteInputComponent';
@@ -23,13 +23,13 @@ export class AimJoystickVisualsComponent implements Component {
     this.outerCircle = this.scene.add.circle(0, 0, this.aimJoystick.maxRadius * TOUCH_CONTROLS_SCALE, 0x0000ff, 0.1);
     this.outerCircle.setStrokeStyle(3 * TOUCH_CONTROLS_SCALE, 0x0000ff, 0.8);
     this.outerCircle.setScrollFactor(0);
-    this.outerCircle.setDepth(DEPTH_HUD);
+    this.outerCircle.setDepth(Depth.hud);
     this.outerCircle.setVisible(false);
 
     this.crosshairSprite = this.scene.add.sprite(0, 0, 'crosshair');
     this.crosshairSprite.setScale(TOUCH_CONTROLS_SCALE * 0.5);
     this.crosshairSprite.setScrollFactor(0);
-    this.crosshairSprite.setDepth(DEPTH_HUD_FRONT);
+    this.crosshairSprite.setDepth(Depth.hudFront);
     this.crosshairSprite.setVisible(false);
   }
 

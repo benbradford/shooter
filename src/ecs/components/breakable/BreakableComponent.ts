@@ -108,7 +108,9 @@ export class BreakableComponent implements Component {
     const velocityX = Math.cos(finalAngle) * EXPLOSION_SPEED_PX_PER_SEC;
     const velocityY = Math.sin(finalAngle) * EXPLOSION_SPEED_PX_PER_SEC;
 
-    const rotationDir = col > 1 ? 1 : col < 1 ? -1 : 0;
+    let rotationDir = 0;
+    if (col > 1) rotationDir = 1;
+    else if (col < 1) rotationDir = -1;
     const rotationSpeed = rotationDir * ROTATION_SPEED_DEG_PER_SEC;
 
     const startTime = this.scene.time.now;
@@ -188,7 +190,9 @@ export class BreakableComponent implements Component {
         const velocityX = Math.cos(finalAngle) * EXPLOSION_SPEED_PX_PER_SEC * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
         const velocityY = Math.sin(finalAngle) * EXPLOSION_SPEED_PX_PER_SEC * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
 
-        const rotationDir = col > 1 ? 1 : col < 1 ? -1 : 0;
+        let rotationDir = 0;
+        if (col > 1) rotationDir = 1;
+        else if (col < 1) rotationDir = -1;
         const rotationSpeed = rotationDir * ROTATION_SPEED_DEG_PER_SEC * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
         const gravityMultiplier = 1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2;
 

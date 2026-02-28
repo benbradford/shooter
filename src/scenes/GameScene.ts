@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { DEPTH_DEBUG_TEXT, DEPTH_FADE } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import { Grid, type CellProperty } from "../systems/grid/Grid";
 import { LevelLoader, type LevelData } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
@@ -147,7 +147,7 @@ export default class GameScene extends Phaser.Scene {
       padding: { x: 10, y: 5 }
     });
     this.layerDebugText.setScrollFactor(0);
-    this.layerDebugText.setDepth(DEPTH_DEBUG_TEXT);
+    this.layerDebugText.setDepth(Depth.debugText);
     this.layerDebugText.setVisible(false);
 
     const keyboard = this.input.keyboard;
@@ -299,7 +299,7 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  // eslint-disable-next-line complexity
+   
   private spawnEntities(): void {
     const level = this.levelData;
     const worldState = WorldStateManager.getInstance();
@@ -442,7 +442,7 @@ export default class GameScene extends Phaser.Scene {
     );
     fadeRect.setOrigin(0, 0);
     fadeRect.setScrollFactor(0);
-    fadeRect.setDepth(DEPTH_FADE);
+    fadeRect.setDepth(Depth.fade);
     fadeRect.setAlpha(0);
 
     this.tweens.add({
@@ -461,7 +461,7 @@ export default class GameScene extends Phaser.Scene {
           );
           newFadeRect.setOrigin(0, 0);
           newFadeRect.setScrollFactor(0);
-          newFadeRect.setDepth(DEPTH_FADE);
+          newFadeRect.setDepth(Depth.fade);
           newFadeRect.setAlpha(1);
 
           this.tweens.add({

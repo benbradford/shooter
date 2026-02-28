@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Grid, CellProperty } from '../../../systems/grid/Grid';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
-import { DEPTH_CELL_TEXTURE_MODIFIED } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 export type CellModification = {
   col: number;
@@ -104,7 +104,7 @@ export class CellModifierComponent implements Component {
           cell.texture
         );
         sprite.setDisplaySize(this.grid.cellSize, this.grid.cellSize);
-        sprite.setDepth(DEPTH_CELL_TEXTURE_MODIFIED);
+        sprite.setDepth(Depth.cellTextureModified);
         sprite.setAlpha(0);
         
         this.scene.tweens.add({

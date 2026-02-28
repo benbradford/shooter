@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { DEPTH_EDITOR, DEPTH_HIT_FLASH } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 import type GameScene from './GameScene';
 
 const AVAILABLE_LEVELS = ['level1', 'default', 'dungeon1', 'grass_overworld1'];
@@ -20,7 +20,7 @@ export default class LevelSelectorScene extends Phaser.Scene {
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7);
     overlay.setOrigin(0, 0);
     overlay.setScrollFactor(0);
-    overlay.setDepth(DEPTH_HIT_FLASH);
+    overlay.setDepth(Depth.hitFlash);
 
     const title = this.add.text(centerX, centerY - 150, 'SELECT LEVEL', {
       fontSize: '32px',
@@ -29,7 +29,7 @@ export default class LevelSelectorScene extends Phaser.Scene {
     });
     title.setOrigin(0.5);
     title.setScrollFactor(0);
-    title.setDepth(DEPTH_EDITOR);
+    title.setDepth(Depth.editor);
 
     const startY = centerY - 50;
     const spacing = 60;
@@ -44,7 +44,7 @@ export default class LevelSelectorScene extends Phaser.Scene {
       button.setOrigin(0.5);
       button.setScrollFactor(0);
       button.setInteractive({ useHandCursor: true });
-      button.setDepth(DEPTH_EDITOR);
+      button.setDepth(Depth.editor);
       this.buttons.push(button);
 
       button.on('pointerover', () => {
@@ -68,7 +68,7 @@ export default class LevelSelectorScene extends Phaser.Scene {
     cancelButton.setOrigin(0.5);
     cancelButton.setScrollFactor(0);
     cancelButton.setInteractive({ useHandCursor: true });
-    cancelButton.setDepth(DEPTH_EDITOR);
+    cancelButton.setDepth(Depth.editor);
     this.buttons.push(cancelButton);
 
     cancelButton.on('pointerover', () => {

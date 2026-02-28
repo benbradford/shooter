@@ -1,5 +1,5 @@
 import type { Component } from '../../Component';
-import { DEPTH_DEBUG_TEXT } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import type { HealthComponent } from '../core/HealthComponent';
 
@@ -26,7 +26,7 @@ export class VignetteHealthComponent implements Component {
       props.cameraHeight,
       0xff0000
     );
-    this.redOverlay.setDepth(DEPTH_DEBUG_TEXT);
+    this.redOverlay.setDepth(Depth.debugText);
     this.redOverlay.setScrollFactor(0);
     this.redOverlay.setAlpha(0);
   }

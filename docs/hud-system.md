@@ -141,7 +141,7 @@ private handlePointerUp(pointer: Phaser.Input.Pointer): void {
 1. **Create component** in `src/ecs/components/ui/`
 2. **Add to joystick entity** or player entity
 3. **Set scroll factor to 0**: `sprite.setScrollFactor(0)`
-4. **Set high depth**: `sprite.setDepth(2000)`
+4. **Set high depth**: `sprite.setDepth(Depth.hud)`
 5. **Use normalized positions**: `viewWidth * 0.5` for center
 
 ## Common Issues

@@ -1,5 +1,5 @@
 import { Entity } from '../../Entity';
-import { DEPTH_STAIRS } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
@@ -43,7 +43,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(scene, texture, transform));
   sprite.sprite.setOrigin(0.5, 0.5);
-  sprite.sprite.setDepth(DEPTH_STAIRS);
+  sprite.sprite.setDepth(Depth.stairs);
 
   const COLLISION_SIZE = grid.cellSize * 1;
   const COLLISION_BOX = {

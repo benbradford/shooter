@@ -1,5 +1,5 @@
 import { EditorState } from './EditorState';
-import { DEPTH_EDITOR } from '../constants/DepthConstants';
+import { Depth } from '../constants/DepthConstants';
 
 export class ThemeEditorState extends EditorState {
   private buttons: Phaser.GameObjects.Text[] = [];
@@ -28,7 +28,7 @@ export class ThemeEditorState extends EditorState {
       button.setOrigin(0.5);
       button.setScrollFactor(0);
       button.setInteractive({ useHandCursor: true });
-      button.setDepth(DEPTH_EDITOR);
+      button.setDepth(Depth.editor);
       this.buttons.push(button);
 
       button.on('pointerover', () => {
@@ -52,7 +52,7 @@ export class ThemeEditorState extends EditorState {
     backButton.setOrigin(0.5);
     backButton.setScrollFactor(0);
     backButton.setInteractive({ useHandCursor: true });
-    backButton.setDepth(DEPTH_EDITOR);
+    backButton.setDepth(Depth.editor);
     this.buttons.push(backButton);
 
     backButton.on('pointerover', () => {

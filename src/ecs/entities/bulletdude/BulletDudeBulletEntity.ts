@@ -5,7 +5,7 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import type { Grid } from '../../../systems/grid/Grid';
-import { DEPTH_ENEMY_FLYING, DEPTH_PARTICLE } from '../../../constants/DepthConstants';
+import { Depth } from '../../../constants/DepthConstants';
 
 const BULLET_MAX_DISTANCE_PX = 800;
 const BULLET_DAMAGE = 10;
@@ -32,7 +32,7 @@ export function createBulletDudeBulletEntity(props: CreateBulletDudeBulletProps)
 
   const transform = entity.add(new TransformComponent(x, y, rotation, BULLET_SCALE));
   const sprite = entity.add(new SpriteComponent(scene, 'bullet_default', transform));
-  sprite.sprite.setDepth(DEPTH_ENEMY_FLYING);
+  sprite.sprite.setDepth(Depth.enemyFlying);
 
   entity.add(new ProjectileComponent({
     dirX,
@@ -54,7 +54,7 @@ export function createBulletDudeBulletEntity(props: CreateBulletDudeBulletProps)
         tint: [0xffff00, 0xff5500],
         blendMode: 'ADD'
       });
-      emitter.setDepth(DEPTH_PARTICLE);
+      emitter.setDepth(Depth.particle);
       scene.time.delayedCall(300, () => emitter.destroy());
     }
   }));
