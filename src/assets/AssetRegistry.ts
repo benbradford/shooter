@@ -350,7 +350,7 @@ export const ASSET_GROUPS = {
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
-  
+
   // Breakables
   breakables: ['dungeon_vase', 'pillar'] as const,
 } as const;

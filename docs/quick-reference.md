@@ -496,21 +496,29 @@ entity.setUpdateOrder([
 ]);
 ```
 
-### Water Ripples
+### Water System
 
-Water ripples automatically appear when the player walks on water cells:
+**Swimming Mechanics:**
+- Player swims at 70% speed in water cells
+- Uses `PLAYER_SWIMMING_GRID_COLLISION_BOX` (64×64) for collision detection
+- Larger collision box prevents sprite from overlapping land/blocked cells
+- Water ripples spawn every 150ms while swimming
+- Shadow fades to 60% alpha and renders at depth -8 when swimming
 
-```typescript
-// Added to player entity
-entity.add(new WaterRippleComponent(scene, grid));
-```
+**Water + Blocked Cells:**
+- Combine 'water' and 'blocked' properties to create impassable water obstacles
+- Use at corners to prevent swimming into land where sprite would overlap
+- Prevents visual glitches from sprite extending beyond collision box
 
-**Behavior:**
-- Spawns every 150ms (±50ms random variance) while on water
-- Random offset (±15px) from player center
-- 4-frame animation at 12 fps
-- Pauses during water hop in/out animations
-- Uses `water_ripple` spritesheet (860×600, 2×2 grid, 430×300 frames)
+**Water + Bridge Cells:**
+- Walking over bridge: Full speed, no water effects
+- Swimming under bridge: Reduced speed, ripples appear
+- Bridge textures render at depth -5 (above swimming player at -7)
+
+**Background Textures in Water:**
+- Textures on water cells render at depth -8 (below swimming player)
+- Use for submerged rocks, underwater obstacles
+- Player always renders on top when swimming
 
 **Asset:** `public/assets/cell_drawables/water_ripple_spritesheet.png`
 
