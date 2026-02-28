@@ -85,9 +85,18 @@ export default class GameScene extends Phaser.Scene {
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
 
-    // Load level-specific textures
-    const levelTextures = getBackgroundTextures(this.levelData);
-    console.log('[AssetLoader] Loading level textures:', levelTextures);
+    const theme = this.levelData.levelTheme ?? 'dungeon';
+    if (theme === 'dungeon') {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    } else if (theme === 'swamp') {
+      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+    } else if (theme === 'grass') {
+      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
+    } else if (theme === 'wilds') {
+      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+    } else {
+      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+    }
 
     preloadLevelAssets(this, this.levelData, () => {
       this.sceneRenderer.markAssetsReady();
@@ -101,7 +110,8 @@ export default class GameScene extends Phaser.Scene {
       this.load.start();
     });
 
-    // Create animations after assets load
+    await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
+
     createThrowerAnimations(this);
 
     this.anims.create({
@@ -110,21 +120,6 @@ export default class GameScene extends Phaser.Scene {
       frameRate: 12,
       repeat: 0
     });
-
-    const theme = this.levelData.levelTheme ?? 'dungeon';
-    if (theme === 'dungeon') {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    } else if (theme === 'swamp') {
-      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-    } else if (theme === 'grass') {
-      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
-    } else if (theme === 'wilds') {
-      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
-    } else {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    }
-    
-    await this.sceneRenderer.prepareWaterAnimation(this.levelData);
     
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;

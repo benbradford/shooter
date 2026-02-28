@@ -4,6 +4,7 @@ import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
 import { WaterAnimator } from './WaterAnimator';
 import type { WaterConfig } from './WaterAnimator';
+import { PathTilesetGenerator } from './PathTilesetGenerator';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
   house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
@@ -58,9 +59,15 @@ export abstract class GameSceneRenderer {
     await this.waterAnimator.generateTextures();
   }
 
-  async prepareWaterAnimation(levelData: LevelData): Promise<void> {
+  async prepareRuntimeTilesets(levelData: LevelData): Promise<void> {
     if (levelData.background?.water) {
       await this.initializeWaterAnimation(levelData.background.water);
+    }
+    
+    if (levelData.background?.path_texture) {
+      const generator = new PathTilesetGenerator(this.scene);
+      const tilesetKey = `${levelData.background.path_texture}_generated_tileset`;
+      generator.generateTileset(levelData.background.path_texture, tilesetKey);
     }
   }
 
@@ -357,17 +364,23 @@ export abstract class GameSceneRenderer {
 
         if ((isPath || isWater) && !this.isCached) {
           let pathTextures: string[] | null = null;
+          let pathTexture: string | undefined;
           
           if (isWater && levelData?.background?.water) {
             pathTextures = this.waterAnimator?.getTilesetKeys() ?? null;
+            pathTexture = pathTextures ? pathTextures[0] : undefined;
           } else if (isWater && Array.isArray(levelData?.background?.water_texture)) {
             pathTextures = levelData.background.water_texture;
+            pathTexture = pathTextures[0];
+          } else if (isWater && levelData?.background?.water_texture) {
+            pathTexture = levelData.background.water_texture as string;
+          } else if (isPath && levelData?.background?.path_texture) {
+            pathTexture = `${levelData.background.path_texture}_generated_tileset`;
           }
           
-          const pathTexture = pathTextures ? pathTextures[0] : (isWater ? levelData?.background?.water_texture : levelData?.background?.path_texture);
           const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
 
-          if (pathTexture && this.scene.textures.exists(pathTexture as string)) {
+          if (pathTexture && this.scene.textures.exists(pathTexture)) {
           const cellX = col * this.cellSize;
           const cellY = row * this.cellSize;
           const centerX = cellX + this.cellSize / 2;
@@ -440,7 +453,7 @@ export abstract class GameSceneRenderer {
                 }
               }
             } else {
-              const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture as string, frame);
+              const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture, frame);
               tileSprite.setDepth(Depth.waterTile);
               this.cellSprites.push(tileSprite);
             }
@@ -462,7 +475,7 @@ export abstract class GameSceneRenderer {
                 }
               }
             } else {
-              const sprite = this.scene.add.sprite(centerX, centerY, pathTexture as string, frame);
+              const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
               sprite.setDisplaySize(this.cellSize, this.cellSize);
               sprite.setDepth(Depth.waterTile);
               this.cellSprites.push(sprite);

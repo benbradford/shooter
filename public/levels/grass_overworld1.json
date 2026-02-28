@@ -4787,12 +4787,12 @@
     "platform_tile": 2,
     "hasEdges": false,
     "hasShadows": false,
-    "path_texture": "stone_path_tileset",
+    "path_texture": "stone_floor",
     "water": {
       "sourceImage": "water2",
-      "flowDirection": "down",
+      "flowDirection": "up",
       "numFrames": 10,
-      "animSpeedMs": 200
+      "animSpeedMs": 250
     }
   }
 }
