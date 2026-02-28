@@ -1723,14 +1723,6 @@
       ]
     },
     {
-      "col": 31,
-      "row": 9,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
       "col": 38,
       "row": 9,
       "layer": 1,
@@ -1826,14 +1818,6 @@
     },
     {
       "col": 21,
-      "row": 10,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 31,
       "row": 10,
       "layer": 0,
       "properties": [
@@ -1955,14 +1939,6 @@
     },
     {
       "col": 21,
-      "row": 11,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 31,
       "row": 11,
       "layer": 0,
       "properties": [
@@ -2112,14 +2088,6 @@
     },
     {
       "col": 21,
-      "row": 12,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 31,
       "row": 12,
       "layer": 0,
       "properties": [
@@ -2267,14 +2235,6 @@
     },
     {
       "col": 21,
-      "row": 13,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 31,
       "row": 13,
       "layer": 0,
       "properties": [
@@ -2435,14 +2395,6 @@
       ]
     },
     {
-      "col": 31,
-      "row": 14,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
       "col": 38,
       "row": 14,
       "layer": 1,
@@ -2554,14 +2506,6 @@
     },
     {
       "col": 21,
-      "row": 15,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 31,
       "row": 15,
       "layer": 0,
       "properties": [
@@ -2643,14 +2587,6 @@
       ]
     },
     {
-      "col": 31,
-      "row": 16,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
       "col": 34,
       "row": 16,
       "layer": 0,
@@ -2744,8 +2680,268 @@
       ]
     },
     {
-      "col": 31,
+      "col": 34,
       "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 35,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 36,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 38,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 0,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 7,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 34,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 35,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 36,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 38,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 0,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 7,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 23,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 24,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 30,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 31,
+      "row": 19,
       "layer": 0,
       "properties": [
         "path"
@@ -2753,216 +2949,6 @@
     },
     {
       "col": 32,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 34,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 35,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 36,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 38,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 0,
-      "row": 18,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 1,
-      "row": 18,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 5,
-      "row": 18,
-      "layer": 1,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 7,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "water"
-      ]
-    },
-    {
-      "col": 8,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "water"
-      ]
-    },
-    {
-      "col": 20,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 21,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 31,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 32,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 33,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 34,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 35,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 36,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 38,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 0,
-      "row": 19,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 1,
-      "row": 19,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 5,
-      "row": 19,
-      "layer": 1,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 7,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "water"
-      ]
-    },
-    {
-      "col": 8,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "water"
-      ]
-    },
-    {
-      "col": 20,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 21,
       "row": 19,
       "layer": 0,
       "properties": [
@@ -3091,6 +3077,14 @@
       ]
     },
     {
+      "col": 32,
+      "row": 20,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 33,
       "row": 20,
       "layer": 0,
@@ -3221,6 +3215,14 @@
       ]
     },
     {
+      "col": 32,
+      "row": 21,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 33,
       "row": 21,
       "layer": 0,
@@ -3299,16 +3301,20 @@
       "row": 22,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": "submerged_rock1"
     },
     {
       "col": 3,
       "row": 22,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": "submerged_rock1"
     },
     {
       "col": 4,
@@ -3390,6 +3396,14 @@
       ]
     },
     {
+      "col": 32,
+      "row": 22,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 33,
       "row": 22,
       "layer": 0,
@@ -3468,16 +3482,20 @@
       "row": 23,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": "submerged_rock1"
     },
     {
       "col": 3,
       "row": 23,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": "submerged_rock1"
     },
     {
       "col": 4,
@@ -3494,8 +3512,10 @@
       "row": 23,
       "layer": 0,
       "properties": [
-        "water"
-      ]
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": "submerged_rock1"
     },
     {
       "col": 6,
@@ -3551,6 +3571,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 32,
+      "row": 23,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -3626,7 +3654,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 24,
       "layer": 1,
       "properties": [
@@ -3634,7 +3662,7 @@
       ]
     },
     {
-      "col": 7,
+      "col": 9,
       "row": 24,
       "layer": 1,
       "properties": [
@@ -3671,6 +3699,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 32,
+      "row": 24,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -3724,7 +3760,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 25,
       "layer": 1,
       "properties": [
@@ -3732,7 +3768,7 @@
       ]
     },
     {
-      "col": 7,
+      "col": 9,
       "row": 25,
       "layer": 1,
       "properties": [
@@ -3769,6 +3805,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 32,
+      "row": 25,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -3823,7 +3867,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 26,
       "layer": 1,
       "properties": [
@@ -3831,7 +3875,7 @@
       ]
     },
     {
-      "col": 7,
+      "col": 9,
       "row": 26,
       "layer": 1,
       "properties": [
@@ -3868,6 +3912,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 32,
+      "row": 26,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -3930,7 +3982,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 27,
       "layer": 1,
       "properties": [
@@ -3938,7 +3990,7 @@
       ]
     },
     {
-      "col": 7,
+      "col": 9,
       "row": 27,
       "layer": 1,
       "properties": [
@@ -3975,6 +4027,14 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 32,
+      "row": 27,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {

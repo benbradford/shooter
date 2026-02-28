@@ -6,6 +6,7 @@ import { ShadowComponent } from './ShadowComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
+import type { Grid } from '../../../systems/grid/Grid';
 
 export class WaterEffectComponent implements Component {
   entity!: Entity;
@@ -15,6 +16,9 @@ export class WaterEffectComponent implements Component {
   private targetY: number = 0;
   private startX: number = 0;
   private startY: number = 0;
+  private shadowMask?: Phaser.Display.Masks.GeometryMask;
+  private shadowMaskGraphics?: Phaser.GameObjects.Graphics;
+  private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
 
   getIsInWater(): boolean {
     return this.isInWater && this.hopProgress >= 1;
@@ -101,14 +105,22 @@ export class WaterEffectComponent implements Component {
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(0.6);
         shadow.shadow.setDepth(-8);
+        
+        // Update shadow mask if player moved to different cell
+        if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
+          this.updateShadowMask(shadow, gridPos, gridCollision.getGrid());
+          this.lastMaskCell = { col: gridPos.currentCell.col, row: gridPos.currentCell.row };
+        }
       } else if (shouldBeVisible) {
         // Normal shadow when not in water
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(1);
         shadow.shadow.setDepth(-1);
+        shadow.shadow.clearMask();
       } else {
         // Hidden during hop
         shadow.shadow.setVisible(false);
+        shadow.shadow.clearMask();
       }
     }
 
@@ -170,9 +182,53 @@ export class WaterEffectComponent implements Component {
       sprite.sprite.y = transform.y;
     }
   }
+  
+  private updateShadowMask(shadow: ShadowComponent, gridPos: GridPositionComponent, grid: Grid): void {
+    // Destroy old mask
+    if (this.shadowMaskGraphics) {
+      this.shadowMaskGraphics.destroy();
+    }
+    
+    // Create new mask for nearby water cells
+    this.shadowMaskGraphics = shadow.shadow.scene.add.graphics();
+    this.shadowMaskGraphics.fillStyle(0xffffff);
+    this.shadowMaskGraphics.setVisible(false);
+    
+    const centerCell = gridPos.currentCell;
+    const cellRadius = 2; // Check 2 cells around player
+    const inset = 8;
+    
+    for (let row = centerCell.row - cellRadius; row <= centerCell.row + cellRadius; row++) {
+      for (let col = centerCell.col - cellRadius; col <= centerCell.col + cellRadius; col++) {
+        const cell = grid.getCell(col, row);
+        if (cell?.properties.has('water')) {
+          const world = grid.cellToWorld(col, row);
+          
+          // Check neighbors to determine which edges border land
+          const hasWaterLeft = grid.getCell(col - 1, row)?.properties.has('water') ?? false;
+          const hasWaterRight = grid.getCell(col + 1, row)?.properties.has('water') ?? false;
+          const hasWaterUp = grid.getCell(col, row - 1)?.properties.has('water') ?? false;
+          const hasWaterDown = grid.getCell(col, row + 1)?.properties.has('water') ?? false;
+          
+          // Inset edges that border land
+          const left = world.x + (hasWaterLeft ? 0 : inset);
+          const top = world.y + (hasWaterUp ? 0 : inset);
+          const right = world.x + grid.cellSize - (hasWaterRight ? 0 : inset);
+          const bottom = world.y + grid.cellSize - (hasWaterDown ? 0 : inset);
+          
+          this.shadowMaskGraphics.fillRect(left, top, right - left, bottom - top);
+        }
+      }
+    }
+    
+    this.shadowMask = this.shadowMaskGraphics.createGeometryMask();
+    shadow.shadow.setMask(this.shadowMask);
+  }
 
   onDestroy(): void {
-    // No cleanup needed
+    if (this.shadowMaskGraphics) {
+      this.shadowMaskGraphics.destroy();
+    }
   }
 }
 

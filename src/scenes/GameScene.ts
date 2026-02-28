@@ -508,6 +508,9 @@ export default class GameScene extends Phaser.Scene {
 
 
   async loadLevel(levelName: string, spawnCol?: number, spawnRow?: number): Promise<void> {
+    // Pause game during level transition
+    this.scene.pause();
+    
     // Track what textures were used in previous level
     const prevLevelTextures = this.levelData ? getBackgroundTextures(this.levelData) : [];
     
@@ -586,6 +589,9 @@ export default class GameScene extends Phaser.Scene {
     this.levelEntrySnapshot = worldState.serializeToJSON();
 
     this.resetScene();
+    
+    // Resume game after level is fully loaded
+    this.scene.resume();
   }
 
   getCurrentLevelName(): string {
