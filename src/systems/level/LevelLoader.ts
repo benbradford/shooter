@@ -35,6 +35,7 @@ export type LevelBackground = {
     flowDirection: 'left' | 'right' | 'up' | 'down';
     numFrames: number;
     animSpeedMs: number;
+    force: number;
   };
   floor_tile: number;
   platform_tile?: number;

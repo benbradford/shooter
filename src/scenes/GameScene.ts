@@ -327,7 +327,8 @@ export default class GameScene extends Phaser.Scene {
       getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
       entityManager: this.entityManager,
       vignetteSprite: this.vignette,
-      initialHealth: playerHealth
+      initialHealth: playerHealth,
+      levelData: () => this.levelData
     }));
 
     // Load entities from new format

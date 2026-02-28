@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import type { TransformComponent } from '../core/TransformComponent';
 import type { InputComponent } from '../input/InputComponent';
 import type { ControlModeComponent } from '../input/ControlModeComponent';
+import type { LevelData } from '../../../systems/level/LevelLoader';
 import { GridPositionComponent } from './GridPositionComponent';
 import { GridCollisionComponent } from './GridCollisionComponent';
 import { HealthComponent } from '../core/HealthComponent';
@@ -16,12 +17,14 @@ export type WalkProps = {
   accelerationTime: number;
   decelerationTime: number;
   stopThreshold: number;
+  levelData?: () => LevelData;
 }
 
 export class WalkComponent implements Component {
   entity!: Entity;
   public readonly speed: number;
   public lastDir: Direction = Direction.Down;
+  private readonly getLevelData?: () => LevelData;
 
   private velocityX = 0;
   private velocityY = 0;
@@ -52,6 +55,7 @@ export class WalkComponent implements Component {
     this.accelerationTime = props.accelerationTime;
     this.decelerationTime = props.decelerationTime;
     this.stopThreshold = props.stopThreshold;
+    this.getLevelData = props.levelData;
   }
 
   setControlMode(controlMode: ControlModeComponent): void {
@@ -116,8 +120,68 @@ export class WalkComponent implements Component {
       speedMultiplier *= 0.7;
     }
 
-    this.transformComp.x += this.velocityX * speedMultiplier * (delta / 1000);
-    this.transformComp.y += this.velocityY * speedMultiplier * (delta / 1000);
+    let currentForceX = 0;
+    let currentForceY = 0;
+    if (isInWater && (!isBridge || isSwimming) && grid && gridPos) {
+      const levelData = this.getLevelData?.();
+      if (levelData?.background?.water) {
+        const flowDir = levelData.background.water.flowDirection;
+        const currentForcePxPerSec = levelData.background.water.force;
+        const BLOCKER_STOP_DISTANCE_PX = 20;
+        
+        let checkCol = gridPos.currentCell.col;
+        let checkRow = gridPos.currentCell.row;
+        
+        if (flowDir === 'left') {
+          checkCol -= 1;
+          const nextCell = grid.getCell(checkCol, checkRow);
+          const isNextWater = nextCell?.properties.has('water') ?? false;
+          const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
+          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+          const cellEdgeX = cellWorld.x;
+          const distToBlocker = this.transformComp.x - cellEdgeX;
+          if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
+            currentForceX = -currentForcePxPerSec;
+          }
+        } else if (flowDir === 'right') {
+          checkCol += 1;
+          const nextCell = grid.getCell(checkCol, checkRow);
+          const isNextWater = nextCell?.properties.has('water') ?? false;
+          const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
+          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+          const cellEdgeX = cellWorld.x + grid.cellSize;
+          const distToBlocker = cellEdgeX - this.transformComp.x;
+          if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
+            currentForceX = currentForcePxPerSec;
+          }
+        } else if (flowDir === 'up') {
+          checkRow -= 1;
+          const nextCell = grid.getCell(checkCol, checkRow);
+          const isNextWater = nextCell?.properties.has('water') ?? false;
+          const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
+          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+          const cellEdgeY = cellWorld.y;
+          const distToBlocker = this.transformComp.y - cellEdgeY;
+          if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
+            currentForceY = -currentForcePxPerSec;
+          }
+        } else if (flowDir === 'down') {
+          checkRow += 1;
+          const nextCell = grid.getCell(checkCol, checkRow);
+          const isNextWater = nextCell?.properties.has('water') ?? false;
+          const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
+          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+          const cellEdgeY = cellWorld.y + grid.cellSize;
+          const distToBlocker = cellEdgeY - this.transformComp.y;
+          if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
+            currentForceY = currentForcePxPerSec;
+          }
+        }
+      }
+    }
+
+    this.transformComp.x += (this.velocityX * speedMultiplier + currentForceX) * (delta / 1000);
+    this.transformComp.y += (this.velocityY * speedMultiplier + currentForceY) * (delta / 1000);
   }
 
   private updateMode1(facingInput: { dx: number; dy: number }): void {

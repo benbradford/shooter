@@ -59,10 +59,11 @@ export type CreatePlayerEntityProps = {
   entityManager: EntityManager;
   vignetteSprite?: Phaser.GameObjects.Image;
   initialHealth?: number;
+  levelData: () => import('../../../systems/level/LevelLoader').LevelData;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite, initialHealth } = props;
+  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite, initialHealth, levelData } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -175,7 +176,8 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     speed: PLAYER_WALK_SPEED_PX_PER_SEC,
     accelerationTime: PLAYER_ACCELERATION_TIME_MS,
     decelerationTime: PLAYER_DECELERATION_TIME_MS,
-    stopThreshold: PLAYER_STOP_THRESHOLD
+    stopThreshold: PLAYER_STOP_THRESHOLD,
+    levelData
   }));
   if (controlModeComp) {
     walk.setControlMode(controlModeComp);

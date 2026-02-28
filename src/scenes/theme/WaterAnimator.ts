@@ -7,6 +7,7 @@ export type WaterConfig = {
   flowDirection: FlowDirection;
   numFrames: number;
   animSpeedMs: number;
+  force: number;
 }
 
 export class WaterAnimator {
