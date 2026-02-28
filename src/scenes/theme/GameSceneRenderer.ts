@@ -16,10 +16,13 @@ export abstract class GameSceneRenderer {
   protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
   private floorOverlay: Phaser.GameObjects.Image | null = null;
   private readonly floorSprites: Phaser.GameObjects.Image[] = [];
-  private readonly cellSprites: Phaser.GameObjects.Image[] = [];
+  private readonly cellSprites: Array<Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image> = new Map();
   private isCached: boolean = false;
   private assetsReady: boolean = false;
+  private readonly waterSprites: Array<Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
+  private waterAnimationIndex: number = 0;
+  private waterAnimationTimerMs: number = 0;
 
   constructor(protected readonly scene: Phaser.Scene, protected readonly cellSize: number) {
     this.graphics = scene.add.graphics();
@@ -30,6 +33,27 @@ export abstract class GameSceneRenderer {
 
   markAssetsReady(): void {
     this.assetsReady = true;
+  }
+
+  update(delta: number, levelData?: LevelData): void {
+    const waterTextures = Array.isArray(levelData?.background?.water_texture) 
+      ? levelData.background.water_texture 
+      : null;
+
+    if (waterTextures && waterTextures.length > 1 && this.waterSprites.length > 0) {
+      this.waterAnimationTimerMs += delta;
+
+      if (this.waterAnimationTimerMs >= 250) {
+        this.waterAnimationTimerMs = 0;
+        
+        for (let i = 0; i < this.waterSprites.length; i++) {
+          const textureIndex = i % waterTextures.length;
+          this.waterSprites[i].setVisible(textureIndex === this.waterAnimationIndex);
+        }
+        
+        this.waterAnimationIndex = (this.waterAnimationIndex + 1) % waterTextures.length;
+      }
+    }
   }
 
   protected addImage(x: number, y: number, texture: string): Phaser.GameObjects.Image {
@@ -210,6 +234,10 @@ export abstract class GameSceneRenderer {
       sprite.destroy();
     }
     this.cellSprites.length = 0;
+    for (const sprite of this.waterSprites) {
+      sprite.destroy();
+    }
+    this.waterSprites.length = 0;
     for (const sprite of this.renderedCellTextures.values()) {
       sprite.destroy();
     }
@@ -327,10 +355,13 @@ export abstract class GameSceneRenderer {
         const y = row * this.cellSize;
 
         if ((isPath || isWater) && !this.isCached) {
-          const pathTexture = isWater ? levelData?.background?.water_texture : levelData?.background?.path_texture;
+          const pathTextures = isWater && Array.isArray(levelData?.background?.water_texture) 
+            ? levelData.background.water_texture 
+            : null;
+          const pathTexture = pathTextures ? pathTextures[0] : (isWater ? levelData?.background?.water_texture : levelData?.background?.path_texture);
           const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
 
-          if (pathTexture && this.scene.textures.exists(pathTexture)) {
+          if (pathTexture && this.scene.textures.exists(pathTexture as string)) {
           const cellX = col * this.cellSize;
           const cellY = row * this.cellSize;
           const centerX = cellX + this.cellSize / 2;
@@ -392,18 +423,44 @@ export abstract class GameSceneRenderer {
           }
 
           if (isWater && edgesTexture && this.scene.textures.exists(edgesTexture)) {
-            const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture, frame);
-            tileSprite.setDepth(Depth.waterTile);
+            if (pathTextures && pathTextures.length > 1) {
+              for (let i = 0; i < pathTextures.length; i++) {
+                const tex = pathTextures[i];
+                if (this.scene.textures.exists(tex)) {
+                  const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, tex, frame);
+                  tileSprite.setDepth(Depth.waterTile);
+                  tileSprite.setVisible(i === 0);
+                  this.waterSprites.push(tileSprite);
+                }
+              }
+            } else {
+              const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture as string, frame);
+              tileSprite.setDepth(Depth.waterTile);
+              this.cellSprites.push(tileSprite);
+            }
 
             const edgeSprite = this.scene.add.sprite(centerX, centerY, edgesTexture, frame);
             edgeSprite.setDisplaySize(this.cellSize, this.cellSize);
             edgeSprite.setDepth(Depth.waterTileEdge);
             this.cellSprites.push(edgeSprite);
           } else {
-             const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
-            sprite.setDisplaySize(this.cellSize, this.cellSize);
-            sprite.setDepth(Depth.waterTile);
-            this.cellSprites.push(sprite);
+            if (pathTextures && pathTextures.length > 1) {
+              for (let i = 0; i < pathTextures.length; i++) {
+                const tex = pathTextures[i];
+                if (this.scene.textures.exists(tex)) {
+                  const sprite = this.scene.add.sprite(centerX, centerY, tex, frame);
+                  sprite.setDisplaySize(this.cellSize, this.cellSize);
+                  sprite.setDepth(Depth.waterTile);
+                  sprite.setVisible(i === 0);
+                  this.waterSprites.push(sprite);
+                }
+              }
+            } else {
+              const sprite = this.scene.add.sprite(centerX, centerY, pathTexture as string, frame);
+              sprite.setDisplaySize(this.cellSize, this.cellSize);
+              sprite.setDepth(Depth.waterTile);
+              this.cellSprites.push(sprite);
+            }
           }
           }
         }

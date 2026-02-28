@@ -345,6 +345,9 @@ export default class GameScene extends Phaser.Scene {
     // Update state machine (delegates to InGameState)
     this.stateMachine.update(delta);
 
+    // Update scene renderer (for water animation)
+    this.sceneRenderer.update(delta, this.levelData);
+
     // Update layer debug text
     const player = this.entityManager.getFirst('player');
     if (player && this.layerDebugText) {

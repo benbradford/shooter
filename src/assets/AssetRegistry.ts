@@ -217,6 +217,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 64, frameHeight: 64 }
   },
+  water_path_offset_tileset: {
+    key: 'water_path_offset_tileset',
+    path: 'assets/cell_drawables/water_path_offset_tileset.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 64, frameHeight: 64 }
+  },
   water_ripple: {
     key: 'water_ripple',
     path: 'assets/cell_drawables/water_ripple_spritesheet.png',

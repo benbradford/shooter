@@ -14,7 +14,7 @@ export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
     'crosshair', 'slide_icon', 'arrows', 'shadow', 'coin', 'medi_pack', 'vignette',
     'bug', 'bug_base', 'base_destroyed', 'thrower', 'grenade', 'skeleton', 'bone_small',
     'bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke',
-    'stone_path_tileset', 'grass2_path_tileset', 'water_path_tileset', 'water_path_tileset_edges', 'water_ripple',
+    'stone_path_tileset', 'grass2_path_tileset', 'water_path_tileset', 'water_path_tileset_edges', 'water_path_offset_tileset', 'water_ripple',
     'dungeon_vase', 'pillar'
   ];
   
@@ -87,7 +87,15 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
     if (bg.stairs_texture) textureSet.add(bg.stairs_texture as AssetKey);
     if (bg.wall_texture) textureSet.add(bg.wall_texture as AssetKey);
     if (bg.path_texture) textureSet.add(bg.path_texture as AssetKey);
-    if (bg.water_texture) textureSet.add(bg.water_texture as AssetKey);
+    if (bg.water_texture) {
+      if (Array.isArray(bg.water_texture)) {
+        for (const tex of bg.water_texture) {
+          textureSet.add(tex as AssetKey);
+        }
+      } else {
+        textureSet.add(bg.water_texture as AssetKey);
+      }
+    }
     if (bg.water_texture_edges) textureSet.add(bg.water_texture_edges as AssetKey);
     if (bg.overlays?.spritesheet) {
       // Extract key from path like "assets/cell_drawables/dungeon_overlays_spritesheet.png"

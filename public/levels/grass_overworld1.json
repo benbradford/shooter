@@ -4788,6 +4788,6 @@
     "hasEdges": false,
     "hasShadows": false,
     "path_texture": "stone_path_tileset",
-    "water_texture": "water_path_tileset"
+    "water_texture": ["water_path_tileset", "water_path_offset_tileset"]
   }
 }
