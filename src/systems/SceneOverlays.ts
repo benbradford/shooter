@@ -42,12 +42,21 @@ export class SceneOverlays {
   }
 
   applyOverlays(grid: Grid): void {
-    if (!this.levelData.background?.overlays || this.overlaySprites.length === 0) return;
+    if (!this.levelData.background?.overlays || this.overlaySprites.length === 0) {
+      console.log('[SceneOverlays] No overlays config or sprites:', {
+        hasConfig: !!this.levelData.background?.overlays,
+        spriteCount: this.overlaySprites.length
+      });
+      return;
+    }
     
     // Check if overlay texture is loaded
     if (!this.scene.textures.exists('dungeon_overlays')) {
+      console.log('[SceneOverlays] Texture not loaded: dungeon_overlays');
       return;
     }
+    
+    console.log('[SceneOverlays] Applying overlays:', this.overlaySprites.length, 'sprites available');
 
     const { frequency, seed } = this.levelData.background.overlays;
     const rng = this.seededRandom(seed);

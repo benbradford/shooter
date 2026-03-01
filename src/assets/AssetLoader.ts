@@ -100,8 +100,7 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
     }
     if (bg.water_texture_edges) textureSet.add(bg.water_texture_edges as AssetKey);
     if (bg.overlays?.spritesheet) {
-      // Extract key from path like "assets/cell_drawables/dungeon_overlays_spritesheet.png"
-      const key = bg.overlays.spritesheet.split('/').pop()?.replace('.png', '');
+      const key = bg.overlays.spritesheet.split('/').pop()?.replace('_spritesheet.png', '').replace('.png', '');
       if (key && key in ASSET_REGISTRY) {
         textureSet.add(key as AssetKey);
       }

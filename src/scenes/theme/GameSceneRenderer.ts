@@ -60,15 +60,23 @@ export abstract class GameSceneRenderer {
   }
 
   async prepareRuntimeTilesets(levelData: LevelData): Promise<void> {
+    console.log('[GameSceneRenderer] prepareRuntimeTilesets starting');
+    
     if (levelData.background?.water) {
+      console.log('[GameSceneRenderer] Generating water tilesets:', levelData.background.water);
       await this.initializeWaterAnimation(levelData.background.water);
+      console.log('[GameSceneRenderer] Water tilesets generated:', this.waterAnimator?.getTilesetKeys());
     }
 
     if (levelData.background?.path_texture) {
+      console.log('[GameSceneRenderer] Generating path tileset from:', levelData.background.path_texture);
       const generator = new PathTilesetGenerator(this.scene);
       const tilesetKey = `${levelData.background.path_texture}_generated_tileset`;
-      generator.generateTileset(levelData.background.path_texture, tilesetKey);
+      const success = generator.generateTileset(levelData.background.path_texture, tilesetKey);
+      console.log('[GameSceneRenderer] Path tileset generated:', tilesetKey, 'success:', success);
     }
+    
+    console.log('[GameSceneRenderer] prepareRuntimeTilesets complete');
   }
 
   renderGrid(grid: Grid, levelData?: LevelData): void {

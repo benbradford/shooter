@@ -124,7 +124,7 @@ export default class GameScene extends Phaser.Scene {
     this.background = rendered.background;
     this.vignette = rendered.vignette;
 
-    this.initializeScene();
+    await this.initializeScene();
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
 
@@ -187,7 +187,7 @@ export default class GameScene extends Phaser.Scene {
     this.sceneRenderer.renderGrid(grid, levelData);
   }
 
-  private initializeScene(): void {
+  private async initializeScene(): Promise<void> {
     const level = this.levelData;
     const worldState = WorldStateManager.getInstance();
     const levelState = worldState.getLevelState(level.name!);
@@ -231,10 +231,10 @@ export default class GameScene extends Phaser.Scene {
 
     const overlays = new SceneOverlays(this, this.levelData);
     this.sceneOverlays = overlays;
-    void overlays.init().then(() => {
-      overlays.applyOverlays(this.grid);
-      this.grid.render();
-    });
+    await overlays.init();
+    overlays.applyOverlays(this.grid);
+
+    this.sceneRenderer.renderGrid(this.grid, this.levelData);
 
     this.cameras.main.setBounds(
       CAMERA_BOUNDS_INSET_X_PX,
@@ -289,7 +289,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.entityCreatorManager.clear();
 
-    this.initializeScene();
+    void this.initializeScene();
 
     if (wasGridDebugEnabled) {
       this.grid.setGridDebugEnabled(true);
@@ -557,18 +557,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Load new level assets
-    preloadLevelAssets(this, this.levelData, () => {
-      this.sceneRenderer.markAssetsReady();
-    });
-    await new Promise<void>(resolve => {
-      if (this.load.isLoading()) {
-        this.load.once('complete', () => resolve());
-      } else {
-        resolve();
-      }
-      this.load.start();
-    });
-
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
@@ -581,6 +569,19 @@ export default class GameScene extends Phaser.Scene {
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
+
+    preloadLevelAssets(this, this.levelData);
+    await new Promise<void>(resolve => {
+      if (this.load.isLoading()) {
+        this.load.once('complete', () => resolve());
+      } else {
+        resolve();
+      }
+      this.load.start();
+    });
+
+    await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
+    this.sceneRenderer.markAssetsReady();
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;

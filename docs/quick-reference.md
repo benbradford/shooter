@@ -504,6 +504,8 @@ entity.setUpdateOrder([
 - Larger collision box prevents sprite from overlapping land/blocked cells
 - Water ripples spawn every 150ms while swimming
 - Shadow fades to 60% alpha and renders at depth -8 when swimming
+- Water splash effect when entering/leaving water (full splash)
+- Mini splash effect every 500ms while actively swimming (reduced scale/speed)
 
 **River Current:**
 - Water with `flowDirection` applies force to push player
@@ -526,7 +528,9 @@ entity.setUpdateOrder([
 - Use for submerged rocks, underwater obstacles
 - Player always renders on top when swimming
 
-**Asset:** `public/assets/cell_drawables/water_ripple_spritesheet.png`
+**Assets:** 
+- `public/assets/cell_drawables/water_ripple_spritesheet.png` - Ripples
+- `public/assets/cell_drawables/water_splash.png` - Splash particles
 
 ### Touch Joystick Visual Components
 
