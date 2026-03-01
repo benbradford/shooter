@@ -284,6 +284,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/dungeon_overlays_spritesheet.png',
     type: 'image' as const,
   },
+  grass_overlays: {
+    key: 'grass_overlays',
+    path: 'assets/cell_drawables/grass_overlays/grass_overlays_sprite_sheet.png',
+    type: 'image' as const,
+  },
   grass1: {
     key: 'grass1',
     path: 'assets/cell_drawables/grass1.png',

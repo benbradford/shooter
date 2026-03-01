@@ -49,14 +49,15 @@ export class SceneOverlays {
       });
       return;
     }
-    
-    // Check if overlay texture is loaded
-    if (!this.scene.textures.exists('dungeon_overlays')) {
-      console.log('[SceneOverlays] Texture not loaded: dungeon_overlays');
+
+    const overlayKey = this.levelData.background.overlays.spritesheet.split('/').pop()?.replace('_sprite_sheet.png', '').replace('_spritesheet.png', '').replace('.png', '') ?? 'dungeon_overlays';
+
+    if (!this.scene.textures.exists(overlayKey)) {
+      console.log('[SceneOverlays] Texture not loaded:', overlayKey);
       return;
     }
-    
-    console.log('[SceneOverlays] Applying overlays:', this.overlaySprites.length, 'sprites available');
+
+    console.log('[SceneOverlays] Applying overlays:', this.overlaySprites.length, 'sprites available, using texture:', overlayKey);
 
     const { frequency, seed } = this.levelData.background.overlays;
     const rng = this.seededRandom(seed);
@@ -109,15 +110,17 @@ export class SceneOverlays {
       const spriteIndex = Math.floor(rng() * this.overlaySprites.length);
       const sprite = this.overlaySprites[spriteIndex];
 
+      const overlayKey = this.levelData.background!.overlays!.spritesheet.split('/').pop()?.replace('_sprite_sheet.png', '').replace('_spritesheet.png', '').replace('.png', '') ?? 'dungeon_overlays';
+
       const worldPos = grid.cellToWorld(cell.col, cell.row);
       const image = this.scene.add.image(
         worldPos.x + grid.cellSize / 2,
         worldPos.y + grid.cellSize / 2,
-        'dungeon_overlays'
+        overlayKey
       );
       image.setOrigin(0.5, 0.5);
       image.setCrop(sprite.x, sprite.y, sprite.width, sprite.height);
-      image.setDisplaySize(sprite.width * 1.5, sprite.height * 1.5);
+      image.setScale(0.5);
       image.setDepth(Depth.overlay);
 
       const rotation = (rng() - 0.5) * 0.52;

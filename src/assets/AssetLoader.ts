@@ -100,9 +100,12 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
     }
     if (bg.water_texture_edges) textureSet.add(bg.water_texture_edges as AssetKey);
     if (bg.overlays?.spritesheet) {
-      const key = bg.overlays.spritesheet.split('/').pop()?.replace('_spritesheet.png', '').replace('.png', '');
+      const key = bg.overlays.spritesheet.split('/').pop()?.replace('_sprite_sheet.png', '').replace('_spritesheet.png', '').replace('.png', '');
+      console.log('[AssetLoader] Overlay key extracted:', key, 'from path:', bg.overlays.spritesheet);
       if (key && key in ASSET_REGISTRY) {
         textureSet.add(key as AssetKey);
+      } else {
+        console.log('[AssetLoader] Overlay key not in registry:', key);
       }
     }
   }

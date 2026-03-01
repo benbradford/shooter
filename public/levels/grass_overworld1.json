@@ -5141,6 +5141,12 @@
       "numFrames": 20,
       "animSpeedMs": 100,
       "force": 120
+    },
+    "overlays": {
+      "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_sheet.png",
+      "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_list.txt",
+      "frequency": 12,
+      "seed": 12345
     }
   }
 }
