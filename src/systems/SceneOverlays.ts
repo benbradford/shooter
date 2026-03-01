@@ -59,7 +59,7 @@ export class SceneOverlays {
 
     console.log('[SceneOverlays] Applying overlays:', this.overlaySprites.length, 'sprites available, using texture:', overlayKey);
 
-    const { frequency, seed } = this.levelData.background.overlays;
+    const { frequency, seed, placementStrategy = 'near_platforms' } = this.levelData.background.overlays;
     const rng = this.seededRandom(seed);
 
     const eligibleCells: Array<{ col: number; row: number; priority: number }> = [];
@@ -76,15 +76,28 @@ export class SceneOverlays {
 
           let priority = 0;
 
-          for (let dr = -1; dr <= 1; dr++) {
-            for (let dc = -1; dc <= 1; dc++) {
-              if (dr === 0 && dc === 0) continue;
-              const neighbor = grid.getCell(col + dc, row + dr);
-              if (neighbor && (grid.getLayer(neighbor) >= 1 || neighbor.properties.has('stairs'))) {
-                priority += 3;
+          if (placementStrategy === 'near_paths_water') {
+            for (let dr = -1; dr <= 1; dr++) {
+              for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const neighbor = grid.getCell(col + dc, row + dr);
+                if (neighbor && (neighbor.properties.has('path') || neighbor.properties.has('water'))) {
+                  priority += 3;
+                }
+              }
+            }
+          } else if (placementStrategy === 'near_platforms') {
+            for (let dr = -1; dr <= 1; dr++) {
+              for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const neighbor = grid.getCell(col + dc, row + dr);
+                if (neighbor && (grid.getLayer(neighbor) >= 1 || neighbor.properties.has('stairs'))) {
+                  priority += 3;
+                }
               }
             }
           }
+          // else 'random' - priority stays 0
 
           const centerX = grid.width / 2;
           const centerY = grid.height / 2;
@@ -123,10 +136,32 @@ export class SceneOverlays {
       image.setScale(0.5);
       image.setDepth(Depth.overlay);
 
-      const rotation = (rng() - 0.5) * 0.52;
+      const blendMode = this.levelData.background.overlays.blendMode ?? 'normal';
+      if (blendMode === 'multiply') {
+        image.setBlendMode(Phaser.BlendModes.MULTIPLY);
+      }
+
+      const rotationSetting = this.levelData.background.overlays.rotation ?? 'slight';
+      let rotationRange = 0;
+      if (rotationSetting === 'slight') rotationRange = 0.52;
+      else if (rotationSetting === 'medium') rotationRange = 1.05;
+      else if (rotationSetting === 'heavy') rotationRange = 3.14;
+      
+      const rotation = rotationRange > 0 ? (rng() - 0.5) * rotationRange : 0;
       image.setRotation(rotation);
 
-      const alpha = 0.85 + rng() * 0.15;
+      const alphaBlend = this.levelData.background.overlays.alphaBlend ?? 'medium';
+      let alphaBase = 0.7;
+      let alphaRange = 0.15;
+      if (alphaBlend === 'low') {
+        alphaBase = 0.4;
+        alphaRange = 0.1;
+      } else if (alphaBlend === 'high') {
+        alphaBase = 0.85;
+        alphaRange = 0.15;
+      }
+      
+      const alpha = alphaBase + rng() * alphaRange;
       image.setAlpha(alpha);
 
       this.overlayImages.push(image);

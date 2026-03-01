@@ -631,6 +631,15 @@
     "hasEdges": false,
     "hasShadows": false,
     "path_texture": "stone_path_tileset",
-    "water_texture": "water_path_tileset"
+    "water_texture": "water_path_tileset",
+     "overlays": {
+      "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_sheet.png",
+      "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_list.txt",
+      "frequency": 6,
+      "seed": 12345,
+      "placementStrategy": "random",
+      "alphaBlend": "medium",
+      "rotation": "slight"
+    }
   }
 }

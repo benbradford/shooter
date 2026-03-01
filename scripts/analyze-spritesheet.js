@@ -22,7 +22,7 @@ async function analyzeSpritesheet(imagePath, outputPath) {
       if (alpha > 10 && !visited.has(`${x},${y}`)) {
         // Found a sprite, flood fill to find bounds
         const bounds = floodFill(data, canvas.width, canvas.height, x, y, visited);
-        if (bounds.width > 5 && bounds.height > 5) {
+        if (bounds.width > 20 && bounds.height > 20) {
           sprites.push(bounds);
         }
       }

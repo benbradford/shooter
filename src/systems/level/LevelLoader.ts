@@ -44,6 +44,10 @@ export type LevelBackground = {
     spriteList: string;
     frequency: number;
     seed: number;
+    placementStrategy?: 'near_platforms' | 'near_paths_water' | 'random';
+    rotation?: 'none' | 'slight' | 'medium' | 'heavy';
+    blendMode?: 'normal' | 'multiply';
+    alphaBlend?: 'low' | 'medium' | 'high';
   };
   edgeDarkening?: {
     depth: number;

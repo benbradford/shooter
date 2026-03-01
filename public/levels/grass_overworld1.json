@@ -5129,7 +5129,7 @@
   "levelTheme": "grass_overworld1",
   "background": {
     "floor_texture": "grass1",
-    "floor_tile": 8,
+    "floor_tile": 5,
     "platform_texture": "tree1",
     "platform_tile": 2,
     "hasEdges": false,
@@ -5146,7 +5146,10 @@
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_sheet.png",
       "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_list.txt",
       "frequency": 12,
-      "seed": 12345
+      "seed": 12346,
+      "placementStrategy": "near_paths_water",
+      "rotation": "none",
+      "alphaBlend": "low"
     }
   }
 }

@@ -5963,7 +5963,8 @@
       "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
       "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
       "frequency": 5,
-      "seed": 1
+      "seed": 1,
+      "alphaBlend": "medium"
     },
     "edgeDarkening": {
       "depth": 6,
