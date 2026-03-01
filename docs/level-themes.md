@@ -125,7 +125,11 @@ Levels can include random decorative overlays (dirt patches, cracked stone, skul
       "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
       "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
       "frequency": 10,
-      "seed": 12345
+      "seed": 12345,
+      "placementStrategy": "near_platforms",
+      "rotation": "slight",
+      "blendMode": "normal",
+      "alphaBlend": "medium"
     }
   }
 }
@@ -134,11 +138,24 @@ Levels can include random decorative overlays (dirt patches, cracked stone, skul
 **How it works:**
 - `frequency`: 1 overlay per N eligible cells (e.g., 10 = 1 per 10 cells)
 - `seed`: Deterministic random seed for consistent placement
+- `placementStrategy`: Where to place overlays
+  - `near_platforms`: Cluster near walls, platforms, stairs (default)
+  - `near_paths_water`: Cluster near paths and water
+  - `random`: No bias, uniform distribution
+- `rotation`: Rotation variation
+  - `none`: No rotation
+  - `slight`: ±30° (default)
+  - `medium`: ±60°
+  - `heavy`: ±180°
+- `blendMode`: How overlays blend with floor
+  - `normal`: Standard blending (default)
+  - `multiply`: Darkens floor naturally
+- `alphaBlend`: Opacity level
+  - `low`: 0.4-0.5 (subtle)
+  - `medium`: 0.7-0.85 (balanced, default)
+  - `high`: 0.85-1.0 (prominent)
 - Only places on layer 0 cells with no properties and no existing texture
 - Overlays are applied once during level load via `SceneOverlays` class
-- **Priority-based placement**: Overlays cluster near walls, corners, and stairs (avoid room centers)
-- **Rotation**: Random ±30° rotation for natural variation
-- **Opacity**: Random 85-100% alpha for subtle variation
 
 ## Switching Themes in Editor
 

@@ -473,7 +473,11 @@ Levels can specify default textures for all cells of a type in the level JSON:
       "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
       "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
       "frequency": 10,
-      "seed": 12345
+      "seed": 12345,
+      "placementStrategy": "near_platforms",
+      "rotation": "slight",
+      "blendMode": "normal",
+      "alphaBlend": "medium"
     },
     "edgeDarkening": {
       "depth": 10,

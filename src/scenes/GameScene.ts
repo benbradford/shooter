@@ -99,13 +99,13 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preloadLevelAssets(this, this.levelData);
+    this.load.start();
+    
     await new Promise<void>(resolve => {
-      if (this.load.isLoading()) {
-        this.load.once('complete', () => resolve());
-      } else {
+      this.load.once('complete', () => {
+        console.log('[GameScene] Asset loading complete in create()');
         resolve();
-      }
-      this.load.start();
+      });
     });
 
     await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
@@ -272,7 +272,7 @@ export default class GameScene extends Phaser.Scene {
     this.eventManager.raiseEvent('level_loaded');
   }
 
-  resetScene(): void {
+  async resetScene(): Promise<void> {
     const wasGridDebugEnabled = this.grid.gridDebugEnabled;
 
     if (this.sceneOverlays) {
@@ -289,7 +289,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.entityCreatorManager.clear();
 
-    void this.initializeScene();
+    await this.initializeScene();
 
     if (wasGridDebugEnabled) {
       this.grid.setGridDebugEnabled(true);
@@ -452,7 +452,10 @@ export default class GameScene extends Phaser.Scene {
       duration: 300,
       ease: 'Linear',
       onComplete: () => {
+        this.scene.pause();
         void this.loadLevel(targetLevel, spawnCol, spawnRow).then(() => {
+          fadeRect.destroy();
+          this.scene.resume();
           const newFadeRect = this.add.rectangle(
             0,
             0,
@@ -571,30 +574,31 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preloadLevelAssets(this, this.levelData);
+    this.load.start();
+    
     await new Promise<void>(resolve => {
-      if (this.load.isLoading()) {
-        this.load.once('complete', () => resolve());
-      } else {
+      this.load.once('complete', () => {
+        console.log('[GameScene] Asset loading complete in loadLevel()');
         resolve();
-      }
-      this.load.start();
+      });
     });
 
     await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
+    console.log('[GameScene] Tilesets prepared, marking assets ready');
     this.sceneRenderer.markAssetsReady();
+    console.log('[GameScene] Assets marked ready');
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
     this.vignette = rendered.vignette;
 
+    console.log('[GameScene] About to reset scene');
     // Save snapshot of world state BEFORE spawning entities
     const worldState = WorldStateManager.getInstance();
     this.levelEntrySnapshot = worldState.serializeToJSON();
 
-    this.resetScene();
-
-    // Resume game after level is fully loaded
-    this.scene.resume();
+    await this.resetScene();
+    console.log('[GameScene] Scene reset complete');
   }
 
   getCurrentLevelName(): string {
