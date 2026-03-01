@@ -498,6 +498,7 @@ Levels can specify default textures for all cells of a type in the level JSON:
   - `animSpeedMs`: Milliseconds between frames
   - `force`: Current force in pixels/second (pushes player in flow direction)
 - Tilesets are generated once per level load and cleaned up on level transition
+- Level transitions wait for all tilesets to generate before fading in
 
 - `floor_texture`: Rendered in NxN chunks (specified by `floor_tile`) at depth -1000
 - `floor_tile`: Chunk size for floor texture (e.g., 10 = 10x10 cells per sprite)

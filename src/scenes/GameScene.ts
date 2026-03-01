@@ -100,7 +100,7 @@ export default class GameScene extends Phaser.Scene {
 
     preloadLevelAssets(this, this.levelData);
     this.load.start();
-    
+
     await new Promise<void>(resolve => {
       this.load.once('complete', () => {
         console.log('[GameScene] Asset loading complete in create()');
@@ -119,7 +119,7 @@ export default class GameScene extends Phaser.Scene {
       frameRate: 12,
       repeat: 0
     });
-    
+
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
     this.vignette = rendered.vignette;
@@ -296,7 +296,7 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-   
+
   private spawnEntities(): void {
     const level = this.levelData;
     const worldState = WorldStateManager.getInstance();
@@ -433,8 +433,9 @@ export default class GameScene extends Phaser.Scene {
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
 
+    const hudScene = this.scene.get('HudScene') as Phaser.Scene;
     const cam = this.cameras.main;
-    const fadeRect = this.add.rectangle(
+    const fadeRect = hudScene.add.rectangle(
       0,
       0,
       cam.width / cam.zoom,
@@ -443,38 +444,23 @@ export default class GameScene extends Phaser.Scene {
     );
     fadeRect.setOrigin(0, 0);
     fadeRect.setScrollFactor(0);
-    fadeRect.setDepth(Depth.fade);
+    fadeRect.setDepth(10000);
     fadeRect.setAlpha(0);
 
-    this.tweens.add({
+    hudScene.tweens.add({
       targets: fadeRect,
       alpha: 1,
       duration: 300,
       ease: 'Linear',
       onComplete: () => {
-        this.scene.pause();
         void this.loadLevel(targetLevel, spawnCol, spawnRow).then(() => {
-          fadeRect.destroy();
-          this.scene.resume();
-          const newFadeRect = this.add.rectangle(
-            0,
-            0,
-            this.cameras.main.width / this.cameras.main.zoom,
-            this.cameras.main.height / this.cameras.main.zoom,
-            0x000000
-          );
-          newFadeRect.setOrigin(0, 0);
-          newFadeRect.setScrollFactor(0);
-          newFadeRect.setDepth(Depth.fade);
-          newFadeRect.setAlpha(1);
-
-          this.tweens.add({
-            targets: newFadeRect,
+          hudScene.tweens.add({
+            targets: fadeRect,
             alpha: 0,
             duration: 300,
             ease: 'Linear',
             onComplete: () => {
-              newFadeRect.destroy();
+              fadeRect.destroy();
             }
           });
         }).catch((error: unknown) => {
@@ -575,7 +561,7 @@ export default class GameScene extends Phaser.Scene {
 
     preloadLevelAssets(this, this.levelData);
     this.load.start();
-    
+
     await new Promise<void>(resolve => {
       this.load.once('complete', () => {
         console.log('[GameScene] Asset loading complete in loadLevel()');
@@ -592,13 +578,22 @@ export default class GameScene extends Phaser.Scene {
     this.background = rendered.background;
     this.vignette = rendered.vignette;
 
+    const originalVignetteAlpha = this.vignette.alpha;
+    this.background.setAlpha(0);
+    this.vignette.setAlpha(0);
+
     console.log('[GameScene] About to reset scene');
     // Save snapshot of world state BEFORE spawning entities
     const worldState = WorldStateManager.getInstance();
     this.levelEntrySnapshot = worldState.serializeToJSON();
 
     await this.resetScene();
+
+    this.background.setAlpha(1);
+    this.vignette.setAlpha(originalVignetteAlpha);
     console.log('[GameScene] Scene reset complete');
+
+    this.scene.resume();
   }
 
   getCurrentLevelName(): string {
