@@ -14,7 +14,7 @@ export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
     'crosshair', 'slide_icon', 'arrows', 'shadow', 'coin', 'medi_pack', 'vignette',
     'bug', 'bug_base', 'base_destroyed', 'thrower', 'grenade', 'skeleton', 'bone_small',
     'bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke',
-    'stone_floor', 'water2', 'water_ripple',
+    'stone_floor', 'water2', 'water_ripple', 'water_splash',
     'dungeon_vase', 'pillar'
   ];
   

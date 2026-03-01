@@ -8,7 +8,7 @@ import { PathTilesetGenerator } from './PathTilesetGenerator';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
   house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
-  house2: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: -15 },
+  house2: { scaleX: 4, scaleY: 4, offsetX: 24, offsetY: -15 },
   house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
   bridge_v: {scaleX: 3, scaleY: 3, offsetX: 0, offsetY: -32 },
   bridge_h: {scaleX: 3, scaleY: 3, offsetX: -32, offsetY: 0 },
@@ -63,7 +63,7 @@ export abstract class GameSceneRenderer {
     if (levelData.background?.water) {
       await this.initializeWaterAnimation(levelData.background.water);
     }
-    
+
     if (levelData.background?.path_texture) {
       const generator = new PathTilesetGenerator(this.scene);
       const tilesetKey = `${levelData.background.path_texture}_generated_tileset`;
@@ -365,7 +365,7 @@ export abstract class GameSceneRenderer {
         if ((isPath || isWater) && !this.isCached) {
           let pathTextures: string[] | null = null;
           let pathTexture: string | undefined;
-          
+
           if (isWater && levelData?.background?.water) {
             pathTextures = this.waterAnimator?.getTilesetKeys() ?? null;
             pathTexture = pathTextures ? pathTextures[0] : undefined;
@@ -377,7 +377,7 @@ export abstract class GameSceneRenderer {
           } else if (isPath && levelData?.background?.path_texture) {
             pathTexture = `${levelData.background.path_texture}_generated_tileset`;
           }
-          
+
           const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
 
           if (pathTexture && this.scene.textures.exists(pathTexture)) {

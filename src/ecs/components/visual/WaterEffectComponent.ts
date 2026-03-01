@@ -20,6 +20,7 @@ export class WaterEffectComponent implements Component {
   private shadowMask?: Phaser.Display.Masks.GeometryMask;
   private shadowMaskGraphics?: Phaser.GameObjects.Graphics;
   private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
+  private swimmingSplashTimerMs: number = 0;
 
   constructor(private readonly scene: Phaser.Scene) {}
 
@@ -138,10 +139,15 @@ export class WaterEffectComponent implements Component {
 
     // Detect water entry/exit (only when not already hopping)
     if (nowInWater !== this.isInWater && this.hopProgress >= 1) {
+      const wasInWater = this.isInWater;
       this.isInWater = nowInWater;
       this.hopProgress = 0;
       this.startX = transform.x;
       this.startY = transform.y;
+
+      if (!nowInWater && wasInWater) {
+        this.createSplashEffect(transform.x, transform.y, false);
+      }
 
       // Find the target cell to hop to
       let targetCol = gridPos.currentCell.col;
@@ -183,10 +189,23 @@ export class WaterEffectComponent implements Component {
       sprite.sprite.y = transform.y + hopHeight;
 
       if (this.hopProgress >= 1 && this.isInWater) {
-        this.createSplashEffect(transform.x, transform.y);
+        this.createSplashEffect(transform.x, transform.y, false);
       }
     } else {
       sprite.sprite.y = transform.y;
+
+      if (this.isInWater && walk) {
+        const isMoving = walk.isMoving();
+        if (isMoving) {
+          this.swimmingSplashTimerMs += delta;
+          if (this.swimmingSplashTimerMs >= 500) {
+            this.swimmingSplashTimerMs = 0;
+            this.createSplashEffect(transform.x, transform.y, true);
+          }
+        } else {
+          this.swimmingSplashTimerMs = 0;
+        }
+      }
     }
   }
 
@@ -232,21 +251,21 @@ export class WaterEffectComponent implements Component {
     shadow.shadow.setMask(this.shadowMask);
   }
 
-  private createSplashEffect(x: number, y: number): void {
-    const emitter = this.scene.add.particles(x, y, 'water_ripple', {
-      frame: 0,
-      speed: { min: 100, max: 150 },
+  private createSplashEffect(x: number, y: number, isSwimming: boolean): void {
+    const emitter = this.scene.add.particles(x, y, 'water_splash', {
+      speed: isSwimming ? { min: 30, max: 60 } : { min: 50, max: 100 },
       angle: { min: 0, max: -180 },
-      scale: { start: 0.06, end: 0 },
+      scale: isSwimming ? { start: 0.06, end: 0 } : { start: 0.15, end: 0 },
       alpha: { start: 1, end: 0 },
-      lifespan: 800,
-      frequency: 3,
+      lifespan: 1000,
+      frequency: isSwimming ? 3 : 2,
       blendMode: 'NORMAL',
-      gravityY: 300
+      gravityY: 300,
+      emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 12) } as Phaser.Types.GameObjects.Particles.EmitZoneData
     });
 
     emitter.setDepth(Depth.particle);
-    this.scene.time.delayedCall(50, () => emitter.stop());
+    this.scene.time.delayedCall(isSwimming ? 40 : 80, () => emitter.stop());
     this.scene.time.delayedCall(800, () => emitter.destroy());
   }
 

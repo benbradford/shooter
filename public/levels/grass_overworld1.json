@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 11,
-    "y": 20
+    "x": 6,
+    "y": 7
   },
   "cells": [
     {
@@ -1755,6 +1755,22 @@
       ]
     },
     {
+      "col": 2,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 4,
       "row": 10,
       "layer": 0,
@@ -1850,6 +1866,22 @@
     },
     {
       "col": 1,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
       "row": 11,
       "layer": 1,
       "properties": [
@@ -2072,11 +2104,20 @@
     {
       "col": 12,
       "row": 12,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
+    },
+    {
+      "col": 13,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -2213,17 +2254,20 @@
     {
       "col": 12,
       "row": 13,
-      "layer": 0,
-      "backgroundTexture": "bush1"
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 13,
       "row": 13,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -2363,20 +2407,20 @@
     {
       "col": 12,
       "row": 14,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
     },
     {
       "col": 13,
       "row": 14,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "blocked"
+        "platform"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -2495,6 +2539,24 @@
         "blocked"
       ],
       "backgroundTexture": "bush1"
+    },
+    {
+      "col": 12,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 13,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -2546,13 +2608,40 @@
       ]
     },
     {
+      "col": 2,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 3,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 4,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": "bush1"
+    },
+    {
       "col": 5,
       "row": 16,
-      "layer": 1,
+      "layer": 0,
       "properties": [
         "blocked"
       ],
       "backgroundTexture": "bush1"
+    },
+    {
+      "col": 6,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 7,
@@ -2568,6 +2657,22 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "platform"
       ]
     },
     {
@@ -2639,13 +2744,19 @@
       ]
     },
     {
-      "col": 5,
+      "col": 2,
       "row": 17,
-      "layer": 1,
+      "layer": 0,
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 6,
+      "row": 17,
+      "layer": 0,
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": ""
     },
     {
       "col": 7,
@@ -2661,6 +2772,32 @@
       "layer": 0,
       "properties": [
         "water"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 12,
+      "row": 17,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 13,
+      "row": 17,
+      "layer": 1,
+      "properties": [
+        "platform"
       ]
     },
     {
@@ -2732,13 +2869,28 @@
       ]
     },
     {
-      "col": 5,
+      "col": 2,
       "row": 18,
-      "layer": 1,
+      "layer": 0,
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 4,
+      "row": 18,
+      "layer": 0,
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "bush1"
+      "backgroundTexture": "house2"
+    },
+    {
+      "col": 6,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 7,
@@ -2755,6 +2907,23 @@
       "properties": [
         "water"
       ]
+    },
+    {
+      "col": 10,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -2825,13 +2994,38 @@
       ]
     },
     {
-      "col": 5,
+      "col": 2,
       "row": 19,
-      "layer": 1,
+      "layer": 0,
       "properties": [
         "blocked"
       ],
       "backgroundTexture": "bush1"
+    },
+    {
+      "col": 3,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 7,
@@ -2848,6 +3042,23 @@
       "properties": [
         "water"
       ]
+    },
+    {
+      "col": 10,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -3016,15 +3227,6 @@
       ]
     },
     {
-      "col": 5,
-      "row": 20,
-      "layer": 1,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
       "col": 7,
       "row": 20,
       "layer": 0,
@@ -3043,6 +3245,22 @@
         "bridge"
       ],
       "backgroundTexture": "bridge_h"
+    },
+    {
+      "col": 10,
+      "row": 20,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 20,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
     },
     {
       "col": 20,
@@ -3158,9 +3376,9 @@
       ]
     },
     {
-      "col": 5,
+      "col": 6,
       "row": 21,
-      "layer": 1,
+      "layer": 0,
       "properties": [
         "blocked"
       ],
@@ -3179,7 +3397,34 @@
       "row": 21,
       "layer": 0,
       "properties": [
-        "water"
+        "water",
+        "bridge"
+      ],
+      "backgroundTexture": "submerged_rock1"
+    },
+    {
+      "col": 9,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bush1"
+    },
+    {
+      "col": 10,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 21,
+      "layer": 1,
+      "properties": [
+        "platform"
       ]
     },
     {
@@ -3360,8 +3605,27 @@
       "row": 22,
       "layer": 0,
       "properties": [
-        "water"
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": "submerged_rock1"
+    },
+    {
+      "col": 10,
+      "row": 22,
+      "layer": 1,
+      "properties": [
+        "platform"
       ]
+    },
+    {
+      "col": 11,
+      "row": 22,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 20,
@@ -3542,6 +3806,23 @@
       ]
     },
     {
+      "col": 10,
+      "row": 23,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 23,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
       "col": 20,
       "row": 23,
       "layer": 0,
@@ -3670,6 +3951,24 @@
       ]
     },
     {
+      "col": 10,
+      "row": 24,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 11,
+      "row": 24,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ],
+      "backgroundTexture": ""
+    },
+    {
       "col": 20,
       "row": 24,
       "layer": 0,
@@ -3769,6 +4068,22 @@
     },
     {
       "col": 9,
+      "row": 25,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 25,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
       "row": 25,
       "layer": 1,
       "properties": [
@@ -3876,6 +4191,22 @@
     },
     {
       "col": 9,
+      "row": 26,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 26,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
       "row": 26,
       "layer": 1,
       "properties": [
@@ -3991,6 +4322,22 @@
     },
     {
       "col": 9,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 27,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
       "row": 27,
       "layer": 1,
       "properties": [
