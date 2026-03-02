@@ -104,14 +104,17 @@ export default class GameScene extends Phaser.Scene {
     this.load.start();
 
     await new Promise<void>(resolve => {
-      this.load.once('complete', () => {
-        console.log('[GameScene] Asset loading complete in create()');
+      if (this.load.isLoading()) {
+        this.load.once('complete', () => {
+          console.log('[GameScene] Asset loading complete in create()');
+          resolve();
+        });
+      } else {
         resolve();
-      });
+      }
     });
 
-    await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
-    this.sceneRenderer.markAssetsReady();
+    await this.sceneRenderer.loadAllAssets(this.levelData);
 
     createThrowerAnimations(this);
 
@@ -127,6 +130,8 @@ export default class GameScene extends Phaser.Scene {
     this.vignette = rendered.vignette;
 
     await this.initializeScene();
+
+    this.sceneRenderer.initializeSprites(this.grid, this.levelData);
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
 
@@ -190,7 +195,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   renderGrid(grid: Grid, levelData?: LevelData): void {
-    this.sceneRenderer.renderGrid(grid, levelData);
+    this.sceneRenderer.updateGraphics(grid, levelData);
   }
 
   private async initializeScene(): Promise<void> {
@@ -239,8 +244,6 @@ export default class GameScene extends Phaser.Scene {
     this.sceneOverlays = overlays;
     await overlays.init();
     overlays.applyOverlays(this.grid);
-
-    this.sceneRenderer.renderGrid(this.grid, this.levelData);
 
     const levelWidth = level.width * this.grid.cellSize;
     const levelHeight = level.height * this.grid.cellSize;
@@ -597,16 +600,18 @@ export default class GameScene extends Phaser.Scene {
     this.load.start();
 
     await new Promise<void>(resolve => {
-      this.load.once('complete', () => {
-        console.log('[GameScene] Asset loading complete in loadLevel()');
+      if (this.load.isLoading()) {
+        this.load.once('complete', () => {
+          console.log('[GameScene] Asset loading complete in loadLevel()');
+          resolve();
+        });
+      } else {
         resolve();
-      });
+      }
     });
 
-    await this.sceneRenderer.prepareRuntimeTilesets(this.levelData);
-    console.log('[GameScene] Tilesets prepared, marking assets ready');
-    this.sceneRenderer.markAssetsReady();
-    console.log('[GameScene] Assets marked ready');
+    await this.sceneRenderer.loadAllAssets(this.levelData);
+    console.log('[GameScene] Assets loaded');
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
@@ -622,6 +627,8 @@ export default class GameScene extends Phaser.Scene {
     this.levelEntrySnapshot = worldState.serializeToJSON();
 
     await this.resetScene();
+
+    this.sceneRenderer.initializeSprites(this.grid, this.levelData);
 
     this.background.setAlpha(1);
     this.vignette.setAlpha(originalVignetteAlpha);

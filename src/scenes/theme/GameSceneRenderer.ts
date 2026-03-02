@@ -22,7 +22,7 @@ export abstract class GameSceneRenderer {
   private readonly cellSprites: Array<Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image> = new Map();
   private isCached: boolean = false;
-  private assetsReady: boolean = false;
+  private spritesInitialized: boolean = false;
   private readonly waterSprites: Array<Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private waterAnimator: WaterAnimator | null = null;
 
@@ -33,8 +33,8 @@ export abstract class GameSceneRenderer {
     this.edgeGraphics.setDepth(Depth.edgeGraphics);
   }
 
-  markAssetsReady(): void {
-    this.assetsReady = true;
+  async loadAllAssets(levelData: LevelData): Promise<void> {
+    await this.prepareRuntimeTilesets(levelData);
   }
 
   update(delta: number): void {
@@ -79,150 +79,24 @@ export abstract class GameSceneRenderer {
     console.log('[GameSceneRenderer] prepareRuntimeTilesets complete');
   }
 
-  renderGrid(grid: Grid, levelData?: LevelData): void {
-    // Don't render until assets are ready
-    if (!this.assetsReady) {
+  initializeSprites(grid: Grid, levelData: LevelData): void {
+    if (this.spritesInitialized) {
       return;
     }
 
+    this.createFloorSprites(grid, levelData);
+    this.createWaterAndPathTileSprites(grid, levelData);
+    this.createBackgroundTextureSprites(grid, levelData);
+    this.createPlatformStairsWallSprites(grid, levelData);
+    this.createFloorOverlay(grid, levelData);
+
+    this.spritesInitialized = true;
+    this.isCached = true;
+  }
+
+  updateGraphics(grid: Grid, levelData?: LevelData): void {
     this.graphics.clear();
     this.edgeGraphics.clear();
-
-    if (!this.isCached && levelData?.background?.floor_texture) {
-      const texture = levelData.background.floor_texture;
-
-      // Wait for floor texture
-      if (!this.scene.textures.exists(texture)) {
-        return;
-      }
-
-      const chunkSize = levelData.background.floor_tile;
-      
-      if (chunkSize) {
-        // Tiled rendering
-        for (let row = 0; row < grid.height; row += chunkSize) {
-          for (let col = 0; col < grid.width; col += chunkSize) {
-            const x = col * this.cellSize;
-            const y = row * this.cellSize;
-            const width = Math.min(chunkSize, grid.width - col) * this.cellSize;
-            const height = Math.min(chunkSize, grid.height - row) * this.cellSize;
-
-            const sprite = this.addImage(x + width / 2, y + height / 2, texture);
-            sprite.setDisplaySize(width, height);
-            sprite.setDepth(Depth.floor);
-            sprite.setAlpha(levelData.background.floorAlpha ?? 1);
-            this.floorSprites.push(sprite);
-          }
-        }
-      } else {
-        // Single full-screen texture
-        const width = grid.width * this.cellSize;
-        const height = grid.height * this.cellSize;
-        const sprite = this.addImage(width / 2, height / 2, texture);
-        sprite.setDisplaySize(width, height);
-        sprite.setDepth(Depth.floor);
-        sprite.setAlpha(levelData.background.floorAlpha ?? 1);
-        this.floorSprites.push(sprite);
-      }
-
-      if (levelData.background.platform_tile && levelData.background.platform_texture) {
-        const platformTileSize = levelData.background.platform_tile;
-        const platformTexture = levelData.background.platform_texture;
-
-        // Only cache if texture is loaded
-        if (!this.scene.textures.exists(platformTexture)) {
-          return;
-        }
-
-        for (let row = 0; row < grid.height; row += platformTileSize) {
-          for (let col = 0; col < grid.width; col += platformTileSize) {
-            let hasPlatform = false;
-            for (let r = row; r < Math.min(row + platformTileSize, grid.height); r++) {
-              for (let c = col; c < Math.min(col + platformTileSize, grid.width); c++) {
-                if (grid.getCell(c, r)?.properties.has('platform')) {
-                  hasPlatform = true;
-                  break;
-                }
-              }
-              if (hasPlatform) break;
-            }
-
-            if (hasPlatform) {
-              const x = col * this.cellSize;
-              const y = row * this.cellSize;
-              const width = platformTileSize * this.cellSize;
-              const height = platformTileSize * this.cellSize;
-
-              const sprite = this.addImage(x + width / 2, y + height / 2, platformTexture);
-              sprite.setDisplaySize(width, height);
-              sprite.setDepth(Depth.stairs);
-              this.floorSprites.push(sprite);
-            }
-          }
-        }
-      }
-
-      // Wait for all cell textures before calling renderAllCells
-      if (levelData.background.platform_texture && !this.scene.textures.exists(levelData.background.platform_texture)) {
-        return;
-      }
-      if (levelData.background.stairs_texture && !this.scene.textures.exists(levelData.background.stairs_texture)) {
-        return;
-      }
-      if (levelData.background.wall_texture && !this.scene.textures.exists(levelData.background.wall_texture)) {
-        return;
-      }
-
-      this.renderAllCells(grid, levelData);
-      this.isCached = true;
-    }
-
-    // Render cell background textures (outside cache - dynamic loading)
-    if (levelData?.cells) {
-      for (const cell of levelData.cells) {
-        if (cell.backgroundTexture && cell.backgroundTexture !== '') {
-          const key = `${cell.col},${cell.row}`;
-
-          // Skip if already rendered
-          if (this.renderedCellTextures.has(key)) {
-            continue;
-          }
-
-          // Skip if texture doesn't exist yet (still loading)
-          if (!this.scene.textures.exists(cell.backgroundTexture)) {
-            continue;
-          }
-
-          const transform = BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES[cell.backgroundTexture];
-          const x = cell.col * this.cellSize;
-          const y = cell.row * this.cellSize;
-          const centerX = x + this.cellSize / 2;
-          const centerY = y + this.cellSize / 2;
-          const spriteX = transform ? centerX + transform.offsetX : centerX;
-          const spriteY = transform ? centerY + transform.offsetY : centerY;
-
-          const sprite = this.addImage(spriteX, spriteY, cell.backgroundTexture);
-          if (transform) {
-            sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
-          } else {
-            sprite.setDisplaySize(this.cellSize, this.cellSize);
-          }
-
-          // Set depth based on cell properties
-          const cellData = grid.getCell(cell.col, cell.row);
-          const isWater = cellData?.properties.has('water') ?? false;
-          const isBridge = cellData?.properties.has('bridge') ?? false;
-
-          let depth: number;
-          if (isBridge) depth = Depth.stairs;
-          else if (isWater) depth = Depth.floor;
-          else depth = Depth.cellTextureModified;
-          sprite.setDepth(depth);
-          console.log(`[GameSceneRenderer] Cell (${cell.col},${cell.row}) texture="${cell.backgroundTexture}" isWater=${isWater} depth=${depth}`);
-          this.renderedCellTextures.set(key, sprite);
-        }
-      }
-    }
 
     if (levelData?.background?.hasEdges !== false) {
       this.renderEdges(grid);
@@ -237,10 +111,129 @@ export abstract class GameSceneRenderer {
     if (!levelData?.background?.path_texture && !levelData?.background?.water_texture) {
       this.renderGreyPaths(grid);
     }
+  }
 
-    if (!this.floorOverlay && levelData?.background) {
-      this.renderFloorOverlay(grid, levelData);
+  private createFloorSprites(grid: Grid, levelData: LevelData): void {
+    if (!levelData.background?.floor_texture) {
+      return;
     }
+
+    const texture = levelData.background.floor_texture;
+    const chunkSize = levelData.background.floor_tile;
+
+    if (chunkSize) {
+      for (let row = 0; row < grid.height; row += chunkSize) {
+        for (let col = 0; col < grid.width; col += chunkSize) {
+          const x = col * this.cellSize;
+          const y = row * this.cellSize;
+          const width = Math.min(chunkSize, grid.width - col) * this.cellSize;
+          const height = Math.min(chunkSize, grid.height - row) * this.cellSize;
+
+          const sprite = this.addImage(x + width / 2, y + height / 2, texture);
+          sprite.setDisplaySize(width, height);
+          sprite.setDepth(Depth.floor);
+          sprite.setAlpha(levelData.background.floorAlpha ?? 1);
+          this.floorSprites.push(sprite);
+        }
+      }
+    } else {
+      const width = grid.width * this.cellSize;
+      const height = grid.height * this.cellSize;
+      const sprite = this.addImage(width / 2, height / 2, texture);
+      sprite.setDisplaySize(width, height);
+      sprite.setDepth(Depth.floor);
+      sprite.setAlpha(levelData.background.floorAlpha ?? 1);
+      this.floorSprites.push(sprite);
+    }
+
+    if (levelData.background.platform_tile && levelData.background.platform_texture) {
+      const platformTileSize = levelData.background.platform_tile;
+      const platformTexture = levelData.background.platform_texture;
+
+      for (let row = 0; row < grid.height; row += platformTileSize) {
+        for (let col = 0; col < grid.width; col += platformTileSize) {
+          let hasPlatform = false;
+          for (let r = row; r < Math.min(row + platformTileSize, grid.height); r++) {
+            for (let c = col; c < Math.min(col + platformTileSize, grid.width); c++) {
+              if (grid.getCell(c, r)?.properties.has('platform')) {
+                hasPlatform = true;
+                break;
+              }
+            }
+            if (hasPlatform) break;
+          }
+
+          if (hasPlatform) {
+            const x = col * this.cellSize;
+            const y = row * this.cellSize;
+            const width = platformTileSize * this.cellSize;
+            const height = platformTileSize * this.cellSize;
+
+            const sprite = this.addImage(x + width / 2, y + height / 2, platformTexture);
+            sprite.setDisplaySize(width, height);
+            sprite.setDepth(Depth.stairs);
+            this.floorSprites.push(sprite);
+          }
+        }
+      }
+    }
+  }
+
+  private createWaterAndPathTileSprites(grid: Grid, levelData: LevelData): void {
+    this.renderAllCells(grid, levelData);
+  }
+
+  private createBackgroundTextureSprites(grid: Grid, levelData: LevelData): void {
+    if (!levelData.cells) {
+      return;
+    }
+
+    for (const cell of levelData.cells) {
+      if (cell.backgroundTexture && cell.backgroundTexture !== '') {
+        const key = `${cell.col},${cell.row}`;
+
+        if (this.renderedCellTextures.has(key)) {
+          continue;
+        }
+
+        const transform = BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES[cell.backgroundTexture];
+        const x = cell.col * this.cellSize;
+        const y = cell.row * this.cellSize;
+        const centerX = x + this.cellSize / 2;
+        const centerY = y + this.cellSize / 2;
+        const spriteX = transform ? centerX + transform.offsetX : centerX;
+        const spriteY = transform ? centerY + transform.offsetY : centerY;
+
+        const sprite = this.addImage(spriteX, spriteY, cell.backgroundTexture);
+        if (transform) {
+          sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
+        } else {
+          sprite.setDisplaySize(this.cellSize, this.cellSize);
+        }
+
+        const cellData = grid.getCell(cell.col, cell.row);
+        const isWater = cellData?.properties.has('water') ?? false;
+        const isBridge = cellData?.properties.has('bridge') ?? false;
+
+        let depth: number;
+        if (isBridge) depth = Depth.stairs;
+        else if (isWater) depth = Depth.floor;
+        else depth = Depth.cellTextureModified;
+        sprite.setDepth(depth);
+        this.renderedCellTextures.set(key, sprite);
+      }
+    }
+  }
+
+  private createPlatformStairsWallSprites(_grid: Grid, _levelData: LevelData): void {
+    // Already handled in renderAllCells
+  }
+
+  private createFloorOverlay(grid: Grid, levelData: LevelData): void {
+    if (!levelData.background || this.floorOverlay) {
+      return;
+    }
+    this.renderFloorOverlay(grid, levelData);
   }
 
   destroy(): void {
