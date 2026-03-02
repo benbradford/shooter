@@ -15,8 +15,8 @@ export class WildsSceneRenderer extends GameSceneRenderer {
     background: Phaser.GameObjects.Image;
     vignette: Phaser.GameObjects.Image;
   } {
-    const worldWidth = width * this.cellSize;
-    const worldHeight = height * this.cellSize;
+    const worldWidth = Math.max(1, width * this.cellSize);
+    const worldHeight = Math.max(1, height * this.cellSize);
 
     if (this.scene.textures.exists('wilds_gradient')) {
       this.scene.textures.remove('wilds_gradient');

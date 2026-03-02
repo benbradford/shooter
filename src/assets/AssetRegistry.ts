@@ -355,6 +355,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/interior/interior2.png',
     type: 'image' as const,
   },
+  interior21: {
+    key: 'interior21',
+    path: 'assets/interior/interior21.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;
@@ -364,7 +369,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'slide_icon', 'arrows', 'water_ripple', 'water_splash'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

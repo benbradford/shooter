@@ -16,6 +16,7 @@ import { CELL_SIZE, CAMERA_ZOOM, CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
+import { InputComponent } from "../ecs/components/input/InputComponent";
 import { preloadAssets, preloadLevelAssets, getBackgroundTextures } from "../assets/AssetLoader";
 import type { AssetKey } from "../assets/AssetRegistry";
 import { CollisionSystem } from "../systems/CollisionSystem";
@@ -23,6 +24,7 @@ import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
 import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
+import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
@@ -236,12 +238,30 @@ export default class GameScene extends Phaser.Scene {
 
     this.sceneRenderer.renderGrid(this.grid, this.levelData);
 
-    this.cameras.main.setBounds(
-      CAMERA_BOUNDS_INSET_X_PX,
-      CAMERA_BOUNDS_INSET_Y_PX,
-      level.width * this.grid.cellSize - CAMERA_BOUNDS_INSET_X_PX,
-      level.height * this.grid.cellSize - CAMERA_BOUNDS_INSET_Y_PX
-    );
+    const levelWidth = level.width * this.grid.cellSize;
+    const levelHeight = level.height * this.grid.cellSize;
+    const viewportWidth = this.cameras.main.width;
+    const viewportHeight = this.cameras.main.height;
+
+    // Center small levels on screen
+    if (levelWidth < viewportWidth || levelHeight < viewportHeight) {
+      const offsetX = levelWidth < viewportWidth ? (viewportWidth - levelWidth) / 2 : 0;
+      const offsetY = levelHeight < viewportHeight ? (viewportHeight - levelHeight) / 2 : 0;
+      
+      this.cameras.main.setBounds(
+        -offsetX,
+        -offsetY,
+        Math.max(levelWidth, viewportWidth),
+        Math.max(levelHeight, viewportHeight)
+      );
+    } else {
+      this.cameras.main.setBounds(
+        CAMERA_BOUNDS_INSET_X_PX,
+        CAMERA_BOUNDS_INSET_Y_PX,
+        levelWidth - CAMERA_BOUNDS_INSET_X_PX,
+        levelHeight - CAMERA_BOUNDS_INSET_Y_PX
+      );
+    }
 
     // Set camera zoom - HUD scene is separate so this won't affect touch
     this.cameras.main.setZoom(CAMERA_ZOOM);
@@ -385,6 +405,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
       this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+    } else if (theme === 'default') {
+      this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     }
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
@@ -426,6 +448,12 @@ export default class GameScene extends Phaser.Scene {
       // Only save health if player is alive
       if (health && health.getHealth() > 0) {
         worldState.setPlayerHealth(health.getHealth());
+      }
+
+      // Disable input during transition
+      const input = player.get(InputComponent);
+      if (input) {
+        input.setEnabled(false);
       }
     }
 
@@ -555,6 +583,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
       this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+    } else if (theme === 'default') {
+      this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }

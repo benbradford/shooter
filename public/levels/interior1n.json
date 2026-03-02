@@ -1,0 +1,129 @@
+{
+  "width": 5,
+  "height": 5,
+  "playerStart": {
+    "x": 2,
+    "y": 3
+  },
+  "cells": [
+    {
+      "col": 0,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
+    }
+  ],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "interior1",
+        "targetCol": 11,
+        "targetRow": 2,
+        "triggerCells": [
+          {
+            "col": 1,
+            "row": 4
+          },
+          {
+            "col": 2,
+            "row": 4
+          },
+          {
+            "col": 3,
+            "row": 4
+          }
+        ]
+      }
+    }
+  ],
+  "levelTheme": "default",
+  "background": {
+    "floor_texture": "interior21"
+  }
+}

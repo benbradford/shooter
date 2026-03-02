@@ -1,11 +1,20 @@
 {
-  "width": 18,
-  "height": 9,
+  "width": 16,
+  "height": 8,
   "playerStart": {
-    "x": 8,
-    "y": 3
+    "x": 11,
+    "y": 2
   },
   "cells": [
+    {
+      "col": 11,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
+    },
     {
       "col": 12,
       "row": 0,
@@ -25,6 +34,14 @@
     {
       "col": 14,
       "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 1,
       "layer": 0,
       "properties": [
         "blocked"
@@ -103,7 +120,15 @@
       ]
     },
     {
-      "col": 11,
+      "col": 13,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
       "row": 1,
       "layer": 0,
       "properties": [
@@ -119,7 +144,23 @@
       ]
     },
     {
-      "col": 2,
+      "col": 1,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -128,14 +169,6 @@
     },
     {
       "col": 15,
-      "row": 2,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 16,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -151,7 +184,7 @@
       ]
     },
     {
-      "col": 16,
+      "col": 14,
       "row": 3,
       "layer": 0,
       "properties": [
@@ -167,7 +200,7 @@
       ]
     },
     {
-      "col": 16,
+      "col": 14,
       "row": 4,
       "layer": 0,
       "properties": [
@@ -183,7 +216,7 @@
       ]
     },
     {
-      "col": 16,
+      "col": 14,
       "row": 5,
       "layer": 0,
       "properties": [
@@ -199,7 +232,7 @@
       ]
     },
     {
-      "col": 16,
+      "col": 14,
       "row": 6,
       "layer": 0,
       "properties": [
@@ -215,7 +248,7 @@
       ]
     },
     {
-      "col": 16,
+      "col": 14,
       "row": 7,
       "layer": 0,
       "properties": [
@@ -225,6 +258,124 @@
   ],
   "entities": [
     {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 4,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable3",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable4",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable5",
+      "type": "breakable",
+      "data": {
+        "col": 4,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable6",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable7",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable8",
+      "type": "breakable",
+      "data": {
+        "col": 4,
+        "row": 4,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "interior1n",
+        "targetCol": 2,
+        "targetRow": 3,
+        "triggerCells": [
+          {
+            "col": 11,
+            "row": 1
+          },
+          {
+            "col": 12,
+            "row": 1
+          }
+        ]
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -233,64 +384,59 @@
         "targetRow": 20,
         "triggerCells": [
           {
-            "col": 0,
-            "row": 8
-          },
-                    {
-            "col": 1,
-            "row": 8
-          },          {
             "col": 2,
             "row": 8
-          },          {
+          },
+          {
             "col": 3,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 4,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 5,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 6,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 7,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 8,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 9,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 10,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 11,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 12,
-            "row": 8
-          },          {
+            "row": 7
+          },
+          {
             "col": 13,
-            "row": 8
-          },          {
-            "col": 14,
-            "row": 8
-          },          {
-            "col": 15,
-            "row": 8
-          },          {
-            "col": 16,
-            "row": 8
+            "row": 7
           }
         ],
         "oneShot": true
       }
     }
   ],
-  "levelTheme": "dungeon",
+  "levelTheme": "default",
   "background": {
     "floor_texture": "interior2"
   }

@@ -5131,7 +5131,7 @@
       "data": {
         "targetLevel": "interior1",
         "targetCol": 8,
-        "targetRow": 7,
+        "targetRow": 6,
         "triggerCells": [
           {
             "col": 4,

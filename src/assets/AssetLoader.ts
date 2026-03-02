@@ -114,6 +114,18 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
     }
   }
 
+  // Check breakable entities for textures
+  if (levelData.entities) {
+    for (const entity of levelData.entities) {
+      if (entity.type === 'breakable' && entity.data.texture) {
+        const texture = entity.data.texture as string;
+        if (texture in ASSET_REGISTRY) {
+          textureSet.add(texture as AssetKey);
+        }
+      }
+    }
+  }
+
   return Array.from(textureSet);
 }
 

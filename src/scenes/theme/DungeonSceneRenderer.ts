@@ -9,8 +9,8 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
   }
 
   renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image } {
-    const worldWidth = width * this.cellSize;
-    const worldHeight = height * this.cellSize;
+    const worldWidth = Math.max(1, width * this.cellSize);
+    const worldHeight = Math.max(1, height * this.cellSize);
 
     if (this.scene.textures.exists('gradient')) {
       this.scene.textures.remove('gradient');

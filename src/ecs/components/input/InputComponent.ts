@@ -13,6 +13,7 @@ export class InputComponent implements Component {
   private readonly slideKey: Phaser.Input.Keyboard.Key | undefined;
   private joystick: TouchJoystickComponent | null = null;
   private attackButton: AttackButtonComponent | null = null;
+  private enabled: boolean = true;
 
   constructor(scene: Phaser.Scene) {
     const keyboard = scene.input.keyboard;
@@ -42,6 +43,10 @@ export class InputComponent implements Component {
 
   /** Get input with deadzone applied (for movement) */
   getInputDelta(): { dx: number; dy: number } {
+    if (!this.enabled) {
+      return { dx: 0, dy: 0 };
+    }
+
     // Check for remote input first (test mode)
     const remoteInput = this.entity.get(RemoteInputComponent);
     if (remoteInput) {
@@ -116,6 +121,10 @@ export class InputComponent implements Component {
 
   isSlidePressed(): boolean {
     return this.slideKey?.isDown ?? false;
+  }
+
+  setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
   }
 
   onDestroy(): void {
