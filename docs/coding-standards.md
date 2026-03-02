@@ -16,7 +16,26 @@
 - Do NOT run ImageMagick, sips, or any image processing commands
 - If an image appears too large/small, adjust sprite scaling in code
 - Only modify images when user explicitly says "resize the image" or similar
+- **ALWAYS ask for explicit confirmation before running ANY command that modifies files outside of src/**
 - If you accidentally modify an image, restore it with `git restore <path>`
+
+---
+
+## ⚠️ CRITICAL: ASK BEFORE MODIFYING NON-CODE FILES ⚠️
+
+**Before running ANY command that modifies files outside of `src/`:**
+1. Explain what you want to do
+2. Show the exact command you would run
+3. Wait for explicit user approval
+4. Only proceed after user confirms
+
+**This includes:**
+- Image files in `public/assets/`
+- Level JSON files in `public/levels/`
+- Configuration files in project root
+- Any files in `public/`, `test/`, `docs/`, etc.
+
+**Exception:** You may freely modify files in `src/` as part of normal development.
 
 ---
 

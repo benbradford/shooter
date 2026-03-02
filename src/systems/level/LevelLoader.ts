@@ -55,6 +55,7 @@ export type LevelBackground = {
   };
   hasShadows?: boolean;
   hasEdges?: boolean;
+  floorAlpha?: number;
 }
 
 export type LevelCell = {

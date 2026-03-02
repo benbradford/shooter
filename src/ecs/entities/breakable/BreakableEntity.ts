@@ -44,6 +44,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const sprite = entity.add(new SpriteComponent(scene, texture, transform));
   sprite.sprite.setOrigin(0.5, 0.5);
   sprite.sprite.setDepth(Depth.stairs);
+  sprite.sprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
 
   const COLLISION_SIZE = grid.cellSize * 1;
   const COLLISION_BOX = {

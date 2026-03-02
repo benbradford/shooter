@@ -3,7 +3,7 @@
   "height": 30,
   "playerStart": {
     "x": 6,
-    "y": 7
+    "y": 9
   },
   "cells": [
     {
@@ -3398,7 +3398,7 @@
       "layer": 0,
       "properties": [
         "water",
-        "bridge"
+        "blocked"
       ],
       "backgroundTexture": "submerged_rock1"
     },

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { Entity } from '../../Entity';
 import { EntityManager } from '../../EntityManager';
+import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
@@ -70,6 +71,9 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   const sprite = entity.add(new SpriteComponent(scene, 'attacker', transform));
   sprite.sprite.setFrame(PLAYER_SPRITE_FRAME);
+  sprite.sprite.setDepth(Depth.player);
+  scene.children.bringToTop(sprite.sprite);
+  console.log(`[PlayerEntity] Player sprite created with depth: ${Depth.player}, actual depth: ${sprite.sprite.depth}`);
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 28 }));
   shadow.init();

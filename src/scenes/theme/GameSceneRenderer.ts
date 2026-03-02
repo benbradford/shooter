@@ -110,7 +110,7 @@ export abstract class GameSceneRenderer {
             const sprite = this.addImage(x + width / 2, y + height / 2, texture);
             sprite.setDisplaySize(width, height);
             sprite.setDepth(Depth.floor);
-            sprite.setAlpha(0.7);
+            sprite.setAlpha(levelData.background.floorAlpha ?? 1);
             this.floorSprites.push(sprite);
           }
         }
@@ -121,7 +121,7 @@ export abstract class GameSceneRenderer {
         const sprite = this.addImage(width / 2, height / 2, texture);
         sprite.setDisplaySize(width, height);
         sprite.setDepth(Depth.floor);
-        sprite.setAlpha(0.7);
+        sprite.setAlpha(levelData.background.floorAlpha ?? 1);
         this.floorSprites.push(sprite);
       }
 
@@ -215,9 +215,10 @@ export abstract class GameSceneRenderer {
 
           let depth: number;
           if (isBridge) depth = Depth.stairs;
-          else if (isWater) depth = Depth.shadowSwimming;
+          else if (isWater) depth = Depth.floor;
           else depth = Depth.cellTextureModified;
           sprite.setDepth(depth);
+          console.log(`[GameSceneRenderer] Cell (${cell.col},${cell.row}) texture="${cell.backgroundTexture}" isWater=${isWater} depth=${depth}`);
           this.renderedCellTextures.set(key, sprite);
         }
       }

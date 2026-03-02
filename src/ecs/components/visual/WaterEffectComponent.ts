@@ -131,10 +131,16 @@ export class WaterEffectComponent implements Component {
     // Adjust sprite depth based on swimming state
     if (nowInWater && this.hopProgress >= 1) {
       // Swimming - render above water (-10) but below bridge textures (-5)
-      sprite.sprite.setDepth(Depth.playerSwimming);
+      if (sprite.sprite.depth !== Depth.playerSwimming) {
+        console.log(`[WaterEffect] Setting player depth to swimming: ${Depth.playerSwimming}`);
+        sprite.sprite.setDepth(Depth.playerSwimming);
+      }
     } else {
       // Walking - render at normal depth
-      sprite.sprite.setDepth(Depth.player);
+      if (sprite.sprite.depth !== Depth.player) {
+        console.log(`[WaterEffect] Setting player depth to normal: ${Depth.player}`);
+        sprite.sprite.setDepth(Depth.player);
+      }
     }
 
     // Detect water entry/exit (only when not already hopping)

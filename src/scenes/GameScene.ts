@@ -17,7 +17,7 @@ import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
-import { preloadAssets, preloadLevelAssets, getBackgroundTextures } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets, preloadAssetGroups, getBackgroundTextures } from "../assets/AssetLoader";
 import type { AssetKey } from "../assets/AssetRegistry";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
@@ -163,6 +163,10 @@ export default class GameScene extends Phaser.Scene {
         if (this.scene.isActive()) {
           this.isEditorMode = !this.isEditorMode;
           if (this.isEditorMode) {
+            // Load all editor textures
+            preloadAssetGroups(this, ['editor']);
+            this.load.start();
+            
             this.resetScene();
             this.scene.pause();
             this.scene.launch('EditorScene');
