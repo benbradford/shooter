@@ -88,8 +88,7 @@ export abstract class GameSceneRenderer {
     this.graphics.clear();
     this.edgeGraphics.clear();
 
-    if (!this.isCached && levelData?.background) {
-      const chunkSize = levelData.background.floor_tile;
+    if (!this.isCached && levelData?.background?.floor_texture) {
       const texture = levelData.background.floor_texture;
 
       // Wait for floor texture
@@ -97,19 +96,33 @@ export abstract class GameSceneRenderer {
         return;
       }
 
-      for (let row = 0; row < grid.height; row += chunkSize) {
-        for (let col = 0; col < grid.width; col += chunkSize) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const width = Math.min(chunkSize, grid.width - col) * this.cellSize;
-          const height = Math.min(chunkSize, grid.height - row) * this.cellSize;
+      const chunkSize = levelData.background.floor_tile;
+      
+      if (chunkSize) {
+        // Tiled rendering
+        for (let row = 0; row < grid.height; row += chunkSize) {
+          for (let col = 0; col < grid.width; col += chunkSize) {
+            const x = col * this.cellSize;
+            const y = row * this.cellSize;
+            const width = Math.min(chunkSize, grid.width - col) * this.cellSize;
+            const height = Math.min(chunkSize, grid.height - row) * this.cellSize;
 
-          const sprite = this.addImage(x + width / 2, y + height / 2, texture);
-          sprite.setDisplaySize(width, height);
-          sprite.setDepth(Depth.floor);
-          sprite.setAlpha(0.7);
-          this.floorSprites.push(sprite);
+            const sprite = this.addImage(x + width / 2, y + height / 2, texture);
+            sprite.setDisplaySize(width, height);
+            sprite.setDepth(Depth.floor);
+            sprite.setAlpha(0.7);
+            this.floorSprites.push(sprite);
+          }
         }
+      } else {
+        // Single full-screen texture
+        const width = grid.width * this.cellSize;
+        const height = grid.height * this.cellSize;
+        const sprite = this.addImage(width / 2, height / 2, texture);
+        sprite.setDisplaySize(width, height);
+        sprite.setDepth(Depth.floor);
+        sprite.setAlpha(0.7);
+        this.floorSprites.push(sprite);
       }
 
       if (levelData.background.platform_tile && levelData.background.platform_texture) {

@@ -1,0 +1,297 @@
+{
+  "width": 18,
+  "height": 9,
+  "playerStart": {
+    "x": 8,
+    "y": 3
+  },
+  "cells": [
+    {
+      "col": 12,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworld1",
+        "targetCol": 4,
+        "targetRow": 20,
+        "triggerCells": [
+          {
+            "col": 0,
+            "row": 8
+          },
+                    {
+            "col": 1,
+            "row": 8
+          },          {
+            "col": 2,
+            "row": 8
+          },          {
+            "col": 3,
+            "row": 8
+          },          {
+            "col": 4,
+            "row": 8
+          },          {
+            "col": 5,
+            "row": 8
+          },          {
+            "col": 6,
+            "row": 8
+          },          {
+            "col": 7,
+            "row": 8
+          },          {
+            "col": 8,
+            "row": 8
+          },          {
+            "col": 9,
+            "row": 8
+          },          {
+            "col": 10,
+            "row": 8
+          },          {
+            "col": 11,
+            "row": 8
+          },          {
+            "col": 12,
+            "row": 8
+          },          {
+            "col": 13,
+            "row": 8
+          },          {
+            "col": 14,
+            "row": 8
+          },          {
+            "col": 15,
+            "row": 8
+          },          {
+            "col": 16,
+            "row": 8
+          }
+        ],
+        "oneShot": true
+      }
+    }
+  ],
+  "levelTheme": "dungeon",
+  "background": {
+    "floor_texture": "interior2"
+  }
+}

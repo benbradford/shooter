@@ -350,6 +350,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/skeleton/bone-small.png',
     type: 'image' as const,
   },
+  interior2: {
+    key: 'interior2',
+    path: 'assets/interior/interior2.png',
+    type: 'image' as const,
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;
@@ -358,11 +363,11 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  * Asset groups define which assets are needed for different entity types
  */
 export const ASSET_GROUPS = {
-  // Core - always loaded
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'water_ripple'] as const,
+  // Core - always loaded (HUD + universal assets)
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'slide_icon', 'arrows', 'water_ripple', 'water_splash'] as const,
 
   // Player and projectiles
-  player: ['attacker', 'crosshair', 'slide_icon', 'arrows'] as const,
+  player: ['attacker'] as const,
 
   // Enemies
   stalking_robot: ['attacker'] as const,

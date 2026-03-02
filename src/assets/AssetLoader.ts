@@ -5,20 +5,10 @@ import type { LevelData } from '../systems/level/LevelLoader';
 /**
  * Preloads assets from the registry
  * @param scene - Phaser scene to load assets into
- * @param keys - Optional array of asset keys to load. If not provided, loads all assets
+ * @param keys - Optional array of asset keys to load. If not provided, loads core assets only
  */
 export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
-  // Core assets - sprites, enemies, UI (no level-specific textures)
-  const coreAssets: AssetKey[] = [
-    'attacker', 'floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle',
-    'crosshair', 'slide_icon', 'arrows', 'shadow', 'coin', 'medi_pack', 'vignette',
-    'bug', 'bug_base', 'base_destroyed', 'thrower', 'grenade', 'skeleton', 'bone_small',
-    'bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke',
-    'stone_floor', 'water2', 'water_ripple', 'water_splash',
-    'dungeon_vase', 'pillar'
-  ];
-  
-  const keysToLoad: AssetKey[] = keys ?? coreAssets;
+  const keysToLoad: AssetKey[] = keys ?? [...ASSET_GROUPS.core];
   keysToLoad.forEach((key: AssetKey) => {
     loadAsset(scene, key);
   });
@@ -48,7 +38,7 @@ function loadAsset(scene: Phaser.Scene, key: AssetKey): void {
  * Determines which asset groups are needed for a level
  */
 export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
-  const groups: AssetGroupKey[] = ['core', 'player', 'breakables'];
+  const groups: AssetGroupKey[] = ['core', 'player'];
 
   // Check entities array for enemy types
   if (levelData.entities) {
@@ -68,6 +58,9 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     }
     if (entityTypes.has('skeleton')) {
       groups.push('skeleton');
+    }
+    if (entityTypes.has('breakable')) {
+      groups.push('breakables');
     }
   }
 

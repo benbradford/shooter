@@ -5124,6 +5124,22 @@
         ],
         "oneShot": true
       }
+    },
+    {
+      "id": "exit3",
+      "type": "exit",
+      "data": {
+        "targetLevel": "interior1",
+        "targetCol": 8,
+        "targetRow": 7,
+        "triggerCells": [
+          {
+            "col": 4,
+            "row": 19
+          }
+        ],
+        "oneShot": true
+      }
     }
   ],
   "levelTheme": "grass_overworld1",
