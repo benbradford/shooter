@@ -187,18 +187,6 @@ export class Grid {
           this.backgroundSprites.delete(key);
         }
       }
-
-      if (data.backgroundTexture && this.scene.textures.exists(data.backgroundTexture)) {
-        const worldPos = this.cellToWorld(col, row);
-        const sprite = this.scene.add.image(
-          worldPos.x + this.cellSize / 2,
-          worldPos.y + this.cellSize / 2,
-          data.backgroundTexture
-        );
-        sprite.setDisplaySize(this.cellSize, this.cellSize);
-        sprite.setDepth(Depth.stairs);
-        this.backgroundSprites.set(key, sprite);
-      }
     }
   }
 

@@ -21,7 +21,6 @@ export abstract class GameSceneRenderer {
   private readonly floorSprites: Phaser.GameObjects.Image[] = [];
   private readonly cellSprites: Array<Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image> = new Map();
-  private isCached: boolean = false;
   private spritesInitialized: boolean = false;
   private readonly waterSprites: Array<Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private waterAnimator: WaterAnimator | null = null;
@@ -61,7 +60,7 @@ export abstract class GameSceneRenderer {
 
   async prepareRuntimeTilesets(levelData: LevelData): Promise<void> {
     console.log('[GameSceneRenderer] prepareRuntimeTilesets starting');
-    
+
     if (levelData.background?.water) {
       console.log('[GameSceneRenderer] Generating water tilesets:', levelData.background.water);
       await this.initializeWaterAnimation(levelData.background.water);
@@ -75,7 +74,7 @@ export abstract class GameSceneRenderer {
       const success = generator.generateTileset(levelData.background.path_texture, tilesetKey);
       console.log('[GameSceneRenderer] Path tileset generated:', tilesetKey, 'success:', success);
     }
-    
+
     console.log('[GameSceneRenderer] prepareRuntimeTilesets complete');
   }
 
@@ -85,13 +84,12 @@ export abstract class GameSceneRenderer {
     }
 
     this.createFloorSprites(grid, levelData);
-    this.createWaterAndPathTileSprites(grid, levelData);
     this.createBackgroundTextureSprites(grid, levelData);
+    this.createWaterAndPathTileSprites(grid, levelData);
     this.createPlatformStairsWallSprites(grid, levelData);
     this.createFloorOverlay(grid, levelData);
 
     this.spritesInitialized = true;
-    this.isCached = true;
   }
 
   updateGraphics(grid: Grid, levelData?: LevelData): void {
@@ -217,9 +215,10 @@ export abstract class GameSceneRenderer {
 
         let depth: number;
         if (isBridge) depth = Depth.stairs;
-        else if (isWater) depth = Depth.floor;
+        else if (isWater) depth = Depth.waterTexture;
         else depth = Depth.cellTextureModified;
         sprite.setDepth(depth);
+        this.cellSprites.push(sprite);
         this.renderedCellTextures.set(key, sprite);
       }
     }
@@ -277,7 +276,6 @@ export abstract class GameSceneRenderer {
       sprite.destroy();
     }
     this.renderedCellTextures.clear();
-    this.isCached = false;
   }
 
   invalidateCells(cells: Array<{ col: number; row: number }>): void {
@@ -350,7 +348,7 @@ export abstract class GameSceneRenderer {
     this.floorOverlay = this.addImage(0, 0, 'floor_gradient_overlay');
     this.floorOverlay.setOrigin(0, 0);
     this.floorOverlay.setDisplaySize(worldWidth, worldHeight);
-    this.floorOverlay.setDepth(Depth.cellTextureModified);
+    this.floorOverlay.setDepth(Depth.overlay);
     this.floorOverlay.setBlendMode(Phaser.BlendModes.OVERLAY);
   }
 
@@ -377,7 +375,7 @@ export abstract class GameSceneRenderer {
         const x = col * this.cellSize;
         const y = row * this.cellSize;
 
-        if ((isPath || isWater) && !this.isCached) {
+        if (isPath || isWater) {
           let pathTextures: string[] | null = null;
           let pathTexture: string | undefined;
 
@@ -500,8 +498,7 @@ export abstract class GameSceneRenderer {
         }
 
         if (isElevated || isStairs) {
-          // Render textures from background config (cache on first render)
-          if (hasBackgroundConfig && levelData.background && !this.isCached) {
+          if (hasBackgroundConfig && levelData.background) {
             if (isStairs && levelData.background?.stairs_texture) {
               if (this.scene.textures.exists(levelData.background.stairs_texture)) {
                 const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
@@ -519,8 +516,7 @@ export abstract class GameSceneRenderer {
             }
           }
 
-          // Platform overlay (cached on first render)
-          if (isPlatform && !this.isCached) {
+          if (isPlatform) {
             if (hasBackgroundConfig && levelData.background?.platform_texture && !levelData.background.platform_tile) {
               if (this.scene.textures.exists(levelData.background.platform_texture)) {
                 const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);

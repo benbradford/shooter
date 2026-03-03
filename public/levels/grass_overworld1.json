@@ -5154,9 +5154,9 @@
     "water": {
       "sourceImage": "water2",
       "flowDirection": "up",
-      "numFrames": 20,
-      "animSpeedMs": 100,
-      "force": 120
+      "numFrames": 15,
+      "animSpeedMs": 150,
+      "force": 40
     },
     "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_sheet.png",

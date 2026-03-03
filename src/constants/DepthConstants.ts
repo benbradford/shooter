@@ -5,7 +5,7 @@ export const Depth = {
   // Background layers
   floor: -1000,
   overlay: -950,
-  underwaterTexture: -101,
+  underwaterTexture: -80,
   waterTile: -100,
   gridGraphics: -100,
   ripple: -90,
