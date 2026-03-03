@@ -15,7 +15,7 @@ export class ShadowComponent implements Component {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly props: ShadowProps
+    public readonly props: ShadowProps
   ) {}
 
   init(): void {

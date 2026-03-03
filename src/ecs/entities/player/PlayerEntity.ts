@@ -21,7 +21,7 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { WaterRippleComponent } from '../../components/visual/WaterRippleComponent';
-import { ShadowComponent } from '../../components/core/ShadowComponent';
+import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';

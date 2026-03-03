@@ -6,7 +6,7 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { AnimatedSpriteComponent } from '../../components/core/AnimatedSpriteComponent';
 import { PulsingScaleComponent } from '../../components/visual/PulsingScaleComponent';
 import { ParticleTrailComponent } from '../../components/visual/ParticleTrailComponent';
-import { ShadowComponent } from '../../components/core/ShadowComponent';
+import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';

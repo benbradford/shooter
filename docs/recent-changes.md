@@ -17,6 +17,28 @@
 - `src/systems/SceneOverlays.ts` - Added `destroy()` method
 - `src/scenes/theme/GameSceneRenderer.ts` - Updated `destroy()` to clear graphics
 
+### Scene Renderer Refactor (March 2026)
+
+**Problem**: Background texture sprites (rocks, decorations) in water cells were rendering on top of the player due to duplicate sprite creation.
+
+**Root Cause**: `Grid.setCell()` was creating background texture sprites at depth -50 after `GameSceneRenderer` created them at depth -1000. The Grid sprites were created later (during cell updates) and appeared on top despite having a lower depth value.
+
+**Solution**: 
+1. Removed sprite creation from `Grid.setCell()` - Grid now only tracks texture changes, doesn't create sprites
+2. Refactored `GameSceneRenderer.renderGrid()` into:
+   - `loadAllAssets()` - Load assets and generate tilesets (once)
+   - `initializeSprites()` - Create all sprites in explicit order (once)
+   - `updateGraphics()` - Update graphics objects (every frame)
+3. Background textures now use `Depth.waterTexture` (-80) to render above water tiles (-100) but below swimming player (-70)
+
+**Files Changed**:
+- `src/scenes/theme/GameSceneRenderer.ts` - Split renderGrid into three methods, removed cache system
+- `src/scenes/GameScene.ts` - Updated create() and loadLevel() to use new flow
+- `src/systems/grid/Grid.ts` - Removed sprite creation from setCell()
+- `src/constants/DepthConstants.ts` - Updated underwaterTexture depth value
+
+**Key Insight**: Background texture sprites must only be created once by GameSceneRenderer, never by Grid. Grid should only manage cell data, not rendering.
+
 ### Dynamic Asset Loading
 
 **Problem**: All assets were loaded at startup, increasing initial load time.

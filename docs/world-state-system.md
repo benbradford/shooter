@@ -71,7 +71,7 @@ Modified cells are tracked in two ways:
 1. **cellModifierCells** - Tracks which cells were touched by cellModifiers (always saved)
 2. **modifiedCells** - Stores final cell state (properties, texture, layer)
 
-When loading, modified cells override level JSON and renderer cache is invalidated.
+When loading, modified cells override level JSON and affected cell sprites are destroyed and recreated.
 
 ### Coin Collection
 

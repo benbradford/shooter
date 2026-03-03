@@ -8,6 +8,7 @@ import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
 import type HudScene from "./HudScene";
 import { PLAYER_MAX_HEALTH, createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
+import { createThrowerAnimations } from "../ecs/entities/thrower/ThrowerAnimations";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { StateMachine } from "../systems/state/StateMachine";
 import { InGameState } from "./states/InGameState";
@@ -115,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
 
-    // createThrowerAnimations(this); // why is this here?!
+    createThrowerAnimations(this);
 
     this.anims.create({
       key: 'water_ripple_anim',

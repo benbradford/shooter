@@ -103,12 +103,14 @@ export class WaterEffectComponent implements Component {
 
     if (shadow) {
       const shouldBeVisible = !nowInWater && this.hopProgress >= 1;
+      const baseOffsetY = shadow.props.offsetY;
 
       if (nowInWater && this.hopProgress >= 1) {
         // Shadow visible but faded and below player when swimming
         shadow.shadow.setVisible(true);
-        shadow.shadow.setAlpha(0.6);
+        shadow.shadow.setAlpha(0.3);
         shadow.shadow.setDepth(Depth.shadowSwimming);
+        shadow.shadow.setY(transform.y + baseOffsetY + 32);
 
         // Update shadow mask if player moved to different cell
         if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
@@ -120,6 +122,7 @@ export class WaterEffectComponent implements Component {
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(1);
         shadow.shadow.setDepth(Depth.shadow);
+        shadow.shadow.setY(transform.y + baseOffsetY);
         shadow.shadow.clearMask();
       } else {
         // Hidden during hop

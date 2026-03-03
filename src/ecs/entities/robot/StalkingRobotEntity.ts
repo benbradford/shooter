@@ -11,7 +11,7 @@ import { LineOfSightComponent } from '../../components/combat/LineOfSightCompone
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { FireballPropertiesComponent } from '../../components/ai/FireballPropertiesComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
-import { ShadowComponent } from '../../components/core/ShadowComponent';
+import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { RobotHitParticlesComponent } from '../../components/visual/RobotHitParticlesComponent';

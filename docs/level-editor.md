@@ -519,7 +519,7 @@ Levels can specify default textures for all cells of a type in the level JSON:
   - Creates smooth gradient by subdividing cells into 4x4 sub-rectangles
 
 **Performance:**
-- Floor and cell textures are cached on first render (only created once)
+- Floor and cell textures are created once during initialization
 - Graphics operations (platform overlays, edges, shadows) run each frame
 - Use larger tile sizes (10+) for better performance
 - Custom `backgroundTexture` on individual cells overrides background config

@@ -1,7 +1,7 @@
 import { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
-import { ShadowComponent } from '../../components/core/ShadowComponent';
+import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { RockProjectileComponent, type RockProjectileComponentProps } from '../../components/combat/RockProjectileComponent';
 
