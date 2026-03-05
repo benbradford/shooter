@@ -19,6 +19,7 @@ export type LevelEntity = {
   type: EntityType;
   createOnAnyEvent?: string[];
   createOnAllEvents?: string[];
+  respawnable?: boolean;
   data: Record<string, unknown>;
 }
 

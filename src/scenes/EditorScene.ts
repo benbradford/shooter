@@ -421,6 +421,7 @@ export default class EditorScene extends Phaser.Scene {
         const existingEntity = existingLevelData.entities?.find(e => e.id === entity.id);
         const createOnAnyEvent = existingEntity?.createOnAnyEvent;
         const createOnAllEvents = existingEntity?.createOnAllEvents;
+        const respawnable = existingEntity?.respawnable;
         
         const entityData: import('../systems/level/LevelLoader').LevelEntity = {
           id: entity.id,
@@ -433,6 +434,9 @@ export default class EditorScene extends Phaser.Scene {
         }
         if (createOnAllEvents) {
           entityData.createOnAllEvents = createOnAllEvents;
+        }
+        if (respawnable) {
+          entityData.respawnable = respawnable;
         }
         
         entities.push(entityData);

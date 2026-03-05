@@ -138,12 +138,10 @@ export class WaterEffectComponent implements Component {
         console.log(`[WaterEffect] Setting player depth to swimming: ${Depth.playerSwimming}`);
         sprite.sprite.setDepth(Depth.playerSwimming);
       }
-    } else {
+    } else if (sprite.sprite.depth !== Depth.player) {
       // Walking - render at normal depth
-      if (sprite.sprite.depth !== Depth.player) {
-        console.log(`[WaterEffect] Setting player depth to normal: ${Depth.player}`);
-        sprite.sprite.setDepth(Depth.player);
-      }
+      console.log(`[WaterEffect] Setting player depth to normal: ${Depth.player}`);
+      sprite.sprite.setDepth(Depth.player);
     }
 
     // Detect water entry/exit (only when not already hopping)

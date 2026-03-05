@@ -2,6 +2,38 @@
 
 This guide covers how to add new editor modes and functionality based on lessons learned from implementing the Trigger system.
 
+## ⚠️ CRITICAL: Always Update extractEntities() ⚠️
+
+**When adding ANY new field to entity data that can be edited:**
+
+1. Modify the entity data in the editor state (e.g., `entityData.myNewField = value`)
+2. **MUST also update `EditorScene.extractEntities()`** to preserve the field when logging
+
+**Common mistake:** Adding a field to level data and updating it in the editor, but forgetting to extract it in `extractEntities()`. Result: Field doesn't appear in logged JSON.
+
+**Pattern:**
+```typescript
+// In editor state - update level data
+const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+if (entityData) {
+  entityData.myNewField = newValue;
+}
+
+// In EditorScene.extractEntities() - preserve the field
+const existingEntity = existingLevelData.entities?.find(e => e.id === entity.id);
+const myNewField = existingEntity?.myNewField;
+
+if (myNewField) {
+  entityData.myNewField = myNewField;
+}
+```
+
+**Checklist when adding editor features:**
+- [ ] Update level data type (LevelEntity, LevelData, etc.)
+- [ ] Update editor state to modify the field
+- [ ] **Update EditorScene.extractEntities() to preserve the field** ← Most commonly forgotten!
+- [ ] Test: Edit field → Click Log → Verify field in JSON
+
 ## Overview
 
 The editor uses a state machine pattern with overlay UI. Each editor mode is a separate state that handles:

@@ -79,8 +79,8 @@ export class EntityLoader {
     for (const entityDef of levelData.entities ?? []) {
       // Check if entity should be spawned based on world state
       if (!isEditorMode) {
-        // Skip if destroyed
-        if (levelState.destroyedEntities.includes(entityDef.id)) {
+        // Skip if destroyed (unless respawnable)
+        if (!entityDef.respawnable && levelState.destroyedEntities.includes(entityDef.id)) {
           continue;
         }
 

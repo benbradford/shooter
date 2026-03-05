@@ -121,14 +121,21 @@ When asked to "update the docs":
    - State machine setup
    - Level integration
 
-13. **[Spawner Entities](./spawner-entities.md)** - Creating entities that spawn other entities
+13. **[Updating Enemy Spritesheets](./updating-enemy-spritesheets.md)** - SOP for spritesheet updates
+   - Lessons learned from thrower update
+   - Step-by-step verification process
+   - Direction mapping and animation creation
+   - Common pitfalls and solutions
+   - Future automation opportunities
+
+14. **[Spawner Entities](./spawner-entities.md)** - Creating entities that spawn other entities
    - Spawner component design
    - Spawned entity movement (GridPositionComponent critical)
    - Difficulty system
    - Editor integration
    - Common pitfalls and solutions
 
-14. **[Visual Effects](./visual-effects.md)** - Hit flashes, particles, shadows
+15. **[Visual Effects](./visual-effects.md)** - Hit flashes, particles, shadows
     - HitFlashComponent usage
     - Particle system patterns
     - Shadow component

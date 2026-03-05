@@ -93,11 +93,51 @@ export class EditEntityEditorState extends EditorState {
         }
         
         this.entity.destroy();
-        gameScene.resetScene();
+        void gameScene.resetScene();
         this.scene.enterDefaultMode();
       }
     };
     this.commonPanel.appendChild(deleteButton);
+
+    const respawnableLabel = document.createElement('label');
+    respawnableLabel.style.cssText = `
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      cursor: pointer;
+      font-size: 14px;
+    `;
+    
+    const respawnableCheckbox = document.createElement('input');
+    respawnableCheckbox.type = 'checkbox';
+    respawnableCheckbox.style.cssText = `
+      margin-right: 8px;
+      cursor: pointer;
+    `;
+    
+    if (this.entity) {
+      const levelData = (this.scene.scene.get('game') as import('../scenes/GameScene').default).getLevelData();
+      const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+      respawnableCheckbox.checked = entityData?.respawnable ?? false;
+    }
+    
+    respawnableCheckbox.addEventListener('change', () => {
+      if (this.entity) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+        if (entityData) {
+          entityData.respawnable = respawnableCheckbox.checked;
+        }
+      }
+    });
+    
+    const respawnableText = document.createElement('span');
+    respawnableText.textContent = 'Respawnable (respawns when re-entering level)';
+    
+    respawnableLabel.appendChild(respawnableCheckbox);
+    respawnableLabel.appendChild(respawnableText);
+    this.commonPanel.appendChild(respawnableLabel);
 
     const anyEventLabel = document.createElement('div');
     anyEventLabel.textContent = 'Spawn on Any Event:';

@@ -5332,8 +5332,9 @@
         "row": 25,
         "texture": "dungeon_vase",
         "health": 1,
-        "rarity": "legendary"
-      }
+        "rarity": "rare"
+      },
+      "respawnable": true
     },
     {
       "id": "breakable1",
@@ -5343,8 +5344,9 @@
         "row": 24,
         "texture": "dungeon_vase",
         "health": 1,
-        "rarity": "legendary"
-      }
+        "rarity": "rare"
+      },
+      "respawnable": true
     },
     {
       "id": "breakable2",
@@ -5355,7 +5357,8 @@
         "texture": "dungeon_vase",
         "health": 1,
         "rarity": "nothing"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "breakable3",
@@ -5365,8 +5368,9 @@
         "row": 25,
         "texture": "dungeon_vase",
         "health": 1,
-        "rarity": "epic"
-      }
+        "rarity": "rare"
+      },
+      "respawnable": true
     },
     {
       "id": "breakable4",
@@ -5377,7 +5381,8 @@
         "texture": "dungeon_vase",
         "health": 1,
         "rarity": "nothing"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "breakable5",
@@ -5387,8 +5392,9 @@
         "row": 25,
         "texture": "dungeon_vase",
         "health": 1,
-        "rarity": "legendary"
-      }
+        "rarity": "rare"
+      },
+      "respawnable": true
     },
     {
       "id": "breakable6",
@@ -5398,8 +5404,9 @@
         "row": 24,
         "texture": "dungeon_vase",
         "health": 1,
-        "rarity": "nothing"
-      }
+        "rarity": "rare"
+      },
+      "respawnable": true
     },
     {
       "id": "breakable7",
@@ -5409,8 +5416,9 @@
         "row": 24,
         "texture": "dungeon_vase",
         "health": 1,
-        "rarity": "legendary"
-      }
+        "rarity": "rare"
+      },
+      "respawnable": true
     },
     {
       "id": "breakable8",
