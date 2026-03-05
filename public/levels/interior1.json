@@ -2,8 +2,8 @@
   "width": 16,
   "height": 8,
   "playerStart": {
-    "x": 11,
-    "y": 2
+    "x": 8,
+    "y": 6
   },
   "cells": [
     {
@@ -152,6 +152,23 @@
       ]
     },
     {
+      "col": 5,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bed1"
+    },
+    {
       "col": 13,
       "row": 2,
       "layer": 0,
@@ -214,6 +231,30 @@
       "properties": [
         "blocked"
       ]
+    },
+    {
+      "col": 10,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "chair1"
+    },
+    {
+      "col": 11,
+      "row": 5,
+      "layer": 0,
+      "backgroundTexture": "table1"
+    },
+    {
+      "col": 12,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "chair2"
     },
     {
       "col": 14,

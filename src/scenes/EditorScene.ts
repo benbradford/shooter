@@ -12,11 +12,6 @@ import { ResizeEditorState } from "../editor/ResizeEditorState";
 import { MoveEditorState, type MoveEditorStateProps } from "../editor/MoveEditorState";
 import { EditEntityEditorState } from "../editor/EditEntityEditorState";
 import { AddEntityEditorState } from "../editor/AddEntityEditorState";
-import { AddRobotEditorState } from "../editor/AddRobotEditorState";
-import { AddBugBaseEditorState } from "../editor/AddBugBaseEditorState";
-import { AddThrowerEditorState } from "../editor/AddThrowerEditorState";
-import { AddSkeletonEditorState } from "../editor/AddSkeletonEditorState";
-import { AddBulletDudeEditorState } from "../editor/AddBulletDudeEditorState";
 import { EventChainerEditorState } from "../editor/EventChainerEditorState";
 import { CellModifierEditorState } from "../editor/CellModifierEditorState";
 import { TextureEditorState } from "../editor/TextureEditorState";
@@ -129,11 +124,6 @@ export default class EditorScene extends Phaser.Scene {
       move: new MoveEditorState(this),
       editEntity: new EditEntityEditorState(this),
       add: new AddEntityEditorState(this),
-      addRobot: new AddRobotEditorState(this),
-      addBugBase: new AddBugBaseEditorState(this),
-      addThrower: new AddThrowerEditorState(this),
-      addSkeleton: new AddSkeletonEditorState(this),
-      addBulletDude: new AddBulletDudeEditorState(this),
       spawner: new EventChainerEditorState(this),
       cellmodifier: new CellModifierEditorState(this),
       texture: new TextureEditorState(this),

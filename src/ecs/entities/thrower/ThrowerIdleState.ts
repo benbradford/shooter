@@ -14,7 +14,11 @@ export class ThrowerIdleState implements IState {
 
   onEnter(): void {
     const sprite = this.entity.require(SpriteComponent);
-    sprite.sprite.play('thrower_idle_south');
+    if (sprite.sprite.anims.exists('thrower_idle_south')) {
+      sprite.sprite.play('thrower_idle_south');
+    } else {
+      sprite.sprite.setFrame(0);
+    }
   }
 
   onUpdate(_delta: number): void {

@@ -118,6 +118,11 @@ export class AddEntityEditorState extends EditorState {
     else if (this.selectedType === 'bullet_dude') texture = 'attacker';
     else if (this.selectedType === 'breakable') texture = this.selectedTexture;
 
+    if (!gameScene.textures.exists(texture)) {
+      console.warn(`[AddEntityEditorState] Texture "${texture}" not loaded, skipping ghost sprite`);
+      return;
+    }
+
     this.ghostSprite = gameScene.add.sprite(0, 0, texture, 0);
     this.ghostSprite.setAlpha(0.6);
     this.ghostSprite.setDepth(Depth.editor);

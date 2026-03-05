@@ -19,25 +19,40 @@
 
 ### Scene Renderer Refactor (March 2026)
 
-**Problem**: Background texture sprites (rocks, decorations) in water cells were rendering on top of the player due to duplicate sprite creation.
+**Problem**: Background texture sprites (rocks, decorations) in water cells were rendering on top of the player.
 
-**Root Cause**: `Grid.setCell()` was creating background texture sprites at depth -50 after `GameSceneRenderer` created them at depth -1000. The Grid sprites were created later (during cell updates) and appeared on top despite having a lower depth value.
+**Root Cause**: `Grid.setCell()` was creating background texture sprites at depth -50 every time a cell was updated. This happened after `GameSceneRenderer` created them at the correct depth, causing duplicates at the wrong depth.
 
 **Solution**: 
-1. Removed sprite creation from `Grid.setCell()` - Grid now only tracks texture changes, doesn't create sprites
-2. Refactored `GameSceneRenderer.renderGrid()` into:
+1. Removed sprite creation from `Grid.setCell()` - Grid now only tracks cell data, never creates sprites
+2. Refactored `GameSceneRenderer.renderGrid()` into three methods:
    - `loadAllAssets()` - Load assets and generate tilesets (once)
    - `initializeSprites()` - Create all sprites in explicit order (once)
    - `updateGraphics()` - Update graphics objects (every frame)
-3. Background textures now use `Depth.waterTexture` (-80) to render above water tiles (-100) but below swimming player (-70)
+3. Background textures in water now use `Depth.waterTexture` (-80) to render above water tiles (-100) but below swimming player (-70)
+4. Removed cache system (`isCached` flag) - sprites created once via `spritesInitialized` flag
 
 **Files Changed**:
-- `src/scenes/theme/GameSceneRenderer.ts` - Split renderGrid into three methods, removed cache system
+- `src/scenes/theme/GameSceneRenderer.ts` - Split renderGrid into three methods, removed cache
 - `src/scenes/GameScene.ts` - Updated create() and loadLevel() to use new flow
 - `src/systems/grid/Grid.ts` - Removed sprite creation from setCell()
-- `src/constants/DepthConstants.ts` - Updated underwaterTexture depth value
+- `src/constants/DepthConstants.ts` - Updated underwaterTexture depth to -80
 
-**Key Insight**: Background texture sprites must only be created once by GameSceneRenderer, never by Grid. Grid should only manage cell data, not rendering.
+**Key Insight**: Only GameSceneRenderer should create sprites. Grid manages data only.
+
+### Shadow Component Consolidation (March 2026)
+
+**Problem**: Two different ShadowComponent implementations existed (core/ and visual/), causing runtime errors.
+
+**Solution**: 
+- Deleted old `core/ShadowComponent` 
+- All entities now use `visual/ShadowComponent` with public `shadow` sprite and `props`
+- Updated imports in BugEntity, RockEntity, FireballEntity, StalkingRobotEntity, PlayerEntity
+
+**Swimming Shadow Behavior**:
+- Alpha reduced to 30% (from 60%)
+- Position moved down 32px
+- Depth set to -80 (shadowSwimming)
 
 ### Dynamic Asset Loading
 

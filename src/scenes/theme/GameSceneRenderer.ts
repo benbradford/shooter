@@ -12,6 +12,8 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; s
   house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
   bridge_v: {scaleX: 3, scaleY: 3, offsetX: 0, offsetY: -32 },
   bridge_h: {scaleX: 3, scaleY: 3, offsetX: -32, offsetY: 0 },
+  bed1: {scaleX:2, scaleY: 1, offsetX: -32, offsetY: 0 },
+  table2: {scaleX:2, scaleY: 1, offsetX: 0, offsetY: 0 },
 };
 
 export abstract class GameSceneRenderer {

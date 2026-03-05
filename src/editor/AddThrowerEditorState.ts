@@ -10,6 +10,12 @@ export class AddThrowerEditorState extends EditorState {
     const gameScene = this.scene.scene.get('game') as GameScene;
     const grid = this.scene.getGrid();
 
+    if (!gameScene.textures.exists('thrower')) {
+      console.warn('[AddThrowerEditorState] Thrower texture not loaded');
+      this.scene.enterDefaultMode();
+      return;
+    }
+
     this.ghostSprite = gameScene.add.sprite(0, 0, 'thrower', 0);
     this.ghostSprite.setDisplaySize(grid.cellSize, grid.cellSize);
     this.ghostSprite.setAlpha(0.6);

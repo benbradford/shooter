@@ -10,7 +10,7 @@ export type CreateMedipackProps = {
   playerEntity: Entity;
 }
 
-const MEDIPACK_SCALE = 0.04;
+const MEDIPACK_SCALE = 0.12;
 
 export function createMedipackEntity(props: CreateMedipackProps): Entity {
   const { scene, x, y, playerEntity } = props;

@@ -3,9 +3,13 @@ import { Depth } from '../constants/DepthConstants';
 import type GameScene from '../scenes/GameScene';
 
 const AVAILABLE_TEXTURES: string[] = [
+  'bed1',
+  'bench1',
   'bridge_h',
   'bridge_v',
   'bush1',
+  'chair1',
+  'chair2',
   'door_closed',
   'dungeon_door',
   'dungeon_floor',
@@ -27,6 +31,8 @@ const AVAILABLE_TEXTURES: string[] = [
   'stone_stairs',
   'stone_wall',
   'submerged_rock1',
+  'table1',
+  'table2',
   'tree1',
   'wall_torch'
 ];

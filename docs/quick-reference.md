@@ -503,7 +503,7 @@ entity.setUpdateOrder([
 - Uses `PLAYER_SWIMMING_GRID_COLLISION_BOX` (64×64) for collision detection
 - Larger collision box prevents sprite from overlapping land/blocked cells
 - Water ripples spawn every 150ms while swimming
-- Shadow fades to 60% alpha and renders at depth -8 when swimming
+- Shadow fades to 30% alpha, moves down 32px, and renders at depth -80 when swimming
 - Water splash effect when entering/leaving water (full splash)
 - Mini splash effect every 500ms while actively swimming (reduced scale/speed)
 

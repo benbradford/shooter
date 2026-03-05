@@ -167,6 +167,7 @@ export function preloadLevelAssets(scene: Phaser.Scene, levelData: LevelData, on
     const loadedTextures = scene.textures.getTextureKeys().filter(key => key !== '__DEFAULT' && key !== '__MISSING');
     const sorted = [...loadedTextures].sort((a, b) => a.localeCompare(b));
     console.log(`[AssetLoader] Loaded ${loadedTextures.length} textures:`, sorted);
+    
     if (onComplete) {
       onComplete();
     }
