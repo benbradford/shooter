@@ -5,7 +5,8 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
-import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
+import { dirFromDelta } from '../../../constants/Direction';
+import { getThrowerAnimKey } from './ThrowerAnimations';
 
 const THROW_ANIMATION_DURATION_MS = 583;
 const THROW_RECOVERY_MS = 1000;
@@ -31,9 +32,9 @@ export class ThrowerThrowingState implements IState {
     const dy = playerTransform.y - transform.y;
     
     const dir = dirFromDelta(dx, dy);
-    const dirName = directionToAnimationName(dir);
+    const animKey = getThrowerAnimKey('throw', dir);
     const sprite = this.entity.require(SpriteComponent);
-    sprite.sprite.play(`thrower_throw_${dirName}`);
+    sprite.sprite.play(animKey);
   }
 
   onUpdate(delta: number): void {

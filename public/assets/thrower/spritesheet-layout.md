@@ -1,113 +1,107 @@
 # Thrower Sprite Sheet Layout
 
-**File:** `thrower_spritesheet.png`  
-**Dimensions:** 336x1536 pixels (7 columns × 32 rows)  
-**Frame Size:** 48x48 pixels  
-**Total Frames:** 224
+**Frame Size:** 56x56 pixels  
+**Sheet Dimensions:** 672×952 pixels (12×17 grid)  
+**Total Frames:** 200
 
-## Frame Index Formula
+## Frame Index Mapping
+
 ```
-frameIndex = row * 7 + column
+Frames 0-7:     Idle rotations (8 directions)
+Frames 8-63:    Throw-object (8 directions × 7 frames)
+Frames 64-95:   Walking (8 directions × 4 frames)
+Frames 96-143:  Taking-punch (8 directions × 6 frames)
+Frames 144-199: Falling-back-death (8 directions × 7 frames)
 ```
-
-## Layout by Animation Type
-
-### Idle (Rows 0-7, 1 frame each)
-Single frame per direction using rotation images.
-
-| Row | Direction    | Frame Index | Column |
-|-----|--------------|-------------|--------|
-| 0   | south        | 0           | 0      |
-| 1   | south-east   | 7           | 0      |
-| 2   | east         | 14          | 0      |
-| 3   | north-east   | 21          | 0      |
-| 4   | north        | 28          | 0      |
-| 5   | north-west   | 35          | 0      |
-| 6   | west         | 42          | 0      |
-| 7   | south-west   | 49          | 0      |
-
-### Walking (Rows 8-15, 4 frames each)
-4-frame walk cycle per direction.
-
-| Row | Direction    | Start Index | Frames      |
-|-----|--------------|-------------|-------------|
-| 8   | south        | 56          | 56-59       |
-| 9   | south-east   | 63          | 63-66       |
-| 10  | east         | 70          | 70-73       |
-| 11  | north-east   | 77          | 77-80       |
-| 12  | north        | 84          | 84-87       |
-| 13  | north-west   | 91          | 91-94       |
-| 14  | west         | 98          | 98-101      |
-| 15  | south-west   | 105         | 105-108     |
-
-### Throw (Rows 16-23, 7 frames each)
-7-frame throw animation per direction.
-
-| Row | Direction    | Start Index | Frames      |
-|-----|--------------|-------------|-------------|
-| 16  | south        | 112         | 112-118     |
-| 17  | south-east   | 119         | 119-125     |
-| 18  | east         | 126         | 126-132     |
-| 19  | north-east   | 133         | 133-139     |
-| 20  | north        | 140         | 140-146     |
-| 21  | north-west   | 147         | 147-153     |
-| 22  | west         | 154         | 154-160     |
-| 23  | south-west   | 161         | 161-167     |
-
-### Death (Rows 24-31, 7 frames each)
-7-frame falling-back death animation per direction.
-
-| Row | Direction    | Start Index | Frames      |
-|-----|--------------|-------------|-------------|
-| 24  | south        | 168         | 168-174     |
-| 25  | south-east   | 175         | 175-181     |
-| 26  | east         | 182         | 182-188     |
-| 27  | north-east   | 189         | 189-195     |
-| 28  | north        | 196         | 196-202     |
-| 29  | north-west   | 203         | 203-209     |
-| 30  | west         | 210         | 210-216     |
-| 31  | south-west   | 217         | 217-223     |
 
 ## Direction Order
-All animations follow this 8-direction order:
-1. south (down)
-2. south-east
-3. east (right)
-4. north-east
-5. north (up)
-6. north-west
-7. west (left)
-8. south-west
 
-## Usage Example
+**CRITICAL:** Frames are in ALPHABETICAL order (not standard game direction order):
 
-```typescript
-// In AssetRegistry.ts
-thrower: {
-  key: 'thrower',
-  path: 'assets/thrower/thrower_spritesheet.png',
-  type: 'spritesheet' as const,
-  config: { frameWidth: 48, frameHeight: 48 }
-}
+1. East
+2. North
+3. North-East
+4. North-West
+5. South
+6. South-East
+7. South-West
+8. West
 
-// Creating animations
-scene.anims.create({
-  key: 'thrower_walk_south',
-  frames: scene.anims.generateFrameNumbers('thrower', { start: 56, end: 59 }),
-  frameRate: 10,
-  repeat: -1
-});
+## Idle Rotations (Frames 0-7)
 
-scene.anims.create({
-  key: 'thrower_throw_east',
-  frames: scene.anims.generateFrameNumbers('thrower', { start: 126, end: 132 }),
-  frameRate: 12,
-  repeat: 0
-});
+| Frame | Direction    |
+|-------|-------------|
+| 0     | East        |
+| 1     | North       |
+| 2     | North-East  |
+| 3     | North-West  |
+| 4     | South       |
+| 5     | South-East  |
+| 6     | South-West  |
+| 7     | West        |
+
+## Throw-Object Animation (Frames 8-63)
+
+7 frames per direction × 8 directions = 56 frames
+
+| Frames | Direction    |
+|--------|-------------|
+| 8-14   | East        |
+| 15-21  | North       |
+| 22-28  | North-East  |
+| 29-35  | North-West  |
+| 36-42  | South       |
+| 43-49  | South-East  |
+| 50-56  | South-West  |
+| 57-63  | West        |
+
+## Walking Animation (Frames 64-95)
+
+4 frames per direction × 8 directions = 32 frames
+
+| Frames | Direction    |
+|--------|-------------|
+| 64-67  | East        |
+| 68-71  | North       |
+| 72-75  | North-East  |
+| 76-79  | North-West  |
+| 80-83  | South       |
+| 84-87  | South-East  |
+| 88-91  | South-West  |
+| 92-95  | West        |
+
+## Taking-Punch Animation (Frames 96-143)
+
+6 frames per direction × 8 directions = 48 frames
+
+| Frames  | Direction    |
+|---------|-------------|
+| 96-101  | East        |
+| 102-107 | North       |
+| 108-113 | North-East  |
+| 114-119 | North-West  |
+| 120-125 | South       |
+| 126-131 | South-East  |
+| 132-137 | South-West  |
+| 138-143 | West        |
+
+## Falling-Back-Death Animation (Frames 144-199)
+
+7 frames per direction × 8 directions = 56 frames
+
+| Frames  | Direction    |
+|---------|-------------|
+| 144-150 | East        |
+| 151-157 | North       |
+| 158-164 | North-East  |
+| 165-171 | North-West  |
+| 172-178 | South       |
+| 179-185 | South-East  |
+| 186-192 | South-West  |
+| 193-199 | West        |
+
+## Regenerating the Sprite Sheet
+
+```bash
+node scripts/generate-thrower-spritesheet.mjs
 ```
-
-## Notes
-- Character has brown hair and aggressive features (Metal Slug style)
-- Originally holding a gun, suitable for throwing enemy type
-- All frames are 48x48 pixels
-- Transparent background (RGBA)

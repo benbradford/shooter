@@ -1640,8 +1640,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "pillar"
+      ]
     },
     {
       "col": 33,
@@ -3607,12 +3606,6 @@
       "properties": [
         "platform"
       ]
-    },
-    {
-      "col": 27,
-      "row": 22,
-      "layer": 0,
-      "backgroundTexture": "dungeon_key"
     },
     {
       "col": 32,
@@ -5823,6 +5816,15 @@
       "createOnAnyEvent": [
         "throwers"
       ]
+    },
+    {
+      "id": "thrower0",
+      "type": "thrower",
+      "data": {
+        "col": 11,
+        "row": 21,
+        "difficulty": "medium"
+      }
     },
     {
       "id": "trigger0",

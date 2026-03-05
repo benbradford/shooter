@@ -8,8 +8,9 @@ import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import type { Grid } from '../../../systems/grid/Grid';
-import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
+import { dirFromDelta } from '../../../constants/Direction';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
+import { getThrowerAnimKey } from './ThrowerAnimations';
 
 export class ThrowerRunningState implements IState {
   private readonly pathfinder: Pathfinder;
@@ -45,9 +46,9 @@ export class ThrowerRunningState implements IState {
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const dir = dirFromDelta(dx, dy);
-    const dirName = directionToAnimationName(dir);
+    const animKey = getThrowerAnimKey('walk', dir);
     const sprite = this.entity.require(SpriteComponent);
-    sprite.sprite.play({ key: `thrower_walk_${dirName}`, frameRate: 6 });
+    sprite.sprite.play({ key: animKey, frameRate: 6 });
   }
 
   onUpdate(delta: number): void {
@@ -194,9 +195,8 @@ export class ThrowerRunningState implements IState {
       transform.y += moveY;
 
       const dir = dirFromDelta(dx, dy);
-      const dirName = directionToAnimationName(dir);
+      const animKey = getThrowerAnimKey('walk', dir);
       const sprite = this.entity.require(SpriteComponent);
-      const animKey = `thrower_walk_${dirName}`;
       if (!sprite.sprite.anims.isPlaying || sprite.sprite.anims.currentAnim?.key !== animKey) {
         sprite.sprite.play({ key: animKey, frameRate: 6 });
       }

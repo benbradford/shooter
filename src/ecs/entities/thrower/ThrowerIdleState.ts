@@ -3,6 +3,8 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
+import { Direction } from '../../../constants/Direction';
+import { getThrowerAnimKey } from './ThrowerAnimations';
 
 const DETECTION_RANGE_PX = 500;
 
@@ -14,10 +16,12 @@ export class ThrowerIdleState implements IState {
 
   onEnter(): void {
     const sprite = this.entity.require(SpriteComponent);
-    if (sprite.sprite.anims.exists('thrower_idle_south')) {
-      sprite.sprite.play('thrower_idle_south');
+    const animKey = getThrowerAnimKey('idle', Direction.Down);
+    
+    if (sprite.sprite.anims.exists(animKey)) {
+      sprite.sprite.play(animKey);
     } else {
-      sprite.sprite.setFrame(0);
+      sprite.sprite.setFrame(4);
     }
   }
 

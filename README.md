@@ -3,7 +3,7 @@
 **Goal:**
 Create a 2D top-down cross-platform game using Phaser, with fixed grid-based movement, player animations, and support for scrolling rooms.
 
-WIP hosted on https://dodging-bullets.netlify.app/
+WIP hosted on https://dodging-bullets.netlify.app/ (use WASD to move, Space to punch)
 
 ---
 

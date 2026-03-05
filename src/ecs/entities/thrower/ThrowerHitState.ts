@@ -1,27 +1,34 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
+import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
-import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
-import { dirFromDelta, directionToAnimationName } from '../../../constants/Direction';
+import { dirFromDelta } from '../../../constants/Direction';
+import { getThrowerAnimKey } from './ThrowerAnimations';
 
-const HIT_DURATION_MS = 300;
+const HIT_DURATION_MS = 500;
 
 export class ThrowerHitState implements IState {
   private elapsedMs: number = 0;
 
-  constructor(private readonly entity: Entity) {}
+  constructor(
+    private readonly entity: Entity,
+    private readonly playerEntity: Entity
+  ) {}
 
   onEnter(): void {
     this.elapsedMs = 0;
     
-    const knockback = this.entity.get(KnockbackComponent);
-    if (knockback) {
-      const dir = dirFromDelta(knockback.velocityX, knockback.velocityY);
-      const dirName = directionToAnimationName(dir);
-      const sprite = this.entity.require(SpriteComponent);
-      sprite.sprite.play(`thrower_idle_${dirName}`);
-    }
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const dir = dirFromDelta(dx, dy);
+    
+    const animKey = getThrowerAnimKey('hit', dir);
+    const sprite = this.entity.require(SpriteComponent);
+    sprite.sprite.play(animKey);
   }
 
   onUpdate(delta: number): void {

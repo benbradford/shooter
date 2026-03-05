@@ -608,7 +608,6 @@ export default class GameScene extends Phaser.Scene {
     });
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
-    console.log('[GameScene] Assets loaded');
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;

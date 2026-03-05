@@ -126,7 +126,7 @@ export const ASSET_REGISTRY = {
     key: 'thrower',
     path: 'assets/thrower/thrower_spritesheet.png',
     type: 'spritesheet' as const,
-    config: { frameWidth: 48, frameHeight: 48 }
+    config: { frameWidth: 56, frameHeight: 56 }
   },
   grenade: {
     key: 'grenade',

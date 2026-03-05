@@ -22,6 +22,7 @@ import { ThrowerHitState } from './ThrowerHitState';
 import { ThrowerDeathState } from './ThrowerDeathState';
 import { getThrowerDifficultyConfig, type ThrowerDifficulty } from './ThrowerDifficultyConfig';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
+import { createThrowerAnimations } from './ThrowerAnimations';
 import type { Grid } from '../../../systems/grid/Grid';
 
 const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
@@ -46,6 +47,8 @@ export type CreateThrowerProps = {
 export function createThrowerEntity(props: CreateThrowerProps): Entity {
   const { scene, col, row, grid, playerEntity, difficulty, entityId, onThrow } = props;
   const config = getThrowerDifficultyConfig(difficulty);
+
+  createThrowerAnimations(scene);
 
   const worldPos = grid.cellToWorld(col, row);
   const x = worldPos.x + grid.cellSize / 2;
@@ -140,8 +143,8 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
     idle: new ThrowerIdleState(entity, playerEntity),
     running: new ThrowerRunningState(entity, playerEntity, grid),
     throwing: new ThrowerThrowingState(entity, playerEntity, onThrow),
-    hit: new ThrowerHitState(entity),
-    death: new ThrowerDeathState(entity, lastHitDirX, lastHitDirY)
+    hit: new ThrowerHitState(entity, playerEntity),
+    death: new ThrowerDeathState(entity, playerEntity)
   }, 'spawning');
 
   entity.add(new StateMachineComponent(stateMachine));
