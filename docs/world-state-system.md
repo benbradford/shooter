@@ -28,7 +28,8 @@ The game automatically loads `public/states/default.json` on startup if it exist
 
 **Immediate spawn entities** (no `createOnAnyEvent`):
 ```
-if entity.id in destroyedEntities → don't spawn
+if entity.respawnable → always spawn (even if destroyed)
+else if entity.id in destroyedEntities → don't spawn
 else → spawn normally
 ```
 
@@ -37,6 +38,29 @@ else → spawn normally
 if entity.id in liveEntities → spawn (was spawned and still alive)
 else if entity.id in destroyedEntities → don't spawn (was killed)
 else → don't spawn (event hasn't fired yet)
+```
+
+### Respawnable Entities
+
+Entities can be marked as `respawnable` in the editor:
+- **Default**: `respawnable = false` (destroyed entities stay destroyed)
+- **When `respawnable = true`**: Entity respawns every time you re-enter the level, even if destroyed
+- **Use cases**: Breakable objects (vases, crates), training dummies, resource nodes
+- **Editor**: Click entity → Check "Respawnable" checkbox → Click Log to save
+
+**Example in level JSON:**
+```json
+{
+  "id": "breakable0",
+  "type": "breakable",
+  "respawnable": true,
+  "data": {
+    "col": 10,
+    "row": 5,
+    "texture": "dungeon_vase",
+    "health": 1
+  }
+}
 ```
 
 ### Entity Tracking

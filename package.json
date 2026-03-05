@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "canvas": "^3.2.1",
-    "phaser": "^3.90.0"
+    "phaser": "^3.90.0",
+    "wasmoon": "^1.16.0"
   }
 }

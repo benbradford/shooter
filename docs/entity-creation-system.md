@@ -136,6 +136,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 ### Common Fields (all entities)
 - `col`: Grid column position (optional for positionless entities like eventchainer, cellmodifier)
 - `row`: Grid row position (optional for positionless entities)
+- `respawnable`: Boolean (optional, default false) - If true, entity respawns when re-entering level even if destroyed
 
 ### Enemy Entities (skeleton, thrower, robot, bug_base, bullet_dude)
 - `difficulty`: "easy" | "medium" | "hard"
