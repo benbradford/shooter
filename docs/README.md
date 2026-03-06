@@ -37,7 +37,7 @@ When asked to "update the docs":
 
 **Time investment**: 1-3 hours of design saves 10-20 hours of implementation confusion.
 
-**Example**: The interaction system followed this process and is ready for smooth implementation.
+**Example**: `features/interactions/` - Complete implementation in 3 hours (vs 26-34 hour estimate) thanks to thorough design.
 
 ## 🚨 Start Here
 

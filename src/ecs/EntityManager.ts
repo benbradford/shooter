@@ -26,7 +26,7 @@ export class EntityManager {
   }
 
   update(delta: number): void {
-    const scene = this.entities[0]?.getScene() as any;
+    const scene = this.entities[0]?.getScene() as { isInInteraction?: boolean } | undefined;
     
     if (scene?.isInInteraction) {
       for (const entity of this.entities) {

@@ -254,7 +254,7 @@ export class SpeechBoxComponent implements Component {
       }
       
       // Use segment color if specified, otherwise use default textColor
-      const color = segment.color !== '#ffffff' ? segment.color : this.getTextColorHex();
+      const color = segment.color === '#ffffff' ? this.getTextColorHex() : segment.color;
       
       const textObj = this.scene.add.text(
         this.boxX + PADDING_PX + xOffset,

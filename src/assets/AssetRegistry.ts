@@ -369,6 +369,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/interior/table2.png',
     type: 'image' as const,
   },
+  interior6: {
+    key: 'interior6',
+    path: 'assets/interior/interior6.png',
+    type: 'image' as const,
+  },
+  interior_door1: {
+    key: 'interior_door1',
+    path: 'assets/interior/interior_door1.png',
+    type: 'image' as const,
+  },
+  interior_door2: {
+    key: 'interior_door2',
+    path: 'assets/interior/interior_door2.png',
+    type: 'image' as const,
+  },
   skeleton: {
     key: 'skeleton',
     path: 'assets/skeleton/skeleton-spritesheet.png',
@@ -421,7 +436,7 @@ export const ASSET_GROUPS = {
   breakables: ['dungeon_vase', 'pillar'] as const,
 
   // Editor - all textures that can be used in editor
-  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'bed1', 'bench1', 'chair1', 'chair2', 'table1', 'table2'] as const,
+  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'table1', 'table2'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

@@ -5,12 +5,12 @@ declare module 'wasmoon' {
 
   export class LuaEngine {
     global: LuaGlobal;
-    doString(code: string): Promise<any>;
+    doString(code: string): Promise<unknown>;
   }
 
   export class LuaGlobal {
-    set(name: string, value: any): void;
-    get(name: string): any;
+    set(name: string, value: unknown): void;
+    get(name: string): unknown;
     close(): void;
   }
 }

@@ -43,7 +43,7 @@ export class InteractionState implements IState<InteractionStateData> {
     }
     
     this.executeScript(props.data.scriptContent).then(() => {
-      (scene as any).stateMachine.enter('inGame');
+      (scene as unknown as { stateMachine: { enter: (key: string) => void } }).stateMachine.enter('inGame');
     }).catch(error => {
       console.error('[Interaction] Script error:', error);
       throw error;

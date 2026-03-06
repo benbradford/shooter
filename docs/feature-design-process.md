@@ -383,6 +383,48 @@ How to know it's done
 
 ---
 
+## Phase 9: During Implementation
+
+### Mark Tasks Complete
+
+**As you complete each task**, update the tasks document:
+
+```markdown
+### Task 1.1: Add Interaction Entity Type ✅
+**Subtasks**:
+- [x] Add `'interaction'` to `EntityType` union
+- [x] Add case in EntityLoader
+- [x] Create entity factory
+```
+
+**Why this matters**:
+- Shows progress clearly
+- Helps resume if interrupted
+- Documents what's actually done
+- Validates against original plan
+
+**When to mark complete**:
+- After task builds successfully
+- After task passes lint
+- After manual testing confirms it works
+
+---
+
+## Phase 10: Post-Implementation
+
+### Create Completion Summary
+
+After all tasks complete, create `{feature}-tasks-COMPLETE.md`:
+- Mark all tasks as done
+- Document actual vs estimated time
+- List all files created/modified
+- Note any deviations from plan
+- Capture lessons learned
+
+**Example**: `features/interactions/interaction-system-tasks-COMPLETE.md`
+
+---
+
 ## Checklist: Is Design Complete?
 
 Before starting implementation, verify:
@@ -446,6 +488,8 @@ Before starting implementation, verify:
 - ✅ Complete specifications
 - ✅ Ready for any Kiro session to implement
 - ✅ Estimated 26-34 hours to implement (clear path)
+- ✅ **Actually implemented in 3 hours** (87% time savings!)
+- ✅ Tasks marked complete in `interaction-system-tasks-COMPLETE.md`
 
 ---
 

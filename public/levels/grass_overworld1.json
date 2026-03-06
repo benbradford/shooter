@@ -5158,6 +5158,22 @@
       }
     },
     {
+      "id": "exit5",
+      "type": "exit",
+      "data": {
+        "targetLevel": "house3_interior",
+        "targetCol": 3,
+        "targetRow": 4,
+        "triggerCells": [
+          {
+            "col": 35,
+            "row": 5
+          }
+        ],
+        "oneShot": false
+      }
+    },
+    {
       "id": "triggertest",
       "type": "trigger",
       "data": {

@@ -24,16 +24,16 @@ export class CoinCounterComponent extends BaseEventComponent {
   init(): void {
     const displayWidth = this.scene.scale.displaySize.width;
     const displayHeight = this.scene.scale.displaySize.height;
-    
+
     const x = displayWidth * HUD_POSITION_X_PERCENT;
     const y = displayHeight * HUD_POSITION_Y_PERCENT;
-    
+
     this.coinIcon = this.scene.add.image(x, y, 'coin');
     this.coinIcon.setDisplaySize(COIN_ICON_SIZE_PX, COIN_ICON_SIZE_PX);
     this.coinIcon.setScrollFactor(0);
     this.coinIcon.setDepth(Depth.hud);
     this.coinIcon.setAlpha(1);
-    
+
     this.coinText = this.scene.add.text(x + COIN_ICON_SIZE_PX, y, '0', {
       fontSize: '24px',
       color: '#ffff00',
@@ -43,10 +43,10 @@ export class CoinCounterComponent extends BaseEventComponent {
     this.coinText.setScrollFactor(0);
     this.coinText.setDepth(Depth.hud);
     this.coinText.setAlpha(1);
-    
+
     this.registerEvent('level_loaded');
   }
-  
+
   onEvent(_eventName: string): void {
     this.timeSinceLastCoinMs = 0;
     this.coinIcon.setAlpha(1);
@@ -57,7 +57,7 @@ export class CoinCounterComponent extends BaseEventComponent {
     const worldState = WorldStateManager.getInstance();
     const coins = worldState.getPlayerCoins();
     this.coinText.setText(coins.toString());
-    
+
     if (coins !== this.lastCoinCount) {
       this.lastCoinCount = coins;
       this.timeSinceLastCoinMs = 0;
@@ -65,9 +65,9 @@ export class CoinCounterComponent extends BaseEventComponent {
       this.coinText.setAlpha(1);
       return;
     }
-    
+
     this.timeSinceLastCoinMs += delta;
-    
+
     if (this.timeSinceLastCoinMs >= FADE_DELAY_MS) {
       const fadeProgress = Math.min(1, (this.timeSinceLastCoinMs - FADE_DELAY_MS) / FADE_DURATION_MS);
       const alpha = 1 - fadeProgress;
@@ -84,6 +84,40 @@ export class CoinCounterComponent extends BaseEventComponent {
     const worldState = WorldStateManager.getInstance();
     const current = worldState.getPlayerCoins();
     worldState.setPlayerCoins(Math.max(0, current - amount));
+  }
+
+  async removeCoinsAnimated(amount: number): Promise<void> {
+    const worldState = WorldStateManager.getInstance();
+    const current = worldState.getPlayerCoins();
+    const target = Math.max(0, current - amount);
+
+    // Show coin counter
+    this.timeSinceLastCoinMs = 0;
+    this.coinIcon.setAlpha(1);
+    this.coinText.setAlpha(1);
+
+    // Remove coins one at a time
+    for (let i = current; i > target; i--) {
+      worldState.setPlayerCoins(i - 1);
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
+  }
+
+  async addCoinsAnimated(amount: number): Promise<void> {
+    const worldState = WorldStateManager.getInstance();
+    const current = worldState.getPlayerCoins();
+    const target = current + amount;
+
+    // Show coin counter
+    this.timeSinceLastCoinMs = 0;
+    this.coinIcon.setAlpha(1);
+    this.coinText.setAlpha(1);
+
+    // Add coins one at a time
+    for (let i = current; i < target; i++) {
+      worldState.setPlayerCoins(i + 1);
+      await new Promise(resolve => setTimeout(resolve, 50));
+    }
   }
 
   addCoins(amount: number): void {

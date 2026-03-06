@@ -62,7 +62,7 @@ export class InteractionComponent implements Component {
     });
   }
   
-  async look(direction: string): Promise<void> {
+  look(direction: string): void {
     const dir = DIRECTION_MAP[direction];
     if (dir === undefined) {
       throw new Error(`[InteractionComponent] Invalid direction: ${direction}`);

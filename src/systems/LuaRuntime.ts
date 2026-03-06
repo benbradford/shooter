@@ -1,17 +1,18 @@
 import { LuaFactory } from 'wasmoon';
-import type { Entity } from '../ecs/Entity';
+import { Entity } from '../ecs/Entity';
 import type GameScene from '../scenes/GameScene';
 import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent';
 import { InteractionComponent } from '../ecs/components/interaction/InteractionComponent';
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
-import { Entity as EntityClass } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 
 type Command = 
   | { type: 'wait'; ms: number }
   | { type: 'say'; name: string; text: string; speed: number; timeout: number; backgroundColor: string; textColor: string }
   | { type: 'moveTo'; col: number; row: number; speed: number }
-  | { type: 'look'; direction: string };
+  | { type: 'look'; direction: string }
+  | { type: 'spendCoins'; amount: number }
+  | { type: 'obtainCoins'; amount: number };
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
@@ -58,8 +59,8 @@ export class LuaRuntime {
       };
       lua.global.set('player', player);
       
-      const hudScene = this.scene.scene.get('HudScene') as any;
-      const joystickEntity = hudScene?.getJoystickEntity?.();
+      const hudScene = this.scene.scene.get('HudScene');
+      const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
       const coinCounter = joystickEntity?.get(CoinCounterComponent);
       
       if (!coinCounter) {
@@ -68,8 +69,12 @@ export class LuaRuntime {
       
       const coins = {
         get: () => coinCounter.getCount(),
-        spend: (amount: number) => coinCounter.removeCoins(amount),
-        obtain: (amount: number) => coinCounter.addCoins(amount)
+        spend: (amount: number) => {
+          this.commandQueue.push({ type: 'spendCoins', amount });
+        },
+        obtain: (amount: number) => {
+          this.commandQueue.push({ type: 'obtainCoins', amount });
+        }
       };
       lua.global.set('coins', coins);
       
@@ -102,7 +107,7 @@ export class LuaRuntime {
       if (cmd.type === 'wait') {
         await new Promise(resolve => setTimeout(resolve, cmd.ms));
       } else if (cmd.type === 'say') {
-        const speechEntity = new EntityClass('speech_box');
+        const speechEntity = new Entity('speech_box');
         speechEntity.tags.add('interaction_active');
         
         speechEntity.add(new TransformComponent(0, 0, 0, 1));
@@ -129,7 +134,21 @@ export class LuaRuntime {
         if (!interactionComp) {
           throw new Error('[LuaRuntime] Player missing InteractionComponent');
         }
-        await interactionComp.look(cmd.direction);
+        interactionComp.look(cmd.direction);
+      } else if (cmd.type === 'spendCoins') {
+        const hudScene = this.scene.scene.get('HudScene');
+        const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
+        const coinCounter = joystickEntity?.get(CoinCounterComponent);
+        if (coinCounter) {
+          await coinCounter.removeCoinsAnimated(cmd.amount);
+        }
+      } else if (cmd.type === 'obtainCoins') {
+        const hudScene = this.scene.scene.get('HudScene');
+        const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
+        const coinCounter = joystickEntity?.get(CoinCounterComponent);
+        if (coinCounter) {
+          await coinCounter.addCoinsAnimated(cmd.amount);
+        }
       }
     } finally {
       // Remove tag after command completes (before next command starts)
