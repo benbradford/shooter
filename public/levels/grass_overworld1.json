@@ -5162,8 +5162,8 @@
       "type": "exit",
       "data": {
         "targetLevel": "house3_interior",
-        "targetCol": 3,
-        "targetRow": 4,
+        "targetCol": 4,
+        "targetRow": 6,
         "triggerCells": [
           {
             "col": 35,

@@ -12,7 +12,7 @@ const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
 const PUNCH_DURATION_MS = 500;
 const PUNCH_FOV_RADIANS = Math.PI * 0.6;
-const PUNCH_HITBOX_DELAY_MS = 150;
+const PUNCH_HITBOX_DELAY_MS = 170;
 
 let mustFaceEnemy = true;
 

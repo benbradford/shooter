@@ -374,6 +374,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/interior/interior6.png',
     type: 'image' as const,
   },
+  interior7: {
+    key: 'interior7',
+    path: 'assets/interior/interior7.png',
+    type: 'image' as const,
+  },
+  interior8: {
+    key: 'interior8',
+    path: 'assets/interior/interior8.png',
+    type: 'image' as const,
+  },
+  interior9: {
+    key: 'interior9',
+    path: 'assets/interior/interior9.png',
+    type: 'image' as const,
+  },
   interior_door1: {
     key: 'interior_door1',
     path: 'assets/interior/interior_door1.png',

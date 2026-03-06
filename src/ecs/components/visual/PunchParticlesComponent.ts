@@ -6,13 +6,17 @@ import { TransformComponent } from '../core/TransformComponent';
 const PARTICLE_SPEED_MIN = 100;
 const PARTICLE_SPEED_MAX = 220;
 const PARTICLE_LIFESPAN_MS = 300;
-const PARTICLE_COUNT = 20;
-const PARTICLE_START_SIZE = 0.05;
+const PARTICLE_COUNT = 15;
+const PARTICLE_START_SIZE = 0.02;
+const PARTICLE_OFFSET_X = 16;
+const PARTICLE_OFFSET_Y = 10;
 
 export class PunchParticlesComponent implements Component {
   entity!: Entity;
   private readonly emitter: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly playerEntity: Entity;
+  private readonly offsetX: number;
+  private readonly offsetY: number;
 
   constructor(
     scene: Phaser.Scene,
@@ -24,9 +28,12 @@ export class PunchParticlesComponent implements Component {
     playerEntity: Entity
   ) {
     this.playerEntity = playerEntity;
+    this.offsetX = dirX * PARTICLE_OFFSET_X;
+    this.offsetY = dirY * PARTICLE_OFFSET_Y;
+
     const angle = Math.atan2(dirY, dirX) * 180 / Math.PI;
-    const startX = x - dirX * 50;
-    const startY = y - dirY * 50;
+    const startX = x + this.offsetX;
+    const startY = y + this.offsetY;
 
     const facingUp = direction === Direction.UpLeft ||
                      direction === Direction.Up ||
@@ -55,7 +62,7 @@ export class PunchParticlesComponent implements Component {
   update(_delta: number): void {
     const transform = this.playerEntity.get(TransformComponent);
     if (transform) {
-      this.emitter.setPosition(transform.x, transform.y);
+      this.emitter.setPosition(transform.x + this.offsetX, transform.y + this.offsetY);
     }
   }
 

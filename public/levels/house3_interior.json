@@ -1,9 +1,9 @@
 {
-  "width": 7,
-  "height": 7,
+  "width": 9,
+  "height": 9,
   "playerStart": {
-    "x": 3,
-    "y": 4
+    "x": 4,
+    "y": 6
   },
   "cells": [
     {
@@ -34,15 +34,16 @@
       "col": 3,
       "row": 1,
       "layer": 0,
-      "backgroundTexture": "interior_door1"
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": ""
     },
     {
       "col": 4,
       "row": 1,
       "layer": 0,
-      "properties": [
-        "blocked"
-      ]
+      "backgroundTexture": "interior_door2"
     },
     {
       "col": 5,
@@ -61,6 +62,22 @@
       ]
     },
     {
+      "col": 7,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 0,
       "row": 2,
       "layer": 0,
@@ -69,7 +86,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -85,13 +102,7 @@
       ]
     },
     {
-      "col": 1,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": "table1"
-    },
-    {
-      "col": 6,
+      "col": 8,
       "row": 3,
       "layer": 0,
       "properties": [
@@ -107,7 +118,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 4,
       "layer": 0,
       "properties": [
@@ -123,7 +134,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 8,
       "row": 5,
       "layer": 0,
       "properties": [
@@ -139,8 +150,40 @@
       ]
     },
     {
-      "col": 1,
+      "col": 8,
       "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 8,
       "layer": 0,
       "properties": [
         "blocked"
@@ -148,7 +191,7 @@
     },
     {
       "col": 2,
-      "row": 6,
+      "row": 8,
       "layer": 0,
       "properties": [
         "blocked"
@@ -156,32 +199,54 @@
     },
     {
       "col": 4,
-      "row": 6,
+      "row": 8,
       "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 5,
-      "row": 6,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
+      "backgroundTexture": "door_closed"
     },
     {
       "col": 6,
-      "row": 6,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 8,
       "layer": 0,
       "properties": [
         "blocked"
       ]
     }
   ],
-  "entities": [],
+  "entities": [
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworld1",
+        "targetCol": 35,
+        "targetRow": 6,
+        "triggerCells": [
+          {
+            "col": 4,
+            "row": 8
+          }
+        ]
+      }
+    }
+  ],
   "levelTheme": "default",
   "background": {
-    "floor_texture": "interior6"
+    "floor_texture": "interior7"
   }
 }

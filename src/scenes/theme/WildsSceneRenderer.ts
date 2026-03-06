@@ -90,7 +90,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
         tint: 0xffffff,
         speedX: { min: MIST_DRIFT_SPEED_PX_PER_SEC * (1 + layer * 0.3) * 0.8, max: MIST_DRIFT_SPEED_PX_PER_SEC * (1 + layer * 0.3) * 1.2 },
         speedY: 0,
-        frequency: 100,
+        frequency: 50,
         blendMode: 'SCREEN'
       });
 

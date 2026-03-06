@@ -14,7 +14,9 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; s
   bridge_h: {scaleX: 3, scaleY: 3, offsetX: -32, offsetY: 0 },
   bed1: {scaleX:2, scaleY: 1, offsetX: -32, offsetY: 0 },
   table2: {scaleX:2, scaleY: 1, offsetX: 0, offsetY: 0 },
-  interior_door1: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: -30 },
+  interior_door1: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: 0 },
+  interior_door2: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: -15 },
+  door_closed: {scaleX:1.6, scaleY: 1.18, offsetX: 0, offsetY: 0 },
 };
 
 export abstract class GameSceneRenderer {
@@ -233,6 +235,10 @@ export abstract class GameSceneRenderer {
 
   private createFloorOverlay(grid: Grid, levelData: LevelData): void {
     if (!levelData.background || this.floorOverlay) {
+      return;
+    }
+    // Skip overlay for default/interior themes
+    if (levelData.levelTheme === 'default' || levelData.levelTheme === 'dungeon') {
       return;
     }
     this.renderFloorOverlay(grid, levelData);
