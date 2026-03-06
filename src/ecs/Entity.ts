@@ -1,5 +1,6 @@
 import type { Component } from './Component';
 import { WorldStateManager } from '../systems/WorldStateManager';
+import { SpriteComponent } from './components/core/SpriteComponent';
 
 export class Entity {
   private readonly components: Map<string, Component> = new Map();
@@ -83,5 +84,11 @@ export class Entity {
     this.updateOrder = [];
   }
 
+  getScene(): Phaser.Scene | undefined {
+    const sprite = this.get(SpriteComponent);
+    if (sprite?.sprite) return sprite.sprite.scene;
+    
+    return undefined;
+  }
 }
 

@@ -21,6 +21,24 @@ When asked to "update the docs":
 6. **Update `.agents/summary` to keep it in sync with doc changes**
 7. **Ask clarifying questions if there's conflicting information or unclear behavior**
 
+## 🎯 Designing New Features
+
+**Before implementing a new feature**, follow the structured design process:
+
+**[Feature Design Process](./feature-design-process.md)** - SOP for going from idea to implementation-ready design
+- Phase 1: Initial capture and clarifying questions
+- Phase 2: Technical POC for risky/unknown tech
+- Phase 3: Requirements document (WHAT)
+- Phase 4: Design document (HOW)
+- Phase 5: Scrutiny and clarification (find ALL gaps)
+- Phase 6: Task breakdown with estimates
+- Phase 7: Implementation clarifications (quick reference)
+- Phase 8: README for future sessions
+
+**Time investment**: 1-3 hours of design saves 10-20 hours of implementation confusion.
+
+**Example**: The interaction system followed this process and is ready for smooth implementation.
+
 ## 🚨 Start Here
 
 1. **[Coding Standards](./coding-standards.md)** - MANDATORY reading

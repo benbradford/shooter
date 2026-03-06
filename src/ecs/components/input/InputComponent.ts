@@ -107,6 +107,8 @@ export class InputComponent implements Component {
   }
 
   isAttackPressed(): boolean {
+    if (!this.enabled) return false;
+    
     const remoteInput = this.entity.get(RemoteInputComponent);
     if (remoteInput) {
       return remoteInput.getAimInput().isPressed;
@@ -120,6 +122,7 @@ export class InputComponent implements Component {
   }
 
   isSlidePressed(): boolean {
+    if (!this.enabled) return false;
     return this.slideKey?.isDown ?? false;
   }
 

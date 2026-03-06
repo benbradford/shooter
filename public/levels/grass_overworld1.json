@@ -5156,6 +5156,31 @@
         ],
         "oneShot": false
       }
+    },
+    {
+      "id": "triggertest",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "test_interaction_event",
+        "triggerCells": [
+          {
+            "col": 18,
+            "row": 3
+          }
+
+        ],
+        "oneShot": true
+      }
+    },
+    {
+          "id": "interaction0",
+          "type": "interaction",
+          "data": {
+            "filename": "test_interaction_event"
+          },
+          "createOnAnyEvent": [
+            "test_interaction_event"
+          ]
     }
   ],
   "levelTheme": "grass_overworld1",

@@ -1,5 +1,27 @@
 # Coding Standards
 
+## ⚠️ CRITICAL: FOLLOW FEATURE DESIGN PROCESS ⚠️
+
+**Before implementing ANY new feature, follow the structured design process:**
+
+See **[Feature Design Process](./feature-design-process.md)** for complete SOP.
+
+**Quick summary:**
+1. Ask clarifying questions
+2. Create POC for risky tech
+3. Write requirements (WHAT)
+4. Write design (HOW)
+5. **Scrutinize and find ALL gaps**
+6. Create task breakdown
+7. Write implementation clarifications
+8. Create README for future sessions
+
+**Time investment**: 1-3 hours saves 10-20 hours of implementation confusion.
+
+**Example**: `features/interactions/` - Complete, unambiguous design ready for implementation.
+
+---
+
 ## ⚠️ CRITICAL: NEVER USE GIT COMMANDS ⚠️
 
 **AI assistants must NEVER run git commands (checkout, reset, revert, stash, etc.)**

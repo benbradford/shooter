@@ -26,9 +26,19 @@ export class EntityManager {
   }
 
   update(delta: number): void {
-    for (const entity of this.entities) {
-      if (!entity.isDestroyed) {
-        entity.update(delta);
+    const scene = this.entities[0]?.getScene() as any;
+    
+    if (scene?.isInInteraction) {
+      for (const entity of this.entities) {
+        if (entity.tags.has('interaction_active') && !entity.isDestroyed) {
+          entity.update(delta);
+        }
+      }
+    } else {
+      for (const entity of this.entities) {
+        if (!entity.isDestroyed) {
+          entity.update(delta);
+        }
       }
     }
 

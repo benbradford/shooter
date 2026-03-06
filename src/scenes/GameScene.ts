@@ -10,7 +10,9 @@ import type HudScene from "./HudScene";
 import { PLAYER_MAX_HEALTH, createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { StateMachine } from "../systems/state/StateMachine";
+import type { IState } from "../systems/state/IState";
 import { InGameState } from "./states/InGameState";
+import { InteractionState, type InteractionStateData } from "./states/InteractionState";
 import { CELL_SIZE, CAMERA_ZOOM, CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y_PX } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
@@ -34,7 +36,7 @@ export default class GameScene extends Phaser.Scene {
   public eventManager!: EventManagerSystem;
   private entityCreatorManager!: EntityCreatorManager;
   private entityLoader!: EntityLoader;
-  private stateMachine!: StateMachine<void>;
+  private stateMachine!: StateMachine<void | InteractionStateData>;
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
   private levelKey!: Phaser.Input.Keyboard.Key;
@@ -47,6 +49,7 @@ export default class GameScene extends Phaser.Scene {
   public layerDebugText?: Phaser.GameObjects.Text;
   private sceneOverlays?: SceneOverlays;
   private isEditorMode: boolean = false;
+  public isInInteraction: boolean = false;
 
   constructor() {
     super({ key: "game", active: true });
@@ -138,7 +141,11 @@ export default class GameScene extends Phaser.Scene {
         () => this.collisionSystem,
         () => this.grid,
         () => this.levelData
-      )
+      ) as IState<void | InteractionStateData>,
+      interaction: new InteractionState(
+        this,
+        () => this.entityManager
+      ) as IState<void | InteractionStateData>
     }, 'inGame');
 
     this.layerDebugText = this.add.text(10, 10, '', {
@@ -390,6 +397,10 @@ export default class GameScene extends Phaser.Scene {
 
   getLevelData(): LevelData {
     return this.levelData;
+  }
+
+  public startInteraction(scriptContent: string): void {
+    this.stateMachine.enter('interaction', { scriptContent });
   }
 
   setTheme(theme: 'dungeon' | 'swamp' | 'grass' | 'wilds'): void {

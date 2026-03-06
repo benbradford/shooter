@@ -52,15 +52,20 @@ export default class HudScene extends Phaser.Scene {
 
   toggleHud(): void {
     this.isHudVisible = !this.isHudVisible;
+    this.setVisible(this.isHudVisible);
+  }
+
+  setVisible(visible: boolean): void {
+    this.isHudVisible = visible;
     
     const joystickVisuals = this.joystickEntity.get(JoystickVisualsComponent);
     if (joystickVisuals) {
-      joystickVisuals.setVisible(this.isHudVisible);
+      joystickVisuals.setVisible(visible);
     }
 
     const attackButton = this.joystickEntity.get(AttackButtonComponent);
     if (attackButton) {
-      attackButton.setVisible(this.isHudVisible);
+      attackButton.setVisible(visible);
     }
 
     const gameScene = this.scene.get('game');
@@ -69,12 +74,12 @@ export default class HudScene extends Phaser.Scene {
       if (player) {
         const hudBars = player.get(HudBarComponent);
         if (hudBars) {
-          hudBars.setVisible(this.isHudVisible);
+          hudBars.setVisible(visible);
         }
 
         const slideButton = player.get(SlideButtonComponent);
         if (slideButton) {
-          slideButton.setVisible(this.isHudVisible);
+          slideButton.setVisible(visible);
         }
       }
     }

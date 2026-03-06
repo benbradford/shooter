@@ -12,7 +12,8 @@ export type EntityType =
   | 'trigger'
   | 'exit'
   | 'breakable'
-  | 'cellmodifier';
+  | 'cellmodifier'
+  | 'interaction';
 
 export type LevelEntity = {
   id: string;

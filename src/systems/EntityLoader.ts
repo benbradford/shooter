@@ -21,6 +21,8 @@ import { createCoinEntity, COIN_SPRITE_SCALE, COIN_SIZE_PX } from '../ecs/entiti
 import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
 import { createCellModifierEntity } from '../cellmodifier/CellModifierEntity';
+import { createInteractionEntity } from '../interaction/InteractionEntity';
+import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
@@ -355,6 +357,16 @@ export class EntityLoader {
             scene: this.scene,
             entityId: entityDef.id,
             cellsToModify: cellModifierData.cellsToModify
+          });
+        };
+
+      case 'interaction':
+        return () => {
+          const interactionData = data as { filename: string };
+          return createInteractionEntity({
+            scene: this.scene as GameScene,
+            entityId: entityDef.id,
+            filename: interactionData.filename
           });
         };
 

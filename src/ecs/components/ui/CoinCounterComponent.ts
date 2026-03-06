@@ -75,4 +75,20 @@ export class CoinCounterComponent extends BaseEventComponent {
       this.coinText.setAlpha(alpha);
     }
   }
+
+  getCount(): number {
+    return WorldStateManager.getInstance().getPlayerCoins();
+  }
+
+  removeCoins(amount: number): void {
+    const worldState = WorldStateManager.getInstance();
+    const current = worldState.getPlayerCoins();
+    worldState.setPlayerCoins(Math.max(0, current - amount));
+  }
+
+  addCoins(amount: number): void {
+    const worldState = WorldStateManager.getInstance();
+    const current = worldState.getPlayerCoins();
+    worldState.setPlayerCoins(current + amount);
+  }
 }

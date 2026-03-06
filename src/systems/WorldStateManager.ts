@@ -92,6 +92,10 @@ export class WorldStateManager {
     this.worldState.player.coins += amount;
   }
 
+  setPlayerCoins(amount: number): void {
+    this.worldState.player.coins = Math.max(0, amount);
+  }
+
   setCurrentLevel(levelName: string): void {
     this.worldState.player.currentLevel = levelName;
   }
