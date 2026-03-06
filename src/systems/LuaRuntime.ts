@@ -2,6 +2,7 @@ import { LuaFactory } from 'wasmoon';
 import type { Entity } from '../ecs/Entity';
 import type GameScene from '../scenes/GameScene';
 import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent';
+import { InteractionComponent } from '../ecs/components/interaction/InteractionComponent';
 
 type Command = 
   | { type: 'wait'; ms: number }
@@ -16,7 +17,7 @@ export class LuaRuntime {
   
   constructor(
     private readonly scene: GameScene,
-    _playerEntity: Entity
+    private readonly playerEntity: Entity
   ) {}
   
   async executeScript(scriptContent: string): Promise<void> {
@@ -71,11 +72,9 @@ export class LuaRuntime {
       
       const speech = {
         backgroundColor: (color: string) => {
-          console.log(`[LuaRuntime] speech.backgroundColor("${color}") called`);
           this.speechBackgroundColor = color;
         },
         textColor: (color: string) => {
-          console.log(`[LuaRuntime] speech.textColor("${color}") called`);
           this.speechTextColor = color;
         }
       };
@@ -93,17 +92,31 @@ export class LuaRuntime {
   }
   
   private async executeCommand(cmd: Command): Promise<void> {
-    if (cmd.type === 'wait') {
-      await new Promise(resolve => setTimeout(resolve, cmd.ms));
-    } else if (cmd.type === 'say') {
-      console.log(`[LuaRuntime] say("${cmd.name}", "${cmd.text}", ${cmd.speed}, ${cmd.timeout}) - bg: ${cmd.backgroundColor}, text: ${cmd.textColor}`);
-      // TODO: Create SpeechBoxComponent
-    } else if (cmd.type === 'moveTo') {
-      console.log(`[LuaRuntime] player.moveTo(${cmd.col}, ${cmd.row}, ${cmd.speed})`);
-      // TODO: Call InteractionComponent.moveTo()
-    } else if (cmd.type === 'look') {
-      console.log(`[LuaRuntime] player.look("${cmd.direction}")`);
-      // TODO: Call InteractionComponent.look()
+    // Tag player for all commands (keeps state machine from interfering)
+    this.playerEntity.tags.add('interaction_active');
+    
+    try {
+      if (cmd.type === 'wait') {
+        await new Promise(resolve => setTimeout(resolve, cmd.ms));
+      } else if (cmd.type === 'say') {
+        console.log(`[LuaRuntime] say("${cmd.name}", "${cmd.text}", ${cmd.speed}, ${cmd.timeout}) - bg: ${cmd.backgroundColor}, text: ${cmd.textColor}`);
+        // TODO: Create SpeechBoxComponent
+      } else if (cmd.type === 'moveTo') {
+        const interactionComp = this.playerEntity.get(InteractionComponent);
+        if (!interactionComp) {
+          throw new Error('[LuaRuntime] Player missing InteractionComponent');
+        }
+        await interactionComp.moveTo(cmd.col, cmd.row, cmd.speed);
+      } else if (cmd.type === 'look') {
+        const interactionComp = this.playerEntity.get(InteractionComponent);
+        if (!interactionComp) {
+          throw new Error('[LuaRuntime] Player missing InteractionComponent');
+        }
+        await interactionComp.look(cmd.direction);
+      }
+    } finally {
+      // Remove tag after command completes (before next command starts)
+      this.playerEntity.tags.delete('interaction_active');
     }
   }
 }

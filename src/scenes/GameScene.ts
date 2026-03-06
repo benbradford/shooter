@@ -144,7 +144,10 @@ export default class GameScene extends Phaser.Scene {
       ) as IState<void | InteractionStateData>,
       interaction: new InteractionState(
         this,
-        () => this.entityManager
+        () => this.entityManager,
+        () => this.collisionSystem,
+        () => this.grid,
+        () => this.levelData
       ) as IState<void | InteractionStateData>
     }, 'inGame');
 

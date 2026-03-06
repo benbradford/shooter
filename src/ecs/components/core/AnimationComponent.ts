@@ -14,10 +14,10 @@ export class AnimationComponent implements Component {
   update(delta: number): void {
     this.animationSystem.update(delta);
     const frame = this.animationSystem.getFrame();
+    
     if (frame === undefined) {
       console.warn("frame is undefined for " + this.entity.id)
     } else {
-      // Try to parse as number (sprite sheet frame), fallback to string (texture name)
       const frameNum = Number.parseInt(frame);
       if (Number.isNaN(frameNum)) {
         console.warn("frame is empty string for " + this.entity.id)

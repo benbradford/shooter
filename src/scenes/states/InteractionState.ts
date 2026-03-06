@@ -1,5 +1,8 @@
 import type { IState, IStateEnterProps } from '../../systems/state/IState';
 import type { EntityManager } from '../../ecs/EntityManager';
+import type { CollisionSystem } from '../../systems/CollisionSystem';
+import type { Grid } from '../../systems/grid/Grid';
+import type { LevelData } from '../../systems/level/LevelLoader';
 import type GameScene from '../GameScene';
 import type HudScene from '../HudScene';
 import { InputComponent } from '../../ecs/components/input/InputComponent';
@@ -12,7 +15,10 @@ export type InteractionStateData = {
 export class InteractionState implements IState<InteractionStateData> {
   constructor(
     private readonly scene: GameScene,
-    private readonly getEntityManager: () => EntityManager
+    private readonly getEntityManager: () => EntityManager,
+    private readonly getCollisionSystem: () => CollisionSystem,
+    private readonly getGrid: () => Grid,
+    private readonly getLevelData: () => LevelData
   ) {}
   
   onEnter(props?: IStateEnterProps<InteractionStateData>): void {
@@ -60,6 +66,12 @@ export class InteractionState implements IState<InteractionStateData> {
     if (input) {
       input.setEnabled(true);
     }
+  }
+  
+  onUpdate(delta: number): void {
+    this.getEntityManager().update(delta);
+    this.getCollisionSystem().update(this.getEntityManager().getAll());
+    this.getGrid().render(this.getEntityManager(), this.getLevelData());
   }
   
   private async executeScript(scriptContent: string): Promise<void> {

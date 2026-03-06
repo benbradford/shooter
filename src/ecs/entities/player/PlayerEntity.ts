@@ -26,6 +26,7 @@ import { VignetteHealthComponent } from '../../components/visual/VignetteHealthC
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
 import { SlideButtonComponent } from '../../components/input/SlideButtonComponent';
+import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -263,6 +264,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   }
 
   entity.add(new WaterRippleComponent(scene, grid));
+  entity.add(new InteractionComponent(grid));
 
   entity.setUpdateOrder([
     TransformComponent,
@@ -270,6 +272,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     ShadowComponent,
     ControlModeComponent,
     InputComponent,
+    InteractionComponent,
     WalkComponent,
     GridCollisionComponent,
     SlideAbilityComponent,

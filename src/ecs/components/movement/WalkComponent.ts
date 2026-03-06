@@ -10,6 +10,7 @@ import { HealthComponent } from '../core/HealthComponent';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
+import { InteractionComponent } from '../interaction/InteractionComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 export type WalkProps = {
@@ -72,6 +73,11 @@ export class WalkComponent implements Component {
 
   update(delta: number): void {
     if (!this.enabled) {
+      return;
+    }
+    
+    const interaction = this.entity.get(InteractionComponent);
+    if (interaction?.isActive) {
       return;
     }
     

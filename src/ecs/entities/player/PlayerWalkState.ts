@@ -9,6 +9,7 @@ import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityCo
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { handlePunchInput, handleSlideInput } from './PlayerStateHelpers';
+import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
@@ -30,6 +31,9 @@ export class PlayerWalkState implements IState {
 
 
   onUpdate(_delta: number): void {
+    const interaction = this.entity.get(InteractionComponent);
+    if (interaction?.isActive) return;
+    
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);
     const sm = this.entity.require(StateMachineComponent);
