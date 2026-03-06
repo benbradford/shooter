@@ -3,6 +3,9 @@ import type { Entity } from '../ecs/Entity';
 import type GameScene from '../scenes/GameScene';
 import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent';
 import { InteractionComponent } from '../ecs/components/interaction/InteractionComponent';
+import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
+import { Entity as EntityClass } from '../ecs/Entity';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
 
 type Command = 
   | { type: 'wait'; ms: number }
@@ -99,8 +102,22 @@ export class LuaRuntime {
       if (cmd.type === 'wait') {
         await new Promise(resolve => setTimeout(resolve, cmd.ms));
       } else if (cmd.type === 'say') {
-        console.log(`[LuaRuntime] say("${cmd.name}", "${cmd.text}", ${cmd.speed}, ${cmd.timeout}) - bg: ${cmd.backgroundColor}, text: ${cmd.textColor}`);
-        // TODO: Create SpeechBoxComponent
+        const speechEntity = new EntityClass('speech_box');
+        speechEntity.tags.add('interaction_active');
+        
+        speechEntity.add(new TransformComponent(0, 0, 0, 1));
+        
+        const speechBox = speechEntity.add(new SpeechBoxComponent(
+          this.scene,
+          cmd.backgroundColor,
+          cmd.textColor
+        ));
+        
+        this.scene.entityManager.add(speechEntity);
+        
+        await speechBox.show(cmd.name, cmd.text, cmd.speed, cmd.timeout);
+        
+        speechEntity.destroy();
       } else if (cmd.type === 'moveTo') {
         const interactionComp = this.playerEntity.get(InteractionComponent);
         if (!interactionComp) {
