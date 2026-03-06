@@ -64,13 +64,14 @@ export class SpeechBoxComponent implements Component {
     this.isDismissed = false;
     this.isSkipping = false;
     
-    const displayWidth = this.scene.scale.displaySize.width;
-    const displayHeight = this.scene.scale.displaySize.height;
+    const camera = this.scene.cameras.main;
+    const viewWidth = camera.width;
+    const viewHeight = camera.height;
     
-    this.boxWidth = displayWidth * BOX_WIDTH_PERCENT;
-    this.boxHeight = displayHeight * (BOX_BOTTOM_PERCENT - BOX_TOP_PERCENT);
-    this.boxX = (displayWidth - this.boxWidth) / 2;
-    this.boxY = displayHeight * BOX_TOP_PERCENT;
+    this.boxWidth = viewWidth * BOX_WIDTH_PERCENT;
+    this.boxHeight = viewHeight * (BOX_BOTTOM_PERCENT - BOX_TOP_PERCENT);
+    this.boxX = (viewWidth - this.boxWidth) / 2;
+    this.boxY = viewHeight * BOX_TOP_PERCENT;
     
     this.segments = this.parseColorTags(text);
     

@@ -67,6 +67,9 @@ export default class HudScene extends Phaser.Scene {
     if (attackButton) {
       attackButton.setVisible(visible);
     }
+    
+    // Coin counter always visible (don't hide during interactions)
+    // It will show/fade based on coin changes
 
     const gameScene = this.scene.get('game');
     if (gameScene && 'entityManager' in gameScene) {

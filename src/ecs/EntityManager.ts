@@ -30,7 +30,11 @@ export class EntityManager {
     
     if (scene?.isInInteraction) {
       for (const entity of this.entities) {
-        if (entity.tags.has('interaction_active') && !entity.isDestroyed) {
+        // Update interaction-active entities OR entities in HudScene
+        const entityScene = entity.getScene();
+        const isHudEntity = entityScene?.scene.key === 'HudScene';
+        
+        if ((entity.tags.has('interaction_active') || isHudEntity) && !entity.isDestroyed) {
           entity.update(delta);
         }
       }
