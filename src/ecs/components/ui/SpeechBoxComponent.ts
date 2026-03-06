@@ -51,6 +51,7 @@ export class SpeechBoxComponent implements Component {
   private isDismissed = false;
   private isSkipping = false;
   private dismissResolve: (() => void) | null = null;
+  private continueIndicator?: Phaser.GameObjects.Text;
   
   constructor(
     private readonly scene: Phaser.Scene,
@@ -82,6 +83,9 @@ export class SpeechBoxComponent implements Component {
     
     await this.animateText();
     
+    // Show continue indicator
+    this.showContinueIndicator();
+    
     // Text complete - wait for timeout or input to dismiss
     await this.waitForDismiss(timeout);
     
@@ -106,6 +110,31 @@ export class SpeechBoxComponent implements Component {
       this.spaceKey.off('down', this.onInputBound);
       this.scene.input.off('pointerdown', this.onInputBound);
     }
+  }
+  
+  private showContinueIndicator(): void {
+    this.continueIndicator = this.scene.add.text(
+      this.boxX + this.boxWidth - PADDING_PX - 20,
+      this.boxY + this.boxHeight - PADDING_PX - 10,
+      '▼',
+      {
+        fontSize: '20px',
+        color: '#ffffff'
+      }
+    );
+    this.continueIndicator.setOrigin(1, 1);
+    this.continueIndicator.setScrollFactor(0);
+    this.continueIndicator.setDepth(Depth.hud + 2);
+    
+    // Pulse animation
+    this.scene.tweens.add({
+      targets: this.continueIndicator,
+      alpha: 0.3,
+      duration: 500,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
   }
   
   private onInput(): void {
@@ -317,6 +346,9 @@ export class SpeechBoxComponent implements Component {
     this.nameText.destroy();
     this.textObjects.forEach(obj => obj.destroy());
     this.textObjects = [];
+    if (this.continueIndicator) {
+      this.continueIndicator.destroy();
+    }
   }
   
   update(_delta: number): void {
