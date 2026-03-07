@@ -7,6 +7,9 @@ export type WorldState = {
     spawnRow?: number;
     entryCell: { col: number; row: number };
   };
+  flags: {
+    [key: string]: string;
+  };
   levels: {
     [levelName: string]: {
       liveEntities: string[];

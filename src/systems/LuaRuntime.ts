@@ -5,6 +5,7 @@ import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent'
 import { InteractionComponent } from '../ecs/components/interaction/InteractionComponent';
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { WorldStateManager } from './WorldStateManager';
 
 type Command = 
   | { type: 'wait'; ms: number }
@@ -97,6 +98,21 @@ export class LuaRuntime {
       
       lua.global.set('fadeIn', (durationMs: number) => {
         this.commandQueue.push({ type: 'fadeIn', durationMs });
+      });
+      
+      lua.global.set('setFlag', (name: string, value: string | number) => {
+        const worldState = WorldStateManager.getInstance();
+        worldState.setFlag(name, value);
+      });
+      
+      lua.global.set('isFlagCondition', (name: string, condition: string, value: string | number): boolean => {
+        const worldState = WorldStateManager.getInstance();
+        const validConditions = ['eq', 'neq', 'gt', 'lt', 'gte', 'lte'];
+        if (!validConditions.includes(condition)) {
+          console.error(`[LuaRuntime] Invalid condition: ${condition}`);
+          return false;
+        }
+        return worldState.isFlagCondition(name, condition as 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value);
       });
       
       await lua.doString(scriptContent);
