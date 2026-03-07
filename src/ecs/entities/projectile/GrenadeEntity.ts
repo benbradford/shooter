@@ -4,6 +4,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
+import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import type { Component } from '../../Component';
 import { Depth } from '../../../constants/DepthConstants';
 
@@ -94,6 +95,15 @@ class GrenadeArcComponent implements Component {
             // eslint-disable-next-line max-depth
             if (health) {
               health.takeDamage(damage.damage);
+              
+              // eslint-disable-next-line max-depth
+              if (health.getHealth() <= 0) {
+                const sm = other.get(StateMachineComponent);
+                // eslint-disable-next-line max-depth
+                if (sm) {
+                  sm.stateMachine.enter('death');
+                }
+              }
             }
           }
         }

@@ -125,7 +125,7 @@ export class SpeechBoxComponent implements Component {
     );
     this.continueIndicator.setOrigin(1, 1);
     this.continueIndicator.setScrollFactor(0);
-    this.continueIndicator.setDepth(Depth.hud + 2);
+    this.continueIndicator.setDepth(Depth.fade + 3);
     
     // Pulse animation
     this.scene.tweens.add({
@@ -157,7 +157,7 @@ export class SpeechBoxComponent implements Component {
   private createBox(): void {
     this.graphics = this.scene.add.graphics();
     this.graphics.setScrollFactor(0);
-    this.graphics.setDepth(Depth.hud);
+    this.graphics.setDepth(Depth.fade + 1);
     this.graphics.setAlpha(BOX_ALPHA);
     this.graphics.setScale(0);
     
@@ -208,7 +208,7 @@ export class SpeechBoxComponent implements Component {
       }
     );
     this.nameText.setScrollFactor(0);
-    this.nameText.setDepth(Depth.hud + 1);
+    this.nameText.setDepth(Depth.fade + 2);
   }
   
   private parseColorTags(text: string): TextSegment[] {
@@ -267,7 +267,7 @@ export class SpeechBoxComponent implements Component {
         }
       );
       textObj.setScrollFactor(0);
-      textObj.setDepth(Depth.hud + 1);
+      textObj.setDepth(Depth.fade + 2);
       this.textObjects.push(textObj);
       
       // Measure width for next segment (will update as text animates)

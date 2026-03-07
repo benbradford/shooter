@@ -12,12 +12,15 @@ type Command =
   | { type: 'moveTo'; col: number; row: number; speed: number }
   | { type: 'look'; direction: string }
   | { type: 'spendCoins'; amount: number }
-  | { type: 'obtainCoins'; amount: number };
+  | { type: 'obtainCoins'; amount: number }
+  | { type: 'fadeOut'; durationMs: number }
+  | { type: 'fadeIn'; durationMs: number };
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
   private speechBackgroundColor: string = 'black';
   private speechTextColor: string = 'white';
+  private fadeRectangle: Phaser.GameObjects.Rectangle | null = null;
   
   constructor(
     private readonly scene: GameScene,
@@ -88,6 +91,14 @@ export class LuaRuntime {
       };
       lua.global.set('speech', speech);
       
+      lua.global.set('fadeOut', (durationMs: number) => {
+        this.commandQueue.push({ type: 'fadeOut', durationMs });
+      });
+      
+      lua.global.set('fadeIn', (durationMs: number) => {
+        this.commandQueue.push({ type: 'fadeIn', durationMs });
+      });
+      
       await lua.doString(scriptContent);
       
       for (const cmd of this.commandQueue) {
@@ -148,6 +159,39 @@ export class LuaRuntime {
         const coinCounter = joystickEntity?.get(CoinCounterComponent);
         if (coinCounter) {
           await coinCounter.addCoinsAnimated(cmd.amount);
+        }
+      } else if (cmd.type === 'fadeOut') {
+        if (!this.fadeRectangle) {
+          const width = this.scene.cameras.main.width;
+          const height = this.scene.cameras.main.height;
+          this.fadeRectangle = this.scene.add.rectangle(width / 2, height / 2, width, height, 0x000000);
+          this.fadeRectangle.setScrollFactor(0);
+          this.fadeRectangle.setDepth(100000);
+          this.fadeRectangle.setAlpha(0);
+        }
+        
+        await new Promise<void>(resolve => {
+          this.scene.tweens.add({
+            targets: this.fadeRectangle,
+            alpha: 1,
+            duration: cmd.durationMs,
+            onComplete: () => resolve()
+          });
+        });
+      } else if (cmd.type === 'fadeIn') {
+        if (this.fadeRectangle) {
+          await new Promise<void>(resolve => {
+            this.scene.tweens.add({
+              targets: this.fadeRectangle,
+              alpha: 0,
+              duration: cmd.durationMs,
+              onComplete: () => {
+                this.fadeRectangle?.destroy();
+                this.fadeRectangle = null;
+                resolve();
+              }
+            });
+          });
         }
       }
     } finally {

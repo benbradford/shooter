@@ -91,16 +91,22 @@ export class CoinCounterComponent extends BaseEventComponent {
     const current = worldState.getPlayerCoins();
     const target = Math.max(0, current - amount);
 
-    // Show coin counter
+    // Show coin counter and scale up
     this.timeSinceLastCoinMs = 0;
     this.coinIcon.setAlpha(1);
     this.coinText.setAlpha(1);
+    this.coinIcon.setDisplaySize(COIN_ICON_SIZE_PX * 2, COIN_ICON_SIZE_PX * 2);
+    this.coinText.setScale(2);
 
     // Remove coins one at a time
     for (let i = current; i > target; i--) {
       worldState.setPlayerCoins(i - 1);
       await new Promise(resolve => setTimeout(resolve, 50));
     }
+    
+    // Scale back to original
+    this.coinIcon.setDisplaySize(COIN_ICON_SIZE_PX, COIN_ICON_SIZE_PX);
+    this.coinText.setScale(1);
   }
 
   async addCoinsAnimated(amount: number): Promise<void> {
