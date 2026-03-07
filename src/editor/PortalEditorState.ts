@@ -110,7 +110,7 @@ export class PortalEditorState extends EditorState {
         }
       });
 
-      gameScene.resetScene();
+      void gameScene.resetScene();
       this.scene.enterDefaultMode();
     };
     container.appendChild(addButton);

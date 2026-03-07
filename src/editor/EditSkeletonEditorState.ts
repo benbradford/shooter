@@ -126,7 +126,7 @@ export class EditSkeletonEditorState extends EditorState {
         this.skeleton.destroy();
         
         // Reload and return to default
-        gameScene.resetScene();
+        void gameScene.resetScene();
         this.scene.enterDefaultMode();
       }
     };

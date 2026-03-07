@@ -32,7 +32,7 @@ export class EditBugBaseEditorState extends EditorState {
           this.bugBase.destroy();
         }
         
-        gameScene.resetScene();
+        void gameScene.resetScene();
         this.scene.enterDefaultMode();
       }
     });

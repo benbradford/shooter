@@ -179,7 +179,7 @@ export default class GameScene extends Phaser.Scene {
             preloadAssetGroups(this, ['editor']);
             this.load.start();
 
-            this.resetScene();
+            void this.resetScene();
             this.scene.pause();
             this.scene.launch('EditorScene');
           } else {
@@ -479,7 +479,9 @@ export default class GameScene extends Phaser.Scene {
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
 
-    const hudScene = this.scene.get('HudScene') as Phaser.Scene;
+    const hudScene = this.scene.get('HudScene');
+    if (!hudScene) return;
+    
     const cam = this.cameras.main;
     const fadeRect = hudScene.add.rectangle(
       0,

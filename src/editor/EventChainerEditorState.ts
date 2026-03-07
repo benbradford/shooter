@@ -267,7 +267,7 @@ export class EventChainerEditorState extends EditorState {
       }
     });
 
-    gameScene.resetScene();
+    void gameScene.resetScene();
     this.scene.enterDefaultMode();
   }
 
@@ -295,7 +295,7 @@ export class EventChainerEditorState extends EditorState {
       (chainer.data as { eventsToRaise: Array<{ event: string; delayMs: number }> }).eventsToRaise = eventsToRaise;
     }
 
-    gameScene.resetScene();
+    void gameScene.resetScene();
     this.scene.enterDefaultMode();
   }
 
@@ -315,7 +315,7 @@ export class EventChainerEditorState extends EditorState {
       entity.destroy();
     }
 
-    gameScene.resetScene();
+    void gameScene.resetScene();
     this.scene.enterDefaultMode();
   }
 

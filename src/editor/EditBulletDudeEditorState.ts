@@ -81,7 +81,7 @@ export class EditBulletDudeEditorState extends EditorState {
         }
         
         this.bulletDude.destroy();
-        gameScene.resetScene();
+        void gameScene.resetScene();
         this.scene.enterDefaultMode();
       }
     };

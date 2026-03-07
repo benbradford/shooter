@@ -123,7 +123,10 @@ export class SceneOverlays {
       const spriteIndex = Math.floor(rng() * this.overlaySprites.length);
       const sprite = this.overlaySprites[spriteIndex];
 
-      const overlayKey = this.levelData.background!.overlays!.spritesheet.split('/').pop()?.replace('_sprite_sheet.png', '').replace('_spritesheet.png', '').replace('.png', '') ?? 'dungeon_overlays';
+      const overlays = this.levelData.background?.overlays;
+      if (!overlays) continue;
+      
+      const overlayKey = overlays.spritesheet.split('/').pop()?.replace('_sprite_sheet.png', '').replace('_spritesheet.png', '').replace('.png', '') ?? 'dungeon_overlays';
 
       const worldPos = grid.cellToWorld(cell.col, cell.row);
       const image = this.scene.add.image(

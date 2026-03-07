@@ -65,7 +65,7 @@ export class AddBulletDudeEditorState extends EditorState {
       difficulty: this.difficulty
     });
 
-    gameScene.resetScene();
+    void gameScene.resetScene();
 
     const bulletDudes = gameScene.entityManager.getByType('bulletdude');
     const newBulletDude = bulletDudes[bulletDudes.length - 1];

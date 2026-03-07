@@ -20,11 +20,11 @@ export class WorldStateManager {
     }
     return WorldStateManager.instance;
   }
-  
+
   setTrackDestructions(value: boolean): void {
     this.trackDestructions = value;
   }
-  
+
   shouldTrackDestructions(): boolean {
     return this.trackDestructions;
   }
@@ -58,7 +58,7 @@ export class WorldStateManager {
   getPlayerHealth(): number {
     return this.worldState.player.health;
   }
-  
+
   getPlayerCoins(): number {
     return this.worldState.player.coins ?? 0;
   }
@@ -86,7 +86,7 @@ export class WorldStateManager {
   setPlayerHealth(health: number): void {
     this.worldState.player.health = health;
   }
-  
+
   addCoins(amount: number): void {
     this.worldState.player.coins ??= 0;
     this.worldState.player.coins += amount;
@@ -112,44 +112,37 @@ export class WorldStateManager {
   }
 
   setFlag(name: string, value: string | number): void {
-    if (!this.worldState.flags) {
-      this.worldState.flags = {};
-    }
     this.worldState.flags[name] = value.toString();
   }
 
   isFlagCondition(name: string, condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value: string | number): boolean {
-    if (!this.worldState.flags) {
-      return false;
-    }
-    
     const flagValue = this.worldState.flags[name];
-    
+
     if (flagValue === undefined) {
       return false;
     }
 
     const compareValue = value.toString();
-    
+
     if (condition === 'eq') {
       return flagValue === compareValue;
     } else if (condition === 'neq') {
       return flagValue !== compareValue;
     }
-    
+
     const flagNum = Number.parseFloat(flagValue);
     const compareNum = Number.parseFloat(compareValue);
-    
+
     if (Number.isNaN(flagNum) || Number.isNaN(compareNum)) {
       console.error(`[WorldState] Cannot use ${condition} with non-numeric values: flag="${flagValue}", compare="${compareValue}"`);
       return false;
     }
-    
+
     if (condition === 'gt') return flagNum > compareNum;
     if (condition === 'lt') return flagNum < compareNum;
     if (condition === 'gte') return flagNum >= compareNum;
     if (condition === 'lte') return flagNum <= compareNum;
-    
+
     return false;
   }
 
@@ -177,7 +170,7 @@ export class WorldStateManager {
       levelState.firedTriggers.push(eventName);
     }
   }
-  
+
   addCellModifierCells(levelName: string, cells: Array<{ col: number; row: number }>): void {
     const levelState = this.getLevelState(levelName);
     for (const cell of cells) {
@@ -200,7 +193,7 @@ export class WorldStateManager {
 
         const cellKey = `${col},${row}`;
         const wasTouchedByCellModifier = cellModifierCellsSet.has(cellKey);
-        
+
         const originalCell = originalLevelData.cells.find(c => c.col === col && c.row === row);
         const originalLayer = originalCell?.layer ?? 0;
         const originalProps = new Set(originalCell?.properties ?? []);
@@ -208,13 +201,13 @@ export class WorldStateManager {
 
         const currentProps = Array.from(currentCell.properties);
         const currentTexture = currentCell.backgroundTexture ?? '';
-        
-        const propsChanged = 
+
+        const propsChanged =
           currentProps.length !== originalProps.size ||
           currentProps.some(p => !originalProps.has(p)) ||
           Array.from(originalProps).some(p => !currentProps.includes(p));
-        
-        const hasChanged = 
+
+        const hasChanged =
           currentCell.layer !== originalLayer ||
           propsChanged ||
           currentTexture !== originalTexture;

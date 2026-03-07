@@ -123,7 +123,7 @@ export class EditThrowerEditorState extends EditorState {
         }
         
         this.thrower.destroy();
-        gameScene.resetScene();
+        void gameScene.resetScene();
         this.scene.enterDefaultMode();
       }
     };

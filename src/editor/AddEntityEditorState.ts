@@ -273,7 +273,7 @@ export class AddEntityEditorState extends EditorState {
     levelData.entities.push(newEntity);
 
     // Reload scene to spawn entity
-    gameScene.resetScene();
+    void gameScene.resetScene();
 
     // Stay in add mode
     this.scene.enterAddMode();

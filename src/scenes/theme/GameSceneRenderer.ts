@@ -2,8 +2,7 @@ import type { Grid } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
-import { WaterAnimator } from './WaterAnimator';
-import type { WaterConfig } from './WaterAnimator';
+import { WaterAnimator, type WaterConfig } from './WaterAnimator';
 import { PathTilesetGenerator } from './PathTilesetGenerator';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
@@ -484,26 +483,24 @@ export abstract class GameSceneRenderer {
             edgeSprite.setDisplaySize(this.cellSize, this.cellSize);
             edgeSprite.setDepth(Depth.waterTileEdge);
             this.cellSprites.push(edgeSprite);
-          } else {
-            if (pathTextures && pathTextures.length > 1) {
-              for (let i = 0; i < pathTextures.length; i++) {
-                const tex = pathTextures[i];
-                if (this.scene.textures.exists(tex)) {
-                  const sprite = this.scene.add.sprite(centerX, centerY, tex, frame);
-                  sprite.setDisplaySize(this.cellSize, this.cellSize);
-                  sprite.setDepth(Depth.waterTile);
-                  sprite.setVisible(i === 0);
-                  this.waterSprites.push(sprite);
-                }
+          } else if (pathTextures && pathTextures.length > 1) {
+            for (let i = 0; i < pathTextures.length; i++) {
+              const tex = pathTextures[i];
+              if (this.scene.textures.exists(tex)) {
+                const sprite = this.scene.add.sprite(centerX, centerY, tex, frame);
+                sprite.setDisplaySize(this.cellSize, this.cellSize);
+                sprite.setDepth(Depth.waterTile);
+                sprite.setVisible(i === 0);
+                this.waterSprites.push(sprite);
               }
-            } else {
-              const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
-              sprite.setDisplaySize(this.cellSize, this.cellSize);
-              sprite.setDepth(Depth.waterTile);
-              this.cellSprites.push(sprite);
             }
+          } else {
+            const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
+            sprite.setDisplaySize(this.cellSize, this.cellSize);
+            sprite.setDepth(Depth.waterTile);
+            this.cellSprites.push(sprite);
           }
-          }
+        }
         }
 
         if (isElevated || isStairs) {

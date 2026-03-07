@@ -66,7 +66,7 @@ export class AddSkeletonEditorState extends EditorState {
       difficulty: this.difficulty
     });
 
-    gameScene.resetScene();
+    void gameScene.resetScene();
 
     const skeletons = gameScene.entityManager.getByType('skeleton');
     const newSkeleton = skeletons[skeletons.length - 1];

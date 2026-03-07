@@ -203,7 +203,7 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
         }
         
         this.selectedRobot.destroy();
-        gameScene.resetScene();
+        void gameScene.resetScene();
         this.scene.enterDefaultMode();
       }
     });

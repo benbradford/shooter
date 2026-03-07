@@ -72,7 +72,7 @@ export class AddThrowerEditorState extends EditorState {
       difficulty: this.difficulty
     });
 
-    gameScene.resetScene();
+    void gameScene.resetScene();
 
     const throwers = gameScene.entityManager.getByType('thrower');
     const newThrower = throwers[throwers.length - 1];
