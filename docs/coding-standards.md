@@ -84,14 +84,24 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 2. **If there are multiple valid approaches** to solve the problem
 3. **If design decisions need to be made** (naming, structure, behavior)
 4. **If the request could be interpreted in different ways**
+5. **If you encounter problems during implementation**
+6. **If you're considering reverting or abandoning an approach**
 
-**STOP and ask for clarification BEFORE writing code.**
+**STOP and ask for clarification BEFORE writing code or making decisions.**
 
 **Examples of when to ask:**
 - "Should this component use props or constructor parameters?"
 - "Do you want this to work for all entities or just the player?"
 - "Should this be a new component or extend an existing one?"
 - "What should happen when [edge case]?"
+- "I'm having trouble with X because Y. Should I try approach A or approach B?"
+- "The implementation isn't working as expected. Would you like me to continue debugging or try a different approach?"
+
+**NEVER:**
+- Assume what the user wants
+- Make decisions about reverting code without asking
+- Give up on an approach without explaining the problem
+- Decide "it's not worth it" on the user's behalf
 
 **Don't assume or guess.** Always confirm the intended behavior and design before proceeding.
 
@@ -404,6 +414,81 @@ if (condition1) {
 - Reduces nesting depth
 - Makes code more readable
 - Standard pattern in most style guides
+
+### Handle Async Functions Properly
+
+**Always handle promises - don't let them float.**
+
+**DO ✅**
+```typescript
+// Await the promise
+await gameScene.resetScene();
+
+// Or explicitly ignore with void operator
+void gameScene.resetScene();
+
+// Or handle with .catch()
+gameScene.resetScene().catch(error => console.error(error));
+```
+
+**DON'T ❌**
+```typescript
+// Floating promise - linter error
+gameScene.resetScene();
+```
+
+**When to use void:**
+- Fire-and-forget operations where you don't need to wait
+- Event handlers that can't be async
+- Operations where errors are handled internally
+
+**Rule enforced by:** `@typescript-eslint/no-floating-promises`
+
+### Avoid Duplicate Imports
+
+**Combine imports from the same module.**
+
+**DO ✅**
+```typescript
+import { WaterAnimator, type WaterConfig } from './WaterAnimator';
+```
+
+**DON'T ❌**
+```typescript
+import { WaterAnimator } from './WaterAnimator';
+import type { WaterConfig } from './WaterAnimator';
+```
+
+**Why this matters:**
+- Cleaner code
+- Easier to see all imports from a module
+- Standard practice in TypeScript
+
+**Rule enforced by:** `no-duplicate-imports`
+
+### Avoid Unnecessary Type Assertions
+
+**Remove type assertions when TypeScript can infer the type.**
+
+**DO ✅**
+```typescript
+const hudScene = this.scene.get('HudScene');
+if (!hudScene) return;
+// TypeScript knows hudScene is Phaser.Scene here
+```
+
+**DON'T ❌**
+```typescript
+const hudScene = this.scene.get('HudScene') as Phaser.Scene;
+// Unnecessary - get() already returns Phaser.Scene
+```
+
+**Why this matters:**
+- Type assertions bypass type checking
+- Can hide real type errors
+- Makes refactoring harder
+
+**Rule enforced by:** `@typescript-eslint/no-unnecessary-type-assertion`
 
 ### No Useless Constructors
 

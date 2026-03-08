@@ -8,6 +8,7 @@ The world state system maintains game progress across level transitions, ensurin
 - Cell modifications persist (doors opened, walls removed)
 - Player health, overheal, and coins carry between levels
 - Exit triggers don't cause infinite loops
+- Global flags persist for quest/story tracking
 
 ## Usage
 
@@ -21,6 +22,46 @@ Press **Y** during gameplay to:
 ### Loading World State
 
 The game automatically loads `public/states/default.json` on startup if it exists.
+
+## Global Flags
+
+Flags allow storing arbitrary key-value pairs for quest tracking, story progression, etc.
+
+### In Lua Scripts
+
+```lua
+-- Set flags (accepts strings or numbers, stored as strings)
+setFlag("questStage", 1)
+setFlag("hasKey", "true")
+setFlag("enemiesDefeated", 5)
+
+-- Check conditions
+if isFlagCondition("questStage", "gte", 2) then
+  say("NPC", "You've made progress!", 50, 2000)
+end
+
+if isFlagCondition("hasKey", "eq", "true") then
+  -- Unlock door
+end
+```
+
+### API
+
+**setFlag(name, value)**
+- Sets or updates a flag
+- Value can be string or number (converted to string)
+
+**isFlagCondition(name, condition, value)**
+- Compares flag value with condition
+- Conditions: `"eq"`, `"neq"`, `"gt"`, `"lt"`, `"gte"`, `"lte"`
+- Returns `false` if flag doesn't exist
+- Returns `false` and logs error if using gt/lt/gte/lte with non-numeric values
+
+### Persistence
+
+- Flags persist across level transitions (in memory)
+- Flags persist across game sessions when saved (Y key)
+- Flags reset on new game start (same as other world state)
 
 ## How It Works
 

@@ -323,6 +323,26 @@ this.grid.setCell(15, 10, { layer: 1, properties: new Set(['platform']) });
   - Copies world state JSON to clipboard
   - Logs to console
   - Paste into `public/states/default.json` to persist
+  - Includes player health, coins, destroyed entities, flags
+
+### Global Flags
+
+Use flags in Lua scripts for quest tracking and story progression:
+
+```lua
+-- Set flags
+setFlag("questStage", 1)
+setFlag("hasKey", "true")
+
+-- Check conditions
+if isFlagCondition("questStage", "gte", 2) then
+  say("NPC", "You've made progress!", 50, 2000)
+end
+```
+
+**Available conditions:** `"eq"`, `"neq"`, `"gt"`, `"lt"`, `"gte"`, `"lte"`
+
+See [World State System](./world-state-system.md#global-flags) for complete API.
 
 - **E key** - Enter level editor mode
   - Pauses game
