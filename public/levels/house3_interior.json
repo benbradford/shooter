@@ -1,11 +1,27 @@
 {
-  "width": 9,
+  "width": 11,
   "height": 9,
   "playerStart": {
     "x": 4,
     "y": 6
   },
   "cells": [
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
     {
       "col": 0,
       "row": 1,
@@ -43,7 +59,9 @@
       "col": 4,
       "row": 1,
       "layer": 0,
-      "backgroundTexture": "interior_door2"
+      "properties": [
+        "blocked"
+      ]
     },
     {
       "col": 5,
@@ -78,6 +96,22 @@
       ]
     },
     {
+      "col": 9,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 0,
       "row": 2,
       "layer": 0,
@@ -86,7 +120,57 @@
       ]
     },
     {
+      "col": 1,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "bed1"
+    },
+    {
+      "col": 3,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 8,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "kitchen1"
+    },
+    {
+      "col": 9,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -102,7 +186,7 @@
       ]
     },
     {
-      "col": 8,
+      "col": 10,
       "row": 3,
       "layer": 0,
       "properties": [
@@ -118,7 +202,7 @@
       ]
     },
     {
-      "col": 8,
+      "col": 10,
       "row": 4,
       "layer": 0,
       "properties": [
@@ -134,7 +218,48 @@
       ]
     },
     {
-      "col": 8,
+      "col": 3,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "table2"
+    },
+    {
+      "col": 6,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
       "row": 5,
       "layer": 0,
       "properties": [
@@ -150,7 +275,7 @@
       ]
     },
     {
-      "col": 8,
+      "col": 10,
       "row": 6,
       "layer": 0,
       "properties": [
@@ -166,7 +291,7 @@
       ]
     },
     {
-      "col": 8,
+      "col": 10,
       "row": 7,
       "layer": 0,
       "properties": [
@@ -198,7 +323,23 @@
       ]
     },
     {
+      "col": 3,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 4,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
       "row": 8,
       "layer": 0,
       "backgroundTexture": "door_closed"
@@ -226,9 +367,109 @@
       "properties": [
         "blocked"
       ]
+    },
+    {
+      "col": 9,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
     }
   ],
   "entities": [
+    {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 8,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 9,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
+    {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
+    {
+      "id": "breakable3",
+      "type": "breakable",
+      "data": {
+        "col": 1,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
+    {
+      "id": "breakable4",
+      "type": "breakable",
+      "data": {
+        "col": 4,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
+    {
+      "id": "breakable5",
+      "type": "breakable",
+      "data": {
+        "col": 5,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
+    {
+      "id": "breakable6",
+      "type": "breakable",
+      "data": {
+        "col": 6,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      },
+      "respawnable": true
+    },
     {
       "id": "exit1",
       "type": "exit",
@@ -238,7 +479,7 @@
         "targetRow": 6,
         "triggerCells": [
           {
-            "col": 4,
+            "col": 5,
             "row": 8
           }
         ]

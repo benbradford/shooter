@@ -23,6 +23,7 @@ const AVAILABLE_TEXTURES: string[] = [
   'interior6',
   'interior_door1',
   'interior_door2',
+  'kitchen1',
   'pillar',
   'rocks1',
   'rocks2',

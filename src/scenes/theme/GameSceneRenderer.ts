@@ -11,11 +11,13 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; s
   house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
   bridge_v: {scaleX: 3, scaleY: 3, offsetX: 0, offsetY: -32 },
   bridge_h: {scaleX: 3, scaleY: 3, offsetX: -32, offsetY: 0 },
-  bed1: {scaleX:2, scaleY: 1, offsetX: -32, offsetY: 0 },
-  table2: {scaleX:2, scaleY: 1, offsetX: 0, offsetY: 0 },
+  bed1: {scaleX:3.3, scaleY: 1.5, offsetX: 0, offsetY: -20 },
+  table1: {scaleX:4, scaleY: 1.5, offsetX: 0, offsetY: 5 },
+  table2: {scaleX:5.7, scaleY: 2.8, offsetX: 0, offsetY: 5 },
   interior_door1: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: 0 },
-  interior_door2: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: -15 },
-  door_closed: {scaleX:1.6, scaleY: 1.18, offsetX: 0, offsetY: 0 },
+  interior_door2: {scaleX:1.2, scaleY: 1.2, offsetX: 0, offsetY: -10 },
+  door_closed: {scaleX:2, scaleY: 1.18, offsetX: 0, offsetY: 38 },
+  kitchen1: {scaleX: 3.5, scaleY: 2.65, offsetX: 0, offsetY: -65 },
 };
 
 export abstract class GameSceneRenderer {
@@ -49,7 +51,7 @@ export abstract class GameSceneRenderer {
   protected addImage(x: number, y: number, texture: string): Phaser.GameObjects.Image {
     const img = this.scene.add.image(x, y, texture);
     if (img.texture.key === '__MISSING') {
-      console.error(`[GameSceneRenderer] Created __MISSING sprite for texture: ${texture}`, new Error().stack);
+      console.error(`[GameSceneRenderer] Created __MISSING sprite for texture: ${texture}`, new Error("Missing texture").stack);
     }
     return img;
   }
@@ -63,23 +65,17 @@ export abstract class GameSceneRenderer {
   }
 
   async prepareRuntimeTilesets(levelData: LevelData): Promise<void> {
-    console.log('[GameSceneRenderer] prepareRuntimeTilesets starting');
-
     if (levelData.background?.water) {
-      console.log('[GameSceneRenderer] Generating water tilesets:', levelData.background.water);
-      await this.initializeWaterAnimation(levelData.background.water);
-      console.log('[GameSceneRenderer] Water tilesets generated:', this.waterAnimator?.getTilesetKeys());
+       await this.initializeWaterAnimation(levelData.background.water);
     }
 
     if (levelData.background?.path_texture) {
-      console.log('[GameSceneRenderer] Generating path tileset from:', levelData.background.path_texture);
       const generator = new PathTilesetGenerator(this.scene);
       const tilesetKey = `${levelData.background.path_texture}_generated_tileset`;
       const success = generator.generateTileset(levelData.background.path_texture, tilesetKey);
       console.log('[GameSceneRenderer] Path tileset generated:', tilesetKey, 'success:', success);
     }
 
-    console.log('[GameSceneRenderer] prepareRuntimeTilesets complete');
   }
 
   initializeSprites(grid: Grid, levelData: LevelData): void {
@@ -222,6 +218,7 @@ export abstract class GameSceneRenderer {
         else if (isWater) depth = Depth.waterTexture;
         else depth = Depth.cellTextureModified;
         sprite.setDepth(depth);
+
         this.cellSprites.push(sprite);
         this.renderedCellTextures.set(key, sprite);
       }
