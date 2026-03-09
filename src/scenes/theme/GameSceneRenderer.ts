@@ -16,7 +16,7 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; s
   table2: {scaleX:5.7, scaleY: 2.8, offsetX: 0, offsetY: 5 },
   interior_door1: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: 0 },
   interior_door2: {scaleX:1.2, scaleY: 1.2, offsetX: 0, offsetY: -10 },
-  door_closed: {scaleX:2, scaleY: 1.18, offsetX: 0, offsetY: 38 },
+  door_closed: {scaleX:2, scaleY: 1.18, offsetX: 0, offsetY: 0 },
   kitchen1: {scaleX: 3.5, scaleY: 2.65, offsetX: 0, offsetY: -65 },
 };
 
