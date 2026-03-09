@@ -17,7 +17,8 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; s
   interior_door1: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: 0 },
   interior_door2: {scaleX:1.2, scaleY: 1.2, offsetX: 0, offsetY: -10 },
   door_closed: {scaleX:2, scaleY: 1.18, offsetX: 0, offsetY: 0 },
-  kitchen1: {scaleX: 3.5, scaleY: 2.65, offsetX: 0, offsetY: -65 },
+  kitchen1: {scaleX: 3.5, scaleY: 2.65, offsetX: 0, offsetY: -50 },
+  fireplace1:{scaleX: 4, scaleY: 2.9, offsetX: 0, offsetY: -15 },
 };
 
 export abstract class GameSceneRenderer {

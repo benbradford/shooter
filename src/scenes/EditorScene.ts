@@ -303,18 +303,19 @@ export default class EditorScene extends Phaser.Scene {
 
         const layer = grid.getLayer(cell);
         const hasProperties = cell.properties.size > 0;
+        const hasTexture = cell.backgroundTexture && cell.backgroundTexture !== '';
         
         if (hasProperties) {
           console.log(`[Extract] Cell (${col},${row}): layer=${layer}, props=[${Array.from(cell.properties).join(',')}]`);
         }
         
-        if (layer !== 0 || hasProperties || cell.backgroundTexture) {
+        if (layer !== 0 || hasProperties || hasTexture) {
           cells.push({
             col,
             row,
             layer,
             properties: hasProperties ? Array.from(cell.properties) : undefined,
-            backgroundTexture: cell.backgroundTexture
+            backgroundTexture: hasTexture ? cell.backgroundTexture : undefined
           });
         }
       }

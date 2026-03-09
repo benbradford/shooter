@@ -17,6 +17,7 @@ const AVAILABLE_TEXTURES: string[] = [
   'dungeon_platform',
   'dungeon_window',
   'fence1',
+  'fireplace1',
   'house1',
   'house2',
   'house3',

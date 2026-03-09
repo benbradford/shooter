@@ -52,8 +52,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 4,
@@ -69,7 +68,8 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": "fireplace1"
     },
     {
       "col": 6,
