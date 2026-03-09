@@ -21,6 +21,11 @@ export type LevelEntity = {
   createOnAnyEvent?: string[];
   createOnAllEvents?: string[];
   respawnable?: boolean;
+  suppressOnAnyFlag?: Array<{
+    name: string;
+    condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte';
+    value: string | number;
+  }>;
   data: Record<string, unknown>;
 }
 

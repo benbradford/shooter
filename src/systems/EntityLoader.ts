@@ -79,6 +79,24 @@ export class EntityLoader {
 
     // Load entities
     for (const entityDef of levelData.entities ?? []) {
+      // Check if entity should be suppressed by flags
+      if (entityDef.suppressOnAnyFlag) {
+        const worldState = WorldStateManager.getInstance();
+        let shouldSuppress = false;
+        
+        for (const flagCondition of entityDef.suppressOnAnyFlag) {
+          if (worldState.isFlagCondition(flagCondition.name, flagCondition.condition, flagCondition.value)) {
+            shouldSuppress = true;
+            console.log(`[EntityLoader] Suppressing ${entityDef.id} at load due to flag: ${flagCondition.name} ${flagCondition.condition} ${flagCondition.value}`);
+            break;
+          }
+        }
+        
+        if (shouldSuppress) {
+          continue;
+        }
+      }
+      
       // Check if entity should be spawned based on world state
       if (!isEditorMode) {
         // Skip if destroyed (unless respawnable)
@@ -113,12 +131,24 @@ export class EntityLoader {
               throw new Error(`Unknown entity type: ${entityDef.type} for entity ${entityDef.id}`);
             }
 
+            // Auto-add suppressOnAnyFlag for interaction entities
+            let suppressFlags = entityDef.suppressOnAnyFlag;
+            if (entityDef.type === 'interaction') {
+              const interactionData = entityDef.data as { filename: string };
+              const autoFlag = {
+                name: `${interactionData.filename}_live`,
+                condition: 'eq' as const,
+                value: 'true'
+              };
+              suppressFlags = suppressFlags ? [...suppressFlags, autoFlag] : [autoFlag];
+            }
+
             if (entityDef.createOnAnyEvent) {
               for (const event of entityDef.createOnAnyEvent) {
-                this.entityCreatorManager.registerAny(event, creatorFunc, entityDef.id);
+                this.entityCreatorManager.registerAny(event, creatorFunc, entityDef.id, suppressFlags, entityDef.type === 'interaction');
               }
             } else if (entityDef.createOnAllEvents) {
-              this.entityCreatorManager.registerAll(entityDef.createOnAllEvents, creatorFunc, entityDef.id);
+              this.entityCreatorManager.registerAll(entityDef.createOnAllEvents, creatorFunc, entityDef.id, suppressFlags);
             }
             continue;
           }

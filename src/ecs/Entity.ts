@@ -73,10 +73,14 @@ export class Entity {
   destroy(): void {
     this.isDestroyed = true;
 
-    // Only track level entities (not temporary like punches, bullets, coins)
+    // Only track level entities (not temporary like punches, bullets, coins, interactions)
     const worldState = WorldStateManager.getInstance();
     if (worldState.shouldTrackDestructions() && this.levelName && this.id && /^[a-z_]+\d+$/.test(this.id)) {
-      worldState.addDestroyedEntity(this.levelName, this.id);
+      // Don't track interaction entities
+      if (!this.tags.has('interaction')) {
+        worldState.removeLiveEntity(this.levelName, this.id);
+        worldState.addDestroyedEntity(this.levelName, this.id);
+      }
     }
 
     this.components.forEach(component => component.onDestroy?.());

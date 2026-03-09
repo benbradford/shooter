@@ -422,6 +422,7 @@ export default class EditorScene extends Phaser.Scene {
         const createOnAnyEvent = existingEntity?.createOnAnyEvent;
         const createOnAllEvents = existingEntity?.createOnAllEvents;
         const respawnable = existingEntity?.respawnable;
+        const suppressOnAnyFlag = existingEntity?.suppressOnAnyFlag;
         
         const entityData: import('../systems/level/LevelLoader').LevelEntity = {
           id: entity.id,
@@ -437,6 +438,9 @@ export default class EditorScene extends Phaser.Scene {
         }
         if (respawnable) {
           entityData.respawnable = respawnable;
+        }
+        if (suppressOnAnyFlag) {
+          entityData.suppressOnAnyFlag = suppressOnAnyFlag;
         }
         
         entities.push(entityData);

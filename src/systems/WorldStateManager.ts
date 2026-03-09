@@ -153,6 +153,14 @@ export class WorldStateManager {
     }
   }
 
+  removeLiveEntity(levelName: string, entityId: string): void {
+    const levelState = this.getLevelState(levelName);
+    const liveIndex = levelState.liveEntities.indexOf(entityId);
+    if (liveIndex !== -1) {
+      levelState.liveEntities.splice(liveIndex, 1);
+    }
+  }
+
   addDestroyedEntity(levelName: string, entityId: string): void {
     const levelState = this.getLevelState(levelName);
     const liveIndex = levelState.liveEntities.indexOf(entityId);

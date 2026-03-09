@@ -7,12 +7,16 @@ import type GameScene from '../GameScene';
 import type HudScene from '../HudScene';
 import { InputComponent } from '../../ecs/components/input/InputComponent';
 import { LuaRuntime } from '../../systems/LuaRuntime';
+import { WorldStateManager } from '../../systems/WorldStateManager';
 
 export type InteractionStateData = {
   scriptContent: string;
+  filename?: string;
 };
 
 export class InteractionState implements IState<InteractionStateData> {
+  private currentFilename?: string;
+  
   constructor(
     private readonly scene: GameScene,
     private readonly getEntityManager: () => EntityManager,
@@ -25,6 +29,8 @@ export class InteractionState implements IState<InteractionStateData> {
     if (!props?.data) {
       throw new Error('[InteractionState] No script content provided');
     }
+    
+    this.currentFilename = props.data.filename;
     
     const scene = this.scene;
     const entityManager = this.getEntityManager();
@@ -55,6 +61,13 @@ export class InteractionState implements IState<InteractionStateData> {
     const entityManager = this.getEntityManager();
     
     scene.isInInteraction = false;
+    
+    // Clear interaction live flag
+    if (this.currentFilename) {
+      const worldState = WorldStateManager.getInstance();
+      worldState.setFlag(`${this.currentFilename}_live`, 'false');
+      this.currentFilename = undefined;
+    }
     
     const hudScene = scene.scene.get('HudScene') as HudScene;
     if (hudScene) {

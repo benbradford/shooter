@@ -226,6 +226,61 @@ export class EditEntityEditorState extends EditorState {
     this.commonPanel.appendChild(allEventLabel);
     this.commonPanel.appendChild(allEventInput);
 
+    // Suppress on any flag section
+    const suppressLabel = document.createElement('div');
+    suppressLabel.textContent = 'Suppress if Flag (JSON):';
+    suppressLabel.style.cssText = 'margin-top: 10px; margin-bottom: 5px; font-size: 14px;';
+    this.commonPanel.appendChild(suppressLabel);
+
+    const suppressTextarea = document.createElement('textarea');
+    suppressTextarea.placeholder = '[{"name":"flag","condition":"eq","value":"true"}]';
+    suppressTextarea.style.cssText = `
+      width: 100%;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #555;
+      border-radius: 4px;
+      resize: vertical;
+      min-height: 60px;
+    `;
+    
+    if (this.entity) {
+      const levelData = (this.scene.scene.get('game') as import('../scenes/GameScene').default).getLevelData();
+      const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+      if (entityData?.suppressOnAnyFlag) {
+        suppressTextarea.value = JSON.stringify(entityData.suppressOnAnyFlag, null, 2);
+      }
+    }
+    
+    suppressTextarea.addEventListener('input', () => {
+      if (this.entity) {
+        const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+        const levelData = gameScene.getLevelData();
+        const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+        if (entityData) {
+          const value = suppressTextarea.value.trim();
+          if (value) {
+            try {
+              entityData.suppressOnAnyFlag = JSON.parse(value);
+            } catch {
+              // Invalid JSON - ignore
+            }
+          } else {
+            delete entityData.suppressOnAnyFlag;
+          }
+        }
+      }
+    });
+    
+    suppressTextarea.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+    });
+    
+    this.commonPanel.appendChild(suppressTextarea);
+
     document.body.appendChild(this.commonPanel);
   }
 

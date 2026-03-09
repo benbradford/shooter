@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type GameScene from '../../../scenes/GameScene';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export class InteractionTriggerComponent implements Component {
   entity!: Entity;
@@ -15,8 +16,12 @@ export class InteractionTriggerComponent implements Component {
     if (this.hasTriggered) return;
     this.hasTriggered = true;
     
+    const worldState = WorldStateManager.getInstance();
+    worldState.setFlag(`${this.filename}_live`, 'true');
+    
     this.loadAndTrigger().catch(error => {
       console.error(`[Interaction] Failed to load ${this.filename}:`, error);
+      worldState.setFlag(`${this.filename}_live`, 'false');
       throw error;
     });
   }
@@ -32,7 +37,7 @@ export class InteractionTriggerComponent implements Component {
       throw new Error(`Got HTML instead of Lua script for ${this.filename}.lua - check file path`);
     }
     
-    this.scene.startInteraction(scriptContent);
+    this.scene.startInteraction(scriptContent, this.filename);
     this.entity.destroy();
   }
 }

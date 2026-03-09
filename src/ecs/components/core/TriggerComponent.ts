@@ -45,6 +45,7 @@ export class TriggerComponent implements Component {
     for (const triggerCell of this.triggerCells) {
       if (playerCell.col === triggerCell.col && playerCell.row === triggerCell.row) {
         this.triggered = true;
+        console.log(`[Trigger] Raising event: ${this.eventName}`);
         this.eventManager.raiseEvent(this.eventName);
         
         if (this.oneShot) {

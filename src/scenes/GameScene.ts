@@ -402,8 +402,8 @@ export default class GameScene extends Phaser.Scene {
     return this.levelData;
   }
 
-  public startInteraction(scriptContent: string): void {
-    this.stateMachine.enter('interaction', { scriptContent });
+  public startInteraction(scriptContent: string, filename?: string): void {
+    this.stateMachine.enter('interaction', { scriptContent, filename });
   }
 
   setTheme(theme: 'dungeon' | 'swamp' | 'grass' | 'wilds'): void {
