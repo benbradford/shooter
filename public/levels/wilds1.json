@@ -590,6 +590,87 @@
   ],
   "entities": [
     {
+      "id": "puma0",
+      "type": "puma",
+      "data": {
+        "col": 25,
+        "row": 2,
+        "difficulty": "hard",
+        "startDirection": 4
+      }
+    },
+    {
+      "id": "puma1",
+      "type": "puma",
+      "data": {
+        "col": 25,
+        "row": 8,
+        "difficulty": "medium",
+        "startDirection": 1
+      },
+      "respawnable": true
+    },
+    {
+      "id": "puma2",
+      "type": "puma",
+      "data": {
+        "col": 32,
+        "row": 26,
+        "difficulty": "medium",
+        "startDirection": 4
+      }
+    },
+    {
+      "id": "puma3",
+      "type": "puma",
+      "data": {
+        "col": 33,
+        "row": 26,
+        "difficulty": "medium",
+        "startDirection": 4
+      }
+    },
+    {
+      "id": "puma4",
+      "type": "puma",
+      "data": {
+        "col": 34,
+        "row": 26,
+        "difficulty": "medium",
+        "startDirection": 4
+      }
+    },
+    {
+      "id": "puma5",
+      "type": "puma",
+      "data": {
+        "col": 35,
+        "row": 26,
+        "difficulty": "medium",
+        "startDirection": 4
+      }
+    },
+    {
+      "id": "puma6",
+      "type": "puma",
+      "data": {
+        "col": 8,
+        "row": 25,
+        "difficulty": "medium",
+        "startDirection": 4
+      }
+    },
+    {
+      "id": "puma7",
+      "type": "puma",
+      "data": {
+        "col": 8,
+        "row": 23,
+        "difficulty": "medium",
+        "startDirection": 4
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -632,7 +713,7 @@
     "hasShadows": false,
     "path_texture": "stone_path_tileset",
     "water_texture": "water_path_tileset",
-     "overlays": {
+    "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_sheet.png",
       "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_sprite_list.txt",
       "frequency": 6,

@@ -12,8 +12,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 12,
@@ -169,6 +168,14 @@
       "backgroundTexture": "bed1"
     },
     {
+      "col": 7,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 13,
       "row": 2,
       "layer": 0,
@@ -245,6 +252,9 @@
       "col": 11,
       "row": 5,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": "table1"
     },
     {
@@ -253,8 +263,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "chair2"
+      ]
     },
     {
       "col": 14,

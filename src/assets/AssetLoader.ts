@@ -59,6 +59,9 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     if (entityTypes.has('skeleton')) {
       groups.push('skeleton');
     }
+    if (entityTypes.has('puma')) {
+      groups.push('puma');
+    }
     if (entityTypes.has('breakable')) {
       groups.push('breakables');
     }

@@ -312,6 +312,9 @@ export class EditEntityEditorState extends EditorState {
       this.addRarityControls();
     } else if (entityType === 'Skeleton' || entityType === 'Thrower' || entityType === 'Bullet Dude' || entityType === 'Bug Base') {
       this.addDifficultyControls();
+    } else if (entityType === 'Puma') {
+      this.addDifficultyControls();
+      this.addDirectionControls();
     } else if (entityType === 'Robot') {
       this.addDifficultyControls();
       this.addWaypointControls();
@@ -326,6 +329,7 @@ export class EditEntityEditorState extends EditorState {
     if (this.entity.id.startsWith('breakable')) return 'Breakable';
     if (this.entity.id.startsWith('skeleton')) return 'Skeleton';
     if (this.entity.id.startsWith('thrower')) return 'Thrower';
+    if (this.entity.id.startsWith('puma')) return 'Puma';
     if (this.entity.id.startsWith('stalking_robot') || this.entity.id.startsWith('robot')) return 'Robot';
     if (this.entity.id.startsWith('bug_base') || this.entity.id.startsWith('bugbase')) return 'Bug Base';
     if (this.entity.id.startsWith('bullet_dude') || this.entity.id.startsWith('bulletdude')) return 'Bullet Dude';
@@ -655,6 +659,63 @@ export class EditEntityEditorState extends EditorState {
   private destroyWaypoints(): void {
     this.waypointMarkers.forEach(marker => marker.destroy());
     this.waypointMarkers = [];
+  }
+
+  private addDirectionControls(): void {
+    if (!this.entityPanel || !this.entity) return;
+
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+    const levelData = gameScene.getLevelData();
+    const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
+    
+    if (!entityData) return;
+
+    const currentDir = (entityData.data.startDirection as number) || 4;
+
+    const dirLabel = document.createElement('div');
+    dirLabel.textContent = 'Start Direction:';
+    dirLabel.style.marginTop = '15px';
+    dirLabel.style.marginBottom = '5px';
+    this.entityPanel.appendChild(dirLabel);
+
+    const dirButtons = document.createElement('div');
+    dirButtons.style.display = 'grid';
+    dirButtons.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    dirButtons.style.gap = '5px';
+
+    const directions = [
+      { label: '↖', value: 5 },
+      { label: '↑', value: 2 },
+      { label: '↗', value: 6 },
+      { label: '←', value: 3 },
+      { label: '●', value: 4 },
+      { label: '→', value: 4 },
+      { label: '↙', value: 7 },
+      { label: '↓', value: 1 },
+      { label: '↘', value: 8 }
+    ];
+
+    directions.forEach(dir => {
+      const btn = document.createElement('button');
+      btn.textContent = dir.label;
+      btn.style.padding = '10px';
+      btn.style.fontSize = '18px';
+      btn.style.cursor = 'pointer';
+      btn.style.backgroundColor = currentDir === dir.value ? '#00ff00' : '#333333';
+      btn.style.color = '#ffffff';
+      btn.style.border = 'none';
+      btn.style.borderRadius = '4px';
+
+      btn.onclick = () => {
+        entityData.data.startDirection = dir.value;
+        void gameScene.resetScene();
+        this.scene.enterEditEntityMode(this.entity!);
+      };
+
+      dirButtons.appendChild(btn);
+    });
+
+    this.entityPanel.appendChild(dirButtons);
   }
 
   onUpdate(_delta: number): void {

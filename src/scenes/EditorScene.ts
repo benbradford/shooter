@@ -167,6 +167,7 @@ export default class EditorScene extends Phaser.Scene {
         entity.id.startsWith('bug_base') || 
         entity.id.startsWith('bugbase') || 
         entity.id.startsWith('thrower') ||
+        entity.id.startsWith('puma') ||
         entity.id.startsWith('skeleton');
       
       if (shouldShowLabel) {
@@ -179,6 +180,7 @@ export default class EditorScene extends Phaser.Scene {
           if (entity.id.startsWith('thrower')) text = 'T';
           else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) text = 'BB';
           else if (entity.id.startsWith('skeleton')) text = 'S';
+          else if (entity.id.startsWith('puma')) text = 'P';
           else if (hasEventSpawn) text = 'E';
           
           label = gameScene.add.text(transform.x, transform.y, text, {
@@ -355,6 +357,7 @@ export default class EditorScene extends Phaser.Scene {
 
   private extractEntities(entityManager: EntityManager, grid: Grid): import('../systems/level/LevelLoader').LevelEntity[] {
     const entities: import('../systems/level/LevelLoader').LevelEntity[] = [];
+    const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
 
     for (const entity of entityManager.getAll()) {
       if (entity.id === 'player') continue;
@@ -390,6 +393,11 @@ export default class EditorScene extends Phaser.Scene {
       } else if (entity.id.startsWith('skeleton')) {
         type = 'skeleton';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('puma')) {
+        type = 'puma';
+        const existingEntity = existingLevelData.entities?.find(e => e.id === entity.id);
+        const startDirection = existingEntity?.data.startDirection ?? 4;
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium', startDirection };
       } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
         type = 'bullet_dude';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
@@ -449,7 +457,6 @@ export default class EditorScene extends Phaser.Scene {
     }
 
     // Add triggers, exits, and cellmodifiers from level data (they don't have entity instances)
-    const existingLevelData = (this.scene.get('game') as GameScene).getLevelData();
     const existingTriggers = (existingLevelData.entities ?? []).filter(e => e.type === 'trigger');
     const existingExits = (existingLevelData.entities ?? []).filter(e => e.type === 'exit');
     const existingCellModifiers = (existingLevelData.entities ?? []).filter(e => e.type === 'cellmodifier');

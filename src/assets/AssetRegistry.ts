@@ -471,6 +471,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 48, frameHeight: 48 }
   },
+  puma: {
+    key: 'puma',
+    path: 'assets/puma/puma_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
   bone_small: {
     key: 'bone_small',
     path: 'assets/skeleton/bone-small.png',
@@ -511,6 +517,7 @@ export const ASSET_GROUPS = {
   bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small'] as const,
+  puma: ['puma'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
 
   // NPCs

@@ -8,7 +8,10 @@ import type { Rarity } from '../constants/Rarity';
 import { EntityCreatorManager } from './EntityCreatorManager';
 import { WorldStateManager } from './WorldStateManager';
 import { createSkeletonEntity } from '../ecs/entities/skeleton/SkeletonEntity';
+import { createPumaEntity } from '../ecs/entities/puma/PumaEntity';
+import type { PumaDifficulty } from '../ecs/entities/puma/PumaDifficulty';
 import { createThrowerEntity } from '../ecs/entities/thrower/ThrowerEntity';
+import { Direction } from '../constants/Direction';
 import { createStalkingRobotEntity } from '../ecs/entities/robot/StalkingRobotEntity';
 import { createBulletDudeEntity } from '../ecs/entities/bulletdude/BulletDudeEntity';
 import { createBugBaseEntity } from '../ecs/entities/bug/BugBaseEntity';
@@ -203,6 +206,18 @@ export class EntityLoader {
             });
             this.entityManager.add(bone);
           }
+        });
+
+      case 'puma':
+        return () => createPumaEntity({
+          scene: this.scene,
+          col: data.col as number,
+          row: data.row as number,
+          grid: this.grid,
+          playerEntity: player,
+          difficulty: (data.difficulty as PumaDifficulty) || 'medium',
+          startDirection: (data.startDirection as Direction) || Direction.Down,
+          entityId: entityDef.id
         });
 
       case 'trigger':

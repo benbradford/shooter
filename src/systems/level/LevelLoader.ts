@@ -8,6 +8,7 @@ export type EntityType =
   | 'thrower' 
   | 'skeleton' 
   | 'bullet_dude' 
+  | 'puma'
   | 'eventchainer'
   | 'trigger'
   | 'exit'

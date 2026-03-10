@@ -8,6 +8,7 @@ const ENTITY_TYPES: Array<{ type: EntityType; label: string }> = [
   { type: 'stalking_robot', label: 'Robot' },
   { type: 'bug_base', label: 'Bug Base' },
   { type: 'bullet_dude', label: 'Bullet Dude' },
+  { type: 'puma', label: 'Puma' },
   { type: 'breakable', label: 'Breakable' }
 ];
 
@@ -116,6 +117,7 @@ export class AddEntityEditorState extends EditorState {
     else if (this.selectedType === 'thrower') texture = 'thrower';
     else if (this.selectedType === 'stalking_robot') texture = 'attacker';
     else if (this.selectedType === 'bullet_dude') texture = 'attacker';
+    else if (this.selectedType === 'puma') texture = 'puma';
     else if (this.selectedType === 'breakable') texture = this.selectedTexture;
 
     if (!gameScene.textures.exists(texture)) {
@@ -265,6 +267,8 @@ export class AddEntityEditorState extends EditorState {
         row,
         ...(this.selectedType === 'breakable'
           ? { texture: this.selectedTexture, health: 1, rarity: 'epic' }
+          : this.selectedType === 'puma'
+          ? { difficulty: 'medium', startDirection: 4 }
           : { difficulty: 'medium' }),
         ...(this.selectedType === 'stalking_robot' ? { waypoints: [{ col, row }] } : {})
       }
