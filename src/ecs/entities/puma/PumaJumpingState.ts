@@ -86,6 +86,13 @@ export class PumaJumpingState implements IState {
       const playerHealth = this.playerEntity.get(HealthComponent);
       if (playerHealth) {
         playerHealth.takeDamage(this.config.jumpDamage);
+        
+        if (playerHealth.getHealth() <= 0) {
+          const playerSM = this.playerEntity.get(StateMachineComponent);
+          if (playerSM) {
+            playerSM.stateMachine.enter('death');
+          }
+        }
       }
     }
 

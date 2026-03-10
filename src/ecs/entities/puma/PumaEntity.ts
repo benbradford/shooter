@@ -72,7 +72,7 @@ export function createPumaEntity(props: CreatePumaProps): Entity {
     chasing: new PumaChasingState(entity, playerEntity, grid, config),
     jumping: new PumaJumpingState(entity, playerEntity, grid, config),
     recover: new PumaRecoverState(entity, playerEntity),
-    death: new PumaDeathState(entity, scene)
+    death: new PumaDeathState(entity, scene, playerEntity)
   }, 'resting');
 
   entity.add(new StateMachineComponent(stateMachine));
