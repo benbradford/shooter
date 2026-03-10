@@ -34,7 +34,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
-  const targetSize = grid.cellSize * 0.9;
+  const targetSize = grid.cellSize;
   const textureObj = scene.textures.get(texture);
   const frame = textureObj.get(0);
   const maxDimension = Math.max(frame.width, frame.height);
@@ -43,7 +43,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(scene, texture, transform));
   sprite.sprite.setOrigin(0.5, 0.5);
-  sprite.sprite.setDepth(Depth.stairs);
+  sprite.sprite.setDepth(Depth.breakable);
   sprite.sprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
 
   const COLLISION_SIZE = grid.cellSize * 1;

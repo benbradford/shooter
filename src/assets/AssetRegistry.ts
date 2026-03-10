@@ -385,6 +385,46 @@ export const ASSET_REGISTRY = {
     path: 'assets/interior/kitchen1.png',
     type: 'image' as const,
   },
+  rug1: {
+    key: 'rug1',
+    path: 'assets/interior/rug1.png',
+    type: 'image' as const,
+  },
+  rug2: {
+    key: 'rug2',
+    path: 'assets/interior/rug2.png',
+    type: 'image' as const,
+  },
+  rug3: {
+    key: 'rug3',
+    path: 'assets/interior/rug3.png',
+    type: 'image' as const,
+  },
+  rug4: {
+    key: 'rug4',
+    path: 'assets/interior/rug4.png',
+    type: 'image' as const,
+  },
+  rug5: {
+    key: 'rug5',
+    path: 'assets/interior/rug5.png',
+    type: 'image' as const,
+  },
+  rug6: {
+    key: 'rug6',
+    path: 'assets/interior/rug6.png',
+    type: 'image' as const,
+  },
+  rug7: {
+    key: 'rug7',
+    path: 'assets/interior/rug7.png',
+    type: 'image' as const,
+  },
+  rug8: {
+    key: 'rug8',
+    path: 'assets/interior/rug8.png',
+    type: 'image' as const,
+  },
   table1: {
     key: 'table1',
     path: 'assets/interior/table1.png',
@@ -480,7 +520,7 @@ export const ASSET_GROUPS = {
   breakables: ['dungeon_vase', 'pillar'] as const,
 
   // Editor - all textures that can be used in editor
-  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'table1', 'table2'] as const,
+  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'fence1', 'bush1', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

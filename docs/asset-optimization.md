@@ -122,6 +122,30 @@ const scale = (grid.cellSize / 153) * 1.2;
 const scale = (grid.cellSize / 153) * 1.2 * 2;
 ```
 
+## Adjusting Image Contrast
+
+### Reduce Contrast Without Affecting Alpha
+
+To reduce contrast on an image with transparency while preserving the alpha channel:
+
+```bash
+# Extract alpha, reduce contrast on RGB, restore original alpha
+magick public/assets/path/to/image.png -alpha extract /tmp/image_alpha.png && \
+magick public/assets/path/to/image.png -alpha off -brightness-contrast 0x-30 /tmp/image_rgb.png && \
+magick /tmp/image_rgb.png /tmp/image_alpha.png -compose CopyOpacity -composite public/assets/path/to/image.png
+```
+
+**Parameters:**
+- `-brightness-contrast 0x-30` - Reduce contrast by 30% (0 brightness change, -30 contrast)
+- Adjust the `-30` value as needed (negative = less contrast, positive = more contrast)
+
+**Why this works:**
+- Step 1: Extracts alpha channel to separate file
+- Step 2: Removes alpha, adjusts RGB contrast only
+- Step 3: Restores exact original alpha channel
+
+**Common mistake:** Using `-brightness-contrast` directly on RGBA images affects the alpha channel, making transparent areas slightly visible.
+
 ## Removing Unused Assets
 
 **⚠️ CRITICAL: Always verify with the user before deleting any assets.**

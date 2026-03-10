@@ -23,6 +23,7 @@ export const Depth = {
   shadow: -10,
   rendererGraphics: -10,
   waterTileEdge: -9,
+  breakable: -7,
   cellTextureModified: -8,
 
   // Entities
