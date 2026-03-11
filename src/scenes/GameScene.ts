@@ -50,6 +50,7 @@ export default class GameScene extends Phaser.Scene {
   private sceneOverlays?: SceneOverlays;
   private isEditorMode: boolean = false;
   public isInInteraction: boolean = false;
+  private isResetting: boolean = false;
 
   constructor() {
     super({ key: "game", active: true });
@@ -98,6 +99,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
       this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+    } else if (theme === 'default') {
+      this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     } else {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
@@ -307,6 +310,13 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async resetScene(): Promise<void> {
+    if (this.isResetting) {
+      console.log('[GameScene] Already resetting, skipping');
+      return;
+    }
+    
+    console.log('[GameScene] resetScene called from:', new Error().stack);
+    this.isResetting = true;
     const wasGridDebugEnabled = this.grid.gridDebugEnabled;
 
     if (this.sceneOverlays) {
@@ -328,9 +338,9 @@ export default class GameScene extends Phaser.Scene {
     if (wasGridDebugEnabled) {
       this.grid.setGridDebugEnabled(true);
     }
+    
+    this.isResetting = false;
   }
-
-
   private spawnEntities(): void {
     const level = this.levelData;
     const worldState = WorldStateManager.getInstance();
@@ -566,6 +576,10 @@ export default class GameScene extends Phaser.Scene {
     // Calculate texture deltas
     const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
     const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
+    
+    console.log('[LoadLevel] sconce_flame in prev?', prevLevelTextures.includes('sconce_flame'));
+    console.log('[LoadLevel] sconce_flame in new?', newLevelTextures.includes('sconce_flame'));
+    console.log('[LoadLevel] sconce_flame in unused?', unusedTextures.includes('sconce_flame'));
 
     // Cleanup before loading new level
     this.time.removeAllEvents();
@@ -587,6 +601,11 @@ export default class GameScene extends Phaser.Scene {
         console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
         unusedTextures.forEach(tex => {
           if (this.textures.exists(tex)) {
+            // Remove associated animations
+            const animKey = `${tex}_anim`;
+            if (this.anims.exists(animKey)) {
+              this.anims.remove(animKey);
+            }
             this.textures.remove(tex);
           }
         });

@@ -66,12 +66,27 @@ export type LevelBackground = {
   floorAlpha?: number;
 }
 
+export type AnimatedTextureConfig = {
+  spritesheet: string;
+  frameWidth: number;
+  frameHeight: number;
+  frameCount: number;
+  frameRate: number;
+  transformOverride?: {
+    scaleX: number;
+    scaleY: number;
+    offsetX: number;
+    offsetY: number;
+  };
+}
+
 export type LevelCell = {
   col: number;
   row: number;
   layer?: number;
   properties?: CellProperty[];
   backgroundTexture?: string;
+  animatedTexture?: AnimatedTextureConfig;
 }
 
 export type LevelRobot = {

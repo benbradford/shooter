@@ -5154,7 +5154,7 @@
             "row": 5
           }
         ],
-        "oneShot": false
+        "oneShot": true
       }
     },
     {
@@ -5170,7 +5170,7 @@
             "row": 5
           }
         ],
-        "oneShot": false
+        "oneShot": true
       }
     },
     {

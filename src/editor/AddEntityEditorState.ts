@@ -240,8 +240,6 @@ export class AddEntityEditorState extends EditorState {
   private placeEntity(col: number, row: number): void {
     if (!this.selectedType) return;
 
-    console.log('[AddEntity] placeEntity called:', { col, row, selectedType: this.selectedType });
-
     const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
     const levelData = gameScene.getLevelData();
     const entityManager = gameScene.getEntityManager();
@@ -252,14 +250,11 @@ export class AddEntityEditorState extends EditorState {
 
     let idNum = 0;
     let newId = `${this.selectedType}${idNum}`;
-    console.log('[AddEntity] Initial ID:', newId, 'type:', this.selectedType, 'num:', idNum);
     
     while (allIds.has(newId)) {
       idNum++;
       newId = `${this.selectedType}${idNum}`;
     }
-
-    console.log('[AddEntity] Final ID:', newId);
 
     // Add to level data
     levelData.entities ??= [];
@@ -279,13 +274,10 @@ export class AddEntityEditorState extends EditorState {
       }
     };
 
-    console.log('[AddEntity] Adding entity to levelData:', newEntity);
     levelData.entities.push(newEntity);
 
-    console.log('[AddEntity] Calling resetScene...');
     // Reload scene to spawn entity
     gameScene.resetScene().then(() => {
-      console.log('[AddEntity] resetScene complete, re-entering add mode');
       // Stay in add mode after reset completes
       this.scene.enterAddMode();
     }).catch((error: unknown) => {

@@ -23,6 +23,11 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; s
   rug2:{scaleX: 1.5, scaleY: 1.5, offsetX: 0, offsetY: 20 },
 };
 
+const ANIMATED_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
+  sconce_flame: { scaleX: 0.2, scaleY: 0.2, offsetX: 2, offsetY: -12 },
+};
+
+
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
   protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
@@ -190,9 +195,11 @@ export abstract class GameSceneRenderer {
     }
 
     for (const cell of levelData.cells) {
-      if (cell.backgroundTexture && cell.backgroundTexture !== '') {
-        const key = `${cell.col},${cell.row}`;
+      const key = `${cell.col},${cell.row}`;
+      const animKey = `${key}_anim`;
 
+      // Handle static background texture
+      if (cell.backgroundTexture && cell.backgroundTexture !== '') {
         if (this.renderedCellTextures.has(key)) {
           continue;
         }
@@ -224,6 +231,68 @@ export abstract class GameSceneRenderer {
 
         this.cellSprites.push(sprite);
         this.renderedCellTextures.set(key, sprite);
+      }
+
+      // Handle animated texture (can coexist with backgroundTexture)
+      if (cell.animatedTexture) {
+        if (this.renderedCellTextures.has(animKey)) {
+          continue;
+        }
+
+        const config = cell.animatedTexture;
+        
+        // Check if texture exists and has valid frames
+        if (!this.scene.textures.exists(config.spritesheet)) {
+          continue;
+        }
+        
+        const texture = this.scene.textures.get(config.spritesheet);
+        if (texture.frameTotal <= 1) {
+          continue;
+        }
+        
+        const firstFrame = texture.get(0);
+        if (!firstFrame?.source?.glTexture) {
+          continue;
+        }
+        
+        const transform = config.transformOverride ?? ANIMATED_TEXTURE_TRANSFORM_OVERRIDES[config.spritesheet];
+        const x = cell.col * this.cellSize;
+        const y = cell.row * this.cellSize;
+        const centerX = x + this.cellSize / 2;
+        const centerY = y + this.cellSize / 2;
+        const spriteX = transform ? centerX + transform.offsetX : centerX;
+        const spriteY = transform ? centerY + transform.offsetY : centerY;
+
+        const animSprite = this.scene.add.sprite(spriteX, spriteY, config.spritesheet, 0);
+        if (transform) {
+          animSprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
+        } else {
+          animSprite.setDisplaySize(this.cellSize, this.cellSize);
+        }
+        animSprite.setDepth(Depth.cellTextureModified + 1);
+
+        // Create animation if it doesn't exist
+        const animationKey = `${config.spritesheet}_anim`;
+        if (!this.scene.anims.exists(animationKey)) {
+          this.scene.anims.create({
+            key: animationKey,
+            frames: this.scene.anims.generateFrameNumbers(config.spritesheet, {
+              start: 0,
+              end: config.frameCount - 1
+            }),
+            frameRate: config.frameRate,
+            repeat: -1
+          });
+        }
+
+        // Start at random frame and play
+        const randomFrame = Math.floor(Math.random() * config.frameCount);
+        animSprite.setFrame(randomFrame);
+        animSprite.play(animationKey);
+
+        this.cellSprites.push(animSprite);
+        this.renderedCellTextures.set(animKey, animSprite);
       }
     }
   }
@@ -272,6 +341,7 @@ export abstract class GameSceneRenderer {
       sprite.destroy();
     }
     this.renderedCellTextures.clear();
+    this.spritesInitialized = false;
   }
 
   invalidateCache(): void {

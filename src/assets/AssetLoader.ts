@@ -114,6 +114,11 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
       } else if (cell.backgroundTexture && cell.backgroundTexture !== '') {
         console.warn('[AssetLoader] Cell texture not in registry:', cell.backgroundTexture);
       }
+      
+      // Check for animated textures
+      if (cell.animatedTexture && cell.animatedTexture.spritesheet in ASSET_REGISTRY) {
+        textureSet.add(cell.animatedTexture.spritesheet as AssetKey);
+      }
     }
   }
 

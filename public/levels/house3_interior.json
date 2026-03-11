@@ -205,7 +205,16 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": "sconce_bg",
+      "animatedTexture": {
+        "spritesheet": "sconce_flame",
+        "frameWidth": 78,
+        "frameHeight": 85,
+        "frameCount": 2,
+        "frameRate": 8,
+        "transformOverride": { "scaleX": 0.2, "scaleY": 0.2, "offsetX": 2, "offsetY": -12 }
+      }
     },
     {
       "col": 10,
@@ -213,7 +222,16 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": "sconce_bg_flipped",
+      "animatedTexture": {
+        "spritesheet": "sconce_flame",
+        "frameWidth": 78,
+        "frameHeight": 85,
+        "frameCount": 2,
+        "frameRate": 8,
+        "transformOverride": { "scaleX": 0.2, "scaleY": 0.2, "offsetX": -3, "offsetY": -12 }
+      }
     },
     {
       "col": 0,
@@ -452,18 +470,7 @@
       },
       "respawnable": true
     },
-    {
-      "id": "breakable5",
-      "type": "breakable",
-      "data": {
-        "col": 5,
-        "row": 2,
-        "texture": "dungeon_vase",
-        "health": 1,
-        "rarity": "rare"
-      },
-      "respawnable": true
-    },
+    
     {
       "id": "breakable6",
       "type": "breakable",
