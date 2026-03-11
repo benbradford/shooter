@@ -217,10 +217,14 @@ export default class GameScene extends Phaser.Scene {
     this.grid = new Grid(this, level.width, level.height, this.cellSize);
 
     for (const cell of level.cells) {
+      const bgTexture = cell.backgroundTexture 
+        ? (typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : cell.backgroundTexture.image)
+        : undefined;
+        
       this.grid.setCell(cell.col, cell.row, {
         layer: cell.layer ?? 0,
         properties: new Set(cell.properties ?? []),
-        backgroundTexture: cell.backgroundTexture
+        backgroundTexture: bgTexture
       });
     }
 

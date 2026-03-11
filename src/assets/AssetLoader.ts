@@ -109,10 +109,16 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
   // Also check cells for custom backgroundTexture
   if (levelData.cells) {
     for (const cell of levelData.cells) {
-      if (cell.backgroundTexture && cell.backgroundTexture in ASSET_REGISTRY) {
-        textureSet.add(cell.backgroundTexture as AssetKey);
-      } else if (cell.backgroundTexture && cell.backgroundTexture !== '') {
-        console.warn('[AssetLoader] Cell texture not in registry:', cell.backgroundTexture);
+      if (cell.backgroundTexture) {
+        const textureName = typeof cell.backgroundTexture === 'string' 
+          ? cell.backgroundTexture 
+          : cell.backgroundTexture.image;
+          
+        if (textureName && textureName in ASSET_REGISTRY) {
+          textureSet.add(textureName as AssetKey);
+        } else if (textureName && textureName !== '') {
+          console.warn('[AssetLoader] Cell texture not in registry:', textureName);
+        }
       }
       
       // Check for animated textures

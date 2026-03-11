@@ -810,7 +810,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "house1"
+      "backgroundTexture": {
+        "image": "house1",
+        "transformOverride": {
+          "scaleX": 4,
+          "scaleY": 4,
+          "offsetX": 23,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 4,
@@ -916,7 +924,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "house3"
+      "backgroundTexture": {
+        "image": "house3",
+        "transformOverride": {
+          "scaleX": 4,
+          "scaleY": 4,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 36,
@@ -2881,7 +2897,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "house2"
+      "backgroundTexture": {
+        "image": "house2",
+        "transformOverride": {
+          "scaleX": 4,
+          "scaleY": 4,
+          "offsetX": 24,
+          "offsetY": -15
+        }
+      }
     },
     {
       "col": 6,
@@ -3244,7 +3268,15 @@
         "water",
         "bridge"
       ],
-      "backgroundTexture": "bridge_h"
+      "backgroundTexture": {
+        "image": "bridge_h",
+        "transformOverride": {
+          "scaleX": 3,
+          "scaleY": 3,
+          "offsetX": -32,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 10,
@@ -3769,7 +3801,15 @@
         "water",
         "bridge"
       ],
-      "backgroundTexture": "bridge_v"
+      "backgroundTexture": {
+        "image": "bridge_v",
+        "transformOverride": {
+          "scaleX": 3,
+          "scaleY": 3,
+          "offsetX": 0,
+          "offsetY": -32
+        }
+      }
     },
     {
       "col": 5,
@@ -4154,7 +4194,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "house2"
+      "backgroundTexture": {
+        "image": "house2",
+        "transformOverride": {
+          "scaleX": 4,
+          "scaleY": 4,
+          "offsetX": 24,
+          "offsetY": -15
+        }
+      }
     },
     {
       "col": 38,
@@ -5183,20 +5231,19 @@
             "col": 18,
             "row": 3
           }
-
         ],
         "oneShot": false
       }
     },
     {
-          "id": "interaction0",
-          "type": "interaction",
-          "data": {
-            "filename": "test_interaction_event"
-          },
-          "createOnAnyEvent": [
-            "test_interaction_event"
-          ]
+      "id": "interaction0",
+      "type": "interaction",
+      "data": {
+        "filename": "test_interaction_event"
+      },
+      "createOnAnyEvent": [
+        "test_interaction_event"
+      ]
     }
   ],
   "levelTheme": "grass_overworld1",

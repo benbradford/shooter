@@ -87,7 +87,6 @@ If not specified, falls back to `ANIMATED_TEXTURE_TRANSFORM_OVERRIDES` constant 
 
 **Static background:**
 - `sconce_bg.png` - Wall mount and candle (static)
-- `sconce_bg_flipped.png` - Horizontally flipped version
 
 **Animated flame:**
 - `sconce_flame_spritesheet.png` - 2 frames (156×85, each frame 78×85)

@@ -80,12 +80,22 @@ export type AnimatedTextureConfig = {
   };
 }
 
+export type BackgroundTextureConfig = {
+  image: string;
+  transformOverride?: {
+    scaleX: number;
+    scaleY: number;
+    offsetX: number;
+    offsetY: number;
+  };
+}
+
 export type LevelCell = {
   col: number;
   row: number;
   layer?: number;
   properties?: CellProperty[];
-  backgroundTexture?: string;
+  backgroundTexture?: string | BackgroundTextureConfig;
   animatedTexture?: AnimatedTextureConfig;
 }
 

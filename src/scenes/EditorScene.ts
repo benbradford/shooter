@@ -295,8 +295,12 @@ export default class EditorScene extends Phaser.Scene {
     row: number;
     layer: number;
     properties?: CellProperty[];
-    backgroundTexture?: string;
+    backgroundTexture?: string | import('../systems/level/LevelLoader').BackgroundTextureConfig;
+    animatedTexture?: import('../systems/level/LevelLoader').AnimatedTextureConfig;
   }> {
+    const gameScene = this.scene.get('game') as GameScene;
+    const existingLevelData = gameScene.getLevelData();
+    
     const cells = [];
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -307,13 +311,17 @@ export default class EditorScene extends Phaser.Scene {
         const hasProperties = cell.properties.size > 0;
         const hasTexture = cell.backgroundTexture && cell.backgroundTexture !== '';
         
-        if (layer !== 0 || hasProperties || hasTexture) {
+        // Find original cell data to preserve transforms
+        const originalCell = existingLevelData.cells.find(c => c.col === col && c.row === row);
+        
+        if (layer !== 0 || hasProperties || hasTexture || originalCell?.animatedTexture) {
           const cellData: {
             col: number;
             row: number;
             layer: number;
             properties?: CellProperty[];
-            backgroundTexture?: string;
+            backgroundTexture?: string | import('../systems/level/LevelLoader').BackgroundTextureConfig;
+            animatedTexture?: import('../systems/level/LevelLoader').AnimatedTextureConfig;
           } = {
             col,
             row,
@@ -323,8 +331,19 @@ export default class EditorScene extends Phaser.Scene {
           if (hasProperties) {
             cellData.properties = Array.from(cell.properties);
           }
+          
+          // Preserve backgroundTexture with transforms from original data
           if (hasTexture) {
-            cellData.backgroundTexture = cell.backgroundTexture;
+            if (originalCell?.backgroundTexture) {
+              cellData.backgroundTexture = originalCell.backgroundTexture;
+            } else {
+              cellData.backgroundTexture = cell.backgroundTexture;
+            }
+          }
+          
+          // Preserve animatedTexture from original data
+          if (originalCell?.animatedTexture) {
+            cellData.animatedTexture = originalCell.animatedTexture;
           }
 
           cells.push(cellData);

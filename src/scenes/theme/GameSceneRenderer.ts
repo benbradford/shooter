@@ -6,29 +6,6 @@ import { WaterAnimator, type WaterConfig } from './WaterAnimator';
 import { PathTilesetGenerator } from './PathTilesetGenerator';
 import { AssetManager } from '../../systems/AssetManager';
 
-const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
-  house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
-  house2: { scaleX: 4, scaleY: 4, offsetX: 24, offsetY: -15 },
-  house3: { scaleX: 4, scaleY: 4, offsetX: 0, offsetY: 0 },
-  bridge_v: {scaleX: 3, scaleY: 3, offsetX: 0, offsetY: -32 },
-  bridge_h: {scaleX: 3, scaleY: 3, offsetX: -32, offsetY: 0 },
-  bed1: {scaleX:3.3, scaleY: 1.5, offsetX: 0, offsetY: -20 },
-  table1: {scaleX:4, scaleY: 1.5, offsetX: 0, offsetY: 5 },
-  table2: {scaleX:5.7, scaleY: 2.8, offsetX: 0, offsetY: 5 },
-  interior_door1: {scaleX:1.1, scaleY: 1.4, offsetX: 0, offsetY: 0 },
-  interior_door2: {scaleX:1.2, scaleY: 1.2, offsetX: 0, offsetY: -10 },
-  door_closed: {scaleX:2, scaleY: 1.18, offsetX: 0, offsetY: 0 },
-  kitchen1: {scaleX: 3.5, scaleY: 2.65, offsetX: 0, offsetY: -50 },
-  fireplace1:{scaleX: 4, scaleY: 2.9, offsetX: 0, offsetY: -15 },
-  rug1:{scaleX: 2.5, scaleY: 2.5, offsetX: 0, offsetY: 0 },
-  rug2:{scaleX: 1.5, scaleY: 1.5, offsetX: 0, offsetY: 20 },
-};
-
-const ANIMATED_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
-  sconce_flame: { scaleX: 0.2, scaleY: 0.2, offsetX: 2, offsetY: -12 },
-};
-
-
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
   protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
@@ -200,12 +177,27 @@ export abstract class GameSceneRenderer {
       const animKey = `${key}_anim`;
 
       // Handle static background texture
-      if (cell.backgroundTexture && cell.backgroundTexture !== '') {
+      if (cell.backgroundTexture) {
         if (this.renderedCellTextures.has(key)) {
           continue;
         }
 
-        const transform = BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES[cell.backgroundTexture];
+        // Parse backgroundTexture (can be string or object)
+        let textureName: string;
+        let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
+        
+        if (typeof cell.backgroundTexture === 'string') {
+          textureName = cell.backgroundTexture;
+          transform = undefined;
+        } else {
+          textureName = cell.backgroundTexture.image;
+          transform = cell.backgroundTexture.transformOverride;
+        }
+        
+        if (textureName === '') {
+          continue;
+        }
+
         const x = cell.col * this.cellSize;
         const y = cell.row * this.cellSize;
         const centerX = x + this.cellSize / 2;
@@ -213,7 +205,7 @@ export abstract class GameSceneRenderer {
         const spriteX = transform ? centerX + transform.offsetX : centerX;
         const spriteY = transform ? centerY + transform.offsetY : centerY;
 
-        const sprite = this.addImage(spriteX, spriteY, cell.backgroundTexture);
+        const sprite = this.addImage(spriteX, spriteY, textureName);
         if (transform) {
           sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
         } else {
@@ -241,23 +233,23 @@ export abstract class GameSceneRenderer {
         }
 
         const config = cell.animatedTexture;
-        
+
         // Check if texture exists and has valid frames
         if (!this.scene.textures.exists(config.spritesheet)) {
           continue;
         }
-        
+
         const texture = this.scene.textures.get(config.spritesheet);
         if (texture.frameTotal <= 1) {
           continue;
         }
-        
+
         const firstFrame = texture.get(0);
         if (!firstFrame?.source?.glTexture) {
           continue;
         }
-        
-        const transform = config.transformOverride ?? ANIMATED_TEXTURE_TRANSFORM_OVERRIDES[config.spritesheet];
+
+        const transform = config.transformOverride;
         const x = cell.col * this.cellSize;
         const y = cell.row * this.cellSize;
         const centerX = x + this.cellSize / 2;
@@ -285,7 +277,7 @@ export abstract class GameSceneRenderer {
             frameRate: config.frameRate,
             repeat: -1
           });
-          
+
           // Register dependency
           const assetManager = AssetManager.getInstance();
           assetManager.registerDependency(config.spritesheet, 'animation', animationKey);
