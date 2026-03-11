@@ -158,18 +158,18 @@ export default class EditorScene extends Phaser.Scene {
 
     // Render labels for entities with createOnAnyEvent/createOnAllEvents or specific types
     const levelData = gameScene.getLevelData();
-    
+
     for (const entity of entityManager.getAll()) {
       const entityData = levelData.entities?.find(e => e.id === entity.id);
       const hasEventSpawn = entityData?.createOnAnyEvent || entityData?.createOnAllEvents;
-      
-      const shouldShowLabel = hasEventSpawn || 
-        entity.id.startsWith('bug_base') || 
-        entity.id.startsWith('bugbase') || 
+
+      const shouldShowLabel = hasEventSpawn ||
+        entity.id.startsWith('bug_base') ||
+        entity.id.startsWith('bugbase') ||
         entity.id.startsWith('thrower') ||
         entity.id.startsWith('puma') ||
         entity.id.startsWith('skeleton');
-      
+
       if (shouldShowLabel) {
         const transform = entity.get(TransformComponent);
         if (!transform) continue;
@@ -182,7 +182,7 @@ export default class EditorScene extends Phaser.Scene {
           else if (entity.id.startsWith('skeleton')) text = 'S';
           else if (entity.id.startsWith('puma')) text = 'P';
           else if (hasEventSpawn) text = 'E';
-          
+
           label = gameScene.add.text(transform.x, transform.y, text, {
             fontSize: '48px',
             color: '#ffffff',
@@ -307,18 +307,27 @@ export default class EditorScene extends Phaser.Scene {
         const hasProperties = cell.properties.size > 0;
         const hasTexture = cell.backgroundTexture && cell.backgroundTexture !== '';
         
-        if (hasProperties) {
-          console.log(`[Extract] Cell (${col},${row}): layer=${layer}, props=[${Array.from(cell.properties).join(',')}]`);
-        }
-        
         if (layer !== 0 || hasProperties || hasTexture) {
-          cells.push({
+          const cellData: {
+            col: number;
+            row: number;
+            layer: number;
+            properties?: CellProperty[];
+            backgroundTexture?: string;
+          } = {
             col,
             row,
-            layer,
-            properties: hasProperties ? Array.from(cell.properties) : undefined,
-            backgroundTexture: hasTexture ? cell.backgroundTexture : undefined
-          });
+            layer
+          };
+
+          if (hasProperties) {
+            cellData.properties = Array.from(cell.properties);
+          }
+          if (hasTexture) {
+            cellData.backgroundTexture = cell.backgroundTexture;
+          }
+
+          cells.push(cellData);
         }
       }
     }
@@ -330,6 +339,7 @@ export default class EditorScene extends Phaser.Scene {
     const grid = this.getGrid();
     const gameScene = this.scene.get('game') as GameScene;
     const entityManager = gameScene.getEntityManager();
+    const existingLevelData = gameScene.getLevelData();
 
     const cells = this.extractGridCells(grid);
     const entities = this.extractEntities(entityManager, grid);
@@ -338,9 +348,7 @@ export default class EditorScene extends Phaser.Scene {
     const playerTransform = player?.get(TransformComponent);
     const playerStart = playerTransform
       ? grid.worldToCell(playerTransform.x, playerTransform.y)
-      : { col: 10, row: 10 };
-
-    const existingLevelData = gameScene.getLevelData();
+      : { col: existingLevelData.playerStart.x, row: existingLevelData.playerStart.y };
 
     const result = {
       width: grid.width,
@@ -432,13 +440,13 @@ export default class EditorScene extends Phaser.Scene {
         const createOnAllEvents = existingEntity?.createOnAllEvents;
         const respawnable = existingEntity?.respawnable;
         const suppressOnAnyFlag = existingEntity?.suppressOnAnyFlag;
-        
+
         const entityData: import('../systems/level/LevelLoader').LevelEntity = {
           id: entity.id,
           type,
           data
         };
-        
+
         if (createOnAnyEvent) {
           entityData.createOnAnyEvent = createOnAnyEvent;
         }
@@ -451,7 +459,7 @@ export default class EditorScene extends Phaser.Scene {
         if (suppressOnAnyFlag) {
           entityData.suppressOnAnyFlag = suppressOnAnyFlag;
         }
-        
+
         entities.push(entityData);
       }
     }

@@ -5,7 +5,7 @@
 **All entities are in the `entities` array in level JSON.**
 
 - **Entity ID**: Unique identifier (e.g., "skeleton0", "robot1")
-- **Entity Type**: skeleton, thrower, stalking_robot, bug_base, bullet_dude, trigger, exit, eventchainer, cellmodifier
+- **Entity Type**: skeleton, thrower, stalking_robot, bug_base, bullet_dude, puma, trigger, exit, eventchainer, cellmodifier
 - **createOnAnyEvent**: Optional - array of events, spawns when ANY fires
 - **createOnAllEvents**: Optional - array of events, spawns when ALL fire
 - **Immediate spawn**: No createOnAnyEvent/createOnAllEvents = spawns on level load
@@ -13,7 +13,7 @@
 
 ## Entity Types
 
-- **skeleton, thrower, robot, bug_base, bullet_dude** - Enemies with col, row, difficulty
+- **skeleton, thrower, robot, bug_base, bullet_dude, puma** - Enemies with col, row, difficulty
 - **trigger** - Fires event when player enters cells (has eventToRaise, triggerCells, oneShot)
 - **exit** - Transitions to another level (has targetLevel, targetCol, targetRow, triggerCells)
 - **eventchainer** - Raises multiple events with delays (has eventsToRaise array)

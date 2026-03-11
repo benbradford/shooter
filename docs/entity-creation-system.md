@@ -50,6 +50,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `stalking_robot` - Patrols waypoints, shoots fireballs
 - `bug_base` - Spawns bugs continuously
 - `bullet_dude` - Shoots bullets
+- `puma` - Rests, detects player, chases with momentum, jumps
 - `trigger` - Invisible area that fires event when player enters
 - `exit` - Level transition portal
 - `eventchainer` - Raises multiple events sequentially with delays
@@ -138,9 +139,10 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `row`: Grid row position (optional for positionless entities)
 - `respawnable`: Boolean (optional, default false) - If true, entity respawns when re-entering level even if destroyed
 
-### Enemy Entities (skeleton, thrower, robot, bug_base, bullet_dude)
+### Enemy Entities (skeleton, thrower, robot, bug_base, bullet_dude, puma)
 - `difficulty`: "easy" | "medium" | "hard"
 - `waypoints`: Array of {col, row} (stalking_robot only)
+- `startDirection`: Direction enum value 1-8 (puma only)
 
 ### Trigger
 - `eventToRaise`: Event name to fire

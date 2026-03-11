@@ -661,6 +661,16 @@ See `docs/attacker-spritesheet-reference.md` for complete frame mapping and `age
 
 See `public/assets/skeleton/README.md` for frame calculation formulas.
 
+**Puma sprite sheet** (576×1248 pixels, 12 columns × 26 rows, 48×48 frames):
+- Frames 0-7: Idle (1 frame, 8 directions)
+- Frames 8-63: Angry (7 frames, 8 directions)
+- Frames 64-127: Jump (8 frames, 8 directions)
+- Frames 128-159: Running (4 frames, 8 directions)
+- Frames 160-239: Seated idle (10 frames, 8 directions)
+- Frames 240-303: Standing up (8 frames, 8 directions)
+
+See `public/assets/puma/metadata.md` for complete layout.
+
 ### Component Update Order Rules
 
 1. **Transform** - Base position

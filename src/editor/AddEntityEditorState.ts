@@ -122,6 +122,9 @@ export class AddEntityEditorState extends EditorState {
 
     if (!gameScene.textures.exists(texture)) {
       console.warn(`[AddEntityEditorState] Texture "${texture}" not loaded, skipping ghost sprite`);
+      // Still register pointer events even without ghost sprite
+      this.scene.input.on('pointermove', this.handlePointerMove, this);
+      this.scene.input.on('pointerdown', this.handlePointerDown, this);
       return;
     }
 
@@ -237,6 +240,8 @@ export class AddEntityEditorState extends EditorState {
   private placeEntity(col: number, row: number): void {
     if (!this.selectedType) return;
 
+    console.log('[AddEntity] placeEntity called:', { col, row, selectedType: this.selectedType });
+
     const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
     const levelData = gameScene.getLevelData();
     const entityManager = gameScene.getEntityManager();
@@ -274,13 +279,18 @@ export class AddEntityEditorState extends EditorState {
       }
     };
 
+    console.log('[AddEntity] Adding entity to levelData:', newEntity);
     levelData.entities.push(newEntity);
 
+    console.log('[AddEntity] Calling resetScene...');
     // Reload scene to spawn entity
-    void gameScene.resetScene();
-
-    // Stay in add mode
-    this.scene.enterAddMode();
+    gameScene.resetScene().then(() => {
+      console.log('[AddEntity] resetScene complete, re-entering add mode');
+      // Stay in add mode after reset completes
+      this.scene.enterAddMode();
+    }).catch((error: unknown) => {
+      console.error('[AddEntity] Failed to reset scene:', error);
+    });
   }
 
   onUpdate(_delta: number): void {

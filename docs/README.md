@@ -166,6 +166,7 @@ When asked to "update the docs":
 - **Bug Base**: Spawns bugs that chase the player
 - **Thrower**: Runs toward player, throws grenades in arc
 - **Skeleton**: Pathfinds to player, stops periodically, throws rotating bone projectiles
+- **Puma**: Rests until player detected (FOV or proximity), stands up, threatens, chases with momentum, jumps at player (2× distance), recovers with deceleration
 
 ## Key Concepts
 

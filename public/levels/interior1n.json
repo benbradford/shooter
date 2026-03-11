@@ -60,8 +60,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": ""
+      ]
     },
     {
       "col": 0,
@@ -93,8 +92,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": ""
+      ]
     }
   ],
   "entities": [
