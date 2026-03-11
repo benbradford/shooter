@@ -4,6 +4,7 @@ import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
 import { WaterAnimator, type WaterConfig } from './WaterAnimator';
 import { PathTilesetGenerator } from './PathTilesetGenerator';
+import { AssetManager } from '../../systems/AssetManager';
 
 const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { scaleX: number; scaleY: number; offsetX: number; offsetY: number }> = {
   house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
@@ -284,6 +285,10 @@ export abstract class GameSceneRenderer {
             frameRate: config.frameRate,
             repeat: -1
           });
+          
+          // Register dependency
+          const assetManager = AssetManager.getInstance();
+          assetManager.registerDependency(config.spritesheet, 'animation', animationKey);
         }
 
         // Start at random frame and play

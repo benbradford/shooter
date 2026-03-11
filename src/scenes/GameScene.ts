@@ -28,6 +28,7 @@ import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
 import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
+import { AssetManager } from "../systems/AssetManager";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
 export default class GameScene extends Phaser.Scene {
@@ -576,10 +577,6 @@ export default class GameScene extends Phaser.Scene {
     // Calculate texture deltas
     const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
     const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
-    
-    console.log('[LoadLevel] sconce_flame in prev?', prevLevelTextures.includes('sconce_flame'));
-    console.log('[LoadLevel] sconce_flame in new?', newLevelTextures.includes('sconce_flame'));
-    console.log('[LoadLevel] sconce_flame in unused?', unusedTextures.includes('sconce_flame'));
 
     // Cleanup before loading new level
     this.time.removeAllEvents();
@@ -599,16 +596,8 @@ export default class GameScene extends Phaser.Scene {
       }
       if (unusedTextures.length > 0) {
         console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
-        unusedTextures.forEach(tex => {
-          if (this.textures.exists(tex)) {
-            // Remove associated animations
-            const animKey = `${tex}_anim`;
-            if (this.anims.exists(animKey)) {
-              this.anims.remove(animKey);
-            }
-            this.textures.remove(tex);
-          }
-        });
+        const assetManager = AssetManager.getInstance();
+        assetManager.unloadBatch(this, unusedTextures);
       }
     }
 

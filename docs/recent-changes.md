@@ -1,5 +1,35 @@
 # Recent Changes and Updates
 
+## March 2026
+
+### Asset Management System
+
+**Problem**: Animated textures crashed when re-entering levels due to stale animation references after texture unload/reload.
+
+**Solution**: Created centralized AssetManager singleton that tracks asset dependencies and automatically cleans them up:
+
+- `AssetManager.registerDependency(assetKey, type, dependencyKey)` - Track that a dependency relies on an asset
+- `AssetManager.unload(scene, assetKey)` - Unload asset and all its dependencies
+- `AssetManager.unloadBatch(scene, assetKeys)` - Batch unload with automatic cleanup
+
+**Integration**:
+- GameSceneRenderer registers animation dependencies when creating animations
+- GameScene uses AssetManager for all texture unloading
+- Animations are automatically removed before their textures are unloaded
+
+**Files Changed**:
+- `src/systems/AssetManager.ts` - New singleton for dependency tracking
+- `src/scenes/theme/GameSceneRenderer.ts` - Register animation dependencies
+- `src/scenes/GameScene.ts` - Use AssetManager for unloading
+
+**Benefits**:
+- No more manual cleanup code scattered across files
+- Adding new asset types (tilesets, particle configs) is straightforward
+- Explicit dependency tracking makes code easier to reason about
+- Prevents entire class of "stale reference" bugs
+
+### Scene Cleanup on Level Load
+
 ## February 2026
 
 ### Scene Cleanup on Level Load
