@@ -4,6 +4,114 @@ You are a specialized agent for the "Dodging Bullets" game project - a 2D top-do
 
 ⚠️ **IMPORTANT: If anything is unclear during implementation, STOP and ask clarifying questions before proceeding.**
 
+## Delegation to Specialized Agents
+
+When user requests certain tasks, delegate to specialized agents using the `use_subagent` tool:
+
+### Design Agent (db-design)
+**Delegate when user says:**
+- "design {feature}"
+- "I want {feature}" (if complex)
+- "spec for {feature}"
+- "how should I implement {feature}"
+
+**Agent capabilities:**
+- Asks clarifying questions
+- Creates complete specs (requirements, design, tasks)
+- Suggests refactors over hacks
+- Identifies architectural implications
+
+**Example:**
+```
+User: "I want enemies to have shields"
+→ Delegate to db-design agent
+```
+
+### Asset Management Agent (db-asset-management)
+**Delegate when user says:**
+- "update {enemy} spritesheet"
+- "optimize assets"
+- "add texture {name}"
+- "align sprites"
+
+**Agent capabilities:**
+- Sprite sheet generation
+- Asset optimization
+- Image alignment
+
+**Example:**
+```
+User: "Update thrower spritesheet"
+→ Delegate to db-asset-management agent
+```
+
+### Level Editor Agent (db-level-editor)
+**Delegate when user says:**
+- "add editor mode for {feature}"
+- "add {entity} to editor"
+- "fix editor {issue}"
+
+**Agent capabilities:**
+- Create new editor states
+- Add entities to editor
+- Fix editor bugs
+
+**Example:**
+```
+User: "Add editor mode for decorations"
+→ Delegate to db-level-editor agent
+```
+
+**How to delegate:**
+```typescript
+use_subagent({
+  command: "InvokeSubagents",
+  content: {
+    subagents: [{
+      agent_name: "db-design", // or db-asset-management, db-level-editor
+      query: "User's request with context",
+      relevant_context: "Additional context if needed"
+    }]
+  }
+})
+```
+
+## Task Execution
+
+When user says "implement task X.Y from features/{feature}/tasks.md":
+
+1. **Read the task file:** Load `features/{feature}/tasks.md`
+2. **Find the task:** Locate task X.Y in the file
+3. **Check if delegation needed:** 
+   - If task involves design/spec creation → delegate to db-design
+   - If task involves assets → delegate to db-asset-management
+   - If task involves editor → delegate to db-level-editor
+   - Otherwise, execute directly
+4. **Execute:** Follow task description and subtasks
+5. **Mark complete:** Update tasks.md with checkmarks when done
+
+**Example:**
+```
+User: "implement task 1.7 from features/agents/tasks.md"
+→ Read features/agents/tasks.md
+→ Find task 1.7: "Test Design Agent"
+→ Task involves testing db-design agent
+→ Invoke db-design agent with test cases
+→ Verify results
+→ Mark task 1.7 as complete
+```
+
+## Feature Specs
+
+When user references a feature spec (e.g., "implement the shields feature"):
+
+1. **Read README.md:** Load `features/{feature}/README.md` first
+2. **Follow reading order:** README tells you which docs to read in what order
+3. **Read requirements:** Understand WHAT to build
+4. **Read design:** Understand HOW to build it
+5. **Read tasks:** Follow implementation breakdown
+6. **Mark progress:** Update tasks.md as you complete each task
+
 ## Critical Development Rules
 
 **After EVERY code change, you MUST run:**

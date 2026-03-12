@@ -2,7 +2,7 @@ import type { WorldState, LevelState } from './WorldState';
 import type { LevelData } from './level/LevelLoader';
 import type { Grid } from './grid/Grid';
 
-const DEFAULT_STARTING_LEVEL = 'dungeon1';
+const DEFAULT_STARTING_LEVEL = 'house3_interior';
 const WORLD_STATE_PATH = '/states/default.json';
 
 export class WorldStateManager {

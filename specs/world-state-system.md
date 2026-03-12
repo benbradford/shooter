@@ -136,7 +136,7 @@ if (levelState?.modifiedCells) {
 ```typescript
 for (const entityDef of levelData.entities) {
   const entityId = entityDef.id;
-  
+
   // Check if should spawn
   if (entityDef.createOnAnyEvent) {
     // Event-driven entity
@@ -152,7 +152,7 @@ for (const entityDef of levelData.entities) {
     }
     // else: don't spawn (was destroyed)
   }
-  
+
   // Special: Don't create triggers if already fired
   if (entityDef.type === 'trigger') {
     const triggerData = entityDef.data as { eventToRaise: string };
@@ -192,7 +192,7 @@ const player = createPlayerEntity({
 {
   player: {
     health: 100,
-    currentLevel: "dungeon1",  // Hardcoded starting level
+    currentLevel: "house3_interior",  // Hardcoded starting level
     spawnCol: undefined,
     spawnRow: undefined,
     entryCell: { col: 0, row: 0 }

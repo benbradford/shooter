@@ -40,7 +40,6 @@ export default class GameScene extends Phaser.Scene {
   private stateMachine!: StateMachine<void | InteractionStateData>;
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
-  private levelKey!: Phaser.Input.Keyboard.Key;
   private levelData!: LevelData;
   private currentLevelName: string = 'grass_overworld1';
   private levelEntrySnapshot: string | null = null;
@@ -167,13 +166,6 @@ export default class GameScene extends Phaser.Scene {
 
     const keyboard = this.input.keyboard;
     if (keyboard) {
-      this.levelKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.L);
-      this.levelKey.on('down', () => {
-        if (this.scene.isActive()) {
-          this.showLevelSelector();
-        }
-      });
-
       const editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
       editorKey.on('down', () => {
         if (this.scene.isActive()) {
@@ -450,11 +442,6 @@ export default class GameScene extends Phaser.Scene {
     this.vignette = rendered.vignette;
 
     this.grid.render();
-  }
-
-  private showLevelSelector(): void {
-    this.scene.pause();
-    this.scene.launch('LevelSelectorScene');
   }
 
   reloadCurrentLevel(): void {

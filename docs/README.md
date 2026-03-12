@@ -4,13 +4,55 @@ Quick reference for navigating the Dodging Bullets documentation.
 
 ## Documentation Principles
 
-When updating documentation:
-- **No conflicting information** - Ensure consistency across all docs
-- **No spurious information** - Only document what isn't easily found in code
-- **Highlight pitfalls** - Add lessons learned from debugging sessions
-- **Document best practices** - Include patterns that work well
-- **Update correct location** - Place info in the most relevant doc
-- **Ask for clarification** - Request details when requirements are unclear or when there's conflicting information between docs and code
+### Keep Docs Lean
+
+**Document only what isn't easily found in code:**
+- Design decisions and rationale (WHY, not WHAT)
+- Common pitfalls and their solutions
+- Non-obvious behavior and edge cases
+- Critical constraints not obvious from code
+- Best practices and patterns
+
+**Don't document:**
+- Code structure (use code search tools)
+- API signatures (read the actual interfaces)
+- JSON formats (read actual level files)
+- Step-by-step code tutorials (obvious from reading code)
+- Large code examples (use code search to find patterns)
+
+### When Updating Documentation
+
+1. **Remove before adding** - Check if existing info can be condensed
+2. **No code examples** - Unless showing a non-obvious pattern
+3. **No JSON examples** - Unless showing a unique structure
+4. **Focus on gotchas** - What would trip someone up?
+5. **One source of truth** - Don't duplicate information across docs
+6. **Ask for clarification** - Request details when requirements are unclear or when there's conflicting information between docs and code
+
+### Auditing Documentation
+
+**Run the audit script:**
+```bash
+./scripts/audit-docs.sh
+```
+
+This checks:
+- Total line count (target: <7,000 lines)
+- Largest files (candidates for condensation)
+- Files with most code blocks (potential bloat)
+- Files with JSON examples (often redundant)
+- Stale references to deleted features
+
+**When asked to "audit the docs":**
+1. Run the audit script
+2. Review files >300 lines for condensation opportunities
+3. Check code blocks - keep only non-obvious patterns
+4. Check JSON examples - remove if they duplicate level files
+5. Look for stale information (references to deleted features)
+6. Suggest consolidation opportunities
+7. **Don't automatically change** - present findings and wait for approval
+
+**Current status:** 6,265 lines (under 7,000 target) after March 2026 condensation
 
 When asked to "update the docs":
 1. Update existing sections to reflect code changes
