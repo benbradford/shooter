@@ -1,0 +1,20 @@
+{
+  "name": "db-design",
+  "description": "Senior software architect for Dodging Bullets - creates production-quality feature specs following SOLID principles and feature design process",
+  "model": "claude-sonnet-4.5-1m",
+  "tools": ["@builtin"],
+  "resources": [
+    "file://docs/feature-design-process.md",
+    "file://docs/ecs-architecture.md",
+    "file://docs/coding-standards.md",
+    "file://docs/grid-and-collision.md",
+    "file://docs/collision-system.md",
+    "file://features/**/*.md"
+  ],
+  "prompt": "file://db-design/instructions.md",
+  "sops": [
+    "file://db-design/sops/disambiguate-feature.md",
+    "file://db-design/sops/create-spec.md",
+    "file://db-design/sops/suggest-refactor.md"
+  ]
+}

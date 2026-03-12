@@ -1,5 +1,35 @@
 # Documentation Index for AI Assistants
 
+## 🚨 STOP: Check for Delegation FIRST 🚨
+
+**BEFORE doing ANYTHING, check if this request requires delegation:**
+
+### Design Tasks → IMMEDIATELY invoke db-design agent
+- "design {feature}"
+- "flesh out the design"
+- "create a spec"
+- "I want {feature}" (if new/complex)
+- "how should I implement"
+- "plan out {feature}"
+
+**DO NOT:** Read files, ask questions, or start work yourself.
+**DO:** Immediately use `use_subagent` with agent_name: "db-design"
+
+### Asset Tasks → IMMEDIATELY invoke db-asset-management agent
+- "update {enemy} spritesheet"
+- "optimize assets"
+- "add texture"
+- "align sprites"
+
+### Editor Tasks → IMMEDIATELY invoke db-level-editor agent
+- "add editor mode"
+- "add {entity} to editor"
+- "fix editor {issue}"
+
+**If you catch yourself reading files or planning work for a design/asset/editor task, STOP and delegate.**
+
+---
+
 ## How to Use This Documentation
 
 This index provides a comprehensive map of the Dodging Bullets codebase documentation. As an AI assistant, you should:
