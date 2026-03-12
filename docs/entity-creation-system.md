@@ -9,23 +9,6 @@
 
 **Common mistake:** Adding a field to level data and updating it in the editor, but forgetting to extract it in `extractEntities()`. Result: Field doesn't appear in logged JSON.
 
-**Pattern:**
-```typescript
-// In editor state - update level data
-const entityData = levelData.entities?.find(e => e.id === this.entity!.id);
-if (entityData) {
-  entityData.myNewField = newValue;
-}
-
-// In EditorScene.extractEntities() - preserve the field
-const existingEntity = existingLevelData.entities?.find(e => e.id === entity.id);
-const myNewField = existingEntity?.myNewField;
-
-if (myNewField) {
-  entityData.myNewField = myNewField;
-}
-```
-
 **Checklist when adding editor features:**
 - [ ] Update level data type (LevelEntity, LevelData, etc.)
 - [ ] Update editor state to modify the field
@@ -63,74 +46,6 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - Mutually exclusive - error thrown if both are present
 - If neither set: Entity spawns immediately on level load
 - EntityCreatorManager handles registration and creation
-
-## Level JSON Format
-
-```json
-{
-  "width": 40,
-  "height": 30,
-  "playerStart": {"x": 15, "y": 19},
-  "entities": [
-    {
-      "id": "skeleton0",
-      "type": "skeleton",
-      "data": {
-        "col": 10,
-        "row": 5,
-        "difficulty": "easy"
-      }
-    },
-    {
-      "id": "skeleton1",
-      "type": "skeleton",
-      "createOnAnyEvent": ["sk1"],
-      "data": {
-        "col": 15,
-        "row": 10,
-        "difficulty": "medium"
-      }
-    },
-    {
-      "id": "trigger1",
-      "type": "trigger",
-      "data": {
-        "eventToRaise": "spawn_wave",
-        "triggerCells": [{"col": 12, "row": 23}],
-        "oneShot": true
-      }
-    },
-    {
-      "id": "eventchainer1",
-      "type": "eventchainer",
-      "createOnAnyEvent": ["spawn_wave"],
-      "data": {
-        "eventsToRaise": [
-          {"event": "sk1", "delayMs": 0},
-          {"event": "sk2", "delayMs": 1000}
-        ]
-      }
-    },
-    {
-      "id": "cellmodifier0",
-      "type": "cellmodifier",
-      "createOnAnyEvent": ["door_open"],
-      "data": {
-        "cellsToModify": [
-          {
-            "col": 10,
-            "row": 5,
-            "backgroundTexture": "door_open"
-          }
-        ]
-      }
-    }
-  ],
-  "cells": [...],
-  "levelTheme": "dungeon",
-  "background": {...}
-}
-```
 
 ## Entity Data Fields
 
@@ -176,18 +91,8 @@ All entities in the game are defined in a unified `entities` array in level JSON
 
 ### EntityCreatorManager
 
-Manages event-driven entity creation:
+Manages event-driven entity creation. Implements EventListener to receive events from EventManagerSystem.
 
-```typescript
-class EntityCreatorManager implements EventListener {
-  registerAny(event: string, creator: () => Entity): void
-  registerAll(events: string[], creator: () => Entity): void
-  onEvent(event: string): void
-  clear(): void
-}
-```
-
-- Implements EventListener to receive events from EventManagerSystem
 - `registerAny`: Entity spawns when ANY of the events fires (removes listener after first)
 - `registerAll`: Entity spawns when ALL events have fired
 - **Supports multiple entities per event** - all spawn when event fires
@@ -196,116 +101,13 @@ class EntityCreatorManager implements EventListener {
 
 ### EntityLoader
 
-Handles entity loading from level JSON:
-
-```typescript
-class EntityLoader {
-  loadEntities(levelData: LevelData, player: Entity, isEditorMode: boolean = false): void
-}
-```
+Handles entity loading from level JSON.
 
 - Validates unique entity IDs
 - Creates entity creators for each entity definition
 - **In game mode**: Registers event-driven entities with EntityCreatorManager
 - **In editor mode**: Spawns all entities immediately (ignores createOnEvent)
 - Creates immediate entities and adds to EntityManager
-
-### Entity Creation Flow
-
-1. **Level loads** - EntityLoader.loadEntities() called
-2. **Validate IDs** - Check for duplicates, throw error if found
-3. **For each entity**:
-   - Create entity creator function
-   - If `createOnEvent`: Register with EntityCreatorManager
-   - If no `createOnEvent`: Create immediately and add to EntityManager
-4. **When event fires**:
-   - EntityCreatorManager.onEvent() called
-   - Entity creator function executed
-   - Entity added to EntityManager
-   - EntityCreatorManager deregisters from event
-
-## Example Flows
-
-### Simple Spawn
-```json
-{
-  "id": "skeleton0",
-  "type": "skeleton",
-  "data": {"col": 10, "row": 5, "difficulty": "easy"}
-}
-```
-→ Spawns immediately on level load
-
-### Event-Driven Spawn
-```json
-{
-  "id": "trigger1",
-  "type": "trigger",
-  "data": {
-    "eventToRaise": "spawn_wave",
-    "triggerCells": [{"col": 12, "row": 23}],
-    "oneShot": true
-  }
-},
-{
-  "id": "skeleton1",
-  "type": "skeleton",
-  "createOnAnyEvent": ["spawn_wave"],
-  "data": {"col": 15, "row": 10, "difficulty": "medium"}
-}
-```
-→ Player walks to (12, 23) → trigger fires "spawn_wave" → skeleton1 spawns
-
-### Sequential Spawning with EventChainer
-```json
-{
-  "id": "trigger1",
-  "type": "trigger",
-  "data": {
-    "eventToRaise": "start_wave",
-    "triggerCells": [{"col": 12, "row": 23}],
-    "oneShot": true
-  }
-},
-{
-  "id": "eventchainer1",
-  "type": "eventchainer",
-  "createOnAnyEvent": ["start_wave"],
-  "data": {
-    "eventsToRaise": [
-      {"event": "sk1", "delayMs": 0},
-      {"event": "sk2", "delayMs": 1000},
-      {"event": "th1", "delayMs": 500}
-    ]
-  }
-},
-{
-  "id": "skeleton1",
-  "type": "skeleton",
-  "data": {"col": 15, "row": 10, "difficulty": "medium"}
-},
-{
-  "id": "skeleton2",
-  "type": "skeleton",
-  "createOnAnyEvent": ["sk2"],
-  "data": {"col": 17, "row": 10, "difficulty": "hard"}
-},
-{
-  "id": "thrower1",
-  "type": "thrower",
-  "createOnAnyEvent": ["th1"],
-  "data": {"col": 19, "row": 10, "difficulty": "medium"}
-}
-```
-
-Flow:
-1. Player walks to (12, 23)
-2. trigger1 fires "start_wave"
-3. eventchainer1 spawns and starts
-4. eventchainer1 raises "sk1" (0ms) → skeleton1 spawns
-5. eventchainer1 raises "sk2" (1000ms) → skeleton2 spawns
-6. eventchainer1 raises "th1" (500ms) → thrower1 spawns
-7. eventchainer1 destroys itself
 
 ## Editor Integration
 
@@ -378,152 +180,18 @@ When any entity is destroyed, an event `{entityId}_destroyed` is automatically r
 When adding a new entity type that should be placeable in the editor, you must update **FIVE** files:
 
 ### 1. Add to EntityType (LevelLoader.ts)
-
-```typescript
-// src/systems/level/LevelLoader.ts
-export type EntityType = 
-  | 'stalking_robot' 
-  | 'bug_base' 
-  | 'thrower' 
-  | 'skeleton' 
-  | 'bullet_dude' 
-  | 'eventchainer'
-  | 'trigger'
-  | 'exit'
-  | 'breakable'  // Add your new type here
-  | 'your_new_type';
-```
-
 ### 2. Add to AddEntityEditorState.ts
-
-Add to the ENTITY_TYPES array:
-
-```typescript
-// src/editor/AddEntityEditorState.ts
-const ENTITY_TYPES: Array<{ type: EntityType; label: string }> = [
-  { type: 'skeleton', label: 'Skeleton' },
-  { type: 'thrower', label: 'Thrower' },
-  { type: 'stalking_robot', label: 'Robot' },
-  { type: 'bug_base', label: 'Bug Base' },
-  { type: 'bullet_dude', label: 'Bullet Dude' },
-  { type: 'breakable', label: 'Breakable' },
-  { type: 'your_new_type', label: 'Your New Type' }  // Add here
-];
-```
-
-Add ghost sprite texture mapping:
-
-```typescript
-// In createGhostSprite() method
-let texture = 'bug_base';
-if (this.selectedType === 'skeleton') texture = 'skeleton';
-else if (this.selectedType === 'thrower') texture = 'thrower';
-else if (this.selectedType === 'stalking_robot') texture = 'attacker';
-else if (this.selectedType === 'bullet_dude') texture = 'attacker';
-else if (this.selectedType === 'breakable') texture = this.selectedTexture;
-else if (this.selectedType === 'your_new_type') texture = 'your_texture';  // Add here
-```
-
-Add data structure in placeEntity():
-
-```typescript
-// In placeEntity() method
-const newEntity: import('../systems/level/LevelLoader').LevelEntity = {
-  id: newId,
-  type: this.selectedType,
-  data: {
-    col,
-    row,
-    ...(this.selectedType === 'breakable' 
-      ? { texture: this.selectedTexture, health: 30 }
-      : this.selectedType === 'your_new_type'
-      ? { yourCustomField: 'value' }  // Add custom data here
-      : { difficulty: 'medium' }),
-    ...(this.selectedType === 'stalking_robot' ? { waypoints: [{ col, row }] } : {})
-  }
-};
-```
+- Add to ENTITY_TYPES array
+- Add ghost sprite texture mapping in createGhostSprite()
+- Add data structure in placeEntity()
 
 ### 3. Add to EditorScene.extractEntities()
-
 **CRITICAL:** This is where entities are extracted to JSON when you click Log/Save.
 
-```typescript
-// src/scenes/EditorScene.ts - in extractEntities() method
-} else if (entity.id.startsWith('breakable')) {
-  type = 'breakable';
-  const sprite = entity.get(SpriteComponent);
-  const breakable = entity.get(BreakableComponent);
-  data = { 
-    col: cell.col, 
-    row: cell.row, 
-    texture: sprite?.sprite.texture.key ?? 'dungeon_vase',
-    health: breakable?.getHealth() ?? 1
-  };
-} else if (entity.id.startsWith('your_new_type')) {  // Add your extraction here
-  type = 'your_new_type';
-  const yourComponent = entity.get(YourComponent);
-  data = { 
-    col: cell.col, 
-    row: cell.row, 
-    yourCustomField: yourComponent?.getValue() ?? 'default'
-  };
-}
-```
-
-**Why this is critical:** Without this, your entities won't appear in the saved JSON even though they're visible in the editor.
-
 ### 4. Update Entity Factory to Accept entityId
-
 **CRITICAL:** Entity factories must accept and use the entityId parameter for unique IDs.
 
-```typescript
-// src/ecs/entities/your_entity/YourEntity.ts
-export type CreateYourEntityProps = {
-  scene: Phaser.Scene;
-  col: number;
-  row: number;
-  grid: Grid;
-  entityId: string;  // Add this - REQUIRED
-  // ... other props
-}
-
-export function createYourEntity(props: CreateYourEntityProps): Entity {
-  const { scene, col, row, grid, entityId } = props;
-  const entity = new Entity(entityId);  // Use entityId, not hardcoded string
-  entity.tags.add('your_entity_tag');
-  // ... rest of entity setup
-}
-```
-
-**Common mistake:** Using hardcoded entity type instead of entityId parameter:
-```typescript
-// ❌ WRONG - causes duplicate ID errors
-const entity = new Entity('thrower');
-
-// ✅ CORRECT - uses unique ID from level data
-const entity = new Entity(entityId);
-```
-
 ### 5. Update EntityLoader to Pass entityId
-
-```typescript
-// src/systems/EntityLoader.ts
-case 'your_new_type':
-  return () => {
-    const data = entityDef.data as { col: number; row: number; /* other fields */ };
-    return createYourEntity({
-      scene: this.scene,
-      col: data.col,
-      row: data.row,
-      grid: this.grid,
-      entityId: entityDef.id,  // Pass the ID from level JSON
-      // ... other props
-    });
-  };
-```
-
-**Why this is critical:** Without passing entityId, all entities of the same type will have the same ID, breaking the editor's ability to track and save them individually.
 
 ### Checklist for New Entity Types
 
@@ -549,17 +217,7 @@ case 'your_new_type':
 
 **Cause:** When you move an entity, the Transform and Sprite are updated, but GridPositionComponent.currentCell is not. When extractEntities() runs, it reads from GridPositionComponent.currentCell which still has the old position.
 
-**Solution:** MoveEditorState now updates GridPositionComponent.currentCell when moving entities:
-
-```typescript
-// In MoveEditorState.handlePointerMove()
-if (gridPos) {
-  gridPos.currentCell.col = cell.col;
-  gridPos.currentCell.row = cell.row;
-}
-```
-
-This ensures the entity's grid position stays in sync with its visual position.
+**Solution:** MoveEditorState now updates GridPositionComponent.currentCell when moving entities.
 
 ## Migration Notes
 

@@ -17,15 +17,12 @@ npm run build                # MUST pass with zero errors
 npx eslint src --ext .ts     # MUST pass with zero errors
 ```
 
-*Note: `npm run dev` is optional if you already have the dev server running in another terminal.*
-
 ---
 
 ## Grid System
 
 ### Overview
 
-The game uses a fixed-size grid for collision detection and entity placement:
 - **Cell size**: 64x64 pixels (configurable)
 - **Grid dimensions**: 40x30 cells (configurable)
 - **Purpose**: Simplifies collision detection and spatial queries
@@ -34,31 +31,15 @@ The game uses a fixed-size grid for collision detection and entity placement:
 
 ### Cell Properties
 
-Each grid cell tracks:
-```typescript
-interface CellData {
-### Cell Properties
-
-Each grid cell tracks:
-```typescript
-interface CellData {
-  layer: number;                  // Vertical layer (-1 = pit, 0 = ground, 1 = platform/wall)
-  properties: Set<CellProperty>;  // 'platform', 'wall', 'stairs', 'path', 'water', 'bridge'
-  occupants: Set<Entity>;         // Which entities are in this cell
-}
-
-export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water' | 'blocked' | 'bridge';
-```
+Each grid cell tracks layer, properties (platform/wall/stairs/path/water/blocked/bridge), and occupants.
 
 **Property Meanings:**
 - **'platform'**: Elevated surface (layer 1) - walkable, no visual pattern
 - **'wall'**: Solid barrier (layer 1) - blocks movement, renders with brick/stone pattern
 - **'stairs'**: Transition between layers - allows vertical movement only
-- **'path'**: Stone path (grass theme only) - walkable, renders as connected grey stones with black outlines
+- **'path'**: Stone path (grass theme only) - walkable, renders as connected grey stones
 - **'water'**: Water cells - player swims at reduced speed (70%), triggers water effects
-  - Uses `PLAYER_SWIMMING_GRID_COLLISION_BOX` (64×64) for collision detection while swimming
-  - Prevents sprite overlap with blocked cells in all directions
-  - Can be combined with 'blocked' property to create impassable water obstacles
+  - Uses `PLAYER_SWIMMING_GRID_COLLISION_BOX` (64×64) for collision detection
   - Background textures on water cells render at depth -8 (below swimming player at -7)
 - **'blocked'**: Blocks all movement - can be combined with 'water' to create obstacles in water
 - **'bridge'**: Bridge over water - when combined with 'water' property, allows walking over water at full speed
@@ -67,11 +48,7 @@ export type CellProperty = 'platform' | 'wall' | 'stairs' | 'path' | 'water' | '
   - Ripples only appear when swimming under bridge, not when walking over
   - Player renders at depth -7 when swimming (below bridge textures at -5, above water at -10)
   - Cannot hop out through bridge cells (blocked in all directions)
-  - Cannot walk from bridge onto water without bridge
-  - Cannot hop out to blocked/platform/wall cells
   - **Workaround**: Use 'blocked' property on water cells at corners to prevent swimming into land
-    - Mark corner water cells as 'water + blocked' to create invisible barriers
-    - Prevents visual overlap issues where sprite extends beyond collision box
 
 ### Layer System
 
@@ -93,16 +70,12 @@ The grid supports vertical layering for multi-level environments:
 - Special cells that connect two adjacent layers
 - **Player layer updates immediately** when stepping on stairs
 - **Entry**: Only from top or bottom (vertical movement only)
-  - From above: Can enter when moving down
-  - From below: Can enter when moving up
 - **Exit**: Only up or down (no left/right movement)
-  - Up: Moves to layer+1
-  - Down: Moves to same layer or layer-1
 - **Restriction**: Cannot move left/right while in transition cell
 
 **Projectile Layer Rules (DEFINITIVE):**
 
-These are the complete and authoritative rules for bullet collision with layers. All other documentation must defer to these rules.
+These are the complete and authoritative rules for bullet collision with layers.
 
 **Core Principles:**
 1. **Walls never block bullets** - Cells with 'wall' property do not stop bullets
@@ -111,34 +84,19 @@ These are the complete and authoritative rules for bullet collision with layers.
 
 **Before Traversing Any Stairs:**
 - Bullets blocked by platforms (layer ≥ 1) that are ABOVE player's starting layer
-- Example: Player at layer 0 → layer 1 platforms block
-- Example: Player at layer 1 → layer 1 platforms pass through, layer 2+ blocks
 
 **When Bullet Enters Stairs:**
-- Bullet's `currentLayer` = stairs layer (e.g., layer 1 stairs → currentLayer = 1)
+- Bullet's `currentLayer` = stairs layer
 - Track if going UP: `wentUpThroughStairs = true` if stairs layer > previous layer
-- Track if going DOWN: `wentUpThroughStairs = false` if stairs layer ≤ previous layer
 
 **After Traversing Stairs UP (wentUpThroughStairs = true):**
 - **Lower layers BLOCKED**: Any cell with layer < currentLayer stops the bullet
-  - Example: After layer 1 stairs, layer 0 cells block
 - **Same layer PASSES**: All cells at currentLayer pass through
-  - Example: After layer 1 stairs, all layer 1 platforms pass through
 - **Higher layers BLOCKED**: Any cell with layer > currentLayer stops the bullet
-  - Example: After layer 1 stairs, layer 2+ cells block
 
 **After Traversing Stairs DOWN (wentUpThroughStairs = false):**
 - No special restrictions
 - Bullet continues with "Before Traversing" rules
-- Example: Player at layer 1 shoots down through stairs to layer 0 → continues freely
-
-**Complete Examples:**
-- Player layer 0, shoot at layer 1 platform → BLOCKED (before stairs)
-- Player layer 0, shoot through layer 1 stairs → bullet becomes layer 1
-- After stairs, bullet at layer 1 hits layer 1 platform → PASSES (same layer)
-- After stairs, bullet at layer 1 hits layer 0 cell → BLOCKED (lower layer)
-- After stairs, bullet at layer 1 hits layer 2 cell → BLOCKED (higher layer)
-- Player layer 1, shoot down through stairs to layer 0 → PASSES (went down)
 
 **Debug Visualization:**
 - **Darker shading**: Higher layers (layer 1+)
@@ -149,70 +107,11 @@ These are the complete and authoritative rules for bullet collision with layers.
 
 ### Grid API
 
-```typescript
-class Grid {
-  cells: CellData[][];
-  
-  // Cell manipulation
-  setCell(col: number, row: number, data: Partial<CellData>): void;
-  getCell(col: number, row: number): CellData | null;
-  
-  // Coordinate conversion
-  worldToCell(x: number, y: number): { col: number; row: number };
-  cellToWorld(col: number, row: number): { x: number; y: number };
-  
-  // Occupancy tracking
-  addOccupant(col: number, row: number, entity: Entity): void;
-  removeOccupant(col: number, row: number, entity: Entity): void;
-  
-  // Debug rendering
-  render(): void;
-  renderCollisionBox(x: number, y: number, width: number, height: number): void;
-  renderEmitterBox(x: number, y: number, size: number): void;
-}
-```
-
-### Setting Up Layers
-
-```typescript
-// Layer -1 (pit area)
-for (let col = 5; col <= 8; col++) {
-  for (let row = 5; row <= 7; row++) {
-    this.grid.setCell(col, row, { layer: -1 });
-  }
-}
-
-// Layer 1 platform (elevated, walkable)
-for (let col = 15; col <= 20; col++) {
-  for (let row = 8; row <= 12; row++) {
-    this.grid.setCell(col, row, { layer: 1, properties: new Set(['platform']) });
-  }
-}
-
-// Layer 1 wall (blocks movement, renders with pattern)
-for (let col = 25; col <= 30; col++) {
-  this.grid.setCell(col, 10, { layer: 1, properties: new Set(['wall']) });
-}
-
-// Transition cell (staircase) to access layer 1 platform
-this.grid.setCell(17, 13, { layer: 0, isTransition: true });
-```
-
-**Key Points:**
-- Default cells are layer 0
-- Transition cells connect adjacent layers (e.g., layer 0 transition connects to layer 1)
-- Place transition cells adjacent to the platform they connect to
-- Entities must use transition cells to change layers
+See `src/systems/grid/Grid.ts` for complete API.
 
 ### Debug Visualization
 
-Press **G** key to toggle debug rendering:
-- **White grid lines**: Cell boundaries
-- **Layer shading**: Darker for higher layers, lighter for lower layers
-- **Blue overlay**: Transition cells (staircases)
-- **Green overlay**: Occupied by entities
-- **Blue boxes**: Entity collision boxes
-- **Red boxes**: Projectile emitter positions
+Press **G** key to toggle debug rendering.
 
 ---
 
@@ -220,70 +119,19 @@ Press **G** key to toggle debug rendering:
 
 ### Collision Box
 
-Each entity with collision has a box defined relative to its position:
-
-```typescript
-interface CollisionBox {
-  offsetX: number;  // Horizontal offset from entity center
-  offsetY: number;  // Vertical offset from entity center
-  width: number;    // Box width in pixels
-  height: number;   // Box height in pixels
-}
-```
+Each entity with collision has a box defined relative to its position (offsetX, offsetY, width, height).
 
 ### Multi-Cell Occupancy
 
-Entities can occupy multiple grid cells if their collision box spans them:
-
-```
-┌─────┬─────┬─────┐
-│     │     │     │
-├─────┼─────┼─────┤
-│     │ ┌─┐ │     │  Entity collision box
-│     │ │E│ │     │  spans 4 cells
-├─────┼─┴─┴─┼─────┤
-│     │     │     │
-└─────┴─────┴─────┘
-```
+Entities can occupy multiple grid cells if their collision box spans them.
 
 ### Sliding Collision
 
-When blocked diagonally, entities slide along the unblocked axis:
-
-```
-Player moving diagonally up-right:
-- Blocked horizontally (wall to right)
-- Not blocked vertically
-→ Player slides upward only
-```
+When blocked diagonally, entities slide along the unblocked axis.
 
 ### GridCollisionComponent
 
-Handles all collision logic including layer-based movement:
-
-```typescript
-class GridCollisionComponent {
-  update(delta: number): void {
-    // 1. Get current and target positions
-    // 2. Calculate which cells the collision box overlaps
-    // 3. Check layer-based movement rules for each cell
-    // 4. Apply sliding collision if partially blocked
-    // 5. Update grid occupancy and current layer
-  }
-}
-```
-
-**Features:**
-- Validates movement against layer rules
-- Enforces transition cell restrictions (vertical only)
-- Implements sliding collision
-- Updates grid occupancy automatically
-- Tracks entity's current layer
-- Handles multi-cell entities
-- Box-in-box collision detection (checks all overlapping cells)
-```
-
-**Features:**
+Handles all collision logic including layer-based movement. Features:
 - Validates movement against layer rules
 - Enforces transition cell restrictions (vertical only)
 - Implements sliding collision
@@ -294,20 +142,9 @@ class GridCollisionComponent {
 
 ### Collision Box Sizing Guidelines
 
-**Small box (32x16)** - Fast entities, tight spaces:
-```typescript
-{ offsetX: 0, offsetY: 16, width: 32, height: 16 }
-```
-
-**Medium box (48x32)** - Standard characters:
-```typescript
-{ offsetX: 0, offsetY: 16, width: 48, height: 32 }
-```
-
-**Large box (64x64)** - Big enemies, bosses:
-```typescript
-{ offsetX: 0, offsetY: 0, width: 64, height: 64 }
-```
+**Small box (32x16)** - Fast entities, tight spaces
+**Medium box (48x32)** - Standard characters
+**Large box (64x64)** - Big enemies, bosses
 
 **Offset tips:**
 - `offsetY > 0`: Collision at feet (common for top-down view)
@@ -318,42 +155,7 @@ class GridCollisionComponent {
 
 ## Projectile Collision
 
-Projectiles use a different collision system than entities:
-
-### ProjectileComponent
-
-**See [Projectile Layer Rules](#projectile-layer-rules-definitive) above for complete collision behavior.**
-
-```typescript
-class ProjectileComponent {
-  constructor(props: {
-    dirX: number;           // Direction X (-1 to 1)
-    dirY: number;           // Direction Y (-1 to 1)
-    speed: number;          // Pixels per second
-    maxDistance: number;    // Max travel distance
-    grid: Grid;             // Grid reference
-    startLayer: number;     // Player's current layer
-    fromTransition: boolean;// Fired from transition cell
-    scene?: Phaser.Scene;   // For particle effects
-    onWallHit?: (x, y) => void;     // Callback when hitting platform
-    onMaxDistance?: (x, y) => void; // Callback at max distance
-  }) {}
-}
-```
-
-**Usage:**
-```typescript
-const bullet = createBulletEntity({
-  scene: this,
-  x: 100,
-  y: 200,
-  dirX: 1,
-  dirY: 0,
-  grid: this.grid,
-  layer: playerLayer,
-  fromTransition: false
-});
-```
+Projectiles use a different collision system than entities. See `ProjectileComponent` for implementation.
 
 ---
 
@@ -364,116 +166,11 @@ const bullet = createBulletEntity({
 GameScene uses a state machine to manage game states. Currently has one state:
 - **InGameState** - Handles entity updates, collision checks, and grid rendering
 
-```typescript
-class GameScene extends Phaser.Scene {
-  private grid!: Grid;
-  private entityManager!: EntityManager;
-  private collisionSystem!: CollisionSystem;
-  private stateMachine!: StateMachine<void>;
-  
-  preload(): void {
-    preloadAssets(this);
-  }
-  
-  create(): void {
-    // 1. Initialize managers
-    this.entityManager = new EntityManager();
-    this.eventManager = new EventManagerSystem();
-    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
-    
-    // 2. Create grid
-    this.grid = new Grid(this, 40, 30, 64);
-    
-    // 3. Create collision system
-    this.collisionSystem = new CollisionSystem(this, this.grid);
-    
-    // 4. Create state machine with InGameState
-    this.stateMachine = new StateMachine({
-      inGame: new InGameState(
-        () => this.entityManager,
-        () => this.collisionSystem,
-        () => this.grid,
-        () => this.levelData
-      )
-    }, 'inGame');
-    
-    // 5. Load level and spawn entities
-    this.initializeScene();
-    
-    // 6. Setup camera
-    this.cameras.main.setBounds(0, 0, gridWidth, gridHeight);
-    this.cameras.main.startFollow(this.player.get(TransformComponent)!.sprite, true, 0.1, 0.1);
-    
-    // 6. Debug controls
-    this.input.keyboard?.addKey('G').on('down', () => {
-      this.grid.toggleDebug();
-    });
-  }
-  
-  update(_time: number, delta: number): void {
-    // Wait for async create to finish
-    if (!this.entityManager || !this.grid || !this.stateMachine) return;
-
-    // Update state machine (delegates to InGameState)
-    this.stateMachine.update(delta);
-
-    // Update layer debug text
-    const player = this.entityManager.getFirst('player');
-    if (player && this.layerDebugText) {
-      const gridPos = player.get(GridPositionComponent);
-      if (gridPos) {
-        this.layerDebugText.setText(`Layer: ${gridPos.currentLayer}`);
-      }
-    }
-  }
-}
-```
-
-### InGameState
-
-Handles all game update logic:
-
-```typescript
-class InGameState implements IState {
-  onUpdate(delta: number): void {
-    // Update all entities
-    this.getEntityManager().update(delta);
-
-    // Check collisions
-    this.getCollisionSystem().update(this.getEntityManager().getAll());
-
-    // Render grid
-    this.getGrid().render(this.getEntityManager(), this.getLevelData());
-  }
-}
-```
-
-**Key Points:**
-- Uses getter functions to access current grid/entityManager/collisionSystem
-- Always renders with current level data
-- No need to recreate state machine when loading new levels
-    this.bullets.push(bullet);
-  }
-  
-  private onShellEject(x: number, y: number, direction: 'left' | 'right', playerDirection: Direction): void {
-    const shell = createShellCasingEntity(this, x, y, direction, playerDirection);
-    this.shells.push(shell);
-  }
-}
-```
+See `src/scenes/GameScene.ts` for complete implementation.
 
 ### Camera Setup
 
-```typescript
-// Set camera bounds to grid size
-const gridWidth = this.grid.cols * this.grid.cellSize;
-const gridHeight = this.grid.rows * this.grid.cellSize;
-this.cameras.main.setBounds(0, 0, gridWidth, gridHeight);
-
-// Follow player with smooth lerp
-const playerTransform = this.player.get(TransformComponent)!;
-this.cameras.main.startFollow(playerTransform.sprite, true, 0.1, 0.1);
-```
+Camera bounds set to grid size, follows player with smooth lerp (0.1, 0.1).
 
 ### Entity Lifecycle Management
 
@@ -487,11 +184,6 @@ update(delta: number): void {
   });
 }
 ```
-
-**Why this works:**
-- Destroyed entities are automatically removed from array
-- No manual tracking of indices needed
-- Clean and functional approach
 
 ---
 
@@ -514,80 +206,6 @@ update(delta: number): void {
 - **Toggle-able**: Debug rendering can be expensive, make it optional
 - **Conditional**: Only render debug info when debug mode is enabled
 - **Frame-based**: Clear and redraw debug visuals each frame
-
----
-
-## Common Patterns
-
-### Setting Up Multi-Layer Environments
-
-```typescript
-private setupLayers(): void {
-  // Layer -1 (pit area)
-  for (let col = 5; col <= 8; col++) {
-    for (let row = 5; row <= 7; row++) {
-      this.grid.setCell(col, row, { layer: -1 });
-    }
-  }
-  
-  // Layer 1 (elevated platform)
-  for (let col = 15; col <= 20; col++) {
-    for (let row = 8; row <= 12; row++) {
-      this.grid.setCell(col, row, { layer: 1 });
-    }
-  }
-  
-  // Transition cell (staircase) - place adjacent to platform
-  this.grid.setCell(17, 13, { layer: 0, isTransition: true });
-  
-  // Another platform with its own transition
-  for (let col = 25; col <= 28; col++) {
-    for (let row = 15; row <= 18; row++) {
-      this.grid.setCell(col, row, { layer: 1 });
-    }
-  }
-  this.grid.setCell(26, 19, { layer: 0, isTransition: true });
-}
-  
-  // Interior walls
-  for (let col = 10; col <= 15; col++) {
-    this.grid.setCell(col, 10, { walkable: false, blocksProjectiles: true });
-  }
-}
-```
-
-### Spawning Entities at Specific Layers
-
-```typescript
-spawnEnemy(col: number, row: number, layer: number): void {
-  const { x, y } = this.grid.cellToWorld(col, row);
-  const enemy = createEnemyEntity(this, x, y, this.grid);
-  
-  // Set initial layer
-  const gridPos = enemy.get(GridPositionComponent)!;
-  gridPos.currentLayer = layer;
-  
-  this.enemies.push(enemy);
-}
-```
-
-### Firing Projectiles with Layer Awareness
-
-```typescript
-private onFire(x: number, y: number, dirX: number, dirY: number): void {
-  const gridPos = this.player.get(GridPositionComponent)!;
-  const playerCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
-  const fromTransition = playerCell?.isTransition ?? false;
-  
-  const bullet = createBulletEntity(
-    this, x, y, dirX, dirY, 
-    this.grid, 
-    gridPos.currentLayer,  // Current layer
-    fromTransition         // Can hit layer+1 if from transition
-  );
-  this.bullets.push(bullet);
-}
-```
 
 ---
 

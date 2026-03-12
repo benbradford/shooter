@@ -8,88 +8,23 @@ The event system allows components to listen for and respond to named events rai
 
 Central event dispatcher that manages event listeners and raises events.
 
-```typescript
-class EventManagerSystem {
-  register(eventName: string, listener: EventListener): void
-  deregister(eventName: string, listener: EventListener): void
-  raiseEvent(eventName: string): void
-}
-```
-
 ### EventListener
 
-Interface for objects that can receive events:
-
-```typescript
-type EventListener = {
-  onEvent(eventName: string): void;
-}
-```
+Interface for objects that can receive events.
 
 ### BaseEventComponent
 
 Abstract base class for components that listen to events. Handles automatic registration and cleanup.
 
-```typescript
-abstract class BaseEventComponent implements Component, EventListener {
-  protected registerEvent(eventName: string): void
-  abstract onEvent(eventName: string): void
-  onDestroy(): void // Automatically deregisters all events
-}
-```
-
 ## Creating Event Listeners
 
-### 1. Extend BaseEventComponent
-
-```typescript
-export class MyEventComponent extends BaseEventComponent {
-  init(): void {
-    this.registerEvent('door_open');
-    this.registerEvent('enemy_defeated');
-  }
-
-  onEvent(eventName: string): void {
-    if (eventName === 'door_open') {
-      console.log('Door opened!');
-      // Handle door opening logic
-    } else if (eventName === 'enemy_defeated') {
-      console.log('Enemy defeated!');
-      // Handle enemy defeat logic
-    }
-  }
-}
-```
-
-### 2. Add to Entity
-
-```typescript
-const myEvent = entity.add(new MyEventComponent(eventManager));
-myEvent.init();
-
-entity.setUpdateOrder([
-  // ... other components
-  MyEventComponent,
-]);
-```
+Extend `BaseEventComponent`, call `registerEvent()` in `init()`, implement `onEvent()`.
 
 ## Raising Events
 
 ### From Triggers
 
-Triggers automatically raise events when the player enters their cells:
-
-```json
-{
-  "triggers": [
-    {
-      "eventName": "door_open",
-      "triggerCells": [{"col": 10, "row": 5}],
-      "oneShot": true
-    }
-  ]
-}
-```
+Triggers automatically raise events when the player enters their cells (defined in level JSON).
 
 ### From Code
 
@@ -108,48 +43,15 @@ this.eventManager.raiseEvent('custom_event');
 
 ### Automatic Cleanup
 
-`BaseEventComponent` automatically deregisters all events in `onDestroy()`:
-
-```typescript
-onDestroy(): void {
-  for (const eventName of this.registeredEvents) {
-    this.eventManager.deregister(eventName, this);
-  }
-}
-```
+`BaseEventComponent` automatically deregisters all events in `onDestroy()`.
 
 ### Safe Deregistration During Iteration
 
-`EventManagerSystem.raiseEvent()` handles listeners deregistering themselves during event handling:
-
-```typescript
-raiseEvent(eventName: string): void {
-  const list = this.listeners.get(eventName);
-  if (!list) return;
-  
-  // Copy array to handle deregistration during iteration
-  const copy = [...list];
-  for (const listener of copy) {
-    if (list.includes(listener)) {
-      listener.onEvent(eventName);
-    }
-  }
-}
-```
+`EventManagerSystem.raiseEvent()` handles listeners deregistering themselves during event handling by copying the listener array before iteration.
 
 ### Multiple Listeners Per Event
 
-Multiple components can listen to the same event:
-
-```typescript
-// Component A
-this.registerEvent('door_open');
-
-// Component B
-this.registerEvent('door_open');
-
-// Both receive the event when raised
-```
+Multiple components can listen to the same event.
 
 ## One-Shot vs Repeating Triggers
 
@@ -162,50 +64,6 @@ this.registerEvent('door_open');
 - Fires every frame while player is in any trigger cell
 - Resets when player leaves all trigger cells
 - Use for: damage zones, speed boosts, area effects
-
-## Example: Door System
-
-```typescript
-// 1. Create door event component
-export class DoorEventComponent extends BaseEventComponent {
-  constructor(
-    eventManager: EventManagerSystem,
-    private readonly doorSprite: Phaser.GameObjects.Sprite
-  ) {
-    super(eventManager);
-  }
-
-  init(): void {
-    this.registerEvent('door_open');
-  }
-
-  onEvent(eventName: string): void {
-    if (eventName === 'door_open') {
-      this.doorSprite.setTexture('door_open');
-      console.log('Door opened!');
-    }
-  }
-}
-
-// 2. Add to entity
-const doorEvent = entity.add(new DoorEventComponent(eventManager, doorSprite));
-doorEvent.init();
-
-// 3. Create trigger in level JSON
-{
-  "triggers": [
-    {
-      "eventName": "door_open",
-      "triggerCells": [{"col": 10, "row": 5}],
-      "oneShot": true
-    }
-  ]
-}
-```
-
-## Testing Events
-
-Create event listener components that extend `BaseEventComponent` and register for specific events. The event system will automatically notify listeners when triggers fire.
 
 ## Best Practices
 

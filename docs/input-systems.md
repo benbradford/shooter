@@ -114,37 +114,6 @@ The joystick system provides touch/mouse-based movement controls for the player.
 - Idle animation updates to face input direction
 - Bullets fire in the direction character is facing
 
-## Entity Structure
-
-```typescript
-// Joystick Entity
-createJoystickEntity(scene)
-  ├─ TouchJoystickComponent (input handling)
-  └─ JoystickVisualsComponent (rendering)
-
-// Player Entity (updated)
-createPlayerEntity(scene, x, y, grid, onFire, onShellEject, joystick)
-  ├─ InputComponent (connected to joystick)
-  ├─ WalkComponent (momentum physics)
-  └─ ... (other components)
-```
-
-## Usage
-
-```typescript
-// In GameScene.create()
-this.joystick = createJoystickEntity(this);
-this.player = createPlayerEntity(
-  this, x, y, grid,
-  onFire, onShellEject,
-  this.joystick  // Pass joystick entity
-);
-
-// In GameScene.update()
-this.joystick.update(delta);
-this.player.update(delta);
-```
-
 ## State Machine Integration
 
 **PlayerIdleState**
@@ -199,24 +168,6 @@ Both update from raw input, ensuring instant response to player intent.
 
 ---
 
-## Control System
-
-**Movement:**
-- Touch left half of screen → Movement joystick appears at touch location
-- Drag to move in any direction
-- Outer circle (grey) and inner circle with arrows sprite
-- Inner circle follows drag, arrows show movement direction
-- After releasing, joystick stays visible at last position with reduced alpha (0.3)
-
-**Attack:**
-- Touch right half of screen or press Space → Punch attack
-- Fixed attack button at 80% width, 75% height
-- Crosshair sprite with visual feedback on press
-- Finds nearest enemy within 128px and punches them
-- Player faces enemy during punch
-
----
-
 ## Attack Button System
 
 ### Attack Button Component
@@ -246,30 +197,12 @@ Both update from raw input, ensuring instant response to player intent.
 
 ### Integration with Input System
 
-**InputComponent** checks both keyboard and touch attack inputs:
-```typescript
-isAttackPressed(): boolean {
-  if (this.attackButton?.isAttackPressed()) {
-    return true;
-  }
-  return false;
-}
-```
+**InputComponent** checks both keyboard and touch attack inputs.
 
 **Behavior:**
 - Single tap/press: Triggers one punch
 - Must release and press again for next punch
 - Works with both touch and spacebar
-
-### Entity Structure
-
-```typescript
-// Joystick Entity (includes movement and attack controls)
-createJoystickEntity(scene)
-  ├─ TouchJoystickComponent (handles movement input)
-  ├─ JoystickVisualsComponent (movement joystick circles)
-  └─ AttackButtonComponent (attack button)
-```
 
 ---
 
@@ -288,18 +221,7 @@ createJoystickEntity(scene)
 
 ### Implementation
 
-Keyboard input is handled by `InputComponent`:
-```typescript
-getInputDelta(): { dx: number; dy: number } {
-  let dx = 0;
-  let dy = 0;
-  if (this.cursors.left.isDown || this.keys.A.isDown) dx -= 1;
-  if (this.cursors.right.isDown || this.keys.D.isDown) dx += 1;
-  if (this.cursors.up.isDown || this.keys.W.isDown) dy -= 1;
-  if (this.cursors.down.isDown || this.keys.S.isDown) dy += 1;
-  return { dx, dy };
-}
-```
+Keyboard input is handled by `InputComponent`.
 
 ---
 

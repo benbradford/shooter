@@ -304,6 +304,7 @@ const themes = ['dungeon', 'swamp', 'cave'];
 
 Individual cells can have custom background textures that override theme rendering:
 
+**String format** (default scaling):
 ```json
 {
   "col": 10,
@@ -313,10 +314,29 @@ Individual cells can have custom background textures that override theme renderi
 }
 ```
 
+**Object format** (custom transform):
+```json
+{
+  "col": 10,
+  "row": 5,
+  "properties": ["wall"],
+  "backgroundTexture": {
+    "image": "door_closed",
+    "transformOverride": {
+      "scaleX": 2,
+      "scaleY": 1.18,
+      "offsetX": 0,
+      "offsetY": 0
+    }
+  }
+}
+```
+
 **How it works:**
-- In `renderPlatformsAndWalls()`, cells with `backgroundTexture` are rendered as images at depth -100
+- Cells with `backgroundTexture` are rendered as images at depth -100
 - The theme's custom rendering (bricks, stones) is skipped for these cells
-- Texture is scaled to fit cell size
+- String format: Texture scaled to fit cell size
+- Object format: Custom scaling and positioning via transformOverride
 
 **Adding new textures:**
 1. Add image to `public/assets/{category}/`
@@ -324,6 +344,7 @@ Individual cells can have custom background textures that override theme renderi
 3. Register in `src/assets/AssetRegistry.ts`
 4. Add to default assets in `src/assets/AssetLoader.ts`
 5. Add to `AVAILABLE_TEXTURES` in `src/editor/TextureEditorState.ts`
+6. (Optional) Add transformOverride in level JSON for custom scaling/positioning
 
 ## Theme Switching
 

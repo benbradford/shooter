@@ -16,62 +16,7 @@ The `Pathfinder` class uses the A* algorithm to find the shortest path between t
 
 ### Patrol State Pattern
 
-Patrol states should use pathfinding to navigate to waypoints, not direct movement:
-
-```typescript
-export class RobotPatrolState implements IState {
-  private readonly pathfinder: Pathfinder;
-  private path: Array<{ col: number; row: number }> | null = null;
-  private currentPathIndex: number = 0;
-  private pathRecalcTimer: number = 0;
-
-  constructor(entity: Entity, grid: Grid, playerEntity: Entity) {
-    this.pathfinder = new Pathfinder(grid);
-  }
-
-  onUpdate(delta: number): void {
-    const waypoint = patrol.getCurrentWaypoint();
-    
-    // Recalculate path periodically
-    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL_MS || this.path === null) {
-      this.pathRecalcTimer = 0;
-      const robotCell = this.grid.worldToCell(transform.x, transform.y);
-
-      this.path = this.pathfinder.findPath(
-        robotCell.col, robotCell.row,
-        waypoint.col, waypoint.row,
-        gridPos.currentLayer,
-        false,  // allowLayerChanges
-        true    // allowDiagonals
-      );
-      this.currentPathIndex = 0;
-    }
-
-    // Follow path node by node
-    if (this.path && this.path.length > 1) {
-      if (this.currentPathIndex === 0) this.currentPathIndex = 1;
-      
-      if (this.currentPathIndex < this.path.length) {
-        const targetNode = this.path[this.currentPathIndex];
-        const nodeX = targetNode.col * this.grid.cellSize + this.grid.cellSize / 2;
-        const nodeY = targetNode.row * this.grid.cellSize + this.grid.cellSize / 2;
-        
-        const distance = Math.hypot(nodeX - transform.x, nodeY - transform.y);
-        
-        if (distance < 10) {
-          this.currentPathIndex++;  // Move to next node
-        } else {
-          // Move toward current node
-          const dirX = (nodeX - transform.x) / distance;
-          const dirY = (nodeY - transform.y) / distance;
-          transform.x += dirX * speed * (delta / 1000);
-          transform.y += dirY * speed * (delta / 1000);
-        }
-      }
-    }
-  }
-}
-```
+Patrol states should use pathfinding to navigate to waypoints, not direct movement.
 
 **Why use pathfinding in patrol?**
 - Handles obstacles and walls automatically
@@ -130,105 +75,15 @@ export class RobotPatrolState implements IState {
 
 ### Basic Setup
 
-```typescript
-import { Pathfinder } from '../utils/Pathfinder';
-import type { Grid } from '../utils/Grid';
-
-// In your state/component constructor
-constructor(entity: Entity, grid: Grid) {
-  this.pathfinder = new Pathfinder(grid);
-}
-```
+Import Pathfinder and create instance with grid reference.
 
 ### Finding a Path
 
-```typescript
-const path = this.pathfinder.findPath(
-  startCol,      // Starting column
-  startRow,      // Starting row
-  goalCol,       // Goal column
-  goalRow,       // Goal row
-  currentLayer   // Entity's current layer
-);
-
-// Returns: Array<{ col: number; row: number }> | null
-// null if no path exists
-```
+`findPath(startCol, startRow, goalCol, goalRow, currentLayer)` returns array of `{col, row}` nodes or null if no path exists.
 
 ### Following a Path
 
-```typescript
-if (path && path.length > 1) {
-  // Skip first node (current position)
-  const targetNode = path[1];
-  const targetWorld = grid.cellToWorld(targetNode.col, targetNode.row);
-  const targetX = targetWorld.x + grid.cellSize / 2;
-  const targetY = targetWorld.y + grid.cellSize / 2;
-  
-  // Move toward target
-  const dirX = targetX - transform.x;
-  const dirY = targetY - transform.y;
-  const distance = Math.hypot(dirX, dirY);
-  
-  if (distance < 10) {
-    // Reached waypoint, move to next
-    pathIndex++;
-  } else {
-    // Move toward waypoint
-    transform.x += (dirX / distance) * speed * (delta / 1000);
-    transform.y += (dirY / distance) * speed * (delta / 1000);
-  }
-}
-```
-
-## Complete Example: Robot Stalking State
-
-```typescript
-export class RobotStalkingState implements IState {
-  private readonly pathfinder: Pathfinder;
-  private path: Array<{ col: number; row: number }> | null = null;
-  private pathRecalcTimer: number = 0;
-  private currentPathIndex: number = 0;
-
-  constructor(entity: Entity, playerEntity: Entity, grid: Grid) {
-    this.entity = entity;
-    this.playerEntity = playerEntity;
-    this.pathfinder = new Pathfinder(grid);
-  }
-
-  onUpdate(delta: number): void {
-    this.pathRecalcTimer += delta;
-    
-    const transform = this.entity.get(TransformComponent)!;
-    const playerTransform = this.playerEntity.get(TransformComponent)!;
-    const gridPos = this.entity.get(GridPositionComponent)!;
-
-    // Recalculate path every 500ms
-    if (this.pathRecalcTimer >= 500 || this.path === null) {
-      this.pathRecalcTimer = 0;
-      
-      const robotCell = this.grid.worldToCell(transform.x, transform.y);
-      const playerCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
-      
-      this.path = this.pathfinder.findPath(
-        robotCell.col,
-        robotCell.row,
-        playerCell.col,
-        playerCell.row,
-        gridPos.currentLayer
-      );
-      this.currentPathIndex = 0;
-    }
-
-    // Follow path or move directly
-    if (this.path && this.path.length > 1) {
-      this.followPath(transform, delta);
-    } else {
-      this.moveDirectly(transform, playerTransform, delta);
-    }
-  }
-}
-```
+Skip first node (current position), move toward each subsequent node. When close enough (<10px), advance to next node.
 
 ## How It Works
 
@@ -272,82 +127,29 @@ export class RobotStalkingState implements IState {
 
 ## Null Path Handling
 
-When `findPath()` returns `null` (no path exists):
-
-```typescript
-if (this.path && this.path.length > 1) {
-  this.followPath(transform, delta);
-} else {
-  // Fallback: Move directly toward target
-  // Will get stuck on walls but keeps trying
-  this.moveDirectly(transform, target, delta);
-}
-```
-
-**Why this works:**
-- Player might be temporarily unreachable (behind walls)
-- Direct movement provides sensible fallback behavior
-- Entity will resume pathfinding when path becomes available
+When `findPath()` returns `null` (no path exists), fall back to direct movement toward target. Will get stuck on walls but keeps trying. Entity will resume pathfinding when path becomes available.
 
 ## Best Practices
 
 ### 1. Recalculate Periodically
 
-```typescript
-const PATH_RECALC_INTERVAL = 500; // milliseconds
-
-if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL || this.path === null) {
-  this.pathRecalcTimer = 0;
-  this.path = this.pathfinder.findPath(...);
-}
-```
+Use timer to recalculate every 500-1000ms or when path becomes null.
 
 ### 2. Skip Current Position
 
-```typescript
-// Path includes starting position at index 0
-// Start following from index 1
-if (this.currentPathIndex === 0) {
-  this.currentPathIndex = 1;
-}
-```
+Path includes starting position at index 0. Start following from index 1.
 
 ### 3. Check Distance to Waypoint
 
-```typescript
-const WAYPOINT_THRESHOLD = 10; // pixels
-
-if (distToWaypoint < WAYPOINT_THRESHOLD) {
-  this.currentPathIndex++;
-  if (this.currentPathIndex >= this.path.length) {
-    this.path = null; // Reached end, recalculate
-  }
-}
-```
+Use threshold (typically 10px) to determine when waypoint is reached.
 
 ### 4. Provide Fallback Behavior
 
-```typescript
-if (this.path && this.path.length > 1) {
-  this.followPath(transform, delta);
-} else {
-  this.moveDirectly(transform, target, delta);
-}
-```
+If no path found, move directly toward target as fallback.
 
 ### 5. Use Current Layer from GridPositionComponent
 
-```typescript
-const gridPos = this.entity.get(GridPositionComponent)!;
-
-this.path = this.pathfinder.findPath(
-  startCol,
-  startRow,
-  goalCol,
-  goalRow,
-  gridPos.currentLayer  // Always use entity's actual layer
-);
-```
+Always use entity's actual layer from `GridPositionComponent.currentLayer`.
 
 ## Performance Considerations
 
@@ -365,27 +167,6 @@ this.path = this.pathfinder.findPath(
 - Pathfinding is stateless (no shared state between calls)
 - Consider object pooling for many entities
 
-## Debugging
-
-**Visualize Path:**
-```typescript
-if (this.path) {
-  for (const node of this.path) {
-    const world = this.grid.cellToWorld(node.col, node.row);
-    // Draw debug circle at world.x, world.y
-  }
-}
-```
-
-**Log Path Length:**
-```typescript
-if (this.path) {
-  console.log(`Path found: ${this.path.length} nodes`);
-} else {
-  console.log('No path found');
-}
-```
-
 ## Common Issues
 
 ### Robot Gets Stuck Near Wall Edges
@@ -394,15 +175,7 @@ if (this.path) {
 
 **Cause:** Robot's collision box is too large and overlaps wall edge cells below the intended path. When the robot moves from cell A to cell B, its collision box spans both B and the cell below B. If the cell below B is a wall edge (layer 1 with layer 0 below), GridCollisionComponent blocks the movement.
 
-**Solution:** Reduce the collision box's offsetY or height so it doesn't overlap cells below:
-
-```typescript
-// Before (overlaps cells below)
-const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 50, width: 32, height: 16 };
-
-// After (doesn't overlap cells below)
-const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 16 };
-```
+**Solution:** Reduce the collision box's offsetY or height so it doesn't overlap cells below.
 
 **Rule of thumb:** For 64px cells, keep collision box height ≤ 32px and position it in the middle or top half of the sprite.
 
@@ -414,25 +187,7 @@ const ROBOT_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 32, width: 32, height: 1
 
 **Solution:**
 1. Move collision box up: reduce `offsetY` (e.g., 32 → 16)
-2. Add stuck detection to force path recalculation:
-```typescript
-private lastPositionCol: number = -1;
-private lastPositionRow: number = -1;
-private stuckTimerMs: number = 0;
-
-// In update()
-const currentCell = this.grid.worldToCell(transform.x, transform.y);
-if (currentCell.col === this.lastPositionCol && currentCell.row === this.lastPositionRow) {
-  if (this.stuckTimerMs >= 1000) {
-    this.path = null; // Force recalculation
-    this.stuckTimerMs = 0;
-  }
-} else {
-  this.lastPositionCol = currentCell.col;
-  this.lastPositionRow = currentCell.row;
-  this.stuckTimerMs = 0;
-}
-```
+2. Add stuck detection to force path recalculation
 
 ### Entity Tries to Move Horizontally from Transition
 
@@ -461,13 +216,3 @@ if (currentCell.col === this.lastPositionCol && currentCell.row === this.lastPos
 **Cause:** Cells not properly marked as layer 1 in level data.
 
 **Solution:** Check level JSON and ensure walls are layer 1.
-
-## Future Enhancements
-
-Potential improvements to the pathfinding system:
-
-- **Dynamic costs** - Different terrain types (mud, water, etc.)
-- **Avoidance** - Avoid other entities in path
-- **Path smoothing** - Reduce zigzag patterns
-- **Jump point search** - Faster pathfinding for large grids
-- **Hierarchical pathfinding** - Multi-level pathfinding for huge maps

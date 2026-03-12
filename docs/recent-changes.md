@@ -2,6 +2,38 @@
 
 ## March 2026
 
+### Background Texture Transforms in JSON
+
+**Change**: Transform overrides for background textures moved from code to level JSON files.
+
+**Before**: Hardcoded in `GameSceneRenderer.ts`:
+```typescript
+const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES = {
+  house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
+  // ...
+};
+```
+
+**After**: Stored in level JSON:
+```json
+"backgroundTexture": {
+  "image": "house1",
+  "transformOverride": {
+    "scaleX": 4,
+    "scaleY": 4,
+    "offsetX": 23,
+    "offsetY": 0
+  }
+}
+```
+
+**Benefits**:
+- Data-driven: No code changes needed for new textures with transforms
+- Per-instance: Each cell can have different transforms for the same texture
+- Editor-friendly: Transforms preserved when editing levels
+
+**Backward compatible**: String format `"backgroundTexture": "texture_name"` still works.
+
 ### Asset Management System
 
 **Problem**: Animated textures crashed when re-entering levels due to stale animation references after texture unload/reload.

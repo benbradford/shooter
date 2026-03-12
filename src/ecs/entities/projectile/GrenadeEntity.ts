@@ -10,8 +10,8 @@ import { Depth } from '../../../constants/DepthConstants';
 
 const GRENADE_DAMAGE = 25;
 const GRENADE_ARC_HEIGHT_PX = 80;
-const GRENADE_SCALE_MIN = 0.7;
-const GRENADE_SCALE_MAX = 1.2;
+const GRENADE_SCALE_MIN = 0.4;
+const GRENADE_SCALE_MAX = 0.8;
 const GRENADE_SPIN_SPEED_RAD_PER_SEC = 5;
 const GRENADE_FLIGHT_TIME_MS = 800;
 
@@ -95,7 +95,7 @@ class GrenadeArcComponent implements Component {
             // eslint-disable-next-line max-depth
             if (health) {
               health.takeDamage(damage.damage);
-              
+
               // eslint-disable-next-line max-depth
               if (health.getHealth() <= 0) {
                 const sm = other.get(StateMachineComponent);

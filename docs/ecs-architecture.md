@@ -32,68 +32,9 @@ This document explains the Entity-Component-System architecture and best practic
 - What values might vary between different entities?
 - Can I make this generic enough to reuse?
 
-**Example: WalkComponent**
-```typescript
-// ✅ Good: Works for any entity that moves
-class WalkComponent {
-  constructor(
-    private readonly transform: TransformComponent,
-    private readonly input: InputComponent,
-    props: WalkProps
-  ) {
-    this.speed = props.speed;
-    this.accelerationTime = props.accelerationTime;
-  }
-}
-
-// Usage:
-new WalkComponent(transform, input, { speed: 300 })  // Player
-new WalkComponent(transform, input, { speed: 450 })  // Fast enemy
-new WalkComponent(transform, input, { speed: 150 })  // Slow tank
-```
-
 ### 2. Always Use Props for Configuration
 
 **All configurable values must be passed as props - never use defaults.**
-
-**DO ✅**
-```typescript
-export interface MyComponentProps {
-  speed: number;           // Required
-  duration: number;        // Required
-  cooldown: number;        // Required
-}
-
-export class MyComponent implements Component {
-  private readonly speed: number;
-  private readonly duration: number;
-  private readonly cooldown: number;
-  
-  constructor(
-    private readonly dependency: SomeComponent,
-    props: MyComponentProps
-  ) {
-    this.speed = props.speed;
-    this.duration = props.duration;
-    this.cooldown = props.cooldown;
-  }
-}
-
-// Usage: Explicit values
-new MyComponent(dep, { speed: 300, duration: 1000, cooldown: 2000 })
-```
-
-**DON'T ❌**
-```typescript
-// No defaults - forces explicit configuration
-export interface MyComponentProps {
-  speed?: number;  // ❌ Optional with default
-}
-
-constructor(props: MyComponentProps = {}) {
-  this.speed = props.speed ?? 300;  // ❌ Hidden default
-}
-```
 
 **Why no defaults?**
 - Makes configuration explicit and visible
@@ -103,95 +44,15 @@ constructor(props: MyComponentProps = {}) {
 
 ### 3. Single Responsibility
 
-Each component should do ONE thing:
-
-**DO ✅**
-```typescript
-// InputComponent - ONLY handles input
-class InputComponent {
-  getInputDelta(): { dx: number; dy: number }
-  isFirePressed(): boolean
-}
-
-// WalkComponent - ONLY handles movement physics
-class WalkComponent {
-  update(delta: number): void  // Movement logic
-  isMoving(): boolean
-}
-
-// GridCollisionComponent - ONLY handles collision
-class GridCollisionComponent {
-  update(delta: number): void  // Collision detection
-}
-```
-
-**DON'T ❌**
-```typescript
-// Component doing too much
-class PlayerComponent {
-  handleInput()      // Should be InputComponent
-  updateMovement()   // Should be WalkComponent
-  updateAnimation()  // Should be AnimationComponent
-  checkCollision()   // Should be GridCollisionComponent
-}
-```
+Each component should do ONE thing.
 
 ### 4. Decouple Through Callbacks
 
-Make components reusable by accepting callbacks instead of hardcoding behavior:
-
-**DO ✅**
-```typescript
-// Reusable across player, enemies, turrets
-class ProjectileEmitterComponent {
-  constructor(props: {
-    onFire: (x, y, dirX, dirY) => void,
-    shouldFire: () => boolean,  // Callback decides when
-    cooldown: number
-  }) {}
-}
-
-// Player: shouldFire: () => input.isFirePressed()
-// Enemy: shouldFire: () => aiComponent.shouldAttack()
-// Turret: shouldFire: () => playerInRange && hasLineOfSight
-```
-
-**DON'T ❌**
-```typescript
-// Hardcoded to player input
-class ProjectileEmitterComponent {
-  constructor(scene: Phaser.Scene) {
-    this.fireKey = scene.input.keyboard!.addKey(KeyCodes.SPACE);
-  }
-}
-```
+Make components reusable by accepting callbacks instead of hardcoding behavior.
 
 ### 5. Minimal Dependencies
 
-Only depend on what you actually need:
-
-**DO ✅**
-```typescript
-class WalkComponent {
-  constructor(
-    private readonly transform: TransformComponent,
-    private readonly input: InputComponent,
-    props: WalkProps
-  ) {}
-}
-```
-
-**DON'T ❌**
-```typescript
-class WalkComponent {
-  constructor(private readonly entity: Entity) {}  // Too broad
-  
-  update() {
-    const transform = this.entity.get(TransformComponent)!;  // Reaches in
-    const input = this.entity.get(InputComponent)!;
-  }
-}
-```
+Only depend on what you actually need.
 
 ### 6. Check for Existing Components First
 
@@ -199,14 +60,6 @@ class WalkComponent {
 1. Check if an existing component can be extended
 2. Check if props can make an existing component work
 3. Only create new if truly different behavior needed
-
-**Example:**
-```typescript
-// Don't create FastWalkComponent, SlowWalkComponent, etc.
-// Just use WalkComponent with different props:
-new WalkComponent(transform, input, { speed: 450 })  // Fast
-new WalkComponent(transform, input, { speed: 150 })  // Slow
-```
 
 ## Component Template
 
@@ -285,79 +138,15 @@ entity.setUpdateOrder([
 
 ### One Component Type Per Entity
 
-**DO ✅**
-```typescript
-entity.add(new HealthComponent());
-entity.add(new AmmoComponent());  // Different types - OK
-```
-
-**DON'T ❌**
-```typescript
-entity.add(new HudBarComponent(health));
-entity.add(new HudBarComponent(ammo));  // ERROR: Duplicate type
-```
-
-**Solution**: Design components to handle multiple instances internally:
-```typescript
-entity.add(new HudBarComponent(scene, [
-  { dataSource: health, offsetY: 70, fillColor: 0x00ff00 },
-  { dataSource: ammo, offsetY: 90, fillColor: 0x0000ff },
-]));
-```
+**Solution**: Design components to handle multiple instances internally.
 
 ### Class-Based Update Order
 
-**DO ✅**
-```typescript
-entity.setUpdateOrder([
-  TransformComponent,
-  SpriteComponent,
-  InputComponent,
-]);
-```
-
-**DON'T ❌**
-```typescript
-// Don't use instances
-entity.setUpdateOrder([
-  transform,
-  sprite,
-  input,
-]);
-```
+Use component classes in `setUpdateOrder()`, not instances.
 
 ## Creating New Entities
 
-Use factory functions to create entities:
-
-```typescript
-export function createEnemyEntity(
-  scene: Phaser.Scene,
-  x: number,
-  y: number,
-  grid: Grid
-): Entity {
-  const entity = new Entity('enemy');
-  
-  // Add components with explicit props
-  const transform = entity.add(new TransformComponent(x, y, 0, 2));
-  const sprite = entity.add(new SpriteComponent(scene, 'enemy', transform));
-  entity.add(new WalkComponent(transform, input, {
-    speed: 200,
-    accelerationTime: 400,
-    stopThreshold: 50
-  }));
-  
-  // Set update order
-  entity.setUpdateOrder([
-    TransformComponent,
-    SpriteComponent,
-    WalkComponent,
-  ]);
-  
-  return entity;
-}
-```
+Use factory functions to create entities. See existing entity factories for patterns.
 
 ## Entity Manager
 
@@ -371,23 +160,6 @@ class EntityManager {
   getFirst(type: string): Entity | undefined
   destroyAll(): void
   get count(): number
-}
-```
-
-**Usage:**
-```typescript
-// In GameScene
-private entityManager!: EntityManager;
-
-async create() {
-  this.entityManager = new EntityManager();
-  
-  const player = this.entityManager.add(createPlayerEntity(...));
-  const enemy = this.entityManager.add(createEnemyEntity(...));
-}
-
-update(delta: number) {
-  this.entityManager.update(delta);  // Updates all entities
 }
 ```
 
@@ -417,29 +189,6 @@ The `Animation` class supports four styles:
 
 ### Smooth Enemy Pushing
 
-When enemies should move away from the player on collision box overlap, use `KnockbackComponent` for smooth movement instead of instant teleport:
-
-```typescript
-entity.add(new CollisionComponent({
-  collidesWith: ['player'],
-  onHit: (other) => {
-    if (other.tags.has('player')) {
-      const transform = entity.require(TransformComponent);
-      const otherTransform = other.require(TransformComponent);
-      const knockback = entity.require(KnockbackComponent);
-      
-      const dx = transform.x - otherTransform.x;
-      const dy = transform.y - otherTransform.y;
-      const distance = Math.hypot(dx, dy);
-      
-      if (distance > 0 && !knockback.isActive) {
-        const dirX = dx / distance;
-        const dirY = dy / distance;
-        knockback.applyKnockback(dirX, dirY, 150);
-      }
-    }
-  }
-}));
-```
+When enemies should move away from the player on collision box overlap, use `KnockbackComponent` for smooth movement instead of instant teleport.
 
 This prevents jerky "teleport" behavior when player walks into enemies.

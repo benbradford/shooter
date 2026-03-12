@@ -269,9 +269,9 @@
         "blocked"
       ],
       "backgroundTexture": {
-        "image": "sconce_bg_flipped",
+        "image": "sconce_bg",
         "transformOverride": {
-          "scaleX": 1,
+          "scaleX": -1,
           "scaleY": 1,
           "offsetX": -20,
           "offsetY": 0
@@ -286,7 +286,7 @@
         "transformOverride": {
           "scaleX": 0.2,
           "scaleY": 0.2,
-          "offsetX": -3,
+          "offsetX": -23,
           "offsetY": -12
         }
       }
