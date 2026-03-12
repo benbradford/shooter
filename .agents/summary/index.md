@@ -15,6 +15,18 @@
 **DO NOT:** Read files, ask questions, or start work yourself.
 **DO:** Immediately use `use_subagent` with agent_name: "db-design"
 
+### Implementation Tasks → IMMEDIATELY invoke db-implementor agent
+- "implement task X.Y from features/{feature}/tasks.md"
+- "implement phase X from features/{feature}/tasks.md"
+- "implement all tasks from features/{feature}/tasks.md"
+
+**DO NOT:** Implement tasks yourself.
+**DO:** Immediately use `use_subagent` with agent_name: "db-implementor"
+
+**EXCEPTION - User Override:**
+- "implement task X.Y directly" → Handle yourself (skip testing)
+- "quick fix: {change}" → Handle yourself
+
 ### Asset Tasks → IMMEDIATELY invoke db-asset-management agent
 - "update {enemy} spritesheet"
 - "optimize assets"
@@ -26,7 +38,7 @@
 - "add {entity} to editor"
 - "fix editor {issue}"
 
-**If you catch yourself reading files or planning work for a design/asset/editor task, STOP and delegate.**
+**If you catch yourself reading files or planning work for a design/implementation/asset/editor task, STOP and delegate.**
 
 ---
 

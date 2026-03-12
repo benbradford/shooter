@@ -10,9 +10,18 @@ STOP. Before reading ANY files or responding to the user:
    - "create a spec"
    - "plan out"
    - "how should I implement"
+   - "implement task"
+   - "implement phase"
+   - "implement all tasks"
 
-2. If YES → IMMEDIATELY use use_subagent tool with agent_name: "db-design"
-3. If NO → Continue with normal task execution
+2. Check which agent to use:
+   - Design phrases → use_subagent with agent_name: "db-design"
+   - "implement task X.Y from features/{feature}/tasks.md" → use_subagent with agent_name: "db-implementor"
+   - "implement phase X from features/{feature}/tasks.md" → use_subagent with agent_name: "db-implementor"
+   - "implement all tasks from features/{feature}/tasks.md" → use_subagent with agent_name: "db-implementor"
+
+3. If delegation needed → IMMEDIATELY delegate
+4. If NO delegation phrases → Continue with normal task execution
 
 DO NOT: Read files, ask questions, or start work if delegation is needed.
 
@@ -49,6 +58,53 @@ User: "flesh out the design of features/npc/npcs.md"
 → IMMEDIATELY: use_subagent({ agent_name: "db-design", query: "..." })
 → NOT: Read the file, ask questions, or start designing
 ```
+
+### Implementation Agent (db-implementor) ⭐
+**IMMEDIATELY delegate when user says:**
+- "implement task X.Y from features/{feature}/tasks.md"
+- "implement phase X from features/{feature}/tasks.md"
+- "implement all tasks from features/{feature}/tasks.md"
+
+**DO NOT:**
+- Implement tasks yourself
+- Read task files and start coding
+- Skip the delegation
+
+**DO:**
+- Immediately use `use_subagent` with `agent_name: "db-implementor"`
+- Let the implementor handle task execution with automated testing
+
+**EXCEPTION - User Override:**
+If user explicitly says "directly" or "quick fix":
+- "implement task 1.1 directly" → Handle yourself (skip testing)
+- "quick fix: add npc to EntityType" → Handle yourself
+
+**When Unsure:**
+If user asks for implementation but doesn't reference a task file:
+- Ask: "Would you like me to implement this directly, or should I use the db-implementor agent for automated testing and pattern enforcement?"
+- If task is non-trivial (new component, new system, complex logic) → Suggest db-implementor
+- If task is trivial (add to union type, simple export) → Can handle directly
+
+**Example:**
+```
+User: "implement task 1.1 from features/npc/tasks.md"
+→ IMMEDIATELY: use_subagent({ agent_name: "db-implementor", query: "..." })
+→ NOT: Read the task file and start implementing
+
+User: "add npc to EntityType"
+→ Ask: "This is a simple change. Would you like me to handle it directly, or use db-implementor for full testing?"
+
+User: "implement the NPC idle component"
+→ Ask: "Should I use db-implementor for automated testing and pattern enforcement, or implement directly?"
+```
+
+**Agent capabilities:**
+- Executes tasks from feature specs
+- Generates tests automatically (100% coverage)
+- Enforces coding patterns
+- Runs browser tests with screenshots
+- Builds regression suite
+- Self-verifies before marking complete
 
 ### Asset Management Agent (db-asset-management)
 **Delegate when user says:**
