@@ -241,7 +241,10 @@ export default class GameScene extends Phaser.Scene {
       const levelCell = level.cells.find(c => c.col === modCell.col && c.row === modCell.row);
       if (levelCell) {
         if (modCell.backgroundTexture) {
-          levelCell.backgroundTexture = modCell.backgroundTexture;
+          // Only update if level cell doesn't have a transform object
+          if (typeof levelCell.backgroundTexture === 'string' || !levelCell.backgroundTexture) {
+            levelCell.backgroundTexture = modCell.backgroundTexture;
+          }
         } else {
           delete levelCell.backgroundTexture;
         }
