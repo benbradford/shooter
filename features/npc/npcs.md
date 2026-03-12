@@ -61,3 +61,84 @@ if no whenFlagSet is defined, then this interaction is always usable
 if there are no interactions that have a true whenFlagSet, then no interaction is possible and the lips icon should never appear and the row, col defined in the data section is used for a position.
 
 when creating an npc, there should be assets defined for them in ASSET_GROUPS of AssetRegistry.ts. for example, there should be an npc1 section. when loading a level with npcs, then this should be used to ensure the assets are loaded in.
+
+
+Clariying questions:
+
+## 1. Idle Animation Behavior
+Should NPCs have multiple idle animation frames, or just a single static frame per direction?
+- A) Single static frame per direction (simpler)
+- B) Multi-frame looping idle animation per direction (more alive)
+
+It depends on the NPC, if there is only 1 frame available, then use that, if there are more, then animate in repeat
+
+## 2. Interaction Range Calculation
+Is the 100 pixel interaction range measured from NPC center to player center, or edge-to-edge using
+collision boxes?
+- A) Center-to-center distance (simpler, consistent)
+- B) Edge-to-edge using collision boxes (more accurate)
+- C) NPC center to player collision box edge (hybrid)
+
+C
+
+## 3. Lips Icon Positioning
+Where should the lips icon appear - on the AttackButtonComponent, or floating above the NPC?
+- A) Replace punch icon on AttackButtonComponent (consistent with current pattern)
+- B) Floating icon above NPC (more visible, shows which NPC)
+- C) Both (redundant but clear)
+
+A
+
+## 4. Interaction Triggering Mechanism
+When multiple NPCs are in range, which one gets triggered? Closest? Most recent?
+- A) Closest NPC only
+- B) Most recently entered range
+- C) Show all, player chooses (complex)
+
+A
+
+## 5. Position Override Behavior
+When an interaction has a position override, does the NPC physically move to that position, or does it
+just affect interaction logic?
+- A) NPC visually moves to new position when condition becomes true
+- B) NPC stays in place, position only used for range calculation
+- C) NPC teleports instantly when interaction starts
+
+B - but both player and npc turn to face each other
+
+## 6. Interaction Priority Logic
+If multiple interactions have true conditions, do we use the first one in the array, or continue checking
+all?
+
+Let's use first in array, but log a console warning about this if there is more than 1 in array
+
+## 7. NPC Physics and Collision
+Do NPCs have collision boxes that block player movement, or can the player walk through them?
+- A) NPCs block player movement (solid)
+- B) NPCs don't block movement (ghost-like)
+- C) Configurable per NPC
+
+B
+
+## 8. Asset Loading Strategy
+Should NPC assets be loaded on-demand per level, or preloaded globally?
+
+on-demand per level, the same as other entities
+
+## 9. Interaction Resolution After Trigger
+After an interaction completes, does the NPC return to its original position, or stay at the override
+position?
+- A) Return to original position
+- B) Stay at override position
+- C) Configurable per interaction
+
+B
+
+## 10. Edge Case: No Valid Interactions
+If an NPC has interactions defined but none are currently valid (all conditions false), should the NPC
+still render, or be hidden?
+- A) NPC renders at original position, no interaction possible
+- B) NPC hidden until an interaction becomes valid
+- C) NPC renders but grayed out/transparent
+
+A Still render but it isn't possible to interact i.e. no lips icon, log a console warning in these cases as in practice i don't want this to happen
