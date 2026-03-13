@@ -17,6 +17,9 @@ export function handlePunchInput(
   attackCombo.checkAttackReleased(isPressed);
 
   if (isPressed) {
+    if (input.tryNPCInteraction()) {
+      return true;
+    }
     attackCombo.tryStartPunch();
     return true;
   }

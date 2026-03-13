@@ -1,6 +1,8 @@
 import type { Component } from '../../Component';
 import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
+import { NPCManager } from '../../../systems/NPCManager';
+import type GameScene from '../../../scenes/GameScene';
 
 const UNPRESSED_SCALE = 1.26;
 const PRESSED_SCALE = 1.4;
@@ -13,6 +15,9 @@ const CIRCLE_RADIUS_PX = 60;
 const CIRCLE_COLOR = 0xffffff;
 const CIRCLE_ALPHA = 0.6;
 
+const PUNCH_TEXTURE = 'crosshair';
+const LIPS_TEXTURE = 'lips_icon';
+
 export class AttackButtonComponent implements Component {
   entity!: Entity;
   private isPressed: boolean = false;
@@ -21,6 +26,7 @@ export class AttackButtonComponent implements Component {
   private posX: number = 0;
   private posY: number = 0;
   private initialized: boolean = false;
+  private currentIcon: 'punch' | 'lips' = 'punch';
 
   constructor(private readonly scene: Phaser.Scene) {
     this.sprite = scene.add.sprite(0, 0, 'crosshair');
@@ -82,6 +88,26 @@ export class AttackButtonComponent implements Component {
     this.circle.clear();
     this.circle.lineStyle(2, CIRCLE_COLOR, CIRCLE_ALPHA);
     this.circle.strokeCircle(this.posX, this.posY, CIRCLE_RADIUS_PX);
+
+    this.updateIcon();
+  }
+
+  private updateIcon(): void {
+    const gameScene = this.scene.scene.get('game') as GameScene;
+    if (!gameScene) return;
+
+    const player = gameScene.entityManager.getFirst('player');
+    if (!player) return;
+
+    const grid = gameScene.getGrid();
+    const npcManager = NPCManager.getInstance();
+    const closestNPC = npcManager.getClosestInteractableNPC(player, grid);
+
+    const newIcon = closestNPC ? 'lips' : 'punch';
+    if (newIcon !== this.currentIcon) {
+      this.currentIcon = newIcon;
+      this.sprite.setTexture(newIcon === 'punch' ? PUNCH_TEXTURE : LIPS_TEXTURE);
+    }
   }
 
   isAttackPressed(): boolean {

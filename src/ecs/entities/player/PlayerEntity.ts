@@ -35,6 +35,7 @@ import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import { PlayerDeathState } from './PlayerDeathState';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 import { CAN_SUBMERGE, SPRITE_SCALE } from '../../../constants/GameConstants';
 
@@ -59,13 +60,14 @@ export type CreatePlayerEntityProps = {
   joystick: Entity;
   getEnemies: () => Entity[];
   entityManager: EntityManager;
+  eventManager: EventManagerSystem;
   vignetteSprite?: Phaser.GameObjects.Image;
   initialHealth?: number;
   levelData: () => import('../../../systems/level/LevelLoader').LevelData;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, joystick, getEnemies, entityManager, vignetteSprite, initialHealth, levelData } = props;
+  const { scene, x, y, grid, joystick, getEnemies, entityManager, eventManager, vignetteSprite, initialHealth, levelData } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -160,6 +162,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new AnimationComponent(animSystem, sprite));
 
   const input = entity.add(new InputComponent(scene));
+  input.setGridAndEventManager(grid, eventManager);
 
   const joystickComp = joystick.get(TouchJoystickComponent);
   if (joystickComp) {

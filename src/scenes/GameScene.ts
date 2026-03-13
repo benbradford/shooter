@@ -6,6 +6,7 @@ import { EntityManager } from "../ecs/EntityManager";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
+import { NPCManager } from "../systems/NPCManager";
 import type HudScene from "./HudScene";
 import { PLAYER_MAX_HEALTH, createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
@@ -71,6 +72,9 @@ export default class GameScene extends Phaser.Scene {
     this.eventManager = new EventManagerSystem();
     this.entityManager.setEventManager(this.eventManager);
     this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
+    
+    // Initialize NPC manager
+    NPCManager.getInstance(this);
 
     // Wait for HudScene to be ready
     if (!this.scene.isActive('HudScene')) {
@@ -370,6 +374,7 @@ export default class GameScene extends Phaser.Scene {
       joystick,
       getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
       entityManager: this.entityManager,
+      eventManager: this.eventManager,
       vignetteSprite: this.vignette,
       initialHealth: playerHealth,
       levelData: () => this.levelData

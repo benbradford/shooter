@@ -5,6 +5,10 @@ import type { TouchJoystickComponent } from './TouchJoystickComponent';
 import type { AttackButtonComponent } from './AttackButtonComponent';
 import type { ControlModeComponent } from './ControlModeComponent';
 import { RemoteInputComponent } from './RemoteInputComponent';
+import { NPCManager } from '../../../systems/NPCManager';
+import { NPCInteractionComponent } from '../../entities/npc/NPCInteractionComponent';
+import type { Grid } from '../../../systems/grid/Grid';
+import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 export class InputComponent implements Component {
   entity!: Entity;
@@ -14,6 +18,8 @@ export class InputComponent implements Component {
   private joystick: TouchJoystickComponent | null = null;
   private attackButton: AttackButtonComponent | null = null;
   private enabled: boolean = true;
+  private grid: Grid | null = null;
+  private eventManager: EventManagerSystem | null = null;
 
   constructor(scene: Phaser.Scene) {
     const keyboard = scene.input.keyboard;
@@ -22,6 +28,26 @@ export class InputComponent implements Component {
       this.keys = keyboard.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
       this.slideKey = keyboard.addKey('H');
     }
+  }
+
+  setGridAndEventManager(grid: Grid, eventManager: EventManagerSystem): void {
+    this.grid = grid;
+    this.eventManager = eventManager;
+  }
+
+  tryNPCInteraction(): boolean {
+    if (!this.grid || !this.eventManager) return false;
+
+    const npcManager = NPCManager.getInstance();
+    const closestNPC = npcManager.getClosestInteractableNPC(this.entity, this.grid);
+    if (!closestNPC) return false;
+
+    const interaction = closestNPC.get(NPCInteractionComponent);
+    const activeInteraction = interaction?.getActiveInteraction();
+    if (!activeInteraction) return false;
+
+    this.eventManager.raiseEvent(activeInteraction.name);
+    return true;
   }
 
   setJoystick(joystick: TouchJoystickComponent): void {

@@ -80,6 +80,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/lips.png',
     type: 'image' as const,
   },
+  lips_icon: {
+    key: 'lips_icon',
+    path: 'assets/player/lips.png',
+    type: 'image' as const,
+  },
   slide_icon: {
     key: 'slide_icon',
     path: 'assets/player/slide_icon.png',
@@ -523,7 +528,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

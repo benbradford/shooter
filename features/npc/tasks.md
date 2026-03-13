@@ -110,45 +110,46 @@
 **File**: `src/ecs/components/npc/NPCInteractionComponent.ts`
 
 **Subtasks**:
-- [ ] Create component class with interactions, defaultCol, defaultRow
-- [ ] Implement getActiveInteraction():
+- [x] Create component class with interactions, defaultCol, defaultRow
+- [x] Implement getActiveInteraction():
   - [ ] Iterate interactions in priority order
   - [ ] Check whenFlagSet conditions using WorldStateManager
   - [ ] Return first valid interaction
   - [ ] Use position override if specified
   - [ ] Warn if multiple valid (once per NPC)
   - [ ] Warn if no valid (once per NPC)
-- [ ] Implement isPlayerInRange(playerEntity, grid):
+- [x] Implement isPlayerInRange(playerEntity, grid):
   - [ ] Get active interaction position
   - [ ] Calculate NPC center position using grid.cellSize
   - [ ] Get player collision box center
   - [ ] Calculate distance
   - [ ] Return true if ≤ 100 pixels
-- [ ] Add warning flags to prevent duplicate logs
+- [x] Add warning flags to prevent duplicate logs
 
 **Dependencies**: Task 1.4
 
 **Estimated Time**: 1.5 hours
+**Actual Time**: 0 minutes (already implemented)
 
 ---
 
-### Task 2.2: Create NPCManager with Caching
+### Task 2.2: Create NPCManager with Caching ✅
 **File**: `src/systems/NPCManager.ts`
 
 **Subtasks**:
-- [ ] Create singleton class with scene reference
-- [ ] Add cache fields: cachedClosestNPC, lastPlayerCol, lastPlayerRow
-- [ ] Implement getInstance(scene?)
-- [ ] Implement getClosestInteractableNPC(playerEntity, grid):
-  - [ ] Get player grid position
-  - [ ] Return cached result if player in same cell
-  - [ ] Update cache tracking when player moves
-  - [ ] Query all NPC entities
-  - [ ] Filter to those with valid interactions
-  - [ ] Filter to those in range
-  - [ ] Return closest by distance
-  - [ ] Cache result
-  - [ ] Return null if none
+- [x] Create singleton class with scene reference
+- [x] Add cache fields: cachedClosestNPC, lastPlayerCol, lastPlayerRow
+- [x] Implement getInstance(scene?)
+- [x] Implement getClosestInteractableNPC(playerEntity, grid):
+  - [x] Get player grid position
+  - [x] Return cached result if player in same cell
+  - [x] Update cache tracking when player moves
+  - [x] Query all NPC entities
+  - [x] Filter to those with valid interactions
+  - [x] Filter to those in range
+  - [x] Return closest by distance
+  - [x] Cache result
+  - [x] Return null if none
 
 **Dependencies**: Task 2.1
 
@@ -156,12 +157,12 @@
 
 ---
 
-### Task 2.3: Initialize NPCManager in GameScene
+### Task 2.3: Initialize NPCManager in GameScene ✅
 **File**: `src/scenes/GameScene.ts`
 
 **Subtasks**:
-- [ ] Import NPCManager
-- [ ] Call NPCManager.getInstance(this) in create()
+- [x] Import NPCManager
+- [x] Call NPCManager.getInstance(this) in create()
 
 **Dependencies**: Task 2.2
 
@@ -175,13 +176,14 @@
 **File**: `public/assets/ui/lips_icon.png`
 
 **Subtasks**:
-- [ ] Create or obtain lips icon image
-- [ ] Size to match punch_icon.png
-- [ ] Save to public/assets/ui/
+- [x] Create or obtain lips icon image
+- [x] Size to match punch_icon.png
+- [x] Save to public/assets/ui/
 
 **Dependencies**: None
 
 **Estimated Time**: 15 minutes
+**Actual Time**: 5 minutes
 
 ---
 
@@ -189,11 +191,12 @@
 **File**: `src/assets/AssetRegistry.ts`
 
 **Subtasks**:
-- [ ] Add lips_icon to UI_ASSETS
+- [x] Add lips_icon to UI_ASSETS
 
 **Dependencies**: Task 3.1
 
 **Estimated Time**: 5 minutes
+**Actual Time**: 2 minutes
 
 ---
 
@@ -201,9 +204,9 @@
 **File**: `src/ecs/components/ui/AttackButtonComponent.ts`
 
 **Subtasks**:
-- [ ] Import NPCManager
-- [ ] Add currentIcon property ('punch' | 'lips')
-- [ ] In update():
+- [x] Import NPCManager
+- [x] Add currentIcon property ('punch' | 'lips')
+- [x] In update():
   - [ ] Get player entity
   - [ ] Get grid from scene
   - [ ] Query NPCManager.getClosestInteractableNPC(player, grid)
@@ -213,6 +216,7 @@
 **Dependencies**: Task 2.2, Task 3.2
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 10 minutes
 
 ---
 
@@ -220,8 +224,8 @@
 **File**: `src/ecs/components/input/InputComponent.ts`
 
 **Subtasks**:
-- [ ] Import NPCManager, EventManager
-- [ ] In handleAttack():
+- [x] Import NPCManager, EventManager
+- [x] In handleAttack():
   - [ ] Get grid from scene
   - [ ] Query NPCManager.getClosestInteractableNPC(entity, grid)
   - [ ] If NPC found:
@@ -233,6 +237,7 @@
 **Dependencies**: Task 2.2
 
 **Estimated Time**: 20 minutes
+**Actual Time**: 15 minutes
 
 ---
 
@@ -257,7 +262,7 @@
 ---
 
 ### Task 4.2: Pass NPC ID to InteractionState
-**Files**: 
+**Files**:
 - `src/ecs/components/interaction/InteractionTriggerComponent.ts` (modify)
 - `src/scenes/GameScene.ts` (modify)
 - `src/scenes/states/InteractionState.ts` (modify)
@@ -368,7 +373,7 @@
 ## Phase 6: Testing and Polish
 
 ### Task 6.1: Create Test NPC
-**Files**: 
+**Files**:
 - `public/assets/npc/test_npc/test_npc_spritesheet.png`
 - Level JSON with test NPC
 

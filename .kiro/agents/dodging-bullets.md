@@ -147,18 +147,26 @@ User: "Add editor mode for decorations"
 → Delegate to db-level-editor agent
 ```
 
-**How to delegate:**
+**How to delegate with retry:**
 ```typescript
 use_subagent({
   command: "InvokeSubagents",
   content: {
     subagents: [{
-      agent_name: "db-design", // or db-asset-management, db-level-editor
+      agent_name: "db-implementor",
       query: "User's request with context",
       relevant_context: "Additional context if needed"
     }]
   }
 })
+
+// If connection error occurs:
+// 1. Wait 2 seconds
+// 2. Retry once with same parameters
+// 3. If fails again, report to user with:
+//    - Last log entry from tmp/logs/db-implementor.log
+//    - Checkpoint status from tmp/logs/checkpoint.log
+//    - Ask user: "Retry again? Implement directly? Skip?"
 ```
 
 ## Task Execution

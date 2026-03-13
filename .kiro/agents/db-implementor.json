@@ -9,7 +9,8 @@
     "grep",
     "glob",
     "code",
-    "ls"
+    "ls",
+    "imageRead"
   ],
   "resources": [
     "file://db-implementor/instructions.md",

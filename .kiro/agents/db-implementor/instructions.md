@@ -35,27 +35,43 @@ You are invoked when the user wants to execute tasks from feature task files:
 
 ## Core Workflow
 
-**FIRST ACTION: Initialize logging**
+**FIRST ACTION: Initialize logging and check for resume**
 
 ```bash
 echo "=== DB-IMPLEMENTOR INVOCATION START: $(date) ===" >> tmp/logs/db-implementor.log
 echo "Query: {user's query}" >> tmp/logs/db-implementor.log
 echo "" >> tmp/logs/db-implementor.log
+
+# Check for previous checkpoint
+if [ -f tmp/logs/checkpoint.log ]; then
+  LAST=$(tail -1 tmp/logs/checkpoint.log)
+  echo "[RESUME] Last checkpoint: $LAST" >> tmp/logs/db-implementor.log
+fi
 ```
 
 For each task:
 
 ```
+0. Check checkpoint.log for resume point
 1. Read task: node scripts/task-reader.js features/{feature}/tasks.md {taskId}
 2. Read design.md for implementation details
 3. Search codebase for similar patterns (use code tool)
-4. Implement code (minimal)
-5. Create test (if task requires verification)
-6. Build + lint: npm run build && npx eslint src --ext .ts
-7. Run test: npm run test:single {test-name}
-8. Mark complete: node scripts/mark-task-complete.js features/{feature}/tasks.md {taskId} "{time}"
-9. Report with summary
+4. Implement code (minimal) + CHECKPOINT
+5. Create test (if task requires verification) + CHECKPOINT
+6. Build + lint: npm run build && npx eslint src --ext .ts + CHECKPOINT
+7. Run test: npm run test:single {test-name} + CHECKPOINT
+8. Mark complete: node scripts/mark-task-complete.js features/{feature}/tasks.md {taskId} "{time}" + CHECKPOINT
+9. Report with summary + Clear checkpoint
 ```
+
+**Checkpoint format:**
+```
+[CHECKPOINT] step_name:{taskId}:{optional_data}
+```
+
+**On connection error:**
+- Checkpoint allows resuming from last completed step
+- Main agent will retry with checkpoint context
 
 **Test creation guidelines:**
 - Create test file in `test/tests/{feature}/test-{feature}-{taskId}.js`
@@ -74,6 +90,7 @@ For each task:
 5. **Self-correct errors** - Max 3 attempts before reporting
 6. **Log everything** - All actions to tmp/logs/db-implementor.log
 7. **Entity ID pattern** - Test entities use `{type}{number}` (e.g., `npc0`, not `test_npc1`)
+8. **NEVER create assets without user approval** - Search for existing, report findings, ask user before creating
 
 ## Self-Verification
 
