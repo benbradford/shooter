@@ -6,6 +6,7 @@ import { InteractionComponent } from '../ecs/components/interaction/InteractionC
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
+import { WalkComponent } from '../ecs/components/movement/WalkComponent';
 import { WorldStateManager } from './WorldStateManager';
 import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
 import { NPCInteractionComponent } from '../ecs/entities/npc/NPCInteractionComponent';
@@ -76,12 +77,15 @@ export class LuaRuntime {
       const playerEntity = this.scene.entityManager.getFirst('player');
       const playerGridPos = playerEntity?.get(GridPositionComponent);
       const playerTransform = playerEntity?.get(TransformComponent);
+      const playerWalk = playerEntity?.get(WalkComponent);
+      const playerDirection = playerWalk ? DIRECTION_TO_STRING[playerWalk.lastDir] : 'down';
       
       const player = {
         col: playerGridPos?.currentCell.col ?? 0,
         row: playerGridPos?.currentCell.row ?? 0,
         x: playerTransform?.x ?? 0,
         y: playerTransform?.y ?? 0,
+        direction: playerDirection,
         moveTo: (col: number, row: number, speed: number) => {
           this.commandQueue.push({ type: 'moveTo', col, row, speed });
         },
@@ -105,6 +109,9 @@ export class LuaRuntime {
         const currentDirection = npcIdleComp ? DIRECTION_TO_STRING[npcIdleComp.getDirection()] : 'down';
         const activeInteraction = npcInteractionComp?.getActiveInteraction();
         
+        let storedNpcDirection: string | null = null;
+        let storedPlayerDirection: string | null = null;
+        
         const npc = {
           col: activeInteraction?.col ?? 0,
           row: activeInteraction?.row ?? 0,
@@ -120,6 +127,36 @@ export class LuaRuntime {
           }
         };
         lua.global.set('npc', npc);
+        
+        lua.global.set('faceEachOther', () => {
+          // Wait one frame for velocity to fully stop
+          this.commandQueue.push({ type: 'wait', ms: 16 });
+          
+          storedNpcDirection = currentDirection;
+          storedPlayerDirection = playerDirection;
+          
+          const npcToPlayerDir = DIRECTION_TO_STRING[dirFromDelta(
+            (playerTransform?.x ?? 0) - (npcTransform?.x ?? 0),
+            (playerTransform?.y ?? 0) - (npcTransform?.y ?? 0)
+          )] ?? 'down';
+          
+          const playerToNpcDir = DIRECTION_TO_STRING[dirFromDelta(
+            (npcTransform?.x ?? 0) - (playerTransform?.x ?? 0),
+            (npcTransform?.y ?? 0) - (playerTransform?.y ?? 0)
+          )] ?? 'down';
+          
+          this.commandQueue.push({ type: 'look', direction: playerToNpcDir });
+          this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[npcToPlayerDir]! });
+        });
+        
+        lua.global.set('restoreDirections', () => {
+          if (storedPlayerDirection) {
+            this.commandQueue.push({ type: 'look', direction: storedPlayerDirection });
+          }
+          if (storedNpcDirection) {
+            this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[storedNpcDirection]! });
+          }
+        });
       }
       
       const hudScene = this.scene.scene.get('HudScene');

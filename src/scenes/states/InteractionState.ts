@@ -6,6 +6,7 @@ import type { LevelData } from '../../systems/level/LevelLoader';
 import type GameScene from '../GameScene';
 import type HudScene from '../HudScene';
 import { InputComponent } from '../../ecs/components/input/InputComponent';
+import { WalkComponent } from '../../ecs/components/movement/WalkComponent';
 import { LuaRuntime } from '../../systems/LuaRuntime';
 import { WorldStateManager } from '../../systems/WorldStateManager';
 
@@ -49,6 +50,11 @@ export class InteractionState implements IState<InteractionStateData> {
     const input = player?.get(InputComponent);
     if (input) {
       input.setEnabled(false);
+    }
+    
+    const walk = player?.get(WalkComponent);
+    if (walk) {
+      walk.resetVelocity(true, true);
     }
     
     this.executeScript(props.data.scriptContent, this.currentNpcId).then(() => {

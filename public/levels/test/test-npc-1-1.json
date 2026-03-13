@@ -14,7 +14,7 @@
         "scale": 1.5,
         "col": 6,
         "row": 6,
-        "direction": "Right",
+        "direction": "Down",
         "interactions": [
           {
             "name": "test_interaction_npc"

@@ -47,7 +47,7 @@ export class EntityCreatorManager implements EventListener {
       suppressOnAnyFlag
     };
     this.allEventsCreators.push(tracker);
-    
+
     for (const event of events) {
       if (!this.anyEventCreators.has(event) && !this.allEventsCreators.some(t => t !== tracker && t.events.has(event))) {
         this.eventManager.register(event, this);
@@ -56,26 +56,24 @@ export class EntityCreatorManager implements EventListener {
   }
 
   onEvent(eventName: string): void {
-    console.log(`[EntityCreatorManager] Event received: ${eventName}, firedEvents has it: ${this.firedEvents.has(eventName)}`);
-    
+
     const worldState = WorldStateManager.getInstance();
     const currentLevel = worldState.getCurrentLevelName();
-    
+
     const anyCreators = this.anyEventCreators.get(eventName);
     if (anyCreators) {
       const allAreInteractions = anyCreators.every(c => c.isInteraction);
-      console.log(`[EntityCreatorManager] Found ${anyCreators.length} creators, allInteractions: ${allAreInteractions}`);
-      
+
       // Only block repeated events if not all interactions
       if (!allAreInteractions && this.firedEvents.has(eventName)) {
         console.log(`[EntityCreatorManager] Blocking repeated event: ${eventName}`);
         return;
       }
-      
+
       if (!allAreInteractions) {
         this.firedEvents.add(eventName);
       }
-      
+
       for (const { creator, entityId, suppressOnAnyFlag } of anyCreators) {
         // Check if entity should be suppressed by flags
         if (suppressOnAnyFlag) {
@@ -83,7 +81,6 @@ export class EntityCreatorManager implements EventListener {
           for (const flagCondition of suppressOnAnyFlag) {
             if (worldState.isFlagCondition(flagCondition.name, flagCondition.condition, flagCondition.value)) {
               shouldSuppress = true;
-              console.log(`[EntityCreator] Suppressing ${entityId} due to flag: ${flagCondition.name} ${flagCondition.condition} ${flagCondition.value}`);
               break;
             }
           }
@@ -91,34 +88,32 @@ export class EntityCreatorManager implements EventListener {
             continue;
           }
         }
-        
+
         const entity = creator();
         entity.levelName = currentLevel;
         this.entityManager.add(entity);
-        
+
         // Don't track interaction entities in liveEntities
         if (!entity.tags.has('interaction')) {
           worldState.addLiveEntity(currentLevel, entityId);
         }
       }
-      
+
       // Don't delete creators for interaction entities (they can be created repeatedly)
       const allAreInteractions2 = anyCreators.every(c => c.isInteraction);
       if (!allAreInteractions2) {
         this.anyEventCreators.delete(eventName);
-        
+
         if (!this.allEventsCreators.some(t => t.events.has(eventName))) {
           this.eventManager.deregister(eventName, this);
         }
       }
-      
-      console.log(`[EntityCreator] Created ${anyCreators.length} entities via event: ${eventName}`);
     }
-    
+
     for (const tracker of this.allEventsCreators) {
       if (tracker.events.has(eventName)) {
         tracker.firedEvents.add(eventName);
-        
+
         if (tracker.firedEvents.size === tracker.events.size) {
           // Check if entity should be suppressed by flags
           if (tracker.suppressOnAnyFlag) {
@@ -133,28 +128,26 @@ export class EntityCreatorManager implements EventListener {
               continue;
             }
           }
-          
+
           const entity = tracker.creator();
           entity.levelName = currentLevel;
           this.entityManager.add(entity);
-          
+
           // Don't track interaction entities in liveEntities
           if (!entity.tags.has('interaction')) {
             worldState.addLiveEntity(currentLevel, tracker.entityId);
           }
-          
+
           const index = this.allEventsCreators.indexOf(tracker);
           if (index >= 0) {
             this.allEventsCreators.splice(index, 1);
           }
-          
+
           for (const event of tracker.events) {
             if (!this.anyEventCreators.has(event) && !this.allEventsCreators.some(t => t.events.has(event))) {
               this.eventManager.deregister(event, this);
             }
           }
-          
-          console.log(`[EntityCreator] Created entity after all events fired:`, Array.from(tracker.events));
         }
       }
     }
@@ -165,7 +158,7 @@ export class EntityCreatorManager implements EventListener {
       this.eventManager.deregister(createOnEvent, this);
     }
     this.anyEventCreators.clear();
-    
+
     const allEvents = new Set<string>();
     for (const tracker of this.allEventsCreators) {
       for (const event of tracker.events) {
@@ -176,7 +169,7 @@ export class EntityCreatorManager implements EventListener {
       this.eventManager.deregister(event, this);
     }
     this.allEventsCreators.length = 0;
-    
+
     this.firedEvents.clear();
   }
 }
