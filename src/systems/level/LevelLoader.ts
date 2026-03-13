@@ -14,7 +14,8 @@ export type EntityType =
   | 'exit'
   | 'breakable'
   | 'cellmodifier'
-  | 'interaction';
+  | 'interaction'
+  | 'npc';
 
 export type LevelEntity = {
   id: string;

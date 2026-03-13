@@ -25,6 +25,7 @@ import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
 import { createCellModifierEntity } from '../cellmodifier/CellModifierEntity';
 import { createInteractionEntity } from '../interaction/InteractionEntity';
+import { createNPCEntity, type NPCInteraction } from '../ecs/entities/npc/NPCEntity';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
@@ -412,6 +413,27 @@ export class EntityLoader {
             scene: this.scene as GameScene,
             entityId: entityDef.id,
             filename: interactionData.filename
+          });
+        };
+
+      case 'npc':
+        return () => {
+          const npcData = data as {
+            assets: string;
+            col: number;
+            row: number;
+            direction: string;
+            interactions: NPCInteraction[];
+          };
+          return createNPCEntity({
+            scene: this.scene as GameScene,
+            grid: this.grid,
+            entityId: entityDef.id,
+            assets: npcData.assets,
+            col: npcData.col,
+            row: npcData.row,
+            direction: Direction[npcData.direction as keyof typeof Direction] ?? Direction.Down,
+            interactions: npcData.interactions ?? [],
           });
         };
 

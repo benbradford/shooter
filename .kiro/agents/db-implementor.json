@@ -1,27 +1,21 @@
 {
   "name": "db-implementor",
-  "description": "Specialized implementation agent for Dodging Bullets - executes tasks with automated testing and pattern enforcement",
-  "instructionsFile": "db-implementor/instructions.md",
-  "contextFiles": [
-    "docs/coding-standards.md",
-    "docs/testing.md",
-    "docs/ecs-architecture.md",
-    "docs/quick-reference.md"
-  ],
+  "description": "Simplified implementation agent - implements tasks with build/lint verification only",
+  "tools": ["@builtin"],
   "allowedTools": [
-    "execute_bash",
     "fs_read",
     "fs_write",
-    "code",
+    "execute_bash",
+    "grep",
     "glob",
-    "grep"
+    "code",
+    "ls"
   ],
-  "toolsSettings": {
-    "execute_bash": {
-      "autoAllowReadonly": true
-    }
-  },
-  "tools": [
-    "*"
-  ]
+  "resources": [
+    "file://db-implementor/instructions.md",
+    "file://docs/coding-standards.md",
+    "file://docs/ecs-architecture.md",
+    "file://docs/quick-reference.md"
+  ],
+  "prompt": "file://db-implementor/instructions.md"
 }

@@ -18,5 +18,10 @@
     "file://docs/**/*.md",
     "file://src/ecs/index.ts"
   ],
-  "prompt": "file://dodging-bullets.md"
+  "prompt": "file://dodging-bullets.md",
+  "toolsSettings": {
+    "subagent": {
+      "trustedAgents": ["db-implementor", "db-design"]
+    }
+  }
 }

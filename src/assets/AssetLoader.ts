@@ -65,6 +65,9 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     if (entityTypes.has('breakable')) {
       groups.push('breakables');
     }
+    if (entityTypes.has('npc')) {
+      groups.push('npc1');
+    }
   }
 
   return groups;

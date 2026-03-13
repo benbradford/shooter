@@ -1,0 +1,22 @@
+{
+  "width": 20,
+  "height": 20,
+  "playerStart": {
+    "x": 5,
+    "y": 5
+  },
+  "entities": [
+    {
+      "id": "test_npc1",
+      "type": "npc",
+      "data": {
+        "assets": "npc1",
+        "col": 10,
+        "row": 10,
+        "direction": "Down",
+        "interactions": []
+      }
+    }
+  ],
+  "cells": []
+}
