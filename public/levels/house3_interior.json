@@ -77,6 +77,14 @@
           "offsetX": 0,
           "offsetY": -15
         }
+      },
+      "animatedTexture": {
+        "spritesheet": "fire_interior",
+        "frameWidth": 187,
+        "frameHeight": 151,
+        "frameCount": 2,
+        "frameRate": 8
+
       }
     },
     {

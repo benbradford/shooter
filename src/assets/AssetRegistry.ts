@@ -514,6 +514,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 78, frameHeight: 85 }
   },
+  fire_interior: {
+    key: 'fire_interior',
+    path: 'assets/interior/fire_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 187, frameHeight: 151 }
+  },
   sconce_bg: {
     key: 'sconce_bg',
     path: 'assets/interior/sconce_bg.png',

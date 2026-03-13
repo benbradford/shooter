@@ -17,7 +17,7 @@ export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
 /**
  * Loads a single asset by key
  */
-function loadAsset(scene: Phaser.Scene, key: AssetKey): void {
+export function loadAsset(scene: Phaser.Scene, key: AssetKey): void {
   // Skip if already loaded
   if (scene.textures.exists(key)) {
     return;

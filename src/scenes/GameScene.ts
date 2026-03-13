@@ -19,7 +19,7 @@ import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
-import { preloadAssets, preloadLevelAssets, preloadAssetGroups, getBackgroundTextures } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets, preloadAssetGroups, getBackgroundTextures, getRequiredAssetGroups, loadAsset } from "../assets/AssetLoader";
 import type { AssetKey } from "../assets/AssetRegistry";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
@@ -588,18 +588,6 @@ export default class GameScene extends Phaser.Scene {
       .filter(obj => obj !== this.layerDebugText)
       .forEach(obj => obj.destroy());
 
-    // Unload unused textures after destroying sprites
-    if (prevLevelTextures.length > 0) {
-      if (newTextures.length > 0) {
-        console.log('[AssetLoader] New textures to load:', newTextures);
-      }
-      if (unusedTextures.length > 0) {
-        console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
-        const assetManager = AssetManager.getInstance();
-        assetManager.unloadBatch(this, unusedTextures);
-      }
-    }
-
     // Load new level assets
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
@@ -616,19 +604,48 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
     }
 
-    preloadLevelAssets(this, this.levelData);
+    // Load new textures FIRST
+    if (newTextures.length > 0) {
+      console.log('[GameScene] New textures to load:', newTextures);
+    }
+    
+    const startTime = Date.now();
+    console.log('[GameScene] T+0ms: Queueing assets');
+    
+    // Queue assets but don't register listeners yet
+    const groups = getRequiredAssetGroups(this.levelData);
+    preloadAssetGroups(this, groups);
+    const bgTextures = getBackgroundTextures(this.levelData);
+    for (const key of bgTextures) {
+      loadAsset(this, key);
+    }
+    
+    console.log(`[GameScene] T+${Date.now() - startTime}ms: Starting load`);
     this.load.start();
-
+    
+    // NOW register listener after start
     await new Promise<void>(resolve => {
-      if (this.load.isLoading()) {
-        this.load.once('complete', () => {
-          console.log('[GameScene] Asset loading complete in loadLevel()');
-          resolve();
-        });
-      } else {
+      this.load.once('complete', () => {
+        const loadedTextures = this.textures.getTextureKeys().filter(key => key !== '__DEFAULT' && key !== '__MISSING');
+        console.log(`[GameScene] T+${Date.now() - startTime}ms: Load complete, ${loadedTextures.length} textures`);
         resolve();
-      }
+      });
+      
+      // Timeout fallback
+      setTimeout(() => {
+        console.log(`[GameScene] T+${Date.now() - startTime}ms: Timeout, forcing continue`);
+        resolve();
+      }, 15000);
     });
+    
+    console.log(`[GameScene] T+${Date.now() - startTime}ms: Proceeding with level load`);
+    
+    // NOW unload unused textures after new ones are loaded
+    if (prevLevelTextures.length > 0 && unusedTextures.length > 0) {
+      console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
+      const assetManager = AssetManager.getInstance();
+      assetManager.unloadBatch(this, unusedTextures);
+    }
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
 

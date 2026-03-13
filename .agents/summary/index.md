@@ -68,6 +68,7 @@ This index provides a comprehensive map of the Dodging Bullets codebase document
 - **pathfinding.md** - A* pathfinding for AI
 - **event-system.md** - Event-driven gameplay
 - **world-state-system.md** - Save/load game progress
+- **NPC system** - NPCs with interactions (see quick-reference.md and entity-creation-system.md)
 
 ### Level Design
 - **level-editor.md** - In-game level editor, data structure

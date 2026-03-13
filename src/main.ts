@@ -5,6 +5,17 @@ import EditorScene from "./scenes/EditorScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
 import { Pathfinder } from "./systems/Pathfinder";
 
+// Add Eruda console for mobile debugging
+if (globalThis.location.search.includes('debug')) {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+  document.body.appendChild(script);
+  script.onload = () => {
+    // @ts-expect-error - eruda is loaded dynamically
+    eruda.init();
+  };
+}
+
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 1100,

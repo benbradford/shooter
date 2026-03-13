@@ -33,6 +33,29 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 - Toggle `mustFaceEnemy` (false = 128px radius, true = 108° FOV cone)
 - Press C to visualize FOV cone
 
+## NPC System
+
+**Interaction Range:** 80px from NPC center to player collision box center
+
+**Lips Icon:** Appears when player is in range of interactable NPC, replaces punch icon
+
+**Lua Helpers:**
+- `faceEachOther()` - NPCs and player face each other (auto-waits 16ms for velocity to stop)
+- `restoreDirections()` - Restore original facing directions
+- `npc.name()` - Returns NPC's name from JSON (or "NPC")
+- `player.name()` - Returns "Player"
+- `npc.look(direction)` - Change NPC facing ("down", "up_left", etc.)
+- `player.look(direction)` - Change player facing
+
+**NPC Properties in JSON:**
+- `assets`: Spritesheet key (e.g., "npc1")
+- `direction`: Facing direction ("Down", "Left", etc.)
+- `scale`: Optional size multiplier (default 1)
+- `name`: Optional display name for dialogue
+- `interactions`: Array of interaction objects with name, flag conditions, position overrides
+
+**Editor:** Press E → Add → NPC → Select asset → Click to place. Click NPC to edit direction (8-direction grid) and interactions (JSON textarea).
+
 ## Adding Assets
 
 1. Add sprite sheet to `public/assets/`

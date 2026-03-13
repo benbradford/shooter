@@ -5,7 +5,6 @@ import { createJoystickEntity } from '../ecs/entities/hud/JoystickEntity';
 import type { Entity } from '../ecs/Entity';
 import { JoystickVisualsComponent } from '../ecs/components/ui/JoystickVisualsComponent';
 import { AttackButtonComponent } from '../ecs/components/input/AttackButtonComponent';
-import { SlideButtonComponent } from '../ecs/components/input/SlideButtonComponent';
 import { HudBarComponent } from '../ecs/components/ui/HudBarComponent';
 
 export default class HudScene extends Phaser.Scene {
@@ -78,11 +77,6 @@ export default class HudScene extends Phaser.Scene {
         const hudBars = player.get(HudBarComponent);
         if (hudBars) {
           hudBars.setVisible(visible);
-        }
-
-        const slideButton = player.get(SlideButtonComponent);
-        if (slideButton) {
-          slideButton.setVisible(visible);
         }
       }
     }

@@ -25,7 +25,6 @@ import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
-import { SlideButtonComponent } from '../../components/input/SlideButtonComponent';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
@@ -225,11 +224,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   entity.add(new SlideAbilityComponent(scene));
 
-  const slideAbility = entity.require(SlideAbilityComponent);
-  const attackCombo = entity.require(AttackComboComponent);
-  const slideButton = entity.add(new SlideButtonComponent(scene, slideAbility, attackCombo));
-  slideButton.init();
-
   const stateMachine = new StateMachine(
     {
       idle: new PlayerIdleState(entity),
@@ -285,7 +279,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     VignetteHealthComponent,
     HitFlashComponent,
     HudBarComponent,
-    SlideButtonComponent,
     StateMachineComponent,
     AttackComboComponent,
     AnimationComponent,

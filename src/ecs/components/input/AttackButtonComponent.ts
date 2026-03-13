@@ -4,14 +4,14 @@ import type { Entity } from '../../Entity';
 import { NPCManager } from '../../../systems/NPCManager';
 import type GameScene from '../../../scenes/GameScene';
 
-const UNPRESSED_SCALE = 1.26;
-const PRESSED_SCALE = 1.4;
+const UNPRESSED_SCALE = 2.12;
+const PRESSED_SCALE = 2.33;
 const POS_X = 0.915;
-const POS_Y = 0.85;
+const POS_Y = 0.78;
 const ALPHA_UNPRESSED = 0.4;
 const ALPHA_PRESSED = 0.9;
 
-const CIRCLE_RADIUS_PX = 60;
+const CIRCLE_RADIUS_PX = 85;
 const CIRCLE_COLOR = 0xffffff;
 const CIRCLE_ALPHA = 0.6;
 

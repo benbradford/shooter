@@ -400,15 +400,16 @@
 **Files**: `public/interactions/test_npc_*.lua`
 
 **Subtasks**:
-- [ ] Create default interaction script
-- [ ] Create conditional interaction script
-- [ ] Test player.look() and npc.look()
-- [ ] Test calculateDirection() helper
-- [ ] Test position overrides
+- [x] Create default interaction script
+- [x] Create conditional interaction script
+- [x] Test player.look() and npc.look()
+- [x] Test calculateDirection() helper
+- [x] Test position overrides
 
 **Dependencies**: Task 6.1
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 10 minutes
 
 ---
 

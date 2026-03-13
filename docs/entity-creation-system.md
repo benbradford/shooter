@@ -34,10 +34,12 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `bug_base` - Spawns bugs continuously
 - `bullet_dude` - Shoots bullets
 - `puma` - Rests, detects player, chases with momentum, jumps
+- `npc` - Non-player character with interactions
 - `trigger` - Invisible area that fires event when player enters
 - `exit` - Level transition portal
 - `eventchainer` - Raises multiple events sequentially with delays
 - `cellmodifier` - Modifies grid cells (properties, textures, layers) when event fires
+- `interaction` - Loads and executes Lua script when event fires
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
@@ -58,6 +60,16 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `difficulty`: "easy" | "medium" | "hard"
 - `waypoints`: Array of {col, row} (stalking_robot only)
 - `startDirection`: Direction enum value 1-8 (puma only)
+
+### NPC
+- `assets`: Spritesheet key (e.g., "npc1")
+- `direction`: Direction string (e.g., "Down", "Left")
+- `interactions`: Array of NPCInteraction objects
+  - `name`: Event name for the interaction script
+  - `whenFlagSet`: Optional flag condition {name, condition, value}
+  - `position`: Optional {col, row} override for where NPC stands during interaction
+- `scale`: Optional number (default 1)
+- `name`: Optional string - NPC's display name for dialogue
 
 ### Trigger
 - `eventToRaise`: Event name to fire

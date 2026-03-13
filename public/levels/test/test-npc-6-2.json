@@ -1,0 +1,121 @@
+{
+  "width": 20,
+  "height": 20,
+  "playerStart": {
+    "x": 5,
+    "y": 5
+  },
+  "cells": [],
+  "entities": [
+    {
+      "id": "npc0",
+      "type": "npc",
+      "data": {
+        "col": 6,
+        "row": 5,
+        "assets": "npc1",
+        "name": "Cora",
+        "direction": "Left",
+        "interactions": [
+          {
+            "name": "test_npc_conditional",
+            "whenFlagSet": { "name": "test_talked", "condition": "eq", "value": "true" }
+          },
+          {
+            "name": "test_npc_conditional"
+          }
+        ],
+        "scale": 1.5
+      }
+    },
+    {
+      "id": "npc1",
+      "type": "npc",
+      "data": {
+        "col": 8,
+        "row": 5,
+        "assets": "npc1",
+        "name": "Dirk",
+        "direction": "Left",
+        "interactions": [
+          {
+            "name": "test_npc_look"
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc2",
+      "type": "npc",
+      "data": {
+        "col": 10,
+        "row": 5,
+        "assets": "npc1",
+        "name": "Elsa",
+        "direction": "Down",
+        "interactions": [
+          {
+            "name": "test_npc_calc_direction"
+          }
+        ]
+      }
+    },
+    {
+      "id": "npc3",
+      "type": "npc",
+      "data": {
+        "col": 12,
+        "row": 5,
+        "assets": "npc1",
+        "name": "Finn",
+        "direction": "Down",
+        "interactions": [
+          {
+            "name": "test_npc_position",
+            "position": { "col": 12, "row": 7 }
+          }
+        ]
+      }
+    },
+    {
+      "id": "interaction0",
+      "type": "interaction",
+      "data": {
+        "filename": "test_npc_conditional"
+      },
+      "createOnAnyEvent": [
+        "test_npc_conditional"
+      ]
+    },
+    {
+      "id": "interaction1",
+      "type": "interaction",
+      "data": {
+        "filename": "test_npc_look"
+      },
+      "createOnAnyEvent": [
+        "test_npc_look"
+      ]
+    },
+    {
+      "id": "interaction2",
+      "type": "interaction",
+      "data": {
+        "filename": "test_npc_calc_direction"
+      },
+      "createOnAnyEvent": [
+        "test_npc_calc_direction"
+      ]
+    },
+    {
+      "id": "interaction3",
+      "type": "interaction",
+      "data": {
+        "filename": "test_npc_position"
+      },
+      "createOnAnyEvent": [
+        "test_npc_position"
+      ]
+    }
+  ]
+}
