@@ -304,19 +304,20 @@
 **File**: `src/editor/NPCEditorState.ts`
 
 **Subtasks**:
-- [ ] Create state class implementing IState
-- [ ] Add selectedNPC and currentDirection fields
-- [ ] Implement onEnter() - show NPC palette
-- [ ] Implement placeNPC(col, row) - create NPC entity
-- [ ] Implement cycleDirection() - rotate through 8 directions
-- [ ] Implement deleteNPC() - remove selected NPC
-- [ ] Add visual direction indicator
-- [ ] Handle D key for direction cycling
-- [ ] Handle Delete key for deletion
+- [x] Create state class implementing IState
+- [x] Add selectedNPC and currentDirection fields
+- [x] Implement onEnter() - show NPC palette
+- [x] Implement placeNPC(col, row) - create NPC entity
+- [x] Implement cycleDirection() - rotate through 8 directions
+- [x] Implement deleteNPC() - remove selected NPC
+- [x] Add visual direction indicator
+- [x] Handle D key for direction cycling
+- [x] Handle Delete key for deletion
 
 **Dependencies**: Task 1.4
 
 **Estimated Time**: 2 hours
+**Actual Time**: 20min
 
 ---
 
@@ -324,21 +325,22 @@
 **File**: `src/editor/InteractionConfigDialog.ts`
 
 **Subtasks**:
-- [ ] Create dialog UI component
-- [ ] Add/remove interaction buttons
-- [ ] Interaction name input field
-- [ ] Flag condition configuration:
+- [x] Create dialog UI component
+- [x] Add/remove interaction buttons
+- [x] Interaction name input field
+- [x] Flag condition configuration:
   - [ ] Flag name input
   - [ ] Condition dropdown (eq, neq, gt, lt, gte, lte)
   - [ ] Value input
-- [ ] Position override inputs (col, row)
-- [ ] Reorder interactions (priority)
-- [ ] Save to NPCInteractionComponent
-- [ ] Cancel/confirm buttons
+- [x] Position override inputs (col, row)
+- [x] Reorder interactions (priority)
+- [x] Save to NPCInteractionComponent
+- [x] Cancel/confirm buttons
 
 **Dependencies**: Task 5.1
 
 **Estimated Time**: 2.5 hours
+**Actual Time**: 15min
 
 ---
 
@@ -346,14 +348,15 @@
 **File**: `src/editor/EditorScene.ts`
 
 **Subtasks**:
-- [ ] Add NPC mode button to editor UI
-- [ ] Position with other mode buttons
-- [ ] Transition to NPCEditorState on click
-- [ ] Add I key handler for interaction config (when NPC selected)
+- [x] Add NPC mode button to editor UI
+- [x] Position with other mode buttons
+- [x] Transition to NPCEditorState on click
+- [x] Add I key handler for interaction config (when NPC selected)
 
 **Dependencies**: Task 5.1
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 5min
 
 ---
 
@@ -361,15 +364,16 @@
 **File**: `src/editor/EditorScene.ts` (modify extractEntities)
 
 **Subtasks**:
-- [ ] Extract NPC entities from entityManager
-- [ ] Get NPCIdleComponent for direction
-- [ ] Get NPCInteractionComponent for interactions
-- [ ] Format as level JSON
-- [ ] Include all interaction data (whenFlagSet, position)
+- [x] Extract NPC entities from entityManager
+- [x] Get NPCIdleComponent for direction
+- [x] Get NPCInteractionComponent for interactions
+- [x] Format as level JSON
+- [x] Include all interaction data (whenFlagSet, position)
 
 **Dependencies**: Task 5.2
 
 **Estimated Time**: 45 minutes
+**Actual Time**: 10min
 
 ---
 

@@ -9,14 +9,18 @@ const ENTITY_TYPES: Array<{ type: EntityType; label: string }> = [
   { type: 'bug_base', label: 'Bug Base' },
   { type: 'bullet_dude', label: 'Bullet Dude' },
   { type: 'puma', label: 'Puma' },
-  { type: 'breakable', label: 'Breakable' }
+  { type: 'breakable', label: 'Breakable' },
+  { type: 'npc', label: 'NPC' }
 ];
+
+const NPC_ASSETS = ['npc1'];
 
 const BREAKABLE_TEXTURES = ['dungeon_vase', 'pillar'];
 
 export class AddEntityEditorState extends EditorState {
   private selectedType: EntityType | null = null;
   private selectedTexture: string = 'dungeon_vase';
+  private selectedNPCAsset: string = NPC_ASSETS[0];
   private ghostSprite: Phaser.GameObjects.Sprite | null = null;
 
   onEnter(): void {
@@ -26,6 +30,7 @@ export class AddEntityEditorState extends EditorState {
   onExit(): void {
     this.destroyUI();
     this.hideTextureSelector();
+    this.hideNPCAssetSelector();
 
     if (this.ghostSprite) {
       this.ghostSprite.destroy();
@@ -77,9 +82,14 @@ export class AddEntityEditorState extends EditorState {
       this.selectedType = select.value as EntityType || null;
       if (this.selectedType) {
         if (this.selectedType === 'breakable') {
+          this.hideNPCAssetSelector();
           this.showTextureSelector(container);
+        } else if (this.selectedType === 'npc') {
+          this.hideTextureSelector();
+          this.showNPCAssetSelector(container);
         } else {
           this.hideTextureSelector();
+          this.hideNPCAssetSelector();
           this.createGhostSprite();
         }
       }
@@ -119,6 +129,7 @@ export class AddEntityEditorState extends EditorState {
     else if (this.selectedType === 'bullet_dude') texture = 'attacker';
     else if (this.selectedType === 'puma') texture = 'puma';
     else if (this.selectedType === 'breakable') texture = this.selectedTexture;
+    else if (this.selectedType === 'npc') texture = this.selectedNPCAsset;
 
     if (!gameScene.textures.exists(texture)) {
       console.warn(`[AddEntityEditorState] Texture "${texture}" not loaded, skipping ghost sprite`);
@@ -189,6 +200,53 @@ export class AddEntityEditorState extends EditorState {
 
   private hideTextureSelector(): void {
     const existing = document.getElementById('texture-selector');
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  private showNPCAssetSelector(container: HTMLElement): void {
+    this.hideNPCAssetSelector();
+
+    const assetDiv = document.createElement('div');
+    assetDiv.id = 'npc-asset-selector';
+    assetDiv.style.marginBottom = '15px';
+
+    const label = document.createElement('div');
+    label.textContent = 'NPC Asset:';
+    label.style.marginBottom = '5px';
+    assetDiv.appendChild(label);
+
+    const select = document.createElement('select');
+    select.style.cssText = 'width: 200px; padding: 5px;';
+
+    for (const asset of NPC_ASSETS) {
+      const option = document.createElement('option');
+      option.value = asset;
+      option.textContent = asset;
+      select.appendChild(option);
+    }
+
+    select.value = this.selectedNPCAsset;
+    select.onchange = () => {
+      this.selectedNPCAsset = select.value;
+      this.createGhostSprite();
+    };
+
+    assetDiv.appendChild(select);
+
+    const instructionsIndex = Array.from(container.children).findIndex(
+      child => child.textContent?.includes('Select type')
+    );
+    if (instructionsIndex >= 0) {
+      container.insertBefore(assetDiv, container.children[instructionsIndex]);
+    }
+
+    this.createGhostSprite();
+  }
+
+  private hideNPCAssetSelector(): void {
+    const existing = document.getElementById('npc-asset-selector');
     if (existing) {
       existing.remove();
     }
@@ -269,6 +327,8 @@ export class AddEntityEditorState extends EditorState {
           ? { texture: this.selectedTexture, health: 1, rarity: 'epic' }
           : this.selectedType === 'puma'
           ? { difficulty: 'medium', startDirection: 4 }
+          : this.selectedType === 'npc'
+          ? { assets: this.selectedNPCAsset, direction: 'Down', interactions: [] }
           : { difficulty: 'medium' }),
         ...(this.selectedType === 'stalking_robot' ? { waypoints: [{ col, row }] } : {})
       }

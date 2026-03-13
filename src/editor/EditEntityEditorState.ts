@@ -5,8 +5,23 @@ import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { DifficultyComponent } from '../ecs/components/ai/DifficultyComponent';
 import { RarityComponent } from '../ecs/components/core/RarityComponent';
 import { PatrolComponent } from '../ecs/components/ai/PatrolComponent';
+import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
+import { Direction } from '../constants/Direction';
 import type { IStateEnterProps } from '../systems/state/IState';
 import type { Rarity } from '../constants/Rarity';
+import type { NPCInteraction } from '../ecs/entities/npc/NPCEntity';
+
+const DIRECTION_LABELS: Record<Direction, string> = {
+  [Direction.None]: '●',
+  [Direction.Down]: '↓',
+  [Direction.Up]: '↑',
+  [Direction.Left]: '←',
+  [Direction.Right]: '→',
+  [Direction.UpLeft]: '↖',
+  [Direction.UpRight]: '↗',
+  [Direction.DownLeft]: '↙',
+  [Direction.DownRight]: '↘',
+};
 
 export class EditEntityEditorState extends EditorState {
   private entity: Entity | null = null;
@@ -318,6 +333,9 @@ export class EditEntityEditorState extends EditorState {
     } else if (entityType === 'Robot') {
       this.addDifficultyControls();
       this.addWaypointControls();
+    } else if (entityType === 'NPC') {
+      this.addNPCDirectionControls();
+      this.addNPCInteractionControls();
     }
 
     document.body.appendChild(this.entityPanel);
@@ -333,6 +351,7 @@ export class EditEntityEditorState extends EditorState {
     if (this.entity.id.startsWith('stalking_robot') || this.entity.id.startsWith('robot')) return 'Robot';
     if (this.entity.id.startsWith('bug_base') || this.entity.id.startsWith('bugbase')) return 'Bug Base';
     if (this.entity.id.startsWith('bullet_dude') || this.entity.id.startsWith('bulletdude')) return 'Bullet Dude';
+    if (this.entity.id.startsWith('npc')) return 'NPC';
     
     return 'Unknown';
   }
@@ -522,6 +541,120 @@ export class EditEntityEditorState extends EditorState {
       }
     };
     this.entityPanel.appendChild(deleteButton);
+  }
+
+  private addNPCDirectionControls(): void {
+    if (!this.entityPanel || !this.entity) return;
+
+    const idle = this.entity.get(NPCIdleComponent);
+    if (!idle) return;
+
+    const currentDir = idle.getDirection();
+
+    const dirLabel = document.createElement('div');
+    dirLabel.textContent = `Direction: ${Direction[currentDir]}`;
+    dirLabel.style.marginTop = '10px';
+    dirLabel.style.marginBottom = '10px';
+    this.entityPanel.appendChild(dirLabel);
+
+    const dirGrid = document.createElement('div');
+    dirGrid.style.display = 'grid';
+    dirGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    dirGrid.style.gap = '5px';
+
+    const gridLayout: Array<Direction | null> = [
+      Direction.UpLeft, Direction.Up, Direction.UpRight,
+      Direction.Left, null, Direction.Right,
+      Direction.DownLeft, Direction.Down, Direction.DownRight,
+    ];
+
+    gridLayout.forEach(dir => {
+      const btn = document.createElement('button');
+      if (dir === null) {
+        btn.textContent = '●';
+        btn.style.cssText = 'padding: 10px; font-size: 18px; background: #222; color: #555; border: none; border-radius: 4px;';
+      } else {
+        btn.textContent = DIRECTION_LABELS[dir];
+        btn.style.cssText = `padding: 10px; font-size: 18px; cursor: pointer; background: ${currentDir === dir ? '#4CAF50' : '#666'}; color: white; border: none; border-radius: 4px;`;
+        btn.onclick = () => {
+          idle.setDirection(dir);
+          this.updateNPCDirectionInLevelData(dir);
+          this.destroyUI();
+          this.createUI();
+        };
+      }
+      dirGrid.appendChild(btn);
+    });
+
+    this.entityPanel.appendChild(dirGrid);
+  }
+
+  private updateNPCDirectionInLevelData(direction: Direction): void {
+    if (!this.entity) return;
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+    const levelData = gameScene.getLevelData();
+    const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
+    if (entityDef?.data) {
+      (entityDef.data as { direction: string }).direction = Direction[direction];
+    }
+  }
+
+  private addNPCInteractionControls(): void {
+    if (!this.entityPanel || !this.entity) return;
+
+    const gameScene = this.scene.scene.get('game') as import('../scenes/GameScene').default;
+    const levelData = gameScene.getLevelData();
+    const entityDef = levelData.entities?.find(e => e.id === this.entity!.id);
+    if (!entityDef) return;
+
+    const interactions = (entityDef.data as { interactions?: NPCInteraction[] }).interactions ?? [];
+
+    const label = document.createElement('div');
+    label.textContent = 'Interactions (JSON):';
+    label.style.cssText = 'margin-top: 15px; margin-bottom: 5px; font-weight: bold;';
+    this.entityPanel.appendChild(label);
+
+    const textarea = document.createElement('textarea');
+    textarea.value = JSON.stringify(interactions, null, 2);
+    textarea.style.cssText = `
+      width: 100%;
+      min-height: 120px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #555;
+      border-radius: 4px;
+      resize: vertical;
+    `;
+
+    textarea.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+    });
+
+    textarea.addEventListener('input', () => {
+      const value = textarea.value.trim();
+      if (!value) {
+        (entityDef.data as { interactions: NPCInteraction[] }).interactions = [];
+        textarea.style.borderColor = '#555';
+        return;
+      }
+      try {
+        const parsed = JSON.parse(value) as NPCInteraction[];
+        (entityDef.data as { interactions: NPCInteraction[] }).interactions = parsed;
+        textarea.style.borderColor = '#4CAF50';
+      } catch {
+        textarea.style.borderColor = '#d32f2f';
+      }
+    });
+
+    this.entityPanel.appendChild(textarea);
+
+    const hint = document.createElement('div');
+    hint.textContent = '[{"name":"script_name","whenFlagSet":{"name":"flag","condition":"eq","value":"1"},"position":{"col":5,"row":3}}]';
+    hint.style.cssText = 'font-size: 10px; color: #888; margin-top: 5px; word-break: break-all;';
+    this.entityPanel.appendChild(hint);
   }
 
   private readonly handlePointerDown = (pointer: Phaser.Input.Pointer): void => {

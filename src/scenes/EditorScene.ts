@@ -25,6 +25,8 @@ import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { BreakableComponent } from "../ecs/components/breakable/BreakableComponent";
 import { RarityComponent } from "../ecs/components/core/RarityComponent";
+import { NPCIdleComponent } from "../ecs/entities/npc/NPCIdleComponent";
+import { Direction } from "../constants/Direction";
 import { EntityManager } from "../ecs/EntityManager";
 
 export default class EditorScene extends Phaser.Scene {
@@ -168,7 +170,9 @@ export default class EditorScene extends Phaser.Scene {
         entity.id.startsWith('bugbase') ||
         entity.id.startsWith('thrower') ||
         entity.id.startsWith('puma') ||
-        entity.id.startsWith('skeleton');
+        entity.id.startsWith('skeleton') ||
+        entity.id.startsWith('npc') ||
+        entity.tags?.has('npc');
 
       if (shouldShowLabel) {
         const transform = entity.get(TransformComponent);
@@ -181,6 +185,7 @@ export default class EditorScene extends Phaser.Scene {
           else if (entity.id.startsWith('bug_base') || entity.id.startsWith('bugbase')) text = 'BB';
           else if (entity.id.startsWith('skeleton')) text = 'S';
           else if (entity.id.startsWith('puma')) text = 'P';
+          else if (entity.id.startsWith('npc') || entity.tags?.has('npc')) text = 'NPC';
           else if (hasEventSpawn) text = 'E';
 
           label = gameScene.add.text(transform.x, transform.y, text, {
@@ -450,6 +455,20 @@ export default class EditorScene extends Phaser.Scene {
         } else {
           data = { col: cell.col, row: cell.row, eventsToRaise: [] };
         }
+      } else if (entity.id.startsWith('npc') || entity.tags?.has('npc')) {
+        type = 'npc';
+        const idle = entity.get(NPCIdleComponent);
+        const existingNPC = existingLevelData.entities?.find(e => e.id === entity.id);
+        const npcData = existingNPC?.data as { assets?: string; interactions?: unknown[]; scale?: number; name?: string } | undefined;
+        data = {
+          col: cell.col,
+          row: cell.row,
+          assets: idle?.getSpritesheet() ?? npcData?.assets ?? 'npc1',
+          direction: Direction[idle?.getDirection() ?? Direction.Down],
+          interactions: npcData?.interactions ?? [],
+          ...(npcData?.scale ? { scale: npcData.scale } : {}),
+          ...(npcData?.name ? { name: npcData.name } : {})
+        };
       }
 
       if (type) {
@@ -483,14 +502,16 @@ export default class EditorScene extends Phaser.Scene {
       }
     }
 
-    // Add triggers, exits, and cellmodifiers from level data (they don't have entity instances)
+    // Add triggers, exits, cellmodifiers, and interactions from level data (they don't have entity instances)
     const existingTriggers = (existingLevelData.entities ?? []).filter(e => e.type === 'trigger');
     const existingExits = (existingLevelData.entities ?? []).filter(e => e.type === 'exit');
     const existingCellModifiers = (existingLevelData.entities ?? []).filter(e => e.type === 'cellmodifier');
+    const existingInteractions = (existingLevelData.entities ?? []).filter(e => e.type === 'interaction');
 
     entities.push(...existingTriggers);
     entities.push(...existingExits);
     entities.push(...existingCellModifiers);
+    entities.push(...existingInteractions);
 
     return entities;
   }

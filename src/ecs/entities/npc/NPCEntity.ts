@@ -29,12 +29,17 @@ export type CreateNPCProps = {
   readonly direction: Direction;
   readonly interactions: NPCInteraction[];
   readonly scale?: number;
+  readonly name?: string;
 }
 
 export function createNPCEntity(props: CreateNPCProps): Entity {
-  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1 } = props;
+  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1, name } = props;
   const entity = new Entity(entityId);
   entity.tags.add('npc');
+  
+  if (name) {
+    (entity as any).npcName = name;
+  }
 
   const x = col * grid.cellSize + grid.cellSize / 2;
   const y = row * grid.cellSize + grid.cellSize / 2;

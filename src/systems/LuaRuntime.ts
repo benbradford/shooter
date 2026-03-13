@@ -86,6 +86,7 @@ export class LuaRuntime {
         x: playerTransform?.x ?? 0,
         y: playerTransform?.y ?? 0,
         direction: playerDirection,
+        name: () => 'Player',
         moveTo: (col: number, row: number, speed: number) => {
           this.commandQueue.push({ type: 'moveTo', col, row, speed });
         },
@@ -118,6 +119,7 @@ export class LuaRuntime {
           x: npcTransform?.x ?? 0,
           y: npcTransform?.y ?? 0,
           direction: currentDirection,
+          name: () => (npcEntity as any)?.npcName ?? 'NPC',
           look: (direction: string) => {
             const dir = DIRECTION_MAP[direction];
             if (dir === undefined) {

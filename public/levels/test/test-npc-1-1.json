@@ -5,16 +5,34 @@
     "x": 5,
     "y": 5
   },
+  "cells": [],
   "entities": [
     {
       "id": "npc0",
       "type": "npc",
       "data": {
-        "assets": "npc1",
-        "scale": 1.5,
         "col": 6,
         "row": 6,
+        "assets": "npc1",
+        "name": "Shelly",
         "direction": "Down",
+        "interactions": [
+          {
+            "name": "test_interaction_npc"
+          }
+        ],
+        "scale": 1.5
+      }
+    },
+    {
+      "id": "npc1",
+      "type": "npc",
+      "data": {
+        "col": 11,
+        "row": 5,
+        "assets": "npc1",
+        "name": "Martha",
+        "direction": "Left",
         "interactions": [
           {
             "name": "test_interaction_npc"
@@ -32,6 +50,5 @@
         "test_interaction_npc"
       ]
     }
-  ],
-  "cells": []
+  ]
 }
