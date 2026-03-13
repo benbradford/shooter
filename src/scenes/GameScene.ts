@@ -666,6 +666,13 @@ export default class GameScene extends Phaser.Scene {
 
     this.sceneRenderer.initializeSprites(this.grid, this.levelData);
 
+    // Unload unused textures AFTER sprites are created
+    if (prevLevelTextures.length > 0 && unusedTextures.length > 0) {
+      console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
+      const assetManager = AssetManager.getInstance();
+      assetManager.unloadBatch(this, unusedTextures);
+    }
+
     this.background.setAlpha(1);
     this.vignette.setAlpha(originalVignetteAlpha);
     console.log('[GameScene] Scene reset complete');
