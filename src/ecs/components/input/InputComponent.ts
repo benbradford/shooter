@@ -39,13 +39,14 @@ export class InputComponent implements Component {
     if (!this.grid || !this.eventManager) return false;
 
     const npcManager = NPCManager.getInstance();
-    const closestNPC = npcManager.getClosestInteractableNPC(this.entity, this.grid);
+    const closestNPC = npcManager.getClosestInteractableNPC(this.entity);
     if (!closestNPC) return false;
 
     const interaction = closestNPC.get(NPCInteractionComponent);
     const activeInteraction = interaction?.getActiveInteraction();
     if (!activeInteraction) return false;
 
+    npcManager.lastInteractedNpcId = closestNPC.id;
     this.eventManager.raiseEvent(activeInteraction.name);
     return true;
   }

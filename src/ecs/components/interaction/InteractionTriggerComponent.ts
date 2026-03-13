@@ -2,6 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type GameScene from '../../../scenes/GameScene';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { NPCManager } from '../../../systems/NPCManager';
 
 export class InteractionTriggerComponent implements Component {
   entity!: Entity;
@@ -37,7 +38,7 @@ export class InteractionTriggerComponent implements Component {
       throw new Error(`Got HTML instead of Lua script for ${this.filename}.lua - check file path`);
     }
     
-    this.scene.startInteraction(scriptContent, this.filename);
+    this.scene.startInteraction(scriptContent, this.filename, NPCManager.getInstance().lastInteractedNpcId);
     this.entity.destroy();
   }
 }

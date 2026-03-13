@@ -6,12 +6,30 @@ import { InteractionComponent } from '../ecs/components/interaction/InteractionC
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { WorldStateManager } from './WorldStateManager';
+import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
+import { Direction, dirFromDelta } from '../constants/Direction';
+
+const DIRECTION_MAP: Record<string, Direction> = {
+  'down': Direction.Down,
+  'up': Direction.Up,
+  'left': Direction.Left,
+  'right': Direction.Right,
+  'up_left': Direction.UpLeft,
+  'up_right': Direction.UpRight,
+  'down_left': Direction.DownLeft,
+  'down_right': Direction.DownRight,
+};
+
+const DIRECTION_TO_STRING: Record<Direction, string> = Object.fromEntries(
+  Object.entries(DIRECTION_MAP).map(([k, v]) => [v, k])
+) as Record<Direction, string>;
 
 type Command = 
   | { type: 'wait'; ms: number }
   | { type: 'say'; name: string; text: string; speed: number; timeout: number; backgroundColor: string; textColor: string }
   | { type: 'moveTo'; col: number; row: number; speed: number }
   | { type: 'look'; direction: string }
+  | { type: 'npcLook'; npcId: string; direction: Direction }
   | { type: 'spendCoins'; amount: number }
   | { type: 'obtainCoins'; amount: number }
   | { type: 'fadeOut'; durationMs: number }
@@ -28,7 +46,7 @@ export class LuaRuntime {
     private readonly playerEntity: Entity
   ) {}
   
-  async executeScript(scriptContent: string): Promise<void> {
+  async executeScript(scriptContent: string, npcId?: string): Promise<void> {
     const factory = new LuaFactory();
     const lua = await factory.createEngine();
     
@@ -62,6 +80,25 @@ export class LuaRuntime {
         }
       };
       lua.global.set('player', player);
+      
+      lua.global.set('calculateDirection', (fromCol: number, fromRow: number, toCol: number, toRow: number): string => {
+        const dx = toCol - fromCol;
+        const dy = toRow - fromRow;
+        return DIRECTION_TO_STRING[dirFromDelta(dx, dy)] ?? 'down';
+      });
+      
+      if (npcId) {
+        const npc = {
+          look: (direction: string) => {
+            const dir = DIRECTION_MAP[direction];
+            if (dir === undefined) {
+              throw new Error(`[LuaRuntime] Invalid direction: ${direction}`);
+            }
+            this.commandQueue.push({ type: 'npcLook', npcId, direction: dir });
+          }
+        };
+        lua.global.set('npc', npc);
+      }
       
       const hudScene = this.scene.scene.get('HudScene');
       const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
@@ -162,6 +199,12 @@ export class LuaRuntime {
           throw new Error('[LuaRuntime] Player missing InteractionComponent');
         }
         interactionComp.look(cmd.direction);
+      } else if (cmd.type === 'npcLook') {
+        const npcEntity = this.scene.entityManager.getAll().find(e => e.id === cmd.npcId);
+        const idle = npcEntity?.get(NPCIdleComponent);
+        if (idle) {
+          idle.setDirection(cmd.direction);
+        }
       } else if (cmd.type === 'spendCoins') {
         const hudScene = this.scene.scene.get('HudScene');
         const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();

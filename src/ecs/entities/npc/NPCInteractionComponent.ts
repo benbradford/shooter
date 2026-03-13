@@ -1,12 +1,11 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
 import type { NPCInteraction } from './NPCEntity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 
-const INTERACTION_RANGE_PX = 100;
+const INTERACTION_RANGE_PX = 50;
 
 export class NPCInteractionComponent implements Component {
   entity!: Entity;
@@ -59,15 +58,13 @@ export class NPCInteractionComponent implements Component {
     return { name: interaction.name, col, row };
   }
 
-  isPlayerInRange(playerEntity: Entity, grid: Grid): boolean {
+  isPlayerInRange(playerEntity: Entity): boolean {
     const activeInteraction = this.getActiveInteraction();
     if (!activeInteraction) return false;
 
-    const npcCenterX = activeInteraction.col * grid.cellSize + grid.cellSize / 2;
-    const npcCenterY = activeInteraction.row * grid.cellSize + grid.cellSize / 2;
-
-    const collision = playerEntity.get(CollisionComponent);
+    const npcTransform = this.entity.require(TransformComponent);
     const playerTransform = playerEntity.require(TransformComponent);
+    const collision = playerEntity.get(CollisionComponent);
 
     let playerCenterX: number;
     let playerCenterY: number;
@@ -80,7 +77,7 @@ export class NPCInteractionComponent implements Component {
       playerCenterY = playerTransform.y;
     }
 
-    const distance = Math.hypot(npcCenterX - playerCenterX, npcCenterY - playerCenterY);
+    const distance = Math.hypot(npcTransform.x - playerCenterX, npcTransform.y - playerCenterY);
     return distance <= INTERACTION_RANGE_PX;
   }
 

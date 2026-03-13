@@ -99,9 +99,8 @@ export class AttackButtonComponent implements Component {
     const player = gameScene.entityManager.getFirst('player');
     if (!player) return;
 
-    const grid = gameScene.getGrid();
     const npcManager = NPCManager.getInstance();
-    const closestNPC = npcManager.getClosestInteractableNPC(player, grid);
+    const closestNPC = npcManager.getClosestInteractableNPC(player);
 
     const newIcon = closestNPC ? 'lips' : 'punch';
     if (newIcon !== this.currentIcon) {

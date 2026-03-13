@@ -14,8 +14,22 @@
         "col": 6,
         "row": 6,
         "direction": "Down",
-        "interactions": []
+        "interactions": [
+          {
+            "name": "test_interaction_npc"
+          }
+        ]
       }
+    },
+    {
+      "id": "interaction0",
+      "type": "interaction",
+      "data": {
+        "filename": "test_interaction_npc"
+      },
+      "createOnAnyEvent": [
+        "test_interaction_npc"
+      ]
     }
   ],
   "cells": []

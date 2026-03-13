@@ -12,10 +12,12 @@ import { WorldStateManager } from '../../systems/WorldStateManager';
 export type InteractionStateData = {
   scriptContent: string;
   filename?: string;
+  npcId?: string;
 };
 
 export class InteractionState implements IState<InteractionStateData> {
   private currentFilename?: string;
+  private currentNpcId?: string;
   
   constructor(
     private readonly scene: GameScene,
@@ -31,6 +33,7 @@ export class InteractionState implements IState<InteractionStateData> {
     }
     
     this.currentFilename = props.data.filename;
+    this.currentNpcId = props.data.npcId;
     
     const scene = this.scene;
     const entityManager = this.getEntityManager();
@@ -48,7 +51,7 @@ export class InteractionState implements IState<InteractionStateData> {
       input.setEnabled(false);
     }
     
-    this.executeScript(props.data.scriptContent).then(() => {
+    this.executeScript(props.data.scriptContent, this.currentNpcId).then(() => {
       (scene as unknown as { stateMachine: { enter: (key: string) => void } }).stateMachine.enter('inGame');
     }).catch(error => {
       console.error('[Interaction] Script error:', error);
@@ -68,6 +71,7 @@ export class InteractionState implements IState<InteractionStateData> {
       worldState.setFlag(`${this.currentFilename}_live`, 'false');
       this.currentFilename = undefined;
     }
+    this.currentNpcId = undefined;
     
     const hudScene = scene.scene.get('HudScene') as HudScene;
     if (hudScene) {
@@ -87,13 +91,13 @@ export class InteractionState implements IState<InteractionStateData> {
     this.getGrid().render(this.getEntityManager(), this.getLevelData());
   }
   
-  private async executeScript(scriptContent: string): Promise<void> {
+  private async executeScript(scriptContent: string, npcId?: string): Promise<void> {
     const player = this.getEntityManager().getFirst('player');
     if (!player) {
       throw new Error('[InteractionState] Player not found');
     }
     
     const runtime = new LuaRuntime(this.scene, player);
-    await runtime.executeScript(scriptContent);
+    await runtime.executeScript(scriptContent, npcId);
   }
 }

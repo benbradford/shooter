@@ -247,10 +247,10 @@
 **File**: `src/systems/LuaRuntime.ts`
 
 **Subtasks**:
-- [ ] Add 'npcLook' to Command type union
-- [ ] Add npc object to Lua global with look(direction) method
-- [ ] Queue 'npcLook' command with npcId and direction
-- [ ] In executeCommand(), handle 'npcLook' type:
+- [x] Add 'npcLook' to Command type union
+- [x] Add npc object to Lua global with look(direction) method
+- [x] Queue 'npcLook' command with npcId and direction
+- [x] In executeCommand(), handle 'npcLook' type:
   - [ ] Find NPC entity by ID from state data
   - [ ] Get NPCIdleComponent
   - [ ] Call setDirection(direction)
@@ -258,6 +258,7 @@
 **Dependencies**: Task 1.3
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 15 minutes
 
 ---
 
@@ -268,14 +269,15 @@
 - `src/scenes/states/InteractionState.ts` (modify)
 
 **Subtasks**:
-- [ ] InteractionTriggerComponent: Pass entity.id to scene.startInteraction()
-- [ ] GameScene.startInteraction(): Accept optional npcId parameter
-- [ ] InteractionState: Add npcId to state data type
-- [ ] Pass npcId to LuaRuntime
+- [x] InteractionTriggerComponent: Pass entity.id to scene.startInteraction()
+- [x] GameScene.startInteraction(): Accept optional npcId parameter
+- [x] InteractionState: Add npcId to state data type
+- [x] Pass npcId to LuaRuntime
 
 **Dependencies**: Task 4.1
 
 **Estimated Time**: 20 minutes
+**Actual Time**: 15 minutes
 
 ---
 
@@ -283,15 +285,16 @@
 **File**: `src/systems/LuaRuntime.ts` (modify)
 
 **Subtasks**:
-- [ ] Import dirFromDelta from Direction constants
-- [ ] Expose calculateDirection(fromCol, fromRow, toCol, toRow) to Lua
-- [ ] Calculate dx, dy from col/row differences
-- [ ] Call dirFromDelta(dx, dy)
-- [ ] Return Direction enum value
+- [x] Import dirFromDelta from Direction constants
+- [x] Expose calculateDirection(fromCol, fromRow, toCol, toRow) to Lua
+- [x] Calculate dx, dy from col/row differences
+- [x] Call dirFromDelta(dx, dy)
+- [x] Return Direction enum value
 
 **Dependencies**: None
 
 **Estimated Time**: 15 minutes
+**Actual Time**: 5 minutes
 
 ---
 
