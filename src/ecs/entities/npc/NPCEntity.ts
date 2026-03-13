@@ -2,6 +2,8 @@ import { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { NPCIdleComponent } from './NPCIdleComponent';
+import { NPCInteractionComponent } from './NPCInteractionComponent';
 import type { Direction } from '../../../constants/Direction';
 import type { Grid } from '../../../systems/grid/Grid';
 
@@ -29,7 +31,7 @@ export type CreateNPCProps = {
 }
 
 export function createNPCEntity(props: CreateNPCProps): Entity {
-  const { scene, grid, entityId, assets, col, row } = props;
+  const { scene, grid, entityId, assets, col, row, direction, interactions } = props;
   const entity = new Entity(entityId);
   entity.tags.add('npc');
 
@@ -41,9 +43,14 @@ export function createNPCEntity(props: CreateNPCProps): Entity {
   sprite.sprite.setDepth(Depth.enemy);
   sprite.sprite.setOrigin(0.5, 0.5);
 
+  entity.add(new NPCIdleComponent(direction, assets));
+  entity.add(new NPCInteractionComponent(interactions, col, row));
+
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
+    NPCIdleComponent,
+    NPCInteractionComponent,
   ]);
 
   return entity;

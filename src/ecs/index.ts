@@ -37,3 +37,7 @@ export { LevelExitComponent } from './components/level/LevelExitComponent';
 export { PunchParticlesComponent } from './components/visual/PunchParticlesComponent';
 export { RotatingProjectileComponent } from './components/visual/RotatingProjectileComponent';
 export { WaterEffectComponent } from './components/visual/WaterEffectComponent';
+export { NPCIdleComponent } from './entities/npc/NPCIdleComponent';
+export { NPCInteractionComponent } from './entities/npc/NPCInteractionComponent';
+export type { NPCInteraction, FlagCondition } from './entities/npc/NPCEntity';
+export { createNPCEntity } from './entities/npc/NPCEntity';

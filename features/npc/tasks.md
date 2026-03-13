@@ -22,16 +22,17 @@
 **File**: `src/ecs/entities/npc/NPCAnimations.ts`
 
 **Subtasks**:
-- [ ] Create `createNPCAnimations(scene, spritesheet)` function
-- [ ] Detect frame count from texture
-- [ ] If 1 frame: Create static animation (frameRate: 1, repeat: 0)
-- [ ] If >1 frames: Create 8 directional animations using DIR_TO_INDEX
-- [ ] Create `getNPCAnimKey(spritesheet, direction)` helper
-- [ ] Make idempotent (check if animation exists)
+- [x] Create `createNPCAnimations(scene, spritesheet)` function
+- [x] Detect frame count from texture
+- [x] If 1 frame: Create static animation (frameRate: 1, repeat: 0)
+- [x] If >1 frames: Create 8 directional animations using DIR_TO_INDEX
+- [x] Create `getNPCAnimKey(spritesheet, direction)` helper
+- [x] Make idempotent (check if animation exists)
 
 **Dependencies**: None
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 5 minutes
 
 ---
 
@@ -39,17 +40,18 @@
 **File**: `src/ecs/components/npc/NPCIdleComponent.ts`
 
 **Subtasks**:
-- [ ] Create component class with direction and spritesheet props
-- [ ] Implement update() with hasInitialized flag
-- [ ] Call createNPCAnimations() on first update
-- [ ] Add AnimationComponent if needed
-- [ ] Play initial animation using AnimationSystem
-- [ ] Implement setDirection(direction) method
-- [ ] Update animation when direction changes
+- [x] Create component class with direction and spritesheet props
+- [x] Implement update() with hasInitialized flag
+- [x] Call createNPCAnimations() on first update
+- [x] Add AnimationComponent if needed
+- [x] Play initial animation using AnimationSystem
+- [x] Implement setDirection(direction) method
+- [x] Update animation when direction changes
 
 **Dependencies**: Task 1.2
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 5 minutes
 
 ---
 
@@ -57,17 +59,18 @@
 **File**: `src/ecs/entities/npc/NPCEntity.ts`
 
 **Subtasks**:
-- [ ] Create `createNPCEntity()` function
-- [ ] Add TransformComponent (use grid.cellSize)
-- [ ] Add SpriteComponent (spritesheet from assets)
-- [ ] Add NPCIdleComponent (direction, assets)
-- [ ] Add NPCInteractionComponent (interactions, col, row)
-- [ ] Set update order: Transform → Sprite → Idle → Interaction
-- [ ] Export types: NPCInteraction, FlagCondition
+- [x] Create `createNPCEntity()` function
+- [x] Add TransformComponent (use grid.cellSize)
+- [x] Add SpriteComponent (spritesheet from assets)
+- [x] Add NPCIdleComponent (direction, assets)
+- [x] Add NPCInteractionComponent (interactions, col, row)
+- [x] Set update order: Transform → Sprite → Idle → Interaction
+- [x] Export types: NPCInteraction, FlagCondition
 
 **Dependencies**: Task 1.3
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 10 minutes
 
 ---
 
@@ -75,13 +78,14 @@
 **File**: `src/assets/AssetRegistry.ts`
 
 **Subtasks**:
-- [ ] Add npc1 to ASSET_GROUPS
-- [ ] Define spritesheet, frameWidth, frameHeight
-- [ ] Add any other test NPCs
+- [x] Add npc1 to ASSET_GROUPS
+- [x] Define spritesheet, frameWidth, frameHeight
+- [x] Add any other test NPCs
 
 **Dependencies**: None
 
 **Estimated Time**: 10 minutes
+**Actual Time**: 2 minutes
 
 ---
 
@@ -89,13 +93,14 @@
 **File**: `src/assets/AssetLoader.ts`
 
 **Subtasks**:
-- [ ] Update getRequiredAssets() to detect NPC entities
-- [ ] Extract assets from entity.data.assets
-- [ ] Add to required assets list
+- [x] Update getRequiredAssets() to detect NPC entities
+- [x] Extract assets from entity.data.assets
+- [x] Add to required assets list
 
 **Dependencies**: Task 1.5
 
 **Estimated Time**: 15 minutes
+**Actual Time**: 5 minutes
 
 ---
 
