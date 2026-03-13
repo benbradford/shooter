@@ -1,6 +1,6 @@
 {
   "name": "db-implementor",
-  "description": "Simplified implementation agent - implements tasks with build/lint verification only",
+  "description": "Implementation agent for Dodging Bullets - executes tasks with automated testing and pattern enforcement",
   "tools": ["@builtin"],
   "allowedTools": [
     "fs_read",
@@ -14,6 +14,7 @@
   "resources": [
     "file://db-implementor/instructions.md",
     "file://docs/coding-standards.md",
+    "file://docs/testing.md",
     "file://docs/ecs-architecture.md",
     "file://docs/quick-reference.md"
   ],

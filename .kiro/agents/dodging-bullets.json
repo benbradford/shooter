@@ -11,7 +11,8 @@
     "glob",
     "code",
     "use_subagent",
-    "knowledge"
+    "knowledge",
+    "ls"
   ],
   "resources": [
     "file://README.md",

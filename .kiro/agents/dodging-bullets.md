@@ -33,6 +33,12 @@ You are a specialized agent for the "Dodging Bullets" game project - a 2D top-do
 
 ## Delegation to Specialized Agents
 
+**Agent configurations located in:** `.kiro/agents/`
+- `db-design.json` - Design agent
+- `db-implementor.json` - Implementation agent
+- `db-asset-management.json` - Asset management agent (if exists)
+- `db-level-editor.json` - Level editor agent (if exists)
+
 ### Design Agent (db-design)
 **IMMEDIATELY delegate when user says:**
 - "design {feature}"

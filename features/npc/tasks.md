@@ -2,15 +2,15 @@
 
 ## Phase 1: Core NPC Entity
 
-### Task 1.1: Add NPC Entity Type
+### Task 1.1: Add NPC Entity Type ✅
 **Files**:
 - `src/systems/level/LevelLoader.ts` (modify)
 - `src/systems/EntityLoader.ts` (modify)
 
 **Subtasks**:
-- [ ] Add `'npc'` to `EntityType` union in LevelLoader.ts
-- [ ] Add case for `'npc'` in EntityLoader.ts switch statement
-- [ ] Return entity creator function that creates NPCEntity
+- [x] Add `'npc'` to `EntityType` union in LevelLoader.ts
+- [x] Add case for `'npc'` in EntityLoader.ts switch statement
+- [x] Return entity creator function that creates NPCEntity
 
 **Dependencies**: None
 

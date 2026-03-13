@@ -50,28 +50,41 @@ For each task:
 2. Read design.md for implementation details
 3. Search codebase for similar patterns (use code tool)
 4. Implement code (minimal)
-5. Build + lint: npm run build && npx eslint src --ext .ts
-6. Mark complete: node scripts/mark-task-complete.js features/{feature}/tasks.md {taskId} "{time}"
-7. Report with summary
+5. Create test (if task requires verification)
+6. Build + lint: npm run build && npx eslint src --ext .ts
+7. Run test: npm run test:single {test-name}
+8. Mark complete: node scripts/mark-task-complete.js features/{feature}/tasks.md {taskId} "{time}"
+9. Report with summary
 ```
 
-**Testing is skipped to avoid connection timeouts. User can test manually after implementation.**
+**Test creation guidelines:**
+- Create test file in `test/tests/{feature}/test-{feature}-{taskId}.js`
+- Create test level in `public/levels/test/test-{feature}-{taskId}.json` if needed
+- Use GWT format (Given/When/Then)
+- **Entity IDs must follow `{type}{number}` pattern** (e.g., `npc0`, not `test_npc1`)
+- Keep tests minimal and focused on task acceptance criteria
+- Use existing test helpers from `test/helpers/`
 
 ## Critical Rules
 
 1. **Always run build + lint** - Must pass before marking complete
-2. **Minimal code** - Write only what's needed
-3. **Follow design.md** - Implement exactly as specified
-4. **Self-correct errors** - Max 3 attempts before reporting
-5. **Log everything** - All actions to tmp/logs/db-implementor.log
+2. **Always create and run tests** - Verify implementation works
+3. **Minimal code** - Write only what's needed
+4. **Follow design.md** - Implement exactly as specified
+5. **Self-correct errors** - Max 3 attempts before reporting
+6. **Log everything** - All actions to tmp/logs/db-implementor.log
+7. **Entity ID pattern** - Test entities use `{type}{number}` (e.g., `npc0`, not `test_npc1`)
 
-## Self-Verification (Removed)
+## Self-Verification
 
-Self-verification steps have been removed to prevent connection timeouts. User should manually verify:
-- Code matches design.md
-- Build passes
-- Lint passes
-- Functionality works as expected
+After implementing each task, verify:
+- Code matches design.md specifications
+- Build passes with zero errors
+- Lint passes (warnings acceptable)
+- Test passes and verifies acceptance criteria
+- Screenshot shows expected behavior (if visual feature)
+
+**If any verification fails:** Fix and retry (max 3 attempts)
 
 ## Pattern Enforcement (Manual)
 
@@ -82,6 +95,8 @@ After implementing, manually check:
 - [ ] Update order includes new components
 - [ ] Readonly properties where applicable
 - [ ] Follows existing patterns
+- [ ] **Entity IDs in test levels**: Use `{type}{number}` pattern (e.g., `npc0`, not `test_npc1`)
+  - Why: `EntityManager.getFirst(type)` uses `id.startsWith(type)`
 
 **User can run pattern-checker.js manually if needed.**
 
