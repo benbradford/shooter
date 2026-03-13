@@ -1,18 +1,18 @@
 import type Phaser from 'phaser';
 import { Direction } from '../../../constants/Direction';
 
-const ALPHABETICAL_DIRS = ['east', 'north', 'north-east', 'north-west', 'south', 'south-east', 'south-west', 'west'];
+const ALPHABETICAL_DIRS = ['east', 'north-east', 'north-west', 'north', 'south-east', 'south-west', 'south', 'west'];
 
 const DIR_TO_INDEX: Record<Direction, number> = {
-  [Direction.None]: 4,
-  [Direction.Down]: 4,
-  [Direction.Up]: 1,
+  [Direction.None]: 6,
+  [Direction.Down]: 6,
+  [Direction.Up]: 3,
   [Direction.Left]: 7,
   [Direction.Right]: 0,
-  [Direction.UpLeft]: 3,
-  [Direction.UpRight]: 2,
-  [Direction.DownLeft]: 6,
-  [Direction.DownRight]: 5,
+  [Direction.UpLeft]: 2,
+  [Direction.UpRight]: 1,
+  [Direction.DownLeft]: 5,
+  [Direction.DownRight]: 4,
 };
 
 export function createNPCAnimations(scene: Phaser.Scene, spritesheet: string): void {

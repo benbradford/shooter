@@ -28,17 +28,18 @@ export type CreateNPCProps = {
   readonly row: number;
   readonly direction: Direction;
   readonly interactions: NPCInteraction[];
+  readonly scale?: number;
 }
 
 export function createNPCEntity(props: CreateNPCProps): Entity {
-  const { scene, grid, entityId, assets, col, row, direction, interactions } = props;
+  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1 } = props;
   const entity = new Entity(entityId);
   entity.tags.add('npc');
 
   const x = col * grid.cellSize + grid.cellSize / 2;
   const y = row * grid.cellSize + grid.cellSize / 2;
 
-  const transform = entity.add(new TransformComponent(x, y));
+  const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(scene, assets, transform));
   sprite.sprite.setDepth(Depth.enemy);
   sprite.sprite.setOrigin(0.5, 0.5);

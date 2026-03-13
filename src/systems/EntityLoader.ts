@@ -424,6 +424,7 @@ export class EntityLoader {
             row: number;
             direction: string;
             interactions: NPCInteraction[];
+            scale?: number;
           };
           return createNPCEntity({
             scene: this.scene as GameScene,
@@ -434,6 +435,7 @@ export class EntityLoader {
             row: npcData.row,
             direction: Direction[npcData.direction as keyof typeof Direction] ?? Direction.Down,
             interactions: npcData.interactions ?? [],
+            scale: npcData.scale,
           });
         };
 

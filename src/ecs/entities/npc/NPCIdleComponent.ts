@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { TransformComponent } from '../../components/core/TransformComponent';
 import { createNPCAnimations, getNPCAnimKey } from './NPCAnimations';
 import type { Direction } from '../../../constants/Direction';
 
@@ -15,17 +16,28 @@ export class NPCIdleComponent implements Component {
   ) {}
 
   update(_delta: number): void {
+    const sprite = this.entity.require(SpriteComponent).sprite;
+    const transform = this.entity.require(TransformComponent);
+    
+    const gameScene = sprite.scene.scene.get('game') as any;
+    if (gameScene?.entityManager) {
+      const playerEntity = gameScene.entityManager.getFirst('player');
+      if (playerEntity) {
+        const playerTransform = playerEntity.require(TransformComponent);
+        sprite.setDepth(transform.y > playerTransform.y ? 1 : -1);
+      }
+    }
+    
     if (this.hasInitialized) return;
     this.hasInitialized = true;
 
-    const scene = this.entity.require(SpriteComponent).sprite.scene;
+    const scene = sprite.scene;
     createNPCAnimations(scene, this.spritesheet);
 
     const texture = scene.textures.get(this.spritesheet);
     this.frameCount = texture.frameTotal - 1;
 
     const animKey = getNPCAnimKey(this.spritesheet, this.direction, this.frameCount);
-    const sprite = this.entity.require(SpriteComponent).sprite;
     if (scene.anims.exists(animKey)) {
       sprite.play(animKey);
     }

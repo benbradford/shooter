@@ -5,8 +5,10 @@ import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent'
 import { InteractionComponent } from '../ecs/components/interaction/InteractionComponent';
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { WorldStateManager } from './WorldStateManager';
 import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
+import { NPCInteractionComponent } from '../ecs/entities/npc/NPCInteractionComponent';
 import { Direction, dirFromDelta } from '../constants/Direction';
 
 const DIRECTION_MAP: Record<string, Direction> = {
@@ -71,7 +73,15 @@ export class LuaRuntime {
         });
       });
       
+      const playerEntity = this.scene.entityManager.getFirst('player');
+      const playerGridPos = playerEntity?.get(GridPositionComponent);
+      const playerTransform = playerEntity?.get(TransformComponent);
+      
       const player = {
+        col: playerGridPos?.currentCell.col ?? 0,
+        row: playerGridPos?.currentCell.row ?? 0,
+        x: playerTransform?.x ?? 0,
+        y: playerTransform?.y ?? 0,
         moveTo: (col: number, row: number, speed: number) => {
           this.commandQueue.push({ type: 'moveTo', col, row, speed });
         },
@@ -81,14 +91,26 @@ export class LuaRuntime {
       };
       lua.global.set('player', player);
       
-      lua.global.set('calculateDirection', (fromCol: number, fromRow: number, toCol: number, toRow: number): string => {
-        const dx = toCol - fromCol;
-        const dy = toRow - fromRow;
+      lua.global.set('calculateDirection', (fromX: number, fromY: number, toX: number, toY: number): string => {
+        const dx = toX - fromX;
+        const dy = toY - fromY;
         return DIRECTION_TO_STRING[dirFromDelta(dx, dy)] ?? 'down';
       });
       
       if (npcId) {
+        const npcEntity = this.scene.entityManager.getByType('npc').find(e => e.id === npcId);
+        const npcIdleComp = npcEntity?.get(NPCIdleComponent);
+        const npcInteractionComp = npcEntity?.get(NPCInteractionComponent);
+        const npcTransform = npcEntity?.get(TransformComponent);
+        const currentDirection = npcIdleComp ? DIRECTION_TO_STRING[npcIdleComp.getDirection()] : 'down';
+        const activeInteraction = npcInteractionComp?.getActiveInteraction();
+        
         const npc = {
+          col: activeInteraction?.col ?? 0,
+          row: activeInteraction?.row ?? 0,
+          x: npcTransform?.x ?? 0,
+          y: npcTransform?.y ?? 0,
+          direction: currentDirection,
           look: (direction: string) => {
             const dir = DIRECTION_MAP[direction];
             if (dir === undefined) {
