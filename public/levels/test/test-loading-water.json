@@ -1,0 +1,41 @@
+{
+  "name": "test-loading-water",
+  "width": 6,
+  "height": 6,
+  "playerStart": {
+    "x": 0,
+    "y": 3
+  },
+  "levelTheme": "grass",
+  "background": {
+    "floor_texture": "grass1",
+    "water": {
+      "sourceImage": "water2",
+      "flowDirection": "up",
+      "numFrames": 15,
+      "animSpeedMs": 150,
+      "force": 40
+    }
+  },
+  "cells": [
+    { "col": 2, "row": 2, "layer": 0, "properties": ["water"] },
+    { "col": 3, "row": 2, "layer": 0, "properties": ["water"] },
+    { "col": 2, "row": 3, "layer": 0, "properties": ["water"] },
+    { "col": 3, "row": 3, "layer": 0, "properties": ["water"] }
+  ],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "test/test-loading-simple",
+        "targetCol": 2,
+        "targetRow": 2,
+        "triggerCells": [
+          { "col": 0, "row": 0 }
+        ],
+        "oneShot": true
+      }
+    }
+  ]
+}

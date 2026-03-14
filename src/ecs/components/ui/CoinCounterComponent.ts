@@ -131,4 +131,9 @@ export class CoinCounterComponent extends BaseEventComponent {
     const current = worldState.getPlayerCoins();
     worldState.setPlayerCoins(current + amount);
   }
+
+  onDestroy(): void {
+    this.coinIcon?.destroy();
+    this.coinText?.destroy();
+  }
 }

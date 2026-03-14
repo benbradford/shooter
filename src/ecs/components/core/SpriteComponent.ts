@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { TransformComponent } from './TransformComponent';
+import { TextureReferenceTracker } from '../../../systems/TextureReferenceTracker';
 
 export type SpriteComponentProps = {
   offsetXPx?: number;
@@ -13,6 +14,7 @@ export class SpriteComponent implements Component {
   readonly sprite: Phaser.GameObjects.Sprite;
   private readonly offsetXPx: number;
   private readonly offsetYPx: number;
+  private trackedTextureKey: string;
 
   constructor(
     scene: Phaser.Scene,
@@ -22,12 +24,14 @@ export class SpriteComponent implements Component {
   ) {
     this.offsetXPx = props.offsetXPx ?? 0;
     this.offsetYPx = props.offsetYPx ?? 0;
+    this.trackedTextureKey = texture;
     this.sprite = scene.add.sprite(
       transformComp.x + this.offsetXPx,
       transformComp.y + this.offsetYPx,
       texture
     );
     this.sprite.setScale(transformComp.scale);
+    TextureReferenceTracker.getInstance().addReference(texture);
   }
 
   update(_delta: number): void {
@@ -40,6 +44,7 @@ export class SpriteComponent implements Component {
   }
 
   onDestroy(): void {
+    TextureReferenceTracker.getInstance().removeReference(this.trackedTextureKey);
     this.sprite.destroy();
   }
 
@@ -47,6 +52,9 @@ export class SpriteComponent implements Component {
     if (typeof textureOrFrame === 'number') {
       this.sprite.setFrame(textureOrFrame);
     } else {
+      TextureReferenceTracker.getInstance().removeReference(this.trackedTextureKey);
+      this.trackedTextureKey = textureOrFrame;
+      TextureReferenceTracker.getInstance().addReference(textureOrFrame);
       this.sprite.setTexture(textureOrFrame);
     }
   }

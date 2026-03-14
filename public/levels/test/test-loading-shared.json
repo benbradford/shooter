@@ -1,0 +1,29 @@
+{
+  "name": "test-loading-shared",
+  "width": 5,
+  "height": 5,
+  "playerStart": {
+    "x": 2,
+    "y": 2
+  },
+  "levelTheme": "grass",
+  "background": {
+    "floor_texture": "grass1"
+  },
+  "cells": [],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "test/test-loading-complex",
+        "targetCol": 2,
+        "targetRow": 4,
+        "triggerCells": [
+          { "col": 2, "row": 0 }
+        ],
+        "oneShot": true
+      }
+    }
+  ]
+}

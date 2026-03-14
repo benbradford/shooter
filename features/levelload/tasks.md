@@ -306,20 +306,21 @@
 **File**: `src/systems/TextureVerifier.ts`
 
 **Subtasks**:
-- [ ] Create `verifyTexture(scene, key)` method
-- [ ] Check texture exists
-- [ ] Check texture.get() returns valid object
-- [ ] Check texture has frames
-- [ ] Check first frame has valid source
-- [ ] Check source has dimensions > 0
-- [ ] Log specific failure reason
-- [ ] Create `verifyBatch(scene, keys)` method
-- [ ] Create `waitForTextureReady(scene, key, timeoutMs)` method
-- [ ] Poll with 50ms intervals for Android
+- [x] Create `verifyTexture(scene, key)` method
+- [x] Check texture exists
+- [x] Check texture.get() returns valid object
+- [x] Check texture has frames
+- [x] Check first frame has valid source
+- [x] Check source has dimensions > 0
+- [x] Log specific failure reason
+- [x] Create `verifyBatch(scene, keys)` method
+- [x] Create `waitForTextureReady(scene, key, timeoutMs)` method
+- [x] Poll with 50ms intervals for Android
 
 **Dependencies**: None
 
 **Estimated Time**: 1 hour
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -327,18 +328,19 @@
 **File**: `src/assets/AssetLoader.ts`
 
 **Subtasks**:
-- [ ] Change return type to `Promise<{ success: boolean; failedAssets: string[] }>`
-- [ ] Add `onProgress` callback parameter
-- [ ] Remove multiple 'complete' listeners
-- [ ] Use single 'complete' listener with timeout
-- [ ] After load complete, verify all textures
-- [ ] Return failure if any texture fails verification
-- [ ] Return success only if all textures verified
-- [ ] Track progress with 'progress' event
+- [x] Change return type to `Promise<{ success: boolean; failedAssets: string[] }>`
+- [x] Add `onProgress` callback parameter
+- [x] Remove multiple 'complete' listeners
+- [x] Use single 'complete' listener with timeout
+- [x] After load complete, verify all textures
+- [x] Return failure if any texture fails verification
+- [x] Return success only if all textures verified
+- [x] Track progress with 'progress' event
 
 **Dependencies**: Task 1.1
 
 **Estimated Time**: 1.5 hours
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -346,15 +348,16 @@
 **File**: `src/scenes/theme/GameSceneRenderer.ts`
 
 **Subtasks**:
-- [ ] Change return type to `Promise<{ success: boolean; failed: string[] }>`
-- [ ] Verify source textures before generation
-- [ ] Verify generated tilesets after generation
-- [ ] Return list of failed tilesets
-- [ ] Log specific failure reasons
+- [x] Change return type to `Promise<{ success: boolean; failed: string[] }>`
+- [x] Verify source textures before generation
+- [x] Verify generated tilesets after generation
+- [x] Return list of failed tilesets
+- [x] Log specific failure reasons
 
 **Dependencies**: Task 1.1
 
 **Estimated Time**: 1 hour
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -362,24 +365,25 @@
 **File**: `src/scenes/LoadingScene.ts`
 
 **Subtasks**:
-- [ ] Create scene class extending Phaser.Scene
-- [ ] Implement `init(data)` - stop GameScene/HudScene
-- [ ] Implement `create()` - show loading UI
-- [ ] Create loading UI (progress bar, level name)
-- [ ] Implement `loadLevel()` async method
-- [ ] Load level JSON
-- [ ] Call AssetLoader.loadLevelAssets() with progress callback
-- [ ] Call prepareRuntimeTilesets()
-- [ ] On success: start GameScene with data
-- [ ] On failure: call showError()
-- [ ] Implement `showError(message)` - show error UI
-- [ ] Add retry button
-- [ ] Add return to previous level button
-- [ ] Implement `updateProgress(percent)` - update progress bar
+- [x] Create scene class extending Phaser.Scene
+- [x] Implement `init(data)` - stop GameScene/HudScene
+- [x] Implement `create()` - show loading UI
+- [x] Create loading UI (progress bar, level name)
+- [x] Implement `loadLevel()` async method
+- [x] Load level JSON
+- [x] Call AssetLoader.loadLevelAssets() with progress callback
+- [x] Call prepareRuntimeTilesets()
+- [x] On success: start GameScene with data
+- [x] On failure: call showError()
+- [x] Implement `showError(message)` - show error UI
+- [x] Add retry button
+- [x] Add return to previous level button
+- [x] Implement `updateProgress(percent)` - update progress bar
 
 **Dependencies**: Task 1.2, Task 1.3
 
 **Estimated Time**: 3 hours
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -387,12 +391,13 @@
 **File**: `src/ecs/components/level/LevelExitComponent.ts`
 
 **Subtasks**:
-- [ ] Replace `scene.loadLevel()` call with `scene.scene.start('LoadingScene', data)`
-- [ ] Pass targetLevel, targetCol, targetRow, previousLevel
+- [x] Replace `scene.loadLevel()` call with `scene.scene.start('LoadingScene', data)`
+- [x] Pass targetLevel, targetCol, targetRow, previousLevel
 
 **Dependencies**: Task 1.4
 
 **Estimated Time**: 15 minutes
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -400,14 +405,15 @@
 **File**: `src/scenes/GameScene.ts`
 
 **Subtasks**:
-- [ ] Change init signature to accept `{ level, levelData, playerCol, playerRow }`
-- [ ] Store level data
-- [ ] Store player spawn position
-- [ ] Remove loadLevel() method entirely
+- [x] Change init signature to accept `{ level, levelData, playerCol, playerRow }`
+- [x] Store level data
+- [x] Store player spawn position
+- [x] Remove loadLevel() method entirely
 
 **Dependencies**: Task 1.4
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -415,12 +421,13 @@
 **File**: `src/main.ts`
 
 **Subtasks**:
-- [ ] Import LoadingScene
-- [ ] Add to scene array
+- [x] Import LoadingScene
+- [x] Add to scene array
 
 **Dependencies**: Task 1.4
 
 **Estimated Time**: 5 minutes
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -449,15 +456,16 @@
 **File**: `src/systems/TextureReferenceTracker.ts`
 
 **Subtasks**:
-- [ ] Create class with `references: Map<string, number>`
-- [ ] Implement `addReference(key)`
-- [ ] Implement `removeReference(key)` with warning if count = 0
-- [ ] Implement `getRefCount(key)`
-- [ ] Implement `getSafeToUnload()` - returns keys with count = 0
+- [x] Create class with `references: Map<string, number>`
+- [x] Implement `addReference(key)`
+- [x] Implement `removeReference(key)` with warning if count = 0
+- [x] Implement `getRefCount(key)`
+- [x] Implement `getSafeToUnload()` - returns keys with count = 0
 
 **Dependencies**: None
 
 **Estimated Time**: 45 minutes
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -465,19 +473,20 @@
 **File**: `src/systems/AssetManager.ts`
 
 **Subtasks**:
-- [ ] Add static `refTracker` field
-- [ ] Implement `unloadSafe(scene, keys)` method
-- [ ] Check ref count for each key
-- [ ] Skip if ref count > 0
-- [ ] Check canSafelyUnload() for each key
-- [ ] Skip if dependencies exist
-- [ ] Unload if safe
-- [ ] Return `{ unloaded, skipped }` lists
-- [ ] Log warnings for skipped textures
+- [x] Add static `refTracker` field
+- [x] Implement `unloadSafe(scene, keys)` method
+- [x] Check ref count for each key
+- [x] Skip if ref count > 0
+- [x] Check canSafelyUnload() for each key
+- [x] Skip if dependencies exist
+- [x] Unload if safe
+- [x] Return `{ unloaded, skipped }` lists
+- [x] Log warnings for skipped textures
 
 **Dependencies**: Task 2.1
 
 **Estimated Time**: 1 hour
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -485,16 +494,17 @@
 **File**: `src/systems/AssetManager.ts`
 
 **Subtasks**:
-- [ ] Implement `canSafelyUnload(scene, key)` method
-- [ ] Get dependencies for key
-- [ ] Check if animations still exist
-- [ ] Check if tilesets still exist
-- [ ] Return false if any dependencies exist
-- [ ] Log specific blocking dependencies
+- [x] Implement `canSafelyUnload(scene, key)` method
+- [x] Get dependencies for key
+- [x] Check if animations still exist
+- [x] Check if tilesets still exist
+- [x] Return false if any dependencies exist
+- [x] Log specific blocking dependencies
 
 **Dependencies**: Task 2.2
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -502,16 +512,17 @@
 **File**: `src/systems/MemoryMonitor.ts`
 
 **Subtasks**:
-- [ ] Create `checkForLeaks(scene)` static method
-- [ ] Check for textures with refs but no sprites
-- [ ] Check for animations referencing unloaded textures
-- [ ] Check for tilesets referencing unloaded sources
-- [ ] Return `{ leaked, warnings }` lists
-- [ ] Implement `findSpritesUsingTexture()` helper
+- [x] Create `checkForLeaks(scene)` static method
+- [x] Check for textures with refs but no sprites
+- [x] Check for animations referencing unloaded textures
+- [x] Check for tilesets referencing unloaded sources
+- [x] Return `{ leaked, warnings }` lists
+- [x] Implement `findSpritesUsingTexture()` helper
 
 **Dependencies**: Task 2.2
 
 **Estimated Time**: 1.5 hours
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -519,14 +530,15 @@
 **Files**: Multiple
 
 **Subtasks**:
-- [ ] Update sprite creation to call `refTracker.addReference()`
-- [ ] Update sprite destruction to call `refTracker.removeReference()`
-- [ ] Update LoadingScene to use `unloadSafe()` instead of `unload()`
-- [ ] Call `MemoryMonitor.checkForLeaks()` after level transition
+- [x] Update sprite creation to call `refTracker.addReference()`
+- [x] Update sprite destruction to call `refTracker.removeReference()`
+- [x] Update LoadingScene to use `unloadSafe()` instead of `unload()`
+- [x] Call `MemoryMonitor.checkForLeaks()` after level transition
 
 **Dependencies**: Task 2.4
 
 **Estimated Time**: 1.5 hours
+**Actual Time**: 0min (already implemented)
 
 ---
 
@@ -554,14 +566,15 @@
 **Files**: `public/levels/test-loading-*.json`
 
 **Subtasks**:
-- [ ] Create test-loading-simple.json (few assets)
-- [ ] Create test-loading-complex.json (many assets)
-- [ ] Create test-loading-water.json (runtime tilesets)
-- [ ] Create test-loading-shared.json (shared assets with another level)
+- [x] Create test-loading-simple.json (few assets)
+- [x] Create test-loading-complex.json (many assets)
+- [x] Create test-loading-water.json (runtime tilesets)
+- [x] Create test-loading-shared.json (shared assets with another level)
 
 **Dependencies**: None
 
 **Estimated Time**: 1 hour
+**Actual Time**: 10min
 
 ---
 
@@ -569,14 +582,15 @@
 **Files**: `test/tests/loading/*.js`
 
 **Subtasks**:
-- [ ] Create test-level-transition.js
-- [ ] Create test-texture-verification.js
-- [ ] Create test-error-recovery.js
-- [ ] Create test-memory-management.js
+- [x] Create test-level-transition.js
+- [x] Create test-texture-verification.js
+- [x] Create test-error-recovery.js
+- [x] Create test-memory-management.js
 
 **Dependencies**: Task 3.1
 
 **Estimated Time**: 2 hours
+**Actual Time**: 15min
 
 ---
 

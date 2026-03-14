@@ -1,6 +1,9 @@
 import Phaser from 'phaser';
 import { LevelLoader } from '../systems/level/LevelLoader';
 import { AssetLoadCoordinator } from '../systems/AssetLoadCoordinator';
+import { AssetManifest } from '../systems/AssetManifest';
+import { AssetManager } from '../systems/AssetManager';
+import { MemoryMonitor } from '../systems/MemoryMonitor';
 import { DungeonSceneRenderer } from './theme/DungeonSceneRenderer';
 import { WildsSceneRenderer } from './theme/WildsSceneRenderer';
 import { SwampSceneRenderer } from './theme/SwampSceneRenderer';
@@ -127,6 +130,12 @@ export default class LoadingScene extends Phaser.Scene {
       return;
     }
 
+    if (this.previousLevel && this.previousLevel !== this.targetLevel) {
+      this.unloadPreviousLevelAssets(levelData);
+    }
+
+    MemoryMonitor.checkForLeaks(this);
+
     this.scene.start('game', {
       level: this.targetLevel,
       levelData,
@@ -134,6 +143,22 @@ export default class LoadingScene extends Phaser.Scene {
       playerRow: this.targetRow
     });
     this.scene.launch('HudScene');
+  }
+
+  private unloadPreviousLevelAssets(nextLevelData: import('../systems/level/LevelLoader').LevelData): void {
+    const nextAssets = AssetManifest.fromLevelData(nextLevelData);
+    const textureKeys = this.textures.getTextureKeys()
+      .filter(key => key !== '__DEFAULT' && key !== '__MISSING');
+
+    const candidates = textureKeys.filter(key => !nextAssets.has(key as import('../assets/AssetRegistry').AssetKey));
+    const result = AssetManager.getInstance().unloadSafe(this, candidates);
+
+    if (result.unloaded.length > 0) {
+      console.log(`[LoadingScene] Unloaded ${result.unloaded.length} textures from previous level`);
+    }
+    if (result.skipped.length > 0) {
+      console.log(`[LoadingScene] Skipped ${result.skipped.length} textures (still in use)`);
+    }
   }
 
   private showError(message: string): void {
@@ -174,5 +199,11 @@ export default class LoadingScene extends Phaser.Scene {
         previousLevel: this.targetLevel
       } satisfies LoadingSceneData);
     });
+  }
+
+  shutdown(): void {
+    this.children.removeAll(true);
+    this.progressBar = undefined;
+    this.progressBox = undefined;
   }
 }

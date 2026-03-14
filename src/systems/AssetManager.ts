@@ -1,3 +1,5 @@
+import { TextureReferenceTracker } from './TextureReferenceTracker';
+
 export type DependencyType = 'animation' | 'tileset';
 
 export type Dependency = {
@@ -5,11 +7,15 @@ export type Dependency = {
   key: string;
 }
 
+type UnloadResult = {
+  readonly unloaded: string[];
+  readonly skipped: string[];
+}
+
 export class AssetManager {
   private static instance: AssetManager;
   private readonly dependencies: Map<string, Dependency[]> = new Map();
 
-  // Private constructor for singleton
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
@@ -55,6 +61,48 @@ export class AssetManager {
     for (const key of assetKeys) {
       this.unload(scene, key);
     }
+  }
+
+  unloadSafe(scene: Phaser.Scene, keys: string[]): UnloadResult {
+    const refTracker = TextureReferenceTracker.getInstance();
+    const unloaded: string[] = [];
+    const skipped: string[] = [];
+
+    for (const key of keys) {
+      const refCount = refTracker.getRefCount(key);
+      if (refCount > 0) {
+        console.warn(`[AssetManager] Skipping unload of '${key}': ${refCount} references`);
+        skipped.push(key);
+        continue;
+      }
+
+      if (!this.canSafelyUnload(scene, key)) {
+        skipped.push(key);
+        continue;
+      }
+
+      this.unload(scene, key);
+      unloaded.push(key);
+    }
+
+    return { unloaded, skipped };
+  }
+
+  canSafelyUnload(scene: Phaser.Scene, key: string): boolean {
+    const deps = this.dependencies.get(key) ?? [];
+
+    for (const dep of deps) {
+      if (dep.type === 'animation' && scene.anims.exists(dep.key)) {
+        console.warn(`[AssetManager] Cannot unload '${key}': animation '${dep.key}' still exists`);
+        return false;
+      }
+      if (dep.type === 'tileset' && scene.textures.exists(dep.key)) {
+        console.warn(`[AssetManager] Cannot unload '${key}': tileset '${dep.key}' still exists`);
+        return false;
+      }
+    }
+
+    return true;
   }
 
   getDependencies(assetKey: string): Dependency[] {

@@ -1,0 +1,39 @@
+{
+  "name": "test-loading-complex",
+  "width": 8,
+  "height": 8,
+  "playerStart": {
+    "x": 2,
+    "y": 4
+  },
+  "levelTheme": "grass",
+  "background": {
+    "floor_texture": "grass1"
+  },
+  "cells": [],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "test/test-loading-simple",
+        "targetCol": 2,
+        "targetRow": 2,
+        "triggerCells": [
+          { "col": 2, "row": 0 }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "stalking_robot0",
+      "type": "stalking_robot",
+      "data": {
+        "col": 6,
+        "row": 6,
+        "difficulty": "easy",
+        "waypoints": [{ "col": 6, "row": 6 }]
+      }
+    }
+  ]
+}
