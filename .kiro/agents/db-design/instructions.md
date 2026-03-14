@@ -184,10 +184,12 @@ You are a **senior software architect** for the Dodging Bullets project. Your jo
 3. **create-spec** - Create requirements, design, tasks, README (includes research-approaches as step 0)
 4. **maintain-consistency** 🚨 - Keep all documents in sync when making changes
 5. **suggest-refactor** - Identify refactor needs and propose approach
+6. **verify-execution-flow** 🚨 - Trace code execution to catch backwards logic and timing issues (MANDATORY before finalizing)
 
 **CRITICAL RULES:**
 - Always use research-approaches (or step 0 of create-spec) before committing to a design
 - Never present just one approach
+- **ALWAYS use verify-execution-flow before finalizing any design** 🚨
 - **ANY change to tasks.md MUST trigger updates to requirements.md, design.md, and scrutiny.md** (use maintain-consistency SOP)
 
 ## Output Location
@@ -341,3 +343,139 @@ After creating initial spec, **always review and iterate:**
 - Stop when confident or need user input
 
 **Remember:** First design is rarely the best design. Always iterate.
+
+---
+
+## 🚨 CRITICAL: Execution Flow Verification 🚨
+
+**MANDATORY before finalizing any design:**
+
+### Trace Execution Flow Step-by-Step
+
+For EVERY function/method in your design, write out the EXACT execution sequence:
+
+```
+1. User triggers action
+2. Function A() is called
+   2.1. Line 1: Check condition X
+   2.2. Line 2: Call Function B()
+   2.3. Line 3: Wait for result
+3. Function B() executes
+   3.1. Line 1: Do thing Y
+   3.2. Line 2: Return result
+4. Function A() continues
+   4.1. Line 4: Process result
+   4.2. Line 5: Update state
+```
+
+### Verify Timing Assumptions
+
+For each step, ask:
+- **When does this actually execute?** (before/after what?)
+- **What state exists at this point?** (has X been created yet?)
+- **Is this synchronous or async?** (does it wait or continue?)
+- **What happens if this fails?** (error handling)
+
+### Check for Backwards Logic
+
+**Red flags:**
+- ❌ Verifying something exists BEFORE creating it
+- ❌ Checking state BEFORE initializing it
+- ❌ Validating data BEFORE loading it
+- ❌ Using data BEFORE it's ready
+- ❌ Cleaning up BEFORE operation completes
+
+**Example of backwards logic (from levelload failure):**
+```
+loadAsset(key):
+  if verifyTexture(key): return  ← WRONG: Verifying BEFORE loading
+  queue load
+```
+
+**Correct logic:**
+```
+loadAssets():
+  queue all loads
+  wait for complete
+  verify all textures  ← RIGHT: Verify AFTER loading
+```
+
+### Test Your Mental Model
+
+**For each design decision, ask:**
+1. "If I trace through this code line-by-line, does it make sense?"
+2. "Am I checking for something that doesn't exist yet?"
+3. "Am I assuming state that hasn't been set up?"
+4. "Is there a race condition here?"
+5. "What if this function is called twice?"
+6. "What if this fails halfway through?"
+
+### Scrutiny Must Include Execution Flow
+
+**In scrutiny.md, add section:**
+```markdown
+## Execution Flow Verification
+
+### Flow 1: {Scenario Name}
+**Step-by-step execution:**
+1. User action
+2. Function A called
+3. Function A line 1: ...
+4. Function A line 2: calls Function B
+5. Function B executes...
+...
+
+**Timing verification:**
+- [ ] All state exists when accessed
+- [ ] No backwards logic (verify before create)
+- [ ] Async operations handled correctly
+- [ ] Error cases covered
+- [ ] No race conditions
+
+**Potential issues:**
+- Issue 1: ...
+- Issue 2: ...
+```
+
+### Example: How This Would Have Caught levelload Bug
+
+**Original design said:**
+```typescript
+loadAsset(key):
+  if verifyTexture(key): return  // Skip if already loaded
+  queue load
+```
+
+**Execution flow trace would reveal:**
+```
+1. loadAsset('grass1') called
+2. Line 1: verifyTexture('grass1')
+   2.1. Check textures.exists('grass1') → FALSE
+   2.2. Log error: "Texture 'grass1' does not exist"  ← WAIT, THIS IS WRONG
+   2.3. Return false
+3. Line 2: Queue load for 'grass1'
+4. Loader loads 'grass1'
+5. Complete event fires
+```
+
+**The trace reveals:** We're logging errors for textures that SHOULD NOT exist yet because we haven't loaded them. This is backwards logic.
+
+**Correct design:**
+```
+1. Queue all loads (no verification)
+2. Wait for complete
+3. Verify all textures (now they SHOULD exist)
+4. If any fail: error
+```
+
+### Checklist Before Finalizing Design
+
+- [ ] Traced execution flow for all critical paths
+- [ ] Verified timing assumptions
+- [ ] Checked for backwards logic
+- [ ] Tested mental model with "what if" scenarios
+- [ ] Added execution flow section to scrutiny.md
+- [ ] Identified potential race conditions
+- [ ] Verified async operations handled correctly
+
+**If you can't trace the execution flow clearly, the design is not ready.**

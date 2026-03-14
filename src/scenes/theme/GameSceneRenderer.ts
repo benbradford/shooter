@@ -5,6 +5,7 @@ import { Depth } from '../../constants/DepthConstants';
 import { WaterAnimator, type WaterConfig } from './WaterAnimator';
 import { PathTilesetGenerator } from './PathTilesetGenerator';
 import { AssetManager } from '../../systems/AssetManager';
+import { TextureVerifier } from '../../systems/TextureVerifier';
 
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
@@ -50,18 +51,37 @@ export abstract class GameSceneRenderer {
     await this.waterAnimator.generateTextures();
   }
 
-  async prepareRuntimeTilesets(levelData: LevelData): Promise<void> {
+  async prepareRuntimeTilesets(levelData: LevelData): Promise<{ success: boolean; failed: string[] }> {
+    const failed: string[] = [];
+
     if (levelData.background?.water) {
-       await this.initializeWaterAnimation(levelData.background.water);
+      const sourceKey = levelData.background.water.sourceImage;
+      if (!TextureVerifier.verifyTexture(this.scene, sourceKey)) {
+        failed.push(`water_source:${sourceKey}`);
+      } else {
+        await this.initializeWaterAnimation(levelData.background.water);
+      }
     }
 
     if (levelData.background?.path_texture) {
-      const generator = new PathTilesetGenerator(this.scene);
-      const tilesetKey = `${levelData.background.path_texture}_generated_tileset`;
-      const success = generator.generateTileset(levelData.background.path_texture, tilesetKey);
-      console.log('[GameSceneRenderer] Path tileset generated:', tilesetKey, 'success:', success);
+      const sourceKey = levelData.background.path_texture;
+      if (!TextureVerifier.verifyTexture(this.scene, sourceKey)) {
+        failed.push(`path_source:${sourceKey}`);
+      } else {
+        const generator = new PathTilesetGenerator(this.scene);
+        const tilesetKey = `${sourceKey}_generated_tileset`;
+        const success = generator.generateTileset(sourceKey, tilesetKey);
+        console.log('[GameSceneRenderer] Path tileset generated:', tilesetKey, 'success:', success);
+
+        if (!success) {
+          failed.push(tilesetKey);
+        } else if (!TextureVerifier.verifyTexture(this.scene, tilesetKey)) {
+          failed.push(`${tilesetKey}:verification`);
+        }
+      }
     }
 
+    return { success: failed.length === 0, failed };
   }
 
   initializeSprites(grid: Grid, levelData: LevelData): void {

@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import GameScene from "./scenes/GameScene";
 import HudScene from "./scenes/HudScene";
 import EditorScene from "./scenes/EditorScene";
+import LoadingScene from "./scenes/LoadingScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
 import { Pathfinder } from "./systems/Pathfinder";
 
@@ -28,7 +29,7 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-  scene: [GameScene, HudScene, EditorScene],
+  scene: [GameScene, HudScene, EditorScene, LoadingScene],
 };
 
 const game = new Phaser.Game(config);

@@ -1,13 +1,13 @@
-# Level Loading System - Task Breakdown
+# Level Loading System - Task Breakdown (REDESIGNED)
 
-## Phase 0: Prerequisite Refactors (8.5 hours)
+## Phase 1: Core Implementation (~3 hours)
 
 ### Task 0.1: Create TextureVerifier
 **File**: `src/systems/TextureVerifier.ts`
 
 **Subtasks**:
-- [ ] Create `TextureVerifier` class with static methods
-- [ ] Implement `verifyTexture(scene, key)`:
+- [x] Create `TextureVerifier` class with static methods
+- [x] Implement `verifyTexture(scene, key)`:
   - [ ] Check `scene.textures.exists(key)` returns true
   - [ ] Check `scene.textures.get(key)` returns valid object
   - [ ] Check texture has frames (not empty)
@@ -15,10 +15,10 @@
   - [ ] Check source width/height > 0
   - [ ] Log specific failure reason for each check
   - [ ] Return boolean
-- [ ] Implement `verifyBatch(scene, keys)`:
+- [x] Implement `verifyBatch(scene, keys)`:
   - [ ] Iterate keys, call verifyTexture for each
   - [ ] Return `{ valid: string[], invalid: string[] }`
-- [ ] Implement `waitForTextureReady(scene, key, timeoutMs)`:
+- [x] Implement `waitForTextureReady(scene, key, timeoutMs)`:
   - [ ] Poll with 50ms intervals
   - [ ] Call verifyTexture each iteration
   - [ ] Return Promise<boolean>
@@ -27,6 +27,7 @@
 **Dependencies**: None
 
 **Estimated Time**: 1 hour
+**Actual Time**: 15min
 
 **Acceptance Criteria**:
 - Returns false if any verification check fails
@@ -40,24 +41,24 @@
 **File**: `src/systems/AssetManifest.ts`
 
 **Subtasks**:
-- [ ] Create `AssetManifest` class with static methods
-- [ ] Implement `fromLevelData(levelData)`:
+- [x] Create `AssetManifest` class with static methods
+- [x] Implement `fromLevelData(levelData)`:
   - [ ] Create empty Set<AssetKey>
   - [ ] Call `addBackgroundTextures(assets, levelData)`
   - [ ] Call `addEntityAssets(assets, levelData)`
   - [ ] Call `addAnimatedTextures(assets, levelData)`
   - [ ] Return Set
-- [ ] Implement `addBackgroundTextures(assets, levelData)`:
+- [x] Implement `addBackgroundTextures(assets, levelData)`:
   - [ ] Extract background textures from cells
   - [ ] Add to assets Set
-- [ ] Implement `addEntityAssets(assets, levelData)`:
+- [x] Implement `addEntityAssets(assets, levelData)`:
   - [ ] Extract entity types from entities array
   - [ ] Get required asset groups for each type
   - [ ] Add to assets Set
-- [ ] Implement `addAnimatedTextures(assets, levelData)`:
+- [x] Implement `addAnimatedTextures(assets, levelData)`:
   - [ ] Extract animated textures from cells
   - [ ] Add to assets Set
-- [ ] Implement `diff(prev, next)`:
+- [x] Implement `diff(prev, next)`:
   - [ ] Calculate toLoad: keys in next but not prev
   - [ ] Calculate toUnload: keys in prev but not next
   - [ ] Return `{ toLoad, toUnload }`
@@ -65,6 +66,7 @@
 **Dependencies**: None
 
 **Estimated Time**: 1 hour
+**Actual Time**: 10min
 
 **Acceptance Criteria**:
 - Single source of truth for asset tracking
@@ -78,8 +80,8 @@
 **File**: `src/systems/AssetLoadCoordinator.ts`
 
 **Subtasks**:
-- [ ] Create `AssetLoadCoordinator` class
-- [ ] Implement `loadLevelAssets(scene, levelData, onProgress?)`:
+- [x] Create `AssetLoadCoordinator` class
+- [x] Implement `loadLevelAssets(scene, levelData, onProgress?)`:
   - [ ] Get required assets using AssetManifest.fromLevelData()
   - [ ] Queue all assets using existing AssetLoader functions
   - [ ] Register single 'complete' listener with timeout
@@ -88,16 +90,17 @@
   - [ ] Wait for completion or timeout
   - [ ] Verify all textures using TextureVerifier.verifyBatch()
   - [ ] Return `{ success: boolean, failedAssets: string[] }`
-- [ ] Implement `waitForLoad(scene, timeoutMs)`:
+- [x] Implement `waitForLoad(scene, timeoutMs)`:
   - [ ] Return Promise that resolves on 'complete'
   - [ ] Reject on timeout (10 seconds)
   - [ ] Use single 'once' listener
-- [ ] Remove duplicate loading logic from AssetLoader.ts
-- [ ] Remove duplicate loading logic from GameScene.loadLevel()
+- [x] Remove duplicate loading logic from AssetLoader.ts
+- [x] Remove duplicate loading logic from GameScene.loadLevel()
 
 **Dependencies**: Task 0.1, Task 0.2
 
 **Estimated Time**: 3 hours
+**Actual Time**: 15min
 
 **Acceptance Criteria**:
 - Single 'complete' listener (no race conditions)
@@ -112,14 +115,15 @@
 **File**: `src/assets/AssetLoader.ts`
 
 **Subtasks**:
-- [ ] Replace `scene.textures.exists(key)` check
-- [ ] Use `TextureVerifier.verifyTexture(scene, key)` instead
-- [ ] Only skip loading if texture is verified usable
-- [ ] Load if texture missing or broken
+- [x] Replace `scene.textures.exists(key)` check
+- [x] Use `TextureVerifier.verifyTexture(scene, key)` instead
+- [x] Only skip loading if texture is verified usable
+- [x] Load if texture missing or broken
 
 **Dependencies**: Task 0.1
 
 **Estimated Time**: 15 minutes
+**Actual Time**: 5min
 
 **Acceptance Criteria**:
 - Catches broken textures
@@ -133,17 +137,17 @@
 **File**: `src/scenes/LoadingScene.ts`
 
 **Subtasks**:
-- [ ] Create scene class extending Phaser.Scene
-- [ ] Add constructor with key 'LoadingScene'
-- [ ] Implement `init(data)`:
+- [x] Create scene class extending Phaser.Scene
+- [x] Add constructor with key 'LoadingScene'
+- [x] Implement `init(data)`:
   - [ ] Store targetLevel, targetCol, targetRow, previousLevel
   - [ ] Stop GameScene
   - [ ] Stop HudScene
-- [ ] Implement `create()`:
+- [x] Implement `create()`:
   - [ ] Show loading UI (progress bar, level name)
   - [ ] Call loadLevel() async
   - [ ] Catch errors, call showError()
-- [ ] Implement `loadLevel()` async:
+- [x] Implement `loadLevel()` async:
   - [ ] Load level JSON using LevelLoader.load()
   - [ ] Call AssetLoadCoordinator.loadLevelAssets() with progress callback
   - [ ] If failure: call showError(), return
@@ -152,17 +156,18 @@
   - [ ] Update world state (only on success)
   - [ ] Start GameScene with level data
   - [ ] Start HudScene
-- [ ] Implement `showError(message)`:
+- [x] Implement `showError(message)`:
   - [ ] Clear loading UI
   - [ ] Show error message
   - [ ] Add retry button (calls loadLevel again)
   - [ ] Add return button (loads previousLevel)
-- [ ] Implement `updateProgress(percent)`:
+- [x] Implement `updateProgress(percent)`:
   - [ ] Update progress bar visual
 
 **Dependencies**: Task 0.3
 
 **Estimated Time**: 2 hours
+**Actual Time**: 20min
 
 **Acceptance Criteria**:
 - Stops other scenes before loading
@@ -177,20 +182,21 @@
 **File**: `src/scenes/GameScene.ts`
 
 **Subtasks**:
-- [ ] Delete `loadLevel()` method entirely (200 lines)
-- [ ] Delete `transitionToLevel()` method
-- [ ] Update `init(data)` signature:
+- [x] Delete `loadLevel()` method entirely (200 lines)
+- [x] Delete `transitionToLevel()` method
+- [x] Update `init(data)` signature:
   - [ ] Accept `{ level, levelData, playerCol, playerRow }`
   - [ ] Store level data
   - [ ] Store player spawn position
   - [ ] Remove all loading logic
-- [ ] Keep scene initialization logic in init()
-- [ ] Remove texture delta calculation
-- [ ] Remove manual asset unloading
+- [x] Keep scene initialization logic in init()
+- [x] Remove texture delta calculation
+- [x] Remove manual asset unloading
 
 **Dependencies**: Task 0.5
 
 **Estimated Time**: 30 minutes
+**Actual Time**: 15min
 
 **Acceptance Criteria**:
 - loadLevel() completely removed
@@ -204,14 +210,15 @@
 **File**: `src/ecs/components/level/LevelExitComponent.ts`
 
 **Subtasks**:
-- [ ] Replace `scene.loadLevel()` call
-- [ ] Use `scene.scene.start('LoadingScene', data)` instead
-- [ ] Pass targetLevel, targetCol, targetRow
-- [ ] Pass previousLevel (scene.currentLevelName)
+- [x] Replace `scene.loadLevel()` call
+- [x] Use `scene.scene.start('LoadingScene', data)` instead
+- [x] Pass targetLevel, targetCol, targetRow
+- [x] Pass previousLevel (scene.currentLevelName)
 
 **Dependencies**: Task 0.5, Task 0.6
 
 **Estimated Time**: 15 minutes
+**Actual Time**: 5min
 
 **Acceptance Criteria**:
 - Triggers LoadingScene instead of loadLevel()
@@ -224,12 +231,13 @@
 **File**: `src/main.ts`
 
 **Subtasks**:
-- [ ] Import LoadingScene
-- [ ] Add to scene array in game config
+- [x] Import LoadingScene
+- [x] Add to scene array in game config
 
 **Dependencies**: Task 0.5
 
 **Estimated Time**: 5 minutes
+**Actual Time**: 2min
 
 **Acceptance Criteria**:
 - LoadingScene registered
@@ -241,19 +249,20 @@
 **File**: `src/scenes/theme/GameSceneRenderer.ts`
 
 **Subtasks**:
-- [ ] Change return type to `Promise<{ success: boolean; failed: string[] }>`
-- [ ] Before generating each tileset:
+- [x] Change return type to `Promise<{ success: boolean; failed: string[] }>`
+- [x] Before generating each tileset:
   - [ ] Verify source texture using TextureVerifier
   - [ ] If invalid, add to failed list, skip generation
-- [ ] After generating each tileset:
+- [x] After generating each tileset:
   - [ ] Verify generated texture using TextureVerifier
   - [ ] If invalid, add to failed list
-- [ ] Return success=true only if all tilesets generated and verified
-- [ ] Log specific failure reasons
+- [x] Return success=true only if all tilesets generated and verified
+- [x] Log specific failure reasons
 
 **Dependencies**: Task 0.1
 
 **Estimated Time**: 1 hour
+**Actual Time**: 10min
 
 **Acceptance Criteria**:
 - Verifies source textures before generation

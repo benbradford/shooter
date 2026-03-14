@@ -19,8 +19,7 @@ import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
-import { preloadAssets, preloadLevelAssets, preloadAssetGroups, getBackgroundTextures, getRequiredAssetGroups, loadAsset } from "../assets/AssetLoader";
-import type { AssetKey } from "../assets/AssetRegistry";
+import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
@@ -29,7 +28,6 @@ import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
 import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
-import { AssetManager } from "../systems/AssetManager";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 
 export default class GameScene extends Phaser.Scene {
@@ -294,7 +292,7 @@ export default class GameScene extends Phaser.Scene {
       this.eventManager,
       this.entityCreatorManager,
       (targetLevel, targetCol, targetRow) => {
-        this.transitionToLevel(targetLevel, targetCol, targetRow);
+        this.startLevelTransition(targetLevel, targetCol, targetRow);
       }
     );
 
@@ -464,21 +462,18 @@ export default class GameScene extends Phaser.Scene {
     const spawnCol = state.player.spawnCol ?? this.levelData.playerStart.x;
     const spawnRow = state.player.spawnRow ?? this.levelData.playerStart.y;
 
-    this.transitionToLevel(this.currentLevelName, spawnCol, spawnRow);
+    this.startLevelTransition(this.currentLevelName, spawnCol, spawnRow);
   }
 
-  private transitionToLevel(targetLevel: string, spawnCol: number, spawnRow: number): void {
-    // Update world state before transition
+  startLevelTransition(targetLevel: string, spawnCol: number, spawnRow: number): void {
     const worldState = WorldStateManager.getInstance();
     const player = this.entityManager.getFirst('player');
     if (player) {
       const health = player.get(HealthComponent);
-      // Only save health if player is alive
       if (health && health.getHealth() > 0) {
         worldState.setPlayerHealth(health.getHealth());
       }
 
-      // Disable input during transition
       const input = player.get(InputComponent);
       if (input) {
         input.setEnabled(false);
@@ -489,42 +484,11 @@ export default class GameScene extends Phaser.Scene {
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
 
-    const hudScene = this.scene.get('HudScene');
-    if (!hudScene) return;
-    
-    const cam = this.cameras.main;
-    const fadeRect = hudScene.add.rectangle(
-      0,
-      0,
-      cam.width / cam.zoom,
-      cam.height / cam.zoom,
-      0x000000
-    );
-    fadeRect.setOrigin(0, 0);
-    fadeRect.setScrollFactor(0);
-    fadeRect.setDepth(10000);
-    fadeRect.setAlpha(0);
-
-    hudScene.tweens.add({
-      targets: fadeRect,
-      alpha: 1,
-      duration: 300,
-      ease: 'Linear',
-      onComplete: () => {
-        void this.loadLevel(targetLevel, spawnCol, spawnRow).then(() => {
-          hudScene.tweens.add({
-            targets: fadeRect,
-            alpha: 0,
-            duration: 300,
-            ease: 'Linear',
-            onComplete: () => {
-              fadeRect.destroy();
-            }
-          });
-        }).catch((error: unknown) => {
-          console.error(`Failed to transition to level ${targetLevel}:`, error);
-        });
-      }
+    this.scene.start('LoadingScene', {
+      targetLevel,
+      targetCol: spawnCol,
+      targetRow: spawnRow,
+      previousLevel: this.currentLevelName
     });
   }
 
@@ -555,130 +519,6 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
-
-  async loadLevel(levelName: string, spawnCol?: number, spawnRow?: number): Promise<void> {
-    // Pause game during level transition
-    this.scene.pause();
-
-    // Track what textures were used in previous level
-    const prevLevelTextures = this.levelData ? getBackgroundTextures(this.levelData) : [];
-
-    this.currentLevelName = levelName;
-    this.levelData = await LevelLoader.load(levelName);
-
-    if (spawnCol !== undefined && spawnRow !== undefined) {
-      this.levelData.playerStart = { x: spawnCol, y: spawnRow };
-    }
-
-    // Get textures needed for new level
-    const newLevelTextures = getBackgroundTextures(this.levelData);
-
-    // Calculate texture deltas
-    const unusedTextures = [...new Set(prevLevelTextures.filter((tex: string) => !newLevelTextures.includes(tex as AssetKey)))];
-    const newTextures = [...new Set(newLevelTextures.filter((tex: AssetKey) => !prevLevelTextures.includes(tex)))];
-
-    // Cleanup before loading new level
-    this.time.removeAllEvents();
-
-    if (this.sceneRenderer) {
-      this.sceneRenderer.destroy();
-    }
-
-    this.children.list
-      .filter(obj => obj !== this.layerDebugText)
-      .forEach(obj => obj.destroy());
-
-    // Load new level assets
-    const theme = this.levelData.levelTheme ?? 'dungeon';
-    if (theme === 'dungeon') {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    } else if (theme === 'swamp') {
-      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-    } else if (theme === 'grass') {
-      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
-    } else if (theme === 'wilds') {
-      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
-    } else if (theme === 'default') {
-      this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
-    } else {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    }
-
-    // Load new textures FIRST
-    if (newTextures.length > 0) {
-      console.log('[GameScene] New textures to load:', newTextures);
-    }
-    
-    const startTime = Date.now();
-    console.log('[GameScene] T+0ms: Queueing assets');
-    
-    // Queue assets but don't register listeners yet
-    const groups = getRequiredAssetGroups(this.levelData);
-    preloadAssetGroups(this, groups);
-    const bgTextures = getBackgroundTextures(this.levelData);
-    for (const key of bgTextures) {
-      loadAsset(this, key);
-    }
-    
-    console.log(`[GameScene] T+${Date.now() - startTime}ms: Starting load`);
-    this.load.start();
-    
-    // NOW register listener after start
-    await new Promise<void>(resolve => {
-      this.load.once('complete', () => {
-        const loadedTextures = this.textures.getTextureKeys().filter(key => key !== '__DEFAULT' && key !== '__MISSING');
-        console.log(`[GameScene] T+${Date.now() - startTime}ms: Load complete, ${loadedTextures.length} textures`);
-        resolve();
-      });
-      
-      // Timeout fallback
-      setTimeout(() => {
-        console.log(`[GameScene] T+${Date.now() - startTime}ms: Timeout, forcing continue`);
-        resolve();
-      }, 15000);
-    });
-    
-    console.log(`[GameScene] T+${Date.now() - startTime}ms: Proceeding with level load`);
-    
-    // NOW unload unused textures after new ones are loaded
-    if (prevLevelTextures.length > 0 && unusedTextures.length > 0) {
-      console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
-      const assetManager = AssetManager.getInstance();
-      assetManager.unloadBatch(this, unusedTextures);
-    }
-
-    await this.sceneRenderer.loadAllAssets(this.levelData);
-
-    const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
-    this.background = rendered.background;
-    this.vignette = rendered.vignette;
-
-    const originalVignetteAlpha = this.vignette.alpha;
-    this.background.setAlpha(0);
-    this.vignette.setAlpha(0);
-
-    console.log('[GameScene] About to reset scene');
-    // Save snapshot of world state BEFORE spawning entities
-    const worldState = WorldStateManager.getInstance();
-    this.levelEntrySnapshot = worldState.serializeToJSON();
-
-    await this.resetScene();
-
-    this.sceneRenderer.initializeSprites(this.grid, this.levelData);
-
-    // Unload unused textures AFTER sprites are created
-    if (prevLevelTextures.length > 0 && unusedTextures.length > 0) {
-      console.log('[AssetLoader] Unloading unused textures:', unusedTextures);
-      const assetManager = AssetManager.getInstance();
-      assetManager.unloadBatch(this, unusedTextures);
-    }
-
-    this.background.setAlpha(1);
-    this.vignette.setAlpha(originalVignetteAlpha);
-    console.log('[GameScene] Scene reset complete');
-
-    this.scene.resume();
-  }
 
   getCurrentLevelName(): string {
     return this.currentLevelName;

@@ -169,10 +169,12 @@ export class HudBarComponent implements Component {
       bar.outline.setPosition(barX, barY);
       
       // Update fill width and position (left-aligned from left edge of bar)
-      const fillWidth = this.barWidth * ratio;
-      bar.fill.setSize(fillWidth, this.barHeight);
-      const fillX = barX - this.barWidth / 2 + fillWidth / 2;
-      bar.fill.setPosition(fillX, barY);
+      if (bar.fill) {
+        const fillWidth = this.barWidth * ratio;
+        bar.fill.setSize(fillWidth, this.barHeight);
+        const fillX = barX - this.barWidth / 2 + fillWidth / 2;
+        bar.fill.setPosition(fillX, barY);
+      }
       
       if (healer && bar.overhealFill) {
         const overhealAmount = health.getOverhealAmount();
@@ -202,11 +204,13 @@ export class HudBarComponent implements Component {
       }
       
       // Check if overheated and change fill color
-      const isOverheated = bar.dataSource.isBarOverheated?.() ?? false;
-      if (isOverheated && ratio < 1) {
-        bar.fill.setFillStyle(0xff0000);
-      } else {
-        bar.fill.setFillStyle(bar.fillColor);
+      if (bar.fill) {
+        const isOverheated = bar.dataSource.isBarOverheated?.() ?? false;
+        if (isOverheated && ratio < 1) {
+          bar.fill.setFillStyle(0xff0000);
+        } else {
+          bar.fill.setFillStyle(bar.fillColor);
+        }
       }
       
       // Update outline color if redOutlineOnLow is enabled
@@ -250,8 +254,10 @@ export class HudBarComponent implements Component {
   onDestroy(): void {
     for (const bar of this.bars) {
       bar.background.destroy();
-      bar.fill.destroy();
+      bar.fill?.destroy();
       bar.outline.destroy();
+      bar.overhealFill?.destroy();
+      bar.sparkles?.destroy();
     }
   }
 }

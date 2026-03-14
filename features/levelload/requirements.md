@@ -1,528 +1,281 @@
-# Level Loading System - Requirements
+# Level Loading System - Requirements (REDESIGNED)
 
 ## Overview
 
-A robust, atomic level loading system that works reliably across all platforms (Mac, Android, iOS, web) with proper memory management and error handling.
+A simple, robust level loading system that loads assets, verifies them AFTER loading, and only proceeds if all are valid.
 
-## Current Problems
+## What Went Wrong in Original Design
 
-1. **Platform inconsistency** - Works on Mac, fails on Android with `__MISSING` textures
-2. **Race conditions** - Multiple 'complete' listeners, timing dependencies
-3. **No verification** - Assumes textures are usable after 'complete' event
-4. **Brittle unloading** - Unloads before verifying new textures are ready
-5. **No rollback** - Partial failures leave game in broken state
-6. **Timeout proceeds anyway** - Gives up and continues with broken state
-7. **Scattered responsibilities** - Loading logic in AssetLoader, GameScene, GameSceneRenderer
-8. **No single source of truth** - Asset tracking duplicated in multiple places
-
-## Phase 0: Prerequisite Refactors
-
-**Purpose**: Fix root architectural problems before implementing LoadingScene. These refactors eliminate race conditions, centralize responsibilities, and enable atomic transitions.
-
-### 0.1 TextureVerifier
-
-**Purpose**: Verify textures are actually usable, not just "loaded"
-
-**API**:
+**Fatal Flaw:** Requirements section 0.6 specified verifying textures BEFORE loading:
 ```typescript
-class TextureVerifier {
-  static verifyTexture(scene: Phaser.Scene, key: string): boolean
-  static verifyBatch(scene: Phaser.Scene, keys: string[]): { valid: string[]; invalid: string[] }
-  static waitForTextureReady(scene: Phaser.Scene, key: string, timeoutMs: number): Promise<boolean>
-}
+if (TextureVerifier.verifyTexture(scene, key)) return; // Check BEFORE load
+scene.load.image(key, path); // Then load
 ```
 
-**Verification Steps**:
-1. `scene.textures.exists(key)` returns true
-2. `scene.textures.get(key)` returns valid texture object
-3. Texture has frames (not empty)
-4. First frame has valid source image
-5. Source image width/height > 0
-
-**Acceptance Criteria**:
-- Returns false if any check fails
-- Logs specific failure reason
-- Works on all platforms (Mac, Android, iOS, web)
-- Handles edge cases (partially loaded, corrupted, GPU upload delay)
-- waitForTextureReady() polls with 50ms intervals for Android
-
----
-
-### 0.2 AssetManifest
-
-**Purpose**: Single source of truth for asset tracking
-
-**API**:
-```typescript
-class AssetManifest {
-  static fromLevelData(levelData: LevelData): Set<AssetKey>
-  static diff(prev: Set<AssetKey>, next: Set<AssetKey>): { toLoad: AssetKey[]; toUnload: AssetKey[] }
-}
+**Execution trace revealed backwards logic:**
+```
+loadAsset('grass1') - texture doesn't exist yet
+  → verifyTexture('grass1') 
+  → textures.exists('grass1') → FALSE
+  → Log error: "Texture 'grass1' does not exist" ← FALSE ERROR
+  → Queue load
 ```
 
-**Behavior**:
-- Extracts all required assets from level data
-- Includes background textures, entity assets, animated textures
-- Calculates deltas between levels
-- Easy to extend with new asset types
+**Root cause:** Verifying before loading logs errors for every new texture.
 
-**Acceptance Criteria**:
-- Single source of truth (no duplicate tracking)
-- Handles all asset types
-- diff() correctly calculates toLoad and toUnload
-- Easy to extend
+**Correct order:** Load first, THEN verify.
 
----
+## New Design Principles
 
-### 0.3 AssetLoadCoordinator
+1. **Load, then verify** - Never check if texture exists before loading it
+2. **Single responsibility** - Each component does ONE thing
+3. **Clear execution flow** - Easy to trace what happens when
+4. **Fail fast** - If verification fails, stop immediately with clear error
 
-**Purpose**: Centralize all asset loading with single 'complete' listener
+## Core Components
 
-**API**:
-```typescript
-class AssetLoadCoordinator {
-  static async loadLevelAssets(
-    scene: Phaser.Scene,
-    levelData: LevelData,
-    onProgress?: (percent: number) => void
-  ): Promise<{ success: boolean; failedAssets: string[] }>
-}
+### 1. LoadingScene
+
+**Purpose**: Orchestrate level transitions atomically
+
+**Execution Flow:**
 ```
-
-**Behavior**:
-1. Get required assets using AssetManifest
-2. Queue all assets
-3. Register single 'complete' listener with timeout
-4. Register 'progress' listener
-5. Start load
-6. Wait for completion or timeout
-7. Verify all textures using TextureVerifier
-8. Return success/failure with failed asset list
-
-**Acceptance Criteria**:
-- Single 'complete' listener (eliminates race conditions)
-- Verification built-in
-- Progress tracking (0-100%)
-- Returns failure if any texture fails
-- Timeout returns failure (not success)
-- Replaces duplicate loading logic in AssetLoader and GameScene
-
----
-
-### 0.4 LoadingScene Skeleton
-
-**Purpose**: Dedicated scene for level transitions (replaces GameScene.loadLevel())
+1. User triggers transition (exit portal)
+2. LevelExitComponent calls scene.scene.start('LoadingScene', data)
+3. LoadingScene.init(data) stores target level
+4. LoadingScene.create() shows UI, calls loadLevel()
+5. loadLevel() async:
+   5.1. Load level JSON
+   5.2. Queue all assets
+   5.3. Start Phaser loader
+   5.4. Wait for 'complete' event
+   5.5. Verify all textures ← AFTER loading
+   5.6. If any fail: show error, allow retry
+   5.7. If all pass: start GameScene
+```
 
 **API**:
 ```typescript
 class LoadingScene extends Phaser.Scene {
-  init(data: { targetLevel: string; targetCol: number; targetRow: number; previousLevel: string }): void
+  init(data: { targetLevel: string; targetCol: number; targetRow: number }): void
   create(): void
   private async loadLevel(): Promise<void>
   private showError(message: string): void
 }
 ```
-
-**Behavior**:
-- Stops GameScene and HudScene
-- Shows loading UI (progress bar, level name)
-- Calls AssetLoadCoordinator.loadLevelAssets()
-- Calls GameSceneRenderer.prepareRuntimeTilesets()
-- On success: Starts GameScene with level data
-- On failure: Shows error with retry/return options
 
 **Acceptance Criteria**:
 - Atomic operation (all or nothing)
-- Only updates world state on success
-- Error UI with retry/return buttons
+- Shows progress 0-100%
+- Verifies AFTER loading
+- Error UI with retry button
 - Never proceeds with broken state
 
 ---
 
-### 0.5 Remove GameScene.loadLevel()
+### 2. TextureVerifier
 
-**Purpose**: Delete 200-line monster method, move logic to LoadingScene
+**Purpose**: Verify textures are usable AFTER loading
 
-**Changes**:
-- Delete loadLevel() entirely
-- Delete transitionToLevel()
-- Update init() to accept level data from LoadingScene
-- Remove all loading logic from GameScene
+**When to use:** ONLY after 'complete' event fires
 
-**Acceptance Criteria**:
-- GameScene only handles initialization
-- No loading logic in GameScene
-- Build passes
-
----
-
-### 0.6 Update AssetLoader.loadAsset()
-
-**Purpose**: Use verification instead of exists() check
-
-**Changes**:
-```typescript
-// Before:
-if (scene.textures.exists(key)) return;
-
-// After:
-if (TextureVerifier.verifyTexture(scene, key)) return;
-```
-
-**Acceptance Criteria**:
-- Catches broken textures
-- Catches GPU upload delays
-- Prevents `__MISSING` sprites
-
----
-
-## Phase 1: Atomic Transitions
-
-### 1.1 LoadingScene
-
-**Purpose**: Dedicated scene for level transitions with progress tracking
-
-**API**:
-```typescript
-class LoadingScene extends Phaser.Scene {
-  constructor()
-  
-  init(data: {
-    targetLevel: string;
-    targetCol: number;
-    targetRow: number;
-    previousLevel: string;
-  }): void
-  
-  create(): void
-  private async loadLevel(): Promise<void>
-  private showError(message: string): void
-}
-```
-
-**Behavior**:
-- Stops GameScene and HudScene
-- Shows loading UI (progress bar, level name)
-- Loads all assets with progress tracking
-- Verifies textures are usable
-- On success: Starts GameScene with new level
-- On failure: Shows error, allows retry or return to previous level
-
-**Acceptance Criteria**:
-- Stops all other scenes before loading
-- Shows progress percentage (0-100%)
-- Verifies every texture before proceeding
-- Never proceeds with broken state
-- Provides retry mechanism on failure
-- Can return to previous level on failure
-
----
-
-### 1.2 Texture Verification System
-
-**Purpose**: Verify textures are actually usable, not just "loaded"
+**5-Step Verification:**
+1. `scene.textures.exists(key)` → true
+2. `scene.textures.get(key)` → valid object
+3. Texture has frames
+4. First frame has source
+5. Source width/height > 0
 
 **API**:
 ```typescript
 class TextureVerifier {
   static verifyTexture(scene: Phaser.Scene, key: string): boolean
   static verifyBatch(scene: Phaser.Scene, keys: string[]): { valid: string[]; invalid: string[] }
-  static waitForTextureReady(scene: Phaser.Scene, key: string, timeoutMs: number): Promise<boolean>
 }
 ```
-
-**Verification Checks**:
-1. `scene.textures.exists(key)` returns true
-2. `scene.textures.get(key)` returns valid texture object
-3. Texture has frames (not empty)
-4. First frame has valid source image
-5. Source image width/height > 0
 
 **Acceptance Criteria**:
 - Returns false if any check fails
 - Logs specific failure reason
-- Works on all platforms
-- Handles edge cases (partially loaded, corrupted)
+- NEVER called before loading
 
 ---
 
-### 1.3 Asset Loading with Verification
+### 3. Asset Loading (Simplified)
 
-**Purpose**: Load assets and verify they're usable before proceeding
+**Purpose**: Queue assets and wait for completion
+
+**Execution Flow:**
+```
+1. Get required assets from level data
+2. For each asset:
+   2.1. Queue load (no verification)
+3. Start Phaser loader
+4. Wait for 'complete' event (single listener)
+5. Return (verification happens separately)
+```
 
 **API**:
 ```typescript
-class AssetLoader {
-  static async loadLevelAssets(
-    scene: Phaser.Scene,
-    levelData: LevelData,
-    onProgress?: (percent: number) => void
-  ): Promise<{ success: boolean; failedAssets: string[] }>
-}
+async function loadLevelAssets(
+  scene: Phaser.Scene,
+  levelData: LevelData,
+  onProgress?: (percent: number) => void
+): Promise<void>
 ```
-
-**Behavior**:
-1. Calculate required assets from level data
-2. Queue all assets for loading
-3. Start load with progress tracking
-4. Wait for 'complete' event (single listener)
-5. Verify each texture is usable
-6. If any fail, return failure with list
-7. If all pass, return success
 
 **Acceptance Criteria**:
 - Single 'complete' listener
-- Progress callback fires 0-100%
-- Verifies every texture
-- Returns list of failed assets
-- Never proceeds with unverified textures
-- Timeout returns failure (not success)
+- No verification during loading
+- Progress tracking
+- Timeout rejects promise
 
 ---
 
-### 1.4 Runtime Tileset Generation with Verification
+## Execution Flow Verification
 
-**Purpose**: Generate tilesets only after source textures are verified
+### Critical Path: Level Transition
 
-**API**:
-```typescript
-class GameSceneRenderer {
-  async prepareRuntimeTilesets(levelData: LevelData): Promise<{ success: boolean; failed: string[] }>
-}
+**Step-by-step execution:**
+
 ```
+1. Player steps on exit cell
+2. LevelExitComponent.update() detects player
+3. Line 1: Get target level from data
+4. Line 2: Call scene.scene.start('LoadingScene', { targetLevel, targetCol, targetRow })
+5. Phaser stops GameScene, starts LoadingScene
+6. LoadingScene.init(data) executes
+   6.1. Store targetLevel, targetCol, targetRow
+7. LoadingScene.create() executes
+   7.1. Create progress bar UI
+   7.2. Create level name text
+   7.3. Call this.loadLevel() [async, don't await]
+8. loadLevel() executes [async]
+   8.1. Fetch level JSON: await LevelLoader.load(targetLevel)
+   8.2. Parse JSON → levelData object
+   8.3. Extract required assets from levelData
+   8.4. For each asset: scene.load.image(key, path) [queues, doesn't load yet]
+   8.5. Register 'progress' listener → update progress bar
+   8.6. Register 'complete' listener (single, with timeout)
+   8.7. Call scene.load.start() [starts async loading]
+   8.8. await 'complete' promise
+   8.9. 'complete' fires → all assets loaded into memory
+   8.10. NOW verify textures:
+         8.10.1. For each asset: TextureVerifier.verifyTexture(scene, key)
+         8.10.2. If any fail: collect failed keys
+   8.11. If failures: call showError(failedKeys), return
+   8.12. If all pass: scene.scene.start('GameScene', { levelData, targetCol, targetRow })
+9. GameScene.init(data) executes
+   9.1. Store levelData
+   9.2. Initialize grid, entities, etc.
+10. GameScene.create() executes
+   10.1. Render sprites using verified textures
+```
+
+**Timing Verification:**
+- ✅ Textures verified AFTER 'complete' event (step 8.10)
+- ✅ Textures exist when verified (loaded in step 8.9)
+- ✅ No verification before loading (step 8.4 just queues)
+- ✅ Single 'complete' listener (step 8.6)
+- ✅ Atomic: either all pass or show error (step 8.11-8.12)
+
+**Potential Issues:**
+- None identified - execution flow is correct
+
+---
+
+## Requirements
+
+### R1: LoadingScene
+
+**Purpose**: Orchestrate level transitions
 
 **Behavior**:
-1. Verify source textures exist and are usable
-2. Generate each tileset
-3. Verify generated tileset is usable
-4. If any fail, return failure with list
-5. If all pass, return success
+- Stop GameScene and HudScene
+- Show loading UI (progress bar, level name)
+- Load level JSON
+- Queue all assets
+- Wait for 'complete'
+- Verify all textures
+- On success: start GameScene
+- On failure: show error with retry
 
 **Acceptance Criteria**:
-- Only generates if source texture verified
-- Verifies generated texture
-- Returns list of failed tilesets
-- Logs specific failure reasons
+- Atomic operation
+- Progress tracking
+- Verification after loading
+- Error recovery
 
 ---
 
-### 1.5 Atomic Level Transition
+### R2: TextureVerifier
 
-**Purpose**: Either fully succeed or fully fail (no partial state)
+**Purpose**: Verify textures after loading
 
-**Flow**:
-```
-1. Stop GameScene and HudScene
-2. Show LoadingScene
-3. Load all assets with verification
-4. Generate runtime tilesets with verification
-5. If any step fails:
-   - Show error message
-   - Offer retry or return to previous level
-6. If all succeed:
-   - Unload old assets
-   - Initialize new level
-   - Start GameScene and HudScene
-```
+**Behavior**:
+- 5-step verification
+- Returns boolean
+- Logs specific failures
+- Batch verification support
 
 **Acceptance Criteria**:
-- All steps complete or none do
-- No partial state (half-loaded level)
-- Can retry failed load
-- Can return to previous level
-- Previous level state preserved until success
+- Only called after loading
+- Catches broken textures
+- Clear error messages
 
 ---
 
-### 1.6 Error Handling and Recovery
+### R3: Asset Loading
 
-**Purpose**: Handle failures gracefully with user options
+**Purpose**: Load assets without verification
 
-**Error Types**:
-- Asset load timeout (>10 seconds)
-- Texture verification failure
-- Tileset generation failure
-- Scene initialization failure
+**Behavior**:
+- Queue all assets
+- Single 'complete' listener
+- Progress tracking
+- Timeout handling
 
-**Recovery Options**:
-- Retry load (same level)
-- Return to previous level
-- Return to main menu (future)
+**Acceptance Criteria**:
+- No verification during load
+- Single listener
+- Timeout rejects
+
+---
+
+### R4: Error Handling
+
+**Purpose**: Handle failures gracefully
+
+**Behavior**:
+- Show error message
+- List failed assets
+- Retry button
+- Return to menu button (future)
 
 **Acceptance Criteria**:
 - Clear error messages
-- User can choose recovery action
-- Retry attempts fresh load
-- Return to previous level works
-- No crashes on error
+- User can retry
+- Never proceeds with broken state
 
 ---
 
-## Phase 2: Memory Management
+## Files to Create
 
-### 2.1 Reference Counting System
+1. `src/scenes/LoadingScene.ts` - Orchestration
+2. `src/systems/TextureVerifier.ts` - Verification after loading
 
-**Purpose**: Track which textures are in use, safe to unload
+## Files to Modify
 
-**API**:
-```typescript
-class TextureReferenceTracker {
-  private references: Map<string, number>
-  
-  addReference(key: string): void
-  removeReference(key: string): void
-  getRefCount(key: string): number
-  getSafeToUnload(): string[]
-}
-```
-
-**Behavior**:
-- Increment ref count when texture used
-- Decrement ref count when no longer used
-- Texture safe to unload when ref count = 0
-- Never unload texture with ref count > 0
-
-**Acceptance Criteria**:
-- Accurate ref counting
-- Thread-safe (no race conditions)
-- Handles edge cases (double add, double remove)
-- Logs warnings for unexpected operations
-
----
-
-### 2.2 Safe Texture Unloading
-
-**Purpose**: Only unload textures that are safe to unload
-
-**API**:
-```typescript
-class AssetManager {
-  unloadSafe(scene: Phaser.Scene, keys: string[]): { unloaded: string[]; skipped: string[] }
-}
-```
-
-**Behavior**:
-1. Check ref count for each texture
-2. Only unload if ref count = 0
-3. Skip if ref count > 0
-4. Log skipped textures
-5. Return lists of unloaded and skipped
-
-**Acceptance Criteria**:
-- Never unloads texture in use
-- Logs skipped textures
-- Returns accurate lists
-- No errors on unload
-
----
-
-### 2.3 Dependency Tracking
-
-**Purpose**: Track dependencies (animations, tilesets) and clean up safely
-
-**Current System**: AssetManager already tracks dependencies
-
-**Enhancement**: Verify dependencies are cleaned up before unloading parent
-
-**API**:
-```typescript
-class AssetManager {
-  canSafelyUnload(scene: Phaser.Scene, key: string): boolean
-}
-```
-
-**Behavior**:
-1. Check if texture has dependencies
-2. Check if dependencies are cleaned up
-3. Return true only if safe
-4. Log reason if not safe
-
-**Acceptance Criteria**:
-- Checks all dependencies
-- Returns false if dependencies exist
-- Logs specific blocking dependencies
-- Works with existing dependency system
-
----
-
-### 2.4 Memory Leak Detection
-
-**Purpose**: Detect and warn about potential memory leaks
-
-**API**:
-```typescript
-class MemoryMonitor {
-  static checkForLeaks(scene: Phaser.Scene): { leaked: string[]; warnings: string[] }
-}
-```
-
-**Checks**:
-- Textures with ref count > 0 but no sprites using them
-- Animations referencing unloaded textures
-- Tilesets referencing unloaded source textures
-- Sprites referencing destroyed entities
-
-**Acceptance Criteria**:
-- Detects common leak patterns
-- Logs warnings with details
-- Runs on level transition
-- Helps debug memory issues
-
----
-
-## File Structure
-
-### Files to Create
-
-**Core System**:
-- `src/scenes/LoadingScene.ts` - Dedicated loading scene
-- `src/systems/TextureVerifier.ts` - Texture verification
-- `src/systems/TextureReferenceTracker.ts` - Reference counting
-- `src/systems/MemoryMonitor.ts` - Leak detection
-
-**Tests**:
-- `test/tests/loading/test-level-transition.js` - Basic transition
-- `test/tests/loading/test-texture-verification.js` - Verification
-- `test/tests/loading/test-error-recovery.js` - Error handling
-- `test/tests/loading/test-memory-management.js` - Ref counting
-
-### Files to Modify
-
-**Asset Loading**:
-- `src/assets/AssetLoader.ts` - Use verification, single listener
-- `src/systems/AssetManager.ts` - Add canSafelyUnload()
-
-**Scene Management**:
-- `src/scenes/GameScene.ts` - Remove loadLevel(), use LoadingScene
-- `src/ecs/components/level/LevelExitComponent.ts` - Transition to LoadingScene
-- `src/main.ts` - Register LoadingScene
-
-**Rendering**:
-- `src/scenes/theme/GameSceneRenderer.ts` - Return success/failure from prepareRuntimeTilesets()
-
----
+1. `src/ecs/components/level/LevelExitComponent.ts` - Use LoadingScene
+2. `src/scenes/GameScene.ts` - Remove loadLevel(), update init()
+3. `src/main.ts` - Register LoadingScene
 
 ## Success Criteria
 
-### Phase 1: Atomic Transitions
-- ✅ Level transitions work on Mac and Android
+- ✅ Textures verified AFTER loading (not before)
+- ✅ Clear execution flow (easy to trace)
+- ✅ No backwards logic
+- ✅ Works on Mac and Android
 - ✅ No `__MISSING` textures
-- ✅ All textures verified before use
-- ✅ Failed loads show error, don't proceed
-- ✅ Can retry or return to previous level
-- ✅ No partial state on failure
-
-### Phase 2: Memory Management
-- ✅ Textures only unloaded when safe
-- ✅ No memory leaks
-- ✅ Dependencies cleaned up correctly
-- ✅ Ref counting accurate
-- ✅ Warnings for potential leaks
-
-### Overall
-- ✅ Build and lint pass
-- ✅ All tests pass
-- ✅ Works on Mac, Android, iOS, web
-- ✅ No race conditions
-- ✅ Clear error messages
-- ✅ Maintainable code
+- ✅ Atomic transitions
+- ✅ Error recovery

@@ -18,7 +18,7 @@ export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
  * Loads a single asset by key
  */
 export function loadAsset(scene: Phaser.Scene, key: AssetKey): void {
-  // Skip if already loaded
+  // Skip if already loaded — simple existence check, not full verification
   if (scene.textures.exists(key)) {
     return;
   }
@@ -43,7 +43,7 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
   // Check entities array for enemy types
   if (levelData.entities) {
     const entityTypes = new Set(levelData.entities.map(e => e.type));
-    
+
     if (entityTypes.has('stalking_robot')) {
       groups.push('stalking_robot');
     }
@@ -118,17 +118,17 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
   if (levelData.cells) {
     for (const cell of levelData.cells) {
       if (cell.backgroundTexture) {
-        const textureName = typeof cell.backgroundTexture === 'string' 
-          ? cell.backgroundTexture 
+        const textureName = typeof cell.backgroundTexture === 'string'
+          ? cell.backgroundTexture
           : cell.backgroundTexture.image;
-          
+
         if (textureName && textureName in ASSET_REGISTRY) {
           textureSet.add(textureName as AssetKey);
         } else if (textureName && textureName !== '') {
           console.warn('[AssetLoader] Cell texture not in registry:', textureName);
         }
       }
-      
+
       // Check for animated textures
       if (cell.animatedTexture && cell.animatedTexture.spritesheet in ASSET_REGISTRY) {
         textureSet.add(cell.animatedTexture.spritesheet as AssetKey);
@@ -189,7 +189,7 @@ export function preloadLevelAssets(scene: Phaser.Scene, levelData: LevelData, on
     const loadedTextures = scene.textures.getTextureKeys().filter(key => key !== '__DEFAULT' && key !== '__MISSING');
     const sorted = [...loadedTextures].sort((a, b) => a.localeCompare(b));
     console.log(`[AssetLoader] Loaded ${loadedTextures.length} textures:`, sorted);
-    
+
     if (onComplete) {
       onComplete();
     }
