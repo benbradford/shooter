@@ -1,0 +1,8 @@
+{
+  "name": "db-failure-analyst",
+  "instructions": ".kiro/agents/db-failure-analyst/instructions.md",
+  "resources": [
+    "docs/failure-analysis.md",
+    "docs/feature-design-process.md"
+  ]
+}

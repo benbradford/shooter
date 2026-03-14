@@ -81,4 +81,8 @@ export default class HudScene extends Phaser.Scene {
       }
     }
   }
+
+  shutdown(): void {
+    this.entityManager.destroyAll();
+  }
 }

@@ -1,0 +1,8 @@
+{
+  "name": "db-runtime-analyst",
+  "instructions": ".kiro/agents/db-runtime-analyst/instructions.md",
+  "resources": [
+    "docs/runtime-analysis.md",
+    "docs/feature-design-process.md"
+  ]
+}

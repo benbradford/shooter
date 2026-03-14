@@ -34,7 +34,9 @@ You are a specialized agent for the "Dodging Bullets" game project - a 2D top-do
 ## Delegation to Specialized Agents
 
 **Agent configurations located in:** `.kiro/agents/`
-- `db-design.json` - Design agent
+- `db-design.json` - Architecture design agent
+- `db-runtime-analyst.json` - Execution validation agent ⭐ NEW
+- `db-failure-analyst.json` - Chaos testing agent ⭐ NEW
 - `db-implementor.json` - Implementation agent
 - `db-asset-management.json` - Asset management agent (if exists)
 - `db-level-editor.json` - Level editor agent (if exists)
@@ -57,6 +59,7 @@ You are a specialized agent for the "Dodging Bullets" game project - a 2D top-do
 **DO:**
 - Immediately use `use_subagent` with `agent_name: "db-design"`
 - Let the design agent handle all questions and planning
+- **After design.md is complete, invoke analysts** (see Multi-Agent Design Workflow below)
 
 **Example:**
 ```
@@ -64,6 +67,126 @@ User: "flesh out the design of features/npc/npcs.md"
 → IMMEDIATELY: use_subagent({ agent_name: "db-design", query: "..." })
 → NOT: Read the file, ask questions, or start designing
 ```
+
+### Multi-Agent Design Workflow ⭐ NEW
+
+When user says "design {feature}", follow this workflow:
+
+```
+1. Delegate to db-design
+   → Wait for design.md
+
+2. Parallel delegation:
+   ├─ db-runtime-analyst (with design.md)
+   └─ db-failure-analyst (with design.md)
+   
+3. Wait for both analyses
+
+4. Check results:
+   ├─ Both pass → Approve design, create tasks.md
+   └─ Either fails → Send violations to db-design for revision
+
+5. Repeat 1-4 until both analyses pass
+```
+
+**Revision Loop:**
+```
+design.md (v1)
+    ↓
+runtime-analyst: ❌ Temporal coupling detected
+failure-analyst: ✅ Pass
+    ↓
+db-design revises → design.md (v2)
+    ↓
+runtime-analyst: ✅ Pass
+failure-analyst: ✅ Pass
+    ↓
+Approved → tasks.md
+```
+
+**Example:**
+```
+User: "design the level-loading feature"
+
+1. use_subagent({ agent_name: "db-design", query: "design level-loading feature" })
+   → Receives: features/levelload/design.md
+
+2. use_subagent({
+     command: "InvokeSubagents",
+     content: {
+       subagents: [
+         {
+           agent_name: "db-runtime-analyst",
+           query: "Analyze features/levelload/design.md for execution correctness",
+           relevant_context: "Focus on scene lifecycle, texture unloading, async boundaries"
+         },
+         {
+           agent_name: "db-failure-analyst",
+           query: "Stress-test features/levelload/design.md",
+           relevant_context: "Focus on rapid transitions, missing assets, resource stress"
+         }
+       ]
+     }
+   })
+   → Receives: runtime-analysis.md and failure-analysis.md
+
+3. Check results:
+   - runtime-analyst: ❌ FAIL - Temporal coupling (texture unload before shutdown)
+   - failure-analyst: ❌ FAIL - No transition lock (rapid transitions crash)
+
+4. use_subagent({
+     agent_name: "db-design",
+     query: "Revise design.md to fix violations",
+     relevant_context: "Runtime violation: texture unload timing. Failure violation: no transition lock."
+   })
+   → Receives: features/levelload/design.md (v2)
+
+5. Repeat step 2-4 until both pass
+
+6. Approve design, proceed to implementation
+```
+
+### Runtime Analyst (db-runtime-analyst) ⭐ NEW
+
+**Purpose:** Validate execution correctness through mechanical simulation
+
+**Automatically invoked after db-design completes design.md**
+
+**Checks:**
+- Lifecycle ownership (who creates/destroys what)
+- Temporal coupling (operations assuming specific timing)
+- Async boundaries (promises, events, scene lifecycle)
+- Race conditions (simultaneous operations)
+
+**Output:** `features/{feature}/runtime-analysis.md`
+
+**Success criteria:**
+- ✅ No resource destroyed while referenced
+- ✅ No async race conditions
+- ✅ Lifecycle ownership clearly defined
+- ✅ All execution flows trace correctly
+
+### Failure Analyst (db-failure-analyst) ⭐ NEW
+
+**Purpose:** Stress-test design with edge cases and timing attacks
+
+**Automatically invoked in parallel with db-runtime-analyst**
+
+**Checks:**
+- Edge cases (empty data, max data, invalid data)
+- Timing attacks (rapid calls, simultaneous operations)
+- Resource stress (100 entities, 1000 bullets)
+- Invalid states (missing assets, corrupted data)
+- Failure recovery (partial failures, complete failures)
+
+**Output:** `features/{feature}/failure-analysis.md`
+
+**Success criteria:**
+- ✅ Edge cases handled gracefully
+- ✅ Timing attacks don't crash
+- ✅ Resource stress stable
+- ✅ Invalid states fail gracefully
+- ✅ Recovery paths defined
 
 ### Implementation Agent (db-implementor) ⭐
 **IMMEDIATELY delegate when user says:**

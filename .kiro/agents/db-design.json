@@ -16,6 +16,8 @@
   ],
   "resources": [
     "file://docs/feature-design-process.md",
+    "file://docs/runtime-analysis.md",
+    "file://docs/failure-analysis.md",
     "file://docs/ecs-architecture.md",
     "file://docs/coding-standards.md",
     "file://docs/grid-and-collision.md",

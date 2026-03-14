@@ -72,10 +72,26 @@ When asked to "update the docs":
 - Phase 2: Technical POC for risky/unknown tech
 - Phase 3: Requirements document (WHAT)
 - Phase 4: Design document (HOW)
-- Phase 5: Scrutiny and clarification (find ALL gaps)
-- Phase 6: Task breakdown with estimates
-- Phase 7: Implementation clarifications (quick reference)
-- Phase 8: README for future sessions
+- Phase 5: Runtime analysis (execution flow verification) ⭐ NEW
+- Phase 6: Failure analysis (edge cases and stress tests) ⭐ NEW
+- Phase 7: Scrutiny and clarification (find ALL gaps)
+- Phase 8: Task breakdown with estimates
+- Phase 9: Implementation clarifications (quick reference)
+- Phase 10: README for future sessions
+
+**[Runtime Analysis](./runtime-analysis.md)** - SOP for verifying execution correctness ⭐ NEW
+- Mechanical execution traces
+- Lifecycle ownership tables
+- Temporal coupling detection
+- Async boundary analysis
+- Race condition detection
+
+**[Failure Analysis](./failure-analysis.md)** - SOP for stress-testing designs ⭐ NEW
+- Edge case simulation
+- Timing attacks
+- Resource stress tests
+- Invalid state testing
+- Failure recovery paths
 
 **Time investment**: 1-3 hours of design saves 10-20 hours of implementation confusion.
 

@@ -11,6 +11,7 @@ import { GrassSceneRenderer } from './theme/GrassSceneRenderer';
 import { DefaultSceneRenderer } from './theme/DefaultSceneRenderer';
 import type { GameSceneRenderer } from './theme/GameSceneRenderer';
 import { CELL_SIZE } from '../constants/GameConstants';
+import { installTextureDebug, logSceneState } from '../debug/PhaserDebug';
 
 const PROGRESS_BAR_WIDTH_PX = 300;
 const PROGRESS_BAR_HEIGHT_PX = 30;
@@ -39,18 +40,37 @@ export default class LoadingScene extends Phaser.Scene {
     super({ key: 'LoadingScene' });
   }
 
-  init(data: LoadingSceneData): void {
+  async init(data: LoadingSceneData): Promise<void> {
+    console.log('[LoadingScene] init() called', data);
+    
     this.targetLevel = data.targetLevel;
     this.targetCol = data.targetCol;
     this.targetRow = data.targetRow;
     this.previousLevel = data.previousLevel;
-
+    
+    const gameScene = this.scene.get('game');
+    logSceneState(gameScene, 'Before scene.stop');
+    
+    // Stop game scene (shutdown happens asynchronously)
+    console.log('[LoadingScene] Calling scene.stop("game")');
     this.scene.stop('game');
-    this.scene.stop('HudScene');
+    
+    // CRITICAL: Wait for shutdown to complete before continuing
+    console.log('[LoadingScene] Waiting for shutdown event...');
+    await new Promise<void>(resolve => {
+      gameScene.events.once('shutdown', () => {
+        console.log('[LoadingScene] Shutdown event fired');
+        resolve();
+      });
+    });
+    
+    logSceneState(gameScene, 'After shutdown complete');
   }
 
   create(): void {
     this.showLoadingUI();
+    
+    // Start loading immediately (don't wait for shutdown)
     this.loadLevel().catch((error: unknown) => {
       const message = error instanceof Error ? error.message : String(error);
       this.showError(message);
@@ -95,6 +115,10 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   private async loadLevel(): Promise<void> {
+    console.log('[LoadingScene] loadLevel() started');
+    const gameScene = this.scene.get('game');
+    logSceneState(gameScene, 'loadLevel start');
+    
     const levelData = await LevelLoader.load(this.targetLevel);
 
     const assetResult = await AssetLoadCoordinator.loadLevelAssets(
@@ -130,39 +154,67 @@ export default class LoadingScene extends Phaser.Scene {
       return;
     }
 
+    console.log('[LoadingScene] About to unload previous level assets');
+    logSceneState(gameScene, 'Before unload');
+    
     if (this.previousLevel && this.previousLevel !== this.targetLevel) {
       this.unloadPreviousLevelAssets(levelData);
     }
+    
+    logSceneState(gameScene, 'After unload');
 
     MemoryMonitor.checkForLeaks(this);
 
+    console.log('[LoadingScene] Starting game scene');
     this.scene.start('game', {
       level: this.targetLevel,
       levelData,
       playerCol: this.targetCol,
       playerRow: this.targetRow
     });
-    this.scene.launch('HudScene');
+    
+    // Launch HUD only if not already running
+    if (!this.scene.isActive('HudScene')) {
+      this.scene.launch('HudScene');
+    }
   }
 
   private unloadPreviousLevelAssets(nextLevelData: import('../systems/level/LevelLoader').LevelData): void {
+    console.log('[LoadingScene] unloadPreviousLevelAssets() called');
+    
+    // Install texture debug to see what gets removed
+    installTextureDebug(this);
+    
     const nextAssets = AssetManifest.fromLevelData(nextLevelData);
     const textureKeys = this.textures.getTextureKeys()
       .filter(key => key !== '__DEFAULT' && key !== '__MISSING');
 
+    console.log('[LoadingScene] All textures:', textureKeys);
+    console.log('[LoadingScene] Next level needs:', Array.from(nextAssets));
+
     const candidates = textureKeys.filter(key => !nextAssets.has(key as import('../assets/AssetRegistry').AssetKey));
+    console.log('[LoadingScene] Candidates for unload:', candidates);
+    
     const result = AssetManager.getInstance().unloadSafe(this, candidates);
 
     if (result.unloaded.length > 0) {
-      console.log(`[LoadingScene] Unloaded ${result.unloaded.length} textures from previous level`);
+      console.log(`[LoadingScene] Unloaded ${result.unloaded.length} textures:`, result.unloaded);
     }
     if (result.skipped.length > 0) {
-      console.log(`[LoadingScene] Skipped ${result.skipped.length} textures (still in use)`);
+      console.log(`[LoadingScene] Skipped ${result.skipped.length} textures:`, result.skipped);
     }
   }
 
   private showError(message: string): void {
-    this.children.removeAll();
+    // Clear loading UI only (Phaser handles scene children cleanup)
+    if (this.progressBar) {
+      this.progressBar.destroy();
+      this.progressBar = undefined;
+    }
+    if (this.progressBox) {
+      this.progressBox.destroy();
+      this.progressBox = undefined;
+    }
 
     const centerX = this.cameras.main.width / 2;
     const centerY = this.cameras.main.height / 2;
@@ -202,7 +254,7 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   shutdown(): void {
-    this.children.removeAll(true);
+    // Clear references (Phaser handles destruction)
     this.progressBar = undefined;
     this.progressBox = undefined;
   }

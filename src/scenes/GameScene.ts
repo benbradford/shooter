@@ -29,6 +29,7 @@ import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
+import { debugScene, logSceneState } from "../debug/PhaserDebug";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -61,6 +62,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create() {
+    console.log('[GameScene] create() called');
+    logSceneState(this, 'create start');
+    
+    // Install scene lifecycle debugging
+    debugScene(this);
+    
     // Load world state
     const worldState = WorldStateManager.getInstance();
     await worldState.loadFromFile();

@@ -181,7 +181,74 @@ How to verify it works
 
 ---
 
-## Phase 5: Scrutiny & Clarification
+## Phase 5: Runtime Analysis ⭐ NEW
+
+### Purpose
+Verify that the proposed design executes correctly at runtime by simulating execution step-by-step.
+
+### Process
+See `docs/runtime-analysis.md` for complete SOP.
+
+**Key steps:**
+1. Identify critical execution flows
+2. Perform mechanical execution trace
+3. Create lifecycle ownership table
+4. Detect temporal coupling
+5. Analyze async boundaries
+6. Detect race conditions
+
+### Output
+- `features/{feature}/runtime-analysis.md`
+- Execution traces
+- Lifecycle ownership table
+- Violations detected
+- Fix recommendations
+
+### Success Criteria
+- ✅ No resource destroyed while referenced
+- ✅ No async race conditions
+- ✅ Lifecycle ownership clearly defined
+- ✅ All execution flows trace correctly
+
+**If any fail, design must be revised.**
+
+---
+
+## Phase 6: Failure Analysis ⭐ NEW
+
+### Purpose
+Stress-test the design by intentionally trying to break it.
+
+### Process
+See `docs/failure-analysis.md` for complete SOP.
+
+**Key steps:**
+1. Identify failure surfaces
+2. Simulate edge cases
+3. Perform timing attacks
+4. Run resource stress tests
+5. Test invalid states
+6. Verify failure recovery
+
+### Output
+- `features/{feature}/failure-analysis.md`
+- Failure scenarios
+- Detected risks
+- Mitigation strategies
+- Confidence level
+
+### Success Criteria
+- ✅ Edge cases handled
+- ✅ Timing attacks don't crash
+- ✅ Resource stress stable
+- ✅ Invalid states fail gracefully
+- ✅ Recovery paths defined
+
+**If any fail, design must be revised.**
+
+---
+
+## Phase 7: Scrutiny & Clarification
 
 ### Purpose
 Find ALL ambiguities before implementation starts.
@@ -245,7 +312,7 @@ Find ALL ambiguities before implementation starts.
 
 ---
 
-## Phase 6: Task Breakdown
+## Phase 8: Task Breakdown
 
 ### Purpose
 Break design into implementable tasks with time estimates.
@@ -297,7 +364,7 @@ Complex/uncertain tasks
 
 ---
 
-## Phase 7: Implementation Clarifications Document
+## Phase 9: Implementation Clarifications Document
 
 ### Purpose
 Capture all design decisions and patterns in one place for quick reference.
@@ -342,7 +409,7 @@ Checklist of completion
 
 ---
 
-## Phase 8: README for Future Sessions
+## Phase 10: README for Future Sessions
 
 ### Purpose
 Guide future Kiro sessions to read documents in the right order.
@@ -364,7 +431,9 @@ Checklist of completed work
 2. implementation-clarifications.md ⭐
 3. requirements.md
 4. design.md
-5. tasks.md
+5. runtime-analysis.md ⭐
+6. failure-analysis.md ⭐
+7. tasks.md
 
 ### Critical Design Decisions
 Summary of key points
@@ -383,7 +452,7 @@ How to know it's done
 
 ---
 
-## Phase 9: During Implementation
+## Phase 11: During Implementation
 
 ### Mark Tasks Complete
 
@@ -410,7 +479,7 @@ How to know it's done
 
 ---
 
-## Phase 10: Post-Implementation
+## Phase 12: Post-Implementation
 
 ### Create Completion Summary
 
@@ -432,6 +501,8 @@ Before starting implementation, verify:
 - [ ] **POC completed** - Technical approach validated
 - [ ] **Requirements written** - All APIs defined with acceptance criteria
 - [ ] **Design documented** - Architecture and data flow clear
+- [ ] **Runtime analysis performed** - Execution flows verified ⭐
+- [ ] **Failure analysis performed** - Edge cases and stress tests passed ⭐
 - [ ] **Scrutiny performed** - All ambiguities identified and resolved
 - [ ] **Tasks broken down** - Concrete, estimable tasks
 - [ ] **Clarifications captured** - All decisions in one document
