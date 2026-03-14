@@ -316,10 +316,22 @@ npm install
 
 ```bash
 npm run build                # TypeScript compilation - MUST pass
+```
+
+**Only run linter when explicitly asked or before committing:**
+```bash
 npx eslint src --ext .ts     # Code quality check - MUST pass
 ```
 
 **Both commands must complete with zero errors before considering any change complete.**
+
+**Deploy to Android only when user explicitly asks:**
+```bash
+npm run build
+rm -rf android/app/src/main/assets/public/*
+cp -r dist/* android/app/src/main/assets/public/
+```
+Then rebuild in Android Studio.
 
 ---
 

@@ -4,8 +4,21 @@
 
 ```bash
 npm run build                # MUST pass with zero errors
-npx eslint src --ext .ts     # MUST pass with zero errors
 ```
+
+**Only run linter when explicitly asked or before committing code.**
+
+## Android Deployment
+
+**Only deploy to Android when user explicitly asks.**
+
+```bash
+npm run build
+rm -rf android/app/src/main/assets/public/*
+cp -r dist/* android/app/src/main/assets/public/
+```
+
+Then rebuild in Android Studio.
 
 ## Level Transitions
 

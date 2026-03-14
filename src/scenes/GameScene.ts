@@ -66,6 +66,16 @@ export default class GameScene extends Phaser.Scene {
     // Clean up any leftover display objects from previous run
     this.children.removeAll(true);
     
+    // Destroy entities when scene shuts down (set up once)
+    if (!this.events.listenerCount('shutdown')) {
+      this.events.on('shutdown', () => {
+        console.log('[DBGAME] GameScene shutdown - destroying', this.entityManager?.count, 'entities');
+        if (this.entityManager) {
+          this.entityManager.destroyAll();
+        }
+      });
+    }
+    
     // Start with camera faded out (prevents green flash)
     this.cameras.main.fadeFrom(0, 0, 0, 0, true);
     
@@ -530,6 +540,10 @@ export default class GameScene extends Phaser.Scene {
     // Fade out, then start transition
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
+      // Destroy entities before starting LoadingScene
+      console.log('[DBGAME] Destroying', this.entityManager.count, 'entities before transition');
+      this.entityManager.destroyAll();
+      
       this.scene.start('LoadingScene', {
         targetLevel,
         targetCol: spawnCol,

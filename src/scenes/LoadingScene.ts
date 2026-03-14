@@ -36,13 +36,16 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   init(data: LoadingSceneData): void {
+    console.log('[DBGAME] LoadingScene.init() called');
     this.targetLevel = data.targetLevel;
     this.targetCol = data.targetCol;
     this.targetRow = data.targetRow;
     this.previousLevel = data.previousLevel;
     
     console.log('[DBGAME] Transition to:', this.targetLevel);
+    console.log('[DBGAME] Stopping game scene');
     this.scene.stop('game');
+    console.log('[DBGAME] scene.stop called');
   }
 
   create(): void {
@@ -97,8 +100,6 @@ export default class LoadingScene extends Phaser.Scene {
         this.unloadPreviousLevelAssets(levelData);
       }
 
-      MemoryMonitor.checkForLeaks(this);
-
       console.log('[DBGAME] Transition complete, starting:', this.targetLevel);
       this.scene.start('game', {
         level: this.targetLevel,
@@ -110,6 +111,11 @@ export default class LoadingScene extends Phaser.Scene {
       if (!this.scene.isActive('HudScene')) {
         this.scene.launch('HudScene');
       }
+      
+      // Check for leaks after new scene has time to create sprites
+      this.time.delayedCall(100, () => {
+        MemoryMonitor.checkForLeaks(this);
+      });
     } catch (error) {
       console.error('[DBGAME] EXCEPTION:', error);
       throw error;

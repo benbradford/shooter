@@ -1,0 +1,56 @@
+{
+  "name": "test-breakables",
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 2,
+    "y": 2
+  },
+  "levelTheme": "dungeon",
+  "cells": [],
+  "entities": [
+    {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 4,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 5,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1
+      }
+    },
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "test/test-loading-simple",
+        "targetCol": 2,
+        "targetRow": 2,
+        "triggerCells": [
+          { "col": 2, "row": 0 }
+        ],
+        "oneShot": true
+      }
+    }
+  ]
+}

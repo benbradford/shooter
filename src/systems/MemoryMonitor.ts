@@ -44,11 +44,15 @@ export class MemoryMonitor {
   }
 
   private static findSpritesUsingTexture(scene: Phaser.Scene, key: string): boolean {
-    const children = scene.children.list;
-    for (const child of children) {
-      if (child instanceof Phaser.GameObjects.Sprite || child instanceof Phaser.GameObjects.Image) {
-        if (child.texture.key === key) {
-          return true;
+    // Check all active scenes, not just the current one
+    const scenes = scene.game.scene.scenes.filter(s => s.scene.isActive());
+    for (const s of scenes) {
+      const children = s.children.list;
+      for (const child of children) {
+        if (child instanceof Phaser.GameObjects.Sprite || child instanceof Phaser.GameObjects.Image) {
+          if (child.texture.key === key) {
+            return true;
+          }
         }
       }
     }
