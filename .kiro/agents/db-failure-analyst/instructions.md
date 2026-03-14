@@ -25,6 +25,27 @@ Validate design robustness by:
 
 Follow the SOP in `.kiro/agents/db-failure-analyst/sops/analyze-failures.md`
 
+### Step 0: Create Test Code for Attacks (NEW)
+
+For each attack scenario, create actual test code:
+
+```javascript
+// test/tests/{feature}/test-{attack}.js
+const testRapidTransitions = test({
+  given: 'Player in level',
+  when: 'Triggering 5 transitions rapidly',
+  then: 'Only first executes, others ignored'
+}, async (page) => {
+  // Test implementation
+});
+```
+
+**Benefits:**
+- Tests can be run immediately to verify attacks work
+- Provides concrete reproduction steps
+- Can be added to regression suite
+- No ambiguity about what the attack does
+
 ## Success Criteria
 
 Design passes failure validation if:

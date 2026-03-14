@@ -29,7 +29,6 @@ import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
-import { debugScene, logSceneState } from "../debug/PhaserDebug";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -49,6 +48,8 @@ export default class GameScene extends Phaser.Scene {
   public layerDebugText?: Phaser.GameObjects.Text;
   private sceneOverlays?: SceneOverlays;
   private isEditorMode: boolean = false;
+  private static hasLoadedFromURL: boolean = false;
+  private static hasLoadedWorldState: boolean = false;
   public isInInteraction: boolean = false;
   private isResetting: boolean = false;
 
@@ -62,15 +63,16 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create() {
-    console.log('[GameScene] create() called');
-    logSceneState(this, 'create start');
+    // Clean up any leftover display objects from previous run
+    // (Phaser doesn't auto-clean when restarting a scene)
+    this.children.removeAll(true);
     
-    // Install scene lifecycle debugging
-    debugScene(this);
-    
-    // Load world state
+    // Load world state only on first load
     const worldState = WorldStateManager.getInstance();
-    await worldState.loadFromFile();
+    if (!GameScene.hasLoadedWorldState) {
+      await worldState.loadFromFile();
+      GameScene.hasLoadedWorldState = true;
+    }
 
     // Initialize event manager first (needed by HudScene)
     this.entityManager = new EntityManager();
@@ -91,9 +93,15 @@ export default class GameScene extends Phaser.Scene {
 
     const params = new URLSearchParams(globalThis.location.search);
     const levelParam = params.get('level');
-    if (levelParam) {
+    
+    // Only use URL parameter on first load, not on transitions
+    if (levelParam && !GameScene.hasLoadedFromURL) {
       this.currentLevelName = levelParam;
+      // Update worldState to match URL parameter (first load only)
+      worldState.setCurrentLevel(levelParam);
+      GameScene.hasLoadedFromURL = true;
     } else {
+      // On transitions, worldState was already updated by startLevelTransition()
       this.currentLevelName = worldState.getCurrentLevelName();
     }
 

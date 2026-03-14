@@ -25,6 +25,27 @@ Verify that a proposed design executes correctly at runtime by:
 
 Follow the SOP in `.kiro/agents/db-runtime-analyst/sops/analyze-runtime.md`
 
+### Step 0: Verify Bug Exists (NEW)
+
+Before analyzing, verify the bug is real:
+1. Check if integration tests exist for this feature
+2. Run tests to reproduce the bug
+3. Capture actual error messages and stack traces
+4. Use test output as ground truth for analysis
+
+**If tests pass, the bug may not exist or may be theoretical.**
+
+### Step 1: Check Simple Issues First (NEW)
+
+Before recommending complex solutions, check:
+- [ ] Configuration mismatches (texture keys, asset groups, constants)
+- [ ] State management issues (flags not set, state reset, stale data)
+- [ ] Timing issues (operations in wrong order, async not awaited)
+- [ ] Missing cleanup (display objects not destroyed, listeners not removed)
+- [ ] Mismatch between code and data (entity type vs texture, group vs usage)
+
+**Only recommend architectural changes if simple fixes don't apply.**
+
 ## Success Criteria
 
 Design passes runtime validation if:

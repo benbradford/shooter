@@ -540,7 +540,7 @@ export const ASSET_GROUPS = {
   player: ['attacker'] as const,
 
   // Enemies
-  stalking_robot: ['attacker'] as const,
+  stalking_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
   floating_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
   bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
   thrower: ['thrower', 'grenade'] as const,

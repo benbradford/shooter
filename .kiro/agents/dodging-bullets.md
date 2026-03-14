@@ -89,6 +89,67 @@ When user says "design {feature}", follow this workflow:
 5. Repeat 1-4 until both analyses pass
 ```
 
+### Bug Fix Workflow ⭐ NEW
+
+When user reports a bug, follow this workflow:
+
+```
+1. Verify bug exists
+   → Run integration tests to reproduce
+   → Capture error messages and stack traces
+   
+2. If bug confirmed, delegate to analysts:
+   ├─ db-runtime-analyst (trace current code execution)
+   └─ db-failure-analyst (identify attack scenarios)
+   
+3. Wait for both analyses
+   
+4. Check findings:
+   → Simple issues (config, state, timing)? Fix directly
+   → Complex issues (architecture)? Delegate to db-design
+   
+5. Fix bugs iteratively:
+   → Fix one bug
+   → Run tests
+   → Repeat until all tests pass
+```
+
+**Example:**
+```
+User: "Level transitions are broken"
+
+1. Run integration tests:
+   npm run test:single test-level-transition
+   → FAIL: Transitions timeout
+   
+2. Delegate to analysts:
+   use_subagent({
+     agent_name: "db-runtime-analyst",
+     query: "Analyze src/scenes/LoadingScene.ts execution flow",
+     relevant_context: "Bug: transitions timeout. Tests show scene never becomes active."
+   })
+   
+3. Analyst finds: WorldState reset, URL override, texture key mismatch
+   
+4. Fix bugs one at a time:
+   → Fix WorldState reset
+   → Run tests → Still fails
+   → Fix URL override  
+   → Run tests → Still fails
+   → Fix texture key
+   → Run tests → PASS
+   
+5. Comprehensive test:
+   npm run test:single test-comprehensive-transitions
+   → PASS
+```
+
+**Key principle: Test-driven bug fixing**
+- Tests verify bug exists
+- Tests verify each fix
+- Tests verify complete solution
+- No human verification needed
+
 **Revision Loop:**
 ```
 design.md (v1)

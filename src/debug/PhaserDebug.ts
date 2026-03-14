@@ -47,7 +47,8 @@ export function installAnimationDebug(scene: Phaser.Scene): void {
 }
 
 export function checkAnimationFrames(scene: Phaser.Scene, textureKey: string): void {
-  const anims = (scene.anims as any).anims as Map<string, Phaser.Animations.Animation>;
+  const animManager = scene.anims as unknown as { anims: Map<string, Phaser.Animations.Animation> };
+  const anims = animManager.anims;
   anims.forEach((anim: Phaser.Animations.Animation) => {
     anim.frames.forEach((frame: Phaser.Animations.AnimationFrame) => {
       if (frame.textureKey === textureKey) {
@@ -66,11 +67,12 @@ export function installDestroyDebug(): void {
   const originalDestroy = Phaser.GameObjects.Sprite.prototype.destroy;
 
   Phaser.GameObjects.Sprite.prototype.destroy = function (...args) {
-    if ((this as any).__destroyed) {
+    const sprite = this as Phaser.GameObjects.Sprite & { __destroyed?: boolean };
+    if (sprite.__destroyed) {
       console.error('[DestroyDebug] Double destroy:', this);
     }
 
-    (this as any).__destroyed = true;
+    sprite.__destroyed = true;
 
     return originalDestroy.apply(this, args);
   };
@@ -103,7 +105,7 @@ export function debugScene(scene: Phaser.Scene): void {
 }
 
 export function logSceneState(scene: Phaser.Scene, label: string): void {
-  const anims = (scene.anims as any).anims as Map<string, Phaser.Animations.Animation>;
+  const animManager = scene.anims as unknown as { anims: Map<string, Phaser.Animations.Animation> };
   console.log(`[SceneState] ${label}:`, {
     key: scene.scene.key,
     active: scene.scene.isActive(),
@@ -111,6 +113,6 @@ export function logSceneState(scene: Phaser.Scene, label: string): void {
     sleeping: scene.scene.isSleeping(),
     objects: scene.children.list.length,
     textures: scene.textures.getTextureKeys().length,
-    animations: anims.size
+    animations: animManager.anims.size
   });
 }

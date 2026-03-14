@@ -38,7 +38,7 @@ export class SwampSceneRenderer extends GameSceneRenderer {
     background.setDisplaySize(worldWidth, worldHeight);
     background.setDepth(Depth.floor);
 
-    const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
+    const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vignette');
     vignette.setDisplaySize(worldWidth, worldHeight);
     vignette.setDepth(Depth.vignette);
     vignette.setAlpha(0.3);
