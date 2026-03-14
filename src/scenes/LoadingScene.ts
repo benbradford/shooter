@@ -45,7 +45,7 @@ export default class LoadingScene extends Phaser.Scene {
     this.targetRow = data.targetRow;
     this.previousLevel = data.previousLevel;
     
-    // Stop game scene (shutdown happens asynchronously)
+    console.log('[DBGAME] Transition to:', this.targetLevel);
     this.scene.stop('game');
   }
 
@@ -55,6 +55,7 @@ export default class LoadingScene extends Phaser.Scene {
     // Start loading immediately (don't wait for shutdown)
     this.loadLevel().catch((error: unknown) => {
       const message = error instanceof Error ? error.message : String(error);
+      console.error('[DBGAME:LoadingScene] ERROR:', message);
       this.showError(message);
     });
   }
@@ -97,57 +98,64 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   private async loadLevel(): Promise<void> {
-    const levelData = await LevelLoader.load(this.targetLevel);
+    try {
+      const levelData = await LevelLoader.load(this.targetLevel);
 
-    const assetResult = await AssetLoadCoordinator.loadLevelAssets(
-      this,
-      levelData,
-      (percent) => this.updateProgress(percent)
-    );
+      const assetResult = await AssetLoadCoordinator.loadLevelAssets(
+        this,
+        levelData,
+        (percent) => this.updateProgress(percent)
+      );
 
-    if (!assetResult.success) {
-      this.showError(`Failed to load assets: ${assetResult.failedAssets.join(', ')}`);
-      return;
-    }
+      if (!assetResult.success) {
+        console.error('[DBGAME] Asset load failed:', assetResult.failedAssets);
+        this.showError(`Failed to load assets: ${assetResult.failedAssets.join(', ')}`);
+        return;
+      }
 
-    const theme = levelData.levelTheme ?? 'dungeon';
-    let renderer: GameSceneRenderer;
-    if (theme === 'wilds') {
-      renderer = new WildsSceneRenderer(this, CELL_SIZE);
-    } else if (theme === 'swamp') {
-      renderer = new SwampSceneRenderer(this, CELL_SIZE);
-    } else if (theme === 'grass') {
-      renderer = new GrassSceneRenderer(this, CELL_SIZE);
-    } else if (theme === 'default') {
-      renderer = new DefaultSceneRenderer(this, CELL_SIZE);
-    } else {
-      renderer = new DungeonSceneRenderer(this, CELL_SIZE);
-    }
+      const theme = levelData.levelTheme ?? 'dungeon';
+      let renderer: GameSceneRenderer;
+      if (theme === 'wilds') {
+        renderer = new WildsSceneRenderer(this, CELL_SIZE);
+      } else if (theme === 'swamp') {
+        renderer = new SwampSceneRenderer(this, CELL_SIZE);
+      } else if (theme === 'grass') {
+        renderer = new GrassSceneRenderer(this, CELL_SIZE);
+      } else if (theme === 'default') {
+        renderer = new DefaultSceneRenderer(this, CELL_SIZE);
+      } else {
+        renderer = new DungeonSceneRenderer(this, CELL_SIZE);
+      }
 
-    const tilesetResult = await renderer.prepareRuntimeTilesets(levelData);
-    renderer.destroy();
+      const tilesetResult = await renderer.prepareRuntimeTilesets(levelData);
+      renderer.destroy();
 
-    if (!tilesetResult.success) {
-      this.showError(`Failed to generate tilesets: ${tilesetResult.failed.join(', ')}`);
-      return;
-    }
+      if (!tilesetResult.success) {
+        console.error('[DBGAME] Tileset generation failed:', tilesetResult.failed);
+        this.showError(`Failed to generate tilesets: ${tilesetResult.failed.join(', ')}`);
+        return;
+      }
 
-    if (this.previousLevel && this.previousLevel !== this.targetLevel) {
-      this.unloadPreviousLevelAssets(levelData);
-    }
+      if (this.previousLevel && this.previousLevel !== this.targetLevel) {
+        this.unloadPreviousLevelAssets(levelData);
+      }
 
-    MemoryMonitor.checkForLeaks(this);
+      MemoryMonitor.checkForLeaks(this);
 
-    this.scene.start('game', {
-      level: this.targetLevel,
-      levelData,
-      playerCol: this.targetCol,
-      playerRow: this.targetRow
-    });
-    
-    // Launch HUD only if not already running
-    if (!this.scene.isActive('HudScene')) {
-      this.scene.launch('HudScene');
+      console.log('[DBGAME] Transition complete, starting:', this.targetLevel);
+      this.scene.start('game', {
+        level: this.targetLevel,
+        levelData,
+        playerCol: this.targetCol,
+        playerRow: this.targetRow
+      });
+      
+      if (!this.scene.isActive('HudScene')) {
+        this.scene.launch('HudScene');
+      }
+    } catch (error) {
+      console.error('[DBGAME] EXCEPTION:', error);
+      throw error;
     }
   }
 
@@ -158,11 +166,9 @@ export default class LoadingScene extends Phaser.Scene {
 
     // Filter out runtime-generated textures (UUIDs and special names)
     const isRuntimeTexture = (key: string) => {
-      // UUID pattern: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
       if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key)) {
         return true;
       }
-      // Known runtime textures
       if (key.includes('_gradient') || key.includes('_tileset') || key.includes('_water_')) {
         return true;
       }
@@ -175,13 +181,7 @@ export default class LoadingScene extends Phaser.Scene {
     );
     
     const result = AssetManager.getInstance().unloadSafe(this, candidates);
-
-    if (result.unloaded.length > 0) {
-      console.log(`[LoadingScene] Unloaded ${result.unloaded.length} textures from previous level`);
-    }
-    if (result.skipped.length > 0) {
-      console.log(`[LoadingScene] Skipped ${result.skipped.length} textures (still in use)`);
-    }
+    console.log('[DBGAME] Unloaded:', result.unloaded.length, 'textures');
   }
 
   private showError(message: string): void {

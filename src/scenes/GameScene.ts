@@ -64,7 +64,6 @@ export default class GameScene extends Phaser.Scene {
 
   async create() {
     // Clean up any leftover display objects from previous run
-    // (Phaser doesn't auto-clean when restarting a scene)
     this.children.removeAll(true);
     
     // Load world state only on first load
@@ -97,11 +96,9 @@ export default class GameScene extends Phaser.Scene {
     // Only use URL parameter on first load, not on transitions
     if (levelParam && !GameScene.hasLoadedFromURL) {
       this.currentLevelName = levelParam;
-      // Update worldState to match URL parameter (first load only)
       worldState.setCurrentLevel(levelParam);
       GameScene.hasLoadedFromURL = true;
     } else {
-      // On transitions, worldState was already updated by startLevelTransition()
       this.currentLevelName = worldState.getCurrentLevelName();
     }
 
