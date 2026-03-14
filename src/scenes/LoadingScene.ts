@@ -12,8 +12,6 @@ import { DefaultSceneRenderer } from './theme/DefaultSceneRenderer';
 import type { GameSceneRenderer } from './theme/GameSceneRenderer';
 import { CELL_SIZE } from '../constants/GameConstants';
 
-const PROGRESS_BAR_WIDTH_PX = 300;
-const PROGRESS_BAR_HEIGHT_PX = 30;
 const ERROR_FONT_SIZE = '20px';
 const BUTTON_FONT_SIZE = '18px';
 const BUTTON_PADDING_PX = 10;
@@ -32,8 +30,6 @@ export default class LoadingScene extends Phaser.Scene {
   private targetCol!: number;
   private targetRow!: number;
   private previousLevel!: string;
-  private progressBar?: Phaser.GameObjects.Graphics;
-  private progressBox?: Phaser.GameObjects.Graphics;
 
   constructor() {
     super({ key: 'LoadingScene' });
@@ -50,51 +46,12 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.showLoadingUI();
-    
-    // Start loading immediately (don't wait for shutdown)
+    // Start loading immediately (don't show UI)
     this.loadLevel().catch((error: unknown) => {
       const message = error instanceof Error ? error.message : String(error);
-      console.error('[DBGAME:LoadingScene] ERROR:', message);
+      console.error('[DBGAME] Load error:', message);
       this.showError(message);
     });
-  }
-
-  private showLoadingUI(): void {
-    const centerX = this.cameras.main.width / 2;
-    const centerY = this.cameras.main.height / 2;
-
-    this.progressBox = this.add.graphics();
-    this.progressBox.fillStyle(0x222222, 0.8);
-    this.progressBox.fillRect(
-      centerX - PROGRESS_BAR_WIDTH_PX / 2 - 5,
-      centerY - PROGRESS_BAR_HEIGHT_PX / 2 - 5,
-      PROGRESS_BAR_WIDTH_PX + 10,
-      PROGRESS_BAR_HEIGHT_PX + 10
-    );
-
-    this.progressBar = this.add.graphics();
-
-    this.add.text(centerX, centerY - 40, `Loading ${this.targetLevel}...`, {
-      fontSize: BUTTON_FONT_SIZE,
-      color: '#ffffff'
-    }).setOrigin(0.5);
-  }
-
-  private updateProgress(percent: number): void {
-    if (!this.progressBar) return;
-
-    const centerX = this.cameras.main.width / 2;
-    const centerY = this.cameras.main.height / 2;
-
-    this.progressBar.clear();
-    this.progressBar.fillStyle(0xffffff, 1);
-    this.progressBar.fillRect(
-      centerX - PROGRESS_BAR_WIDTH_PX / 2,
-      centerY - PROGRESS_BAR_HEIGHT_PX / 2,
-      PROGRESS_BAR_WIDTH_PX * (percent / 100),
-      PROGRESS_BAR_HEIGHT_PX
-    );
   }
 
   private async loadLevel(): Promise<void> {
@@ -104,7 +61,7 @@ export default class LoadingScene extends Phaser.Scene {
       const assetResult = await AssetLoadCoordinator.loadLevelAssets(
         this,
         levelData,
-        (percent) => this.updateProgress(percent)
+        () => {} // No progress UI
       );
 
       if (!assetResult.success) {
@@ -185,16 +142,6 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   private showError(message: string): void {
-    // Clear loading UI only (Phaser handles scene children cleanup)
-    if (this.progressBar) {
-      this.progressBar.destroy();
-      this.progressBar = undefined;
-    }
-    if (this.progressBox) {
-      this.progressBox.destroy();
-      this.progressBox = undefined;
-    }
-
     const centerX = this.cameras.main.width / 2;
     const centerY = this.cameras.main.height / 2;
 
@@ -233,8 +180,6 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   shutdown(): void {
-    // Clear references (Phaser handles destruction)
-    this.progressBar = undefined;
-    this.progressBox = undefined;
+    // Phaser handles destruction
   }
 }

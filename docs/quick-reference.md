@@ -7,6 +7,21 @@ npm run build                # MUST pass with zero errors
 npx eslint src --ext .ts     # MUST pass with zero errors
 ```
 
+## Level Transitions
+
+Level transitions work automatically via exit triggers. The system:
+- Unloads previous level assets (except core assets)
+- Loads new level assets
+- Preserves player health, coins, world state
+- Filters runtime textures (UUIDs, gradients, tilesets) from unload
+
+**Key fixes (March 2026):**
+- WorldState only loads from file once
+- URL parameter only used on first load
+- Display list cleaned on scene restart
+- Runtime textures never unloaded
+- Vignette texture key fixed ('vignette' not 'vin')
+
 ## Player Combat System
 
 **Attack Button:** Fixed at 85% camera width, 85% camera height. Touch/click or Space to punch.

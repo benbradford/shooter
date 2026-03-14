@@ -6,8 +6,15 @@ Level transitions allow players to move between levels by entering designated ex
 
 1. **Define exit cells** in level JSON with triggers
 2. **Link exits** to target levels with spawn positions
-3. **Player enters exit cell** → fade out → load new level → fade in
+3. **Player enters exit cell** → LoadingScene handles transition
 4. **Player spawns** at specified position in new level
+
+**Implementation (March 2026):**
+- WorldState persists across transitions (loads from file only once)
+- URL parameter only used on first load, then WorldState
+- Runtime textures (UUIDs, gradients, tilesets) filtered from unload
+- Display list cleaned on scene restart
+- All 8 loading tests pass
 
 ## Level JSON Configuration
 
@@ -97,10 +104,19 @@ Load with: `http://localhost:5173/?level=test_room1`
 ## Implementation Details
 
 - Uses existing trigger system
-- Fade out (500ms) → load level → fade in (500ms)
+- LoadingScene manages asset loading/unloading
 - Player never spawns on exit cells (spawn positions are separate)
 - Errors logged to console if target level doesn't exist
 - All previous level entities/assets cleaned up on transition
+- Runtime textures (water animations, tilesets) preserved across transitions
+
+**Key fixes (March 2026):**
+- WorldState only loads from file once (not on every scene restart)
+- URL parameter only used on first load
+- Runtime textures filtered from unload (UUID pattern, _gradient, _tileset, _water_)
+- Display list cleaned at start of GameScene.create()
+- Vignette texture key corrected ('vignette' not 'vin')
+- stalking_robot asset group includes floating_robot assets
 
 ## Related Files
 

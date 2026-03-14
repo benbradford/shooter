@@ -32,6 +32,11 @@ scale: {
 ### Resolution: 1280x720 (16:9)
 The game uses **1280x720** resolution to match modern phone aspect ratios (16:9 landscape).
 
+**Android configuration:**
+- Locked to landscape orientation in AndroidManifest.xml
+- Uses Phaser.Scale.FIT mode to scale to device screen
+- Auto-centers on all devices
+
 ## Coordinate Systems
 
 ### Screen Coordinates vs World Coordinates

@@ -19,8 +19,8 @@ if (globalThis.location.search.includes('debug')) {
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 1100,
-  height: 500,
+  width: 1280,
+  height: 720,
   backgroundColor: "#000000",
   scale: {
     mode: Phaser.Scale.FIT,

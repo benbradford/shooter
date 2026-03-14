@@ -1,9 +1,17 @@
 **Project Overview: Dodging Bullets**
 
 **Goal:**
-Create a 2D top-down cross-platform game using Phaser, with fixed grid-based movement, player animations, and support for scrolling rooms.
+Create a 2D top-down cross-platform game using Phaser, with fixed grid-based movement, player animations, and level transitions.
 
-WIP hosted on https://dodging-bullets.netlify.app/ (use WASD to move, Space to punch)
+**Platforms:**
+- Web (hosted on https://dodging-bullets.netlify.app/)
+- Android (1280x720, landscape, scales to fit)
+- Desktop (via Electron)
+- Raspberry Pi (local web server)
+
+**Controls:**
+- Desktop: WASD to move, Space to punch
+- Mobile: Touch joystick + attack button
 
 ---
 
@@ -22,6 +30,11 @@ to start a kiro session with context on the project
 **All Platforms:**
 - Node.js 18+ and npm
 - Git
+
+**Android (additional):**
+- Android Studio
+- Android SDK
+- USB debugging enabled on device
 
 **macOS:**
 ```bash
@@ -150,6 +163,28 @@ vercel --prod
 npm install -g gh-pages
 npm run deploy
 ```
+
+#### Deploy to Android
+
+1. **Build the project:**
+```bash
+npm run build
+```
+
+2. **Copy to Android assets:**
+```bash
+rm -rf android/app/src/main/assets/public/*
+cp -r dist/* android/app/src/main/assets/public/
+```
+
+3. **In Android Studio:**
+- Click "Sync Project with Gradle Files"
+- Click Run (green play button)
+
+**Configuration:**
+- Game locked to landscape orientation (AndroidManifest.xml)
+- Resolution: 1280x720 (16:9 aspect ratio)
+- Scales to fit device screen automatically
 
 #### Deploy to Raspberry Pi (Local Web Server)
 

@@ -66,6 +66,9 @@ export default class GameScene extends Phaser.Scene {
     // Clean up any leftover display objects from previous run
     this.children.removeAll(true);
     
+    // Start with camera faded out (prevents green flash)
+    this.cameras.main.fadeFrom(0, 0, 0, 0, true);
+    
     // Load world state only on first load
     const worldState = WorldStateManager.getInstance();
     if (!GameScene.hasLoadedWorldState) {
@@ -320,6 +323,33 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
+    // Fade in after level loads
+    this.cameras.main.fadeIn(500, 0, 0, 0);
+    
+    // Fade in background and vignette after camera fade completes
+    this.cameras.main.once('camerafadeincomplete', () => {
+      if (this.background) {
+        this.tweens.add({
+          targets: this.background,
+          alpha: 1,
+          duration: 300,
+          ease: 'Linear'
+        });
+      }
+      if (this.vignette) {
+        // Fade to original alpha based on theme
+        const targetAlpha = this.levelData.levelTheme === 'grass' ? 0.25 :
+                           this.levelData.levelTheme === 'swamp' ? 0.3 :
+                           this.levelData.levelTheme === 'wilds' ? 0.3 : 0.2;
+        this.tweens.add({
+          targets: this.vignette,
+          alpha: targetAlpha,
+          duration: 300,
+          ease: 'Linear'
+        });
+      }
+    });
+
     this.eventManager.raiseEvent('level_loaded');
   }
 
@@ -478,6 +508,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   startLevelTransition(targetLevel: string, spawnCol: number, spawnRow: number): void {
+    console.log('[DBGAME] Transition to:', targetLevel);
     const worldState = WorldStateManager.getInstance();
     const player = this.entityManager.getFirst('player');
     if (player) {
@@ -496,11 +527,15 @@ export default class GameScene extends Phaser.Scene {
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
 
-    this.scene.start('LoadingScene', {
-      targetLevel,
-      targetCol: spawnCol,
-      targetRow: spawnRow,
-      previousLevel: this.currentLevelName
+    // Fade out, then start transition
+    this.cameras.main.fadeOut(500, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('LoadingScene', {
+        targetLevel,
+        targetCol: spawnCol,
+        targetRow: spawnRow,
+        previousLevel: this.currentLevelName
+      });
     });
   }
 

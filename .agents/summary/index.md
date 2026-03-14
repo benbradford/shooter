@@ -171,10 +171,16 @@ graph TB
 - Multiple path types (path, water)
 
 **level-themes.md** (12KB)
-- Theme renderers (dungeon, swamp, grass)
+- Theme renderers (dungeon, swamp, grass, wilds)
 - Background rendering
 - Wall/platform patterns
 - Vignette effects
+
+**level-transitions.md** (8KB)
+- Exit triggers and level switching
+- WorldState persistence across transitions
+- Asset loading/unloading
+- Runtime texture filtering (March 2026 fix)
 
 **entity-creation-system.md** (17KB)
 - Unified entity array in level JSON
@@ -221,9 +227,10 @@ graph TB
 
 **screen-scaling-and-hud.md** (8KB)
 - Camera zoom must be 1
-- FIT mode with 1280x720 resolution
+- FIT mode with 1280x720 resolution (16:9 landscape)
 - HUD positioning (displaySize vs game size)
 - Android compatibility quirks
+- Landscape orientation lock in AndroidManifest.xml
 
 **hud-system.md** (4KB)
 - HUD scene overlay

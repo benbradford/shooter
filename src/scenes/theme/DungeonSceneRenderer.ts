@@ -38,11 +38,12 @@ export class DungeonSceneRenderer extends GameSceneRenderer {
     background.setOrigin(0, 0);
     background.setDisplaySize(worldWidth, worldHeight);
     background.setDepth(Depth.floor);
+    background.setAlpha(0);
 
     const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vignette');
     vignette.setDisplaySize(worldWidth, worldHeight);
     vignette.setDepth(Depth.vignette);
-    vignette.setAlpha(0.2);
+    vignette.setAlpha(0);
     vignette.setTint(0x221111);
     vignette.setBlendMode(2);
 

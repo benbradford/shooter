@@ -66,18 +66,21 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES = {
 
 ### Scene Cleanup on Level Load
 
-**Problem**: When switching levels, artifacts from the previous level (overlays, graphics, sprites) remained visible.
+**Problem (March 2026):** When switching levels, old sprites remained visible and caused __MISSING texture errors.
 
-**Solution**: Comprehensive cleanup in `GameScene.loadLevel()`:
-- Clear all timer events: `this.time.removeAllEvents()`
-- Destroy all game objects except HUD elements
-- Destroy scene renderer (graphics and sprites)
-- Destroy overlay system
+**Solution:** 
+- `GameScene.create()` calls `children.removeAll(true)` at start
+- WorldState only loads from file once (static flag)
+- URL parameter only used on first load (static flag)
+- Runtime textures (UUIDs, gradients, tilesets) filtered from unload
 
-**Files Changed**:
-- `src/scenes/GameScene.ts` - Added cleanup logic
-- `src/systems/SceneOverlays.ts` - Added `destroy()` method
-- `src/scenes/theme/GameSceneRenderer.ts` - Updated `destroy()` to clear graphics
+**Files Changed:**
+- `src/scenes/GameScene.ts` - Display list cleanup, static flags
+- `src/scenes/LoadingScene.ts` - Runtime texture filtering
+- `src/scenes/theme/*.ts` - Vignette texture key ('vignette' not 'vin')
+- `src/assets/AssetRegistry.ts` - stalking_robot asset group
+
+**Testing:** All 8 loading tests pass (see `test/tests/loading/`)
 
 ### Scene Renderer Refactor (March 2026)
 
