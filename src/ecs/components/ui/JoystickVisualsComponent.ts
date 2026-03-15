@@ -96,8 +96,8 @@ export class JoystickVisualsComponent implements Component {
 
       // Use last position, or recalculate default until touched
       if (!this.initialized || this.lastX === 0) {
-        this.lastX = displayWidth * 0.075;
-        this.lastY = displayHeight * 0.5;
+        this.lastX = displayWidth * 0.09;
+        this.lastY = displayHeight * 0.45;
       }
       this.outerCircle.setPosition(this.lastX, this.lastY);
       this.innerCircle.setPosition(this.lastX, this.lastY);

@@ -10,7 +10,9 @@ npm run build                # MUST pass with zero errors
 
 ## Android Deployment
 
-**Only deploy to Android when user explicitly asks.**
+**Only deploy to Android when user explicitly asks: "build for android" or "deploy to android"**
+
+**ALWAYS run npm run build first, then copy:**
 
 ```bash
 npm run build

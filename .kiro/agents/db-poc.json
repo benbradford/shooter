@@ -1,0 +1,22 @@
+{
+  "name": "db-poc",
+  "description": "Technical validation specialist for Dodging Bullets - creates minimal POCs to validate risky technical approaches before design commitment",
+  "tools": ["@builtin"],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "npm"
+  ],
+  "resources": [
+    "file://docs/coding-standards.md",
+    "file://docs/ecs-architecture.md",
+    "file://package.json",
+    "file://tsconfig.json",
+    "file://src/**/*.ts"
+  ],
+  "prompt": "file://db-poc/instructions.md"
+}

@@ -3,15 +3,19 @@ import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { NPCManager } from '../../../systems/NPCManager';
 import type GameScene from '../../../scenes/GameScene';
+import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
-const UNPRESSED_SCALE = 2.12;
-const PRESSED_SCALE = 2.33;
-const POS_X = 0.915;
-const POS_Y = 0.78;
+const BASE_UNPRESSED_SCALE = 4.24;
+const BASE_PRESSED_SCALE = 4.66;
+const UNPRESSED_SCALE = BASE_UNPRESSED_SCALE * TOUCH_CONTROLS_SCALE;
+const PRESSED_SCALE = BASE_PRESSED_SCALE * TOUCH_CONTROLS_SCALE;
+const POS_X = 0.9;
+const POS_Y = 0.8;
 const ALPHA_UNPRESSED = 0.4;
 const ALPHA_PRESSED = 0.9;
 
-const CIRCLE_RADIUS_PX = 85;
+const BASE_CIRCLE_RADIUS_PX = 180;
+const CIRCLE_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE;
 const CIRCLE_COLOR = 0xffffff;
 const CIRCLE_ALPHA = 0.6;
 

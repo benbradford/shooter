@@ -187,20 +187,53 @@ User: "flesh out the design of features/npc/npcs.md"
 When user says "design {feature}", follow this workflow:
 
 ```
-1. Delegate to db-design
-   → Wait for design.md
+1. Delegate to db-design (Phase 1)
+   → Clarifying questions
+   → Identifies technical unknowns
+   
+2. If technical unknowns exist:
+   → Delegate to db-poc
+   → Wait for poc-results.md
+   
+3. Check POC results:
+   ├─ PROCEED → db-design continues to Phase 3 (requirements)
+   ├─ REVISE → Send findings to db-design Phase 1 (revise approach)
+   └─ ABANDON → Explore alternatives with db-design
+   
+4. db-design completes requirements.md and design.md
 
-2. Parallel delegation:
+5. Parallel delegation:
    ├─ db-runtime-analyst (with design.md)
    └─ db-failure-analyst (with design.md)
    
-3. Wait for both analyses
+6. Wait for both analyses
 
-4. Check results:
+7. Check results:
    ├─ Both pass → Approve design, create tasks.md
    └─ Either fails → Send violations to db-design for revision
 
-5. Repeat 1-4 until both analyses pass
+8. Repeat 4-7 until both analyses pass
+```
+
+**Example with POC:**
+```
+User: "design Lua scripting system"
+
+1. Delegate to db-design
+   → Identifies unknowns: "Can Lua run in browser? Can it call JS?"
+   
+2. Delegate to db-poc
+   → Tests wasmoon library
+   → Finds: Basic works ✓, Async doesn't work ✗
+   → Recommends: PROCEED with command queue workaround
+   
+3. db-design continues with command queue approach
+   → Creates requirements.md and design.md
+   
+4. Delegate to analysts in parallel
+   → Both validate design
+   
+5. Approve and create tasks.md
 ```
 
 ### Bug Fix Workflow ⭐ NEW

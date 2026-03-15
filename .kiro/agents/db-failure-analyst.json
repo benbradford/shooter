@@ -1,8 +1,19 @@
 {
   "name": "db-failure-analyst",
-  "instructions": ".kiro/agents/db-failure-analyst/instructions.md",
+  "prompt": "file://db-failure-analyst/instructions.md",
   "resources": [
-    "docs/failure-analysis.md",
-    "docs/feature-design-process.md"
+    "file://docs/failure-analysis.md",
+    "file://docs/feature-design-process.md"
+  ],
+  "tools": ["@builtin"],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "ls",
+    "imageRead"
   ]
 }

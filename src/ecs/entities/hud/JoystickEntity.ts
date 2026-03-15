@@ -10,21 +10,21 @@ export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventMan
   const entity = new Entity('joystick');
 
   const joystick = entity.add(new TouchJoystickComponent(scene, {
-    maxRadius: 173,
-    innerRadius: 92,
-    deadZoneDistance: 35
+    maxRadius: 200,
+    innerRadius: 100,
+    deadZoneDistance: 30
   }));
   joystick.init();
 
   const visuals = entity.add(new JoystickVisualsComponent(scene, joystick));
   visuals.init();
-  
+
   const attackButton = entity.add(new AttackButtonComponent(scene));
   attackButton.init();
 
   const controlMode = entity.add(new ControlModeComponent(scene));
   controlMode.init();
-  
+
   const coinCounter = entity.add(new CoinCounterComponent(scene, eventManager));
   coinCounter.init();
 

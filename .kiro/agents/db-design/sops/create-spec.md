@@ -232,6 +232,10 @@ What to refactor and how
 
 **Action:** Define WHAT the system does (not HOW)
 
+**Prerequisites:**
+- Phase 1 complete (clarifying questions answered)
+- Phase 2 complete (POC validated if needed)
+
 **Structure:**
 ```markdown
 # {Feature} System Requirements
@@ -240,7 +244,7 @@ What to refactor and how
 Brief description
 
 ## POC Results (if applicable)
-What was validated
+Summary of what was validated by db-poc agent
 
 ## Phase 1: Core Infrastructure
 ### 1.1 Component/System Name

@@ -3,8 +3,10 @@ import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import type { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import type { AttackComboComponent } from '../combat/AttackComboComponent';
+import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
-const BUTTON_SCALE = 0.14;
+const BASE_BUTTON_SCALE = 0.28;
+const BUTTON_SCALE = BASE_BUTTON_SCALE * TOUCH_CONTROLS_SCALE;
 const BUTTON_ALPHA_UNPRESSED = 0.5;
 const BUTTON_ALPHA_PRESSED = 0.9;
 const BUTTON_ALPHA_COOLDOWN = 0.3;
@@ -12,7 +14,8 @@ const BUTTON_SCALE_PRESSED = BUTTON_SCALE;
 const BUTTON_TINT_PRESSED = 0xff0000;
 const POS_X = 0.75;
 const POS_Y = 0.85;
-const CIRCLE_RADIUS_PX = 60;
+const BASE_CIRCLE_RADIUS_PX = 90;
+const CIRCLE_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE;
 const CIRCLE_COLOR = 0xffffff;
 
 export class SlideButtonComponent implements Component {

@@ -48,35 +48,77 @@ Follow these phases to create a complete, implementable design.
 ### Purpose
 Validate technical approach before committing to design.
 
+### When to Use POC
+
+**Always POC when:**
+- Using a new library/dependency for the first time
+- Uncertain about browser API compatibility
+- Performance/bundle size is a concern
+- Integration pattern is unproven
+- Technical approach has multiple unknowns
+
+**Skip POC when:**
+- Using well-established patterns from the codebase
+- Extending existing systems with known behavior
+- Technical approach is proven and documented
+
+### Agent: db-poc
+
+The **db-poc agent** handles all POC creation:
+- Creates minimal test code (focus on answering specific questions)
+- Tests specific technical questions
+- Measures bundle size impact
+- Documents findings
+- Provides clear recommendations
+
+**Invoked by:** db-design agent when technical unknowns are identified
+
 ### Process
-1. **Identify risky/unknown technologies**
+
+1. **db-design identifies risky/unknown technologies**
    - Example: "Can we use Lua in browser?"
+   - Outputs list of technical questions
    
-2. **Create minimal POC**
+2. **db-poc creates minimal tests**
    - Install package
    - Test core functionality
    - Test integration with existing code
    - Measure bundle size impact
    
-3. **Test edge cases**
+3. **db-poc tests edge cases**
    - Example: "Can Lua await JS promises?"
    - Example: "Do parameters pass correctly?"
    
-4. **Document results**
+4. **db-poc documents results**
    - What works
    - What doesn't work
    - Workarounds needed
    - Bundle size impact
 
 ### Output
-- Validated technical approach
-- Known limitations
-- Workarounds identified
-- POC code (temporary, will be removed)
+- `features/{feature}/poc-results.md` - Findings document
+- `src/poc/{feature}/` - Test code (temporary, will be removed)
+- Clear recommendation: PROCEED / REVISE / ABANDON
+
+### Feedback Loop
+
+**If POC succeeds:**
+- db-design proceeds to Phase 3 (requirements)
+
+**If POC fails:**
+- Findings sent back to db-design Phase 1
+- db-design revises approach with new constraints
+- May trigger new POC with alternative approach
 
 ### Example: Interaction System POC
 
-**Tests performed**:
+**Questions:**
+1. Can wasmoon execute Lua in browser?
+2. Can Lua call JS functions?
+3. Can Lua await JS promises?
+4. What's the bundle size impact?
+
+**Tests performed:**
 1. Basic Lua execution ✓
 2. JS function calls from Lua ✓
 3. JS object methods from Lua ✓
@@ -84,7 +126,11 @@ Validate technical approach before committing to design.
 5. Async/await support ✗ (doesn't work)
 6. Command queue approach ✓ (workaround)
 
-**Outcome**: Wasmoon works with command queue approach
+**Bundle size:** +180kb
+
+**Outcome:** Wasmoon works with command queue approach
+
+**Recommendation:** PROCEED with command queue pattern
 
 ---
 
@@ -570,16 +616,39 @@ Before starting implementation, verify:
 
 **Kiro responds**:
 > "Let me create a complete design following our feature design process. I'll:
-> 1. Ask clarifying questions about the feature
-> 2. Identify technical unknowns and create POCs
-> 3. Write requirements document
-> 4. Write design document  
-> 5. Scrutinize for ambiguities
-> 6. Create task breakdown
-> 7. Write implementation clarifications
-> 8. Create README for future sessions
+> 1. Delegate to db-design for clarifying questions
+> 2. Delegate to db-poc if technical unknowns exist
+> 3. db-design writes requirements and design documents
+> 4. Delegate to db-runtime-analyst and db-failure-analyst for validation
+> 5. Iterate until both analyses pass
+> 6. Create task breakdown and implementation guide
 >
 > This will take 1-3 hours but will save 10-20 hours during implementation. Ready to start?"
+
+**Workflow:**
+```
+User: "I want feature X"
+  ↓
+Kiro delegates to db-design
+  ↓
+db-design Phase 1: Clarifying questions
+  ↓
+Technical unknowns? 
+  ↓ YES                    ↓ NO
+Kiro delegates to db-poc   Skip to Phase 3
+  ↓
+POC results?
+  ↓ PROCEED              ↓ REVISE
+Phase 3: Requirements    Back to Phase 1
+  ↓
+Phase 4: Design
+  ↓
+Kiro delegates to analysts (parallel)
+  ↓
+Both pass?
+  ↓ YES              ↓ NO
+Phase 8: Tasks       Revise design
+```
 
 ---
 
