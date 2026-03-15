@@ -339,6 +339,7 @@ Then rebuild in Android Studio.
 
 ### Core Guides
 - **[Coding Standards](./docs/coding-standards.md)** - TypeScript best practices, modern JavaScript standards, component design principles
+- **[Debugging Guide](./docs/debugging-guide.md)** - Systematic debugging workflow, instrumentation, testing round trips, handling warnings
 - **[ECS Architecture](./docs/ecs-architecture.md)** - Entity-Component system, EntityManager, creating new entities, component library
 - **[Collision System](./docs/collision-system.md)** - Entity collision detection, tags, collision boxes, damage system
 - **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, layer-based collision, scene setup

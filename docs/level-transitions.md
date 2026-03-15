@@ -13,8 +13,10 @@ Level transitions allow players to move between levels by entering designated ex
 - WorldState persists across transitions (loads from file only once)
 - URL parameter only used on first load, then WorldState
 - Runtime textures (UUIDs, gradients, tilesets) filtered from unload
-- Display list cleaned on scene restart
-- All 8 loading tests pass
+- Enemy textures never unloaded (have global animations, small size)
+- Entities destroyed in LoadingScene.init() before scene.stop()
+- Fade uses timeout (500ms) instead of camera callback (more reliable)
+- All loading tests pass including round trips
 
 ## Level JSON Configuration
 

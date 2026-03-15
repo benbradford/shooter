@@ -23,17 +23,22 @@ Then rebuild in Android Studio.
 ## Level Transitions
 
 Level transitions work automatically via exit triggers. The system:
-- Unloads previous level assets (except core assets)
+- Unloads previous level assets (except core assets and enemy textures)
 - Loads new level assets
 - Preserves player health, coins, world state
 - Filters runtime textures (UUIDs, gradients, tilesets) from unload
+- Destroys entities before transition to clean up references
 
-**Key fixes (March 2026):**
-- WorldState only loads from file once
+**Key implementation (March 2026):**
+- WorldState persists across transitions (only loads from file once)
 - URL parameter only used on first load
-- Display list cleaned on scene restart
-- Runtime textures never unloaded
-- Vignette texture key fixed ('vignette' not 'vin')
+- Runtime textures never unloaded (water animations, tilesets)
+- Enemy textures never unloaded (have global animations, small size)
+- Entities destroyed in LoadingScene.init() before scene.stop()
+- Fade uses timeout (500ms) instead of camera callback (more reliable)
+- Vignette texture key: 'vignette' (not 'vin')
+
+**Testing:** See `test/tests/loading/` for comprehensive tests including round trips
 
 ## Player Combat System
 
