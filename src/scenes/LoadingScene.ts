@@ -4,6 +4,7 @@ import { AssetLoadCoordinator } from '../systems/AssetLoadCoordinator';
 import { AssetManifest } from '../systems/AssetManifest';
 import { AssetManager } from '../systems/AssetManager';
 import { MemoryMonitor } from '../systems/MemoryMonitor';
+import { WorldStateManager } from '../systems/WorldStateManager';
 import { DungeonSceneRenderer } from './theme/DungeonSceneRenderer';
 import { WildsSceneRenderer } from './theme/WildsSceneRenderer';
 import { SwampSceneRenderer } from './theme/SwampSceneRenderer';
@@ -36,16 +37,24 @@ export default class LoadingScene extends Phaser.Scene {
   }
 
   init(data: LoadingSceneData): void {
-    console.log('[DBGAME] LoadingScene.init() called');
     this.targetLevel = data.targetLevel;
     this.targetCol = data.targetCol;
     this.targetRow = data.targetRow;
     this.previousLevel = data.previousLevel;
     
-    console.log('[DBGAME] Transition to:', this.targetLevel);
-    console.log('[DBGAME] Stopping game scene');
+    console.log('[DBGAME] LoadingScene.init(), stopping game scene');
+    
+    // Get GameScene and destroy its entities before stopping
+    const gameScene = this.scene.get('game') as any;
+    if (gameScene && gameScene.entityManager) {
+      console.log('[DBGAME] Destroying', gameScene.entityManager.count, 'entities');
+      const worldState = WorldStateManager.getInstance();
+      worldState.setTrackDestructions(false);
+      gameScene.entityManager.destroyAll();
+      worldState.setTrackDestructions(true);
+    }
+    
     this.scene.stop('game');
-    console.log('[DBGAME] scene.stop called');
   }
 
   create(): void {
@@ -127,7 +136,7 @@ export default class LoadingScene extends Phaser.Scene {
     const textureKeys = this.textures.getTextureKeys()
       .filter(key => key !== '__DEFAULT' && key !== '__MISSING');
 
-    // Filter out runtime-generated textures (UUIDs and special names)
+    // Filter out runtime-generated textures and enemy textures
     const isRuntimeTexture = (key: string) => {
       if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(key)) {
         return true;
@@ -137,12 +146,28 @@ export default class LoadingScene extends Phaser.Scene {
       }
       return false;
     };
+    
+    // Enemy textures - keep loaded (small, reused, have animations)
+    const enemyTextures = new Set([
+      'skeleton', 'bone_small',
+      'thrower', 'grenade',
+      'bug_base', 'base_destroyed', 'bug',
+      'floating_robot', 'exclamation', 'fireball', 'robot_hit_particle',
+      'bullet_dude_sprite',
+      'puma'
+    ]);
 
     const candidates = textureKeys.filter(key => 
       !nextAssets.has(key as import('../assets/AssetRegistry').AssetKey) &&
-      !isRuntimeTexture(key)
+      !isRuntimeTexture(key) &&
+      !enemyTextures.has(key)
     );
     
+    console.log('[DBGAME] Unload candidates (after filtering):', candidates.length);
+    console.log('[DBGAME] Filtered out enemy textures:', 
+      textureKeys.filter(k => enemyTextures.has(k)).join(', '));
+    
+    // Pass nextAssets to AssetManager so it knows which textures are being reloaded
     const result = AssetManager.getInstance().unloadSafe(this, candidates);
     console.log('[DBGAME] Unloaded:', result.unloaded.length, 'textures');
   }

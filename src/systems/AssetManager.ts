@@ -93,8 +93,9 @@ export class AssetManager {
 
     for (const dep of deps) {
       if (dep.type === 'animation' && scene.anims.exists(dep.key)) {
-        // Remove animation so texture can be unloaded
-        scene.anims.remove(dep.key);
+        // Don't unload textures with animations - causes null frame errors
+        console.warn(`[AssetManager] Cannot unload '${key}': animation '${dep.key}' still exists`);
+        return false;
       }
       if (dep.type === 'tileset' && scene.textures.exists(dep.key)) {
         console.warn(`[AssetManager] Cannot unload '${key}': tileset '${dep.key}' still exists`);

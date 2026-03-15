@@ -50,6 +50,7 @@ export default class GameScene extends Phaser.Scene {
   private isEditorMode: boolean = false;
   private static hasLoadedFromURL: boolean = false;
   private static hasLoadedWorldState: boolean = false;
+  private static previousEntityManager?: EntityManager;
   public isInInteraction: boolean = false;
   private isResetting: boolean = false;
 
@@ -63,17 +64,14 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create() {
-    // Clean up any leftover display objects from previous run
-    this.children.removeAll(true);
-    
-    // Destroy entities when scene shuts down (set up once)
-    if (!this.events.listenerCount('shutdown')) {
-      this.events.on('shutdown', () => {
-        console.log('[DBGAME] GameScene shutdown - destroying', this.entityManager?.count, 'entities');
-        if (this.entityManager) {
-          this.entityManager.destroyAll();
-        }
-      });
+    // Destroy entities from previous scene instance
+    if (GameScene.previousEntityManager) {
+      console.log('[DBGAME] Destroying', GameScene.previousEntityManager.count, 'entities from previous scene');
+      const worldState = WorldStateManager.getInstance();
+      worldState.setTrackDestructions(false);
+      GameScene.previousEntityManager.destroyAll();
+      worldState.setTrackDestructions(true);
+      GameScene.previousEntityManager = undefined;
     }
     
     // Start with camera faded out (prevents green flash)
@@ -148,12 +146,14 @@ export default class GameScene extends Phaser.Scene {
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
 
-    this.anims.create({
-      key: 'water_ripple_anim',
-      frames: this.anims.generateFrameNumbers('water_ripple', { start: 0, end: 3 }),
-      frameRate: 12,
-      repeat: 0
-    });
+    if (!this.anims.exists('water_ripple_anim')) {
+      this.anims.create({
+        key: 'water_ripple_anim',
+        frames: this.anims.generateFrameNumbers('water_ripple', { start: 0, end: 3 }),
+        frameRate: 12,
+        repeat: 0
+      });
+    }
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
@@ -537,13 +537,17 @@ export default class GameScene extends Phaser.Scene {
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
 
+    // Save entity manager for cleanup BEFORE fade
+    console.log('[DBGAME] Saving', this.entityManager.count, 'entities for cleanup');
+    GameScene.previousEntityManager = this.entityManager;
+
     // Fade out, then start transition
+    console.log('[DBGAME] Starting fade out');
     this.cameras.main.fadeOut(500, 0, 0, 0);
-    this.cameras.main.once('camerafadeoutcomplete', () => {
-      // Destroy entities before starting LoadingScene
-      console.log('[DBGAME] Destroying', this.entityManager.count, 'entities before transition');
-      this.entityManager.destroyAll();
-      
+    
+    // Use timeout instead of callback (more reliable)
+    this.time.delayedCall(500, () => {
+      console.log('[DBGAME] Fade complete (timeout), starting LoadingScene');
       this.scene.start('LoadingScene', {
         targetLevel,
         targetCol: spawnCol,
