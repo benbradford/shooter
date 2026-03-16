@@ -317,9 +317,6 @@ Individual cells can have custom background textures that override theme renderi
 **Object format** (custom transform):
 ```json
 {
-  "col": 10,
-  "row": 5,
-  "properties": ["wall"],
   "backgroundTexture": {
     "image": "door_closed",
     "transformOverride": {
@@ -332,19 +329,35 @@ Individual cells can have custom background textures that override theme renderi
 }
 ```
 
+**Spritesheet format** (extract region from a larger image):
+```json
+{
+  "backgroundTexture": {
+    "image": "wilds_props",
+    "sourceRect": {
+      "x": 220,
+      "y": 277,
+      "width": 256,
+      "height": 111
+    }
+  }
+}
+```
+
 **How it works:**
 - Cells with `backgroundTexture` are rendered as images at depth -100
 - The theme's custom rendering (bricks, stones) is skipped for these cells
 - String format: Texture scaled to fit cell size
 - Object format: Custom scaling and positioning via transformOverride
+- `sourceRect`: Crops a region from the source image (creates a Phaser texture frame). If omitted, uses the full image.
+- `sourceRect` and `transformOverride` can be combined
 
 **Adding new textures:**
 1. Add image to `public/assets/{category}/`
-2. Resize to 128x128: `sips -z 128 128 path/to/texture.png`
-3. Register in `src/assets/AssetRegistry.ts`
-4. Add to default assets in `src/assets/AssetLoader.ts`
-5. Add to `AVAILABLE_TEXTURES` in `src/editor/TextureEditorState.ts`
-6. (Optional) Add transformOverride in level JSON for custom scaling/positioning
+2. Register in `src/assets/AssetRegistry.ts`
+3. Add to editor asset group in `AssetRegistry.ts`
+4. For single textures: Add to `AVAILABLE_TEXTURES` in `src/editor/TextureEditorState.ts`
+5. For spritesheets: Add to `SPRITESHEET_TEXTURES` in `src/editor/SpritesheetTextures.ts`
 
 ## Theme Switching
 

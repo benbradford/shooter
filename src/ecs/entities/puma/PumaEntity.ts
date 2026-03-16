@@ -10,7 +10,6 @@ import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { StateMachine } from '../../../systems/state/StateMachine';
-import { Depth } from '../../../constants/DepthConstants';
 import { Direction } from '../../../constants/Direction';
 import type { Grid } from '../../../systems/grid/Grid';
 import { type PumaDifficulty, getPumaDifficultyConfig } from './PumaDifficulty';
@@ -54,7 +53,7 @@ export function createPumaEntity(props: CreatePumaProps): Entity {
 
   const transform = entity.add(new TransformComponent(x, y, 0, PUMA_SCALE));
   const sprite = entity.add(new SpriteComponent(scene, 'puma', transform));
-  sprite.sprite.setDepth(Depth.enemy);
+  sprite.sprite.setDepth(-1);
 
   entity.add(new GridPositionComponent(col, row, PUMA_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));

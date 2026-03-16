@@ -55,6 +55,9 @@ const AVAILABLE_TEXTURES: string[] = [
 type TextureSelection = {
   textureName: string;
   sourceRect?: SourceRect;
+  scaleX?: number;
+  scaleY?: number;
+  zOffsetOverride?: number;
 };
 
 export class TextureEditorState extends EditorState {
@@ -374,7 +377,7 @@ export class TextureEditorState extends EditorState {
       });
       spriteBg.on('pointerdown', () => {
         this.justClickedUI = true;
-        this.selectedTexture = { textureName: def.textureKey, sourceRect: r };
+        this.selectedTexture = { textureName: def.textureKey, sourceRect: r, scaleX: sprite.scaleX, scaleY: sprite.scaleY, zOffsetOverride: sprite.zOffsetOverride };
         this.updateSelection();
         this.updateSpritesheetPanelSelection(def);
       });
@@ -444,10 +447,19 @@ export class TextureEditorState extends EditorState {
       this.clearCellBackgroundTextureConfig(col, row);
     } else if (this.selectedTexture.sourceRect) {
       this.scene.setCellData(col, row, { backgroundTexture: this.selectedTexture.textureName });
-      this.setCellBackgroundTextureConfig(col, row, {
+      const config: BackgroundTextureConfig = {
         image: this.selectedTexture.textureName,
         sourceRect: this.selectedTexture.sourceRect,
-      });
+      };
+      const sx = this.selectedTexture.scaleX ?? 1;
+      const sy = this.selectedTexture.scaleY ?? 1;
+      if (sx !== 1 || sy !== 1) {
+        config.transformOverride = { scaleX: sx, scaleY: sy, offsetX: 0, offsetY: 0 };
+      }
+      if (this.selectedTexture.zOffsetOverride !== undefined) {
+        config.zOffsetOverride = this.selectedTexture.zOffsetOverride;
+      }
+      this.setCellBackgroundTextureConfig(col, row, config);
     } else {
       this.scene.setCellData(col, row, { backgroundTexture: this.selectedTexture.textureName });
       this.clearCellBackgroundTextureConfig(col, row);

@@ -97,6 +97,7 @@ export type BackgroundTextureConfig = {
     offsetX: number;
     offsetY: number;
   };
+  zOffsetOverride?: number;
 }
 
 export type LevelCell = {

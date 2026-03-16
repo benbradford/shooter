@@ -2,6 +2,31 @@
 
 ## March 2026
 
+### Spritesheet Background Textures
+
+**Change**: `BackgroundTextureConfig` now supports `sourceRect` for extracting a region from a larger spritesheet image.
+
+**How it works:**
+- `sourceRect: { x, y, width, height }` crops a region from the source image
+- Renderer creates a Phaser texture frame on-the-fly from the source rect
+- Editor has spritesheet picker: green 📋 buttons open a sub-sprite selection panel
+- Spritesheet definitions in `src/editor/SpritesheetTextures.ts`
+
+**Files Changed:**
+- `src/systems/level/LevelLoader.ts` - Added `SourceRect` type and `sourceRect` to `BackgroundTextureConfig`
+- `src/scenes/theme/GameSceneRenderer.ts` - Handle `sourceRect` when creating background sprites
+- `src/editor/SpritesheetTextures.ts` - New file defining spritesheet sprite bounds
+- `src/editor/TextureEditorState.ts` - Spritesheet picker UI
+- `src/assets/AssetRegistry.ts` - Added `wilds_props` and `rocks_spritesheet`
+
+### Editor Black Screen Fix
+
+**Problem**: Entering editor mode caused the game scene to go black.
+
+**Cause**: `resetScene()` triggers `camera.fadeIn(500)` but the scene is paused immediately after, so the fade never completes.
+
+**Fix**: Skip camera fade-in when `isEditorMode` is true; set background/vignette alpha directly instead.
+
 ### Background Texture Transforms in JSON
 
 **Change**: Transform overrides for background textures moved from code to level JSON files.

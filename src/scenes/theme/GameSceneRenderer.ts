@@ -206,6 +206,7 @@ export abstract class GameSceneRenderer {
         let textureName: string;
         let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
         let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
+        let zOffsetOverride: number | undefined;
         
         if (typeof cell.backgroundTexture === 'string') {
           textureName = cell.backgroundTexture;
@@ -214,6 +215,7 @@ export abstract class GameSceneRenderer {
           textureName = cell.backgroundTexture.image;
           transform = cell.backgroundTexture.transformOverride;
           sourceRect = cell.backgroundTexture.sourceRect;
+          zOffsetOverride = cell.backgroundTexture.zOffsetOverride;
         }
         
         if (textureName === '') {
@@ -255,6 +257,7 @@ export abstract class GameSceneRenderer {
         if (isBridge) depth = Depth.stairs;
         else if (isWater) depth = Depth.waterTexture;
         else depth = Depth.cellTextureModified;
+        if (zOffsetOverride !== undefined) depth += zOffsetOverride;
         sprite.setDepth(depth);
 
         this.cellSprites.push(sprite);

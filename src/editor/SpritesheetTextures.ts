@@ -3,6 +3,9 @@ import type { SourceRect } from '../systems/level/LevelLoader';
 export type SpritesheetSprite = {
   readonly name: string;
   readonly sourceRect: SourceRect;
+  readonly scaleX?: number;
+  readonly scaleY?: number;
+  readonly zOffsetOverride?: number;
 };
 
 export type SpritesheetDefinition = {
@@ -14,9 +17,9 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
   {
     textureKey: 'wilds_props',
     sprites: [
-      { name: 'tall_grass', sourceRect: { x: 0, y: 205, width: 236, height: 184 } },
+      { name: 'tall_grass', sourceRect: { x: -20, y: 205, width: 236, height: 184 }, zOffsetOverride: 10 },
       { name: 'dry_brush', sourceRect: { x: 220, y: 277, width: 256, height: 111 } },
-      { name: 'ground_cover', sourceRect: { x: 455, y: 291, width: 256, height: 91 } },
+      { name: 'ground_cover', sourceRect: { x: 455, y: 291, width: 256, height: 91}, scaleX: 2, scaleY: 1 },
       { name: 'flower_bush', sourceRect: { x: 690, y: 218, width: 256, height: 171 } },
       { name: 'dead_tree', sourceRect: { x: 920, y: 238, width: 256, height: 151 } },
       { name: 'moss_patch', sourceRect: { x: 1180, y: 276, width: 320, height: 112 } },

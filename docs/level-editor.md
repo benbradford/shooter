@@ -71,6 +71,8 @@ Drag entities to reposition. Accepts entity and returnState props.
 ### Texture Mode
 Paginated 3-column grid of textures. Click texture → click cells to paint. Clear button removes textures.
 
+Spritesheet textures (green buttons with 📋 icon) open a secondary sprite picker panel. Click a sub-sprite to select it, then click cells to place. Placed as `backgroundTexture` with `sourceRect`. Spritesheet definitions in `src/editor/SpritesheetTextures.ts`.
+
 ### Trigger Mode
 List view of triggers. Click to select/view. Edit/Delete/Add New buttons.
 
