@@ -464,6 +464,7 @@ export class TextureEditorState extends EditorState {
       this.scene.setCellData(col, row, { backgroundTexture: this.selectedTexture.textureName });
       this.clearCellBackgroundTextureConfig(col, row);
     }
+    this.refreshRenderedSprites();
   }
 
   private handleClick(pointer: Phaser.Input.Pointer): void {
@@ -474,8 +475,6 @@ export class TextureEditorState extends EditorState {
 
     const gameScene = this.scene.scene.get('game') as GameScene;
     if (this.isClickOnUI(pointer, gameScene)) return;
-    if (pointer.y > this.scene.cameras.main.height - 100) return;
-    if (pointer.x > this.scene.cameras.main.width - 250) return;
     if (this.isClickInsideSpritesheetPanel(pointer)) return;
 
     const camera = gameScene.cameras.main;
@@ -507,5 +506,10 @@ export class TextureEditorState extends EditorState {
     if (cellData) {
       cellData.backgroundTexture = undefined;
     }
+  }
+
+  private refreshRenderedSprites(): void {
+    const gameScene = this.scene.scene.get('game') as GameScene;
+    gameScene.getSceneRenderer().refreshBackgroundTextureSprites(this.scene.getGrid(), gameScene.getLevelData());
   }
 }

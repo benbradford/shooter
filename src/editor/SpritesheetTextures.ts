@@ -17,7 +17,7 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
   {
     textureKey: 'wilds_props',
     sprites: [
-      { name: 'tall_grass', sourceRect: { x: -20, y: 205, width: 236, height: 184 }, zOffsetOverride: 10 },
+      { name: 'tall_grass', sourceRect: { x: -30, y: 205, width: 236, height: 184 }, scaleX: 1.6, zOffsetOverride: 10 },
       { name: 'dry_brush', sourceRect: { x: 220, y: 277, width: 256, height: 111 } },
       { name: 'ground_cover', sourceRect: { x: 455, y: 291, width: 256, height: 91}, scaleX: 2, scaleY: 1 },
       { name: 'flower_bush', sourceRect: { x: 690, y: 218, width: 256, height: 171 } },

@@ -1,0 +1,22 @@
+{
+  "name": "db-level-designer",
+  "description": "Level designer for Dodging Bullets - creates and iterates on level layouts with prop placement, enemy positioning, and spatial gameplay design",
+  "tools": ["@builtin"],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "knowledge"
+  ],
+  "resources": [
+    "file://db-level-designer/instructions.md",
+    "file://src/editor/SpritesheetTextures.ts",
+    "file://docs/level-themes.md",
+    "file://docs/level-editor.md",
+    "file://docs/entity-creation-system.md",
+    "file://public/levels/*.json"
+  ],
+  "prompt": "file://db-level-designer/instructions.md"
+}

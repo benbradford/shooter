@@ -477,6 +477,10 @@ export default class GameScene extends Phaser.Scene {
     return this.levelData;
   }
 
+  getSceneRenderer(): GameSceneRenderer {
+    return this.sceneRenderer;
+  }
+
   public startInteraction(scriptContent: string, filename?: string, npcId?: string): void {
     this.stateMachine.enter('interaction', { scriptContent, filename, npcId });
   }

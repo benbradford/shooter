@@ -1,0 +1,56 @@
+{
+  "frameSize": 48,
+  "cols": 12,
+  "rows": 4,
+  "totalFrames": 47,
+  "animations": {
+    "breathing-idle": {
+      "east": {
+        "start": 4,
+        "end": 7
+      },
+      "north": {
+        "start": 8,
+        "end": 11
+      },
+      "south": {
+        "start": 12,
+        "end": 15
+      },
+      "west": {
+        "start": 16,
+        "end": 19
+      }
+    },
+    "walking": {
+      "east": {
+        "start": 20,
+        "end": 24
+      },
+      "north": {
+        "start": 25,
+        "end": 29
+      },
+      "south": {
+        "start": 30,
+        "end": 34
+      },
+      "west": {
+        "start": 35,
+        "end": 39
+      }
+    },
+    "two-footed-jump": {
+      "south": {
+        "start": 40,
+        "end": 46
+      }
+    }
+  },
+  "rotations": {
+    "east": 0,
+    "north": 1,
+    "south": 2,
+    "west": 3
+  }
+}

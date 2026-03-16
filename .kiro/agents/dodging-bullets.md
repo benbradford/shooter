@@ -5,19 +5,19 @@
 STOP. Before reading ANY files or responding to the user:
 
 1. Does the user's message contain ANY of these phrases?
-   
+
    **Design phrases:**
    - "design"
    - "flesh out"
    - "create a spec"
    - "plan out"
    - "how should I implement"
-   
+
    **Implementation phrases:**
    - "implement task"
    - "implement phase"
    - "implement all tasks"
-   
+
    **Bug phrases:**
    - "broken"
    - "not working"
@@ -116,7 +116,7 @@ When user reports a bug, you MUST respond with this template:
 I'll diagnose this systematically:
 
 1. ✅ Verify bug with integration tests
-2. ✅ Use runtime analyst to trace execution  
+2. ✅ Use runtime analyst to trace execution
 3. ✅ Use failure analyst to identify attacks
 4. ✅ Fix based on findings (not assumptions)
 
@@ -132,7 +132,7 @@ Let me start by running the tests...
 ```
 User reports issue
     ↓
-Is there a test? 
+Is there a test?
     ↓ YES          ↓ NO
 Run test      Ask user to describe
     ↓              ↓
@@ -154,6 +154,7 @@ Fix based on findings
 - `db-implementor.json` - Implementation agent
 - `db-asset-management.json` - Asset management agent (if exists)
 - `db-level-editor.json` - Level editor agent (if exists)
+- `db-level-designer.json` - Level designer agent
 
 ### Design Agent (db-design)
 **IMMEDIATELY delegate when user says:**
@@ -190,22 +191,22 @@ When user says "design {feature}", follow this workflow:
 1. Delegate to db-design (Phase 1)
    → Clarifying questions
    → Identifies technical unknowns
-   
+
 2. If technical unknowns exist:
    → Delegate to db-poc
    → Wait for poc-results.md
-   
+
 3. Check POC results:
    ├─ PROCEED → db-design continues to Phase 3 (requirements)
    ├─ REVISE → Send findings to db-design Phase 1 (revise approach)
    └─ ABANDON → Explore alternatives with db-design
-   
+
 4. db-design completes requirements.md and design.md
 
 5. Parallel delegation:
    ├─ db-runtime-analyst (with design.md)
    └─ db-failure-analyst (with design.md)
-   
+
 6. Wait for both analyses
 
 7. Check results:
@@ -221,18 +222,18 @@ User: "design Lua scripting system"
 
 1. Delegate to db-design
    → Identifies unknowns: "Can Lua run in browser? Can it call JS?"
-   
+
 2. Delegate to db-poc
    → Tests wasmoon library
    → Finds: Basic works ✓, Async doesn't work ✗
    → Recommends: PROCEED with command queue workaround
-   
+
 3. db-design continues with command queue approach
    → Creates requirements.md and design.md
-   
+
 4. Delegate to analysts in parallel
    → Both validate design
-   
+
 5. Approve and create tasks.md
 ```
 
@@ -244,17 +245,17 @@ When user reports a bug, follow this workflow:
 1. Verify bug exists
    → Run integration tests to reproduce
    → Capture error messages and stack traces
-   
+
 2. If bug confirmed, delegate to analysts:
    ├─ db-runtime-analyst (trace current code execution)
    └─ db-failure-analyst (identify attack scenarios)
-   
+
 3. Wait for both analyses
-   
+
 4. Check findings:
    → Simple issues (config, state, timing)? Fix directly
    → Complex issues (architecture)? Delegate to db-design
-   
+
 5. Fix bugs iteratively:
    → Fix one bug
    → Run tests
@@ -268,24 +269,24 @@ User: "Level transitions are broken"
 1. Run integration tests:
    npm run test:single test-level-transition
    → FAIL: Transitions timeout
-   
+
 2. Delegate to analysts:
    use_subagent({
      agent_name: "db-runtime-analyst",
      query: "Analyze src/scenes/LoadingScene.ts execution flow",
      relevant_context: "Bug: transitions timeout. Tests show scene never becomes active."
    })
-   
+
 3. Analyst finds: WorldState reset, URL override, texture key mismatch
-   
+
 4. Fix bugs one at a time:
    → Fix WorldState reset
    → Run tests → Still fails
-   → Fix URL override  
+   → Fix URL override
    → Run tests → Still fails
    → Fix texture key
    → Run tests → PASS
-   
+
 5. Comprehensive test:
    npm run test:single test-comprehensive-transitions
    → PASS
@@ -478,6 +479,27 @@ User: "Add editor mode for decorations"
 → Delegate to db-level-editor agent
 ```
 
+### Level Designer Agent (db-level-designer)
+**Delegate when user says:**
+- "design {level}"
+- "add props to {level}"
+- "improve the layout of {level}"
+- "place enemies in {level}"
+- "iterate on {level}"
+
+**Agent capabilities:**
+- Prop placement following 60/30/10 rule
+- Rock/grass clustering
+- Zone-based level design (open tension → ambush → dense)
+- Enemy placement relative to cover and sightlines
+- Theme-specific prop palettes
+
+**Example:**
+```
+User: "design wilds1.json with rocks and ambush zones"
+→ Delegate to db-level-designer agent
+```
+
 **How to delegate with retry:**
 ```typescript
 use_subagent({
@@ -506,7 +528,7 @@ When user says "implement task X.Y from features/{feature}/tasks.md":
 
 1. **Read the task file:** Load `features/{feature}/tasks.md`
 2. **Find the task:** Locate task X.Y in the file
-3. **Check if delegation needed:** 
+3. **Check if delegation needed:**
    - If task involves design/spec creation → delegate to db-design
    - If task involves assets → delegate to db-asset-management
    - If task involves editor → delegate to db-level-editor

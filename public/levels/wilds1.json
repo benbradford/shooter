@@ -6,776 +6,89 @@
     "y": 1
   },
   "cells": [
-    {
-      "col": 8,
-      "row": 0,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks6"
-    },
-    {
-      "col": 20,
-      "row": 0,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 21,
-      "row": 0,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 20,
-      "row": 1,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 21,
-      "row": 1,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 30,
-      "row": 1,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 16,
-      "row": 2,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": 455,
-          "y": 291,
-          "width": 256,
-          "height": 91
-        },
-        "transformOverride": {
-          "scaleX": 2,
-          "scaleY": 1,
-          "offsetX": 0,
-          "offsetY": 0
-        }
-      }
-    },
-    {
-      "col": 22,
-      "row": 2,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "rocks_spritesheet",
-        "sourceRect": {
-          "x": 826,
-          "y": 0,
-          "width": 326,
-          "height": 229
-        }
-      }
-    },
-    {
-      "col": 25,
-      "row": 2,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": -20,
-          "y": 205,
-          "width": 236,
-          "height": 184
-        },
-        "zOffsetOverride": 7
-      }
-    },
-    {
-      "col": 35,
-      "row": 2,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 3,
-      "row": 3,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 18,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "rocks_spritesheet",
-        "sourceRect": {
-          "x": 0,
-          "y": 21,
-          "width": 271,
-          "height": 208
-        }
-      }
-    },
-    {
-      "col": 20,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "rocks_spritesheet",
-        "sourceRect": {
-          "x": 271,
-          "y": 10,
-          "width": 250,
-          "height": 219
-        }
-      }
-    },
-    {
-      "col": 22,
-      "row": 3,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "rocks_spritesheet",
-        "sourceRect": {
-          "x": 521,
-          "y": 70,
-          "width": 305,
-          "height": 159
-        }
-      }
-    },
-    {
-      "col": 15,
-      "row": 5,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 21,
-      "row": 5,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "rocks_spritesheet",
-        "sourceRect": {
-          "x": 1152,
-          "y": 102,
-          "width": 267,
-          "height": 127
-        }
-      }
-    },
-    {
-      "col": 22,
-      "row": 5,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "rocks_spritesheet",
-        "sourceRect": {
-          "x": 1419,
-          "y": 90,
-          "width": 399,
-          "height": 139
-        }
-      }
-    },
-    {
-      "col": 2,
-      "row": 6,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks4"
-    },
-    {
-      "col": 12,
-      "row": 6,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 16,
-      "row": 6,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 17,
-      "row": 6,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 18,
-      "row": 6,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": 20,
-          "y": 205,
-          "width": 236,
-          "height": 184
-        }
-      }
-    },
-    {
-      "col": 19,
-      "row": 6,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": -20,
-          "y": 205,
-          "width": 236,
-          "height": 184
-        }
-      }
-    },
-    {
-      "col": 31,
-      "row": 8,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 3,
-      "row": 9,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 16,
-      "row": 9,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": 18,
-          "y": 610,
-          "width": 238,
-          "height": 163
-        }
-      }
-    },
-    {
-      "col": 24,
-      "row": 10,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks6"
-    },
-    {
-      "col": 12,
-      "row": 11,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 14,
-      "row": 11,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": 768,
-          "y": 218,
-          "width": 256,
-          "height": 171
-        }
-      }
-    },
-    {
-      "col": 14,
-      "row": 12,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 19,
-      "row": 12,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 32,
-      "row": 12,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 12,
-      "row": 13,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks4"
-    },
-    {
-      "col": 5,
-      "row": 14,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 37,
-      "row": 14,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 23,
-      "row": 15,
-      "layer": 0,
-      "backgroundTexture": {
-        "image": "wilds_props",
-        "sourceRect": {
-          "x": 512,
-          "y": 671,
-          "width": 256,
-          "height": 99
-        }
-      }
-    },
-    {
-      "col": 9,
-      "row": 16,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks4"
-    },
-    {
-      "col": 13,
-      "row": 16,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 20,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks5"
-    },
-    {
-      "col": 27,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 2,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 17,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 34,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 38,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 10,
-      "row": 21,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 24,
-      "row": 21,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks5"
-    },
-    {
-      "col": 32,
-      "row": 21,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 20,
-      "row": 22,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 0,
-      "row": 23,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 23,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 27,
-      "row": 23,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 0,
-      "row": 24,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 24,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 9,
-      "row": 24,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks4"
-    },
-    {
-      "col": 17,
-      "row": 24,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 0,
-      "row": 25,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 25,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 32,
-      "row": 25,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks5"
-    },
-    {
-      "col": 35,
-      "row": 25,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 0,
-      "row": 26,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 26,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 22,
-      "row": 26,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks6"
-    },
-    {
-      "col": 26,
-      "row": 26,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks1"
-    },
-    {
-      "col": 0,
-      "row": 27,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 27,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 12,
-      "row": 27,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks3"
-    },
-    {
-      "col": 0,
-      "row": 28,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 28,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 19,
-      "row": 28,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks2"
-    },
-    {
-      "col": 0,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 1,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 2,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 3,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 4,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 5,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 6,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 7,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "pillar"
-    },
-    {
-      "col": 37,
-      "row": 29,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "rocks6"
-    }
+    {"col": 4, "row": 2, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 220, "y": 277, "width": 256, "height": 111}}},
+    {"col": 36, "row": 3, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 1180, "y": 276, "width": 320, "height": 112}}},
+
+    {"col": 30, "row": 5, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 0, "y": 21, "width": 271, "height": 208}}},
+    {"col": 31, "row": 5, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 521, "y": 70, "width": 305, "height": 159}}},
+    {"col": 31, "row": 6, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 271, "y": 10, "width": 250, "height": 219}}},
+    {"col": 30, "row": 6, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 1152, "y": 102, "width": 267, "height": 127}}},
+
+    {"col": 5, "row": 6, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 6, "row": 6, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 5, "row": 7, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 6, "row": 7, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 7, "row": 7, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+
+    {"col": 16, "row": 7, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 17, "row": 7, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+
+    {"col": 20, "row": 10, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 21, "row": 10, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 22, "row": 10, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 29, "row": 11, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 1180, "y": 276, "width": 320, "height": 112}}},
+    {"col": 12, "row": 12, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 680, "y": 653, "width": 256, "height": 117}}},
+
+    {"col": 35, "row": 14, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 1210, "y": 645, "width": 282, "height": 130}}},
+
+    {"col": 8, "row": 15, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 826, "y": 0, "width": 326, "height": 229}}},
+    {"col": 9, "row": 15, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 0, "y": 21, "width": 271, "height": 208}}},
+    {"col": 8, "row": 16, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 271, "y": 10, "width": 250, "height": 219}}},
+    {"col": 9, "row": 16, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 1152, "y": 102, "width": 267, "height": 127}}},
+    {"col": 10, "row": 16, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 521, "y": 70, "width": 305, "height": 159}}},
+
+    {"col": 18, "row": 16, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 920, "y": 238, "width": 256, "height": 151}}},
+
+    {"col": 19, "row": 17, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 226, "y": 681, "width": 256, "height": 91}}},
+    {"col": 20, "row": 17, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 450, "y": 671, "width": 256, "height": 99}}},
+
+    {"col": 30, "row": 15, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 31, "row": 15, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 30, "row": 16, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 31, "row": 16, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 30, "row": 17, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 31, "row": 17, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 32, "row": 16, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+
+    {"col": 25, "row": 18, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 690, "y": 218, "width": 256, "height": 171}}},
+    {"col": 14, "row": 19, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 0, "y": 610, "width": 238, "height": 163}}},
+    {"col": 22, "row": 19, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 23, "row": 19, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 24, "row": 19, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+
+    {"col": 15, "row": 21, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 920, "y": 622, "width": 256, "height": 151}}},
+    {"col": 33, "row": 21, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 220, "y": 277, "width": 256, "height": 111}}},
+
+    {"col": 5, "row": 22, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 6, "row": 22, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 5, "row": 23, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 6, "row": 23, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 5, "row": 24, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 6, "row": 24, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 7, "row": 23, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+
+    {"col": 25, "row": 22, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 26, "row": 22, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 27, "row": 22, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 13, "row": 23, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 1180, "y": 276, "width": 320, "height": 112}}},
+
+    {"col": 33, "row": 25, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 34, "row": 25, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 35, "row": 25, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+    {"col": 34, "row": 26, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": -30, "y": 205, "width": 236, "height": 184}, "transformOverride": {"scaleX": 1.6, "scaleY": 1, "offsetX": 0, "offsetY": 0}, "zOffsetOverride": 10}},
+
+    {"col": 37, "row": 26, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 1210, "y": 645, "width": 282, "height": 130}}},
+
+    {"col": 15, "row": 27, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 226, "y": 681, "width": 256, "height": 91}}},
+    {"col": 28, "row": 27, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 826, "y": 0, "width": 326, "height": 229}}},
+    {"col": 29, "row": 27, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 1419, "y": 90, "width": 399, "height": 139}}},
+    {"col": 28, "row": 28, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 0, "y": 21, "width": 271, "height": 208}}},
+    {"col": 29, "row": 28, "layer": 0, "backgroundTexture": {"image": "rocks_spritesheet", "sourceRect": {"x": 271, "y": 10, "width": 250, "height": 219}}},
+
+    {"col": 10, "row": 28, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 11, "row": 28, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 455, "y": 291, "width": 256, "height": 91}, "transformOverride": {"scaleX": 2, "scaleY": 1, "offsetX": 0, "offsetY": 0}}},
+    {"col": 22, "row": 28, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 680, "y": 653, "width": 256, "height": 117}}},
+    {"col": 26, "row": 29, "layer": 0, "backgroundTexture": {"image": "wilds_props", "sourceRect": {"x": 0, "y": 610, "width": 238, "height": 163}}}
   ],
   "entities": [
     {
@@ -783,38 +96,37 @@
       "type": "puma",
       "data": {
         "col": 25,
-        "row": 2,
+        "row": 4,
         "difficulty": "hard",
-        "startDirection": 4
+        "startDirection": 1
       }
     },
     {
       "id": "puma1",
       "type": "puma",
       "data": {
-        "col": 25,
+        "col": 7,
         "row": 8,
         "difficulty": "medium",
         "startDirection": 1
-      },
-      "respawnable": true
+      }
     },
     {
       "id": "puma2",
       "type": "puma",
       "data": {
         "col": 32,
-        "row": 26,
+        "row": 16,
         "difficulty": "medium",
-        "startDirection": 4
+        "startDirection": 3
       }
     },
     {
       "id": "puma3",
       "type": "puma",
       "data": {
-        "col": 33,
-        "row": 26,
+        "col": 9,
+        "row": 17,
         "difficulty": "medium",
         "startDirection": 4
       }
@@ -823,40 +135,40 @@
       "id": "puma4",
       "type": "puma",
       "data": {
-        "col": 34,
-        "row": 26,
+        "col": 6,
+        "row": 23,
         "difficulty": "medium",
-        "startDirection": 4
+        "startDirection": 1
       }
     },
     {
       "id": "puma5",
       "type": "puma",
       "data": {
-        "col": 35,
-        "row": 26,
+        "col": 7,
+        "row": 24,
         "difficulty": "medium",
-        "startDirection": 4
+        "startDirection": 1
       }
     },
     {
       "id": "puma6",
       "type": "puma",
       "data": {
-        "col": 8,
-        "row": 25,
-        "difficulty": "medium",
-        "startDirection": 4
+        "col": 34,
+        "row": 26,
+        "difficulty": "hard",
+        "startDirection": 3
       }
     },
     {
       "id": "puma7",
       "type": "puma",
       "data": {
-        "col": 8,
-        "row": 23,
-        "difficulty": "medium",
-        "startDirection": 4
+        "col": 35,
+        "row": 26,
+        "difficulty": "hard",
+        "startDirection": 3
       }
     },
     {

@@ -187,6 +187,10 @@ export abstract class GameSceneRenderer {
     this.renderAllCells(grid, levelData);
   }
 
+  refreshBackgroundTextureSprites(grid: Grid, levelData: LevelData): void {
+    this.createBackgroundTextureSprites(grid, levelData);
+  }
+
   private createBackgroundTextureSprites(grid: Grid, levelData: LevelData): void {
     if (!levelData.cells) {
       return;

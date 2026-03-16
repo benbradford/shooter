@@ -1,0 +1,154 @@
+{
+  "frameSize": 32,
+  "cols": 12,
+  "rows": 18,
+  "totalFrames": 216,
+  "animations": {
+    "bark": {
+      "east": {
+        "start": 8,
+        "end": 13
+      },
+      "north": {
+        "start": 14,
+        "end": 19
+      },
+      "north-east": {
+        "start": 20,
+        "end": 25
+      },
+      "north-west": {
+        "start": 26,
+        "end": 31
+      },
+      "south": {
+        "start": 32,
+        "end": 37
+      },
+      "south-east": {
+        "start": 38,
+        "end": 43
+      },
+      "south-west": {
+        "start": 44,
+        "end": 49
+      },
+      "west": {
+        "start": 50,
+        "end": 55
+      }
+    },
+    "breathing-idle": {
+      "east": {
+        "start": 56,
+        "end": 63
+      },
+      "north": {
+        "start": 64,
+        "end": 71
+      },
+      "north-east": {
+        "start": 72,
+        "end": 79
+      },
+      "north-west": {
+        "start": 80,
+        "end": 87
+      },
+      "south": {
+        "start": 88,
+        "end": 95
+      },
+      "south-east": {
+        "start": 96,
+        "end": 103
+      },
+      "south-west": {
+        "start": 104,
+        "end": 111
+      },
+      "west": {
+        "start": 112,
+        "end": 119
+      }
+    },
+    "running": {
+      "east": {
+        "start": 120,
+        "end": 123
+      },
+      "north": {
+        "start": 124,
+        "end": 127
+      },
+      "north-east": {
+        "start": 128,
+        "end": 131
+      },
+      "north-west": {
+        "start": 132,
+        "end": 135
+      },
+      "south": {
+        "start": 136,
+        "end": 139
+      },
+      "south-east": {
+        "start": 140,
+        "end": 143
+      },
+      "south-west": {
+        "start": 144,
+        "end": 147
+      },
+      "west": {
+        "start": 148,
+        "end": 151
+      }
+    },
+    "walk": {
+      "east": {
+        "start": 152,
+        "end": 159
+      },
+      "north": {
+        "start": 160,
+        "end": 167
+      },
+      "north-east": {
+        "start": 168,
+        "end": 175
+      },
+      "north-west": {
+        "start": 176,
+        "end": 183
+      },
+      "south": {
+        "start": 184,
+        "end": 191
+      },
+      "south-east": {
+        "start": 192,
+        "end": 199
+      },
+      "south-west": {
+        "start": 200,
+        "end": 207
+      },
+      "west": {
+        "start": 208,
+        "end": 215
+      }
+    }
+  },
+  "rotations": {
+    "east": 0,
+    "north": 1,
+    "north-east": 2,
+    "north-west": 3,
+    "south": 4,
+    "south-east": 5,
+    "south-west": 6,
+    "west": 7
+  }
+}
