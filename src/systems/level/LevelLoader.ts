@@ -81,8 +81,16 @@ export type AnimatedTextureConfig = {
   };
 }
 
+export type SourceRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
 export type BackgroundTextureConfig = {
   image: string;
+  sourceRect?: SourceRect;
   transformOverride?: {
     scaleX: number;
     scaleY: number;

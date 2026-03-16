@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 20,
-    "y": 2
+    "x": 21,
+    "y": 1
   },
   "cells": [
     {
@@ -120,6 +120,20 @@
       "backgroundTexture": "rocks1"
     },
     {
+      "col": 18,
+      "row": 6,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "wilds_props",
+        "sourceRect": {
+          "x": 20,
+          "y": 205,
+          "width": 236,
+          "height": 184
+        }
+      }
+    },
+    {
       "col": 31,
       "row": 8,
       "layer": 0,
@@ -138,6 +152,20 @@
       "backgroundTexture": "pillar"
     },
     {
+      "col": 16,
+      "row": 9,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "wilds_props",
+        "sourceRect": {
+          "x": 18,
+          "y": 610,
+          "width": 238,
+          "height": 163
+        }
+      }
+    },
+    {
       "col": 24,
       "row": 10,
       "layer": 0,
@@ -154,6 +182,20 @@
         "blocked"
       ],
       "backgroundTexture": "rocks1"
+    },
+    {
+      "col": 14,
+      "row": 11,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "wilds_props",
+        "sourceRect": {
+          "x": 768,
+          "y": 218,
+          "width": 256,
+          "height": 171
+        }
+      }
     },
     {
       "col": 14,
@@ -208,6 +250,20 @@
         "blocked"
       ],
       "backgroundTexture": "rocks1"
+    },
+    {
+      "col": 23,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "wilds_props",
+        "sourceRect": {
+          "x": 512,
+          "y": 671,
+          "width": 256,
+          "height": 99
+        }
+      }
     },
     {
       "col": 9,

@@ -333,32 +333,42 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    // Fade in after level loads
-    this.cameras.main.fadeIn(500, 0, 0, 0);
+    // Fade in after level loads (skip in editor mode - scene is paused)
+    if (!this.isEditorMode) {
+      this.cameras.main.fadeIn(500, 0, 0, 0);
     
-    // Fade in background and vignette after camera fade completes
-    this.cameras.main.once('camerafadeincomplete', () => {
-      if (this.background) {
-        this.tweens.add({
-          targets: this.background,
-          alpha: 1,
-          duration: 300,
-          ease: 'Linear'
-        });
-      }
+      // Fade in background and vignette after camera fade completes
+      this.cameras.main.once('camerafadeincomplete', () => {
+        if (this.background) {
+          this.tweens.add({
+            targets: this.background,
+            alpha: 1,
+            duration: 300,
+            ease: 'Linear'
+          });
+        }
+        if (this.vignette) {
+          // Fade to original alpha based on theme
+          const targetAlpha = this.levelData.levelTheme === 'grass' ? 0.25 :
+                             this.levelData.levelTheme === 'swamp' ? 0.3 :
+                             this.levelData.levelTheme === 'wilds' ? 0.3 : 0.2;
+          this.tweens.add({
+            targets: this.vignette,
+            alpha: targetAlpha,
+            duration: 300,
+            ease: 'Linear'
+          });
+        }
+      });
+    } else {
+      if (this.background) this.background.setAlpha(1);
       if (this.vignette) {
-        // Fade to original alpha based on theme
         const targetAlpha = this.levelData.levelTheme === 'grass' ? 0.25 :
                            this.levelData.levelTheme === 'swamp' ? 0.3 :
                            this.levelData.levelTheme === 'wilds' ? 0.3 : 0.2;
-        this.tweens.add({
-          targets: this.vignette,
-          alpha: targetAlpha,
-          duration: 300,
-          ease: 'Linear'
-        });
+        this.vignette.setAlpha(targetAlpha);
       }
-    });
+    }
 
     this.eventManager.raiseEvent('level_loaded');
   }

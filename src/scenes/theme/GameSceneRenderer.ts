@@ -205,6 +205,7 @@ export abstract class GameSceneRenderer {
         // Parse backgroundTexture (can be string or object)
         let textureName: string;
         let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
+        let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
         
         if (typeof cell.backgroundTexture === 'string') {
           textureName = cell.backgroundTexture;
@@ -212,6 +213,7 @@ export abstract class GameSceneRenderer {
         } else {
           textureName = cell.backgroundTexture.image;
           transform = cell.backgroundTexture.transformOverride;
+          sourceRect = cell.backgroundTexture.sourceRect;
         }
         
         if (textureName === '') {
@@ -225,7 +227,20 @@ export abstract class GameSceneRenderer {
         const spriteX = transform ? centerX + transform.offsetX : centerX;
         const spriteY = transform ? centerY + transform.offsetY : centerY;
 
-        const sprite = this.addImage(spriteX, spriteY, textureName);
+        let sprite: Phaser.GameObjects.Image;
+
+        if (sourceRect && this.scene.textures.exists(textureName)) {
+          // Create a frame from the source rect if it doesn't exist
+          const frameName = `${textureName}_${sourceRect.x}_${sourceRect.y}_${sourceRect.width}_${sourceRect.height}`;
+          const texture = this.scene.textures.get(textureName);
+          if (!texture.has(frameName)) {
+            texture.add(frameName, 0, sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height);
+          }
+          sprite = this.scene.add.image(spriteX, spriteY, textureName, frameName);
+        } else {
+          sprite = this.addImage(spriteX, spriteY, textureName);
+        }
+
         if (transform) {
           sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
         } else {
