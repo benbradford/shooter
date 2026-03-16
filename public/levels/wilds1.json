@@ -57,6 +57,20 @@
       "backgroundTexture": "rocks2"
     },
     {
+      "col": 22,
+      "row": 2,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "rocks_spritesheet",
+        "sourceRect": {
+          "x": 826,
+          "y": 0,
+          "width": 326,
+          "height": 229
+        }
+      }
+    },
+    {
       "col": 35,
       "row": 2,
       "layer": 0,
@@ -75,6 +89,48 @@
       "backgroundTexture": "rocks3"
     },
     {
+      "col": 18,
+      "row": 3,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "rocks_spritesheet",
+        "sourceRect": {
+          "x": 0,
+          "y": 21,
+          "width": 271,
+          "height": 208
+        }
+      }
+    },
+    {
+      "col": 20,
+      "row": 3,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "rocks_spritesheet",
+        "sourceRect": {
+          "x": 271,
+          "y": 10,
+          "width": 250,
+          "height": 219
+        }
+      }
+    },
+    {
+      "col": 22,
+      "row": 3,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "rocks_spritesheet",
+        "sourceRect": {
+          "x": 521,
+          "y": 70,
+          "width": 305,
+          "height": 159
+        }
+      }
+    },
+    {
       "col": 15,
       "row": 5,
       "layer": 0,
@@ -82,6 +138,34 @@
         "blocked"
       ],
       "backgroundTexture": "rocks1"
+    },
+    {
+      "col": 21,
+      "row": 5,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "rocks_spritesheet",
+        "sourceRect": {
+          "x": 1152,
+          "y": 102,
+          "width": 267,
+          "height": 127
+        }
+      }
+    },
+    {
+      "col": 22,
+      "row": 5,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "rocks_spritesheet",
+        "sourceRect": {
+          "x": 1419,
+          "y": 90,
+          "width": 399,
+          "height": 139
+        }
+      }
     },
     {
       "col": 2,
