@@ -20,6 +20,7 @@ export class PetFollowComponent implements Component {
   
   private isFollowing = false;
   private isHidden = false;
+  private isBarking = false;
   private wasInWater = false;
   
   private path: Array<{ col: number; row: number }> | null = null;
@@ -50,7 +51,7 @@ export class PetFollowComponent implements Component {
       }
     }
     
-    if (this.isHidden) return;
+    if (this.isHidden || this.isBarking) return;
     
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
@@ -189,5 +190,13 @@ export class PetFollowComponent implements Component {
   
   setHidden(hidden: boolean): void { 
     this.isHidden = hidden; 
+  }
+
+  setBarking(barking: boolean): void {
+    this.isBarking = barking;
+  }
+
+  getIsBarking(): boolean {
+    return this.isBarking;
   }
 }

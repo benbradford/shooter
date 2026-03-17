@@ -5,6 +5,7 @@ import EditorScene from "./scenes/EditorScene";
 import LoadingScene from "./scenes/LoadingScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
 import { PetAbilityComponent } from "./ecs/components/pet/PetAbilityComponent";
+import { DogBarkAbility } from "./ecs/components/pet/DogBarkAbility";
 import { Pathfinder } from "./systems/Pathfinder";
 
 // Add Eruda console for mobile debugging
@@ -45,5 +46,6 @@ if (params.get('test') === 'true') {
   (globalThis as unknown as { GridPositionComponent: typeof GridPositionComponent }).GridPositionComponent = GridPositionComponent;
   (globalThis as unknown as { ProjectileComponent: typeof ProjectileComponent }).ProjectileComponent = ProjectileComponent;
   (globalThis as unknown as { PetAbilityComponent: typeof PetAbilityComponent }).PetAbilityComponent = PetAbilityComponent;
+  (globalThis as unknown as { DogBarkAbility: typeof DogBarkAbility }).DogBarkAbility = DogBarkAbility;
   (globalThis as unknown as { Pathfinder: typeof Pathfinder }).Pathfinder = Pathfinder;
 }

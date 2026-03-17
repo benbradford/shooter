@@ -1,7 +1,7 @@
-For the dog's special ability, i want him to walk towards the nearest enemy and bark. there are bark animations in the sprite sheet. if there is no enemy within 400px of the dog, then the interaction icon shouldn't be visible. For the hud icon, can we use public/assets/pets/dog/dog/bark_icon.png. when the dog barks, any enemies within 600px of the dog are affected and go into a fear state. (Note that bugbase isn't affected by this, but other moving enemies are, such as bugs, skeletons, pumas, throwers, robots, bulletDude). When in a fear state, the enemeies move away from the enemy for 4 seconds.
+For the dog's special ability, i want him to walk towards the nearest enemy and bark. there are bark animations in the sprite sheet. if there is no enemy within 400px of the dog, then the interaction icon shouldn't be visible. For the hud icon, can we use public/assets/pets/dog/dog/bark_icon.png. when the dog barks, any enemies within 600px of the dog are affected and go into a fear state. (Note that bugbase isn't affected by this, but other moving enemies are, such as bugs, skeletons, pumas, throwers, robots, bulletDude). When in a fear state, the enemeies move away from the enemy for 4 seconds. for the icon above the enemy heads, use public/assets/pets/dog/dog/fear_icon.png.
 
 
-Create a **Fear Status Visual System** 
+Create a **Fear Status Visual System**
 
 The system is triggered when the player’s **dog pet uses a bark ability**, causing nearby enemies to become frightened and flee for a short duration.
 

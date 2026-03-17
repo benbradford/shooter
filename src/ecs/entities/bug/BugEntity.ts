@@ -18,7 +18,9 @@ import { StateMachine } from '../../../systems/state/StateMachine';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import { BugChaseState } from './BugChaseState';
 import { BugAttackState } from './BugAttackState';
+import { EnemyFearState } from '../common/EnemyFearState';
 import type { Grid } from '../../../systems/grid/Grid';
+import { Direction } from '../../../constants/Direction';
 
 const BUG_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 0, width: 16, height: 16 };
 const BUG_ENTITY_COLLISION_BOX = { offsetX: -15, offsetY: -15, width: 30, height: 30 };
@@ -70,9 +72,24 @@ export function createBugEntity(props: CreateBugProps): Entity {
   entity.add(new BugBurstComponent(scene));
   entity.add(new DamageComponent(10));
 
+  const BUG_DIRECTION_FRAMES: Partial<Record<Direction, number>> = {
+    [Direction.Down]: 0,
+    [Direction.Up]: 4,
+    [Direction.Left]: 8,
+    [Direction.Right]: 12,
+    [Direction.DownLeft]: 8,
+    [Direction.DownRight]: 0,
+    [Direction.UpLeft]: 8,
+    [Direction.UpRight]: 12,
+  };
+
   const stateMachine = new StateMachine({
     chase: new BugChaseState(entity, playerEntity, grid, speed, scene),
-    attack: new BugAttackState(entity, playerEntity, scene)
+    attack: new BugAttackState(entity, playerEntity, scene),
+    fear: new EnemyFearState(entity, speed, (dir) => {
+      const baseFrame = BUG_DIRECTION_FRAMES[dir] ?? 0;
+      sprite.sprite.setFrame(baseFrame);
+    })
   }, 'chase');
   entity.add(new StateMachineComponent(stateMachine));
 

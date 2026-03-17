@@ -21,9 +21,11 @@ import { BulletDudeShootingState } from './BulletDudeShootingState';
 import { BulletDudeOverheatedState } from './BulletDudeOverheatedState';
 import { BulletDudeStunnedState } from './BulletDudeStunnedState';
 import { BulletDudeDyingState } from './BulletDudeDyingState';
+import { EnemyFearState } from '../common/EnemyFearState';
 import { getBulletDudeDifficultyConfig, type BulletDudeDifficulty } from './BulletDudeDifficulty';
 import { createBulletDudeAnimations } from './BulletDudeAnimations';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
+import { Direction } from '../../../constants/Direction';
 import type { Grid } from '../../../systems/grid/Grid';
 
 const BULLET_DUDE_SCALE = 1.5;
@@ -146,13 +148,19 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
     }
   }));
 
+  const BULLET_DUDE_FEAR_SPEED_PX_PER_SEC = 100;
+
   const stateMachine = new StateMachine<void | { hitDirX: number; hitDirY: number }>({
     guard: new BulletDudeGuardState(entity, playerEntity, grid),
     alert: new BulletDudeAlertState(entity, playerEntity, scene),
     shooting: new BulletDudeShootingState(entity, playerEntity, scene, entityManager),
     overheated: new BulletDudeOverheatedState(entity, playerEntity, scene, grid),
     stunned: new BulletDudeStunnedState(entity),
-    dying: new BulletDudeDyingState(entity, scene)
+    dying: new BulletDudeDyingState(entity, scene),
+    fear: new EnemyFearState(entity, BULLET_DUDE_FEAR_SPEED_PX_PER_SEC, (dir) => {
+      const dirName = Direction[dir].toLowerCase();
+      sprite.sprite.play(`bulletdude_walk_${dirName}`);
+    })
   }, 'guard');
 
   entity.add(new StateMachineComponent(stateMachine));

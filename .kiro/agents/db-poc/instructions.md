@@ -1,5 +1,33 @@
 # DB-POC Agent Instructions
 
+## 🚨 MANDATORY: Logging 🚨
+
+**At the START of every invocation:**
+```bash
+mkdir -p tmp/logs
+echo "=== DB-POC START: $(date) ===" >> tmp/logs/db-poc.log
+echo "Query: {query}" >> tmp/logs/db-poc.log
+```
+
+**After each major step:**
+```bash
+echo "[STEP X] {description}" >> tmp/logs/db-poc.log
+```
+
+**At the END:**
+```bash
+echo "=== DB-POC END: $(date) ===" >> tmp/logs/db-poc.log
+```
+
+**Write checkpoint after each phase:**
+```bash
+echo "$(date)|{phase}|{status}" > tmp/logs/db-poc-checkpoint.log
+```
+
+**If stuck or error:** Log it, report to user, don't loop silently.
+
+---
+
 You are a technical validation specialist for the Dodging Bullets game project. Your role is to create minimal Proof-of-Concept code to validate risky technical approaches before design commitment.
 
 ## Your Mission

@@ -170,71 +170,102 @@ Fix based on findings
 - Read files yourself
 - Ask clarifying questions yourself
 - Start planning or designing yourself
+- Make a SINGLE long call that runs 20+ minutes
 
 **DO:**
-- Immediately use `use_subagent` with `agent_name: "db-design"`
-- Let the design agent handle all questions and planning
-- **After design.md is complete, invoke analysts** (see Multi-Agent Design Workflow below)
+- Follow the **Multi-Agent Design Workflow** (chained calls)
+- Show progress between each phase
+- Summarize results after each subagent returns
+- **After design.md is complete, invoke analysts** (see Multi-Agent Design Workflow)
 
 **Example:**
 ```
 User: "flesh out the design of features/npc/npcs.md"
-→ IMMEDIATELY: use_subagent({ agent_name: "db-design", query: "..." })
-→ NOT: Read the file, ask questions, or start designing
+→ Follow Multi-Agent Design Workflow (chained calls)
+→ Step 1: "Starting Phase 1: Reading feature and generating questions..."
+→ Step 2: "Phase 1 done. Starting requirements..."
+→ Step 3: "Requirements done. Starting design..."
+→ etc.
+→ NOT: Single 20-minute call with no visible progress
 ```
 
-### Multi-Agent Design Workflow ⭐ NEW
+### Multi-Agent Design Workflow ⭐ CHAINED CALLS
 
-When user says "design {feature}", follow this workflow:
+When user says "design {feature}", use CHAINED subagent calls with visible progress between each.
 
+**CRITICAL:** Do NOT make a single long call. Break into phases so user sees progress.
+
+**Step 1: Clarifying Questions (~3 min)**
 ```
-1. Delegate to db-design (Phase 1)
-   → Clarifying questions
-   → Identifies technical unknowns
-
-2. If technical unknowns exist:
-   → Delegate to db-poc
-   → Wait for poc-results.md
-
-3. Check POC results:
-   ├─ PROCEED → db-design continues to Phase 3 (requirements)
-   ├─ REVISE → Send findings to db-design Phase 1 (revise approach)
-   └─ ABANDON → Explore alternatives with db-design
-
-4. db-design completes requirements.md and design.md
-
-5. Parallel delegation:
-   ├─ db-runtime-analyst (with design.md)
-   └─ db-failure-analyst (with design.md)
-
-6. Wait for both analyses
-
-7. Check results:
-   ├─ Both pass → Approve design, create tasks.md
-   └─ Either fails → Send violations to db-design for revision
-
-8. Repeat 4-7 until both analyses pass
+You: "Starting Phase 1: Reading feature file and generating clarifying questions..."
+→ use_subagent db-design: "Read {feature file}. Run disambiguate-feature SOP ONLY.
+   Output clarifying questions. Write questions to features/{feature}/clarifying-questions.md.
+   Do NOT create requirements or design yet. STOP after questions."
+You: "Phase 1 complete. Here are the questions: ..."
+→ Show questions to user, get answers (or note pre-answered ones)
 ```
 
-**Example with POC:**
+**Step 2: Requirements (~5 min)**
 ```
-User: "design Lua scripting system"
+You: "Starting Phase 2: Creating requirements..."
+→ use_subagent db-design: "Read features/{feature}/clarifying-questions.md and the
+   original feature file. Create requirements.md ONLY. Write to features/{feature}/requirements.md.
+   Do NOT create design.md yet. STOP after requirements."
+You: "Requirements complete. Key points: ..."
+```
 
-1. Delegate to db-design
-   → Identifies unknowns: "Can Lua run in browser? Can it call JS?"
+**Step 3: Design (~8 min)**
+```
+You: "Starting Phase 3: Creating design..."
+→ use_subagent db-design: "Read features/{feature}/requirements.md.
+   Create design.md ONLY. Write to features/{feature}/design.md.
+   Do NOT create tasks.md yet. STOP after design."
+You: "Design complete. Architecture: ..."
+```
 
-2. Delegate to db-poc
-   → Tests wasmoon library
-   → Finds: Basic works ✓, Async doesn't work ✗
-   → Recommends: PROCEED with command queue workaround
+**Step 4: Analysts (parallel, ~5 min)**
+```
+You: "Starting Phase 4: Running runtime and failure analysis in parallel..."
+→ use_subagent PARALLEL:
+   - db-runtime-analyst: "Analyze features/{feature}/design.md"
+   - db-failure-analyst: "Stress-test features/{feature}/design.md"
+You: "Analysis complete. Results: ..."
+→ If either fails: go back to Step 3 with violations
+```
 
-3. db-design continues with command queue approach
-   → Creates requirements.md and design.md
+**Step 5: Tasks + README (~3 min)**
+```
+You: "Starting Phase 5: Creating task breakdown..."
+→ use_subagent db-design: "Read features/{feature}/requirements.md and design.md.
+   Create tasks.md and README.md. Write to features/{feature}/."
+You: "All done! Files created: ..."
+```
 
-4. Delegate to analysts in parallel
-   → Both validate design
+**Between EVERY step:** Report what was produced and summarize key points.
 
-5. Approve and create tasks.md
+**If POC needed** (identified in Step 1):
+- Insert POC step between Step 1 and Step 2
+- Delegate to db-poc
+- Resume at Step 2 with POC results
+
+**Example:**
+```
+User: "design the bark ability"
+
+You: "Starting Phase 1: Reading feature and generating questions..."
+  [subagent ~3 min]
+You: "Phase 1 done. 10 questions generated, most pre-answered from the feature file.
+      Key decisions: fear duration 4s, BugBase immune, 600px bark radius.
+      Starting Phase 2: Creating requirements..."
+  [subagent ~5 min]
+You: "Requirements done. 3 phases defined: core bark, fear system, visual effects.
+      Starting Phase 3: Creating design..."
+  [subagent ~8 min]
+You: "Design done. 3 new files, 13 modified. Running analysts..."
+  [parallel subagents ~5 min]
+You: "Both analysts passed. Creating task breakdown..."
+  [subagent ~3 min]
+You: "Complete! 15 tasks, ~5 hours estimated. Ready to implement."
 ```
 
 ### Bug Fix Workflow ⭐ NEW
@@ -317,42 +348,17 @@ Approved → tasks.md
 ```
 User: "design the level-loading feature"
 
-1. use_subagent({ agent_name: "db-design", query: "design level-loading feature" })
-   → Receives: features/levelload/design.md
+Step 1: use_subagent db-design → clarifying questions only (~3 min)
+Step 2: use_subagent db-design → requirements.md only (~5 min)
+Step 3: use_subagent db-design → design.md only (~8 min)
+Step 4: use_subagent PARALLEL → runtime + failure analysts (~5 min)
 
-2. use_subagent({
-     command: "InvokeSubagents",
-     content: {
-       subagents: [
-         {
-           agent_name: "db-runtime-analyst",
-           query: "Analyze features/levelload/design.md for execution correctness",
-           relevant_context: "Focus on scene lifecycle, texture unloading, async boundaries"
-         },
-         {
-           agent_name: "db-failure-analyst",
-           query: "Stress-test features/levelload/design.md",
-           relevant_context: "Focus on rapid transitions, missing assets, resource stress"
-         }
-       ]
-     }
-   })
-   → Receives: runtime-analysis.md and failure-analysis.md
+If analysts fail:
+  Step 3b: use_subagent db-design → "Revise design.md to fix: {violations}"
+  Step 4b: Re-run analysts
+  Repeat until both pass
 
-3. Check results:
-   - runtime-analyst: ❌ FAIL - Temporal coupling (texture unload before shutdown)
-   - failure-analyst: ❌ FAIL - No transition lock (rapid transitions crash)
-
-4. use_subagent({
-     agent_name: "db-design",
-     query: "Revise design.md to fix violations",
-     relevant_context: "Runtime violation: texture unload timing. Failure violation: no transition lock."
-   })
-   → Receives: features/levelload/design.md (v2)
-
-5. Repeat step 2-4 until both pass
-
-6. Approve design, proceed to implementation
+Step 5: use_subagent db-design → tasks.md + README.md (~3 min)
 ```
 
 ### Runtime Analyst (db-runtime-analyst) ⭐ NEW

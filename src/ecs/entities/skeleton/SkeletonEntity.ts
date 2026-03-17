@@ -20,9 +20,11 @@ import { SkeletonWalkState } from './SkeletonWalkState';
 import { SkeletonAttackState } from './SkeletonAttackState';
 import { SkeletonHitState } from './SkeletonHitState';
 import { SkeletonDeathState } from './SkeletonDeathState';
+import { EnemyFearState } from '../common/EnemyFearState';
 import { getSkeletonDifficultyConfig, type SkeletonDifficulty } from './SkeletonDifficultyConfig';
 import { createSkeletonAnimations } from './SkeletonAnimations';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
+import { Direction } from '../../../constants/Direction';
 import type { CreatorData } from '../../../systems/CreatorData';
 
 const SKELETON_SCALE = 1.6;
@@ -138,7 +140,11 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
     walk: new SkeletonWalkState(entity, playerEntity, grid),
     attack: new SkeletonAttackState(entity, playerEntity, onThrowBone),
     hit: new SkeletonHitState(entity),
-    death: new SkeletonDeathState(entity, scene)
+    death: new SkeletonDeathState(entity, scene),
+    fear: new EnemyFearState(entity, config.speedPxPerSec, (dir) => {
+      const dirName = Direction[dir].toLowerCase();
+      sprite.sprite.play(`skeleton_walk_${dirName}`);
+    })
   }, 'rise');
 
   entity.add(new StateMachineComponent(stateMachine));

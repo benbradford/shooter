@@ -4,9 +4,11 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { PetFollowComponent } from '../../components/pet/PetFollowComponent';
+import { DogBarkAbility } from '../../components/pet/DogBarkAbility';
 import { Depth } from '../../../constants/DepthConstants';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
+import type { Component } from '../../Component';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { PetConfig, PetSpritesheetMetadata } from './PetConfig';
 import { createPetAnimationMap } from './PetAnimations';
@@ -41,14 +43,25 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   
   entity.add(new PetFollowComponent(grid, playerEntity));
   
+  if (config.id === 'dog') {
+    entity.add(new DogBarkAbility(scene));
+  }
+  
   entity.tags.add('pet');
   
-  entity.setUpdateOrder([
+  const updateOrder: Array<new (...args: never[]) => Component> = [
     TransformComponent,
     SpriteComponent,
     PetFollowComponent,
-    AnimationComponent,
-  ]);
+  ];
+  
+  if (config.id === 'dog') {
+    updateOrder.push(DogBarkAbility);
+  }
+  
+  updateOrder.push(AnimationComponent);
+  
+  entity.setUpdateOrder(updateOrder);
   
   return entity;
 }

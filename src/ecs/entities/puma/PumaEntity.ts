@@ -13,7 +13,7 @@ import { StateMachine } from '../../../systems/state/StateMachine';
 import { Direction } from '../../../constants/Direction';
 import type { Grid } from '../../../systems/grid/Grid';
 import { type PumaDifficulty, getPumaDifficultyConfig } from './PumaDifficulty';
-import { createPumaAnimations } from './PumaAnimations';
+import { createPumaAnimations, getPumaAnimKey } from './PumaAnimations';
 import { PumaRestingState } from './PumaRestingState';
 import { PumaStandUpState } from './PumaStandUpState';
 import { PumaThreateningState } from './PumaThreateningState';
@@ -21,6 +21,7 @@ import { PumaChasingState } from './PumaChasingState';
 import { PumaJumpingState } from './PumaJumpingState';
 import { PumaRecoverState } from './PumaRecoverState';
 import { PumaDeathState } from './PumaDeathState';
+import { EnemyFearState } from '../common/EnemyFearState';
 
 export type CreatePumaProps = {
   scene: Phaser.Scene;
@@ -71,7 +72,11 @@ export function createPumaEntity(props: CreatePumaProps): Entity {
     chasing: new PumaChasingState(entity, playerEntity, grid, config),
     jumping: new PumaJumpingState(entity, playerEntity, grid, config),
     recover: new PumaRecoverState(entity, playerEntity),
-    death: new PumaDeathState(entity, scene, playerEntity)
+    death: new PumaDeathState(entity, scene, playerEntity),
+    fear: new EnemyFearState(entity, config.chaseSpeedPxPerSec, (dir) => {
+      const animKey = getPumaAnimKey('run', dir);
+      sprite.sprite.play(animKey);
+    })
   }, 'resting');
 
   entity.add(new StateMachineComponent(stateMachine));

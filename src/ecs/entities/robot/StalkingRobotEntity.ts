@@ -24,7 +24,9 @@ import { RobotRetreatState } from './RobotRetreatState';
 import { RobotFireballState } from './RobotFireballState';
 import { RobotHitState } from './RobotHitState';
 import { RobotDeathState } from './RobotDeathState';
+import { EnemyFearState } from '../common/EnemyFearState';
 import type { Grid } from '../../../systems/grid/Grid';
+import { Direction } from '../../../constants/Direction';
 import { getRobotDifficultyConfig } from './RobotDifficulty';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import type { EnemyDifficulty } from '../../../constants/EnemyDifficulty';
@@ -101,6 +103,20 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
 
   entity.add(new HitFlashComponent());
 
+  const ROBOT_FEAR_SPEED_PX_PER_SEC = 150;
+
+  const ROBOT_DIRECTION_FRAME_MAP: Record<Direction, number> = {
+    [Direction.None]: 0,
+    [Direction.Down]: 0,
+    [Direction.Up]: 1,
+    [Direction.Left]: 2,
+    [Direction.Right]: 3,
+    [Direction.UpLeft]: 4,
+    [Direction.UpRight]: 5,
+    [Direction.DownLeft]: 6,
+    [Direction.DownRight]: 7,
+  };
+
   const stateMachine = new StateMachine(
     {
       patrol: new RobotPatrolState(entity, grid, playerEntity),
@@ -110,6 +126,10 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
       fireball: new RobotFireballState(entity, scene, playerEntity),
       hit: new RobotHitState(entity, config.hitDuration),
       death: new RobotDeathState(entity),
+      fear: new EnemyFearState(entity, ROBOT_FEAR_SPEED_PX_PER_SEC, (dir) => {
+        const dirIndex = ROBOT_DIRECTION_FRAME_MAP[dir] ?? 0;
+        sprite.sprite.setFrame(8 + dirIndex * 8);
+      }),
     },
     'patrol'
   );

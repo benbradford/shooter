@@ -20,9 +20,10 @@ import { ThrowerRunningState } from './ThrowerRunningState';
 import { ThrowerThrowingState } from './ThrowerThrowingState';
 import { ThrowerHitState } from './ThrowerHitState';
 import { ThrowerDeathState } from './ThrowerDeathState';
+import { EnemyFearState } from '../common/EnemyFearState';
 import { getThrowerDifficultyConfig, type ThrowerDifficulty } from './ThrowerDifficultyConfig';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
-import { createThrowerAnimations } from './ThrowerAnimations';
+import { createThrowerAnimations, getThrowerAnimKey } from './ThrowerAnimations';
 import type { Grid } from '../../../systems/grid/Grid';
 
 const THROWER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 32, height: 16 };
@@ -144,7 +145,11 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
     running: new ThrowerRunningState(entity, playerEntity, grid),
     throwing: new ThrowerThrowingState(entity, playerEntity, onThrow),
     hit: new ThrowerHitState(entity, playerEntity),
-    death: new ThrowerDeathState(entity, playerEntity)
+    death: new ThrowerDeathState(entity, playerEntity),
+    fear: new EnemyFearState(entity, config.speedPxPerSec, (dir) => {
+      const animKey = getThrowerAnimKey('walk', dir);
+      sprite.sprite.play({ key: animKey, frameRate: 6 });
+    })
   }, 'spawning');
 
   entity.add(new StateMachineComponent(stateMachine));

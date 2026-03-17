@@ -2,6 +2,7 @@ import type { Component } from '../../Component';
 import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
+import { PetManager } from '../../../systems/PetManager';
 
 const BASE_BUTTON_SCALE = 0.28;
 const BUTTON_SCALE = BASE_BUTTON_SCALE * TOUCH_CONTROLS_SCALE;
@@ -19,6 +20,7 @@ export class PetActionButtonComponent implements Component {
   private pointerId = -1;
   private posX = 0;
   private posY = 0;
+  private currentTextureKey = 'slide_icon';
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -47,9 +49,15 @@ export class PetActionButtonComponent implements Component {
 
     this.sprite.setPosition(this.posX, this.posY);
 
-    // Get player to check ability state
+    const selectedPetId = PetManager.getInstance().getSelectedPetId();
+    const desiredTexture = selectedPetId === 'dog' ? 'bark_icon' : 'slide_icon';
+    if (desiredTexture !== this.currentTextureKey) {
+      this.sprite.setTexture(desiredTexture);
+      this.currentTextureKey = desiredTexture;
+    }
+
     const gameScene = this.scene.scene.get('game') as any;
-    if (!gameScene || !gameScene.entityManager) {
+    if (!gameScene?.entityManager) {
       this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
       return;
     }

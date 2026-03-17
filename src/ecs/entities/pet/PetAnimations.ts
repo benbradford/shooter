@@ -1,6 +1,5 @@
 import { Animation } from '../../../systems/animation/Animation';
-import type { PetConfig, PetSpritesheetMetadata } from './PetConfig';
-import { ALL_DIRECTIONS, DIR_8_TO_4, DIR_8_TO_8 } from './PetConfig';
+import { ALL_DIRECTIONS, DIR_8_TO_4, DIR_8_TO_8, type PetConfig, type PetSpritesheetMetadata } from './PetConfig';
 
 function rangeToFrameStrings(start: number, end: number): string[] {
   const frames: string[] = [];
@@ -30,6 +29,12 @@ export function createPetAnimationMap(
     if (walkRange) {
       const frames = rangeToFrameStrings(walkRange.start, walkRange.end);
       animMap.set(`walk_${dir}`, new Animation(frames, 'repeat', 0.1));
+    }
+
+    const barkRange = metadata.animations['bark']?.[metaDir];
+    if (barkRange) {
+      const frames = rangeToFrameStrings(barkRange.start, barkRange.end);
+      animMap.set(`bark_${dir}`, new Animation(frames, 'once', 0.1));
     }
   });
 
