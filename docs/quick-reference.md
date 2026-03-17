@@ -133,7 +133,8 @@ Triggers fire events when player walks into them. Use editor: Press E → Trigge
 
 **Enable pets:** Set WorldState flags (`pet_rock_collected`, `pet_selected`)
 **Controls:** H key triggers pet ability (logs message for now)
-**Behavior:** Pet follows using pathfinding, stops within 128px, teleports if >800px, hides in water
+**Behavior:** Pet follows using smooth delta-based movement, stops within 128px, teleports if >800px, hides in water
+**Movement:** Direct movement when close (<200px), pathfinding when far to navigate obstacles
 **Available pets:** rock (4-dir), dog (8-dir)
 
 See [Pet System](./pets-quick-ref.md) for details.

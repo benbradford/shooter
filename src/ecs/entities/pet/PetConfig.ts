@@ -56,12 +56,12 @@ export const DIR_8_TO_4: Record<Direction, string> = {
   [Direction.None]: 'south',
   [Direction.Down]: 'south',
   [Direction.Up]: 'north',
-  [Direction.Left]: 'west',
-  [Direction.Right]: 'east',
-  [Direction.UpLeft]: 'west',
+  [Direction.Left]: 'east',
+  [Direction.Right]: 'west',
+  [Direction.UpLeft]: 'east',
   [Direction.UpRight]: 'north',
-  [Direction.DownLeft]: 'west',
-  [Direction.DownRight]: 'east',
+  [Direction.DownLeft]: 'east',
+  [Direction.DownRight]: 'west',
 };
 
 export const DIR_8_TO_8: Record<Direction, string> = {

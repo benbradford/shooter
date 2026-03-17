@@ -32,6 +32,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - Pet stops within 128px of player
 - Pet teleports if > 800px away
 - Pet hides when player enters water (alpha=0)
+- **Movement:** Direct movement when close (<200px), pathfinding when far to navigate obstacles
 - Pet ability disabled when:
   - Player is punching
   - Player is swimming

@@ -55,6 +55,24 @@ Design passes runtime validation if:
 - ✅ All execution flows trace correctly
 - ✅ No temporal coupling violations
 
+## Complexity and Timeout Management
+
+**If analysis is taking too long (>5 minutes):**
+1. Focus on critical execution flows only (level transitions, asset loading, entity spawning)
+2. Skip exhaustive edge case tracing
+3. Document high-level concerns instead of detailed traces
+4. Provide confidence level: "High-level analysis only, may have missed edge cases"
+
+**For simple features (<5 components, no async, no scene lifecycle):**
+- Provide abbreviated analysis
+- Focus on obvious violations only
+- Mark as "Low complexity - abbreviated analysis"
+
+**For complex features (scene lifecycle, asset management, async operations):**
+- Full detailed analysis required
+- All execution flows traced
+- All async boundaries analyzed
+
 ## Failure Reporting
 
 If ANY criterion fails, report:

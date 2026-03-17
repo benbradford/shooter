@@ -15,17 +15,35 @@
 **DO NOT:** Read files, ask questions, or start work yourself.
 **DO:** Immediately use `use_subagent` with agent_name: "db-design"
 
-### Implementation Tasks → IMMEDIATELY invoke db-implementor agent
+### Implementation Tasks → Check if tasks.md exists
+
+**If tasks.md exists:**
 - "implement task X.Y from features/{feature}/tasks.md"
 - "implement phase X from features/{feature}/tasks.md"
 - "implement all tasks from features/{feature}/tasks.md"
 
-**DO NOT:** Implement tasks yourself.
 **DO:** Immediately use `use_subagent` with agent_name: "db-implementor"
+
+**If no tasks.md (user says "implement it" without task reference):**
+- Ask: "Should I implement this directly, or create a task breakdown first?"
+- If user confirms direct implementation → Handle yourself
+- If user wants task breakdown → Delegate to db-design first
 
 **EXCEPTION - User Override:**
 - "implement task X.Y directly" → Handle yourself (skip testing)
 - "quick fix: {change}" → Handle yourself
+- "I will be afk, keep going until this works" → Handle yourself with testing
+
+**MANDATORY when implementing directly:**
+1. ✅ **Mark tasks complete in tasks.md IMMEDIATELY after finishing each task**
+2. ✅ Run tests after each major component
+3. ✅ **Do NOT skip any tasks** - implement everything in tasks.md
+4. ✅ **Do NOT claim completion until ALL tasks are done**
+5. ✅ Update IMPLEMENTATION-COMPLETE.md when ALL tasks done
+6. ✅ Document any deviations from original plan
+7. ✅ Note actual vs estimated time
+
+**CRITICAL:** If you finish Phase 1 but skip Phase 3, you have NOT completed implementation. All phases must be done.
 
 ### Asset Tasks → IMMEDIATELY invoke db-asset-management agent
 - "update {enemy} spritesheet"

@@ -99,14 +99,14 @@ Rock only has 4 directions. We need to map the 8-direction `Direction` enum to t
 
 ```typescript
 const DIR_8_TO_4: Record<Direction, string> = {
-  [Direction.Right]: 'east',
+  [Direction.Right]: 'west',  // Sprite images have east/west swapped
   [Direction.UpRight]: 'north',
   [Direction.Up]: 'north',
-  [Direction.UpLeft]: 'west',
-  [Direction.Left]: 'west',
+  [Direction.UpLeft]: 'east',
+  [Direction.Left]: 'east',
   [Direction.DownLeft]: 'south',
   [Direction.Down]: 'south',
-  [Direction.DownRight]: 'east',
+  [Direction.DownRight]: 'west',
   [Direction.None]: 'south',
 };
 
@@ -164,7 +164,29 @@ export function createPetAnimationMap(
 
 ### PetFollowComponent
 
-**Purpose**: Pathfinding follow behavior with idle/walk state management.
+**Purpose**: Smooth following behavior with direct movement and pathfinding fallback.
+
+**Movement Strategy:**
+- **Direct movement** when player <200px away (smooth, no grid snapping)
+- **Pathfinding** when player >200px away (navigates obstacles)
+- **Delta-based velocity** at 300px/sec for smooth motion
+- Never snaps to grid positions
+
+**Behavior:**
+- Stops within 128px and plays idle
+- Teleports if >800px away
+- Detects player water state and hides pet (alpha=0)
+- Plays walk animation when following, idle when stopped
+
+**Constants:**
+```typescript
+const FOLLOW_SPEED_PX_PER_SEC = 300;
+const STOP_DISTANCE_PX = 128;
+const TELEPORT_DISTANCE_PX = 800;
+const ABILITY_DISABLE_DISTANCE_PX = 250;
+const PATH_RECALC_MS = 1000;
+const USE_PATHFINDING_DISTANCE_PX = 200;
+```
 
 ```typescript
 export class PetFollowComponent implements Component {

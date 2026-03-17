@@ -65,9 +65,31 @@ All tests pass:
 
 3. **Test in-game**:
    - Pet spawns at player position
-   - Pet follows as you move
+   - Pet follows smoothly as you move
    - Press H to see ability log in console
    - Walk into water to see pet hide
+
+## Implementation Fixes
+
+### Issue 1: Duplicate Sprite
+- **Problem:** Big static sprite + small following sprite
+- **Cause:** Manual sprite creation + SpriteComponent both creating sprites
+- **Fix:** Removed manual sprite, only SpriteComponent creates sprite
+
+### Issue 2: Jerky Movement
+- **Problem:** Pet snapped to waypoints, looked choppy
+- **Cause:** Always using pathfinding with grid-based waypoints
+- **Fix:** Direct smooth movement when <200px, pathfinding only when >200px
+
+### Issue 3: Walk Animation Not Playing
+- **Problem:** Pet always showed idle animation
+- **Cause:** Walk animation only played on direction change, not when starting to follow
+- **Fix:** Play walk animation when isFollowing becomes true
+
+### Issue 4: Left/Right Directions Swapped
+- **Problem:** Rock faced right when moving left, and vice versa
+- **Cause:** Sprite images had east/west swapped
+- **Fix:** Swapped DIR_8_TO_4 mapping (Left→east, Right→west)
 
 ## What's Not Implemented (Out of Scope)
 

@@ -207,19 +207,33 @@ Technical unknowns identified:
 
 ## Available SOPs
 
-1. **disambiguate-feature** - Extract complete requirements through questions
+1. **disambiguate-feature** - Extract complete requirements through questions ⚠️ MANDATORY FIRST STEP
 2. **research-approaches** ⭐ - Research industry patterns, evaluate 3-5 approaches with pros/cons/confidence
 3. **create-spec** - Create requirements, design, tasks, README (includes research-approaches as step 0)
 4. **maintain-consistency** 🚨 - Keep all documents in sync when making changes
 5. **suggest-refactor** - Identify refactor needs and propose approach
 
 **CRITICAL RULES:**
+- **ALWAYS start with disambiguate-feature SOP** - Ask 10+ clarifying questions BEFORE creating any specs
 - Always use research-approaches (or step 0 of create-spec) before committing to a design
 - Never present just one approach
 - **After completing design.md, coordinator will invoke db-runtime-analyst and db-failure-analyst** 🚨
 - **Design is NOT complete until both analyses pass** 🚨
 - **If analysts report violations, revise design.md and resubmit** 🚨
 - **ANY change to tasks.md MUST trigger updates to requirements.md, design.md, and scrutiny.md** (use maintain-consistency SOP)
+
+## Workflow Checkpoint
+
+**BEFORE creating any spec files, you MUST:**
+1. ✅ Run disambiguate-feature SOP (ask 10+ questions)
+2. ✅ Get answers from user
+3. ✅ Document all answers
+4. ✅ Identify technical unknowns
+5. ✅ Delegate POC if needed
+
+**ONLY THEN proceed to create-spec SOP.**
+
+**If you skip disambiguate-feature, the spec will have gaps.**
 
 ## Runtime and Failure Analysis
 

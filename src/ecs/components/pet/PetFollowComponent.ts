@@ -172,9 +172,7 @@ export class PetFollowComponent implements Component {
     const newDir = dirFromDelta(dx, dy);
     if (newDir !== Direction.None && newDir !== this.currentDirection) {
       this.currentDirection = newDir;
-      const animKey = `walk_${this.currentDirection}`;
-      console.log('[PetFollow] Playing animation:', animKey);
-      anim.animationSystem.play(animKey);
+      anim.animationSystem.play(`walk_${this.currentDirection}`);
     }
   }
   
