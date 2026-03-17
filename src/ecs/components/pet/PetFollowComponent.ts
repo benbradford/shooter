@@ -106,21 +106,13 @@ export class PetFollowComponent implements Component {
       }
       
       this.pathRecalcTimerMs += delta;
-      
-      if (!this.hasLineOfSight(transform, playerTransform)) {
-        if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
-          this.recalculatePath();
-          this.pathRecalcTimerMs = 0;
-        }
-        if (this.path && this.path.length > 0) {
-          this.followPath(delta, transform, anim);
-          return;
-        }
-      } else {
-        this.path = null;
+      if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
+        this.recalculatePath();
+        this.pathRecalcTimerMs = 0;
       }
-      
-      this.moveToward(transform, playerTransform.x, playerTransform.y, delta, anim, FOLLOW_SPEED_PX_PER_SEC);
+      if (this.path && this.path.length > 0) {
+        this.followPath(delta, transform, anim);
+      }
       return;
     }
     
@@ -169,13 +161,11 @@ export class PetFollowComponent implements Component {
     const goalCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
     
     const pathfinder = new Pathfinder(this.grid);
-    const startCellData = this.grid.getCell(startCell.col, startCell.row);
-    const currentLayer = startCellData?.layer ?? 0;
     
     this.path = pathfinder.findPath(
       startCell.col, startCell.row,
       goalCell.col, goalCell.row,
-      currentLayer, true, true
+      0, false, true
     );
     this.currentPathIndex = 1;
   }
@@ -252,32 +242,6 @@ export class PetFollowComponent implements Component {
     const newDir = dirFromDelta(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
     if (newDir !== Direction.None) this.currentDirection = newDir;
     this.playAnim(anim, `walk_${this.currentDirection}`);
-  }
-
-  private hasLineOfSight(from: TransformComponent, to: TransformComponent): boolean {
-    const startCell = this.grid.worldToCell(from.x, from.y);
-    const endCell = this.grid.worldToCell(to.x, to.y);
-    
-    let x0 = startCell.col;
-    let y0 = startCell.row;
-    const x1 = endCell.col;
-    const y1 = endCell.row;
-    const dx = Math.abs(x1 - x0);
-    const dy = Math.abs(y1 - y0);
-    const sx = x0 < x1 ? 1 : -1;
-    const sy = y0 < y1 ? 1 : -1;
-    let err = dx - dy;
-    
-    while (x0 !== x1 || y0 !== y1) {
-      const cell = this.grid.getCell(x0, y0);
-      if (!cell) return false;
-      if (cell.layer > 0 || cell.properties.has('wall') || cell.properties.has('blocked') || cell.properties.has('platform')) return false;
-      
-      const e2 = 2 * err;
-      if (e2 > -dy) { err -= dy; x0 += sx; }
-      if (e2 < dx) { err += dx; y0 += sy; }
-    }
-    return true;
   }
 
   getIsTooFar(): boolean { 

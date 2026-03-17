@@ -18,13 +18,13 @@ export function createPetAnimationMap(
 
   ALL_DIRECTIONS.forEach(dir => {
     const metaDir = dirMap[dir];
-    
+
     const idleRange = metadata.animations[config.idleAnim]?.[metaDir];
     if (idleRange) {
       const frames = rangeToFrameStrings(idleRange.start, idleRange.end);
       animMap.set(`idle_${dir}`, new Animation(frames, 'repeat', 0.125));
     }
-    
+
     const walkRange = metadata.animations[config.walkAnim]?.[metaDir];
     if (walkRange) {
       const frames = rangeToFrameStrings(walkRange.start, walkRange.end);
@@ -34,7 +34,7 @@ export function createPetAnimationMap(
     const barkRange = metadata.animations['bark']?.[metaDir];
     if (barkRange) {
       const frames = rangeToFrameStrings(barkRange.start, barkRange.end);
-      animMap.set(`bark_${dir}`, new Animation(frames, 'once', 0.1));
+      animMap.set(`bark_${dir}`, new Animation(frames, 'repeat', 0.1));
     }
 
     if (config.runAnim) {

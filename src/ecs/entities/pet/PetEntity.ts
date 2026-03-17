@@ -15,7 +15,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 import type { PetConfig, PetSpritesheetMetadata } from './PetConfig';
 import { createPetAnimationMap } from './PetAnimations';
 
-const PET_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 24, height: 14 };
+const PET_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 8, width: 24, height: 14 };
 
 export type CreatePetEntityProps = {
   scene: Phaser.Scene;
@@ -29,22 +29,22 @@ export type CreatePetEntityProps = {
 
 export function createPetEntity(props: CreatePetEntityProps): Entity {
   const { scene, grid, playerEntity, config, metadata, startX, startY } = props;
-  
+
   const entity = new Entity(`pet_${config.id}`);
-  
+
   const transform = new TransformComponent(startX, startY);
   transform.scale = config.scale;
   entity.add(transform);
-  
+
   const spriteComp = new SpriteComponent(scene, config.spritesheet, transform);
   spriteComp.sprite.setDepth(Depth.player - 1);
   entity.add(spriteComp);
-  
+
   const animMap = createPetAnimationMap(metadata, config);
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   const animComp = new AnimationComponent(animSystem, spriteComp);
   entity.add(animComp);
-  
+
   const followComp = new PetFollowComponent(grid, playerEntity);
   if (config.runAnim) {
     followComp.setHasRunAnim(true);
@@ -54,13 +54,13 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   const startCell = grid.worldToCell(startX, startY);
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PET_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
-  
+
   if (config.id === 'dog') {
-    entity.add(new DogBarkAbility(scene));
+    entity.add(new DogBarkAbility(scene, grid));
   }
-  
+
   entity.tags.add('pet');
-  
+
   const updateOrder: Array<new (...args: never[]) => Component> = [
     TransformComponent,
     SpriteComponent,
@@ -68,14 +68,14 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
     GridPositionComponent,
     GridCollisionComponent,
   ];
-  
+
   if (config.id === 'dog') {
     updateOrder.push(DogBarkAbility);
   }
-  
+
   updateOrder.push(AnimationComponent);
-  
+
   entity.setUpdateOrder(updateOrder);
-  
+
   return entity;
 }
