@@ -1,6 +1,6 @@
 import type { InputComponent } from '../../components/input/InputComponent';
 import type { AttackComboComponent } from '../../components/combat/AttackComboComponent';
-import type { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
+import type { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import type { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 
 export function handlePunchInput(
@@ -31,25 +31,22 @@ export function handlePunchInput(
   return false;
 }
 
-export function handleSlideInput(
+export function handlePetAbilityInput(
   input: InputComponent,
-  slide: SlideAbilityComponent,
+  petAbility: PetAbilityComponent,
   attackCombo: AttackComboComponent,
   waterEffect?: WaterEffectComponent
 ): boolean {
-  // Can't slide while swimming or hopping
+  // Can't use pet ability while swimming or hopping
   if (waterEffect && (waterEffect.getIsInWater() || waterEffect.isHopping())) {
     return false;
   }
   
-  if (slide.isActive()) {
-    return true;
-  }
-
-  if (input.isSlidePressed() && slide.canSlide() && !attackCombo.isPunching()) {
-    slide.trySlide();
+  if (input.isPetActionPressed() && petAbility.canUseAbility() && !attackCombo.isPunching()) {
+    petAbility.tryAbility();
     return true;
   }
 
   return false;
 }
+

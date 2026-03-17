@@ -129,6 +129,15 @@ Level transitions work automatically via exit triggers. The system:
 
 Triggers fire events when player walks into them. Use editor: Press E → Trigger button → select cells → Add Trigger.
 
+## Pet System
+
+**Enable pets:** Set WorldState flags (`pet_rock_collected`, `pet_selected`)
+**Controls:** H key triggers pet ability (logs message for now)
+**Behavior:** Pet follows using pathfinding, stops within 128px, teleports if >800px, hides in water
+**Available pets:** rock (4-dir), dog (8-dir)
+
+See [Pet System](./pets-quick-ref.md) for details.
+
 ## Debug Controls
 
 - **G** - Toggle grid debug (layers, transitions, triggers)
@@ -137,6 +146,7 @@ Triggers fire events when player walks into them. Use editor: Press E → Trigge
 - **V** - Toggle HUD visibility
 - **Y** - Save world state
 - **E** - Enter level editor
+- **H** - Pet ability (if pet active)
 
 ## Managing Entities
 

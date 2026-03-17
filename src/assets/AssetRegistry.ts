@@ -535,6 +535,18 @@ export const ASSET_REGISTRY = {
     path: 'assets/interior/sconce_bg.png',
     type: 'image' as const,
   },
+  rock_spritesheet: {
+    key: 'rock_spritesheet',
+    path: 'assets/pets/rock/rock_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  dog_spritesheet: {
+    key: 'dog_spritesheet',
+    path: 'assets/pets/dog/dog_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 32, frameHeight: 32 }
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;
@@ -544,7 +556,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

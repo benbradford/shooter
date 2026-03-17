@@ -115,6 +115,10 @@ export class WorldStateManager {
     this.worldState.flags[name] = value.toString();
   }
 
+  getFlag(name: string): string | undefined {
+    return this.worldState.flags[name];
+  }
+
   isFlagCondition(name: string, condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value: string | number): boolean {
     const flagValue = this.worldState.flags[name];
 

@@ -8,7 +8,6 @@ import { GridPositionComponent } from './GridPositionComponent';
 import { GridCollisionComponent } from './GridCollisionComponent';
 import { HealthComponent } from '../core/HealthComponent';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
-import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { InteractionComponent } from '../interaction/InteractionComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
@@ -83,11 +82,6 @@ export class WalkComponent implements Component {
     
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) {
-      return;
-    }
-    
-    const slide = this.entity.get(SlideAbilityComponent);
-    if (slide?.isActive()) {
       return;
     }
 

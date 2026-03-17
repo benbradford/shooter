@@ -164,9 +164,15 @@ When asked to "update the docs":
    - HUD positioning
    - Android compatibility
 
+11. **[Pet System](./pets-quick-ref.md)** - Companion pets
+   - Enabling pets via WorldState
+   - Pet following behavior
+   - Pet abilities (H key)
+   - Water interaction
+
 ## Testing
 
-11. **[Testing](./testing.md)** - Automated browser testing
+12. **[Testing](./testing.md)** - Automated browser testing
    - Running tests with Puppeteer
    - RemoteInputComponent for test control
    - Writing new tests
@@ -175,7 +181,7 @@ When asked to "update the docs":
 
 ## Level Design
 
-12. **[Level Editor](./level-editor.md)** - In-game level editor
+13. **[Level Editor](./level-editor.md)** - In-game level editor
    - Level data structure and loading
    - Editor modes (default, grid, move, resize, add entity, edit entity)
    - Saving workflow

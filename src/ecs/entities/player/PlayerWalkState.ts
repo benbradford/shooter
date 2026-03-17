@@ -5,10 +5,10 @@ import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { InputComponent } from '../../components/input/InputComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
-import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
+import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
-import { handlePunchInput, handleSlideInput } from './PlayerStateHelpers';
+import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 
 export class PlayerWalkState implements IState {
@@ -39,11 +39,11 @@ export class PlayerWalkState implements IState {
     const sm = this.entity.require(StateMachineComponent);
     const input = this.entity.require(InputComponent);
     const attackCombo = this.entity.require(AttackComboComponent);
-    const slide = this.entity.require(SlideAbilityComponent);
+    const petAbility = this.entity.require(PetAbilityComponent);
     const water = this.entity.get(WaterEffectComponent);
     const health = this.entity.require(HealthComponent);
 
-    if (handleSlideInput(input, slide, attackCombo, water)) {
+    if (handlePetAbilityInput(input, petAbility, attackCombo, water)) {
       return;
     }
 

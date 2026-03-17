@@ -9,7 +9,6 @@ import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
-import { SlideAbilityComponent } from '../abilities/SlideAbilityComponent';
 import { CAN_SUBMERGE } from '../../../constants/GameConstants';
 
 export class GridCollisionComponent implements Component {
@@ -264,16 +263,12 @@ export class GridCollisionComponent implements Component {
 
       const walk = this.entity.get(WalkComponent);
       const knockback = this.entity.get(KnockbackComponent);
-      const slide = this.entity.get(SlideAbilityComponent);
 
       if (xOnlyBlocked && yOnlyBlocked) {
         transform.x = this.previousX;
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
         knockback?.stop();
-        if (slide?.isActive()) {
-          slide.stopSlide();
-        }
       } else if (yOnlyBlocked) {
         transform.y = this.previousY;
         walk?.resetVelocity(false, true);
@@ -285,9 +280,6 @@ export class GridCollisionComponent implements Component {
         transform.y = this.previousY;
         walk?.resetVelocity(true, true);
         knockback?.stop();
-        if (slide?.isActive()) {
-          slide.stopSlide();
-        }
       }
     }
 

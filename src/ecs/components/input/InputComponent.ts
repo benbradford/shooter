@@ -148,7 +148,7 @@ export class InputComponent implements Component {
     return false;
   }
 
-  isSlidePressed(): boolean {
+  isPetActionPressed(): boolean {
     if (!this.enabled) return false;
     return this.slideKey?.isDown ?? false;
   }

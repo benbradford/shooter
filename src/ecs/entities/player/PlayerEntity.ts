@@ -24,7 +24,7 @@ import { WaterRippleComponent } from '../../components/visual/WaterRippleCompone
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { VignetteHealthComponent } from '../../components/visual/VignetteHealthComponent';
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
-import { SlideAbilityComponent } from '../../components/abilities/SlideAbilityComponent';
+import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
@@ -49,7 +49,6 @@ const PLAYER_STOP_THRESHOLD = 120;
 
 export const PLAYER_MAX_HEALTH = 100;
 const PLAYER_HEALTH_BAR_OFFSET_Y_PX = 50;
-const SLIDE_ANIM_SECONDS_PER_FRAME = 0.05;
 
 export type CreatePlayerEntityProps = {
   scene: Phaser.Scene;
@@ -136,27 +135,6 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`punch_${Direction.Left}`, new Animation(['44', '45', '46', '47', '48', '49'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownLeft}`, new Animation(['50', '51', '52', '53', '54', '55'], 'once', 0.0415));
 
-  animMap.set(`slide_start_${Direction.Down}`, new Animation(['248', '249', '250', '251'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.DownRight}`, new Animation(['254', '255', '256', '257'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.Right}`, new Animation(['260', '261', '262', '263'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.UpRight}`, new Animation(['266', '267', '268', '269'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.Up}`, new Animation(['272', '273', '274', '275'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.UpLeft}`, new Animation(['278', '279', '280', '281'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.Left}`, new Animation(['284', '285', '286', '287'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_start_${Direction.DownLeft}`, new Animation(['290', '291', '292', '293'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-
-  animMap.set(`slide_end_${Direction.Down}`, new Animation(['252', '253'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.DownRight}`, new Animation(['258', '259'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.Right}`, new Animation(['264', '265'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.UpRight}`, new Animation(['270', '271'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.Up}`, new Animation(['276', '277'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.UpLeft}`, new Animation(['282', '283'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.Left}`, new Animation(['288', '289'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.DownLeft}`, new Animation(['294', '295'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.UpLeft}`, new Animation(['150', '151'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.Left}`, new Animation(['156', '157'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-  animMap.set(`slide_end_${Direction.DownLeft}`, new Animation(['162', '163'], 'once', SLIDE_ANIM_SECONDS_PER_FRAME));
-
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));
 
@@ -222,7 +200,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     getEnemies
   }));
 
-  entity.add(new SlideAbilityComponent(scene));
+  entity.add(new PetAbilityComponent());
 
   const stateMachine = new StateMachine(
     {
@@ -272,7 +250,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     InteractionComponent,
     WalkComponent,
     GridCollisionComponent,
-    SlideAbilityComponent,
+    PetAbilityComponent,
     CollisionComponent,
     HealthComponent,
     MedipackHealerComponent,

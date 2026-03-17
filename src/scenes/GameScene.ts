@@ -3,6 +3,7 @@ import { Depth } from '../constants/DepthConstants';
 import { Grid, type CellProperty } from "../systems/grid/Grid";
 import { LevelLoader, type LevelData } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
+import { Entity } from "../ecs/Entity";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
@@ -440,8 +441,17 @@ export default class GameScene extends Phaser.Scene {
       levelData: () => this.levelData
     }));
 
+    // Initialize PetManager
+    void this.initializePetManager(player);
+
     // Load entities from new format
     this.entityLoader.loadEntities(level, player, this.isEditorMode);
+  }
+
+  private async initializePetManager(player: Entity): Promise<void> {
+    const { PetManager } = await import('../systems/PetManager');
+    const petManager = PetManager.getInstance();
+    await petManager.initialize(this, this.grid, player);
   }
 
 
