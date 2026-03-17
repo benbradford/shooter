@@ -10,23 +10,41 @@ import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 const FOLLOW_SPEED_PX_PER_SEC = 300;
 const STOP_DISTANCE_PX = 128;
+const START_FOLLOW_DISTANCE_PX = 192;
 const TELEPORT_DISTANCE_PX = 800;
 const ABILITY_DISABLE_DISTANCE_PX = 250;
 const PATH_RECALC_MS = 1000;
 const USE_PATHFINDING_DISTANCE_PX = 200;
+const WANDER_SPEED_PX_PER_SEC = 60;
+const WANDER_RADIUS_PX = 64;
+const WANDER_PAUSE_MIN_MS = 800;
+const WANDER_PAUSE_MAX_MS = 2000;
+const WANDER_MOVE_MIN_MS = 600;
+const WANDER_MOVE_MAX_MS = 1500;
+const SPEED_TRANSITION_DURATION_MS = 500;
+
+type PetState = 'idle' | 'following' | 'wandering_move' | 'wandering_pause';
 
 export class PetFollowComponent implements Component {
   entity!: Entity;
   
-  private isFollowing = false;
+  private state: PetState = 'idle';
   private isHidden = false;
   private isBarking = false;
   private wasInWater = false;
+  private lastAnimKey = '';
   
   private path: Array<{ col: number; row: number }> | null = null;
   private currentPathIndex = 0;
   private pathRecalcTimerMs = 0;
   private currentDirection: Direction = Direction.Down;
+  private hasRunAnim = false;
+  
+  private wanderTargetX = 0;
+  private wanderTargetY = 0;
+  private wanderTimerMs = 0;
+  private wanderDurationMs = 0;
+  private currentSpeedPxPerSec = 0;
   
   constructor(
     private readonly grid: Grid,
@@ -64,48 +82,81 @@ export class PetFollowComponent implements Component {
     if (distancePx > TELEPORT_DISTANCE_PX) {
       transform.x = playerTransform.x;
       transform.y = playerTransform.y;
-      this.isFollowing = false;
+      this.state = 'idle';
       this.path = null;
-      anim.animationSystem.play(`idle_${this.currentDirection}`);
+      this.playAnim(anim, `idle_${this.currentDirection}`);
       return;
     }
     
-    if (distancePx <= STOP_DISTANCE_PX) {
-      if (this.isFollowing) {
-        this.isFollowing = false;
-        const faceDir = dirFromDelta(dx, dy);
-        if (faceDir !== Direction.None) this.currentDirection = faceDir;
-        anim.animationSystem.play(`idle_${this.currentDirection}`);
-      }
-      return;
-    }
-    
-    if (!this.isFollowing) {
-      this.isFollowing = true;
+    // Too far → follow
+    if (distancePx > START_FOLLOW_DISTANCE_PX && this.state !== 'following') {
+      this.state = 'following';
       const newDir = dirFromDelta(dx, dy);
       if (newDir !== Direction.None) {
         this.currentDirection = newDir;
-        anim.animationSystem.play(`walk_${this.currentDirection}`);
+        this.playAnim(anim, `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
       }
     }
     
-    // Use pathfinding only if player is far or not directly reachable
-    if (distancePx > USE_PATHFINDING_DISTANCE_PX) {
-      this.pathRecalcTimerMs += delta;
-      
-      if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
-        this.recalculatePath();
-        this.pathRecalcTimerMs = 0;
-      }
-      
-      if (this.path && this.path.length > 0) {
-        this.followPath(delta, transform, anim);
+    if (this.state === 'following') {
+      // Close enough → start wandering
+      if (distancePx <= STOP_DISTANCE_PX) {
+        const playerTransformRef = this.playerEntity.require(TransformComponent);
+        this.startWanderMove(anim, playerTransformRef);
         return;
       }
+      
+      if (distancePx > USE_PATHFINDING_DISTANCE_PX) {
+        this.pathRecalcTimerMs += delta;
+        if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
+          this.recalculatePath();
+          this.pathRecalcTimerMs = 0;
+        }
+        if (this.path && this.path.length > 0) {
+          this.followPath(delta, transform, anim);
+          return;
+        }
+      }
+      
+      this.moveToward(transform, playerTransform.x, playerTransform.y, delta, anim, FOLLOW_SPEED_PX_PER_SEC);
+      return;
     }
     
-    // Direct movement toward player
-    this.moveToward(transform, playerTransform.x, playerTransform.y, delta, anim);
+    if (this.state === 'wandering_pause') {
+      // Player moved away → follow
+      if (distancePx > START_FOLLOW_DISTANCE_PX) {
+        this.state = 'following';
+        return;
+      }
+      this.wanderTimerMs += delta;
+      if (this.wanderTimerMs >= this.wanderDurationMs) {
+        this.startWanderMove(anim, playerTransform);
+      }
+      return;
+    }
+    
+    if (this.state === 'wandering_move') {
+      // Player moved away → follow
+      if (distancePx > START_FOLLOW_DISTANCE_PX) {
+        this.state = 'following';
+        return;
+      }
+      this.wanderTimerMs += delta;
+      const distToTarget = Math.hypot(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
+      if (this.wanderTimerMs >= this.wanderDurationMs || distToTarget < 4) {
+        this.startWanderPause(anim, playerTransform);
+        return;
+      }
+      this.moveToward(transform, this.wanderTargetX, this.wanderTargetY, delta, anim, WANDER_SPEED_PX_PER_SEC);
+      return;
+    }
+    
+    // idle state - start wandering if close, follow if far
+    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+      this.state = 'following';
+    } else {
+      this.startWanderMove(anim, playerTransform);
+    }
   }
   
   private recalculatePath(): void {
@@ -146,21 +197,25 @@ export class PetFollowComponent implements Component {
       return;
     }
     
-    this.moveToward(transform, targetX, targetY, delta, anim);
+    this.moveToward(transform, targetX, targetY, delta, anim, FOLLOW_SPEED_PX_PER_SEC);
   }
   
   private moveToward(
     transform: TransformComponent,
     targetX: number, targetY: number,
-    delta: number, anim: AnimationComponent
+    delta: number, anim: AnimationComponent,
+    targetSpeedPxPerSec: number
   ): void {
     const dx = targetX - transform.x;
     const dy = targetY - transform.y;
     const dist = Math.hypot(dx, dy);
     
     if (dist < 1) return;
+
+    const lerpRate = Math.min(1, delta / SPEED_TRANSITION_DURATION_MS);
+    this.currentSpeedPxPerSec += (targetSpeedPxPerSec - this.currentSpeedPxPerSec) * lerpRate;
     
-    const moveDist = FOLLOW_SPEED_PX_PER_SEC * (delta / 1000);
+    const moveDist = this.currentSpeedPxPerSec * (delta / 1000);
     
     if (moveDist >= dist) {
       transform.x = targetX;
@@ -173,10 +228,30 @@ export class PetFollowComponent implements Component {
     const newDir = dirFromDelta(dx, dy);
     if (newDir !== Direction.None && newDir !== this.currentDirection) {
       this.currentDirection = newDir;
-      anim.animationSystem.play(`walk_${this.currentDirection}`);
+      this.playAnim(anim, `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
     }
   }
   
+  private startWanderPause(anim: AnimationComponent, _playerTransform: TransformComponent): void {
+    this.state = 'wandering_pause';
+    this.wanderTimerMs = 0;
+    this.wanderDurationMs = WANDER_PAUSE_MIN_MS + Math.random() * (WANDER_PAUSE_MAX_MS - WANDER_PAUSE_MIN_MS);
+    this.playAnim(anim, `idle_${this.currentDirection}`);
+  }
+
+  private startWanderMove(anim: AnimationComponent, playerTransform: TransformComponent): void {
+    this.state = 'wandering_move';
+    this.wanderTimerMs = 0;
+    this.wanderDurationMs = WANDER_MOVE_MIN_MS + Math.random() * (WANDER_MOVE_MAX_MS - WANDER_MOVE_MIN_MS);
+    const angle = Math.random() * Math.PI * 2;
+    this.wanderTargetX = playerTransform.x + Math.cos(angle) * WANDER_RADIUS_PX;
+    this.wanderTargetY = playerTransform.y + Math.sin(angle) * WANDER_RADIUS_PX;
+    const transform = this.entity.require(TransformComponent);
+    const newDir = dirFromDelta(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
+    if (newDir !== Direction.None) this.currentDirection = newDir;
+    this.playAnim(anim, `walk_${this.currentDirection}`);
+  }
+
   getIsTooFar(): boolean { 
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
@@ -187,6 +262,16 @@ export class PetFollowComponent implements Component {
   getIsHidden(): boolean { 
     return this.isHidden; 
   }
+
+  private playAnim(anim: AnimationComponent, key: string): void {
+    if (key === this.lastAnimKey) return;
+    this.lastAnimKey = key;
+    anim.animationSystem.play(key);
+  }
+
+  private getMoveAnimPrefix(): string {
+    return (this.state === 'following' && this.hasRunAnim) ? 'run' : 'walk';
+  }
   
   setHidden(hidden: boolean): void { 
     this.isHidden = hidden; 
@@ -194,6 +279,10 @@ export class PetFollowComponent implements Component {
 
   setBarking(barking: boolean): void {
     this.isBarking = barking;
+  }
+
+  setHasRunAnim(has: boolean): void {
+    this.hasRunAnim = has;
   }
 
   getIsBarking(): boolean {

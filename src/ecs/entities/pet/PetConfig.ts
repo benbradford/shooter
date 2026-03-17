@@ -9,6 +9,7 @@ export type PetConfig = {
   readonly directions: 4 | 8;
   readonly idleAnim: string;
   readonly walkAnim: string;
+  readonly runAnim?: string;
   readonly abilityCooldownMs: number;
   readonly worldStateFlag: string;
   readonly iconTexture: string;
@@ -46,6 +47,7 @@ export const PET_REGISTRY: Record<string, PetConfig> = {
     directions: 8,
     idleAnim: 'breathing-idle',
     walkAnim: 'walk',
+    runAnim: 'running',
     abilityCooldownMs: 3000,
     worldStateFlag: 'pet_dog_collected',
     iconTexture: 'dog_pet_icon',

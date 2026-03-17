@@ -36,6 +36,14 @@ export function createPetAnimationMap(
       const frames = rangeToFrameStrings(barkRange.start, barkRange.end);
       animMap.set(`bark_${dir}`, new Animation(frames, 'once', 0.1));
     }
+
+    if (config.runAnim) {
+      const runRange = metadata.animations[config.runAnim]?.[metaDir];
+      if (runRange) {
+        const frames = rangeToFrameStrings(runRange.start, runRange.end);
+        animMap.set(`run_${dir}`, new Animation(frames, 'repeat', 0.08));
+      }
+    }
   });
 
   return animMap;

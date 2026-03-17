@@ -41,7 +41,11 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   const animComp = new AnimationComponent(animSystem, spriteComp);
   entity.add(animComp);
   
-  entity.add(new PetFollowComponent(grid, playerEntity));
+  const followComp = new PetFollowComponent(grid, playerEntity);
+  if (config.runAnim) {
+    followComp.setHasRunAnim(true);
+  }
+  entity.add(followComp);
   
   if (config.id === 'dog') {
     entity.add(new DogBarkAbility(scene));
