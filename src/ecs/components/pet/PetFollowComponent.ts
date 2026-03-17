@@ -14,7 +14,6 @@ const START_FOLLOW_DISTANCE_PX = 192;
 const TELEPORT_DISTANCE_PX = 800;
 const ABILITY_DISABLE_DISTANCE_PX = 250;
 const PATH_RECALC_MS = 1000;
-const USE_PATHFINDING_DISTANCE_PX = 200;
 const WANDER_SPEED_PX_PER_SEC = 60;
 const WANDER_RADIUS_PX = 64;
 const WANDER_PAUSE_MIN_MS = 800;
@@ -106,8 +105,9 @@ export class PetFollowComponent implements Component {
         return;
       }
       
-      if (distancePx > USE_PATHFINDING_DISTANCE_PX) {
-        this.pathRecalcTimerMs += delta;
+      this.pathRecalcTimerMs += delta;
+      
+      if (!this.hasLineOfSight(transform, playerTransform)) {
         if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
           this.recalculatePath();
           this.pathRecalcTimerMs = 0;
@@ -116,6 +116,8 @@ export class PetFollowComponent implements Component {
           this.followPath(delta, transform, anim);
           return;
         }
+      } else {
+        this.path = null;
       }
       
       this.moveToward(transform, playerTransform.x, playerTransform.y, delta, anim, FOLLOW_SPEED_PX_PER_SEC);
@@ -250,6 +252,32 @@ export class PetFollowComponent implements Component {
     const newDir = dirFromDelta(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
     if (newDir !== Direction.None) this.currentDirection = newDir;
     this.playAnim(anim, `walk_${this.currentDirection}`);
+  }
+
+  private hasLineOfSight(from: TransformComponent, to: TransformComponent): boolean {
+    const startCell = this.grid.worldToCell(from.x, from.y);
+    const endCell = this.grid.worldToCell(to.x, to.y);
+    
+    let x0 = startCell.col;
+    let y0 = startCell.row;
+    const x1 = endCell.col;
+    const y1 = endCell.row;
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1;
+    const sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+    
+    while (x0 !== x1 || y0 !== y1) {
+      const cell = this.grid.getCell(x0, y0);
+      if (!cell) return false;
+      if (cell.layer > 0 || cell.properties.has('wall') || cell.properties.has('blocked') || cell.properties.has('platform')) return false;
+      
+      const e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; x0 += sx; }
+      if (e2 < dx) { err += dx; y0 += sy; }
+    }
+    return true;
   }
 
   getIsTooFar(): boolean { 

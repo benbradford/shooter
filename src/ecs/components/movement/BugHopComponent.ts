@@ -81,6 +81,17 @@ export class BugHopComponent implements Component {
     return this.isHopping;
   }
 
+  cancel(): void {
+    if (!this.isHopping) return;
+    this.isHopping = false;
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) {
+      const transform = this.entity.require(TransformComponent);
+      sprite.sprite.y = transform.y;
+      sprite.sprite.setDepth(Depth.enemyFlying);
+    }
+  }
+
   justEnded(): boolean {
     return this.wasHopping && !this.isHopping;
   }

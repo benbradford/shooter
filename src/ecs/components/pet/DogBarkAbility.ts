@@ -4,18 +4,17 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
-import { HitFlashComponent } from '../visual/HitFlashComponent';
 import { FearComponent } from '../combat/FearComponent';
 import { PetFollowComponent } from './PetFollowComponent';
+import { BugHopComponent } from '../movement/BugHopComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { Depth } from '../../../constants/DepthConstants';
 
 const FEAR_DURATION_MS = 4000;
-const FEAR_FLASH_DURATION_MS = 150;
 
 const ENEMY_DETECT_RANGE_PX = 400;
 const BARK_RANGE_PX = 100;
-const FEAR_RADIUS_PX = 600;
+const FEAR_RADIUS_PX = 400;
 const BARK_ANIM_DURATION_MS = 600;
 const APPROACH_SPEED_PX_PER_SEC = 300;
 const BARK_WAVE_DURATION_MS = 400;
@@ -185,7 +184,8 @@ export class DogBarkAbility implements Component {
       if (existingFear) {
         existingFear.resetTimer();
       } else {
-        const returnState = sm.stateMachine.getCurrentKey() ?? 'idle';
+        const currentState = sm.stateMachine.getCurrentKey() ?? 'idle';
+        const returnState = currentState === 'attack' ? (sm.stateMachine.hasState('chase') ? 'chase' : 'idle') : currentState;
         const fear = e.add(new FearComponent({
           sourceX: transform.x,
           sourceY: transform.y,
@@ -196,12 +196,11 @@ export class DogBarkAbility implements Component {
         fear.init();
       }
 
-      sm.stateMachine.enter('fear');
+      // Cancel any active hop (bugs)
+      const hop = e.get(BugHopComponent);
+      if (hop) hop.cancel();
 
-      const hitFlash = e.get(HitFlashComponent);
-      if (hitFlash) {
-        hitFlash.flash(FEAR_FLASH_DURATION_MS);
-      }
+      sm.stateMachine.enter('fear');
     }
   }
 

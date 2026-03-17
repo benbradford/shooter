@@ -5,6 +5,8 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { PetFollowComponent } from '../../components/pet/PetFollowComponent';
 import { DogBarkAbility } from '../../components/pet/DogBarkAbility';
+import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
+import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { Depth } from '../../../constants/DepthConstants';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -12,6 +14,8 @@ import type { Component } from '../../Component';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { PetConfig, PetSpritesheetMetadata } from './PetConfig';
 import { createPetAnimationMap } from './PetAnimations';
+
+const PET_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 16, width: 24, height: 14 };
 
 export type CreatePetEntityProps = {
   scene: Phaser.Scene;
@@ -46,6 +50,10 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
     followComp.setHasRunAnim(true);
   }
   entity.add(followComp);
+
+  const startCell = grid.worldToCell(startX, startY);
+  entity.add(new GridPositionComponent(startCell.col, startCell.row, PET_GRID_COLLISION_BOX));
+  entity.add(new GridCollisionComponent(grid));
   
   if (config.id === 'dog') {
     entity.add(new DogBarkAbility(scene));
@@ -57,6 +65,8 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
     TransformComponent,
     SpriteComponent,
     PetFollowComponent,
+    GridPositionComponent,
+    GridCollisionComponent,
   ];
   
   if (config.id === 'dog') {

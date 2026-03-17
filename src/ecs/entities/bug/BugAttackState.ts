@@ -64,6 +64,11 @@ export class BugAttackState implements IState {
 
   onExit(): void {
     this.isLeaping = false;
+    const transform = this.entity.get(TransformComponent);
+    const sprite = this.entity.get(SpriteComponent);
+    if (transform && sprite) {
+      sprite.sprite.setY(transform.y);
+    }
   }
 
   isActive(): boolean {

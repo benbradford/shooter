@@ -2,14 +2,19 @@ import type Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
+import { SpriteComponent } from '../core/SpriteComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { Depth } from '../../../constants/DepthConstants';
 
-const ICON_OFFSET_Y_PX = -40;
-const ICON_JITTER_PX = 1;
-const ICON_FADE_DURATION_MS = 300;
-const ICON_POP_DURATION_MS = 200;
-const ICON_POP_OVERSHOOT_SCALE = 1.2;
+const ICON_OFFSET_Y_PX = -20;
+const PARTICLE_FREQUENCY_MS = 400;
+const PARTICLE_LIFESPAN_MS = 800;
+const PARTICLE_SPEED_PX = 40;
+const PARTICLE_SPREAD_PX = 20;
+const PARTICLE_SCALE_START = 0.6;
+const PARTICLE_SCALE_END = 0.2;
+const FEAR_TINT_COLOR = 0x8888ff;
+const TINT_PULSE_SPEED = 0.008;
 
 export type FearComponentProps = {
   sourceX: number;
@@ -27,7 +32,7 @@ export class FearComponent implements Component {
   private readonly returnState: string;
   private readonly scene: Phaser.Scene;
   private elapsedMs = 0;
-  private fearIcon: Phaser.GameObjects.Sprite | null = null;
+  private emitter: Phaser.GameObjects.Particles.ParticleEmitter | null = null;
   private isEnding = false;
 
   constructor(props: FearComponentProps) {
@@ -40,31 +45,28 @@ export class FearComponent implements Component {
 
   init(): void {
     const transform = this.entity.require(TransformComponent);
-    this.fearIcon = this.scene.add.sprite(
-      transform.x,
-      transform.y + ICON_OFFSET_Y_PX,
-      'fear_icon'
-    );
-    this.fearIcon.setDepth(Depth.particle);
-    this.fearIcon.setScale(0);
-
-    this.scene.tweens.add({
-      targets: this.fearIcon,
-      scaleX: { from: 0, to: ICON_POP_OVERSHOOT_SCALE },
-      scaleY: { from: 0, to: ICON_POP_OVERSHOOT_SCALE },
-      duration: ICON_POP_DURATION_MS * 0.6,
-      ease: 'Back.easeOut',
-      onComplete: () => {
-        if (!this.fearIcon) return;
-        this.scene.tweens.add({
-          targets: this.fearIcon,
-          scaleX: 1,
-          scaleY: 1,
-          duration: ICON_POP_DURATION_MS * 0.4,
-          ease: 'Sine.easeInOut'
-        });
+    this.emitter = this.scene.add.particles(
+      transform.x, transform.y + ICON_OFFSET_Y_PX,
+      'fear_icon',
+      {
+        frequency: PARTICLE_FREQUENCY_MS,
+        lifespan: PARTICLE_LIFESPAN_MS,
+        speed: { min: PARTICLE_SPEED_PX * 0.5, max: PARTICLE_SPEED_PX },
+        angle: { min: 220, max: 320 },
+        scale: { start: PARTICLE_SCALE_START, end: PARTICLE_SCALE_END },
+        alpha: { start: 0.9, end: 0 },
+        gravityY: -30,
+        x: { min: -PARTICLE_SPREAD_PX, max: PARTICLE_SPREAD_PX },
+        y: { min: -PARTICLE_SPREAD_PX, max: PARTICLE_SPREAD_PX }
       }
-    });
+    );
+    this.emitter.setDepth(Depth.particle);
+
+    // Initial blue flash
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) {
+      sprite.sprite.setTint(FEAR_TINT_COLOR);
+    }
   }
 
   resetTimer(): void {
@@ -76,10 +78,19 @@ export class FearComponent implements Component {
 
     this.elapsedMs += delta;
 
-    if (this.fearIcon) {
+    if (this.emitter) {
       const transform = this.entity.require(TransformComponent);
-      this.fearIcon.x = transform.x + (Math.random() - 0.5) * 2 * ICON_JITTER_PX;
-      this.fearIcon.y = transform.y + ICON_OFFSET_Y_PX + (Math.random() - 0.5) * 2 * ICON_JITTER_PX;
+      this.emitter.setPosition(transform.x, transform.y + ICON_OFFSET_Y_PX);
+    }
+
+    // Pulse blue tint - oscillates between subtle blue and white
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) {
+      const t = 0.5 + 0.5 * Math.sin(this.elapsedMs * TINT_PULSE_SPEED);
+      const r = Math.floor(0x88 + (0xff - 0x88) * t);
+      const g = Math.floor(0x88 + (0xff - 0x88) * t);
+      const b = 0xff;
+      sprite.sprite.setTint((r << 16) | (g << 8) | b);
     }
 
     if (this.elapsedMs >= this.durationMs) {
@@ -90,15 +101,16 @@ export class FearComponent implements Component {
   private endFear(): void {
     this.isEnding = true;
 
-    if (this.fearIcon) {
-      this.scene.tweens.add({
-        targets: this.fearIcon,
-        alpha: 0,
-        duration: ICON_FADE_DURATION_MS,
-        onComplete: () => {
-          this.fearIcon?.destroy();
-          this.fearIcon = null;
-        }
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) {
+      sprite.sprite.clearTint();
+    }
+
+    if (this.emitter) {
+      this.emitter.stop();
+      this.scene.time.delayedCall(PARTICLE_LIFESPAN_MS, () => {
+        this.emitter?.destroy();
+        this.emitter = null;
       });
     }
 
@@ -111,7 +123,11 @@ export class FearComponent implements Component {
   }
 
   onDestroy(): void {
-    this.fearIcon?.destroy();
-    this.fearIcon = null;
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) {
+      sprite.sprite.clearTint();
+    }
+    this.emitter?.destroy();
+    this.emitter = null;
   }
 }

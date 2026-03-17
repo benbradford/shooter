@@ -11,10 +11,12 @@ import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
 import type { Grid } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
+import { FearComponent } from '../../components/combat/FearComponent';
 
 const FRAME_DURATION_MS = 125;
 const ATTACK_RANGE_PX = 100;
 const PATH_RECALC_INTERVAL_MS = 500;
+const POST_FEAR_COOLDOWN_MS = 1500;
 
 export class BugChaseState implements IState {
   private readonly entity: Entity;
@@ -31,6 +33,7 @@ export class BugChaseState implements IState {
   private path: Array<{ col: number; row: number }> | null = null;
   private pathRecalcTimer = 0;
   private currentPathIndex = 0;
+  private attackCooldownMs = 0;
 
   constructor(entity: Entity, playerEntity: Entity, grid: Grid, speedPxPerSec: number, scene: Phaser.Scene) {
     this.entity = entity;
@@ -41,10 +44,25 @@ export class BugChaseState implements IState {
     this.scene = scene;
   }
 
+  onEnter(): void {
+    const fear = this.entity.get(FearComponent);
+    if (fear) {
+      this.attackCooldownMs = POST_FEAR_COOLDOWN_MS;
+    }
+    this.path = null;
+    this.isMovingToCell = false;
+    this.currentPathIndex = 0;
+    this.pathRecalcTimer = PATH_RECALC_INTERVAL_MS;
+  }
+
 
 
   onUpdate(delta: number): void {
     if (this.shouldSkipUpdate()) return;
+
+    if (this.attackCooldownMs > 0) {
+      this.attackCooldownMs -= delta;
+    }
 
     const { transform, playerTransform, gridPos, sprite } = this.getRequiredComponents();
 
@@ -101,6 +119,8 @@ export class BugChaseState implements IState {
   }
 
   private shouldAttack(transform: TransformComponent, playerTransform: TransformComponent): boolean {
+    if (this.attackCooldownMs > 0) return false;
+
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const distanceToPlayer = Math.hypot(dx, dy);
