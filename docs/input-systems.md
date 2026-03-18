@@ -22,7 +22,7 @@ Both systems work simultaneously and are integrated through the `InputComponent`
 
 ### Joystick System
 
-The joystick system provides touch/mouse-based movement controls for the player. When the user clicks/touches the left side of the screen, a visual joystick appears and tracks their input, allowing 360-degree movement with momentum-based physics.
+The joystick system provides touch/mouse-based movement controls for the player. When the user clicks/touches the lower-left area of the screen (left 45%, bottom 70%), a visual joystick appears and tracks their input, allowing 360-degree movement with momentum-based physics.
 
 ## Architecture
 
@@ -32,7 +32,7 @@ The joystick system provides touch/mouse-based movement controls for the player.
 - Handles pointer input (mouse/touch)
 - Tracks joystick state (active, start position, current position)
 - has a deadzone whereby the player changes direction but doesn't move until move distance is outside of deadzone
-- Only activates on left side of screen
+- Only activates on left 45%, bottom 70% of screen
 - Provides two input methods:
   - `getInputDelta()` - With deadzone (for movement)
   - `getRawInputDelta()` - Without deadzone (for facing direction)
@@ -133,7 +133,7 @@ The joystick system provides touch/mouse-based movement controls for the player.
 - **Dual deadzone system**: Separate thresholds for facing vs movement
 - **Visual feedback**: Clear joystick UI shows input state
 - **Dual input support**: Keyboard controls work alongside joystick
-- **Screen activation**: Only left side to avoid conflicts with aim joystick
+- **Screen activation**: Only left 45%, bottom 70% to avoid conflicts with aim joystick
 - **Component reusability**: Joystick is separate entity, can be reused
 - **Smooth animation**: Animation speed matches movement state
 

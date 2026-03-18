@@ -59,7 +59,7 @@ Level transitions work automatically via exit triggers. The system:
 - Release: Returns to idle
 
 **Slide Ability:**
-- Press H or tap slide button
+- Press H or tap pet action button
 - 250px slide at 400px/s, invulnerable during slide
 - 3 second cooldown
 - Button alpha: 0.7 unpressed, 0.9 pressed, 0.3 cooldown
@@ -187,7 +187,7 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 
 ## Touch Joystick
 
-- Movement: 20% from left, 75% from top
+- Movement: 9% from left, 45% from top (activates in left 45%, bottom 70%)
 - Aim: 80% from left, 50% from top
 - Recalculate positions every frame until first interaction (Android fix)
 

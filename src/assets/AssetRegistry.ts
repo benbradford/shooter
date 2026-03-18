@@ -552,6 +552,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/pets/dog/dog/bark_icon.png',
     type: 'image' as const,
   },
+  rock_icon: {
+    key: 'rock_icon',
+    path: 'assets/pets/rock/rock/rock_icon.png',
+    type: 'image' as const,
+  },
   fear_icon: {
     key: 'fear_icon',
     path: 'assets/pets/dog/dog/fear_icon.png',
@@ -566,7 +571,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'fear_icon'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

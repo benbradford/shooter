@@ -131,6 +131,22 @@ export class PetManager {
     return collected;
   }
   
+  selectNext(): void {
+    const collected = this.getCollectedPets();
+    if (collected.length <= 1) return;
+    const currentIndex = collected.indexOf(this.selectedPetId ?? '');
+    const nextIndex = (currentIndex + 1) % collected.length;
+    void this.spawnPet(collected[nextIndex]);
+  }
+
+  selectPrevious(): void {
+    const collected = this.getCollectedPets();
+    if (collected.length <= 1) return;
+    const currentIndex = collected.indexOf(this.selectedPetId ?? '');
+    const prevIndex = (currentIndex - 1 + collected.length) % collected.length;
+    void this.spawnPet(collected[prevIndex]);
+  }
+
   updateWaterState(isInWater: boolean): void {
     if (!this.activePetEntity) return;
     

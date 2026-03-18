@@ -36,7 +36,7 @@ export const PET_REGISTRY: Record<string, PetConfig> = {
     walkAnim: 'walking',
     abilityCooldownMs: 5000,
     worldStateFlag: 'pet_rock_collected',
-    iconTexture: 'rock_pet_icon',
+    iconTexture: 'rock_icon',
   },
   dog: {
     id: 'dog',
@@ -50,7 +50,7 @@ export const PET_REGISTRY: Record<string, PetConfig> = {
     runAnim: 'running',
     abilityCooldownMs: 3000,
     worldStateFlag: 'pet_dog_collected',
-    iconTexture: 'dog_pet_icon',
+    iconTexture: 'bark_icon',
   },
 };
 

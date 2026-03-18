@@ -174,17 +174,18 @@
 **File**: `src/ecs/components/ui/PetCarouselComponent.ts`
 
 **Subtasks**:
-- [ ] Create component that manages pet icon sprites in a circular layout
-- [ ] `init()` — create icon sprites for each collected pet, position in circle
-- [ ] Only the selected pet's icon is visible (alpha=1, on screen); others alpha=0
-- [ ] Create left/right arrow sprites at top of screen
-- [ ] Arrow touch handlers call `PetManager.selectNext()` / `selectPrevious()`
-- [ ] `update()` — sync icon visibility with PetManager state
-- [ ] Tween icons when cycling (200ms rotation animation)
-- [ ] `onDestroy()` — clean up sprites
+- [x] Create component that manages pet icon sprites in a circular layout
+- [x] `init()` — create icon sprites for each collected pet, position in circle
+- [x] Only the selected pet's icon is visible (alpha=1, on screen); others alpha=0
+- [x] Create left/right arrow sprites at top of screen
+- [x] Arrow touch handlers call `PetManager.selectNext()` / `selectPrevious()`
+- [x] `update()` — sync icon visibility with PetManager state
+- [x] Tween icons when cycling (200ms rotation animation)
+- [x] `onDestroy()` — clean up sprites
 
 **Dependencies**: Task 2.1
 **Estimated Time**: 1 hour
+**Actual Time**: 25min
 
 ---
 
@@ -210,13 +211,14 @@
 **File**: `src/ecs/entities/hud/JoystickEntity.ts`
 
 **Subtasks**:
-- [ ] Import and add `PetCarouselComponent`
-- [ ] Import and add `PetActionButtonComponent`
-- [ ] Add both to update order
-- [ ] Call `init()` on both
+- [x] Import and add `PetCarouselComponent`
+- [x] Import and add `PetActionButtonComponent`
+- [x] Add both to update order
+- [x] Call `init()` on both
 
 **Dependencies**: Tasks 3.1, 3.2
 **Estimated Time**: 15 minutes
+**Actual Time**: 5min
 
 ---
 
@@ -224,10 +226,11 @@
 **File**: `src/scenes/HudScene.ts`
 
 **Subtasks**:
-- [ ] In `setVisible()`, also toggle PetCarouselComponent and PetActionButtonComponent visibility
+- [x] In `setVisible()`, also toggle PetCarouselComponent and PetActionButtonComponent visibility
 
 **Dependencies**: Task 3.3
 **Estimated Time**: 10 minutes
+**Actual Time**: 5min
 
 ---
 

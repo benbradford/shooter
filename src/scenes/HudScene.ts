@@ -6,6 +6,8 @@ import type { Entity } from '../ecs/Entity';
 import { JoystickVisualsComponent } from '../ecs/components/ui/JoystickVisualsComponent';
 import { AttackButtonComponent } from '../ecs/components/input/AttackButtonComponent';
 import { HudBarComponent } from '../ecs/components/ui/HudBarComponent';
+import { PetCarouselComponent } from '../ecs/components/ui/PetCarouselComponent';
+import { PetActionButtonComponent } from '../ecs/components/ui/PetActionButtonComponent';
 
 export default class HudScene extends Phaser.Scene {
   private entityManager!: EntityManager;
@@ -65,6 +67,16 @@ export default class HudScene extends Phaser.Scene {
     const attackButton = this.joystickEntity.get(AttackButtonComponent);
     if (attackButton) {
       attackButton.setVisible(visible);
+    }
+
+    const petCarousel = this.joystickEntity.get(PetCarouselComponent);
+    if (petCarousel) {
+      petCarousel.setVisible(visible);
+    }
+
+    const petActionButton = this.joystickEntity.get(PetActionButtonComponent);
+    if (petActionButton) {
+      petActionButton.setVisible(visible);
     }
     
     // Coin counter always visible (don't hide during interactions)

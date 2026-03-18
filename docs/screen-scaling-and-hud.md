@@ -141,8 +141,8 @@ export class JoystickVisualsComponent {
 
 ### Joystick Default Positions
 
-- **Movement joystick:** Bottom-left (15% from left, 55% from top)
-- **Aim joystick:** Bottom-right (65% from left, 55% from top)
+- **Movement joystick:** Bottom-left (9% from left, 45% from top, activates in left 45%, bottom 70%)
+- **Aim joystick:** Bottom-right (70% from left, 50% from top)
 
 These positions are chosen to:
 1. Be easily reachable with thumbs in landscape mode

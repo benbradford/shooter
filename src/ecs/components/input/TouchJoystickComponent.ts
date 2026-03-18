@@ -37,9 +37,10 @@ export class TouchJoystickComponent implements Component {
   init(): void {
     this.scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       const screenWidth = this.scene.cameras.main.width;
+      const screenHeight = this.scene.cameras.main.height;
 
-      // Only register movement touches on left half of screen
-      if (pointer.x < screenWidth * 0.5 && this.pointerId === -1) {
+      // Only register movement touches on left 45% and bottom 70% of screen
+      if (pointer.x < screenWidth * 0.45 && pointer.y > screenHeight * 0.3 && this.pointerId === -1) {
         this.isActive = true;
         this.startX = pointer.x;
         this.startY = pointer.y;

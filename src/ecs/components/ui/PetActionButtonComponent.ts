@@ -3,9 +3,9 @@ import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 import { PetManager } from '../../../systems/PetManager';
+import { PetAbilityComponent } from '../pet/PetAbilityComponent';
+import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 
-const BASE_BUTTON_SCALE = 0.28;
-const BUTTON_SCALE = BASE_BUTTON_SCALE * TOUCH_CONTROLS_SCALE;
 const BUTTON_ALPHA_UNPRESSED = 0.4;
 const BUTTON_ALPHA_PRESSED = 0.9;
 const BUTTON_ALPHA_DISABLED = 0.2;
@@ -20,13 +20,12 @@ export class PetActionButtonComponent implements Component {
   private pointerId = -1;
   private posX = 0;
   private posY = 0;
-  private currentTextureKey = 'slide_icon';
+  private currentTextureKey = '';
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
 
     this.sprite = scene.add.sprite(0, 0, 'slide_icon');
-    this.sprite.setScale(BUTTON_SCALE);
     this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
     this.sprite.setScrollFactor(0);
     this.sprite.setDepth(Depth.hud);
@@ -39,50 +38,32 @@ export class PetActionButtonComponent implements Component {
 
   update(): void {
     const camera = this.scene.cameras.main;
-    const viewWidth = camera.width;
-    const viewHeight = camera.height;
-
     if (this.posX === 0) {
-      this.posX = viewWidth * POS_X;
-      this.posY = viewHeight * POS_Y;
+      this.posX = camera.width * POS_X;
+      this.posY = camera.height * POS_Y;
     }
-
     this.sprite.setPosition(this.posX, this.posY);
 
+    // Swap texture based on selected pet
     const selectedPetId = PetManager.getInstance().getSelectedPetId();
-    const desiredTexture = selectedPetId === 'dog' ? 'bark_icon' : 'slide_icon';
-    if (desiredTexture !== this.currentTextureKey) {
+    const config = selectedPetId ? PET_REGISTRY[selectedPetId] : null;
+    const desiredTexture = config?.iconTexture ?? 'slide_icon';
+    if (desiredTexture !== this.currentTextureKey && this.scene.textures.exists(desiredTexture)) {
       this.sprite.setTexture(desiredTexture);
       this.currentTextureKey = desiredTexture;
+      // Normalize scale: target ~190px display size regardless of source resolution
+      const frame = this.sprite.frame;
+      const targetSizePx = 190 * TOUCH_CONTROLS_SCALE;
+      const iconScale = targetSizePx / Math.max(frame.width, frame.height);
+      this.sprite.setScale(iconScale);
     }
 
-    const gameScene = this.scene.scene.get('game') as any;
-    if (!gameScene?.entityManager) {
-      this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
-      return;
-    }
-    
-    const player = gameScene.entityManager.getFirst('player');
-    if (!player) {
-      this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
-      return;
-    }
-    
-    const PetAbilityComp = (window as any).PetAbilityComponent;
-    if (!PetAbilityComp) {
-      this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
-      return;
-    }
-    
-    const petAbility = player.get(PetAbilityComp);
-    if (!petAbility) {
-      this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
-      return;
-    }
-    
-    const canUse = petAbility.canUseAbility();
-    
-    if (!canUse) {
+    // Check ability state
+    const gameScene = this.scene.scene.get('game') as unknown as { entityManager?: { getFirst(type: string): Entity | undefined } };
+    const player = gameScene.entityManager?.getFirst('player');
+    const petAbility = player?.get(PetAbilityComponent);
+
+    if (!petAbility || !petAbility.canUseAbility()) {
       this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
     } else if (this.isPressed) {
       this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
@@ -95,18 +76,11 @@ export class PetActionButtonComponent implements Component {
     if (this.pointerId === -1) {
       this.pointerId = pointer.id;
       this.isPressed = true;
-      
-      const gameScene = this.scene.scene.get('game') as any;
-      if (gameScene && gameScene.entityManager) {
-        const player = gameScene.entityManager.getFirst('player');
-        const PetAbilityComp = (window as any).PetAbilityComponent;
-        if (player && PetAbilityComp) {
-          const petAbility = player.get(PetAbilityComp);
-          if (petAbility) {
-            petAbility.tryAbility();
-          }
-        }
-      }
+
+      const gameScene = this.scene.scene.get('game') as unknown as { entityManager?: { getFirst(type: string): Entity | undefined } };
+      const player = gameScene.entityManager?.getFirst('player');
+      const petAbility = player?.get(PetAbilityComponent);
+      petAbility?.tryAbility();
     }
   };
 
@@ -116,6 +90,10 @@ export class PetActionButtonComponent implements Component {
       this.isPressed = false;
     }
   };
+
+  setVisible(visible: boolean): void {
+    this.sprite.setVisible(visible);
+  }
 
   onDestroy(): void {
     this.sprite.off('pointerdown', this.handlePointerDown, this);

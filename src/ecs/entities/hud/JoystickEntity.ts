@@ -3,6 +3,7 @@ import { TouchJoystickComponent } from '../../components/input/TouchJoystickComp
 import { JoystickVisualsComponent } from '../../components/ui/JoystickVisualsComponent';
 import { AttackButtonComponent } from '../../components/input/AttackButtonComponent';
 import { PetActionButtonComponent } from '../../components/ui/PetActionButtonComponent';
+import { PetCarouselComponent } from '../../components/ui/PetCarouselComponent';
 import { ControlModeComponent } from '../../components/input/ControlModeComponent';
 import { CoinCounterComponent } from '../../components/ui/CoinCounterComponent';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
@@ -25,6 +26,9 @@ export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventMan
 
   entity.add(new PetActionButtonComponent(scene));
 
+  const petCarousel = entity.add(new PetCarouselComponent(scene));
+  petCarousel.init();
+
   const controlMode = entity.add(new ControlModeComponent(scene));
   controlMode.init();
 
@@ -36,6 +40,7 @@ export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventMan
     JoystickVisualsComponent,
     AttackButtonComponent,
     PetActionButtonComponent,
+    PetCarouselComponent,
     ControlModeComponent,
     CoinCounterComponent,
   ]);
