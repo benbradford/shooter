@@ -19,7 +19,7 @@ export const Depth = {
   stairs: -50,
   wall: -50,
   cellTexture: -40,
-  edgeGraphics: 0,
+  edgeGraphics: -2,
   shadow: -10,
   rendererGraphics: -10,
   waterTileEdge: -9,
@@ -27,6 +27,7 @@ export const Depth = {
   cellTextureModified: -8,
 
   // Entities
+  pet: -1,
   player: 0,
   enemy: 0,
   enemyFlying: 10,

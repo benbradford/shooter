@@ -7,6 +7,7 @@ import { AnimationComponent } from '../core/AnimationComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 const FOLLOW_SPEED_PX_PER_SEC = 300;
 const STOP_DISTANCE_PX = 128;
@@ -155,10 +156,9 @@ export class PetFollowComponent implements Component {
   
   private recalculatePath(): void {
     const transform = this.entity.require(TransformComponent);
-    const playerTransform = this.playerEntity.require(TransformComponent);
     
     const startCell = this.grid.worldToCell(transform.x, transform.y);
-    const goalCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
+    const goalCell = getPlayerFeetCell(this.playerEntity, this.grid);
     
     const pathfinder = new Pathfinder(this.grid);
     

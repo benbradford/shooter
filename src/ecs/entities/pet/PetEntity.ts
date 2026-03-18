@@ -37,7 +37,7 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   entity.add(transform);
 
   const spriteComp = new SpriteComponent(scene, config.spritesheet, transform);
-  spriteComp.sprite.setDepth(Depth.player - 1);
+  spriteComp.sprite.setDepth(Depth.pet);
   entity.add(spriteComp);
 
   const animMap = createPetAnimationMap(metadata, config);

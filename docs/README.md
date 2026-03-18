@@ -167,7 +167,8 @@ When asked to "update the docs":
 11. **[Pet System](./pets-quick-ref.md)** - Companion pets
    - Enabling pets via WorldState
    - Pet following behavior
-   - Pet abilities (H key)
+   - Dog bark ability and fear system
+   - Pathfinding pitfalls (layer 0, no direct fallback)
    - Water interaction
 
 ## Testing
