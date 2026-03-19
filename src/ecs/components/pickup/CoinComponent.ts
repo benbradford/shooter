@@ -63,18 +63,26 @@ export class CoinComponent implements Component {
     const deltaInSec = delta / 1000;
 
     if (this.flyingToHud) {
+      const scene = this.entity.require(SpriteComponent).sprite.scene;
+      const camera = scene.cameras.main;
+      const displayWidth = scene.scale.displaySize.width;
+      const displayHeight = scene.scale.displaySize.height;
+      const hudScreenX = displayWidth * 0.05;
+      const hudScreenY = displayHeight * 0.05;
+      this.hudTargetX = camera.scrollX + hudScreenX / camera.zoom;
+      this.hudTargetY = camera.scrollY + hudScreenY / camera.zoom;
 
       const dx = this.hudTargetX - transform.x;
       const dy = this.hudTargetY - transform.y;
       const distance = Math.hypot(dx, dy);
 
-      if (distance < 10) {
+      this.flySpeed += FLY_TO_HUD_ACCELERATION * this.flySpeed * deltaInSec;
+      const moveDistance = this.flySpeed * deltaInSec;
+
+      if (distance < 10 || moveDistance >= distance) {
         this.entity.destroy();
         return;
       }
-
-      this.flySpeed += FLY_TO_HUD_ACCELERATION * this.flySpeed * deltaInSec;
-      const moveDistance = this.flySpeed * deltaInSec;
 
       transform.x += (dx / distance) * moveDistance;
       transform.y += (dy / distance) * moveDistance;
@@ -146,16 +154,6 @@ export class CoinComponent implements Component {
       const playerTransform = this.playerEntity.require(TransformComponent);
       const distance = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
       if (distance < COLLECTION_DISTANCE_PX) {
-        const scene = sprite.sprite.scene;
-        const camera = scene.cameras.main;
-        const displayWidth = scene.scale.displaySize.width;
-        const displayHeight = scene.scale.displaySize.height;
-
-        const hudScreenX = displayWidth * 0.05;
-        const hudScreenY = displayHeight * 0.05;
-        this.hudTargetX = camera.scrollX + hudScreenX / camera.zoom;
-        this.hudTargetY = camera.scrollY + hudScreenY / camera.zoom;
-
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);
       }

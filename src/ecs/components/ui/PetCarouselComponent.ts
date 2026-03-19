@@ -5,21 +5,25 @@ import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 import { PetManager } from '../../../systems/PetManager';
 import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 
-const ICON_SCALE = 0.6 * TOUCH_CONTROLS_SCALE;
-const ARROW_SIZE_PX = 14;
-const ARROW_PADDING_PX = 32;
+const ICON_SCALE = 1.2 * TOUCH_CONTROLS_SCALE;
 const POS_Y_PERCENT = 0.06;
 const SLIDE_DURATION_MS = 200;
 const SLIDE_OFFSET_PX = 60;
+const RING_RADIUS_PX = 24;
+const RING_LINE_WIDTH_PX = 2.5;
+const RING_COLOR = 0xffffff;
+const RING_ALPHA = 0.6;
+const ARROW_HEAD_SIZE_PX = 6;
+const RING_GAP_RAD = 0.5;
 
 export class PetCarouselComponent implements Component {
   entity!: Entity;
   private readonly scene: Phaser.Scene;
   private readonly icons: Map<string, Phaser.GameObjects.Sprite> = new Map();
-  private leftArrow!: Phaser.GameObjects.Graphics;
-  private rightArrow!: Phaser.GameObjects.Graphics;
+  private ring!: Phaser.GameObjects.Graphics;
   private lastSelectedId: string | null = null;
   private isAnimating = false;
+  private shouldShow = false;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -29,27 +33,70 @@ export class PetCarouselComponent implements Component {
     const petManager = PetManager.getInstance();
     const collected = petManager.getCollectedPets();
 
+    this.shouldShow = collected.length > 1;
+
+    this.ring = this.scene.add.graphics();
+    this.ring.setScrollFactor(0);
+    this.ring.setDepth(Depth.hud);
+    this.ring.setVisible(this.shouldShow);
+    this.drawRing();
+
     for (const petId of collected) {
       const config = PET_REGISTRY[petId];
       if (!config) continue;
       const sprite = this.scene.add.sprite(0, 0, config.spritesheet, 0);
       sprite.setScale(ICON_SCALE);
       sprite.setScrollFactor(0);
-      sprite.setDepth(Depth.hud);
+      sprite.setDepth(Depth.hud + 1);
       sprite.setAlpha(0);
+      sprite.setVisible(this.shouldShow);
+
+      const hitRadius = RING_RADIUS_PX + ARROW_HEAD_SIZE_PX;
+      sprite.setInteractive(
+        new Phaser.Geom.Circle(sprite.width / 2, sprite.height / 2, hitRadius / ICON_SCALE),
+        Phaser.Geom.Circle.Contains
+      );
+      sprite.on('pointerdown', () => {
+        if (this.isAnimating) return;
+        petManager.selectNext();
+      });
+
       this.icons.set(petId, sprite);
     }
-
-    this.leftArrow = this.createArrowGraphics(true);
-    this.rightArrow = this.createArrowGraphics(false);
 
     this.lastSelectedId = petManager.getSelectedPetId();
     const selectedIcon = this.lastSelectedId ? this.icons.get(this.lastSelectedId) : undefined;
     if (selectedIcon) {
       selectedIcon.setAlpha(1);
     }
+  }
 
-    this.updateArrowVisibility(collected.length);
+  private drawRing(): void {
+    const g = this.ring;
+    g.clear();
+
+    // Arc (circular arrow body)
+    g.lineStyle(RING_LINE_WIDTH_PX, RING_COLOR, RING_ALPHA);
+    g.beginPath();
+    const startAngle = -Math.PI / 2 + RING_GAP_RAD;
+    const endAngle = -Math.PI / 2 + Math.PI * 2 - RING_GAP_RAD;
+    g.arc(0, 0, RING_RADIUS_PX, startAngle, endAngle, false);
+    g.strokePath();
+
+    // Arrowhead at the end of the arc
+    const tipAngle = endAngle;
+    const tipX = Math.cos(tipAngle) * RING_RADIUS_PX;
+    const tipY = Math.sin(tipAngle) * RING_RADIUS_PX;
+
+    // Two points forming the arrowhead, tangent to the circle
+    const tangent = tipAngle + Math.PI / 2;
+    const ax = tipX + Math.cos(tangent + 0.5) * ARROW_HEAD_SIZE_PX;
+    const ay = tipY + Math.sin(tangent + 0.5) * ARROW_HEAD_SIZE_PX;
+    const bx = tipX + Math.cos(tangent - 0.7) * ARROW_HEAD_SIZE_PX;
+    const by = tipY + Math.sin(tangent - 0.7) * ARROW_HEAD_SIZE_PX;
+
+    g.fillStyle(RING_COLOR, RING_ALPHA);
+    g.fillTriangle(tipX, tipY, ax, ay, bx, by);
   }
 
   update(): void {
@@ -62,9 +109,7 @@ export class PetCarouselComponent implements Component {
     for (const sprite of this.icons.values()) {
       sprite.setPosition(centerX, posY);
     }
-
-    this.leftArrow.setPosition(centerX - ARROW_PADDING_PX, posY);
-    this.rightArrow.setPosition(centerX + ARROW_PADDING_PX, posY);
+    this.ring.setPosition(centerX, posY);
 
     const petManager = PetManager.getInstance();
     const currentId = petManager.getSelectedPetId();
@@ -85,16 +130,10 @@ export class PetCarouselComponent implements Component {
     const oldSprite = oldId ? this.icons.get(oldId) : undefined;
     const newSprite = this.icons.get(newId);
 
-    const collected = PetManager.getInstance().getCollectedPets();
-    const oldIndex = oldId ? collected.indexOf(oldId) : -1;
-    const newIndex = collected.indexOf(newId);
-    const isForward = newIndex > oldIndex || (oldIndex === collected.length - 1 && newIndex === 0);
-    const slideDir = isForward ? -1 : 1;
-
     if (oldSprite) {
       this.scene.tweens.add({
         targets: oldSprite,
-        x: centerX + SLIDE_OFFSET_PX * slideDir,
+        x: centerX + SLIDE_OFFSET_PX,
         alpha: 0,
         duration: SLIDE_DURATION_MS,
         ease: 'Power2',
@@ -102,7 +141,7 @@ export class PetCarouselComponent implements Component {
     }
 
     if (newSprite) {
-      newSprite.setPosition(centerX - SLIDE_OFFSET_PX * slideDir, posY);
+      newSprite.setPosition(centerX - SLIDE_OFFSET_PX, posY);
       newSprite.setAlpha(0);
       this.scene.tweens.add({
         targets: newSprite,
@@ -119,59 +158,12 @@ export class PetCarouselComponent implements Component {
     }
   }
 
-  private createArrowGraphics(isLeft: boolean): Phaser.GameObjects.Graphics {
-    const graphics = this.scene.add.graphics();
-    graphics.setScrollFactor(0);
-    graphics.setDepth(Depth.hud);
-
-    graphics.fillStyle(0xffffff, 0.7);
-    if (isLeft) {
-      graphics.fillTriangle(
-        ARROW_SIZE_PX / 2, -ARROW_SIZE_PX,
-        ARROW_SIZE_PX / 2, ARROW_SIZE_PX,
-        -ARROW_SIZE_PX / 2, 0
-      );
-    } else {
-      graphics.fillTriangle(
-        -ARROW_SIZE_PX / 2, -ARROW_SIZE_PX,
-        -ARROW_SIZE_PX / 2, ARROW_SIZE_PX,
-        ARROW_SIZE_PX / 2, 0
-      );
-    }
-
-    const hitArea = new Phaser.Geom.Rectangle(
-      -ARROW_SIZE_PX, -ARROW_SIZE_PX,
-      ARROW_SIZE_PX * 2, ARROW_SIZE_PX * 2
-    );
-    graphics.setInteractive(hitArea, Phaser.Geom.Rectangle.Contains);
-
-    graphics.on('pointerdown', () => {
-      if (this.isAnimating) return;
-      const petManager = PetManager.getInstance();
-      if (isLeft) {
-        petManager.selectPrevious();
-      } else {
-        petManager.selectNext();
-      }
-    });
-
-    return graphics;
-  }
-
-  private updateArrowVisibility(collectedCount: number): void {
-    const showArrows = collectedCount > 1;
-    this.leftArrow.setVisible(showArrows);
-    this.rightArrow.setVisible(showArrows);
-  }
-
   setVisible(visible: boolean): void {
+    const show = visible && this.shouldShow;
     for (const sprite of this.icons.values()) {
-      sprite.setVisible(visible);
+      sprite.setVisible(show);
     }
-    const collected = PetManager.getInstance().getCollectedPets();
-    const showArrows = visible && collected.length > 1;
-    this.leftArrow.setVisible(showArrows);
-    this.rightArrow.setVisible(showArrows);
+    this.ring.setVisible(show);
   }
 
   onDestroy(): void {
@@ -179,7 +171,6 @@ export class PetCarouselComponent implements Component {
       sprite.destroy();
     }
     this.icons.clear();
-    this.leftArrow.destroy();
-    this.rightArrow.destroy();
+    this.ring.destroy();
   }
 }

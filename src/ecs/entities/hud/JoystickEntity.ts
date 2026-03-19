@@ -14,7 +14,7 @@ export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventMan
   const joystick = entity.add(new TouchJoystickComponent(scene, {
     maxRadius: 200,
     innerRadius: 100,
-    deadZoneDistance: 30
+    deadZoneDistance: 10
   }));
   joystick.init();
 
