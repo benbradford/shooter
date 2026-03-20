@@ -5,19 +5,17 @@ import { NPCManager } from '../../../systems/NPCManager';
 import type GameScene from '../../../scenes/GameScene';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
-const BASE_UNPRESSED_SCALE = 4.24;
-const BASE_PRESSED_SCALE = 4.66;
+const BASE_UNPRESSED_SCALE = 4.44;
+const BASE_PRESSED_SCALE = 4.86;
 const UNPRESSED_SCALE = BASE_UNPRESSED_SCALE * TOUCH_CONTROLS_SCALE;
 const PRESSED_SCALE = BASE_PRESSED_SCALE * TOUCH_CONTROLS_SCALE;
-const POS_X = 0.9;
-const POS_Y = 0.8;
+const POS_X = 0.89;
+const POS_Y = 0.787;
 const ALPHA_UNPRESSED = 0.4;
 const ALPHA_PRESSED = 0.9;
 
 const BASE_CIRCLE_RADIUS_PX = 180;
-const CIRCLE_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE;
-const CIRCLE_COLOR = 0xffffff;
-const CIRCLE_ALPHA = 0.6;
+const RING_SCALE = 1.6 * (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE) / 128;
 
 const PUNCH_TEXTURE = 'crosshair';
 const LIPS_TEXTURE = 'lips_icon';
@@ -26,7 +24,8 @@ export class AttackButtonComponent implements Component {
   entity!: Entity;
   private isPressed: boolean = false;
   private readonly sprite: Phaser.GameObjects.Sprite;
-  private readonly circle: Phaser.GameObjects.Graphics;
+  private readonly ring: Phaser.GameObjects.Sprite;
+  private readonly bg: Phaser.GameObjects.Sprite;
   private posX: number = 0;
   private posY: number = 0;
   private initialized: boolean = false;
@@ -39,9 +38,17 @@ export class AttackButtonComponent implements Component {
     this.sprite.setDepth(Depth.hud);
     this.sprite.setAlpha(ALPHA_UNPRESSED);
 
-    this.circle = scene.add.graphics();
-    this.circle.setScrollFactor(0);
-    this.circle.setDepth(Depth.hudCircle);
+    this.ring = scene.add.sprite(0, 0, 'stone_ring');
+    this.ring.setScale(RING_SCALE);
+    this.ring.setScrollFactor(0);
+    this.ring.setDepth(Depth.hudRing);
+    this.ring.setAlpha(ALPHA_UNPRESSED);
+
+    this.bg = scene.add.sprite(0, 0, 'stone_bg');
+    this.bg.setScale(RING_SCALE * 0.85);
+    this.bg.setScrollFactor(0);
+    this.bg.setDepth(Depth.hudButtonBg);
+    this.bg.setAlpha(ALPHA_UNPRESSED);
   }
 
   init(): void {
@@ -67,6 +74,8 @@ export class AttackButtonComponent implements Component {
       this.sprite.setScale(PRESSED_SCALE);
       this.sprite.setAlpha(ALPHA_PRESSED);
       this.sprite.setTint(0xff6666);
+      this.ring.setAlpha(ALPHA_PRESSED);
+      this.bg.setAlpha(ALPHA_PRESSED);
     }
   };
 
@@ -75,6 +84,8 @@ export class AttackButtonComponent implements Component {
     this.sprite.setScale(UNPRESSED_SCALE);
     this.sprite.setAlpha(ALPHA_UNPRESSED);
     this.sprite.clearTint();
+    this.ring.setAlpha(ALPHA_UNPRESSED);
+    this.bg.setAlpha(ALPHA_UNPRESSED);
   };
 
   update(): void {
@@ -88,10 +99,8 @@ export class AttackButtonComponent implements Component {
     }
 
     this.sprite.setPosition(this.posX, this.posY);
-
-    this.circle.clear();
-    this.circle.lineStyle(2, CIRCLE_COLOR, CIRCLE_ALPHA);
-    this.circle.strokeCircle(this.posX, this.posY, CIRCLE_RADIUS_PX);
+    this.ring.setPosition(this.posX, this.posY);
+    this.bg.setPosition(this.posX, this.posY);
 
     this.updateIcon();
   }
@@ -119,13 +128,14 @@ export class AttackButtonComponent implements Component {
 
   setVisible(visible: boolean): void {
     this.sprite.setVisible(visible);
-    this.circle.setVisible(visible);
+    this.ring.setVisible(visible);
+    this.bg.setVisible(visible);
   }
 
   onDestroy(): void {
     this.scene.input.off('pointerdown', this.handlePointerDown, this);
     this.scene.input.off('pointerup', this.handlePointerUp, this);
     this.sprite.destroy();
-    this.circle.destroy();
+    this.ring.destroy();
   }
 }

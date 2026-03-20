@@ -46,7 +46,8 @@ export const Depth = {
 
   // UI
   hud: 2000,
-  hudCircle: 1999,
+  hudRing: 1998,
+  hudButtonBg: 1999,
   hudFront: 2001,
   hudOverheal: 1002,
   hudSparkles: 1003,

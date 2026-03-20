@@ -90,6 +90,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/slide_icon.png',
     type: 'image' as const,
   },
+  hud_rings: {
+    key: 'hud_rings',
+    path: 'assets/player/hud_rings.png',
+    type: 'image' as const,
+  },
+  stone_bg: {
+    key: 'stone_bg',
+    path: 'assets/player/stone_bg.png',
+    type: 'image' as const,
+  },
+  stone_ring: {
+    key: 'stone_ring',
+    path: 'assets/player/stone_ring.png',
+    type: 'image' as const,
+  },
   fireball: {
     key: 'fireball',
     path: 'assets/floating_robot/fireball-spritesheet.png',
@@ -571,7 +586,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'arrows', 'water_ripple', 'water_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'water_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

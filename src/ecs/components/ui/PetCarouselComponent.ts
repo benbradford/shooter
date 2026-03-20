@@ -5,8 +5,9 @@ import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 import { PetManager } from '../../../systems/PetManager';
 import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 
-const ICON_SCALE = 1.2 * TOUCH_CONTROLS_SCALE;
-const POS_Y_PERCENT = 0.06;
+const ICON_SCALE = 2 * TOUCH_CONTROLS_SCALE;
+const POS_X_PERCENT = 0.93;
+const POS_Y_PERCENT = 0.08;
 const SLIDE_DURATION_MS = 200;
 const SLIDE_OFFSET_PX = 60;
 const RING_RADIUS_PX = 24;
@@ -103,7 +104,7 @@ export class PetCarouselComponent implements Component {
     if (this.isAnimating) return;
 
     const camera = this.scene.cameras.main;
-    const centerX = camera.width / 2;
+    const centerX = camera.width * POS_X_PERCENT;
     const posY = camera.height * POS_Y_PERCENT;
 
     for (const sprite of this.icons.values()) {
@@ -124,7 +125,7 @@ export class PetCarouselComponent implements Component {
     this.isAnimating = true;
 
     const camera = this.scene.cameras.main;
-    const centerX = camera.width / 2;
+    const centerX = camera.width * POS_X_PERCENT;
     const posY = camera.height * POS_Y_PERCENT;
 
     const oldSprite = oldId ? this.icons.get(oldId) : undefined;

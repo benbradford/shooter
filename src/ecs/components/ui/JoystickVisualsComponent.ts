@@ -24,7 +24,7 @@ export class JoystickVisualsComponent implements Component {
   init(): void {
     // Create outer circle (light grey outline)
     this.outerCircle = this.scene.add.circle(0, 0, this.joystick.maxRadius * TOUCH_CONTROLS_SCALE);
-    this.outerCircle.setStrokeStyle(5 * TOUCH_CONTROLS_SCALE, 0xcccccc);
+    this.outerCircle.setStrokeStyle(5 * TOUCH_CONTROLS_SCALE, 0x4488ff);
     this.outerCircle.setFillStyle(0x000000, 0); // Transparent fill
     this.outerCircle.setDepth(Depth.hud); // Very high depth for HUD
     this.outerCircle.setVisible(false);
@@ -32,8 +32,8 @@ export class JoystickVisualsComponent implements Component {
 
     // Create inner circle around arrows
     this.innerCircle = this.scene.add.circle(0, 0, this.joystick.innerRadius * TOUCH_CONTROLS_SCALE);
-    this.innerCircle.setStrokeStyle(3 * TOUCH_CONTROLS_SCALE, 0xcccccc);
-    this.innerCircle.setFillStyle(0x000000, 0); // Transparent fill
+    this.innerCircle.setStrokeStyle(3 * TOUCH_CONTROLS_SCALE, 0x2255aa);
+    this.innerCircle.setFillStyle(0x2255aa, 0.4);
     this.innerCircle.setDepth(Depth.hud);
     this.innerCircle.setVisible(false);
     this.innerCircle.setScrollFactor(0);
@@ -44,6 +44,7 @@ export class JoystickVisualsComponent implements Component {
     this.arrowsSprite.setDepth(Depth.hudFront);
     this.arrowsSprite.setVisible(false);
     this.arrowsSprite.setScrollFactor(0); // Fixed to camera
+    this.arrowsSprite.setTint(0x2255aa);
   }
 
   update(_delta: number): void {
@@ -90,9 +91,9 @@ export class JoystickVisualsComponent implements Component {
       this.arrowsSprite.setPosition(state.currentX, state.currentY);
     } else {
       // Semi-transparent when not touching
-      this.outerCircle.setAlpha(0.3);
-      this.innerCircle.setAlpha(0.3);
-      this.arrowsSprite.setAlpha(0.3);
+      this.outerCircle.setAlpha(0.15);
+      this.innerCircle.setAlpha(0.15);
+      this.arrowsSprite.setAlpha(0.15);
 
       // Use last position, or recalculate default until touched
       if (!this.initialized || this.lastX === 0) {

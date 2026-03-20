@@ -15,13 +15,15 @@ const BUTTON_TINT_PRESSED = 0xff0000;
 const POS_X = 0.75;
 const POS_Y = 0.85;
 const BASE_CIRCLE_RADIUS_PX = 90;
-const CIRCLE_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE;
-const CIRCLE_COLOR = 0xffffff;
+const RING_SCALE = (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE) / 128;
+const COOLDOWN_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE;
+const COOLDOWN_COLOR = 0xffffff;
 
 export class SlideButtonComponent implements Component {
   entity!: Entity;
   private readonly sprite: Phaser.GameObjects.Sprite;
-  private readonly circle: Phaser.GameObjects.Graphics;
+  private readonly ring: Phaser.GameObjects.Sprite;
+  private readonly cooldownArc: Phaser.GameObjects.Graphics;
   private readonly scene: Phaser.Scene;
   private readonly slideAbility: SlideAbilityComponent;
   private readonly attackCombo: AttackComboComponent;
@@ -42,9 +44,15 @@ export class SlideButtonComponent implements Component {
     this.sprite.setDepth(Depth.hud);
     this.sprite.setInteractive();
 
-    this.circle = scene.add.graphics();
-    this.circle.setScrollFactor(0);
-    this.circle.setDepth(Depth.hudCircle);
+    this.ring = scene.add.sprite(0, 0, 'stone_ring');
+    this.ring.setScale(RING_SCALE);
+    this.ring.setScrollFactor(0);
+    this.ring.setDepth(Depth.hudRing);
+    this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
+
+    this.cooldownArc = scene.add.graphics();
+    this.cooldownArc.setScrollFactor(0);
+    this.cooldownArc.setDepth(Depth.hudButtonBg);
 
     this.sprite.on('pointerdown', this.handlePointerDown, this);
     this.sprite.on('pointerup', this.handlePointerUp, this);
@@ -66,38 +74,34 @@ export class SlideButtonComponent implements Component {
     }
 
     this.sprite.setPosition(this.posX, this.posY);
+    this.ring.setPosition(this.posX, this.posY);
 
     const isPunching = this.attackCombo.isPunching();
     const canSlide = this.slideAbility.canSlide();
     const isSliding = this.slideAbility.getIsSliding();
 
-    this.circle.clear();
+    this.cooldownArc.clear();
 
-    if (isSliding) {
-      // No circle while sliding
-    } else if (canSlide) {
-      // Full circle when ready (cooldown = 0)
-      this.circle.lineStyle(4, CIRCLE_COLOR, BUTTON_ALPHA_UNPRESSED);
-      this.circle.beginPath();
-      this.circle.arc(this.posX, this.posY, CIRCLE_RADIUS_PX, 0, Math.PI * 2, false);
-      this.circle.strokePath();
-    } else {
+    if (!isSliding && !canSlide) {
       const cooldownRatio = this.slideAbility.getCooldownRatio();
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + (Math.PI * 2 * cooldownRatio);
 
-      this.circle.lineStyle(4, CIRCLE_COLOR, BUTTON_ALPHA_COOLDOWN);
-      this.circle.beginPath();
-      this.circle.arc(this.posX, this.posY, CIRCLE_RADIUS_PX, startAngle, endAngle, false);
-      this.circle.strokePath();
+      this.cooldownArc.lineStyle(4, COOLDOWN_COLOR, BUTTON_ALPHA_COOLDOWN);
+      this.cooldownArc.beginPath();
+      this.cooldownArc.arc(this.posX, this.posY, COOLDOWN_RADIUS_PX, startAngle, endAngle, false);
+      this.cooldownArc.strokePath();
     }
 
     if (isPunching || !canSlide) {
       this.sprite.setAlpha(BUTTON_ALPHA_COOLDOWN);
+      this.ring.setAlpha(BUTTON_ALPHA_COOLDOWN);
     } else if (this.isPressed || isSliding) {
       this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
+      this.ring.setAlpha(BUTTON_ALPHA_PRESSED);
     } else {
       this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
+      this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
     }
 
     if (this.isPressed || isSliding) {
@@ -129,11 +133,13 @@ export class SlideButtonComponent implements Component {
 
   setVisible(visible: boolean): void {
     this.sprite.setVisible(visible);
-    this.circle.setVisible(visible);
+    this.ring.setVisible(visible);
+    this.cooldownArc.setVisible(visible);
   }
 
   onDestroy(): void {
     this.sprite.destroy();
-    this.circle.destroy();
+    this.ring.destroy();
+    this.cooldownArc.destroy();
   }
 }

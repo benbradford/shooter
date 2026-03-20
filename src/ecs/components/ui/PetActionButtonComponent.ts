@@ -9,12 +9,15 @@ import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 const BUTTON_ALPHA_UNPRESSED = 0.4;
 const BUTTON_ALPHA_PRESSED = 0.9;
 const BUTTON_ALPHA_DISABLED = 0.2;
+const ICON_SIZE = 240;
+const RING_SCALE = (180 * TOUCH_CONTROLS_SCALE) / 128;
 const POS_X = 0.75;
 const POS_Y = 0.85;
 
 export class PetActionButtonComponent implements Component {
   entity!: Entity;
   private readonly sprite: Phaser.GameObjects.Sprite;
+  private readonly ring: Phaser.GameObjects.Sprite;
   private readonly scene: Phaser.Scene;
   private isPressed = false;
   private pointerId = -1;
@@ -31,6 +34,12 @@ export class PetActionButtonComponent implements Component {
     this.sprite.setDepth(Depth.hud);
     this.sprite.setInteractive();
 
+    this.ring = scene.add.sprite(0, 0, 'stone_ring');
+    this.ring.setScale(RING_SCALE);
+    this.ring.setScrollFactor(0);
+    this.ring.setDepth(Depth.hudRing);
+    this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
+
     this.sprite.on('pointerdown', this.handlePointerDown, this);
     this.sprite.on('pointerup', this.handlePointerUp, this);
     this.sprite.on('pointerout', this.handlePointerUp, this);
@@ -43,6 +52,7 @@ export class PetActionButtonComponent implements Component {
       this.posY = camera.height * POS_Y;
     }
     this.sprite.setPosition(this.posX, this.posY);
+    this.ring.setPosition(this.posX, this.posY);
 
     // Swap texture based on selected pet
     const selectedPetId = PetManager.getInstance().getSelectedPetId();
@@ -53,7 +63,7 @@ export class PetActionButtonComponent implements Component {
       this.currentTextureKey = desiredTexture;
       // Normalize scale: target ~190px display size regardless of source resolution
       const frame = this.sprite.frame;
-      const targetSizePx = 190 * TOUCH_CONTROLS_SCALE;
+      const targetSizePx = ICON_SIZE * TOUCH_CONTROLS_SCALE;
       const iconScale = targetSizePx / Math.max(frame.width, frame.height);
       this.sprite.setScale(iconScale);
     }
@@ -65,10 +75,13 @@ export class PetActionButtonComponent implements Component {
 
     if (!petAbility || !petAbility.canUseAbility()) {
       this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
+      this.ring.setAlpha(BUTTON_ALPHA_DISABLED);
     } else if (this.isPressed) {
       this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
+      this.ring.setAlpha(BUTTON_ALPHA_PRESSED);
     } else {
       this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
+      this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
     }
   }
 
@@ -93,6 +106,7 @@ export class PetActionButtonComponent implements Component {
 
   setVisible(visible: boolean): void {
     this.sprite.setVisible(visible);
+    this.ring.setVisible(visible);
   }
 
   onDestroy(): void {
@@ -100,5 +114,6 @@ export class PetActionButtonComponent implements Component {
     this.sprite.off('pointerup', this.handlePointerUp, this);
     this.sprite.off('pointerout', this.handlePointerUp, this);
     this.sprite.destroy();
+    this.ring.destroy();
   }
 }
