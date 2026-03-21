@@ -18,24 +18,26 @@ The HUD (Heads-Up Display) is rendered in a separate Phaser scene (`HudScene`) t
 
 ### Attack Button (Punch/Crosshair)
 
-- **Visual**: Crosshair icon
-- **Position**: Bottom-right (91.5%, 85%)
+- **Visual**: Stone ring frame + dark bg plate + fist/lips icon
+- **Position**: Bottom-right (89%, 79%)
 - **Component**: `AttackButtonComponent`
 - **Alpha States**:
-  - Unpressed: 0.4 (faded)
-  - Pressed: 0.9 (bright)
+  - Unpressed: 0.9 (near-opaque)
+  - Pressed: 1.0 (full)
 - **Keyboard**: Space bar
+- **Layers** (bottom to top): shadow → stone ring → dark plate → icon
 
 ### Slide Button (Dash)
 
-- **Visual**: Slide icon
-- **Position**: Bottom-right (75%, 85%)
+- **Visual**: Stone ring frame + dark bg plate + slide icon
+- **Position**: Bottom-right (68%, 85%)
 - **Component**: `SlideButtonComponent`
 - **Alpha States**:
-  - Unpressed (ready): 0.4 (faded)
-  - Pressed: 0.9 (bright)
-  - Cooldown: 0.2 (very faded)
+  - Unpressed (ready): 0.9 (near-opaque)
+  - Pressed: 1.0 (full)
+  - Cooldown: 0.3 (faded)
 - **Cooldown**: Cannot slide while punching or during cooldown period
+- **Cooldown arc**: White arc overlay shows cooldown progress
 
 ### Health Bar
 
@@ -75,37 +77,19 @@ export default class HudScene extends Phaser.Scene {
 
 ### Button Alpha Management
 
-Buttons automatically adjust their alpha based on state:
+Buttons use stone ring frames with dark background plates. Alpha applies to all layers (shadow, ring, bg, icon) simultaneously:
 
 ```typescript
 // AttackButtonComponent.ts
-const ALPHA_UNPRESSED = 0.4;
-const ALPHA_PRESSED = 0.9;
-
-private handlePointerDown(): void {
-  this.sprite.setAlpha(ALPHA_PRESSED);
-}
-
-private handlePointerUp(): void {
-  this.sprite.setAlpha(ALPHA_UNPRESSED);
-}
+const ALPHA_UNPRESSED = 0.9;
+const ALPHA_PRESSED = 1;
 ```
 
 ```typescript
 // SlideButtonComponent.ts
-const BUTTON_ALPHA_UNPRESSED = 0.4;
-const BUTTON_ALPHA_PRESSED = 0.9;
-const BUTTON_ALPHA_COOLDOWN = 0.2;
-
-update(): void {
-  if (isPunching || !canSlide) {
-    this.sprite.setAlpha(BUTTON_ALPHA_COOLDOWN);
-  } else if (this.isPressed) {
-    this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
-  } else {
-    this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
-  }
-}
+const BUTTON_ALPHA_UNPRESSED = 0.9;
+const BUTTON_ALPHA_PRESSED = 1;
+const BUTTON_ALPHA_COOLDOWN = 0.3;
 ```
 
 ### Coordinate System

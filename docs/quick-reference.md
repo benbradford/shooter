@@ -44,7 +44,7 @@ Level transitions work automatically via exit triggers. The system:
 
 ## Player Combat System
 
-**Attack Button:** Fixed at 85% camera width, 85% camera height. Touch/click or Space to punch.
+**Attack Button:** Fixed at 89% camera width, 79% camera height. Touch/click or Space to punch.
 
 **Punch Mechanics:**
 - Range: 128px, Damage: 20, Duration: 250ms
@@ -62,7 +62,7 @@ Level transitions work automatically via exit triggers. The system:
 - Press H or tap pet action button
 - 250px slide at 400px/s, invulnerable during slide
 - 3 second cooldown
-- Button alpha: 0.7 unpressed, 0.9 pressed, 0.3 cooldown
+- Button alpha: 0.9 unpressed, 1.0 pressed, 0.3 cooldown
 
 **Debug Mode (Press P):**
 - Toggle `mustFaceEnemy` (false = 128px radius, true = 108° FOV cone)

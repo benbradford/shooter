@@ -2,6 +2,35 @@
 
 ## March 2026
 
+### HUD Button Visual Overhaul
+
+**Change**: HUD buttons now use stone ring frames with dark background plates instead of white circle outlines.
+
+**What changed:**
+- Attack, slide, and pet ability buttons use `stone_ring.png` and `stone_bg.png` sprites
+- Soft circular shadow behind each button for depth separation
+- Opacity increased: 0.9 unpressed, 1.0 pressed (was 0.4/0.9)
+- Movement joystick circles changed to blue (`0x4488ff`) with filled inner circle
+- Pet/slide button moved left to 68% (was 75%) and scaled up 30%
+
+**Scale mode changed:** `Phaser.Scale.FIT` → `Phaser.Scale.EXPAND` to fill screen without letterboxing or cropping.
+
+**Camera bounds inset:** Reduced from 24px to 0px to allow camera to reach full map edges.
+
+**Depth layering:** hudShadow (1997) → hudRing (1998) → hudButtonBg (1999) → hud (2000)
+
+**Files Changed:**
+- `src/main.ts` - Scale mode to EXPAND
+- `src/constants/GameConstants.ts` - Camera bounds inset to 0
+- `src/constants/DepthConstants.ts` - Added hudShadow, hudRing, hudButtonBg
+- `src/ecs/components/input/AttackButtonComponent.ts` - Stone ring + bg + shadow
+- `src/ecs/components/input/SlideButtonComponent.ts` - Stone ring + bg + shadow
+- `src/ecs/components/ui/PetActionButtonComponent.ts` - Stone ring + bg + shadow
+- `src/ecs/components/ui/JoystickVisualsComponent.ts` - Blue color, filled inner circle
+- `src/assets/AssetRegistry.ts` - Added stone_ring, stone_bg, hud_rings
+- `public/assets/player/stone_ring.png` - New asset (extracted from hud_rings)
+- `public/assets/player/stone_bg.png` - New asset (extracted from hud_rings)
+
 ### Spritesheet Background Textures
 
 **Change**: `BackgroundTextureConfig` now supports `sourceRect` for extracting a region from a larger spritesheet image.

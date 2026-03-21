@@ -6,23 +6,28 @@ import type { AttackComboComponent } from '../combat/AttackComboComponent';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
 
 const BASE_BUTTON_SCALE = 0.28;
-const BUTTON_SCALE = BASE_BUTTON_SCALE * TOUCH_CONTROLS_SCALE;
-const BUTTON_ALPHA_UNPRESSED = 0.5;
-const BUTTON_ALPHA_PRESSED = 0.9;
+const SIZE_MULTIPLIER = 1.3;
+const BUTTON_SCALE = BASE_BUTTON_SCALE * TOUCH_CONTROLS_SCALE * SIZE_MULTIPLIER;
+const BUTTON_ALPHA_UNPRESSED = 0.9;
+const BUTTON_ALPHA_PRESSED = 1;
 const BUTTON_ALPHA_COOLDOWN = 0.3;
 const BUTTON_SCALE_PRESSED = BUTTON_SCALE;
 const BUTTON_TINT_PRESSED = 0xff0000;
-const POS_X = 0.75;
+const POS_X = 0.68;
 const POS_Y = 0.85;
 const BASE_CIRCLE_RADIUS_PX = 90;
-const RING_SCALE = (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE) / 128;
-const COOLDOWN_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE;
+const RING_SCALE = (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE * SIZE_MULTIPLIER) / 128;
+const COOLDOWN_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE * SIZE_MULTIPLIER;
 const COOLDOWN_COLOR = 0xffffff;
+const SHADOW_RADIUS_PX = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE * SIZE_MULTIPLIER * 1.15;
+const SHADOW_OFFSET_Y_PX = 4;
 
 export class SlideButtonComponent implements Component {
   entity!: Entity;
   private readonly sprite: Phaser.GameObjects.Sprite;
   private readonly ring: Phaser.GameObjects.Sprite;
+  private readonly bg: Phaser.GameObjects.Sprite;
+  private readonly shadow: Phaser.GameObjects.Graphics;
   private readonly cooldownArc: Phaser.GameObjects.Graphics;
   private readonly scene: Phaser.Scene;
   private readonly slideAbility: SlideAbilityComponent;
@@ -50,6 +55,16 @@ export class SlideButtonComponent implements Component {
     this.ring.setDepth(Depth.hudRing);
     this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
 
+    this.bg = scene.add.sprite(0, 0, 'stone_bg');
+    this.bg.setScale(RING_SCALE * 0.85);
+    this.bg.setScrollFactor(0);
+    this.bg.setDepth(Depth.hudButtonBg);
+    this.bg.setAlpha(BUTTON_ALPHA_UNPRESSED);
+
+    this.shadow = scene.add.graphics();
+    this.shadow.setScrollFactor(0);
+    this.shadow.setDepth(Depth.hudShadow);
+
     this.cooldownArc = scene.add.graphics();
     this.cooldownArc.setScrollFactor(0);
     this.cooldownArc.setDepth(Depth.hudButtonBg);
@@ -71,10 +86,15 @@ export class SlideButtonComponent implements Component {
     if (this.posX === 0) {
       this.posX = viewWidth * POS_X;
       this.posY = viewHeight * POS_Y;
+
+      this.shadow.clear();
+      this.shadow.fillStyle(0x000000, 0.25);
+      this.shadow.fillCircle(this.posX, this.posY + SHADOW_OFFSET_Y_PX, SHADOW_RADIUS_PX);
     }
 
     this.sprite.setPosition(this.posX, this.posY);
     this.ring.setPosition(this.posX, this.posY);
+    this.bg.setPosition(this.posX, this.posY);
 
     const isPunching = this.attackCombo.isPunching();
     const canSlide = this.slideAbility.canSlide();
@@ -96,12 +116,15 @@ export class SlideButtonComponent implements Component {
     if (isPunching || !canSlide) {
       this.sprite.setAlpha(BUTTON_ALPHA_COOLDOWN);
       this.ring.setAlpha(BUTTON_ALPHA_COOLDOWN);
+      this.bg.setAlpha(BUTTON_ALPHA_COOLDOWN);
     } else if (this.isPressed || isSliding) {
       this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
       this.ring.setAlpha(BUTTON_ALPHA_PRESSED);
+      this.bg.setAlpha(BUTTON_ALPHA_PRESSED);
     } else {
       this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
       this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
+      this.bg.setAlpha(BUTTON_ALPHA_UNPRESSED);
     }
 
     if (this.isPressed || isSliding) {
@@ -134,12 +157,16 @@ export class SlideButtonComponent implements Component {
   setVisible(visible: boolean): void {
     this.sprite.setVisible(visible);
     this.ring.setVisible(visible);
+    this.bg.setVisible(visible);
+    this.shadow.setVisible(visible);
     this.cooldownArc.setVisible(visible);
   }
 
   onDestroy(): void {
     this.sprite.destroy();
     this.ring.destroy();
+    this.bg.destroy();
+    this.shadow.destroy();
     this.cooldownArc.destroy();
   }
 }

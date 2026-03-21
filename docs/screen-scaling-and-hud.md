@@ -14,20 +14,20 @@ this.cameras.main.setZoom(1); // NEVER change this
 
 **Why:** Touch input coordinates (`pointer.x/y`) are in screen space, but zooming the camera causes misalignment between screen coordinates and world coordinates. This breaks touch joystick positioning and all HUD interactions.
 
-### Use FIT Mode with Fixed Resolution
-**Always use `Phaser.Scale.FIT` mode with a fixed resolution.** Never use `RESIZE` mode.
+### Use EXPAND Mode with Fixed Base Resolution
+**Always use `Phaser.Scale.EXPAND` mode with a fixed base resolution.** Never use `RESIZE` mode.
 
 ```typescript
 // In main.ts
 scale: {
-  mode: Phaser.Scale.FIT,
+  mode: Phaser.Scale.EXPAND,
   width: 1280,
   height: 720,
   autoCenter: Phaser.Scale.CENTER_BOTH
 }
 ```
 
-**Why:** `RESIZE` mode causes the game canvas to constantly change dimensions, breaking touch input coordinate calculations. `FIT` mode maintains a consistent coordinate system while scaling to fit the screen.
+**Why:** `EXPAND` fills the screen by expanding the game canvas beyond 1280×720 when needed, showing more of the game world. No letterboxing, no cropping. `RESIZE` mode causes constant dimension changes that break touch input. `FIT` mode causes letterboxing. `ENVELOP` mode crops content.
 
 ### Resolution: 1280x720 (16:9)
 The game uses **1280x720** resolution to match modern phone aspect ratios (16:9 landscape).
@@ -241,7 +241,7 @@ When implementing HUD elements, test:
 
 **Golden Rules:**
 1. Camera zoom = 1 (never change)
-2. Use FIT mode with 1280x720 resolution
+2. Use EXPAND mode with 1280x720 resolution
 3. HUD elements: `setScrollFactor(0)` + screen coordinates
 4. Use `displaySize` for percentage-based positioning
 5. Recalculate positions every frame until first interaction (Android fix)

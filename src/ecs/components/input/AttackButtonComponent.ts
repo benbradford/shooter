@@ -11,8 +11,8 @@ const UNPRESSED_SCALE = BASE_UNPRESSED_SCALE * TOUCH_CONTROLS_SCALE;
 const PRESSED_SCALE = BASE_PRESSED_SCALE * TOUCH_CONTROLS_SCALE;
 const POS_X = 0.89;
 const POS_Y = 0.787;
-const ALPHA_UNPRESSED = 0.4;
-const ALPHA_PRESSED = 0.9;
+const ALPHA_UNPRESSED = 0.9;
+const ALPHA_PRESSED = 1;
 
 const BASE_CIRCLE_RADIUS_PX = 180;
 const RING_SCALE = 1.6 * (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE) / 128;
@@ -26,6 +26,7 @@ export class AttackButtonComponent implements Component {
   private readonly sprite: Phaser.GameObjects.Sprite;
   private readonly ring: Phaser.GameObjects.Sprite;
   private readonly bg: Phaser.GameObjects.Sprite;
+  private readonly shadow: Phaser.GameObjects.Graphics;
   private posX: number = 0;
   private posY: number = 0;
   private initialized: boolean = false;
@@ -49,6 +50,10 @@ export class AttackButtonComponent implements Component {
     this.bg.setScrollFactor(0);
     this.bg.setDepth(Depth.hudButtonBg);
     this.bg.setAlpha(ALPHA_UNPRESSED);
+
+    this.shadow = scene.add.graphics();
+    this.shadow.setScrollFactor(0);
+    this.shadow.setDepth(Depth.hudShadow);
   }
 
   init(): void {
@@ -96,6 +101,11 @@ export class AttackButtonComponent implements Component {
     if (!this.initialized || this.posX === 0) {
       this.posX = viewWidth * POS_X;
       this.posY = viewHeight * POS_Y;
+
+      const shadowRadius = BASE_CIRCLE_RADIUS_PX * TOUCH_CONTROLS_SCALE * 1.15;
+      this.shadow.clear();
+      this.shadow.fillStyle(0x000000, 0.25);
+      this.shadow.fillCircle(this.posX, this.posY + 4, shadowRadius);
     }
 
     this.sprite.setPosition(this.posX, this.posY);
@@ -130,6 +140,7 @@ export class AttackButtonComponent implements Component {
     this.sprite.setVisible(visible);
     this.ring.setVisible(visible);
     this.bg.setVisible(visible);
+    this.shadow.setVisible(visible);
   }
 
   onDestroy(): void {
@@ -137,5 +148,7 @@ export class AttackButtonComponent implements Component {
     this.scene.input.off('pointerup', this.handlePointerUp, this);
     this.sprite.destroy();
     this.ring.destroy();
+    this.bg.destroy();
+    this.shadow.destroy();
   }
 }
