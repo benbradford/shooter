@@ -148,6 +148,7 @@ export default class GameScene extends Phaser.Scene {
 
         this.sceneRenderer.initializeSprites(this.grid, this.levelData);
         this.grid.render();
+        this.grid.setGridDebugEnabled(true);
         this.sceneRenderer.updateGraphics(this.grid, this.levelData);
 
         // Free camera for editor
@@ -331,6 +332,11 @@ export default class GameScene extends Phaser.Scene {
 
   renderGrid(grid: Grid, levelData?: LevelData): void {
     this.sceneRenderer.updateGraphics(grid, levelData);
+  }
+
+  refreshSprites(): void {
+    this.sceneRenderer.reinitializeSprites(this.grid, this.levelData);
+    this.sceneRenderer.updateGraphics(this.grid, this.levelData);
   }
 
   private async initializeScene(): Promise<void> {

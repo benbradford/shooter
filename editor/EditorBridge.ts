@@ -141,15 +141,27 @@ export class EditorBridge {
       const grid = this.getGrid();
       const cell = grid.getCell(col, row);
       if (!cell) return;
+      const levelData = this.scene.getLevelData();
+
+      let newLayer = cell.layer;
+      let newProps = new Set(cell.properties);
 
       if (this.currentTool === 'floor') {
+        newLayer = 0;
+        newProps = new Set();
         grid.setCell(col, row, { layer: 0, properties: new Set() });
       } else if (this.selectedCellProperty) {
-        const props = new Set(cell.properties);
-        props.add(this.selectedCellProperty);
-        const layer = (this.selectedCellProperty === 'wall' || this.selectedCellProperty === 'platform' || this.selectedCellProperty === 'stairs') ? 1 : cell.layer;
-        grid.setCell(col, row, { layer, properties: props });
+        newProps.add(this.selectedCellProperty);
+        newLayer = (this.selectedCellProperty === 'wall' || this.selectedCellProperty === 'platform' || this.selectedCellProperty === 'stairs') ? 1 : cell.layer;
+        grid.setCell(col, row, { layer: newLayer, properties: newProps });
       }
+
+      // Sync to levelData.cells
+      let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+      if (!levelCell) { levelCell = { col, row }; levelData.cells.push(levelCell); }
+      levelCell.layer = newLayer;
+      levelCell.properties = Array.from(newProps) as CellProperty[];
+
       grid.render();
       this.scene.renderGrid(grid);
     });
@@ -158,18 +170,29 @@ export class EditorBridge {
   setCellTexture(col: number, row: number, textureKey: string): void {
     this._applyMutation(`Set texture ${textureKey} at ${col},${row}`, () => {
       const grid = this.getGrid();
+      const levelData = this.scene.getLevelData();
       grid.setCell(col, row, { backgroundTexture: textureKey });
+      // Sync to levelData.cells so renderer reads the updated texture
+      let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+      if (!levelCell) {
+        levelCell = { col, row };
+        levelData.cells.push(levelCell);
+      }
+      levelCell.backgroundTexture = textureKey;
+      this.scene.refreshSprites();
       grid.render();
-      this.scene.renderGrid(grid);
     });
   }
 
   clearCellTexture(col: number, row: number): void {
     this._applyMutation(`Clear texture at ${col},${row}`, () => {
       const grid = this.getGrid();
+      const levelData = this.scene.getLevelData();
       grid.setCell(col, row, { backgroundTexture: '' });
+      const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+      if (levelCell) delete levelCell.backgroundTexture;
+      this.scene.refreshSprites();
       grid.render();
-      this.scene.renderGrid(grid);
     });
   }
 

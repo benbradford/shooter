@@ -1626,7 +1626,8 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": "pillar"
     },
     {
       "col": 33,

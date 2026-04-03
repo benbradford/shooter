@@ -98,6 +98,12 @@ export abstract class GameSceneRenderer {
     this.spritesInitialized = true;
   }
 
+  reinitializeSprites(grid: Grid, levelData: LevelData): void {
+    this.invalidateCache();
+    this.spritesInitialized = false;
+    this.initializeSprites(grid, levelData);
+  }
+
   updateGraphics(grid: Grid, levelData?: LevelData): void {
     this.graphics.clear();
     this.edgeGraphics.clear();

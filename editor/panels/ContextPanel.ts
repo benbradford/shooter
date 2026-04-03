@@ -1,8 +1,12 @@
 import type { EditorBridge } from '../EditorBridge';
 import type { Entity } from '../../src/ecs/Entity';
+import { TexturePicker } from './TexturePicker';
 
 export class ContextPanel {
+  private readonly texturePicker: TexturePicker;
+
   constructor(private readonly bridge: EditorBridge, private readonly container: HTMLElement) {
+    this.texturePicker = new TexturePicker(bridge);
     this.showLevelInfo();
   }
 
@@ -69,8 +73,11 @@ export class ContextPanel {
       </div>
       <div class="form-group">
         <label>Texture</label>
-        <span id="cf-tex">${cell.backgroundTexture || '(none)'}</span>
-        <button class="ed-btn" id="cf-clear-tex" style="margin-left:4px">Clear</button>
+        <div style="display:flex;gap:4px;align-items:center">
+          <span id="cf-tex-label" style="flex:1;font-size:11px;color:#95a5a6">${cell.backgroundTexture || '(none)'}</span>
+          <button class="ed-btn" id="cf-choose-tex">Choose</button>
+          <button class="ed-btn danger" id="cf-clear-tex">✕</button>
+        </div>
       </div>
       <button class="ed-btn danger" id="cf-clear">Clear Cell</button>
     `;
@@ -98,6 +105,12 @@ export class ContextPanel {
         this.bridge.getScene().renderGrid(grid);
       });
     }
+    this.container.querySelector('#cf-choose-tex')?.addEventListener('click', () => {
+      this.texturePicker.open((key) => {
+        this.bridge.setCellTexture(col, row, key);
+        this.showCellForm(col, row);
+      });
+    });
     this.container.querySelector('#cf-clear-tex')?.addEventListener('click', () => {
       this.bridge.clearCellTexture(col, row);
       this.showCellForm(col, row);
