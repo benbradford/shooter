@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import GameScene from "./scenes/GameScene";
 import HudScene from "./scenes/HudScene";
-import EditorScene from "./scenes/EditorScene";
 import LoadingScene from "./scenes/LoadingScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
 import { PetAbilityComponent } from "./ecs/components/pet/PetAbilityComponent";
@@ -31,10 +30,13 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-  scene: [GameScene, HudScene, EditorScene, LoadingScene],
+  scene: [GameScene, HudScene, LoadingScene],
 };
 
 const game = new Phaser.Game(config);
+
+// Start the game scene explicitly (no longer auto-starts)
+game.scene.start('game');
 
 const params = new URLSearchParams(globalThis.location.search);
 if (params.get('test') === 'true') {

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Depth } from '../constants/DepthConstants';
 import { Grid, type CellProperty } from "../systems/grid/Grid";
-import { LevelLoader, type LevelData } from "../systems/level/LevelLoader";
+import { LevelLoader, type LevelData, type LevelTheme } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
 import { Entity } from "../ecs/Entity";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
@@ -18,9 +18,10 @@ import { InteractionState, type InteractionStateData } from "./states/Interactio
 import { CELL_SIZE, CAMERA_ZOOM, CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y_PX } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
+import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
-import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
@@ -56,7 +57,7 @@ export default class GameScene extends Phaser.Scene {
   private isResetting: boolean = false;
 
   constructor() {
-    super({ key: "game", active: true });
+    super({ key: "game" });
   }
 
   preload() {
@@ -64,7 +65,129 @@ export default class GameScene extends Phaser.Scene {
     preloadAssets(this);
   }
 
-  async create() {
+  async create(data?: { editorMode?: boolean; levelName?: string; levelData?: LevelData }) {
+    // --- EDITOR MODE ---
+    if (data?.editorMode) {
+      this.isEditorMode = true;
+      this.currentLevelName = data.levelName ?? this.currentLevelName;
+
+      // Outer try/catch ensures notifySceneReady() always fires (Fixed: N1)
+      try {
+        // Inner try/catch for level load failure (Fixed: failure #1)
+        try {
+          if (data.levelData) {
+            this.levelData = data.levelData;
+            this.levelData.name = this.currentLevelName;
+          } else {
+            this.levelData = await LevelLoader.load(this.currentLevelName);
+          }
+        } catch (e) {
+          console.error('[Editor] Failed to load level:', e);
+          this.levelData = {
+            name: this.currentLevelName,
+            width: 10, height: 10,
+            playerStart: { x: 0, y: 0 },
+            cells: [], entities: [],
+            levelTheme: 'dungeon' as LevelTheme,
+          };
+        }
+
+        // Initialize managers
+        this.entityManager = new EntityManager();
+        this.eventManager = new EventManagerSystem();
+        this.entityManager.setEventManager(this.eventManager);
+        this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
+
+        // Load ALL assets upfront for editor
+        preloadAssets(this);
+        preloadLevelAssets(this, this.levelData);
+        this.load.start();
+        await new Promise<void>(resolve => {
+          if (this.load.isLoading()) {
+            this.load.once('complete', resolve);
+          } else { resolve(); }
+        });
+
+        // Setup theme renderer
+        const theme = this.levelData.levelTheme ?? 'dungeon';
+        if (theme === 'dungeon') {
+          this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+        } else if (theme === 'swamp') {
+          this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
+        } else if (theme === 'grass') {
+          this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
+        } else if (theme === 'wilds') {
+          this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+        } else {
+          this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
+        }
+
+        await this.sceneRenderer.loadAllAssets(this.levelData);
+
+        const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
+        this.background = rendered.background;
+        this.vignette = rendered.vignette;
+        if (this.background) this.background.setAlpha(1);
+        if (this.vignette) {
+          const targetAlpha = theme === 'grass' ? 0.25 : theme === 'swamp' ? 0.3 : theme === 'wilds' ? 0.3 : 0.2;
+          this.vignette.setAlpha(targetAlpha);
+        }
+
+        // Initialize grid
+        this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize);
+        for (const cell of this.levelData.cells) {
+          const bgTexture = cell.backgroundTexture
+            ? (typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : cell.backgroundTexture.image)
+            : undefined;
+          this.grid.setCell(cell.col, cell.row, {
+            layer: cell.layer ?? 0,
+            properties: new Set(cell.properties ?? []),
+            backgroundTexture: bgTexture
+          });
+        }
+
+        this.sceneRenderer.initializeSprites(this.grid, this.levelData);
+        this.grid.render();
+        this.sceneRenderer.updateGraphics(this.grid, this.levelData);
+
+        // Free camera for editor
+        this.cameras.main.setBounds(-10000, -10000, 20000, 20000);
+        this.cameras.main.setZoom(1);
+
+        // Create minimal editor player first (needed by EntityLoader)
+        const editorPlayer = this.createEditorPlayer();
+
+        // Spawn entities in editor mode (all immediately, no events, no player input)
+        const noopTransition = (_level: string, _col: number, _row: number): void => { /* editor: no transitions */ };
+        this.entityLoader = new EntityLoader(
+          this, this.grid, this.entityManager, this.eventManager,
+          this.entityCreatorManager,
+          noopTransition
+        );
+
+        this.entityLoader.loadEntities(this.levelData, editorPlayer, true);
+
+      } catch (e) {
+        console.error('[Editor] Scene init failed:', e);
+        // Minimal fallback so bridge accessors don't crash
+        if (!this.entityManager) this.entityManager = new EntityManager();
+        if (!this.eventManager) this.eventManager = new EventManagerSystem();
+        if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize);
+        if (!this.sceneRenderer) this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+      }
+
+      // ALWAYS notify bridge (Fixed: runtime violation #2, N1)
+      // Only in dev mode — editor is excluded from production builds
+      if (import.meta.env.DEV) {
+        const { EditorBridge } = await import('../../editor/EditorBridge');
+        const bridge = EditorBridge.getInstance();
+        bridge.setScene(this);
+        bridge.notifySceneReady();
+      }
+      return;
+    }
+
+    // --- NORMAL GAME MODE ---
     // Destroy entities from previous scene instance
     if (GameScene.previousEntityManager) {
       console.log('[DBGAME] Destroying', GameScene.previousEntityManager.count, 'entities from previous scene');
@@ -194,25 +317,6 @@ export default class GameScene extends Phaser.Scene {
 
     const keyboard = this.input.keyboard;
     if (keyboard) {
-      const editorKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
-      editorKey.on('down', () => {
-        if (this.scene.isActive()) {
-          this.isEditorMode = !this.isEditorMode;
-          if (this.isEditorMode) {
-            // Load all editor textures
-            preloadAssetGroups(this, ['editor']);
-            this.load.start();
-
-            void this.resetScene();
-            this.scene.pause();
-            this.scene.launch('EditorScene');
-          } else {
-            this.scene.resume();
-            this.scene.stop('EditorScene');
-          }
-        }
-      });
-
       const punchModeKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
       punchModeKey.on('down', () => {
         toggleMustFaceEnemy();
@@ -456,6 +560,11 @@ export default class GameScene extends Phaser.Scene {
 
 
   update(_time: number, delta: number): void {
+    // Skip all gameplay in editor mode
+    if (this.isEditorMode) {
+      if (this.sceneRenderer) this.sceneRenderer.update(delta);
+      return;
+    }
     // Wait for async create to finish
     if (!this.entityManager || !this.grid || !this.stateMachine) return;
 
@@ -485,6 +594,10 @@ export default class GameScene extends Phaser.Scene {
 
   getLevelData(): LevelData {
     return this.levelData;
+  }
+
+  getEntityLoader(): EntityLoader {
+    return this.entityLoader;
   }
 
   getSceneRenderer(): GameSceneRenderer {
@@ -611,5 +724,15 @@ export default class GameScene extends Phaser.Scene {
 
   getCurrentLevelName(): string {
     return this.currentLevelName;
+  }
+
+  private createEditorPlayer(): Entity {
+    // Minimal player entity for editor mode (no input, no HUD, just position)
+    const player = new Entity('player');
+    const startX = this.grid.cellSize * this.levelData.playerStart.x + this.grid.cellSize / 2;
+    const startY = this.grid.cellSize * this.levelData.playerStart.y + this.grid.cellSize / 2;
+    player.add(new TransformComponent(startX, startY));
+    this.entityManager.add(player);
+    return player;
   }
 }

@@ -190,7 +190,7 @@ export type LevelData = {
 export class LevelLoader {
   static async load(levelName: string): Promise<LevelData> {
     try {
-      const response = await fetch(`levels/${levelName}.json`);
+      const response = await fetch(`/levels/${levelName}.json`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

@@ -1480,6 +1480,22 @@
       ]
     },
     {
+      "col": 8,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 20,
       "row": 7,
       "layer": 0,
@@ -1542,6 +1558,30 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
