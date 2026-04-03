@@ -151,8 +151,9 @@ export class EditSkeletonEditorState extends EditorState {
     }
 
     const camera = gameScene.cameras.main;
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
 
     const transform = this.skeleton.get(TransformComponent);
     if (!transform) return;

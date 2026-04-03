@@ -42,10 +42,9 @@ export class AddThrowerEditorState extends EditorState {
     const camera = gameScene.cameras.main;
     const grid = this.scene.getGrid();
 
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
     const worldPos = grid.cellToWorld(cell.col, cell.row);
     const centerX = worldPos.x + grid.cellSize / 2;
     const centerY = worldPos.y + grid.cellSize / 2;
@@ -58,10 +57,9 @@ export class AddThrowerEditorState extends EditorState {
     const camera = gameScene.cameras.main;
     const grid = this.scene.getGrid();
 
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
 
     const levelData = gameScene.getLevelData();
     levelData.throwers ??= [];

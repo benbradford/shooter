@@ -300,8 +300,9 @@ export class DefaultEditorState extends EditorState {
       getLevelData: () => import('../systems/level/LevelLoader').LevelData;
     };
     
-    const worldX = pointer.x + gameScene.cameras.main.scrollX;
-    const worldY = pointer.y + gameScene.cameras.main.scrollY;
+    const worldPoint = gameScene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
     
     const grid = this.scene.getGrid();
     const clickedCell = grid.worldToCell(worldX, worldY);

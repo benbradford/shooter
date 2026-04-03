@@ -257,11 +257,10 @@ export class AddEntityEditorState extends EditorState {
 
     const gameScene = this.scene.scene.get('game');
     const camera = gameScene.cameras.main;
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
     const grid = this.scene.getGrid();
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
     const worldPos = grid.cellToWorld(cell.col, cell.row);
 
     this.ghostSprite.setPosition(
@@ -286,11 +285,10 @@ export class AddEntityEditorState extends EditorState {
     }
 
     const camera = gameScene.cameras.main;
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
     const grid = this.scene.getGrid();
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
 
     this.placeEntity(cell.col, cell.row);
   };

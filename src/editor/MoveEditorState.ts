@@ -102,8 +102,9 @@ export class MoveEditorState extends EditorState<MoveEditorStateProps> {
     const grid = this.scene.getGrid();
     const camera = gameScene.cameras.main;
 
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
 
     const cell = grid.worldToCell(worldX, worldY);
     const cellWorld = grid.cellToWorld(cell.col, cell.row);

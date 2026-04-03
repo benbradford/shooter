@@ -177,10 +177,9 @@ export class GridEditorState extends EditorState {
     const camera = gameScene.cameras.main;
     const grid = this.scene.getGrid();
 
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
     if (cell.col < 0 || cell.col >= grid.width || cell.row < 0 || cell.row >= grid.height) return;
 
     if (this.selectedLayer === -1) {

@@ -138,11 +138,10 @@ export class PortalEditorState extends EditorState {
     }
 
     const camera = gameScene.cameras.main;
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
     
     const grid = this.scene.getGrid();
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
     const cellKey = `${cell.col},${cell.row}`;
     
     // Toggle cell selection

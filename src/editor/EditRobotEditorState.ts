@@ -80,8 +80,9 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     const grid = this.scene.getGrid();
     const camera = gameScene.cameras.main;
 
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
 
     // Check each waypoint
     for (let i = 0; i < patrol.waypoints.length; i++) {
@@ -111,8 +112,9 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
       cameras: { main: Phaser.Cameras.Scene2D.Camera };
     };
     
-    const worldX = pointer.x + gameScene.cameras.main.scrollX;
-    const worldY = pointer.y + gameScene.cameras.main.scrollY;
+    const worldPoint = gameScene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
 
     if (this.selectedRobot) {
       const transform = this.selectedRobot.require(TransformComponent);
@@ -338,8 +340,9 @@ export class EditRobotEditorState extends EditorState<Entity | undefined> {
     const grid = this.scene.getGrid();
     const camera = gameScene.cameras.main;
 
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
 
     const cell = grid.worldToCell(worldX, worldY);
     const cellWorld = grid.cellToWorld(cell.col, cell.row);

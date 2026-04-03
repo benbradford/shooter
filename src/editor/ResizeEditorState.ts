@@ -108,10 +108,9 @@ export class ResizeEditorState extends EditorState {
     const gameScene = this.scene.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
     
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
     const grid = this.scene.getGrid();
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
 
     if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
       // Simple selection: click selects that row AND column

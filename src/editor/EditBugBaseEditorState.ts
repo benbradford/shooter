@@ -131,8 +131,9 @@ export class EditBugBaseEditorState extends EditorState {
       cameras: { main: Phaser.Cameras.Scene2D.Camera };
     };
     
-    const worldX = pointer.x + gameScene.cameras.main.scrollX;
-    const worldY = pointer.y + gameScene.cameras.main.scrollY;
+    const worldPoint = gameScene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const worldX = worldPoint.x;
+    const worldY = worldPoint.y;
 
     const transform = this.bugBase.get(TransformComponent);
     if (!transform) return;

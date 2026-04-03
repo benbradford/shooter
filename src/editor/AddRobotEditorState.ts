@@ -49,10 +49,9 @@ export class AddRobotEditorState extends EditorState {
     const grid = this.scene.getGrid();
     const camera = gameScene.cameras.main;
 
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
     const cellWorld = grid.cellToWorld(cell.col, cell.row);
 
     const centerX = cellWorld.x + grid.cellSize / 2;
@@ -68,10 +67,9 @@ export class AddRobotEditorState extends EditorState {
     const grid = this.scene.getGrid();
     const camera = gameScene.cameras.main;
 
-    const worldX = pointer.x + camera.scrollX;
-    const worldY = pointer.y + camera.scrollY;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
 
     const robot = this.addRobot(gameScene, cell.col, cell.row);
 

@@ -218,11 +218,10 @@ export default class EditorScene extends Phaser.Scene {
     const pointer = this.input.activePointer;
     const gameScene = this.scene.get('game') as GameScene;
     const camera = gameScene.cameras.main;
-    const worldX = camera.scrollX + pointer.x / camera.zoom;
-    const worldY = camera.scrollY + pointer.y / camera.zoom;
+    const worldPoint = camera.getWorldPoint(pointer.x, pointer.y);
 
     const grid = this.getGrid();
-    const cell = grid.worldToCell(worldX, worldY);
+    const cell = grid.worldToCell(worldPoint.x, worldPoint.y);
 
     if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
       this.cellHoverText.setText(`Col: ${cell.col}, Row: ${cell.row}`);
@@ -552,6 +551,25 @@ export default class EditorScene extends Phaser.Scene {
     }).catch(err => {
       console.error('Failed to copy to clipboard:', err);
     });
+
+    // Auto-save to file via dev server
+    const gameScene = this.scene.get('game') as GameScene;
+    const levelName = gameScene.getLevelData().name;
+    if (levelName) {
+      fetch('/api/save-level', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ levelName, data: json })
+      }).then(response => {
+        if (response.ok) {
+          console.log(`✓ Saved to public/levels/${levelName}.json`);
+        } else {
+          console.error(`Failed to save level: ${response.statusText}`);
+        }
+      }).catch(err => {
+        console.error('Failed to save level (dev server not running?):', err);
+      });
+    }
   }
 
   enterDefaultMode(): void {

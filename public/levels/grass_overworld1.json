@@ -1240,6 +1240,14 @@
       ]
     },
     {
+      "col": 37,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 38,
       "row": 5,
       "layer": 1,
