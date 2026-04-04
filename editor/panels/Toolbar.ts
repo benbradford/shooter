@@ -23,7 +23,6 @@ export class Toolbar {
   private readonly dirtySpan: HTMLSpanElement;
   private readonly toolButtons: Map<string, HTMLButtonElement> = new Map();
   private readonly entitySelect: HTMLSelectElement;
-  private readonly themeSelect: HTMLSelectElement;
   private newLevelForm: HTMLElement | null = null;
 
   constructor(private readonly bridge: EditorBridge, container: HTMLElement) {
@@ -42,11 +41,22 @@ export class Toolbar {
 
     const row2 = this.createRow(container);
     row2.classList.add('tool-grid');
+    const levelBtn = this.createButton('Level', 'ed-btn', () => {
+      bridge.setTool('level');
+      bridge.clearSelection();
+      this.updateActiveToolButton('level');
+      this.entitySelect.style.display = 'none';
+      gridPanel.style.display = 'none';
+    });
+    this.toolButtons.set('level', levelBtn);
+    row2.appendChild(levelBtn);
     for (const t of GRID_TOOLS) {
       const btn = this.createButton(t.label, 'ed-btn', () => {
         bridge.setTool(t.tool);
+        if (t.tool === 'select') bridge.clearSelection();
         this.updateActiveToolButton(t.tool);
         this.entitySelect.style.display = t.tool === 'entity' ? '' : 'none';
+        if (t.tool === 'entity') bridge.selectedEntityType = this.entitySelect.value as import('../../src/systems/level/LevelLoader').EntityType;
         gridPanel.style.display = t.tool === 'grid' ? '' : 'none';
       });
       this.toolButtons.set(t.tool, btn);
@@ -101,27 +111,13 @@ export class Toolbar {
     });
     row3.appendChild(this.entitySelect);
 
-    const themeLabel = document.createElement('span');
-    themeLabel.textContent = 'Theme:';
-    themeLabel.style.cssText = 'font-size:11px;color:#7f8c8d';
-    row3.appendChild(themeLabel);
-    this.themeSelect = document.createElement('select');
-    for (const t of THEMES) {
-      const opt = document.createElement('option');
-      opt.value = t; opt.textContent = t;
-      this.themeSelect.appendChild(opt);
-    }
-    this.themeSelect.addEventListener('change', () => { bridge.setTheme(this.themeSelect.value); this.themeSelect.blur(); });
-    row3.appendChild(this.themeSelect);
-
     this.levelSelect.addEventListener('change', () => { void bridge.loadLevel(this.levelSelect.value); this.levelSelect.blur(); });
+    bridge.onToolChanged = (tool) => this.updateActiveToolButton(tool);
     void this.fetchLevels();
   }
 
   onLevelLoaded(levelName: string): void {
     this.levelSelect.value = levelName;
-    const levelData = this.bridge.getScene().getLevelData();
-    this.themeSelect.value = levelData.levelTheme ?? 'dungeon';
     void this.fetchLevels();
   }
 

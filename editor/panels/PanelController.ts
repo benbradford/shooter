@@ -26,7 +26,11 @@ export class PanelController {
       this.contextPanel.showDataEntityForm(entityId);
     };
     bridge.onSelectionCleared = () => {
-      this.contextPanel.showLevelInfo();
+      if (bridge.currentTool === 'level') {
+        this.contextPanel.showLevelInfo();
+      } else {
+        this.contextPanel.clear();
+      }
     };
     bridge.onLevelLoaded = (levelName) => {
       this.toolbar.onLevelLoaded(levelName);

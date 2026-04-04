@@ -12,6 +12,7 @@ type OverlaySprite = {
 export class SceneOverlays {
   private readonly overlaySprites: OverlaySprite[] = [];
   private readonly overlayImages: Phaser.GameObjects.Image[] = [];
+  private maskGraphics?: Phaser.GameObjects.Graphics;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -61,6 +62,15 @@ export class SceneOverlays {
 
     const { frequency, seed, placementStrategy = 'near_platforms' } = this.levelData.background.overlays;
     const rng = this.seededRandom(seed);
+
+    // Create a mask so overlays don't render outside the grid
+    const worldWidth = grid.width * grid.cellSize;
+    const worldHeight = grid.height * grid.cellSize;
+    this.maskGraphics = this.scene.add.graphics();
+    this.maskGraphics.fillStyle(0xffffff);
+    this.maskGraphics.fillRect(0, 0, worldWidth, worldHeight);
+    this.maskGraphics.setVisible(false);
+    const mask = this.maskGraphics.createGeometryMask();
 
     const eligibleCells: Array<{ col: number; row: number; priority: number }> = [];
 
@@ -166,6 +176,7 @@ export class SceneOverlays {
       
       const alpha = alphaBase + rng() * alphaRange;
       image.setAlpha(alpha);
+      image.setMask(mask);
 
       this.overlayImages.push(image);
     }
@@ -173,6 +184,7 @@ export class SceneOverlays {
 
   destroy(): void {
     this.overlayImages.forEach(img => img.destroy());
+    this.maskGraphics?.destroy();
     this.overlayImages.length = 0;
   }
 

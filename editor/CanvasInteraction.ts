@@ -5,7 +5,7 @@ import { Depth } from '../src/constants/DepthConstants';
 const CAMERA_SPEED_PX_PER_SEC = 400;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 3.0;
-const ZOOM_STEP = 0.1;
+const ZOOM_STEP = 0.05;
 
 export class CanvasInteraction {
   private isMouseOverCanvas = false;
@@ -139,7 +139,8 @@ export class CanvasInteraction {
       return;
     }
 
-    if (tool === 'select') {
+    if (tool === 'select' || tool === 'level') {
+      if (tool === 'level') this.bridge.setTool('select');
       this.handleSelect(p, grid, cell);
     } else if (tool === 'entity') {
       this.handleEntityPlace(cell);

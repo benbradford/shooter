@@ -11,6 +11,10 @@ export class ContextPanel {
     this.showLevelInfo();
   }
 
+  clear(): void {
+    this.container.innerHTML = '';
+  }
+
   showLevelInfo(): void {
     const scene = this.bridge.getScene?.();
     if (!scene) { this.container.innerHTML = '<p>Loading...</p>'; return; }
@@ -22,7 +26,7 @@ export class ContextPanel {
       <div class="level-info-grid">
         <span class="label">Name</span><span>${this.bridge.currentLevelName ?? '—'}</span>
         <span class="label">Size</span><span>${grid.width} x ${grid.height}</span>
-        <span class="label">Theme</span><span>${levelData.levelTheme ?? 'dungeon'}</span>
+        <span class="label">Theme</span><select id="li-theme" style="font-size:11px">${['dungeon', 'swamp', 'grass', 'wilds', 'default'].map(t => `<option ${(levelData.levelTheme ?? 'dungeon') === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
         <span class="label">Entities</span><span>${entityCount}</span>
         <span class="label">Player</span><span>${levelData.playerStart.x}, ${levelData.playerStart.y}</span>
       </div>
@@ -33,11 +37,32 @@ export class ContextPanel {
         <button class="ed-btn danger" id="ri-rem-col">- Col</button>
         <button class="ed-btn danger" id="ri-rem-row">- Row</button>
       </div>
+
+      <div class="section-header" style="margin-top:12px">Data Entities</div>
+      ${(['interaction', 'eventchainer', 'cellmodifier'] as const).map(type => {
+        const items = (levelData.entities ?? []).filter(e => e.type === type);
+        return `<div style="margin-bottom:4px">
+          <span style="font-size:11px;color:#7f8c8d">${type} (${items.length})</span>
+          ${items.map(e => `<button class="ed-btn de-item" data-id="${e.id}" style="display:block;width:100%;text-align:left;font-size:11px;margin:1px 0">${e.id}</button>`).join('')}
+          <button class="ed-btn de-add" data-type="${type}" style="font-size:10px;margin-top:2px">+ Add ${type}</button>
+        </div>`;
+      }).join('')}
     `;
     this.container.querySelector('#ri-add-col')?.addEventListener('click', () => { this.bridge.resizeGrid(grid.width + 1, grid.height); this.showLevelInfo(); });
     this.container.querySelector('#ri-add-row')?.addEventListener('click', () => { this.bridge.resizeGrid(grid.width, grid.height + 1); this.showLevelInfo(); });
     this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => { if (grid.width > 1) { this.bridge.resizeGrid(grid.width - 1, grid.height); this.showLevelInfo(); } });
     this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => { if (grid.height > 1) { this.bridge.resizeGrid(grid.width, grid.height - 1); this.showLevelInfo(); } });
+    this.container.querySelector('#li-theme')?.addEventListener('change', (e) => { this.bridge.setTheme((e.target as HTMLSelectElement).value); (e.target as HTMLSelectElement).blur(); });
+
+    for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.de-item')) {
+      btn.addEventListener('click', () => this.showDataEntityForm(btn.dataset.id!));
+    }
+    for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.de-add')) {
+      btn.addEventListener('click', () => {
+        this.bridge.addEntity(btn.dataset.type as import('../../src/systems/level/LevelLoader').EntityType, 0, 0);
+        this.showLevelInfo();
+      });
+    }
   }
 
   showCellForm(col: number, row: number): void {
@@ -172,7 +197,9 @@ export class ContextPanel {
         ? levelCell.backgroundTexture
         : (levelCell.backgroundTexture as { image?: string })?.image ?? '';
       if (currentKey) {
+        const existing = typeof levelCell.backgroundTexture === 'object' ? levelCell.backgroundTexture : {};
         levelCell.backgroundTexture = {
+          ...existing,
           image: currentKey,
           transformOverride: { scaleX: get('cf-sx'), scaleY: get('cf-sy'), offsetX: get('cf-ox'), offsetY: get('cf-oy') }
         };

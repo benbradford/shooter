@@ -77,6 +77,14 @@ export class PetActionButtonComponent implements Component {
     // Swap texture based on selected pet
     const selectedPetId = PetManager.getInstance().getSelectedPetId();
     const config = selectedPetId ? PET_REGISTRY[selectedPetId] : null;
+
+    // Hide button entirely if no pet selected
+    if (!selectedPetId) {
+      this.setVisible(false);
+      return;
+    }
+    this.setVisible(true);
+
     const desiredTexture = config?.iconTexture ?? 'slide_icon';
     if (desiredTexture !== this.currentTextureKey && this.scene.textures.exists(desiredTexture)) {
       this.sprite.setTexture(desiredTexture);

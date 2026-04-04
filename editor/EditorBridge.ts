@@ -51,6 +51,7 @@ export class EditorBridge {
   onDirtyStateChanged: ((isDirty: boolean) => void) | null = null;
   onSceneReady: (() => void) | null = null;
   onLoadError: ((levelName: string, error: unknown) => void) | null = null;
+  onToolChanged: ((tool: string) => void) | null = null;
 
   static getInstance(): EditorBridge {
     if (!EditorBridge.instance) {
@@ -111,6 +112,7 @@ export class EditorBridge {
     this.currentTool = tool;
     if (tool !== 'entity') this.selectedEntityType = null;
     if (tool !== 'texture') this.selectedTexture = null;
+    this.onToolChanged?.(tool);
   }
 
   selectEntity(entity: Entity): void {
