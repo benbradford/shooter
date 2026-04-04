@@ -906,6 +906,12 @@
       ]
     },
     {
+      "col": 32,
+      "row": 2,
+      "layer": 0,
+      "backgroundTexture": "dungeon_door"
+    },
+    {
       "col": 33,
       "row": 2,
       "layer": 1,
@@ -5817,7 +5823,6 @@
         "difficulty": "medium"
       }
     },
-   
     {
       "id": "trigger0",
       "type": "trigger",
@@ -5834,6 +5839,30 @@
           },
           {
             "col": 14,
+            "row": 14
+          },
+          {
+            "col": 13,
+            "row": 14
+          },
+          {
+            "col": 13,
+            "row": 15
+          },
+          {
+            "col": 13,
+            "row": 16
+          },
+          {
+            "col": 12,
+            "row": 16
+          },
+          {
+            "col": 12,
+            "row": 15
+          },
+          {
+            "col": 12,
             "row": 14
           }
         ],

@@ -197,6 +197,30 @@ export class EditorBridge {
     });
   }
 
+  moveCellTexture(fromCol: number, fromRow: number, toCol: number, toRow: number): void {
+    this._applyMutation(`Move texture ${fromCol},${fromRow} → ${toCol},${toRow}`, () => {
+      const grid = this.getGrid();
+      const levelData = this.scene.getLevelData();
+      const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
+      const tex = fromCell?.backgroundTexture;
+      if (!tex) return;
+
+      // Clear source
+      grid.setCell(fromCol, fromRow, { backgroundTexture: '' });
+      if (fromCell) delete fromCell.backgroundTexture;
+
+      // Set destination
+      let toCell = levelData.cells.find(c => c.col === toCol && c.row === toRow);
+      if (!toCell) { toCell = { col: toCol, row: toRow }; levelData.cells.push(toCell); }
+      toCell.backgroundTexture = tex;
+      const texKey = typeof tex === 'string' ? tex : tex.image;
+      grid.setCell(toCol, toRow, { backgroundTexture: texKey });
+
+      this.scene.refreshSprites();
+      grid.render();
+    });
+  }
+
   setCellLayer(col: number, row: number, layer: number): void {
     this._applyMutation(`Set layer ${layer} at ${col},${row}`, () => {
       const grid = this.getGrid();
