@@ -106,11 +106,11 @@ npx eslint src --ext .ts     # Must pass with zero errors
 ```
 
 **Level editing workflow:**
-- Press **E** in-game to open the level editor
-- Make changes to the grid (see [Level Editor docs](./docs/level-editor.md))
-- Click **Save** to download the level JSON
-- Manually copy JSON content into `public/levels/{levelName}.json`
-- Refresh browser to see changes
+- Open `http://localhost:5173/editor/` in your browser
+- Select a level from the dropdown
+- Edit cells, entities, textures using the right panel tools
+- Ctrl+S or click Save to write changes directly to `public/levels/{name}.json`
+- Refresh the game tab to see changes
 
 ### Building for Production
 

@@ -5,7 +5,7 @@
 See `src/systems/level/LevelLoader.ts` for complete type definitions.
 
 **Key concepts:**
-- `backgroundTexture`: Can be string or `{image, transformOverride}` object
+- `backgroundTexture`: String key, `{image, transformOverride}`, or `{image, sourceRect}` for spritesheet sub-sprites
 - `animatedTexture`: Spritesheet config with frame info and optional transform
 - `entities`: All entities (enemies, triggers, exits, eventchainers) in one array
 - `createOnAnyEvent`/`createOnAllEvents`: Optional event-driven spawning
@@ -37,121 +37,141 @@ Levels loaded from JSON in `public/levels/`. See `LevelLoader.load()`.
 
 **Transition cells (stairs):** Connect adjacent layers, vertical movement only.
 
-## Level Editor
+---
 
-Press **E** to enter editor mode. Game resets and pauses.
+## Standalone Level Editor
+
+The level editor is a separate app at `http://localhost:5173/editor/` (dev only).
+
+```bash
+npm run dev
+# then open http://localhost:5173/editor/
+```
+
+The editor is **excluded from production builds** entirely.
+
+### Layout
+
+- **Left panel (70%)**: Phaser canvas — level rendering, click/drag editing
+- **Right panel (30%)**: HTML controls — tools, properties, level management
 
 ### Navigation
 
-**WASD / Arrow Keys** - Move camera in editor mode
+- **WASD / Arrow Keys** — Pan camera (only when mouse is over canvas)
+- **Mouse wheel** — Zoom in/out (0.25× – 3.0×)
+- **G** — Toggle grid overlay
+- **Delete/Backspace** — Delete selected entity
+- **Escape** — Deselect
+- **Ctrl+S** — Save (works even when typing in inputs)
 
-### Multi-Layer System
+### Toolbar (top of right panel)
 
-Layer selection buttons at top. Paint cells with selected layer + properties.
+- **Level dropdown** — Switch levels (warns if unsaved changes)
+- **● indicator** — Unsaved changes
+- **Save** — Writes directly to `public/levels/{name}.json` via dev server
+- **Play** — Opens game in new tab at current level
+- **New** — Create new level (name, dimensions, theme)
+- **Tool buttons** — Select, Floor, Wall, Platform, Stairs, Water, Bridge, Blocked, Texture, Entity, Move
+- **Entity dropdown** — Visible when Entity tool active; choose type to place
+- **Theme dropdown** — Switch level theme instantly
 
-## Editor Modes
+### Editing Cells
 
-### Default Mode
-Shows buttons, allows clicking entities. Entity ID shows in top-right when selected.
+1. Select a **grid tool** (Wall, Floor, Water, etc.)
+2. Click or click-drag on the canvas to paint
 
-### Add Entity Mode
-Dropdown selector → ghost sprite → click to place. ID auto-generated.
+Click a cell with the **Select** tool to open the Cell form:
+- **Layer** — Set cell layer (0 = ground, 1 = elevated)
+- **Properties** — Checkboxes for wall, platform, stairs, water, bridge, blocked
+- **Texture** — Click **Choose** to open the texture picker
+- **Clear Cell** — Remove all properties and texture
 
-### Move Mode
-Drag entities to reposition. Accepts entity and returnState props.
+### Texture Picker
 
-### Grid Mode
-**WASD** moves selection (camera follows). Buttons set layer/properties. Click-and-drag painting.
+Opens as a full-screen overlay with four tabs:
 
-**Property combining:**
-- Water + Blocked: Impassable water
-- Water + Bridge: Walkable bridges
-- Only one non-water/bridge property at a time
+| Tab | Contents |
+|-----|----------|
+| **Background** | ~50 curated single-image textures (rocks, furniture, doors, etc.) |
+| **Animated** | Spritesheet textures for animated cells (sconce_flame, fire_interior) |
+| **Spritesheet** | Sub-sprites from wilds_props and rocks_spritesheet with source rect |
+| **All** | Every texture currently loaded in Phaser |
 
-### Texture Mode
-Paginated 3-column grid of textures. Click texture → click cells to paint. Clear button removes textures.
+Search box filters in real-time. Click a thumbnail to apply.
 
-Spritesheet textures (green buttons with 📋 icon) open a secondary sprite picker panel. Click a sub-sprite to select it, then click cells to place. Placed as `backgroundTexture` with `sourceRect`. Spritesheet definitions in `src/editor/SpritesheetTextures.ts`.
+**Spritesheet sprites** are stored as `backgroundTexture: { image, sourceRect }` in the level JSON.
+**Animated textures** are stored as `animatedTexture: { spritesheet, frameWidth, frameHeight, frameCount, frameRate }`.
 
-### Trigger Mode
-List view of triggers. Click to select/view. Edit/Delete/Add New buttons.
+Spritesheet definitions: `editor/SpritesheetTextures.ts`
 
-### Portal Mode
-Create level exits. Enter target level, spawn coords, event name.
+### Editing Entities
 
-### Event Chainer Mode
-List view. Create sequential event chains with delays.
+1. Select the **Entity** tool, choose type from dropdown, click canvas to place
+2. Switch to **Select** tool, click an entity to open its property form
+3. Switch to **Move** tool, click entity then click destination
 
-### Cell Modifier Mode
-List view. Modify cells when events fire (properties, textures, layers).
+Entity form shows all editable fields per type:
+- All: position, createOnAnyEvent, createOnAllEvents, respawnable
+- Enemies: difficulty (easy/medium/hard)
+- Puma: startDirection
+- Robot: waypoints list
+- NPC: assets, direction, name, interactions (JSON)
+- Trigger: eventToRaise, oneShot, triggerCells
+- Exit: targetLevel, targetCol, targetRow
+- EventChainer: eventsToRaise (JSON)
+- CellModifier: cellsToModify (JSON)
 
-### Theme Mode
-Switch between dungeon/swamp/grass/wilds/default themes.
+### Level Management
 
-### Resize Mode
-Select rows/columns with click. Add/Remove buttons. Minimum 10x10 grid.
+- **Switch levels**: Use the dropdown — warns if unsaved changes
+- **New level**: Click New → fill in name/dimensions/theme → Create
+- **Resize**: In the Level Info panel (shown when nothing selected) — Add/Remove Row/Column buttons
+- **Save**: Ctrl+S or Save button — writes JSON directly to disk, shows toast
 
-## Saving Workflow
+### Saving
 
-1. Click **Log** in editor
-2. Copy JSON from browser console
-3. Paste into `public/levels/{levelName}.json`
-4. Refresh browser
+Saves automatically write to `public/levels/{levelName}.json` via the Vite dev server plugin. No copy-paste needed. A green toast confirms success.
 
-**Note:** Browsers cannot write files directly for security.
+### Keyboard Shortcuts
 
-## Editor State System
+| Key | Action |
+|-----|--------|
+| Ctrl+S | Save |
+| G | Toggle grid |
+| Delete | Delete selected entity |
+| Escape | Deselect |
+| WASD | Pan camera (canvas focus only) |
 
-State machine with generic type support. States can accept typed data through props.
+### Undo/Redo
+
+The mutation architecture snapshots level state before every edit (max 50 history entries). Undo/redo UI is not yet implemented but the history stack is maintained — it will be wired up in a future version.
+
+---
+
+## Architecture
+
+The editor uses a split architecture:
+
+- **`editor/EditorBridge.ts`** — Singleton connecting HTML UI ↔ Phaser. All edits go through `_applyMutation()` which snapshots state before applying.
+- **`editor/CanvasInteraction.ts`** — Handles Phaser input events, WASD camera, zoom, keyboard shortcuts
+- **`editor/panels/`** — HTML panel classes (Toolbar, ContextPanel, TexturePicker, Toast, PanelController)
+- **`editor/SpritesheetTextures.ts`** — Spritesheet sub-sprite definitions
+- **`src/scenes/GameScene.ts`** — Runs in `editorMode` when started from editor (gameplay disabled, rendering active)
+
+**WASD conflict resolution**: WASD only fires when mouse is over the canvas AND no HTML input is focused. Typing in any form field never triggers camera movement.
+
+**Data ownership**: Phaser scene owns all level data (Grid + EntityManager + LevelData). HTML panel reads from bridge and sends commands through it.
 
 ## Common Issues
 
-### Texture Clear Button Not Working
-**Cause:** Clear button not tracked separately.
-**Fix:** Track clearButton, update color in updateSelection(), pass empty string to clear.
+### Texture change not visible immediately
+**Cause:** `GameSceneRenderer` reads from `levelData.cells`, not grid internal state.
+**Fix:** `setCellTexture` syncs both grid and `levelData.cells`, then calls `refreshSprites()`.
 
 ### Player Spawning at Wrong Position
 **Cause:** GridCollisionComponent initializes previous position to (0,0).
 **Fix:** Initialize to actual starting position on first frame.
 
-### Editor Saving Wrong Player Position
-**Cause:** Using `Math.round(worldX / cellSize)` doesn't account for centering.
-**Fix:** Use `grid.worldToCell()` for proper conversion.
-
-### Green Box in Wrong Position (Move Mode)
-**Cause:** Highlight created in EditorScene with `scrollFactor(0)`.
-**Fix:** Create in GameScene so it scrolls with world.
-
-### Player Hidden Behind Walls
-**Cause:** Layer 1 walls drawn on top.
-**Fix:** Design levels so player starts in open areas.
-
-### Editor Button Clicks Trigger Grid Selection
-**Cause:** Not checking UI element hits before processing grid clicks.
-**Fix:** Check `hitTestPointer()` and skip grid processing if UI clicked.
-
-### Visual Selection Not Updating
-**Cause:** Creating new rectangles every frame without destroying old ones.
-**Fix:** Track rectangles in Map, destroy immediately on deselect.
-
-### Level Data Not Persisting
-**Cause:** Modifying computed data instead of source data.
-**Fix:** Always modify GameScene's level data directly via `getLevelData()`.
-
 ### Input Capturing Game Keys
 **Cause:** Typing in inputs triggers game controls.
-**Fix:** `stopPropagation()` on input keydown events.
-
-### Debug Visuals Not Showing
-**Cause:** Rendering in wrong method.
-**Fix:** Add to `Grid.render()` (G key), not `renderSceneDebug()` (C key).
-
-## Best Practices
-
-- Keep editor logic in EditorScene and state classes
-- Don't modify GameScene directly unless necessary
-- Use scene.pause/resume for clean state management
-- Clean up all UI elements in state.onExit()
-- Test that game works correctly after exiting editor
-- Changes persist across editor sessions until page reload
-- Always test player spawn position after moving in editor
+**Fix:** All HTML inputs call `e.stopPropagation()` on keydown.

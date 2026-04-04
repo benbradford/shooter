@@ -21,7 +21,7 @@ import { GridPositionComponent } from "../ecs/components/movement/GridPositionCo
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
-import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
@@ -98,8 +98,9 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.setEventManager(this.eventManager);
         this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
 
-        // Load ALL assets upfront for editor
+        // Load ALL assets upfront for editor (including all background textures)
         preloadAssets(this);
+        preloadAssetGroups(this, ['editor']);
         preloadLevelAssets(this, this.levelData);
         this.load.start();
         await new Promise<void>(resolve => {

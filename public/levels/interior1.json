@@ -248,6 +248,14 @@
       ]
     },
     {
+      "col": 9,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 10,
       "row": 5,
       "layer": 0,
@@ -266,8 +274,8 @@
       "backgroundTexture": {
         "image": "table1",
         "transformOverride": {
-          "scaleX": 4,
-          "scaleY": 1.5,
+          "scaleX": 5,
+          "scaleY": 1.2,
           "offsetX": 0,
           "offsetY": 5
         }
@@ -275,6 +283,14 @@
     },
     {
       "col": 12,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 13,
       "row": 5,
       "layer": 0,
       "properties": [

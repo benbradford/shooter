@@ -906,15 +906,6 @@
       ]
     },
     {
-      "col": 32,
-      "row": 2,
-      "layer": 1,
-      "properties": [
-        "wall"
-      ],
-      "backgroundTexture": "dungeon_door"
-    },
-    {
       "col": 33,
       "row": 2,
       "layer": 1,
@@ -3594,6 +3585,12 @@
       ]
     },
     {
+      "col": 27,
+      "row": 22,
+      "layer": 0,
+      "backgroundTexture": "dungeon_key"
+    },
+    {
       "col": 32,
       "row": 22,
       "layer": 1,
@@ -5943,6 +5940,21 @@
           {
             "col": 32,
             "row": 8
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "",
+        "targetCol": 0,
+        "targetRow": 0,
+        "triggerCells": [
+          {
+            "col": 32,
+            "row": 2
           }
         ]
       }

@@ -1,6 +1,8 @@
 import type { EditorBridge } from '../EditorBridge';
 import type { Entity } from '../../src/ecs/Entity';
 import { TexturePicker } from './TexturePicker';
+import type { PickResult } from './TexturePicker';
+import { ASSET_REGISTRY } from '../../src/assets/AssetRegistry';
 
 export class ContextPanel {
   private readonly texturePicker: TexturePicker;
@@ -33,24 +35,10 @@ export class ContextPanel {
         <button class="ed-btn danger" id="ri-rem-row">- Row</button>
       </div>
     `;
-    this.container.querySelector('#ri-add-col')?.addEventListener('click', () => {
-      this.bridge.resizeGrid(grid.width + 1, grid.height);
-      this.showLevelInfo();
-    });
-    this.container.querySelector('#ri-add-row')?.addEventListener('click', () => {
-      this.bridge.resizeGrid(grid.width, grid.height + 1);
-      this.showLevelInfo();
-    });
-    this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => {
-      if (grid.width <= 10) return;
-      this.bridge.resizeGrid(grid.width - 1, grid.height);
-      this.showLevelInfo();
-    });
-    this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => {
-      if (grid.height <= 10) return;
-      this.bridge.resizeGrid(grid.width, grid.height - 1);
-      this.showLevelInfo();
-    });
+    this.container.querySelector('#ri-add-col')?.addEventListener('click', () => { this.bridge.resizeGrid(grid.width + 1, grid.height); this.showLevelInfo(); });
+    this.container.querySelector('#ri-add-row')?.addEventListener('click', () => { this.bridge.resizeGrid(grid.width, grid.height + 1); this.showLevelInfo(); });
+    this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => { if (grid.width > 10) { this.bridge.resizeGrid(grid.width - 1, grid.height); this.showLevelInfo(); } });
+    this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => { if (grid.height > 10) { this.bridge.resizeGrid(grid.width, grid.height - 1); this.showLevelInfo(); } });
   }
 
   showCellForm(col: number, row: number): void {
@@ -60,6 +48,13 @@ export class ContextPanel {
     const layer = grid.getLayer(cell);
     const props = Array.from(cell.properties);
     const allProps = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path'];
+
+    // Read full texture config from levelData (preserves transformOverride)
+    const levelData = this.bridge.getScene().getLevelData();
+    const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+    const bgTex = levelCell?.backgroundTexture;
+    const texKey = typeof bgTex === 'string' ? bgTex : bgTex?.image ?? cell.backgroundTexture ?? '';
+    const transform = typeof bgTex === 'object' && bgTex && 'transformOverride' in bgTex ? bgTex.transformOverride : null;
 
     this.container.innerHTML = `
       <div class="section-header">Cell (${col}, ${row})</div>
@@ -74,11 +69,21 @@ export class ContextPanel {
       <div class="form-group">
         <label>Texture</label>
         <div style="display:flex;gap:4px;align-items:center">
-          <span id="cf-tex-label" style="flex:1;font-size:11px;color:#95a5a6">${cell.backgroundTexture || '(none)'}</span>
+          <span style="flex:1;font-size:11px;color:#95a5a6">${texKey || '(none)'}</span>
           <button class="ed-btn" id="cf-choose-tex">Choose</button>
           <button class="ed-btn danger" id="cf-clear-tex">✕</button>
         </div>
       </div>
+      ${texKey ? `
+      <div class="section-header">Transform Override</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+        <div class="form-group"><label>scaleX</label><input type="number" id="cf-sx" value="${transform?.scaleX ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>scaleY</label><input type="number" id="cf-sy" value="${transform?.scaleY ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>offsetX</label><input type="number" id="cf-ox" value="${transform?.offsetX ?? 0}" /></div>
+        <div class="form-group"><label>offsetY</label><input type="number" id="cf-oy" value="${transform?.offsetY ?? 0}" /></div>
+      </div>
+      <button class="ed-btn" id="cf-apply-transform" style="width:100%;margin-bottom:6px">Apply Transform</button>
+      ` : ''}
       <button class="ed-btn danger" id="cf-clear">Clear Cell</button>
     `;
 
@@ -106,14 +111,55 @@ export class ContextPanel {
       });
     }
     this.container.querySelector('#cf-choose-tex')?.addEventListener('click', () => {
-      this.texturePicker.open((key) => {
-        this.bridge.setCellTexture(col, row, key);
+      this.texturePicker.open((result: PickResult) => {
+        const levelData = this.bridge.getScene().getLevelData();
+        let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+        if (!levelCell) { levelCell = { col, row }; levelData.cells.push(levelCell); }
+
+        if (result.type === 'image') {
+          this.bridge.setCellTexture(col, row, result.key);
+        } else if (result.type === 'animated') {
+          const asset = ASSET_REGISTRY[result.key as keyof typeof ASSET_REGISTRY] as { config?: { frameWidth: number; frameHeight: number } };
+          levelCell.animatedTexture = {
+            spritesheet: result.key,
+            frameWidth: asset.config?.frameWidth ?? 64,
+            frameHeight: asset.config?.frameHeight ?? 64,
+            frameCount: 2,
+            frameRate: 8,
+          };
+          this.bridge.getScene().refreshSprites();
+        } else if (result.type === 'spritesheet') {
+          levelCell.backgroundTexture = {
+            image: result.key,
+            sourceRect: result.sourceRect,
+            ...(result.scaleX !== undefined || result.scaleY !== undefined ? {
+              transformOverride: { scaleX: result.scaleX ?? 1, scaleY: result.scaleY ?? 1, offsetX: 0, offsetY: 0 }
+            } : {})
+          };
+          this.bridge.getScene().refreshSprites();
+        }
         this.showCellForm(col, row);
       });
     });
     this.container.querySelector('#cf-clear-tex')?.addEventListener('click', () => {
       this.bridge.clearCellTexture(col, row);
       this.showCellForm(col, row);
+    });
+    this.container.querySelector('#cf-apply-transform')?.addEventListener('click', () => {
+      const get = (id: string) => Number.parseFloat((this.container.querySelector(`#${id}`) as HTMLInputElement).value);
+      const levelData = this.bridge.getScene().getLevelData();
+      let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+      if (!levelCell) { levelCell = { col, row }; levelData.cells.push(levelCell); }
+      const currentKey = typeof levelCell.backgroundTexture === 'string'
+        ? levelCell.backgroundTexture
+        : (levelCell.backgroundTexture as { image?: string })?.image ?? '';
+      if (currentKey) {
+        levelCell.backgroundTexture = {
+          image: currentKey,
+          transformOverride: { scaleX: get('cf-sx'), scaleY: get('cf-sy'), offsetX: get('cf-ox'), offsetY: get('cf-oy') }
+        };
+        this.bridge.getScene().refreshSprites();
+      }
     });
     this.container.querySelector('#cf-clear')?.addEventListener('click', () => {
       this.bridge.clearCell(col, row);

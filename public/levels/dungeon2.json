@@ -1,0 +1,57 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 0,
+    "y": 0
+  },
+  "cells": [],
+  "entities": [
+    {
+      "id": "thrower0",
+      "type": "thrower",
+      "data": {
+        "col": 5,
+        "row": 4,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "skeleton0",
+      "type": "skeleton",
+      "data": {
+        "col": 3,
+        "row": 5,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "skeleton1",
+      "type": "skeleton",
+      "data": {
+        "col": 6,
+        "row": 5,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "skeleton2",
+      "type": "skeleton",
+      "data": {
+        "col": 3,
+        "row": 2,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "skeleton4",
+      "type": "skeleton",
+      "data": {
+        "col": 6,
+        "row": 2,
+        "difficulty": "medium"
+      }
+    }
+  ],
+  "levelTheme": "dungeon"
+}
