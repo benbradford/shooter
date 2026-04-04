@@ -81,6 +81,45 @@
 **Files Changed:**
 - `src/scenes/GameScene.ts` — Added all enemy groups to editor preload
 
+### Editor: Grid Tool Consolidation
+
+**Change**: Replaced 7 individual grid tool buttons (Floor, Wall, Platform, Stairs, Water, Bridge, Blocked) with single Grid button that opens a sub-panel with property checkboxes and layer radio buttons (0, 1, 2). Also removed the Texture tool button (textures applied via cell form).
+
+**Files Changed:**
+- `editor/panels/Toolbar.ts` — Replaced GRID_TOOLS with Select/Grid/Entity, added sub-panel
+- `editor/EditorBridge.ts` — Added `gridProperties` Set and `gridLayer`, simplified `paintCell`
+
+### Editor: Trigger Cell Editing
+
+**Change**: Triggers and exits now have an Edit Cells button. Click it to enter cell editing mode where clicking grid cells toggles them as trigger cells.
+
+**Files Changed:**
+- `editor/panels/ContextPanel.ts` — Added Edit Cells button to trigger/exit forms
+- `editor/CanvasInteraction.ts` — Handle cell toggle when `editingTriggerCells` is active
+- `editor/EditorBridge.ts` — Added `editingTriggerCells` state
+
+### Editor: Entity Sprite Visibility Fix
+
+**Change**: All entity sprites forced to alpha 1 and non-zero scale in editor mode. Entities with spawn animations (bug bases) now visible and scaled to fit cell size.
+
+**Files Changed:**
+- `src/scenes/GameScene.ts` — Force sprite alpha/scale after entity load in editor mode
+
+### Editor: Texture Drag-to-Move
+
+**Change**: Click and hold a cell with a background texture in Select mode, then drag to move the texture to another cell.
+
+**Files Changed:**
+- `editor/CanvasInteraction.ts` — Added `dragTextureFrom` tracking
+- `editor/EditorBridge.ts` — Added `moveCellTexture` method
+
+### Editor: Click Cycling
+
+**Change**: When multiple entities share a cell, repeated clicks cycle through all entities at that position, then data entities (triggers/exits), then the cell itself.
+
+**Files Changed:**
+- `editor/CanvasInteraction.ts` — Collect all candidates at cell, cycle on repeated clicks
+
 ## March 2026
 
 ### HUD Button Visual Overhaul
@@ -195,8 +234,6 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES = {
 - Explicit dependency tracking makes code easier to reason about
 - Prevents entire class of "stale reference" bugs
 
-### Scene Cleanup on Level Load
-
 ## February 2026
 
 ### Scene Cleanup on Level Load
@@ -308,54 +345,3 @@ await new Promise<void>(resolve => {
 ## Breaking Changes
 
 None. All changes are backward compatible.
-
-## Migration Guide
-
-### If you have custom levels:
-
-No changes needed. The asset loading system automatically detects required assets from your level JSON.
-
-### If you added custom assets:
-
-1. Add to `ASSET_REGISTRY` in `src/assets/AssetRegistry.ts`
-2. Add to appropriate group in `ASSET_GROUPS`
-3. Update `getRequiredAssetGroups()` if needed for new enemy types
-
-### If you created custom HUD buttons:
-
-Follow the alpha state pattern:
-```typescript
-const ALPHA_UNPRESSED = 0.4;
-const ALPHA_PRESSED = 0.9;
-const ALPHA_COOLDOWN = 0.2; // if applicable
-
-// In update() or event handlers:
-sprite.setAlpha(isPressed ? ALPHA_PRESSED : ALPHA_UNPRESSED);
-```
-
-## Testing Checklist
-
-When switching levels:
-- [ ] No visual artifacts from previous level
-- [ ] All overlays cleared
-- [ ] Graphics cleared (no platform shading, etc.)
-- [ ] Timer events cleared (no delayed spawns from old level)
-- [ ] Console shows asset loading log
-- [ ] Only required assets loaded (check console log)
-
-When using HUD:
-- [ ] Buttons fade when not pressed (alpha 0.4)
-- [ ] Buttons brighten when pressed (alpha 0.9)
-- [ ] Slide button very faded on cooldown (alpha 0.2)
-- [ ] Attack button responds to touch and space bar
-- [ ] Slide button disabled while punching
-
-## Known Issues
-
-None currently.
-
-## Future Improvements
-
-- Asset unloading: Currently assets accumulate across level switches. Consider unloading unused assets.
-- Preloading: Show loading screen during asset loading
-- Asset bundles: Group commonly used assets for faster loading

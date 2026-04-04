@@ -71,7 +71,8 @@ The editor is **excluded from production builds** entirely.
 - **Save** — Writes directly to `public/levels/{name}.json` via dev server
 - **Play** — Opens game in new tab at current level
 - **New** — Create new level (name, dimensions, theme)
-- **Tool buttons** — Select, Floor, Wall, Platform, Stairs, Water, Bridge, Blocked, Texture, Entity
+- **Tool buttons** — Select, Grid, Entity
+- **Grid sub-panel** — Visible when Grid tool active; checkboxes for wall, platform, stairs, water, bridge, blocked, path + layer radio (0, 1, 2)
 - **Entity dropdown** — Visible when Entity tool active; choose type to place
 - **Theme dropdown** — Switch level theme instantly
 
@@ -79,8 +80,10 @@ All dropdowns auto-blur after selection so WASD camera movement works immediatel
 
 ### Editing Cells
 
-1. Select a **grid tool** (Wall, Floor, Water, etc.)
-2. Click or click-drag on the canvas to paint
+1. Select the **Grid** tool — sub-panel appears with property checkboxes and layer radio
+2. Check desired properties (e.g., ☑ wall) and select layer (e.g., 1)
+3. Click or click-drag on the canvas to paint those properties + layer
+4. To paint plain floor: leave all checkboxes unchecked, layer 0
 
 Click a cell with the **Select** tool to open the Cell form:
 - **Layer** — Set cell layer (0 = ground, 1 = elevated)
@@ -88,6 +91,7 @@ Click a cell with the **Select** tool to open the Cell form:
 - **Texture** — Click **Choose** to open the texture picker
 - **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields with Apply Transform button
 - **Clear Cell** — Remove all properties and texture
+- **Drag textures** — Click and hold a cell with a texture in Select mode, then drag to move the texture to another cell
 
 ### Texture Picker
 
@@ -113,6 +117,7 @@ Spritesheet definitions: `editor/SpritesheetTextures.ts`
 2. Switch to **Select** tool, click an entity to open its property form
 3. **Drag to move**: Click and hold an entity in Select mode, then drag to reposition it
 4. Clicking on highlighted trigger/exit cells also selects the corresponding data entity
+5. **Click cycling**: When multiple entities share a cell, repeated clicks cycle through them (entities → triggers/exits → cell)
 
 Entity form shows all editable fields per type:
 - All: position, createOnAnyEvent, createOnAllEvents, respawnable
@@ -120,10 +125,18 @@ Entity form shows all editable fields per type:
 - Puma: startDirection
 - Robot: waypoints list
 - NPC: assets, direction, name, interactions (JSON)
-- Trigger: eventToRaise, oneShot, triggerCells
-- Exit: targetLevel, targetCol, targetRow
+- Trigger: eventToRaise, oneShot, triggerCells + **Edit Cells** button
+- Exit: targetLevel, targetCol, targetRow, triggerCells + **Edit Cells** button
 - EventChainer: eventsToRaise (JSON)
 - CellModifier: cellsToModify (JSON)
+
+### Editing Trigger Cells
+
+Triggers and exits have an **Edit Cells** button in their property form:
+1. Select a trigger or exit (click its highlighted cell)
+2. Click **Edit Cells** — enters cell editing mode (button changes to "Done Editing")
+3. Click grid cells to toggle them as trigger cells (added cells get magenta stroke)
+4. Click **Done Editing** or press Escape to exit
 
 ### Level Management
 

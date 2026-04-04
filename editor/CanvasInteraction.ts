@@ -261,7 +261,8 @@ export class CanvasInteraction {
     } else {
       this.bridge.selectCell(cell.col, cell.row);
       const gridCell = grid.getCell(cell.col, cell.row);
-      if (gridCell?.backgroundTexture) {
+      const levelCell = levelData.cells.find(c => c.col === cell.col && c.row === cell.row);
+      if (gridCell?.backgroundTexture || levelCell?.animatedTexture) {
         this.dragTextureFrom = { col: cell.col, row: cell.row };
         this.isDragging = true;
         this.lastPaintedCell = cellKey;

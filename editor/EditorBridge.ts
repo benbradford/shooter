@@ -203,18 +203,22 @@ export class EditorBridge {
       const levelData = this.scene.getLevelData();
       const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
       const tex = fromCell?.backgroundTexture;
-      if (!tex) return;
+      const animTex = fromCell?.animatedTexture;
+      if (!tex && !animTex) return;
 
       // Clear source
       grid.setCell(fromCol, fromRow, { backgroundTexture: '' });
-      if (fromCell) delete fromCell.backgroundTexture;
+      if (fromCell) { delete fromCell.backgroundTexture; delete fromCell.animatedTexture; }
 
       // Set destination
       let toCell = levelData.cells.find(c => c.col === toCol && c.row === toRow);
       if (!toCell) { toCell = { col: toCol, row: toRow }; levelData.cells.push(toCell); }
-      toCell.backgroundTexture = tex;
-      const texKey = typeof tex === 'string' ? tex : tex.image;
-      grid.setCell(toCol, toRow, { backgroundTexture: texKey });
+      if (tex) {
+        toCell.backgroundTexture = tex;
+        const texKey = typeof tex === 'string' ? tex : tex.image;
+        grid.setCell(toCol, toRow, { backgroundTexture: texKey });
+      }
+      if (animTex) toCell.animatedTexture = animTex;
 
       this.scene.refreshSprites();
       grid.render();

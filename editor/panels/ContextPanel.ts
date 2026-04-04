@@ -54,6 +54,8 @@ export class ContextPanel {
     const bgTex = levelCell?.backgroundTexture;
     const texKey = typeof bgTex === 'string' ? bgTex : bgTex?.image ?? cell.backgroundTexture ?? '';
     const transform = typeof bgTex === 'object' && bgTex && 'transformOverride' in bgTex ? bgTex.transformOverride : null;
+    const animTex = levelCell?.animatedTexture;
+    const animTransform = animTex?.transformOverride;
 
     this.container.innerHTML = `
       <div class="section-header">Cell (${col}, ${row})</div>
@@ -83,6 +85,23 @@ export class ContextPanel {
       </div>
       <button class="ed-btn" id="cf-apply-transform" style="width:100%;margin-bottom:6px">Apply Transform</button>
       ` : ''}
+      ${animTex ? `
+      <div class="section-header">Animated Texture</div>
+      <div class="level-info-grid" style="font-size:11px">
+        <span class="label">Spritesheet</span><span>${animTex.spritesheet}</span>
+        <span class="label">Frames</span><span>${animTex.frameCount} @ ${animTex.frameRate}fps</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px">
+        <div class="form-group"><label>scaleX</label><input type="number" id="cf-asx" value="${animTransform?.scaleX ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>scaleY</label><input type="number" id="cf-asy" value="${animTransform?.scaleY ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>offsetX</label><input type="number" id="cf-aox" value="${animTransform?.offsetX ?? 0}" /></div>
+        <div class="form-group"><label>offsetY</label><input type="number" id="cf-aoy" value="${animTransform?.offsetY ?? 0}" /></div>
+      </div>
+      <button class="ed-btn" id="cf-apply-anim-transform" style="width:100%;margin-bottom:4px">Apply Anim Transform</button>
+      <button class="ed-btn danger" id="cf-clear-anim" style="width:100%;margin-bottom:6px">Remove Animated Texture</button>
+      ` : `
+      <button class="ed-btn" id="cf-add-anim" style="width:100%;margin-bottom:6px">+ Animated Texture</button>
+      `}
       <button class="ed-btn danger" id="cf-clear">Clear Cell</button>
     `;
 
@@ -160,6 +179,39 @@ export class ContextPanel {
         this.bridge.getScene().refreshSprites();
       }
     });
+    this.container.querySelector('#cf-apply-anim-transform')?.addEventListener('click', () => {
+      const get = (id: string) => Number.parseFloat((this.container.querySelector(`#${id}`) as HTMLInputElement).value);
+      const levelData = this.bridge.getScene().getLevelData();
+      const lc = levelData.cells.find(c => c.col === col && c.row === row);
+      if (lc?.animatedTexture) {
+        lc.animatedTexture.transformOverride = { scaleX: get('cf-asx'), scaleY: get('cf-asy'), offsetX: get('cf-aox'), offsetY: get('cf-aoy') };
+        this.bridge.getScene().refreshSprites();
+      }
+    });
+    this.container.querySelector('#cf-clear-anim')?.addEventListener('click', () => {
+      const levelData = this.bridge.getScene().getLevelData();
+      const lc = levelData.cells.find(c => c.col === col && c.row === row);
+      if (lc) { delete lc.animatedTexture; this.bridge.getScene().refreshSprites(); }
+      this.showCellForm(col, row);
+    });
+    this.container.querySelector('#cf-add-anim')?.addEventListener('click', () => {
+      this.texturePicker.open((result: PickResult) => {
+        if (result.type !== 'animated') return;
+        const levelData = this.bridge.getScene().getLevelData();
+        let lc = levelData.cells.find(c => c.col === col && c.row === row);
+        if (!lc) { lc = { col, row }; levelData.cells.push(lc); }
+        const asset = ASSET_REGISTRY[result.key as keyof typeof ASSET_REGISTRY] as { config?: { frameWidth: number; frameHeight: number } };
+        lc.animatedTexture = {
+          spritesheet: result.key,
+          frameWidth: asset.config?.frameWidth ?? 64,
+          frameHeight: asset.config?.frameHeight ?? 64,
+          frameCount: 2,
+          frameRate: 8,
+        };
+        this.bridge.getScene().refreshSprites();
+        this.showCellForm(col, row);
+      });
+    });
     this.container.querySelector('#cf-clear')?.addEventListener('click', () => {
       this.bridge.clearCell(col, row);
       this.showCellForm(col, row);
@@ -223,7 +275,8 @@ export class ContextPanel {
         <div class="form-group"><label>Target Row</label><input type="number" id="ef-trow" value="${data.targetRow ?? 0}" /></div>
         <div class="form-group"><label>Trigger Cells (${cells.length})</label>
         <div id="ef-tcells">${cells.map((c, i) => `<span style="font-size:11px">${i}: (${c.col},${c.row}) </span>`).join('')}</div>
-        <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>`;
+        <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>
+        <button class="ed-btn play" id="ef-leave" style="width:100%;margin-top:4px">Leave → ${data.targetLevel ?? '?'}</button>`;
     }
     if (entityDef.type === 'eventchainer') {
       const events = (data.eventsToRaise as Array<{event: string; delayMs: number}>) ?? [];
@@ -311,6 +364,10 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-target')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { targetLevel: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-leave')?.addEventListener('click', () => {
+      const target = (this.container.querySelector('#ef-target') as HTMLInputElement)?.value;
+      if (target) void this.bridge.loadLevel(target);
     });
     this.container.querySelector('#ef-tcol')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { targetCol: Number.parseInt((e.target as HTMLInputElement).value) });
