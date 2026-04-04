@@ -23,11 +23,13 @@ export class EditorBridge {
 
   // Editor state
   currentTool = 'select';
-  selectedCellProperty: CellProperty | null = null;
   selectedEntityType: EntityType | null = null;
   selectedEntity: Entity | null = null;
   selectedCell: { col: number; row: number } | null = null;
   selectedTexture: string | null = null;
+  editingTriggerCells: string | null = null; // entity ID whose triggerCells are being edited
+  gridProperties: Set<CellProperty> = new Set();
+  gridLayer = 0;
   isDirty = false;
   currentLevelName: string | null = null;
 
@@ -105,9 +107,8 @@ export class EditorBridge {
   redo(): void { console.log('[EditorBridge] redo() not yet implemented'); }
 
   // --- Tool selection ---
-  setTool(tool: string, property?: CellProperty): void {
+  setTool(tool: string): void {
     this.currentTool = tool;
-    this.selectedCellProperty = property ?? null;
     if (tool !== 'entity') this.selectedEntityType = null;
     if (tool !== 'texture') this.selectedTexture = null;
   }
@@ -133,6 +134,7 @@ export class EditorBridge {
   clearSelection(): void {
     this.selectedEntity = null;
     this.selectedCell = null;
+    this.editingTriggerCells = null;
     this.onSelectionCleared?.();
   }
 
@@ -144,24 +146,16 @@ export class EditorBridge {
 
   // --- Grid mutations ---
   paintCell(col: number, row: number): void {
-    this._applyMutation(`Paint ${this.currentTool} at ${col},${row}`, () => {
+    this._applyMutation(`Paint grid at ${col},${row}`, () => {
       const grid = this.getGrid();
       const cell = grid.getCell(col, row);
       if (!cell) return;
       const levelData = this.scene.getLevelData();
 
-      let newLayer = cell.layer;
-      let newProps = new Set(cell.properties);
+      const newProps = new Set(this.gridProperties);
+      const newLayer = this.gridLayer;
 
-      if (this.currentTool === 'floor') {
-        newLayer = 0;
-        newProps = new Set();
-        grid.setCell(col, row, { layer: 0, properties: new Set() });
-      } else if (this.selectedCellProperty) {
-        newProps.add(this.selectedCellProperty);
-        newLayer = (this.selectedCellProperty === 'wall' || this.selectedCellProperty === 'platform' || this.selectedCellProperty === 'stairs') ? 1 : cell.layer;
-        grid.setCell(col, row, { layer: newLayer, properties: newProps });
-      }
+      grid.setCell(col, row, { layer: newLayer, properties: newProps });
 
       // Sync to levelData.cells
       let levelCell = levelData.cells.find(c => c.col === col && c.row === row);

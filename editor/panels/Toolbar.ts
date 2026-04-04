@@ -3,18 +3,13 @@ import type { CellProperty } from '../../src/systems/grid/Grid';
 
 type LevelInfo = { name: string; width: number; height: number; theme: string };
 
-const GRID_TOOLS: Array<{ label: string; tool: string; property?: CellProperty }> = [
+const GRID_TOOLS: Array<{ label: string; tool: string }> = [
   { label: 'Select', tool: 'select' },
-  { label: 'Floor', tool: 'floor' },
-  { label: 'Wall', tool: 'wall', property: 'wall' },
-  { label: 'Platform', tool: 'platform', property: 'platform' },
-  { label: 'Stairs', tool: 'stairs', property: 'stairs' },
-  { label: 'Water', tool: 'water', property: 'water' },
-  { label: 'Bridge', tool: 'bridge', property: 'bridge' },
-  { label: 'Blocked', tool: 'blocked', property: 'blocked' },
-  { label: 'Texture', tool: 'texture' },
+  { label: 'Grid', tool: 'grid' },
   { label: 'Entity', tool: 'entity' },
 ];
+
+const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path'] as const;
 
 const ENTITY_TYPES = [
   'skeleton', 'thrower', 'stalking_robot', 'bug_base', 'bullet_dude', 'puma',
@@ -49,14 +44,48 @@ export class Toolbar {
     row2.classList.add('tool-grid');
     for (const t of GRID_TOOLS) {
       const btn = this.createButton(t.label, 'ed-btn', () => {
-        bridge.setTool(t.tool, t.property);
+        bridge.setTool(t.tool);
         this.updateActiveToolButton(t.tool);
         this.entitySelect.style.display = t.tool === 'entity' ? '' : 'none';
+        gridPanel.style.display = t.tool === 'grid' ? '' : 'none';
       });
       this.toolButtons.set(t.tool, btn);
       row2.appendChild(btn);
     }
     this.updateActiveToolButton('select');
+
+    // Grid sub-panel with property checkboxes + layer radio
+    const gridPanel = this.createRow(container);
+    gridPanel.style.display = 'none';
+    gridPanel.style.cssText += 'flex-wrap:wrap;gap:2px 8px;font-size:11px';
+    for (const p of CELL_PROPERTIES) {
+      const lbl = document.createElement('label');
+      lbl.style.cssText = 'display:flex;align-items:center;gap:2px';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.dataset.prop = p;
+      cb.addEventListener('change', () => {
+        if (cb.checked) bridge.gridProperties.add(p as CellProperty);
+        else bridge.gridProperties.delete(p as CellProperty);
+      });
+      lbl.appendChild(cb);
+      lbl.appendChild(document.createTextNode(p));
+      gridPanel.appendChild(lbl);
+    }
+    const layerSpan = document.createElement('span');
+    layerSpan.style.cssText = 'margin-left:auto;display:flex;align-items:center;gap:4px;color:#7f8c8d';
+    layerSpan.textContent = 'Layer:';
+    for (const l of [0, 1, 2]) {
+      const lbl = document.createElement('label');
+      lbl.style.cssText = 'display:flex;align-items:center;gap:1px';
+      const rb = document.createElement('input');
+      rb.type = 'radio'; rb.name = 'grid-layer'; rb.value = String(l);
+      if (l === 0) rb.checked = true;
+      rb.addEventListener('change', () => { bridge.gridLayer = l; });
+      lbl.appendChild(rb);
+      lbl.appendChild(document.createTextNode(String(l)));
+      layerSpan.appendChild(lbl);
+    }
+    gridPanel.appendChild(layerSpan);
 
     const row3 = this.createRow(container);
     this.entitySelect = document.createElement('select');

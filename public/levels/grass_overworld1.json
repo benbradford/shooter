@@ -823,7 +823,7 @@
           "scaleX": 4,
           "scaleY": 4,
           "offsetX": 23,
-          "offsetY": 0
+          "offsetY": -15
         }
       }
     },
@@ -1512,22 +1512,6 @@
       ]
     },
     {
-      "col": 8,
-      "row": 7,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 10,
-      "row": 7,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
       "col": 20,
       "row": 7,
       "layer": 0,
@@ -1590,30 +1574,6 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
-    },
-    {
-      "col": 8,
-      "row": 8,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 9,
-      "row": 8,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 10,
-      "row": 8,
-      "layer": 0,
-      "properties": [
-        "path"
       ]
     },
     {
@@ -5248,7 +5208,7 @@
         "triggerCells": [
           {
             "col": 3,
-            "row": 5
+            "row": 4
           }
         ],
         "oneShot": true

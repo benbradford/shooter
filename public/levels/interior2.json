@@ -180,7 +180,7 @@
       "data": {
         "targetLevel": "grass_overworld1",
         "targetCol": 3,
-        "targetRow": 6,
+        "targetRow": 5,
         "triggerCells": [
           {
             "col": 3,

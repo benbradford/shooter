@@ -117,6 +117,23 @@ export class CanvasInteraction {
     const cell = grid.worldToCell(p.worldX, p.worldY);
     const tool = this.bridge.currentTool;
 
+    // Trigger cell editing mode — toggle cells for the active entity
+    if (this.bridge.editingTriggerCells) {
+      if (cell.col < 0 || cell.col >= grid.width || cell.row < 0 || cell.row >= grid.height) return;
+      const levelData = this.bridge.getScene().getLevelData();
+      const entityDef = levelData.entities?.find(e => e.id === this.bridge.editingTriggerCells);
+      if (!entityDef) return;
+      const cells = (entityDef.data.triggerCells as Array<{col: number; row: number}>) ?? [];
+      const idx = cells.findIndex(c => c.col === cell.col && c.row === cell.row);
+      if (idx >= 0) cells.splice(idx, 1);
+      else cells.push({ col: cell.col, row: cell.row });
+      entityDef.data.triggerCells = cells;
+      this.bridge.isDirty = true;
+      this.bridge.onDirtyStateChanged?.(true);
+      this.renderOverlays();
+      return;
+    }
+
     if (tool === 'select') {
       this.handleSelect(p, grid, cell);
     } else if (tool === 'entity') {
@@ -266,35 +283,28 @@ export class CanvasInteraction {
     }
 
     // Data-only entity labels (triggers, exits, etc.)
+    const editingId = this.bridge.editingTriggerCells;
     for (const e of levelData.entities ?? []) {
-      if (e.type === 'trigger') {
+      if (e.type === 'trigger' || e.type === 'exit') {
         const cells = (e.data.triggerCells as Array<{col: number; row: number}>) ?? [];
+        const isEditing = e.id === editingId;
+        const color = e.type === 'trigger' ? 0xffff00 : 0x00ffff;
         for (const c of cells) {
           const rect = scene.add.rectangle(
             c.col * cellSize + cellSize / 2, c.row * cellSize + cellSize / 2,
-            cellSize, cellSize, 0xffff00, 0.2
+            cellSize, cellSize, color, isEditing ? 0.5 : 0.2
           );
+          if (isEditing) rect.setStrokeStyle(2, 0xff00ff);
           rect.setDepth(Depth.debugText - 1);
           this.highlights.push(rect);
         }
-        if (cells.length > 0) {
+        if (e.type === 'trigger' && cells.length > 0) {
           const label = scene.add.text(cells[0].col * cellSize + cellSize / 2, cells[0].row * cellSize - 10, `TR:${e.id}`, {
             fontSize: '9px', color: '#ffff00', backgroundColor: '#000000aa', padding: { x: 2, y: 1 }
           });
           label.setOrigin(0.5);
           label.setDepth(Depth.debugText);
           this.labels.push(label);
-        }
-      }
-      if (e.type === 'exit') {
-        const cells = (e.data.triggerCells as Array<{col: number; row: number}>) ?? [];
-        for (const c of cells) {
-          const rect = scene.add.rectangle(
-            c.col * cellSize + cellSize / 2, c.row * cellSize + cellSize / 2,
-            cellSize, cellSize, 0x00ffff, 0.2
-          );
-          rect.setDepth(Depth.debugText - 1);
-          this.highlights.push(rect);
         }
       }
     }

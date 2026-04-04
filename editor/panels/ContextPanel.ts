@@ -213,12 +213,17 @@ export class ContextPanel {
         <input id="ef-event" value="${data.eventToRaise ?? ''}" /></div>
         <div class="form-group"><label><input type="checkbox" id="ef-oneshot" ${data.oneShot ? 'checked' : ''} /> One Shot</label></div>
         <div class="form-group"><label>Trigger Cells (${cells.length})</label>
-        <div id="ef-tcells">${cells.map((c, i) => `<span style="font-size:11px">${i}: (${c.col},${c.row}) </span>`).join('')}</div></div>`;
+        <div id="ef-tcells">${cells.map((c, i) => `<span style="font-size:11px">${i}: (${c.col},${c.row}) </span>`).join('')}</div>
+        <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>`;
     }
     if (entityDef.type === 'exit') {
+      const cells = (data.triggerCells as Array<{col: number; row: number}>) ?? [];
       typeFields += `<div class="form-group"><label>Target Level</label><input id="ef-target" value="${data.targetLevel ?? ''}" /></div>
         <div class="form-group"><label>Target Col</label><input type="number" id="ef-tcol" value="${data.targetCol ?? 0}" /></div>
-        <div class="form-group"><label>Target Row</label><input type="number" id="ef-trow" value="${data.targetRow ?? 0}" /></div>`;
+        <div class="form-group"><label>Target Row</label><input type="number" id="ef-trow" value="${data.targetRow ?? 0}" /></div>
+        <div class="form-group"><label>Trigger Cells (${cells.length})</label>
+        <div id="ef-tcells">${cells.map((c, i) => `<span style="font-size:11px">${i}: (${c.col},${c.row}) </span>`).join('')}</div>
+        <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>`;
     }
     if (entityDef.type === 'eventchainer') {
       const events = (data.eventsToRaise as Array<{event: string; delayMs: number}>) ?? [];
@@ -296,6 +301,13 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-oneshot')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { oneShot: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ef-edit-cells')?.addEventListener('click', () => {
+      const isEditing = this.bridge.editingTriggerCells === entityId;
+      this.bridge.editingTriggerCells = isEditing ? null : entityId;
+      const btn = this.container.querySelector('#ef-edit-cells') as HTMLButtonElement;
+      btn.textContent = isEditing ? 'Edit Cells' : 'Done Editing';
+      btn.classList.toggle('save', !isEditing);
     });
     this.container.querySelector('#ef-target')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { targetLevel: (e.target as HTMLInputElement).value });

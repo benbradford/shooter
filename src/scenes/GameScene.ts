@@ -169,6 +169,18 @@ export default class GameScene extends Phaser.Scene {
 
         this.entityLoader.loadEntities(this.levelData, editorPlayer, true);
 
+        // Force all sprites visible in editor (spawn animations leave alpha/scale at 0)
+        for (const entity of this.entityManager.getAll()) {
+          const sprite = entity.get(SpriteComponent);
+          if (sprite) {
+            sprite.sprite.setAlpha(1);
+            if (sprite.sprite.scaleX === 0 || sprite.sprite.scaleY === 0) {
+              const fitScale = this.cellSize / Math.max(sprite.sprite.width, sprite.sprite.height);
+              sprite.sprite.setScale(fitScale);
+            }
+          }
+        }
+
       } catch (e) {
         console.error('[Editor] Scene init failed:', e);
         // Minimal fallback so bridge accessors don't crash
