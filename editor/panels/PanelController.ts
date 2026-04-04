@@ -22,6 +22,9 @@ export class PanelController {
     bridge.onEntityClicked = (entity) => {
       this.contextPanel.showEntityForm(entity);
     };
+    bridge.onDataEntityClicked = (entityId) => {
+      this.contextPanel.showDataEntityForm(entityId);
+    };
     bridge.onSelectionCleared = () => {
       this.contextPanel.showLevelInfo();
     };

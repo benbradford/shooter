@@ -43,6 +43,7 @@ export class EditorBridge {
   // Callbacks
   onCellClicked: ((col: number, row: number) => void) | null = null;
   onEntityClicked: ((entity: Entity) => void) | null = null;
+  onDataEntityClicked: ((entityId: string) => void) | null = null;
   onSelectionCleared: (() => void) | null = null;
   onLevelLoaded: ((levelName: string) => void) | null = null;
   onDirtyStateChanged: ((isDirty: boolean) => void) | null = null;
@@ -115,6 +116,12 @@ export class EditorBridge {
     this.selectedEntity = entity;
     this.selectedCell = null;
     this.onEntityClicked?.(entity);
+  }
+
+  selectDataEntity(entityId: string): void {
+    this.selectedEntity = null;
+    this.selectedCell = null;
+    this.onDataEntityClicked?.(entityId);
   }
 
   selectCell(col: number, row: number): void {
@@ -363,7 +370,7 @@ export class EditorBridge {
   // --- Resize ---
   resizeGrid(newWidth: number, newHeight: number): void {
     const grid = this.getGrid();
-    if (newWidth < 10 || newHeight < 10) return;
+    if (newWidth < 1 || newHeight < 1) return;
     const outOfBounds: Entity[] = [];
     for (const entity of this.getEntityManager().getAll()) {
       if (entity.id === 'player') continue;

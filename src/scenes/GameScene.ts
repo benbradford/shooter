@@ -98,9 +98,9 @@ export default class GameScene extends Phaser.Scene {
         this.entityManager.setEventManager(this.eventManager);
         this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
 
-        // Load ALL assets upfront for editor (including all background textures)
+        // Load ALL assets upfront for editor (including all background textures and enemy sprites)
         preloadAssets(this);
-        preloadAssetGroups(this, ['editor']);
+        preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables']);
         preloadLevelAssets(this, this.levelData);
         this.load.start();
         await new Promise<void>(resolve => {

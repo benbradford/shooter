@@ -71,9 +71,11 @@ The editor is **excluded from production builds** entirely.
 - **Save** — Writes directly to `public/levels/{name}.json` via dev server
 - **Play** — Opens game in new tab at current level
 - **New** — Create new level (name, dimensions, theme)
-- **Tool buttons** — Select, Floor, Wall, Platform, Stairs, Water, Bridge, Blocked, Texture, Entity, Move
+- **Tool buttons** — Select, Floor, Wall, Platform, Stairs, Water, Bridge, Blocked, Texture, Entity
 - **Entity dropdown** — Visible when Entity tool active; choose type to place
 - **Theme dropdown** — Switch level theme instantly
+
+All dropdowns auto-blur after selection so WASD camera movement works immediately.
 
 ### Editing Cells
 
@@ -84,6 +86,7 @@ Click a cell with the **Select** tool to open the Cell form:
 - **Layer** — Set cell layer (0 = ground, 1 = elevated)
 - **Properties** — Checkboxes for wall, platform, stairs, water, bridge, blocked
 - **Texture** — Click **Choose** to open the texture picker
+- **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields with Apply Transform button
 - **Clear Cell** — Remove all properties and texture
 
 ### Texture Picker
@@ -108,7 +111,8 @@ Spritesheet definitions: `editor/SpritesheetTextures.ts`
 
 1. Select the **Entity** tool, choose type from dropdown, click canvas to place
 2. Switch to **Select** tool, click an entity to open its property form
-3. Switch to **Move** tool, click entity then click destination
+3. **Drag to move**: Click and hold an entity in Select mode, then drag to reposition it
+4. Clicking on highlighted trigger/exit cells also selects the corresponding data entity
 
 Entity form shows all editable fields per type:
 - All: position, createOnAnyEvent, createOnAllEvents, respawnable
@@ -126,6 +130,7 @@ Entity form shows all editable fields per type:
 - **Switch levels**: Use the dropdown — warns if unsaved changes
 - **New level**: Click New → fill in name/dimensions/theme → Create
 - **Resize**: In the Level Info panel (shown when nothing selected) — Add/Remove Row/Column buttons
+- **Background settings**: Edit `background` block directly in `public/levels/{name}.json` (floor_texture, overlays, edgeDarkening, etc.) — no UI yet
 - **Save**: Ctrl+S or Save button — writes JSON directly to disk, shows toast
 
 ### Saving

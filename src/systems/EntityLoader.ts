@@ -225,6 +225,7 @@ export class EntityLoader {
         return () => {
           const triggerData = data as { eventToRaise: string; triggerCells: Array<{ col: number; row: number }>; oneShot: boolean };
           return createTriggerEntity({
+            entityId: entityDef.id,
             grid: this.grid,
             eventManager: this.eventManager,
             eventName: triggerData.eventToRaise,
@@ -239,6 +240,7 @@ export class EntityLoader {
           const eventName = `exit_${entityDef.id}`;
 
           const trigger = createTriggerEntity({
+            entityId: `${entityDef.id}_trigger`,
             grid: this.grid,
             eventManager: this.eventManager,
             eventName,

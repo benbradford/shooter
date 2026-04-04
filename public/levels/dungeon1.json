@@ -5948,9 +5948,9 @@
       "id": "exit1",
       "type": "exit",
       "data": {
-        "targetLevel": "",
-        "targetCol": 0,
-        "targetRow": 0,
+        "targetLevel": "dungeon2",
+        "targetCol": 4,
+        "targetRow": 11,
         "triggerCells": [
           {
             "col": 32,

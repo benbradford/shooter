@@ -1,5 +1,86 @@
 # Recent Changes and Updates
 
+## April 2026
+
+### Editor: Drag-to-Move Entities
+
+**Change**: Removed the Move tool button. Entities are now moved by click-and-drag in Select mode.
+
+**How it works:**
+- Click an entity in Select mode to select it
+- Keep holding and drag to reposition it cell-by-cell
+- Release to finalize position
+
+**Files Changed:**
+- `editor/CanvasInteraction.ts` — Added `dragEntityId` tracking, removed `handleMove` method and `move` tool branch
+- `editor/panels/Toolbar.ts` — Removed Move from GRID_TOOLS array
+
+### Editor: Dropdown Auto-Blur
+
+**Change**: All dropdowns (level, entity type, theme) now blur after selection so WASD camera movement works immediately.
+
+**Problem**: After selecting a level from the dropdown, the `<select>` retained focus. `isHtmlInputFocused()` returned true, blocking WASD.
+
+**Files Changed:**
+- `editor/panels/Toolbar.ts` — Added `.blur()` after change handlers for all three dropdowns
+
+### Editor: Trigger/Exit Entity ID Fix
+
+**Change**: `createTriggerEntity` now accepts an `entityId` prop instead of hardcoding `'trigger'`.
+
+**Problem**: All trigger entities (including exit-internal triggers) got ID `'trigger'`, causing editor lookups to fail with "No level data found".
+
+**Fix:**
+- Regular triggers get their actual ID (e.g., `trigger0`)
+- Exit-internal triggers get `{exitId}_trigger` (e.g., `exit1_trigger`)
+- Editor resolves `*_trigger` IDs back to parent exit entity for display and editing
+
+**Files Changed:**
+- `src/trigger/TriggerEntity.ts` — Added `entityId` to props, use it in `new Entity()`
+- `src/systems/EntityLoader.ts` — Pass `entityId` for both trigger and exit cases
+- `editor/panels/ContextPanel.ts` — Resolve `*_trigger` IDs to parent exit in `showEntityForm`
+
+### Editor: Transform Override in Cell Form
+
+**Change**: Cell form now shows transform override fields (scaleX, scaleY, offsetX, offsetY) when a texture is set.
+
+**Files Changed:**
+- `editor/panels/ContextPanel.ts` — Read transform from `levelData.cells`, show fields, wire Apply Transform button
+
+### Editor: Data Entity Selection via Trigger Cells
+
+**Change**: Clicking on highlighted trigger/exit cells now selects the corresponding data entity and opens its property form.
+
+**Files Changed:**
+- `editor/CanvasInteraction.ts` — Check `triggerCells` in `handleSelect` when no sprite entity hit
+- `editor/EditorBridge.ts` — Added `selectDataEntity` method and `onDataEntityClicked` callback
+- `editor/panels/PanelController.ts` — Wire `onDataEntityClicked` to `showDataEntityForm`
+- `editor/panels/ContextPanel.ts` — Added `showDataEntityForm` using fake entity shell
+
+### Editor: Entity Hit Detection Fix
+
+**Change**: Entity selection uses transform position + cell-size hit area instead of sprite bounds.
+
+**Problem**: Bug bases (and other entities with spawn animations) had zero-scale sprites in editor mode, making `getBounds()` return empty rects.
+
+**Files Changed:**
+- `editor/CanvasInteraction.ts` — Use `TransformComponent` position with `halfCell` distance check
+
+### Editor: Grid Resize Minimum Reduced
+
+**Change**: Grid can now be resized down to 1×1 (was 10×10).
+
+**Files Changed:**
+- `editor/panels/ContextPanel.ts` — Changed minimum from 10 to 1
+- `editor/EditorBridge.ts` — Changed minimum from 10 to 1
+
+### Editor: All Enemy Assets Loaded
+
+**Change**: Editor now preloads all enemy asset groups so entity sprites render and can be clicked.
+
+**Files Changed:**
+- `src/scenes/GameScene.ts` — Added all enemy groups to editor preload
+
 ## March 2026
 
 ### HUD Button Visual Overhaul

@@ -5,6 +5,7 @@ import type { Grid } from '../systems/grid/Grid';
 import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
 
 export type CreateTriggerEntityProps = {
+  entityId: string;
   eventName: string;
   triggerCells: Array<{ col: number; row: number }>;
   grid: Grid;
@@ -13,7 +14,7 @@ export type CreateTriggerEntityProps = {
 }
 
 export function createTriggerEntity(props: CreateTriggerEntityProps): Entity {
-  const entity = new Entity('trigger');
+  const entity = new Entity(props.entityId);
   
   // Position at first trigger cell (for editor visualization)
   const firstCell = props.triggerCells[0];

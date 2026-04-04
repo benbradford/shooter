@@ -1,5 +1,4 @@
 import type { EditorBridge } from '../EditorBridge';
-import type { Entity } from '../../src/ecs/Entity';
 import { TexturePicker } from './TexturePicker';
 import type { PickResult } from './TexturePicker';
 import { ASSET_REGISTRY } from '../../src/assets/AssetRegistry';
@@ -37,8 +36,8 @@ export class ContextPanel {
     `;
     this.container.querySelector('#ri-add-col')?.addEventListener('click', () => { this.bridge.resizeGrid(grid.width + 1, grid.height); this.showLevelInfo(); });
     this.container.querySelector('#ri-add-row')?.addEventListener('click', () => { this.bridge.resizeGrid(grid.width, grid.height + 1); this.showLevelInfo(); });
-    this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => { if (grid.width > 10) { this.bridge.resizeGrid(grid.width - 1, grid.height); this.showLevelInfo(); } });
-    this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => { if (grid.height > 10) { this.bridge.resizeGrid(grid.width, grid.height - 1); this.showLevelInfo(); } });
+    this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => { if (grid.width > 1) { this.bridge.resizeGrid(grid.width - 1, grid.height); this.showLevelInfo(); } });
+    this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => { if (grid.height > 1) { this.bridge.resizeGrid(grid.width, grid.height - 1); this.showLevelInfo(); } });
   }
 
   showCellForm(col: number, row: number): void {
@@ -167,13 +166,28 @@ export class ContextPanel {
     });
   }
 
-  showEntityForm(entity: Entity): void {
+  showDataEntityForm(entityId: string): void {
     const levelData = this.bridge.getScene().getLevelData();
-    const entityDef = levelData.entities?.find(e => e.id === entity.id);
+    const entityDef = levelData.entities?.find(e => e.id === entityId);
+    if (!entityDef) return;
+    // Render the form using a minimal fake entity shell
+    const fakeEntity = { id: entityId, tags: new Set<string>() } as import('../../src/ecs/Entity').Entity;
+    this.showEntityForm(fakeEntity);
+  }
+
+  showEntityForm(entity: import('../../src/ecs/Entity').Entity): void {
+    const levelData = this.bridge.getScene().getLevelData();
+    let entityDef = levelData.entities?.find(e => e.id === entity.id);
+    // Resolve exit's internal trigger to parent exit
+    if (!entityDef && entity.id.endsWith('_trigger')) {
+      const parentId = entity.id.replace(/_trigger$/, '');
+      entityDef = levelData.entities?.find(e => e.id === parentId);
+    }
     if (!entityDef) {
       this.container.innerHTML = `<div class="section-header">Entity: ${entity.id}</div><p>No level data found</p>`;
       return;
     }
+    const entityId = entityDef.id;
 
     const data = entityDef.data;
     let typeFields = '';
@@ -234,7 +248,7 @@ export class ContextPanel {
     }
 
     this.container.innerHTML = `
-      <div class="section-header">Entity: ${entity.id}</div>
+      <div class="section-header">Entity: ${entityId}</div>
       <div class="level-info-grid">
         <span class="label">Type</span><span>${entityDef.type}</span>
         <span class="label">Position</span><span>${data.col ?? '—'}, ${data.row ?? '—'}</span>
@@ -257,70 +271,70 @@ export class ContextPanel {
     // Wire up common fields
     this.container.querySelector('#ef-any')?.addEventListener('change', (e) => {
       const val = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean);
-      this.bridge.updateEntityMeta(entity.id, { createOnAnyEvent: val });
+      this.bridge.updateEntityMeta(entityId, { createOnAnyEvent: val });
     });
     this.container.querySelector('#ef-all')?.addEventListener('change', (e) => {
       const val = (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean);
-      this.bridge.updateEntityMeta(entity.id, { createOnAllEvents: val });
+      this.bridge.updateEntityMeta(entityId, { createOnAllEvents: val });
     });
     this.container.querySelector('#ef-respawn')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityMeta(entity.id, { respawnable: (e.target as HTMLInputElement).checked });
+      this.bridge.updateEntityMeta(entityId, { respawnable: (e.target as HTMLInputElement).checked });
     });
     this.container.querySelector('#ef-delete')?.addEventListener('click', () => {
-      this.bridge.removeEntity(entity.id);
+      this.bridge.removeEntity(entityId);
     });
 
     // Type-specific wiring
     this.container.querySelector('#ef-diff')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { difficulty: (e.target as HTMLSelectElement).value });
+      this.bridge.updateEntityData(entityId, { difficulty: (e.target as HTMLSelectElement).value });
     });
     this.container.querySelector('#ef-dir')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { startDirection: Number.parseInt((e.target as HTMLInputElement).value) });
+      this.bridge.updateEntityData(entityId, { startDirection: Number.parseInt((e.target as HTMLInputElement).value) });
     });
     this.container.querySelector('#ef-event')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { eventToRaise: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { eventToRaise: (e.target as HTMLInputElement).value });
     });
     this.container.querySelector('#ef-oneshot')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { oneShot: (e.target as HTMLInputElement).checked });
+      this.bridge.updateEntityData(entityId, { oneShot: (e.target as HTMLInputElement).checked });
     });
     this.container.querySelector('#ef-target')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { targetLevel: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { targetLevel: (e.target as HTMLInputElement).value });
     });
     this.container.querySelector('#ef-tcol')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { targetCol: Number.parseInt((e.target as HTMLInputElement).value) });
+      this.bridge.updateEntityData(entityId, { targetCol: Number.parseInt((e.target as HTMLInputElement).value) });
     });
     this.container.querySelector('#ef-trow')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { targetRow: Number.parseInt((e.target as HTMLInputElement).value) });
+      this.bridge.updateEntityData(entityId, { targetRow: Number.parseInt((e.target as HTMLInputElement).value) });
     });
     this.container.querySelector('#ef-events')?.addEventListener('change', (e) => {
-      try { this.bridge.updateEntityData(entity.id, { eventsToRaise: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
+      try { this.bridge.updateEntityData(entityId, { eventsToRaise: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
     });
     this.container.querySelector('#ef-cellmod')?.addEventListener('change', (e) => {
-      try { this.bridge.updateEntityData(entity.id, { cellsToModify: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
+      try { this.bridge.updateEntityData(entityId, { cellsToModify: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
     });
     this.container.querySelector('#ef-assets')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { assets: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { assets: (e.target as HTMLInputElement).value });
     });
     this.container.querySelector('#ef-npcdir')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { direction: (e.target as HTMLSelectElement).value });
+      this.bridge.updateEntityData(entityId, { direction: (e.target as HTMLSelectElement).value });
     });
     this.container.querySelector('#ef-npcname')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { name: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { name: (e.target as HTMLInputElement).value });
     });
     this.container.querySelector('#ef-interactions')?.addEventListener('change', (e) => {
-      try { this.bridge.updateEntityData(entity.id, { interactions: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
+      try { this.bridge.updateEntityData(entityId, { interactions: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
     });
     this.container.querySelector('#ef-btex')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { texture: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { texture: (e.target as HTMLInputElement).value });
     });
     this.container.querySelector('#ef-bhealth')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { health: Number.parseInt((e.target as HTMLInputElement).value) });
+      this.bridge.updateEntityData(entityId, { health: Number.parseInt((e.target as HTMLInputElement).value) });
     });
     this.container.querySelector('#ef-brarity')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { rarity: (e.target as HTMLSelectElement).value });
+      this.bridge.updateEntityData(entityId, { rarity: (e.target as HTMLSelectElement).value });
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entity.id, { filename: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });
     });
   }
 }

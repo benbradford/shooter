@@ -14,7 +14,6 @@ const GRID_TOOLS: Array<{ label: string; tool: string; property?: CellProperty }
   { label: 'Blocked', tool: 'blocked', property: 'blocked' },
   { label: 'Texture', tool: 'texture' },
   { label: 'Entity', tool: 'entity' },
-  { label: 'Move', tool: 'move' },
 ];
 
 const ENTITY_TYPES = [
@@ -69,6 +68,7 @@ export class Toolbar {
     }
     this.entitySelect.addEventListener('change', () => {
       bridge.selectedEntityType = this.entitySelect.value as import('../../src/systems/level/LevelLoader').EntityType;
+      this.entitySelect.blur();
     });
     row3.appendChild(this.entitySelect);
 
@@ -82,10 +82,10 @@ export class Toolbar {
       opt.value = t; opt.textContent = t;
       this.themeSelect.appendChild(opt);
     }
-    this.themeSelect.addEventListener('change', () => bridge.setTheme(this.themeSelect.value));
+    this.themeSelect.addEventListener('change', () => { bridge.setTheme(this.themeSelect.value); this.themeSelect.blur(); });
     row3.appendChild(this.themeSelect);
 
-    this.levelSelect.addEventListener('change', () => void bridge.loadLevel(this.levelSelect.value));
+    this.levelSelect.addEventListener('change', () => { void bridge.loadLevel(this.levelSelect.value); this.levelSelect.blur(); });
     void this.fetchLevels();
   }
 

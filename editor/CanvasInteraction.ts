@@ -1,6 +1,5 @@
 import type { EditorBridge } from './EditorBridge';
 import { TransformComponent } from '../src/ecs/components/core/TransformComponent';
-import { SpriteComponent } from '../src/ecs/components/core/SpriteComponent';
 import { Depth } from '../src/constants/DepthConstants';
 
 const CAMERA_SPEED_PX_PER_SEC = 400;
@@ -13,6 +12,7 @@ export class CanvasInteraction {
   private readonly keysDown = new Set<string>();
   private isDragging = false;
   private lastPaintedCell: string | null = null;
+  private dragEntityId: string | null = null;
   private readonly hoverCoords: HTMLElement;
 
   // Editor overlays
@@ -39,6 +39,7 @@ export class CanvasInteraction {
         this.bridge.endDragMutation();
         this.isDragging = false;
         this.lastPaintedCell = null;
+        this.dragEntityId = null;
       }
     });
 
@@ -109,6 +110,7 @@ export class CanvasInteraction {
       this.bridge.endDragMutation();
       this.isDragging = false;
       this.lastPaintedCell = null;
+      this.dragEntityId = null;
     }
 
     const grid = this.bridge.getGrid();
@@ -117,8 +119,6 @@ export class CanvasInteraction {
 
     if (tool === 'select') {
       this.handleSelect(p, grid, cell);
-    } else if (tool === 'move') {
-      this.handleMove(cell);
     } else if (tool === 'entity') {
       this.handleEntityPlace(cell);
     } else if (tool === 'texture') {
@@ -157,14 +157,18 @@ export class CanvasInteraction {
 
     if (cell.col < 0 || cell.col >= grid.width || cell.row < 0 || cell.row >= grid.height) return;
 
-    if (this.bridge.currentTool === 'texture' && this.bridge.selectedTexture) {
+    if (this.dragEntityId) {
+      this.bridge.moveEntity(this.dragEntityId, cell.col, cell.row);
+      this.renderOverlays();
+    } else if (this.bridge.currentTool === 'texture' && this.bridge.selectedTexture) {
       this.bridge.setCellTexture(cell.col, cell.row, this.bridge.selectedTexture);
-    } else if (this.bridge.currentTool !== 'select' && this.bridge.currentTool !== 'move' && this.bridge.currentTool !== 'entity') {
+    } else if (this.bridge.currentTool !== 'select' && this.bridge.currentTool !== 'entity') {
       this.bridge.paintCell(cell.col, cell.row);
     }
   }
 
   private onPointerUp(): void {
+    this.dragEntityId = null;
     if (this.isDragging) {
       this.bridge.endDragMutation();
       this.isDragging = false;
@@ -173,18 +177,21 @@ export class CanvasInteraction {
   }
 
   private handleSelect(p: Phaser.Input.Pointer, grid: import('../src/systems/grid/Grid').Grid, cell: { col: number; row: number }): void {
-    // Check entity hit
+    // Check entity hit using transform position + cell-size hit area
+    // (sprite bounds can be zero if spawn animation hasn't run in editor mode)
     const entityManager = this.bridge.getEntityManager();
+    const halfCell = grid.cellSize / 2;
     let hitEntity: import('../src/ecs/Entity').Entity | null = null;
     let closestDist = Infinity;
 
     for (const entity of entityManager.getAll()) {
       if (entity.id === 'player') continue;
-      const sprite = entity.get(SpriteComponent);
-      if (!sprite) continue;
-      const bounds = sprite.sprite.getBounds();
-      if (bounds.contains(p.worldX, p.worldY)) {
-        const dist = Math.hypot(p.worldX - sprite.sprite.x, p.worldY - sprite.sprite.y);
+      const transform = entity.get(TransformComponent);
+      if (!transform) continue;
+      const dx = Math.abs(p.worldX - transform.x);
+      const dy = Math.abs(p.worldY - transform.y);
+      if (dx <= halfCell && dy <= halfCell) {
+        const dist = Math.hypot(dx, dy);
         if (dist < closestDist) {
           closestDist = dist;
           hitEntity = entity;
@@ -194,19 +201,27 @@ export class CanvasInteraction {
 
     if (hitEntity) {
       this.bridge.selectEntity(hitEntity);
+      this.dragEntityId = hitEntity.id;
+      this.isDragging = true;
+      this.lastPaintedCell = `${cell.col},${cell.row}`;
     } else if (cell.col >= 0 && cell.col < grid.width && cell.row >= 0 && cell.row < grid.height) {
-      this.bridge.selectCell(cell.col, cell.row);
+      // Check if clicked cell belongs to a data-only entity (trigger/exit)
+      const levelData = this.bridge.getScene().getLevelData();
+      const dataEntity = (levelData.entities ?? []).find(e => {
+        if (e.type !== 'trigger' && e.type !== 'exit') return false;
+        const cells = (e.data.triggerCells as Array<{col: number; row: number}>) ?? [];
+        return cells.some(c => c.col === cell.col && c.row === cell.row);
+      });
+
+      if (dataEntity) {
+        this.bridge.selectDataEntity(dataEntity.id);
+      } else {
+        this.bridge.selectCell(cell.col, cell.row);
+      }
     } else {
       this.bridge.clearSelection();
     }
     this.renderOverlays();
-  }
-
-  private handleMove(cell: { col: number; row: number }): void {
-    if (this.bridge.selectedEntity) {
-      this.bridge.moveEntity(this.bridge.selectedEntity.id, cell.col, cell.row);
-      this.renderOverlays();
-    }
   }
 
   private handleEntityPlace(cell: { col: number; row: number }): void {
