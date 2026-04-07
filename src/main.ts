@@ -20,6 +20,9 @@ if (globalThis.location.search.includes('debug')) {
   };
 }
 
+const params = new URLSearchParams(globalThis.location.search);
+const startWithGame = !!params.get('level');
+
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 1280,
@@ -32,17 +35,15 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-  scene: [TitleScene, ProfileSelectScene, GameScene, HudScene, LoadingScene],
+  scene: [GameScene, HudScene, LoadingScene, TitleScene, ProfileSelectScene],
 };
 
 const game = new Phaser.Game(config);
 
-// If ?level= param is set, skip title screens and go straight to game
-const params = new URLSearchParams(globalThis.location.search);
-if (params.get('level')) {
-  game.scene.start('game');
-} else {
+// Phaser auto-starts first scene (GameScene). If no ?level=, switch to title.
+if (!startWithGame) {
   game.scene.start('title');
+  game.scene.stop('game');
 }
 if (params.get('test') === 'true') {
   (globalThis as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent; JoystickVisualsComponent: typeof JoystickVisualsComponent; AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent; GridPositionComponent: typeof GridPositionComponent; ProjectileComponent: typeof ProjectileComponent; PetAbilityComponent: typeof PetAbilityComponent }).game = game;

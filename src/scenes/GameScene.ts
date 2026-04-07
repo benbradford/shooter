@@ -247,6 +247,7 @@ export default class GameScene extends Phaser.Scene {
     if (levelParam && !GameScene.hasLoadedFromURL) {
       this.currentLevelName = levelParam;
       worldState.setCurrentLevel(levelParam);
+      worldState.clearPlayerSpawnPosition();
       GameScene.hasLoadedFromURL = true;
     } else {
       this.currentLevelName = worldState.getCurrentLevelName();

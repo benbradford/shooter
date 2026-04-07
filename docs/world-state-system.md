@@ -19,9 +19,15 @@ Press **Y** during gameplay to:
 - Log world state to console
 - Manually paste into `public/states/default.json` to persist
 
+**Auto-save**: State auto-saves on level transition and player death to the active profile file.
+
 ### Loading World State
 
-The game automatically loads `public/states/default.json` on startup if it exists.
+The game automatically loads the active profile's state file on startup. When using `?level=` param, loads `default.json`. When using the profile select screen, loads `ProfileX.json`.
+
+### Time Played
+
+The `timePlayed` field tracks real elapsed seconds. Updated on level transitions, player death, and manual save (Y key).
 
 ## Global Flags
 
@@ -132,11 +138,7 @@ Only entities from level JSON are tracked (ID pattern: `{type}{number}` like "sk
 
 ### Cell Modifications
 
-Modified cells are tracked in two ways:
-1. **cellModifierCells** - Tracks which cells were touched by cellModifiers (always saved)
-2. **modifiedCells** - Stores final cell state (properties, texture, layer)
-
-When loading, modified cells override level JSON and affected cell sprites are destroyed and recreated.
+Modified cells are tracked in `modifiedCells` — stores final cell state (properties, texture, layer). When loading, modified cells override level JSON and affected cell sprites are destroyed and recreated.
 
 ### Coin Collection
 
@@ -168,10 +170,6 @@ When bug bases are destroyed:
 **On trigger fire:**
 - Add to `firedTriggers`
 
-**On cellModifier execution:**
-- Add modified cells to `cellModifierCells`
-- Ensures cells are saved even if they look the same as original
-
 **On coin collection:**
 - Coin flies to HUD counter
 - Adds 1 to player coins when reaching HUD
@@ -195,7 +193,7 @@ When bug bases are destroyed:
 - `src/systems/EntityCreatorManager.ts` - Track liveEntities on spawn
 - `src/ecs/Entity.ts` - Track destroyedEntities on destroy
 - `src/ecs/components/core/TriggerComponent.ts` - Track firedTriggers
-- `src/ecs/components/core/CellModifierComponent.ts` - Track cellModifierCells
+- `src/ecs/components/core/CellModifierComponent.ts` - Track modifiedCells
 - `src/ecs/components/pickup/CoinComponent.ts` - Add coins when collected
 - `src/ecs/components/ui/CoinCounterComponent.ts` - Display coin count
 - `src/ecs/components/visual/BaseExplosionComponent.ts` - Create exhausted entities

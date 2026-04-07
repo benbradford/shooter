@@ -5815,15 +5815,6 @@
       ]
     },
     {
-      "id": "thrower0",
-      "type": "thrower",
-      "data": {
-        "col": 11,
-        "row": 21,
-        "difficulty": "medium"
-      }
-    },
-    {
       "id": "trigger0",
       "type": "trigger",
       "data": {
