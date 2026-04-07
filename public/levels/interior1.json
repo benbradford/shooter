@@ -151,7 +151,7 @@
       ]
     },
     {
-      "col": 5,
+      "col": 2,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -159,7 +159,7 @@
       ]
     },
     {
-      "col": 6,
+      "col": 3,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -176,7 +176,7 @@
       }
     },
     {
-      "col": 7,
+      "col": 4,
       "row": 2,
       "layer": 0,
       "properties": [
@@ -343,7 +343,7 @@
       "id": "breakable0",
       "type": "breakable",
       "data": {
-        "col": 2,
+        "col": 7,
         "row": 2,
         "texture": "dungeon_vase",
         "health": 1,
@@ -354,7 +354,7 @@
       "id": "breakable1",
       "type": "breakable",
       "data": {
-        "col": 3,
+        "col": 8,
         "row": 2,
         "texture": "dungeon_vase",
         "health": 1,
@@ -365,7 +365,7 @@
       "id": "breakable2",
       "type": "breakable",
       "data": {
-        "col": 4,
+        "col": 6,
         "row": 2,
         "texture": "dungeon_vase",
         "health": 1,
@@ -377,7 +377,7 @@
       "type": "breakable",
       "data": {
         "col": 2,
-        "row": 3,
+        "row": 5,
         "texture": "dungeon_vase",
         "health": 1,
         "rarity": "rare"
@@ -388,7 +388,7 @@
       "type": "breakable",
       "data": {
         "col": 3,
-        "row": 3,
+        "row": 5,
         "texture": "dungeon_vase",
         "health": 1,
         "rarity": "epic"
@@ -399,7 +399,7 @@
       "type": "breakable",
       "data": {
         "col": 4,
-        "row": 3,
+        "row": 5,
         "texture": "dungeon_vase",
         "health": 1,
         "rarity": "rare"
@@ -466,10 +466,6 @@
         "targetRow": 20,
         "triggerCells": [
           {
-            "col": 2,
-            "row": 8
-          },
-          {
             "col": 3,
             "row": 7
           },
@@ -511,6 +507,10 @@
           },
           {
             "col": 13,
+            "row": 7
+          },
+          {
+            "col": 2,
             "row": 7
           }
         ],

@@ -139,8 +139,8 @@ export class CanvasInteraction {
       return;
     }
 
-    if (tool === 'select' || tool === 'level') {
-      if (tool === 'level') this.bridge.setTool('select');
+    if (tool === 'select' || tool === 'level' || tool === 'state') {
+      if (tool !== 'select') this.bridge.setTool('select');
       this.handleSelect(p, grid, cell);
     } else if (tool === 'entity') {
       this.handleEntityPlace(cell);

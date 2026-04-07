@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 35,
-    "y": 6
+    "x": 6,
+    "y": 9
   },
   "cells": [
     {

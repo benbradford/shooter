@@ -19,7 +19,7 @@ const MAX_HISTORY = 50;
 export class EditorBridge {
   private static instance: EditorBridge;
   private scene!: GameScene;
-  private toast!: Toast;
+  toast!: Toast;
 
   // Editor state
   currentTool = 'select';

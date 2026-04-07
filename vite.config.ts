@@ -35,6 +35,21 @@ function saveLevelPlugin(): Plugin {
         });
       });
 
+      server.middlewares.use('/api/save-state', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        let body = '';
+        req.on('data', (chunk: string) => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const filePath = path.resolve('public/states/default.json');
+            fs.writeFileSync(filePath, body, 'utf-8');
+            console.log('✓ Saved state: public/states/default.json');
+            res.statusCode = 200;
+            res.end('OK');
+          } catch (error) { res.statusCode = 500; res.end(String(error)); }
+        });
+      });
+
       server.middlewares.use('/api/levels', (_req, res) => {
         try {
           const levelsDir = path.resolve('public/levels');

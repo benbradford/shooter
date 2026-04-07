@@ -50,6 +50,15 @@ export class Toolbar {
     });
     this.toolButtons.set('level', levelBtn);
     row2.appendChild(levelBtn);
+    const stateBtn = this.createButton('State', 'ed-btn', () => {
+      bridge.setTool('state');
+      bridge.clearSelection();
+      this.updateActiveToolButton('state');
+      this.entitySelect.style.display = 'none';
+      gridPanel.style.display = 'none';
+    });
+    this.toolButtons.set('state', stateBtn);
+    row2.appendChild(stateBtn);
     for (const t of GRID_TOOLS) {
       const btn = this.createButton(t.label, 'ed-btn', () => {
         bridge.setTool(t.tool);

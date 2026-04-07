@@ -28,12 +28,15 @@ export class PanelController {
     bridge.onSelectionCleared = () => {
       if (bridge.currentTool === 'level') {
         this.contextPanel.showLevelInfo();
+      } else if (bridge.currentTool === 'state') {
+        void this.contextPanel.showStatePanel();
       } else {
         this.contextPanel.clear();
       }
     };
     bridge.onLevelLoaded = (levelName) => {
       this.toolbar.onLevelLoaded(levelName);
+      localStorage.setItem('editor_lastLevel', levelName);
       this.contextPanel.showLevelInfo();
     };
     bridge.onDirtyStateChanged = (isDirty) => {

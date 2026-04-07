@@ -274,6 +274,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/water2.png',
     type: 'image' as const
   },
+   murky_water: {
+    key: 'murky_water',
+    path: 'assets/cell_drawables/murky_water.png',
+    type: 'image' as const
+  },
   water_splash: {
     key: 'water_splash',
     path: 'assets/cell_drawables/water_splash.png',

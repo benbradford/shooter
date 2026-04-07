@@ -15,6 +15,65 @@ export class ContextPanel {
     this.container.innerHTML = '';
   }
 
+  async showStatePanel(): Promise<void> {
+    let state: { player: { health: number; coins: number }; flags: Record<string, string> };
+    try {
+      const res = await fetch('/states/default.json');
+      state = await res.json() as typeof state;
+    } catch {
+      this.container.innerHTML = '<p>No default.json found</p>';
+      return;
+    }
+
+    const flagEntries = Object.entries(state.flags ?? {});
+    this.container.innerHTML = `
+      <div class="section-header">Player</div>
+      <div class="form-group"><label>Health</label><input type="number" id="st-health" value="${state.player.health}" /></div>
+      <div class="form-group"><label>Coins</label><input type="number" id="st-coins" value="${state.player.coins}" /></div>
+      <div class="section-header" style="margin-top:8px">Flags</div>
+      <div id="st-flags">
+        ${flagEntries.map(([k, v]) => `<div class="form-group" style="display:flex;gap:4px;align-items:center">
+          <input class="st-fkey" value="${k}" style="flex:1" /><input class="st-fval" value="${v}" style="flex:1" />
+          <button class="ed-btn danger st-fdel" style="padding:2px 6px">✕</button>
+        </div>`).join('')}
+      </div>
+      <button class="ed-btn" id="st-add-flag" style="width:100%;margin-bottom:8px">+ Add Flag</button>
+      <button class="ed-btn save" id="st-save" style="width:100%">Save State</button>
+    `;
+
+    for (const input of this.container.querySelectorAll('input')) {
+      input.addEventListener('keydown', e => e.stopPropagation());
+    }
+
+    this.container.querySelector('#st-add-flag')?.addEventListener('click', () => {
+      const flagsDiv = this.container.querySelector('#st-flags')!;
+      const row = document.createElement('div');
+      row.className = 'form-group';
+      row.style.cssText = 'display:flex;gap:4px;align-items:center';
+      row.innerHTML = `<input class="st-fkey" value="" style="flex:1" placeholder="key" /><input class="st-fval" value="" style="flex:1" placeholder="value" /><button class="ed-btn danger st-fdel" style="padding:2px 6px">✕</button>`;
+      for (const input of row.querySelectorAll('input')) input.addEventListener('keydown', e => e.stopPropagation());
+      row.querySelector('.st-fdel')!.addEventListener('click', () => row.remove());
+      flagsDiv.appendChild(row);
+    });
+
+    for (const btn of this.container.querySelectorAll('.st-fdel')) {
+      btn.addEventListener('click', () => btn.parentElement!.remove());
+    }
+
+    this.container.querySelector('#st-save')?.addEventListener('click', async () => {
+      state.player.health = Number.parseInt((this.container.querySelector('#st-health') as HTMLInputElement).value);
+      state.player.coins = Number.parseInt((this.container.querySelector('#st-coins') as HTMLInputElement).value);
+      const keys = this.container.querySelectorAll<HTMLInputElement>('.st-fkey');
+      const vals = this.container.querySelectorAll<HTMLInputElement>('.st-fval');
+      state.flags = {};
+      keys.forEach((k, i) => { if (k.value.trim()) state.flags[k.value.trim()] = vals[i].value; });
+      try {
+        await fetch('/api/save-state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state, null, 2) });
+        this.bridge.toast?.show('State saved', 'success');
+      } catch (err) { this.bridge.toast?.show(`Save failed: ${err}`, 'error'); }
+    });
+  }
+
   showLevelInfo(): void {
     const scene = this.bridge.getScene?.();
     if (!scene) { this.container.innerHTML = '<p>Loading...</p>'; return; }
@@ -28,7 +87,7 @@ export class ContextPanel {
         <span class="label">Size</span><span>${grid.width} x ${grid.height}</span>
         <span class="label">Theme</span><select id="li-theme" style="font-size:11px">${['dungeon', 'swamp', 'grass', 'wilds', 'default'].map(t => `<option ${(levelData.levelTheme ?? 'dungeon') === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
         <span class="label">Entities</span><span>${entityCount}</span>
-        <span class="label">Player</span><span>${levelData.playerStart.x}, ${levelData.playerStart.y}</span>
+        <span class="label">Player</span><span style="display:flex;gap:4px"><input type="number" id="li-px" value="${levelData.playerStart.x}" style="width:50px;font-size:11px"> <input type="number" id="li-py" value="${levelData.playerStart.y}" style="width:50px;font-size:11px"></span>
       </div>
       <div class="section-header" style="margin-top:12px">Resize</div>
       <div class="toolbar-row">
@@ -53,6 +112,19 @@ export class ContextPanel {
     this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => { if (grid.width > 1) { this.bridge.resizeGrid(grid.width - 1, grid.height); this.showLevelInfo(); } });
     this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => { if (grid.height > 1) { this.bridge.resizeGrid(grid.width, grid.height - 1); this.showLevelInfo(); } });
     this.container.querySelector('#li-theme')?.addEventListener('change', (e) => { this.bridge.setTheme((e.target as HTMLSelectElement).value); (e.target as HTMLSelectElement).blur(); });
+    const updatePlayerStart = () => {
+      const px = Number.parseInt((this.container.querySelector('#li-px') as HTMLInputElement).value);
+      const py = Number.parseInt((this.container.querySelector('#li-py') as HTMLInputElement).value);
+      if (!Number.isNaN(px) && !Number.isNaN(py)) {
+        levelData.playerStart = { x: px, y: py };
+        this.bridge.movePlayer(px, py);
+      }
+    };
+    this.container.querySelector('#li-px')?.addEventListener('change', updatePlayerStart);
+    this.container.querySelector('#li-py')?.addEventListener('change', updatePlayerStart);
+    for (const input of this.container.querySelectorAll('input')) {
+      input.addEventListener('keydown', e => e.stopPropagation());
+    }
 
     for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.de-item')) {
       btn.addEventListener('click', () => this.showDataEntityForm(btn.dataset.id!));

@@ -6,9 +6,9 @@ import { CanvasInteraction } from './CanvasInteraction';
 
 const DEFAULT_LEVEL = 'grass_overworld1';
 
-// Get level from URL params
+// Get level from URL params, then localStorage, then default
 const params = new URLSearchParams(globalThis.location.search);
-const startLevel = params.get('level') ?? DEFAULT_LEVEL;
+const startLevel = params.get('level') ?? localStorage.getItem('editor_lastLevel') ?? DEFAULT_LEVEL;
 
 const bridge = EditorBridge.getInstance();
 bridge.currentLevelName = startLevel;
@@ -31,6 +31,19 @@ const game = new Phaser.Game({
 });
 
 game.events.once('ready', () => {
+  // Resizable divider
+  const divider = document.getElementById('divider')!;
+  const panel = document.getElementById('panel-container')!;
+  let isDragging = false;
+  divider.addEventListener('mousedown', () => { isDragging = true; divider.classList.add('active'); });
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const newWidth = window.innerWidth - e.clientX;
+    panel.style.flex = 'none';
+    panel.style.width = `${Math.max(200, Math.min(600, newWidth))}px`;
+  });
+  window.addEventListener('mouseup', () => { isDragging = false; divider.classList.remove('active'); });
+
   const panelController = new PanelController(bridge);
   const canvasContainer = document.getElementById('canvas-container')!;
   const canvasInteraction = new CanvasInteraction(bridge, canvasContainer);
