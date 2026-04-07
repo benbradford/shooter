@@ -9,7 +9,8 @@ import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
-import { CAN_SUBMERGE } from '../../../constants/GameConstants';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
+
 
 export class GridCollisionComponent implements Component {
   entity!: Entity;
@@ -71,8 +72,9 @@ export class GridCollisionComponent implements Component {
       return false;
     }
 
-    // Block movement into water
-    if (!CAN_SUBMERGE && toCell.properties.has('water')) {
+    // Block movement into water if player can't swim
+    const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
+    if (!canSwim && toCell.properties.has('water')) {
       return false;
     }
 

@@ -36,7 +36,7 @@ import { PlayerDeathState } from './PlayerDeathState';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
-import { CAN_SUBMERGE, SPRITE_SCALE } from '../../../constants/GameConstants';
+import { SPRITE_SCALE } from '../../../constants/GameConstants';
 
 const PLAYER_SCALE = 2 * SPRITE_SCALE;
 const PLAYER_SPRITE_FRAME = 0;
@@ -234,9 +234,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   }));
 
 
-  if (CAN_SUBMERGE) {
-    entity.add(new WaterEffectComponent(scene));
-  }
+  entity.add(new WaterEffectComponent(scene));
 
   entity.add(new WaterRippleComponent(scene, grid));
   entity.add(new InteractionComponent(grid));
@@ -261,7 +259,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     AttackComboComponent,
     AnimationComponent,
     WaterRippleComponent,
-    ...(CAN_SUBMERGE ? [WaterEffectComponent] : []),
+    WaterEffectComponent,
   ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);
