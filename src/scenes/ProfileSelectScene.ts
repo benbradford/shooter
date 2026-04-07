@@ -1,5 +1,14 @@
 import Phaser from 'phaser';
 
+const SLOT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
+  fontSize: '24px', color: '#aaaaaa', fontFamily: 'sans-serif',
+  backgroundColor: '#00000088', padding: { x: 40, y: 12 },
+};
+const BTN_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
+  fontSize: '20px', color: '#aaaaaa', fontFamily: 'sans-serif',
+  backgroundColor: '#00000088', padding: { x: 20, y: 8 },
+};
+
 export default class ProfileSelectScene extends Phaser.Scene {
   constructor() {
     super('profile_select');
@@ -9,19 +18,23 @@ export default class ProfileSelectScene extends Phaser.Scene {
     this.load.image('profile_select_bg', 'assets/concept/profile_select.png');
   }
 
-  async create(): Promise<void> {
+  create(): void {
+    void this.buildUI();
+  }
+
+  private async buildUI(): Promise<void> {
+    this.children.removeAll(true);
     const { width, height } = this.cameras.main;
     const bg = this.add.image(width / 2, height / 2, 'profile_select_bg');
     bg.setDisplaySize(width, height);
 
     this.cameras.main.fadeIn(500);
 
-    // Check which profiles exist
     let existing: string[] = [];
     try {
       const res = await fetch('/api/profiles');
       existing = await res.json() as string[];
-    } catch { /* dev server may not be ready */ }
+    } catch { /* */ }
 
     const existingSet = new Set(existing);
     const slotY = [height * 0.35, height * 0.5, height * 0.65];
@@ -45,32 +58,82 @@ export default class ProfileSelectScene extends Phaser.Scene {
         }
       }
 
-      const slot = this.add.text(width / 2, slotY[i], label, {
-        fontSize: '24px', color: '#aaaaaa', fontFamily: 'sans-serif',
-        backgroundColor: '#00000088', padding: { x: 40, y: 12 },
-      });
+      const slot = this.add.text(width / 2, slotY[i], label, SLOT_STYLE);
       slot.setOrigin(0.5);
       slot.setInteractive({ useHandCursor: true });
       slot.on('pointerover', () => slot.setColor('#ffffff'));
       slot.on('pointerout', () => slot.setColor('#aaaaaa'));
       slot.on('pointerdown', () => {
-        this.input.removeAllListeners();
-        this.launchProfile(profileName, hasProfile);
+        if (hasProfile) {
+          this.showPlayDeleteMenu(profileName, slotY[i]);
+        } else {
+          this.launchProfile(profileName, false);
+        }
       });
     }
   }
 
-  private async launchProfile(profileName: string, exists: boolean): Promise<void> {
-    if (!exists) {
-      try {
-        await fetch('/api/create-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: profileName })
-        });
-      } catch { /* will fall back to empty state */ }
+  private showPlayDeleteMenu(profileName: string, y: number): void {
+    // Disable all slot interactions
+    this.input.removeAllListeners();
+    for (const child of this.children.getAll()) {
+      (child as Phaser.GameObjects.Text).removeInteractive?.();
     }
 
+    const { width } = this.cameras.main;
+    const overlay = this.add.rectangle(width / 2, y, 400, 50, 0x000000, 0.7);
+
+    const playBtn = this.add.text(width / 2 - 60, y, 'Play', BTN_STYLE);
+    playBtn.setOrigin(0.5);
+    playBtn.setInteractive({ useHandCursor: true });
+    playBtn.on('pointerover', () => playBtn.setColor('#00ff00'));
+    playBtn.on('pointerout', () => playBtn.setColor('#aaaaaa'));
+    playBtn.on('pointerdown', () => this.launchProfile(profileName, true));
+
+    const deleteBtn = this.add.text(width / 2 + 60, y, 'Delete', BTN_STYLE);
+    deleteBtn.setOrigin(0.5);
+    deleteBtn.setInteractive({ useHandCursor: true });
+    deleteBtn.on('pointerover', () => deleteBtn.setColor('#ff4444'));
+    deleteBtn.on('pointerout', () => deleteBtn.setColor('#aaaaaa'));
+    deleteBtn.on('pointerdown', () => {
+      overlay.destroy(); playBtn.destroy(); deleteBtn.destroy();
+      this.showConfirmDelete(profileName, y);
+    });
+  }
+
+  private showConfirmDelete(profileName: string, y: number): void {
+    const { width } = this.cameras.main;
+    const prompt = this.add.text(width / 2, y - 20, 'Are you sure?', { fontSize: '20px', color: '#ff4444', fontFamily: 'sans-serif' });
+    prompt.setOrigin(0.5);
+
+    const yesBtn = this.add.text(width / 2 - 50, y + 15, 'Yes', BTN_STYLE);
+    yesBtn.setOrigin(0.5);
+    yesBtn.setInteractive({ useHandCursor: true });
+    yesBtn.on('pointerover', () => yesBtn.setColor('#ff4444'));
+    yesBtn.on('pointerout', () => yesBtn.setColor('#aaaaaa'));
+    yesBtn.on('pointerdown', () => {
+      void fetch('/api/delete-profile', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: profileName })
+      }).then(() => void this.buildUI());
+    });
+
+    const noBtn = this.add.text(width / 2 + 50, y + 15, 'No', BTN_STYLE);
+    noBtn.setOrigin(0.5);
+    noBtn.setInteractive({ useHandCursor: true });
+    noBtn.on('pointerover', () => noBtn.setColor('#ffffff'));
+    noBtn.on('pointerout', () => noBtn.setColor('#aaaaaa'));
+    noBtn.on('pointerdown', () => void this.buildUI());
+  }
+
+  private launchProfile(profileName: string, exists: boolean): void {
+    this.input.removeAllListeners();
+    if (!exists) {
+      void fetch('/api/create-profile', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: profileName })
+      });
+    }
     this.cameras.main.fadeOut(500);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('game', { profileName });

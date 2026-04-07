@@ -182,6 +182,46 @@
 **Files Changed:**
 - `src/systems/SceneOverlays.ts` — Added geometry mask covering grid area
 
+### cellModifierCells Removal
+
+**Change**: Removed redundant `cellModifierCells` from world state. `modifiedCells` alone is sufficient — cells that actually changed get saved, cells that didn't don't need saving.
+
+**Files Changed:**
+- `src/systems/WorldState.ts` — Removed `cellModifierCells` from types
+- `src/systems/WorldStateManager.ts` — Removed `addCellModifierCells`, simplified `updateModifiedCells`
+- `src/ecs/components/core/CellModifierComponent.ts` — Removed tracking call
+
+### Title Screen and Profile System
+
+**Change**: Game now starts with a title screen → profile select → game flow (unless `?level=` is specified).
+
+**Features:**
+- Title screen with "Touch To Start" flashing text
+- 3 profile slots showing time played (HH:MM:SS) or "Empty"
+- New profiles created from `empty.json` template
+- Existing profiles show Play/Delete options with confirmation
+- `timePlayed` field tracks real elapsed seconds, updated on level transitions and death
+- State auto-saves on level transition and player death
+
+**Files Created:**
+- `src/scenes/TitleScene.ts`, `src/scenes/ProfileSelectScene.ts`
+- `public/states/empty.json`
+
+**Files Changed:**
+- `src/main.ts` — Route to title or game based on `?level=` param
+- `src/systems/WorldState.ts` — Added `timePlayed` field
+- `src/systems/WorldStateManager.ts` — Profile-aware load/save, time tracking
+- `src/scenes/GameScene.ts` — Read profileName, auto-save on transition
+- `src/ecs/entities/player/PlayerDeathState.ts` — Auto-save on death
+- `vite.config.ts` — Added profiles, create-profile, delete-profile API endpoints
+
+### Health Regen While Moving
+
+**Change**: Health regen timer accumulates at 0.3× speed while moving (vs 1× while still). Previously regen was completely blocked while moving.
+
+**Files Changed:**
+- `src/ecs/components/core/HealthComponent.ts` — Timer rate based on movement state
+
 ## March 2026
 
 ### HUD Button Visual Overhaul

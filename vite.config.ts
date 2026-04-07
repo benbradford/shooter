@@ -84,6 +84,23 @@ function saveLevelPlugin(): Plugin {
         });
       });
 
+      server.middlewares.use('/api/delete-profile', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        let body = '';
+        req.on('data', (chunk: string) => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const { name } = JSON.parse(body) as { name: string };
+            const filePath = path.resolve('public/states', `${name}.json`);
+            if (!filePath.startsWith(path.resolve('public/states'))) { res.statusCode = 400; res.end('Invalid'); return; }
+            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            console.log(`✓ Deleted profile: ${name}.json`);
+            res.statusCode = 200;
+            res.end('OK');
+          } catch (error) { res.statusCode = 500; res.end(String(error)); }
+        });
+      });
+
       server.middlewares.use('/api/levels', (_req, res) => {
         try {
           const levelsDir = path.resolve('public/levels');

@@ -1,23 +1,22 @@
 {
+  "timePlayed": 59.83,
   "player": {
     "health": 100,
-    "coins": 0,
-    "currentLevel": "grass_overworld1",
+    "coins": 6,
+    "currentLevel": "dungeon1",
     "entryCell": {
-      "col": 35,
-      "row": 6
+      "col": 13,
+      "row": 26
     },
-    "spawnCol": 35,
-    "spawnRow": 6
+    "spawnCol": 13,
+    "spawnRow": 26
   },
   "flags": {},
   "levels": {
     "house3_interior": {
       "liveEntities": [],
       "destroyedEntities": [],
-      "firedTriggers": [
-        "exit_exit5"
-      ],
+      "firedTriggers": [],
       "modifiedCells": [
         {
           "col": 5,
@@ -90,9 +89,7 @@
     "grass_overworld1": {
       "liveEntities": [],
       "destroyedEntities": [],
-      "firedTriggers": [
-        "exit_exit1"
-      ],
+      "firedTriggers": [],
       "modifiedCells": [
         {
           "col": 3,
@@ -151,7 +148,29 @@
           "backgroundTexture": "house2"
         }
       ]
+    },
+    "dungeon1": {
+      "liveEntities": [
+        "skeleton4"
+      ],
+      "destroyedEntities": [
+        "skeleton6",
+        "breakable18",
+        "breakable8",
+        "breakable13",
+        "breakable9",
+        "breakable12",
+        "trigger0",
+        "skeleton0",
+        "skeleton1",
+        "skeleton2",
+        "skeleton3"
+      ],
+      "firedTriggers": [
+        "exit_exit0",
+        "hidden"
+      ],
+      "modifiedCells": []
     }
-  },
-  "timePlayed": 16.868999999999996
+  }
 }

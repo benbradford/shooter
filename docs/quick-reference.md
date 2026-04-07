@@ -168,7 +168,7 @@ Use `canPlayerHitEnemy()` for player attacks across layers:
 
 ## Health Regeneration
 
-Player only: After 3 seconds without damage, regens at 20 HP/sec.
+Player only: After 3 seconds without damage, regens at 20 HP/sec. Regen timer accumulates at 0.3× speed while moving, 1× while still.
 
 ## Hit Flash Effect
 
