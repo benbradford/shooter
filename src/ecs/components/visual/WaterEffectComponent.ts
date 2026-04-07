@@ -22,7 +22,7 @@ export class WaterEffectComponent implements Component {
   private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
   private swimmingSplashTimerMs: number = 0;
 
-  constructor(private readonly scene: Phaser.Scene) {}
+  constructor(private readonly scene: Phaser.Scene, private readonly splashTextureKey: string = 'water_splash') {}
 
   getIsInWater(): boolean {
     return this.isInWater && this.hopProgress >= 1;
@@ -259,7 +259,7 @@ export class WaterEffectComponent implements Component {
   }
 
   private createSplashEffect(x: number, y: number, isSwimming: boolean): void {
-    const emitter = this.scene.add.particles(x, y, 'water_splash', {
+    const emitter = this.scene.add.particles(x, y, this.splashTextureKey, {
       speed: isSwimming ? { min: 30, max: 60 } : { min: 50, max: 100 },
       angle: { min: 0, max: -180 },
       scale: isSwimming ? { start: 0.09, end: 0 } : { start: 0.15, end: 0 },

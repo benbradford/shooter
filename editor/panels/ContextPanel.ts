@@ -16,16 +16,66 @@ export class ContextPanel {
   }
 
   async showStatePanel(): Promise<void> {
-    let state: { player: { health: number; coins: number }; flags: Record<string, string> };
+    type FullState = {
+      player: { health: number; coins: number; currentLevel?: string; spawnCol?: number; spawnRow?: number; entryCell?: { col: number; row: number } };
+      flags: Record<string, string>;
+      levels?: Record<string, {
+        liveEntities: string[];
+        destroyedEntities: string[];
+        firedTriggers: string[];
+        modifiedCells: Array<{ col: number; row: number; properties?: string[]; backgroundTexture?: string; layer?: number }>;
+      }>;
+    };
+    let state: FullState;
     try {
       const res = await fetch('/states/default.json');
-      state = await res.json() as typeof state;
+      state = await res.json() as FullState;
     } catch {
       this.container.innerHTML = '<p>No default.json found</p>';
       return;
     }
 
+    // Populate levels from available level files so all are editable
+    try {
+      const levelsRes = await fetch('/api/levels');
+      const levels = await levelsRes.json() as Array<{ name: string }>;
+      state.levels ??= {};
+      for (const l of levels) {
+        if (!state.levels[l.name]) {
+          state.levels[l.name] = { liveEntities: [], destroyedEntities: [], firedTriggers: [], modifiedCells: [] };
+        }
+      }
+    } catch { /* levels API not available */ }
+
     const flagEntries = Object.entries(state.flags ?? {});
+    const levelEntries = Object.entries(state.levels ?? {});
+
+    const renderStringList = (items: string[], cls: string): string =>
+      items.map(v => `<div class="st-list-item"><input class="${cls}" value="${v}" /><button class="ed-btn danger st-ldel" style="padding:1px 5px;font-size:10px">✕</button></div>`).join('');
+
+    const renderLevelSection = (levelName: string, data: NonNullable<FullState['levels']>[string]): string => {
+      const fields = [
+        { key: 'liveEntities', label: 'Live Entities', items: data.liveEntities },
+        { key: 'destroyedEntities', label: 'Destroyed Entities', items: data.destroyedEntities },
+        { key: 'firedTriggers', label: 'Fired Triggers', items: data.firedTriggers },
+      ];
+      return `
+        <div class="collapsible-header section-header" data-target="lvl-${levelName}">${levelName}</div>
+        <div class="collapsible-body" id="lvl-${levelName}">
+          ${fields.map(f => `
+            <div class="collapsible-header" data-target="lvl-${levelName}-${f.key}" style="font-size:11px;color:#95a5a6;margin:4px 0 2px">${f.label} (${f.items.length})</div>
+            <div class="collapsible-body" id="lvl-${levelName}-${f.key}">
+              <div class="st-list-container" data-level="${levelName}" data-field="${f.key}">${renderStringList(f.items, `st-lval`)}</div>
+              <button class="ed-btn st-ladd" data-level="${levelName}" data-field="${f.key}" style="font-size:10px;margin:2px 0 4px">+ Add</button>
+            </div>
+          `).join('')}
+          <div class="collapsible-header" data-target="lvl-${levelName}-modifiedCells" style="font-size:11px;color:#95a5a6;margin:4px 0 2px">Modified Cells (${data.modifiedCells.length})</div>
+          <div class="collapsible-body" id="lvl-${levelName}-modifiedCells">
+            <textarea class="st-mcells" data-level="${levelName}" rows="4" style="font-size:10px;width:100%">${JSON.stringify(data.modifiedCells, null, 2)}</textarea>
+          </div>
+        </div>`;
+    };
+
     this.container.innerHTML = `
       <div class="section-header">Player</div>
       <div class="form-group"><label>Health</label><input type="number" id="st-health" value="${state.player.health}" /></div>
@@ -38,13 +88,36 @@ export class ContextPanel {
         </div>`).join('')}
       </div>
       <button class="ed-btn" id="st-add-flag" style="width:100%;margin-bottom:8px">+ Add Flag</button>
-      <button class="ed-btn save" id="st-save" style="width:100%">Save State</button>
+      <div class="section-header" style="margin-top:8px">Levels</div>
+      <div id="st-levels">${levelEntries.map(([name, data]) => renderLevelSection(name, data)).join('')}</div>
+      <button class="ed-btn save" id="st-save" style="width:100%;margin-top:8px">Save State</button>
     `;
 
-    for (const input of this.container.querySelectorAll('input')) {
-      input.addEventListener('keydown', e => e.stopPropagation());
+    // Prevent WASD in all inputs/textareas
+    for (const el of this.container.querySelectorAll<HTMLElement>('input, textarea')) {
+      el.addEventListener('keydown', e => e.stopPropagation());
     }
 
+    // Collapsible toggle
+    for (const header of this.container.querySelectorAll<HTMLElement>('.collapsible-header')) {
+      header.addEventListener('click', () => {
+        header.classList.toggle('open');
+        const body = this.container.querySelector(`#${header.dataset.target}`) as HTMLElement | null;
+        body?.classList.toggle('open');
+      });
+    }
+
+    // Delete buttons (flags)
+    for (const btn of this.container.querySelectorAll('.st-fdel')) {
+      btn.addEventListener('click', () => btn.parentElement!.remove());
+    }
+
+    // Delete buttons (list items)
+    for (const btn of this.container.querySelectorAll('.st-ldel')) {
+      btn.addEventListener('click', () => btn.parentElement!.remove());
+    }
+
+    // Add flag
     this.container.querySelector('#st-add-flag')?.addEventListener('click', () => {
       const flagsDiv = this.container.querySelector('#st-flags')!;
       const row = document.createElement('div');
@@ -56,17 +129,44 @@ export class ContextPanel {
       flagsDiv.appendChild(row);
     });
 
-    for (const btn of this.container.querySelectorAll('.st-fdel')) {
-      btn.addEventListener('click', () => btn.parentElement!.remove());
+    // Add list item buttons
+    for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.st-ladd')) {
+      btn.addEventListener('click', () => {
+        const container = this.container.querySelector(`.st-list-container[data-level="${btn.dataset.level}"][data-field="${btn.dataset.field}"]`)!;
+        const row = document.createElement('div');
+        row.className = 'st-list-item';
+        row.innerHTML = `<input class="st-lval" value="" /><button class="ed-btn danger st-ldel" style="padding:1px 5px;font-size:10px">✕</button>`;
+        row.querySelector('input')!.addEventListener('keydown', e => e.stopPropagation());
+        row.querySelector('.st-ldel')!.addEventListener('click', () => row.remove());
+        container.appendChild(row);
+      });
     }
 
+    // Save
     this.container.querySelector('#st-save')?.addEventListener('click', async () => {
       state.player.health = Number.parseInt((this.container.querySelector('#st-health') as HTMLInputElement).value);
       state.player.coins = Number.parseInt((this.container.querySelector('#st-coins') as HTMLInputElement).value);
-      const keys = this.container.querySelectorAll<HTMLInputElement>('.st-fkey');
-      const vals = this.container.querySelectorAll<HTMLInputElement>('.st-fval');
+
+      // Collect flags
+      const fkeys = this.container.querySelectorAll<HTMLInputElement>('.st-fkey');
+      const fvals = this.container.querySelectorAll<HTMLInputElement>('.st-fval');
       state.flags = {};
-      keys.forEach((k, i) => { if (k.value.trim()) state.flags[k.value.trim()] = vals[i].value; });
+      fkeys.forEach((k, i) => { if (k.value.trim()) state.flags[k.value.trim()] = fvals[i].value; });
+
+      // Collect levels
+      state.levels ??= {};
+      for (const levelName of Object.keys(state.levels)) {
+        const level = state.levels[levelName];
+        for (const field of ['liveEntities', 'destroyedEntities', 'firedTriggers'] as const) {
+          const inputs = this.container.querySelectorAll<HTMLInputElement>(`.st-list-container[data-level="${levelName}"][data-field="${field}"] .st-lval`);
+          level[field] = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
+        }
+        const mcTextarea = this.container.querySelector<HTMLTextAreaElement>(`.st-mcells[data-level="${levelName}"]`);
+        if (mcTextarea) {
+          try { level.modifiedCells = JSON.parse(mcTextarea.value); } catch { /* keep existing */ }
+        }
+      }
+
       try {
         await fetch('/api/save-state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state, null, 2) });
         this.bridge.toast?.show('State saved', 'success');

@@ -234,9 +234,9 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   }));
 
 
-  entity.add(new WaterEffectComponent(scene));
+  entity.add(new WaterEffectComponent(scene, levelData().background?.water?.splashParticle ?? 'water_splash'));
 
-  entity.add(new WaterRippleComponent(scene, grid));
+  entity.add(new WaterRippleComponent(scene, grid, levelData().background?.water?.rippleSpritesheet ?? 'water_ripple'));
   entity.add(new InteractionComponent(grid));
 
   entity.setUpdateOrder([

@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { WalkComponent } from '../../components/movement/WalkComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const DEATH_ANIM_DURATION_MS = 1000;
 const FADE_DURATION_MS = 1000;
@@ -22,6 +23,7 @@ export class PlayerDeathState implements IState {
     
     walk.setEnabled(false);
     anim.animationSystem.play(`death_${walk.lastDir}`);
+    void WorldStateManager.getInstance().saveToFile();
   }
 
   onUpdate(delta: number): void {

@@ -1,4 +1,5 @@
 export type WorldState = {
+  timePlayed: number; // seconds
   player: {
     health: number;
     coins: number;
@@ -22,7 +23,6 @@ export type WorldState = {
         backgroundTexture?: string;
         layer?: number;
       }>;
-      cellModifierCells: Array<{ col: number; row: number }>;
     };
   };
 };
@@ -38,5 +38,4 @@ export type LevelState = {
     backgroundTexture?: string;
     layer?: number;
   }>;
-  cellModifierCells: Array<{ col: number; row: number }>;
 };

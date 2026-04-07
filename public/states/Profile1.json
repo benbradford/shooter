@@ -1,0 +1,157 @@
+{
+  "player": {
+    "health": 100,
+    "coins": 0,
+    "currentLevel": "grass_overworld1",
+    "entryCell": {
+      "col": 35,
+      "row": 6
+    },
+    "spawnCol": 35,
+    "spawnRow": 6
+  },
+  "flags": {},
+  "levels": {
+    "house3_interior": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit5"
+      ],
+      "modifiedCells": [
+        {
+          "col": 5,
+          "row": 1,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "fireplace1"
+        },
+        {
+          "col": 2,
+          "row": 2,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "bed1"
+        },
+        {
+          "col": 5,
+          "row": 2,
+          "layer": 0,
+          "backgroundTexture": "rug2"
+        },
+        {
+          "col": 8,
+          "row": 2,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "kitchen1"
+        },
+        {
+          "col": 0,
+          "row": 4,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "sconce_bg"
+        },
+        {
+          "col": 10,
+          "row": 4,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "sconce_bg"
+        },
+        {
+          "col": 5,
+          "row": 5,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "table2"
+        },
+        {
+          "col": 5,
+          "row": 8,
+          "layer": 0,
+          "backgroundTexture": "door_closed"
+        }
+      ]
+    },
+    "grass_overworld1": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit1"
+      ],
+      "modifiedCells": [
+        {
+          "col": 3,
+          "row": 3,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "house1"
+        },
+        {
+          "col": 35,
+          "row": 3,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "house3"
+        },
+        {
+          "col": 4,
+          "row": 18,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "house2"
+        },
+        {
+          "col": 8,
+          "row": 20,
+          "layer": 0,
+          "properties": [
+            "water",
+            "bridge"
+          ],
+          "backgroundTexture": "bridge_h"
+        },
+        {
+          "col": 4,
+          "row": 23,
+          "layer": 0,
+          "properties": [
+            "water",
+            "bridge"
+          ],
+          "backgroundTexture": "bridge_v"
+        },
+        {
+          "col": 35,
+          "row": 25,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "house2"
+        }
+      ]
+    }
+  },
+  "timePlayed": 16.868999999999996
+}

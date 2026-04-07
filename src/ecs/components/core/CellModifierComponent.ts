@@ -1,6 +1,5 @@
 import type { Component } from '../../Component';
 import type { Grid, CellProperty } from '../../../systems/grid/Grid';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
 export type CellModification = {
@@ -35,11 +34,6 @@ export class CellModifierComponent implements Component {
   update(_delta: number): void {
     if (this.executed) return;
     this.executed = true;
-    
-    // Track that these cells were modified
-    const worldState = WorldStateManager.getInstance();
-    const currentLevel = worldState.getCurrentLevelName();
-    worldState.addCellModifierCells(currentLevel, this.cellsToModify);
 
     for (const mod of this.cellsToModify) {
       const cell = this.grid.getCell(mod.col, mod.row);

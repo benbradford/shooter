@@ -41,9 +41,43 @@ function saveLevelPlugin(): Plugin {
         req.on('data', (chunk: string) => { body += chunk; });
         req.on('end', () => {
           try {
-            const filePath = path.resolve('public/states/default.json');
-            fs.writeFileSync(filePath, body, 'utf-8');
-            console.log('✓ Saved state: public/states/default.json');
+            const { profile, data } = JSON.parse(body) as { profile?: string; data?: string };
+            const fileName = profile ?? 'default';
+            const filePath = path.resolve('public/states', `${fileName}.json`);
+            if (!filePath.startsWith(path.resolve('public/states'))) { res.statusCode = 400; res.end('Invalid'); return; }
+            fs.writeFileSync(filePath, data ?? body, 'utf-8');
+            console.log(`✓ Saved state: public/states/${fileName}.json`);
+            res.statusCode = 200;
+            res.end('OK');
+          } catch (error) { res.statusCode = 500; res.end(String(error)); }
+        });
+      });
+
+      server.middlewares.use('/api/profiles', (_req, res) => {
+        try {
+          const statesDir = path.resolve('public/states');
+          const profiles: string[] = [];
+          for (let i = 1; i <= 3; i++) {
+            if (fs.existsSync(path.join(statesDir, `Profile${i}.json`))) profiles.push(`Profile${i}`);
+          }
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(profiles));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      server.middlewares.use('/api/create-profile', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        let body = '';
+        req.on('data', (chunk: string) => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const { name } = JSON.parse(body) as { name: string };
+            const statesDir = path.resolve('public/states');
+            const dest = path.join(statesDir, `${name}.json`);
+            if (!dest.startsWith(statesDir)) { res.statusCode = 400; res.end('Invalid'); return; }
+            const template = fs.readFileSync(path.join(statesDir, 'empty.json'), 'utf-8');
+            fs.writeFileSync(dest, template, 'utf-8');
+            console.log(`✓ Created profile: ${name}.json`);
             res.statusCode = 200;
             res.end('OK');
           } catch (error) { res.statusCode = 500; res.end(String(error)); }

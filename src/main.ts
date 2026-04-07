@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import GameScene from "./scenes/GameScene";
 import HudScene from "./scenes/HudScene";
 import LoadingScene from "./scenes/LoadingScene";
+import TitleScene from "./scenes/TitleScene";
+import ProfileSelectScene from "./scenes/ProfileSelectScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
 import { PetAbilityComponent } from "./ecs/components/pet/PetAbilityComponent";
 import { DogBarkAbility } from "./ecs/components/pet/DogBarkAbility";
@@ -30,15 +32,18 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-  scene: [GameScene, HudScene, LoadingScene],
+  scene: [TitleScene, ProfileSelectScene, GameScene, HudScene, LoadingScene],
 };
 
 const game = new Phaser.Game(config);
 
-// Start the game scene explicitly (no longer auto-starts)
-game.scene.start('game');
-
+// If ?level= param is set, skip title screens and go straight to game
 const params = new URLSearchParams(globalThis.location.search);
+if (params.get('level')) {
+  game.scene.start('game');
+} else {
+  game.scene.start('title');
+}
 if (params.get('test') === 'true') {
   (globalThis as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent; JoystickVisualsComponent: typeof JoystickVisualsComponent; AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent; GridPositionComponent: typeof GridPositionComponent; ProjectileComponent: typeof ProjectileComponent; PetAbilityComponent: typeof PetAbilityComponent }).game = game;
   (globalThis as unknown as { TransformComponent: typeof TransformComponent }).TransformComponent = TransformComponent;

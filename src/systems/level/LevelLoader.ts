@@ -45,6 +45,8 @@ export type LevelBackground = {
     numFrames: number;
     animSpeedMs: number;
     force: number;
+    rippleSpritesheet?: string;
+    splashParticle?: string;
   };
   floor_tile: number;
   platform_tile?: number;

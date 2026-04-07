@@ -290,6 +290,18 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 430, frameHeight: 300 }
   },
+
+    murky_splash: {
+    key: 'murky_splash',
+    path: 'assets/cell_drawables/murky_splash.png',
+    type: 'image' as const
+  },
+  murky_ripple: {
+    key: 'murky_ripple',
+    path: 'assets/cell_drawables/murky_ripple_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 430, frameHeight: 300 }
+  },
   dungeon_platform: {
     key: 'dungeon_platform',
     path: 'assets/cell_drawables/dungeon_platform.png',
@@ -591,7 +603,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'water_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

@@ -1,14 +1,11 @@
 {
+  "timePlayed": 0,
   "player": {
     "health": 100,
     "coins": 0,
     "currentLevel": "house3_interior",
     "entryCell": { "col": 0, "row": 0 }
   },
-  "flags": {
-    "pet_dog_collected": "false",
-    "pet_rock_collected": "false",
-    "canSwim": "false"
-  },
+  "flags": {},
   "levels": {}
 }

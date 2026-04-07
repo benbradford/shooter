@@ -218,7 +218,8 @@ export default class GameScene extends Phaser.Scene {
     // Load world state only on first load
     const worldState = WorldStateManager.getInstance();
     if (!GameScene.hasLoadedWorldState) {
-      await worldState.loadFromFile();
+      const profileName = (this.scene.settings.data as { profileName?: string })?.profileName;
+      await worldState.loadFromFile(profileName);
       GameScene.hasLoadedWorldState = true;
     }
 
@@ -284,10 +285,11 @@ export default class GameScene extends Phaser.Scene {
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
 
-    if (!this.anims.exists('water_ripple_anim')) {
+    const rippleKey = this.levelData.background?.water?.rippleSpritesheet ?? 'water_ripple';
+    if (!this.anims.exists(`${rippleKey}_anim`)) {
       this.anims.create({
-        key: 'water_ripple_anim',
-        frames: this.anims.generateFrameNumbers('water_ripple', { start: 0, end: 3 }),
+        key: `${rippleKey}_anim`,
+        frames: this.anims.generateFrameNumbers(rippleKey, { start: 0, end: 3 }),
         frameRate: 12,
         repeat: 0
       });
@@ -690,8 +692,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     worldState.updateModifiedCells(this.currentLevelName, this.grid, this.levelData);
+    worldState.updateTimePlayed();
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
+    void worldState.saveToFile();
 
     // Save entity manager for cleanup BEFORE fade
     console.log('[DBGAME] Saving', this.entityManager.count, 'entities for cleanup');

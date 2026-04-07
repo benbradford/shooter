@@ -5,6 +5,8 @@ import { WalkComponent } from '../movement/WalkComponent';
 
 const REGEN_DELAY_MS = 3000;
 const REGEN_RATE_PER_SEC = 20;
+const REGEN_TIMER_RATE_MOVING = 0.3;
+const REGEN_TIMER_RATE_STILL = 1;
 
 export type HealthProps = {
   maxHealth: number;
@@ -68,14 +70,10 @@ export class HealthComponent implements Component, HudBarDataSource {
 
     if (this.currentHealth > 150) return;
 
-    // Only regen when not moving
+    // Regen timer accumulates slower while moving, faster while still
     const walk = this.entity.get(WalkComponent);
-    if (walk?.isMoving()) {
-      this.timeSinceLastDamageMs = 0;
-      return;
-    }
-
-    this.timeSinceLastDamageMs += delta;
+    const timerRate = walk?.isMoving() ? REGEN_TIMER_RATE_MOVING : REGEN_TIMER_RATE_STILL;
+    this.timeSinceLastDamageMs += delta * timerRate;
 
     if (this.timeSinceLastDamageMs >= REGEN_DELAY_MS) {
       const regenAmount = REGEN_RATE_PER_SEC * (delta / 1000);

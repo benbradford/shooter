@@ -52,8 +52,10 @@ The editor is **excluded from production builds** entirely.
 
 ### Layout
 
-- **Left panel (70%)**: Phaser canvas — level rendering, click/drag editing
-- **Right panel (30%)**: HTML controls — tools, properties, level management
+- **Left panel**: Phaser canvas — level rendering, click/drag editing
+- **Divider**: Draggable to resize panels (200px–600px)
+- **Right panel**: HTML controls — tools, properties, level management
+- **Remembers last level**: On refresh, reopens the level you were editing (via localStorage)
 
 ### Navigation
 
@@ -71,10 +73,10 @@ The editor is **excluded from production builds** entirely.
 - **Save** — Writes directly to `public/levels/{name}.json` via dev server
 - **Play** — Opens game in new tab at current level
 - **New** — Create new level (name, dimensions, theme)
-- **Tool buttons** — Select, Grid, Entity
+- **Tool buttons** — Level, State, Select, Grid, Entity
 - **Grid sub-panel** — Visible when Grid tool active; checkboxes for wall, platform, stairs, water, bridge, blocked, path + layer radio (0, 1, 2)
 - **Entity dropdown** — Visible when Entity tool active; choose type to place
-- **Theme dropdown** — Switch level theme instantly
+- **Theme dropdown** — On Level Info panel (not toolbar)
 
 All dropdowns auto-blur after selection so WASD camera movement works immediately.
 
@@ -91,7 +93,8 @@ Click a cell with the **Select** tool to open the Cell form:
 - **Texture** — Click **Choose** to open the texture picker
 - **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields with Apply Transform button
 - **Clear Cell** — Remove all properties and texture
-- **Drag textures** — Click and hold a cell with a texture in Select mode, then drag to move the texture to another cell
+- **Animated Texture** — When present, shows spritesheet info + transform fields + Apply/Remove buttons. When absent, shows **+ Animated Texture** button to add one.
+- **Drag textures** — Click and hold a cell with a texture in Select mode, then drag to move the texture (and animated texture) to another cell
 
 ### Texture Picker
 
@@ -126,9 +129,10 @@ Entity form shows all editable fields per type:
 - Robot: waypoints list
 - NPC: assets, direction, name, interactions (JSON)
 - Trigger: eventToRaise, oneShot, triggerCells + **Edit Cells** button
-- Exit: targetLevel, targetCol, targetRow, triggerCells + **Edit Cells** button
+- Exit: targetLevel, targetCol, targetRow, triggerCells + **Edit Cells** button + **Leave** button (loads target level)
 - EventChainer: eventsToRaise (JSON)
 - CellModifier: cellsToModify (JSON)
+- Interaction: filename
 
 ### Editing Trigger Cells
 
@@ -140,9 +144,11 @@ Triggers and exits have an **Edit Cells** button in their property form:
 
 ### Level Management
 
+- **Level tool**: Shows Level Info panel with name, size, theme dropdown, player start (editable), resize buttons, and data entities list (interactions, eventchainers, cellmodifiers with add/click-to-edit)
+- **State tool**: Shows world state editor — player health, coins, and flags (key/value pairs). Click **Save State** to write to `public/states/default.json`
 - **Switch levels**: Use the dropdown — warns if unsaved changes
 - **New level**: Click New → fill in name/dimensions/theme → Create
-- **Resize**: In the Level Info panel (shown when nothing selected) — Add/Remove Row/Column buttons
+- **Resize**: In the Level Info panel — Add/Remove Row/Column buttons (min 1×1)
 - **Background settings**: Edit `background` block directly in `public/levels/{name}.json` (floor_texture, overlays, edgeDarkening, etc.) — no UI yet
 - **Save**: Ctrl+S or Save button — writes JSON directly to disk, shows toast
 

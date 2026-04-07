@@ -18,7 +18,8 @@ export class WaterRippleComponent implements Component {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly grid: Grid
+    private readonly grid: Grid,
+    private readonly rippleTextureKey: string = 'water_ripple'
   ) {}
 
   update(delta: number): void {
@@ -53,7 +54,7 @@ export class WaterRippleComponent implements Component {
   }
 
   private spawnRipple(x: number, y: number): void {
-    const ripple = this.scene.add.sprite(x, y, 'water_ripple', 0);
+    const ripple = this.scene.add.sprite(x, y, this.rippleTextureKey, 0);
     ripple.setScale(RIPPLE_SCALE);
     ripple.setDepth(Depth.ripple);
     
@@ -95,7 +96,7 @@ export class WaterRippleComponent implements Component {
     const mask = maskGraphics.createGeometryMask();
     ripple.setMask(mask);
     
-    ripple.play({ key: 'water_ripple_anim', frameRate: RIPPLE_FRAME_RATE, repeat: 0 });
+    ripple.play({ key: `${this.rippleTextureKey}_anim`, frameRate: RIPPLE_FRAME_RATE, repeat: 0 });
     ripple.on('animationcomplete', () => {
       ripple.destroy();
       maskGraphics.destroy();

@@ -175,6 +175,15 @@
       }
     },
     {
+      "id": "skeleton0",
+      "type": "skeleton",
+      "data": {
+        "col": 3,
+        "row": 2,
+        "difficulty": "easy"
+      }
+    },
+    {
       "id": "exit1",
       "type": "exit",
       "data": {

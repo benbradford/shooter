@@ -178,12 +178,14 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 
 ## Water System
 
-- Player swims at 70% speed
+- Water blocks movement unless `canSwim` flag is `"true"` in world state
+- Player swims at 70% speed when canSwim enabled
 - Uses larger collision box (64×64) to prevent sprite overlap
 - Ripples every 150ms, shadow fades to 30% alpha
 - River current applies force, stops near blockers
 - Water + blocked = impassable obstacles
 - Water + bridge = walk over at full speed
+- Per-level water config: `rippleSpritesheet` and `splashParticle` in background JSON
 
 ## Touch Joystick
 

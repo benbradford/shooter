@@ -120,6 +120,68 @@
 **Files Changed:**
 - `editor/CanvasInteraction.ts` — Collect all candidates at cell, cycle on repeated clicks
 
+### canSwim World State Flag
+
+**Change**: Water now blocks player movement unless the `canSwim` flag is `"true"` in world state. Replaced compile-time `CAN_SUBMERGE` constant with runtime flag check.
+
+**Files Changed:**
+- `src/ecs/components/movement/GridCollisionComponent.ts` — Check `canSwim` flag instead of `CAN_SUBMERGE`
+- `src/ecs/entities/player/PlayerEntity.ts` — Always add WaterEffectComponent
+- `src/constants/GameConstants.ts` — Removed `CAN_SUBMERGE`
+- `public/states/default.json` — Added `canSwim: "false"`
+
+### Editor: Resizable Panels, State Tab, Level Info Improvements
+
+**Changes:**
+- Draggable divider between canvas and panel (200px–600px)
+- **Level** and **State** buttons added to tool row
+- Level Info panel: editable player start position, theme dropdown, data entities list (interactions/eventchainers/cellmodifiers)
+- State panel: edit player health, coins, flags with Save State button
+- Animated texture editing in cell form (add/remove/transform)
+- Exit form: Leave button loads target level
+- Remembers last edited level via localStorage
+- Toast moved to bottom-right (no longer covers toolbar)
+- Zoom sensitivity halved
+
+**Files Changed:**
+- `editor/main.ts` — Divider drag logic, localStorage level persistence
+- `editor/editor.css` — Divider styles, panel resize, toast position
+- `editor/index.html` — Added divider element
+- `editor/panels/Toolbar.ts` — Level/State buttons, entity dropdown init fix
+- `editor/panels/ContextPanel.ts` — State panel, Level Info improvements, animated texture editing
+- `editor/panels/PanelController.ts` — State/Level panel routing
+- `editor/EditorBridge.ts` — onToolChanged callback, save-state support
+- `editor/CanvasInteraction.ts` — Level/State tool handling, zoom step
+- `vite.config.ts` — Added `/api/save-state` endpoint
+
+### Water Config: Customizable Ripples and Splash
+
+**Change**: Water config in level JSON now supports `rippleSpritesheet` and `splashParticle` fields for per-level water effects.
+
+**Usage:**
+```json
+"water": {
+  "sourceImage": "murky_water",
+  "rippleSpritesheet": "murky_ripple",
+  "splashParticle": "murky_splash"
+}
+```
+
+**Files Changed:**
+- `src/systems/level/LevelLoader.ts` — Added `rippleSpritesheet` and `splashParticle` to water type
+- `src/ecs/components/visual/WaterRippleComponent.ts` — Configurable texture key
+- `src/ecs/components/visual/WaterEffectComponent.ts` — Configurable splash texture key
+- `src/ecs/entities/player/PlayerEntity.ts` — Pass water config to components
+- `src/scenes/GameScene.ts` — Create ripple animation from level config
+- `src/assets/AssetRegistry.ts` — Added `murky_ripple` spritesheet
+
+### Overlay Map Masking
+
+**Change**: Scene overlays are now masked to the grid boundaries so they don't render outside the map on narrow levels.
+
+**Files Changed:**
+- `src/systems/SceneOverlays.ts` — Added geometry mask covering grid area
+
 ## March 2026
 
 ### HUD Button Visual Overhaul
@@ -238,109 +300,29 @@ const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES = {
 
 ### Scene Cleanup on Level Load
 
-**Problem (March 2026):** When switching levels, old sprites remained visible and caused __MISSING texture errors.
+**Problem:** Old sprites remained visible when switching levels.
+**Fix:** `GameScene.create()` clears display list, WorldState loads from file only once, runtime textures filtered from unload.
 
-**Solution:** 
-- `GameScene.create()` calls `children.removeAll(true)` at start
-- WorldState only loads from file once (static flag)
-- URL parameter only used on first load (static flag)
-- Runtime textures (UUIDs, gradients, tilesets) filtered from unload
+### Scene Renderer Refactor
 
-**Files Changed:**
-- `src/scenes/GameScene.ts` - Display list cleanup, static flags
-- `src/scenes/LoadingScene.ts` - Runtime texture filtering
-- `src/scenes/theme/*.ts` - Vignette texture key ('vignette' not 'vin')
-- `src/assets/AssetRegistry.ts` - stalking_robot asset group
+**Problem:** Background textures in water rendered on top of player due to `Grid.setCell()` creating duplicate sprites.
+**Fix:** Grid only tracks data; `GameSceneRenderer` split into `loadAllAssets()`, `initializeSprites()`, `updateGraphics()`. Background textures in water use `Depth.waterTexture` (-80).
 
-**Testing:** All 8 loading tests pass (see `test/tests/loading/`)
+### Shadow Component Consolidation
 
-### Scene Renderer Refactor (March 2026)
-
-**Problem**: Background texture sprites (rocks, decorations) in water cells were rendering on top of the player.
-
-**Root Cause**: `Grid.setCell()` was creating background texture sprites at depth -50 every time a cell was updated. This happened after `GameSceneRenderer` created them at the correct depth, causing duplicates at the wrong depth.
-
-**Solution**: 
-1. Removed sprite creation from `Grid.setCell()` - Grid now only tracks cell data, never creates sprites
-2. Refactored `GameSceneRenderer.renderGrid()` into three methods:
-   - `loadAllAssets()` - Load assets and generate tilesets (once)
-   - `initializeSprites()` - Create all sprites in explicit order (once)
-   - `updateGraphics()` - Update graphics objects (every frame)
-3. Background textures in water now use `Depth.waterTexture` (-80) to render above water tiles (-100) but below swimming player (-70)
-4. Removed cache system (`isCached` flag) - sprites created once via `spritesInitialized` flag
-
-**Files Changed**:
-- `src/scenes/theme/GameSceneRenderer.ts` - Split renderGrid into three methods, removed cache
-- `src/scenes/GameScene.ts` - Updated create() and loadLevel() to use new flow
-- `src/systems/grid/Grid.ts` - Removed sprite creation from setCell()
-- `src/constants/DepthConstants.ts` - Updated underwaterTexture depth to -80
-
-**Key Insight**: Only GameSceneRenderer should create sprites. Grid manages data only.
-
-### Shadow Component Consolidation (March 2026)
-
-**Problem**: Two different ShadowComponent implementations existed (core/ and visual/), causing runtime errors.
-
-**Solution**: 
-- Deleted old `core/ShadowComponent` 
-- All entities now use `visual/ShadowComponent` with public `shadow` sprite and `props`
-- Updated imports in BugEntity, RockEntity, FireballEntity, StalkingRobotEntity, PlayerEntity
-
-**Swimming Shadow Behavior**:
-- Alpha reduced to 30% (from 60%)
-- Position moved down 32px
-- Depth set to -80 (shadowSwimming)
+Merged two ShadowComponent implementations into one (`visual/ShadowComponent`). Swimming shadow: 30% alpha, depth -80.
 
 ### Dynamic Asset Loading
 
-**Problem**: All assets were loaded at startup, increasing initial load time.
-
-**Solution**: Level-specific asset loading system:
-- Assets organized into groups (player, enemies, core)
-- Level JSON analyzed to determine required assets
-- Background textures extracted from level config
-- Only required assets loaded per level
-
-**Files Changed**:
-- `src/assets/AssetRegistry.ts` - Added `ASSET_GROUPS`
-- `src/assets/AssetLoader.ts` - Added `preloadLevelAssets()`, `getRequiredAssetGroups()`
-- `src/scenes/GameScene.ts` - Integrated dynamic loading in `loadLevel()`
-
-**Usage**:
-```typescript
-const levelData = await LevelLoader.load(levelName);
-preloadLevelAssets(this, levelData);
-await new Promise<void>(resolve => {
-  if (this.load.isLoading()) {
-    this.load.once('complete', () => resolve());
-  } else {
-    resolve();
-  }
-  this.load.start();
-});
-```
+Level-specific asset loading: assets organized into groups, level JSON analyzed for required assets, only needed assets loaded per level.
 
 ### HUD Button Alpha States
 
-**Problem**: HUD buttons were always at the same opacity, making it unclear when they were active or on cooldown.
-
-**Solution**: Three-state alpha system:
-- **Unpressed**: 0.4 (faded)
-- **Pressed**: 0.9 (bright)
-- **Cooldown**: 0.2 (very faded, slide button only)
-
-**Files Changed**:
-- `src/ecs/components/input/AttackButtonComponent.ts` - Added alpha constants and state management
-- `src/ecs/components/input/SlideButtonComponent.ts` - Added three-state alpha logic
+Three-state alpha: unpressed 0.4, pressed 0.9, cooldown 0.2 (slide only).
 
 ### Bug Base Spawn Animation
 
-**Problem**: Bug base spawn animation used `Back.easeOut` which caused overshoot (scaling larger than target before settling).
-
-**Solution**: Changed easing to `Cubic.easeOut` for smooth scaling without overshoot.
-
-**Files Changed**:
-- `src/ecs/components/visual/BaseSpawnComponent.ts` - Changed easing function
+Changed easing from `Back.easeOut` to `Cubic.easeOut` to prevent overshoot.
 
 ## Breaking Changes
 

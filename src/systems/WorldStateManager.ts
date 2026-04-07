@@ -9,6 +9,8 @@ export class WorldStateManager {
   private static instance: WorldStateManager;
   private worldState: WorldState;
   private trackDestructions: boolean = true;
+  private lastTimeUpdateMs: number = Date.now();
+  private profileName: string | null = null;
 
   private constructor() {
     this.worldState = this.createEmptyState();
@@ -29,12 +31,15 @@ export class WorldStateManager {
     return this.trackDestructions;
   }
 
-  async loadFromFile(): Promise<void> {
+  async loadFromFile(profileName?: string): Promise<void> {
+    this.profileName = profileName ?? null;
+    const statePath = profileName ? `/states/${profileName}.json` : WORLD_STATE_PATH;
     try {
-      const response = await fetch(WORLD_STATE_PATH);
+      const response = await fetch(statePath);
       if (response.ok) {
         this.worldState = await response.json();
-        console.log('[WorldState] Loaded from file:', this.worldState);
+        this.resetTimeTracker();
+        console.log(`[WorldState] Loaded from ${statePath}:`, this.worldState);
       } else {
         console.log('[WorldState] No saved state found, starting fresh');
       }
@@ -76,8 +81,7 @@ export class WorldStateManager {
         liveEntities: [],
         destroyedEntities: [],
         firedTriggers: [],
-        modifiedCells: [],
-        cellModifierCells: []
+        modifiedCells: []
       };
     }
     return this.worldState.levels[levelName];
@@ -183,28 +187,14 @@ export class WorldStateManager {
     }
   }
 
-  addCellModifierCells(levelName: string, cells: Array<{ col: number; row: number }>): void {
-    const levelState = this.getLevelState(levelName);
-    for (const cell of cells) {
-      const cellKey = `${cell.col},${cell.row}`;
-      if (!levelState.cellModifierCells.some(c => `${c.col},${c.row}` === cellKey)) {
-        levelState.cellModifierCells.push(cell);
-      }
-    }
-  }
-
   updateModifiedCells(levelName: string, grid: Grid, originalLevelData: LevelData): void {
     const levelState = this.getLevelState(levelName);
     const modifiedCells: LevelState['modifiedCells'] = [];
-    const cellModifierCellsSet = new Set(levelState.cellModifierCells.map(c => `${c.col},${c.row}`));
 
     for (let row = 0; row < grid.rows; row++) {
       for (let col = 0; col < grid.cols; col++) {
         const currentCell = grid.getCell(col, row);
         if (!currentCell) continue;
-
-        const cellKey = `${col},${row}`;
-        const wasTouchedByCellModifier = cellModifierCellsSet.has(cellKey);
 
         const originalCell = originalLevelData.cells.find(c => c.col === col && c.row === row);
         const originalLayer = originalCell?.layer ?? 0;
@@ -224,7 +214,7 @@ export class WorldStateManager {
           propsChanged ||
           currentTexture !== originalTexture;
 
-        if (hasChanged || wasTouchedByCellModifier) {
+        if (hasChanged) {
           modifiedCells.push({
             col,
             row,
@@ -240,11 +230,39 @@ export class WorldStateManager {
   }
 
   serializeToJSON(): string {
+    this.updateTimePlayed();
     return JSON.stringify(this.worldState, null, 2);
+  }
+
+  async saveToFile(): Promise<void> {
+    const json = this.serializeToJSON();
+    const profile = this.profileName ?? 'default';
+    try {
+      await fetch('/api/save-state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile, data: json })
+      });
+      console.log(`[WorldState] Saved to ${profile}.json`);
+    } catch (err) {
+      console.warn('[WorldState] Save failed:', err);
+    }
+  }
+
+  updateTimePlayed(): void {
+    const now = Date.now();
+    const elapsedSec = (now - this.lastTimeUpdateMs) / 1000;
+    this.worldState.timePlayed = (this.worldState.timePlayed ?? 0) + elapsedSec;
+    this.lastTimeUpdateMs = now;
+  }
+
+  resetTimeTracker(): void {
+    this.lastTimeUpdateMs = Date.now();
   }
 
   private createEmptyState(): WorldState {
     return {
+      timePlayed: 0,
       player: {
         health: 100,
         coins: 0,

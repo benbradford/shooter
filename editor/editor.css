@@ -204,6 +204,34 @@ body {
 }
 .level-info-grid .label { color: #7f8c8d; }
 
+/* Collapsible sections */
+.collapsible-header {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.collapsible-header::before {
+  content: '▶';
+  font-size: 9px;
+  transition: transform 0.15s;
+}
+.collapsible-header.open::before {
+  transform: rotate(90deg);
+}
+.collapsible-body { display: none; padding-left: 8px; }
+.collapsible-body.open { display: block; }
+
+/* String list editor */
+.st-list-item {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 2px;
+}
+.st-list-item input { flex: 1; font-size: 11px; }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #1a1a2e; }
