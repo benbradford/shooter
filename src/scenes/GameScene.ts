@@ -31,6 +31,7 @@ import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
+import { BlockedAreaManager } from "../systems/BlockedAreaManager";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -55,6 +56,7 @@ export default class GameScene extends Phaser.Scene {
   private static previousEntityManager?: EntityManager;
   public isInInteraction: boolean = false;
   private isResetting: boolean = false;
+  public blockedAreaManager?: BlockedAreaManager;
 
   constructor() {
     super({ key: "game" });
@@ -409,6 +411,11 @@ export default class GameScene extends Phaser.Scene {
     await overlays.init();
     overlays.applyOverlays(this.grid);
 
+    this.blockedAreaManager = new BlockedAreaManager(
+      this.levelData.blockedAreas ?? [], this.grid
+    );
+    this.grid.setBlockedAreaManager(this.blockedAreaManager);
+
     const levelWidth = level.width * this.grid.cellSize;
     const levelHeight = level.height * this.grid.cellSize;
     const viewportWidth = this.cameras.main.width;
@@ -564,7 +571,8 @@ export default class GameScene extends Phaser.Scene {
       eventManager: this.eventManager,
       vignetteSprite: this.vignette,
       initialHealth: playerHealth,
-      levelData: () => this.levelData
+      levelData: () => this.levelData,
+      blockedAreaManager: this.blockedAreaManager,
     }));
 
     // Initialize PetManager

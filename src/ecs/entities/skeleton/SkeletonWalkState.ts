@@ -37,7 +37,7 @@ export class SkeletonWalkState implements IState {
     private readonly playerEntity: Entity,
     private readonly grid: Grid
   ) {
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
     this.nextPauseMs = WALK_IDLE_PAUSE_MIN_MS + Math.random() * (WALK_IDLE_PAUSE_MAX_MS - WALK_IDLE_PAUSE_MIN_MS);
   }
 

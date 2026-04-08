@@ -40,7 +40,7 @@ export class BugChaseState implements IState {
     this.playerEntity = playerEntity;
     this.grid = grid;
     this.speedPxPerSec = speedPxPerSec;
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
     this.scene = scene;
   }
 

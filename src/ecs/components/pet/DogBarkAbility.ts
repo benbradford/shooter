@@ -49,7 +49,7 @@ export class DogBarkAbility implements Component {
     const transform = this.entity.require(TransformComponent);
     const gameScene = this.scene as unknown as { entityManager?: { getAll(): Entity[] } };
     const entities = gameScene.entityManager?.getAll() ?? [];
-    const pathfinder = new Pathfinder(this.grid);
+    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
     const dogCell = this.grid.worldToCell(transform.x, transform.y);
 
     let nearest: Entity | null = null;
@@ -129,7 +129,7 @@ export class DogBarkAbility implements Component {
     this.approachPathTimerMs += delta;
     if (!this.approachPath || this.approachPathTimerMs >= APPROACH_PATH_RECALC_MS) {
       this.approachPathTimerMs = 0;
-      const pathfinder = new Pathfinder(this.grid);
+      const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
       const startCell = this.grid.worldToCell(transform.x, transform.y);
       const goalCell = this.grid.worldToCell(targetTransform.x, targetTransform.y);
       this.approachPath = pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, 0, false, true);

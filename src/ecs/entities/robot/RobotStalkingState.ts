@@ -38,7 +38,7 @@ export class RobotStalkingState implements IState {
     this.entity = entity;
     this.playerEntity = playerEntity;
     this.grid = grid;
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
     this.fireballDelayTime = fireballDelayTime;
   }
 

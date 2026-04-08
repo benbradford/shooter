@@ -1,11 +1,13 @@
 import type { EditorBridge } from './EditorBridge';
 import { TransformComponent } from '../src/ecs/components/core/TransformComponent';
 import { Depth } from '../src/constants/DepthConstants';
+import { isConvex, ensureClockwise, isPointInPolygon } from '../src/math/PolygonUtils';
 
 const CAMERA_SPEED_PX_PER_SEC = 400;
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 3.0;
 const ZOOM_STEP = 0.05;
+const SNAP_DISTANCE_PX = 16;
 
 export class CanvasInteraction {
   private isMouseOverCanvas = false;
@@ -18,9 +20,15 @@ export class CanvasInteraction {
   private clickCycleIndex = 0;
   private readonly hoverCoords: HTMLElement;
 
+  // Blocked area drawing state
+  private drawingVertices: Array<{ x: number; y: number }> = [];
+  private drawingAutoLayer = 0;
+  private cursorWorldPos: { x: number; y: number } | null = null;
+
   // Editor overlays
   private labels: Phaser.GameObjects.Text[] = [];
   private highlights: Phaser.GameObjects.Rectangle[] = [];
+  private graphics: Phaser.GameObjects.Graphics | null = null;
 
   constructor(private readonly bridge: EditorBridge, canvasContainer: HTMLElement) {
     canvasContainer.addEventListener('mouseenter', () => { this.isMouseOverCanvas = true; });
@@ -55,9 +63,18 @@ export class CanvasInteraction {
 
   registerPhaserListeners(): void {
     const scene = this.bridge.getScene();
-    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onPointerDown(p));
+    scene.input.on('pointerdown', (p: Phaser.Input.Pointer) => {
+      if (p.rightButtonDown()) {
+        this.onRightClick();
+      } else {
+        this.onPointerDown(p);
+      }
+    });
     scene.input.on('pointermove', (p: Phaser.Input.Pointer) => this.onPointerMove(p));
     scene.input.on('pointerup', () => this.onPointerUp());
+
+    // Disable context menu on canvas
+    scene.game.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
     // Register camera update
     scene.events.on('update', (_time: number, delta: number) => this.updateCamera(delta));
@@ -87,8 +104,22 @@ export class CanvasInteraction {
         grid.setGridDebugEnabled(!grid.gridDebugEnabled);
         break;
       }
-      case 'delete': case 'backspace': this.bridge.deleteSelected(); break;
-      case 'escape': this.bridge.clearSelection(); break;
+      case 'delete': case 'backspace':
+        if (this.bridge.selectedBlockedAreaId) {
+          this.bridge.removeBlockedArea(this.bridge.selectedBlockedAreaId);
+          this.renderOverlays();
+        } else {
+          this.bridge.deleteSelected();
+        }
+        break;
+      case 'escape':
+        if (this.drawingVertices.length > 0) {
+          this.drawingVertices = [];
+          this.renderOverlays();
+        } else {
+          this.bridge.clearSelection();
+        }
+        break;
     }
   }
 
@@ -151,6 +182,8 @@ export class CanvasInteraction {
       if (this.bridge.selectedTexture) {
         this.bridge.setCellTexture(cell.col, cell.row, this.bridge.selectedTexture);
       }
+    } else if (tool === 'blockedarea') {
+      this.handleBlockedAreaClick(p);
     } else {
       // Grid tools (wall, floor, water, etc.)
       this.bridge.beginDragMutation();
@@ -173,6 +206,11 @@ export class CanvasInteraction {
       this.hoverCoords.style.display = 'none';
     }
 
+    this.cursorWorldPos = { x: p.worldX, y: p.worldY };
+    if (this.drawingVertices.length > 0) {
+      this.renderOverlays();
+    }
+
     if (!this.isDragging) return;
     const key = `${cell.col},${cell.row}`;
     if (key === this.lastPaintedCell) return;
@@ -186,6 +224,8 @@ export class CanvasInteraction {
     } else if (this.dragTextureFrom) {
       this.bridge.moveCellTexture(this.dragTextureFrom.col, this.dragTextureFrom.row, cell.col, cell.row);
       this.dragTextureFrom = { col: cell.col, row: cell.row };
+      this.bridge.selectedCell = { col: cell.col, row: cell.row };
+      this.renderOverlays();
     } else if (this.bridge.currentTool === 'texture' && this.bridge.selectedTexture) {
       this.bridge.setCellTexture(cell.col, cell.row, this.bridge.selectedTexture);
     } else if (this.bridge.currentTool !== 'select' && this.bridge.currentTool !== 'entity') {
@@ -279,6 +319,72 @@ export class CanvasInteraction {
     }
   }
 
+  private onRightClick(): void {
+    if (this.drawingVertices.length > 0) {
+      this.drawingVertices.pop();
+      this.renderOverlays();
+    }
+  }
+
+  private handleBlockedAreaClick(p: Phaser.Input.Pointer): void {
+    const wx = p.worldX;
+    const wy = p.worldY;
+
+    // If drawing, check for close or add vertex
+    if (this.drawingVertices.length > 0) {
+      const first = this.drawingVertices[0];
+      const dist = Math.hypot(wx - first.x, wy - first.y);
+      if (dist <= SNAP_DISTANCE_PX && this.drawingVertices.length >= 3) {
+        this.closePolygon();
+        return;
+      }
+      this.drawingVertices.push({ x: wx, y: wy });
+      this.renderOverlays();
+      return;
+    }
+
+    // Not drawing — check if clicking an existing blocked area for selection
+    const levelData = this.bridge.getScene().getLevelData();
+    const areas = levelData.blockedAreas ?? [];
+    const hits = areas.filter(a => isPointInPolygon(wx, wy, a.vertices));
+    if (hits.length > 0) {
+      const cellKey = `${Math.floor(wx)},${Math.floor(wy)}`;
+      if (this.lastClickCell === cellKey) {
+        this.clickCycleIndex = (this.clickCycleIndex + 1) % hits.length;
+      } else {
+        this.clickCycleIndex = 0;
+        this.lastClickCell = cellKey;
+      }
+      this.bridge.selectBlockedArea(hits[this.clickCycleIndex].id);
+      this.renderOverlays();
+      return;
+    }
+
+    // Start new drawing
+    const grid = this.bridge.getGrid();
+    const cell = grid.worldToCell(wx, wy);
+    const gridCell = grid.getCell(cell.col, cell.row);
+    this.drawingAutoLayer = gridCell?.layer ?? 0;
+    this.drawingVertices = [{ x: wx, y: wy }];
+    this.bridge.selectBlockedArea(null);
+    this.renderOverlays();
+  }
+
+  private closePolygon(): void {
+    const verts = ensureClockwise([...this.drawingVertices]);
+    this.drawingVertices = [];
+
+    if (!isConvex(verts)) {
+      this.bridge.toast?.show('Polygon is not convex — discarded', 'error');
+      this.renderOverlays();
+      return;
+    }
+
+    const id = this.bridge.addBlockedArea(verts, this.drawingAutoLayer);
+    this.bridge.selectBlockedArea(id);
+    this.renderOverlays();
+  }
+
   // --- Editor overlays ---
   renderOverlays(): void {
     // Clean up old overlays
@@ -360,6 +466,69 @@ export class CanvasInteraction {
         rect.setStrokeStyle(2, 0x00ff00);
         rect.setDepth(Depth.debugText);
         this.highlights.push(rect);
+      }
+    }
+
+    // Blocked area rendering
+    if (this.graphics) this.graphics.destroy();
+    this.graphics = scene.add.graphics();
+    this.graphics.setDepth(Depth.debugText);
+
+    const layerColors = [0xff4444, 0x4488ff, 0x44ff44];
+    for (const area of levelData.blockedAreas ?? []) {
+      const verts = area.vertices;
+      if (verts.length < 3) continue;
+      const color = layerColors[area.layer] ?? 0xffff00;
+      const isSelected = area.id === this.bridge.selectedBlockedAreaId;
+
+      this.graphics.fillStyle(color, isSelected ? 0.3 : 0.15);
+      this.graphics.beginPath();
+      this.graphics.moveTo(verts[0].x, verts[0].y);
+      for (let i = 1; i < verts.length; i++) this.graphics.lineTo(verts[i].x, verts[i].y);
+      this.graphics.closePath();
+      this.graphics.fillPath();
+
+      this.graphics.lineStyle(isSelected ? 3 : 2, color, isSelected ? 1 : 0.6);
+      this.graphics.beginPath();
+      this.graphics.moveTo(verts[0].x, verts[0].y);
+      for (let i = 1; i < verts.length; i++) this.graphics.lineTo(verts[i].x, verts[i].y);
+      this.graphics.closePath();
+      this.graphics.strokePath();
+    }
+
+    // Drawing preview
+    if (this.drawingVertices.length > 0) {
+      const dv = this.drawingVertices;
+      // Vertex dots
+      this.graphics.fillStyle(0xffffff, 1);
+      for (const v of dv) this.graphics.fillCircle(v.x, v.y, 4);
+
+      // Lines between vertices
+      if (dv.length >= 2) {
+        this.graphics.lineStyle(2, 0xffffff, 0.8);
+        this.graphics.beginPath();
+        this.graphics.moveTo(dv[0].x, dv[0].y);
+        for (let i = 1; i < dv.length; i++) this.graphics.lineTo(dv[i].x, dv[i].y);
+        this.graphics.strokePath();
+      }
+
+      // Preview line to cursor
+      if (this.cursorWorldPos) {
+        const last = dv[dv.length - 1];
+        this.graphics.lineStyle(1, 0xffffff, 0.4);
+        this.graphics.beginPath();
+        this.graphics.moveTo(last.x, last.y);
+        this.graphics.lineTo(this.cursorWorldPos.x, this.cursorWorldPos.y);
+        this.graphics.strokePath();
+
+        // Snap indicator near first vertex
+        if (dv.length >= 3) {
+          const dist = Math.hypot(this.cursorWorldPos.x - dv[0].x, this.cursorWorldPos.y - dv[0].y);
+          if (dist <= SNAP_DISTANCE_PX) {
+            this.graphics.lineStyle(2, 0x00ff00, 0.8);
+            this.graphics.strokeCircle(dv[0].x, dv[0].y, 8);
+          }
+        }
       }
     }
   }

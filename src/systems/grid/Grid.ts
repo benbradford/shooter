@@ -9,6 +9,7 @@ import { getMustFaceEnemy } from "../../ecs/components/combat/AttackComboCompone
 import type { CellData } from './CellData';
 import type { LevelData } from '../level/LevelLoader';
 import { Depth } from '../../constants/DepthConstants';
+import type { BlockedAreaManager } from '../BlockedAreaManager';
 export type { CellProperty, CellData } from './CellData';
 
 export class Grid {
@@ -24,6 +25,15 @@ export class Grid {
   private isSceneDebugEnabled: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
+  private blockedAreaManager?: BlockedAreaManager;
+
+  setBlockedAreaManager(manager: BlockedAreaManager): void {
+    this.blockedAreaManager = manager;
+  }
+
+  getBlockedAreaCells(): ReadonlySet<string> | undefined {
+    return this.blockedAreaManager?.getBlockedCells();
+  }
 
   public get gridDebugEnabled(): boolean {
     return this.isGridDebugEnabled;
@@ -290,6 +300,34 @@ export class Grid {
           this.graphics.lineStyle(3, 0x000000, 1);
           this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
         }
+      }
+    }
+
+    // Draw blocked area polygons
+    if (this.blockedAreaManager) {
+      const areas = this.blockedAreaManager.getAll();
+      for (const area of areas) {
+        let color = 0x00ff00;
+        if (area.layer === 0) color = 0xff0000;
+        else if (area.layer === 1) color = 0x0000ff;
+
+        this.graphics.fillStyle(color, 0.15);
+        this.graphics.beginPath();
+        this.graphics.moveTo(area.vertices[0].x, area.vertices[0].y);
+        for (let i = 1; i < area.vertices.length; i++) {
+          this.graphics.lineTo(area.vertices[i].x, area.vertices[i].y);
+        }
+        this.graphics.closePath();
+        this.graphics.fillPath();
+
+        this.graphics.lineStyle(2, color, 0.8);
+        this.graphics.beginPath();
+        this.graphics.moveTo(area.vertices[0].x, area.vertices[0].y);
+        for (let i = 1; i < area.vertices.length; i++) {
+          this.graphics.lineTo(area.vertices[i].x, area.vertices[i].y);
+        }
+        this.graphics.closePath();
+        this.graphics.strokePath();
       }
     }
   }

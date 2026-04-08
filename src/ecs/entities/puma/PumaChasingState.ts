@@ -29,7 +29,7 @@ export class PumaChasingState implements IState {
     private readonly grid: Grid,
     private readonly config: { chaseSpeedPxPerSec: number; jumpDetectDistancePx: number }
   ) {
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }
 
   onEnter(): void {

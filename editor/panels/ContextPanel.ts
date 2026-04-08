@@ -489,7 +489,7 @@ export class ContextPanel {
     if (entityDef.type === 'npc') {
       typeFields += `<div class="form-group"><label>Assets</label><input id="ef-assets" value="${data.assets ?? 'npc1'}" /></div>
         <div class="form-group"><label>Direction</label>
-        <select id="ef-npcdir">${['Down', 'Up', 'Left', 'Right', 'DownLeft', 'DownRight', 'UpLeft', 'UpRight'].map(d => `<option ${data.direction === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
+        <select id="ef-npcdir">${['Down', 'Up', 'Left', 'Right', 'DownLeft', 'DownRight', 'UpLeft', 'UpRight', 'facePlayer'].map(d => `<option ${data.direction === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
         <div class="form-group"><label>Name</label><input id="ef-npcname" value="${data.name ?? ''}" /></div>
         <div class="form-group"><label>Interactions (JSON)</label>
         <textarea id="ef-interactions" rows="6">${JSON.stringify(data.interactions ?? [], null, 2)}</textarea></div>`;
@@ -603,6 +603,33 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });
+    });
+  }
+
+  showBlockedAreaForm(areaId: string): void {
+    const levelData = this.bridge.getScene().getLevelData();
+    const area = levelData.blockedAreas?.find(a => a.id === areaId);
+    if (!area) { this.clear(); return; }
+
+    this.container.innerHTML = `
+      <h3 style="margin:0 0 8px;color:#e0e0e0">Blocked Area: ${area.id}</h3>
+      <div class="form-group"><label>Layer</label>
+        <input type="number" id="ba-layer" value="${area.layer}" min="0" max="2" style="width:50px" /></div>
+      <div class="form-group"><label style="display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="ba-projectiles" ${area.blocksProjectiles ? 'checked' : ''} /> Blocks Projectiles</label></div>
+      <div class="form-group" style="color:#7f8c8d;font-size:11px">${area.vertices.length} vertices</div>
+      <button class="ed-btn" id="ba-delete" style="background:#c0392b;margin-top:8px">Delete</button>
+    `;
+
+    this.container.querySelector('#ba-layer')?.addEventListener('change', (e) => {
+      this.bridge.updateBlockedArea(areaId, { layer: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ba-projectiles')?.addEventListener('change', (e) => {
+      this.bridge.updateBlockedArea(areaId, { blocksProjectiles: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ba-delete')?.addEventListener('click', () => {
+      this.bridge.removeBlockedArea(areaId);
+      this.clear();
     });
   }
 }

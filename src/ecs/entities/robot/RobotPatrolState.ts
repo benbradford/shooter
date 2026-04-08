@@ -27,7 +27,7 @@ export class RobotPatrolState implements IState {
     this.entity = entity;
     this.grid = grid;
     this.playerEntity = playerEntity;
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }
 
   onEnter(): void {

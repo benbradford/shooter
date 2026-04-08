@@ -87,7 +87,8 @@ export class BulletDudeShootingState implements IState {
       dirY,
       speed: config.bulletSpeed,
       grid: (this.scene as Phaser.Scene & { grid: Grid }).grid,
-      layer: gridPos.currentLayer
+      layer: gridPos.currentLayer,
+      blockedAreaManager: (this.scene as Phaser.Scene & { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
     });
     this.entityManager.add(bullet);
 

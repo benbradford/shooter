@@ -25,6 +25,13 @@ export class PanelController {
     bridge.onDataEntityClicked = (entityId) => {
       this.contextPanel.showDataEntityForm(entityId);
     };
+    bridge.onBlockedAreaSelected = (id) => {
+      if (id) {
+        this.contextPanel.showBlockedAreaForm(id);
+      } else {
+        this.contextPanel.clear();
+      }
+    };
     bridge.onSelectionCleared = () => {
       if (bridge.currentTool === 'level') {
         this.contextPanel.showLevelInfo();

@@ -30,10 +30,11 @@ export type CreateNPCProps = {
   readonly interactions: NPCInteraction[];
   readonly scale?: number;
   readonly name?: string;
+  readonly facePlayer?: boolean;
 }
 
 export function createNPCEntity(props: CreateNPCProps): Entity {
-  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1, name } = props;
+  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1, name, facePlayer = false } = props;
   const entity = new Entity(entityId);
   entity.tags.add('npc');
   
@@ -49,7 +50,7 @@ export function createNPCEntity(props: CreateNPCProps): Entity {
   sprite.sprite.setDepth(Depth.enemy);
   sprite.sprite.setOrigin(0.5, 0.5);
 
-  entity.add(new NPCIdleComponent(direction, assets));
+  entity.add(new NPCIdleComponent(direction, assets, facePlayer));
   entity.add(new NPCInteractionComponent(interactions, col, row));
 
   entity.setUpdateOrder([

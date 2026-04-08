@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.dodgingbullets.game',
-  appName: 'Dodging Bullets',
+  appId: 'com.btr.game',
+  appName: 'Benath The Roots',
   webDir: 'dist'
 };
 

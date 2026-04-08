@@ -352,12 +352,12 @@ Individual cells can have custom background textures that override theme renderi
 - `sourceRect`: Crops a region from the source image (creates a Phaser texture frame). If omitted, uses the full image.
 - `sourceRect` and `transformOverride` can be combined
 
-**Adding new textures:**
-1. Add image to `public/assets/{category}/`
-2. Register in `src/assets/AssetRegistry.ts`
-3. Add to editor asset group in `AssetRegistry.ts`
-4. For single textures: Add to `AVAILABLE_TEXTURES` in `src/editor/TextureEditorState.ts`
-5. For spritesheets: Add to `SPRITESHEET_TEXTURES` in `src/editor/SpritesheetTextures.ts`
+**Adding new background textures:**
+1. Add image to `public/assets/{category}/` (e.g., `public/assets/cell_drawables/bush2.png`)
+2. Register in `src/assets/AssetRegistry.ts` (add entry with key, path, type: `'image'`)
+3. Add key to `editor` asset group array in `AssetRegistry.ts` (so it loads in the editor)
+4. Add key to `BACKGROUND_TEXTURE_KEYS` in `editor/panels/TexturePicker.ts` (so it appears in the Background tab)
+5. For spritesheets: Add to `SPRITESHEET_TEXTURES` in `editor/SpritesheetTextures.ts`
 
 ## Theme Switching
 

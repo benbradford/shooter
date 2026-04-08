@@ -2,6 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 /**
  * ProjectileComponent - Handles bullet movement and layer-based collision
@@ -27,6 +28,7 @@ export type ProjectileProps = {
   scene?: Phaser.Scene;
   onWallHit?: (x: number, y: number) => void;
   onMaxDistance?: (x: number, y: number) => void;
+  blockedAreaManager?: BlockedAreaManager;
 }
 
 export class ProjectileComponent implements Component {
@@ -38,6 +40,7 @@ export class ProjectileComponent implements Component {
   private readonly grid: Grid;
   private readonly onWallHit?: (x: number, y: number) => void;
   private readonly onMaxDistance?: (x: number, y: number) => void;
+  private readonly blockedAreaManager?: BlockedAreaManager;
   
   private distanceTraveled: number = 0;
   private currentLayer: number;
@@ -53,6 +56,7 @@ export class ProjectileComponent implements Component {
     this.grid = props.grid;
     this.onWallHit = props.onWallHit;
     this.onMaxDistance = props.onMaxDistance;
+    this.blockedAreaManager = props.blockedAreaManager;
     
     this.playerStartLayer = props.startLayer;
     this.currentLayer = props.fromTransition ? props.startLayer + 1 : props.startLayer;
@@ -70,6 +74,12 @@ export class ProjectileComponent implements Component {
 
     if (this.distanceTraveled >= this.maxDistance) {
       this.onMaxDistance?.(transform.x, transform.y);
+      this.entity.destroy();
+      return;
+    }
+
+    if (this.blockedAreaManager?.isPointInside(transform.x, transform.y, this.currentLayer)) {
+      this.onWallHit?.(transform.x, transform.y);
       this.entity.destroy();
       return;
     }

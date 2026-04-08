@@ -199,11 +199,13 @@ export class EntityLoader {
           row: data.row as number,
           difficulty: data.difficulty as EnemyDifficulty,
           onThrowBone: (x, y, dirX, dirY) => {
+            const gameScene = this.scene as Phaser.Scene & { blockedAreaManager?: import('./BlockedAreaManager').BlockedAreaManager };
             const bone = createBoneProjectileEntity({
               scene: this.scene,
               x, y, dirX, dirY,
               grid: this.grid,
-              layer: player.require(GridPositionComponent).currentLayer
+              layer: player.require(GridPositionComponent).currentLayer,
+              blockedAreaManager: gameScene.blockedAreaManager,
             });
             this.entityManager.add(bone);
           }
@@ -440,6 +442,7 @@ export class EntityLoader {
             interactions: npcData.interactions ?? [],
             scale: npcData.scale,
             name: npcData.name,
+            facePlayer: npcData.direction === 'facePlayer',
           });
         };
 

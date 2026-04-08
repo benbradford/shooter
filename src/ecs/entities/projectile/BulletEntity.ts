@@ -7,6 +7,7 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { BULLET_DISPLAY_SIZE } from './ProjectileConfig';
 
 const BULLET_DAMAGE = 10;
@@ -20,10 +21,11 @@ export type CreateBulletProps = {
   grid: Grid;
   layer?: number;
   fromTransition?: boolean;
+  blockedAreaManager?: BlockedAreaManager;
 }
 
 export function createBulletEntity(props: CreateBulletProps): Entity {
-  const { scene, x, y, dirX, dirY, grid, layer = 0, fromTransition = false } = props;
+  const { scene, x, y, dirX, dirY, grid, layer = 0, fromTransition = false, blockedAreaManager } = props;
   const entity = new Entity('bullet');
   entity.tags.add('player_projectile');
 
@@ -43,6 +45,7 @@ export function createBulletEntity(props: CreateBulletProps): Entity {
     startLayer: layer,
     fromTransition,
     scene,
+    blockedAreaManager,
     onWallHit: (x, y) => {
       const emitter = scene.add.particles(x, y, 'smoke', {
         speed: { min: 300, max: 500 },

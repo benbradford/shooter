@@ -28,6 +28,7 @@ export class EditorBridge {
   selectedCell: { col: number; row: number } | null = null;
   selectedTexture: string | null = null;
   editingTriggerCells: string | null = null; // entity ID whose triggerCells are being edited
+  selectedBlockedAreaId: string | null = null;
   gridProperties: Set<CellProperty> = new Set();
   gridLayer = 0;
   isDirty = false;
@@ -52,6 +53,7 @@ export class EditorBridge {
   onSceneReady: (() => void) | null = null;
   onLoadError: ((levelName: string, error: unknown) => void) | null = null;
   onToolChanged: ((tool: string) => void) | null = null;
+  onBlockedAreaSelected: ((id: string | null) => void) | null = null;
 
   static getInstance(): EditorBridge {
     if (!EditorBridge.instance) {
@@ -136,6 +138,7 @@ export class EditorBridge {
   clearSelection(): void {
     this.selectedEntity = null;
     this.selectedCell = null;
+    this.selectedBlockedAreaId = null;
     this.editingTriggerCells = null;
     this.onSelectionCleared?.();
   }
@@ -348,6 +351,20 @@ export class EditorBridge {
           if (diff) diff.difficulty = updates.difficulty as string;
         }
       }
+      // Update NPC direction component if present
+      if (updates.direction !== undefined) {
+        const entity = this.getEntityManager().getAll().find(e => e.id === entityId);
+        if (entity) {
+          const idle = entity.get(NPCIdleComponent);
+          if (idle) {
+            const dirStr = updates.direction as string;
+            idle.facePlayer = dirStr === 'facePlayer';
+            if (!idle.facePlayer) {
+              idle.setDirection(Direction[dirStr as keyof typeof Direction]);
+            }
+          }
+        }
+      }
     });
   }
 
@@ -366,6 +383,49 @@ export class EditorBridge {
         entityDef.respawnable = meta.respawnable || undefined;
       }
     });
+  }
+
+  // --- Blocked Areas ---
+  addBlockedArea(vertices: Array<{ x: number; y: number }>, layer: number): string {
+    let id = '';
+    this._applyMutation('Add blocked area', () => {
+      const levelData = this.scene.getLevelData();
+      if (!levelData.blockedAreas) levelData.blockedAreas = [];
+      const maxId = levelData.blockedAreas.reduce((max, a) => {
+        const num = Number.parseInt(a.id.replace('ba', ''), 10);
+        return Number.isNaN(num) ? max : Math.max(max, num);
+      }, -1);
+      id = `ba${maxId + 1}`;
+      levelData.blockedAreas.push({ id, vertices, layer, blocksProjectiles: true });
+    });
+    return id;
+  }
+
+  removeBlockedArea(areaId: string): void {
+    this._applyMutation(`Remove blocked area ${areaId}`, () => {
+      const levelData = this.scene.getLevelData();
+      if (!levelData.blockedAreas) return;
+      levelData.blockedAreas = levelData.blockedAreas.filter(a => a.id !== areaId);
+    });
+    this.selectedBlockedAreaId = null;
+    this.onBlockedAreaSelected?.(null);
+  }
+
+  updateBlockedArea(areaId: string, data: { layer?: number; blocksProjectiles?: boolean }): void {
+    this._applyMutation(`Update blocked area ${areaId}`, () => {
+      const levelData = this.scene.getLevelData();
+      const area = levelData.blockedAreas?.find(a => a.id === areaId);
+      if (!area) return;
+      if (data.layer !== undefined) area.layer = data.layer;
+      if (data.blocksProjectiles !== undefined) area.blocksProjectiles = data.blocksProjectiles;
+    });
+  }
+
+  selectBlockedArea(areaId: string | null): void {
+    this.selectedBlockedAreaId = areaId;
+    this.selectedEntity = null;
+    this.selectedCell = null;
+    this.onBlockedAreaSelected?.(areaId);
   }
 
   movePlayer(col: number, row: number): void {
@@ -516,7 +576,8 @@ export class EditorBridge {
       cells,
       entities: entities.length > 0 ? entities : [],
       levelTheme: existingLevelData.levelTheme,
-      background: existingLevelData.background
+      background: existingLevelData.background,
+      ...(existingLevelData.blockedAreas?.length ? { blockedAreas: existingLevelData.blockedAreas } : {}),
     };
   }
 
@@ -611,7 +672,7 @@ export class EditorBridge {
         data = {
           col: cell.col, row: cell.row,
           assets: idle?.getSpritesheet() ?? npcData?.assets ?? 'npc1',
-          direction: Direction[idle?.getDirection() ?? Direction.Down],
+          direction: idle?.facePlayer ? 'facePlayer' : Direction[idle?.getDirection() ?? Direction.Down],
           interactions: npcData?.interactions ?? [],
           ...(npcData?.scale ? { scale: npcData.scale } : {}),
           ...(npcData?.name ? { name: npcData.name } : {})

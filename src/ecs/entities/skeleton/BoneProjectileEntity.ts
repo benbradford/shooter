@@ -7,6 +7,7 @@ import { DamageComponent } from '../../components/core/DamageComponent';
 import { RotatingProjectileComponent } from '../../components/visual/RotatingProjectileComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Depth } from '../../../constants/DepthConstants';
 
 const BONE_SPEED_PX_PER_SEC = 250;
@@ -22,10 +23,11 @@ export type CreateBoneProjectileProps = {
   dirY: number;
   grid: Grid;
   layer: number;
+  blockedAreaManager?: BlockedAreaManager;
 }
 
 export function createBoneProjectileEntity(props: CreateBoneProjectileProps): Entity {
-  const { scene, x, y, dirX, dirY, grid, layer } = props;
+  const { scene, x, y, dirX, dirY, grid, layer, blockedAreaManager } = props;
 
   const entity = new Entity('bone_projectile');
   entity.tags.add('enemy_projectile');
@@ -50,6 +52,7 @@ export function createBoneProjectileEntity(props: CreateBoneProjectileProps): En
     startLayer: layer,
     fromTransition: false,
     scene,
+    blockedAreaManager,
     onWallHit: () => {
       scene.time.delayedCall(0, () => entity.destroy());
     },

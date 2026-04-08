@@ -7,6 +7,7 @@ const GRID_TOOLS: Array<{ label: string; tool: string }> = [
   { label: 'Select', tool: 'select' },
   { label: 'Grid', tool: 'grid' },
   { label: 'Entity', tool: 'entity' },
+  { label: 'Area', tool: 'blockedarea' },
 ];
 
 const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path'] as const;

@@ -6,6 +6,8 @@
     "currentLevel": "house3_interior",
     "entryCell": { "col": 0, "row": 0 }
   },
-  "flags": {},
+  "flags": {
+    "canPunch": "false"
+  },
   "levels": {}
 }

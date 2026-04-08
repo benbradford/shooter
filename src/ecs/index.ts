@@ -9,6 +9,7 @@ export { WalkComponent } from './components/movement/WalkComponent';
 export { StateMachineComponent } from './components/core/StateMachineComponent';
 export { GridPositionComponent } from './components/movement/GridPositionComponent';
 export { GridCollisionComponent } from './components/movement/GridCollisionComponent';
+export { BlockedAreaCollisionComponent } from './components/movement/BlockedAreaCollisionComponent';
 export { GridCellBlocker } from './components/movement/GridCellBlocker';
 export { ProjectileComponent } from './components/combat/ProjectileComponent';
 export { ProjectileEmitterComponent } from './components/combat/ProjectileEmitterComponent';

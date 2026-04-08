@@ -13,9 +13,11 @@ type PathNode = {
 
 export class Pathfinder {
   private readonly grid: Grid;
+  private readonly blockedAreaCells?: ReadonlySet<string>;
 
-  constructor(grid: Grid) {
+  constructor(grid: Grid, blockedAreaCells?: ReadonlySet<string>) {
     this.grid = grid;
+    this.blockedAreaCells = blockedAreaCells;
   }
 
   findPath(
@@ -144,6 +146,10 @@ export class Pathfinder {
     newRow: number,
     allowLayerChanges: boolean
   ): { col: number; row: number; layer: number } | null {
+    if (this.blockedAreaCells?.has(`${newCol},${newRow}`)) {
+      return null;
+    }
+
     for (const occupant of targetCell.occupants) {
       const entity = occupant as { get?: (type: typeof GridCellBlocker) => unknown };
       if (entity.get?.(GridCellBlocker)) {

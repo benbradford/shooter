@@ -33,7 +33,7 @@ Level transitions work automatically via exit triggers. The system:
 
 **Key implementation (March 2026):**
 - WorldState persists across transitions (only loads from file once)
-- URL parameter only used on first load
+- URL parameter only used on first load (clears spawn position to use level's playerStart)
 - Runtime textures never unloaded (water animations, tilesets)
 - Enemy textures never unloaded (have global animations, small size)
 - Entities destroyed in LoadingScene.init() before scene.stop()
@@ -93,9 +93,16 @@ Level transitions work automatically via exit triggers. The system:
 
 ## Adding Assets
 
+**Background textures (for cells in editor):**
+1. Add image to `public/assets/cell_drawables/`
+2. Register in `src/assets/AssetRegistry.ts` (key, path, type: `'image'`)
+3. Add key to `editor` asset group array in `AssetRegistry.ts`
+4. Add key to `BACKGROUND_TEXTURE_KEYS` in `editor/panels/TexturePicker.ts`
+
+**Spritesheets (enemies, player, etc.):**
 1. Add sprite sheet to `public/assets/`
 2. Register in `src/assets/AssetRegistry.ts`
-3. Add to `src/assets/AssetLoader.ts` default assets list
+3. Add to appropriate group in `src/assets/AssetLoader.ts`
 
 ## Creating Entities
 

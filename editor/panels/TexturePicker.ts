@@ -3,14 +3,14 @@ import { SPRITESHEET_TEXTURES } from '../SpritesheetTextures';
 import type { SourceRect } from '../SpritesheetTextures';
 
 const BACKGROUND_TEXTURE_KEYS = [
-  'bed1', 'bench1', 'bridge_h', 'bridge_v', 'bush1', 'chair1', 'chair2',
+  'bed1', 'bench1', 'bridge_h', 'bridge_v', 'bush1', 'bush2', 'chair1', 'chair2',
   'door_closed', 'dungeon_door', 'dungeon_floor', 'dungeon_key', 'dungeon_platform',
   'dungeon_window', 'fence1', 'fireplace1', 'house1', 'house2', 'house3',
   'interior6', 'interior_door1', 'interior_door2', 'kitchen1', 'pillar',
   'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6',
   'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8',
   'stone_floor', 'stone_stairs', 'stone_wall', 'submerged_rock1',
-  'table1', 'table2', 'tree1', 'wall_torch',
+  'table1', 'table2', 'tree1', 'tree2', 'wall_torch',
   'sconce_bg', 'grass1', 'grass2', 'rock', 'dungeon_vase',
 ];
 

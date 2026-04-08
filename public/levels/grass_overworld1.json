@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 6,
-    "y": 9
+    "x": 35,
+    "y": 8
   },
   "cells": [
     {
@@ -2490,6 +2490,20 @@
       "properties": [
         "path"
       ]
+    },
+    {
+      "col": 26,
+      "row": 14,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "tree2",
+        "transformOverride": {
+          "scaleX": 4,
+          "scaleY": 3.8,
+          "offsetX": 20,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 38,
@@ -5131,17 +5145,35 @@
   ],
   "entities": [
     {
+      "id": "npc0",
+      "type": "npc",
+      "data": {
+        "col": 28,
+        "row": 8,
+        "assets": "npc1",
+        "direction": "facePlayer",
+        "interactions": [
+          {
+            "name": "interaction1"
+          }
+        ],
+        "name": "Julie"
+      }
+    },
+    {
       "id": "triggertest",
       "type": "trigger",
       "data": {
         "eventToRaise": "test_interaction_event",
         "triggerCells": [
           {
-            "col": 18,
-            "row": 3
+            "col": 12,
+            "row": 2
           }
         ],
-        "oneShot": false
+        "oneShot": false,
+        "col": 12,
+        "row": 2
       }
     },
     {
@@ -5257,6 +5289,18 @@
       "createOnAnyEvent": [
         "test_interaction_event"
       ]
+    },
+    {
+      "id": "interaction1",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "go1_first_interaction"
+      },
+      "createOnAnyEvent": [
+        "interaction1"
+      ]
     }
   ],
   "levelTheme": "grass_overworld1",
@@ -5286,5 +5330,54 @@
       "rotation": "none",
       "alphaBlend": "low"
     }
-  }
+  },
+  "blockedAreas": [
+    {
+      "id": "ba0",
+      "vertices": [
+        {
+          "x": 1812.6058402555927,
+          "y": 863.7612762312638
+        },
+        {
+          "x": 1766.8039233226855,
+          "y": 825.2173790149898
+        },
+        {
+          "x": 1699.7368306709282,
+          "y": 818.2794775160604
+        },
+        {
+          "x": 1622.037150159746,
+          "y": 858.3651306209854
+        },
+        {
+          "x": 1593.410952076679,
+          "y": 908.4721970021417
+        },
+        {
+          "x": 1599.9540830670944,
+          "y": 977.0803340471097
+        },
+        {
+          "x": 1640.0307603833883,
+          "y": 1021.7912548179876
+        },
+        {
+          "x": 1726.7272460063914,
+          "y": 1034.1253019271953
+        },
+        {
+          "x": 1815.8774057508003,
+          "y": 1003.290184154176
+        },
+        {
+          "x": 1835.5067987220464,
+          "y": 905.3886852248398
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    }
+  ]
 }

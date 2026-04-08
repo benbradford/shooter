@@ -4,6 +4,7 @@ import type { Entity } from '../../Entity';
 import { NPCManager } from '../../../systems/NPCManager';
 import type GameScene from '../../../scenes/GameScene';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const BASE_UNPRESSED_SCALE = 4.44;
 const BASE_PRESSED_SCALE = 4.86;
@@ -31,6 +32,7 @@ export class AttackButtonComponent implements Component {
   private posY: number = 0;
   private initialized: boolean = false;
   private currentIcon: 'punch' | 'lips' = 'punch';
+  private isHudVisible: boolean = true;
 
   constructor(private readonly scene: Phaser.Scene) {
     this.sprite = scene.add.sprite(0, 0, 'crosshair');
@@ -130,6 +132,12 @@ export class AttackButtonComponent implements Component {
       this.currentIcon = newIcon;
       this.sprite.setTexture(newIcon === 'punch' ? PUNCH_TEXTURE : LIPS_TEXTURE);
     }
+
+    if (this.isHudVisible) {
+      const canPunch = WorldStateManager.getInstance().getFlag('canPunch') === 'true';
+      const shouldShow = canPunch || closestNPC !== null;
+      this.applyVisibility(shouldShow);
+    }
   }
 
   isAttackPressed(): boolean {
@@ -137,6 +145,11 @@ export class AttackButtonComponent implements Component {
   }
 
   setVisible(visible: boolean): void {
+    this.isHudVisible = visible;
+    this.applyVisibility(visible);
+  }
+
+  private applyVisibility(visible: boolean): void {
     this.sprite.setVisible(visible);
     this.ring.setVisible(visible);
     this.bg.setVisible(visible);

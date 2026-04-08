@@ -165,6 +165,13 @@ export type LevelExit = {
   description?: string;
 }
 
+export type BlockedAreaDef = {
+  id: string;
+  vertices: Array<{ x: number; y: number }>;
+  layer: number;
+  blocksProjectiles: boolean;
+}
+
 export type LevelData = {
   name?: string;
   width: number;
@@ -178,6 +185,8 @@ export type LevelData = {
   levelTheme?: LevelTheme;
   background?: LevelBackground;
   
+  blockedAreas?: BlockedAreaDef[];
+
   // Legacy fields (deprecated)
   robots?: LevelRobot[];
   bugBases?: LevelBugBase[];

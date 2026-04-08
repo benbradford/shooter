@@ -11,6 +11,7 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
 
@@ -49,10 +50,11 @@ export type CreateFireballProps = {
   maxDistance: number;
   grid: Grid;
   startLayer: number;
+  blockedAreaManager?: BlockedAreaManager;
 }
 
 export function createFireballEntity(props: CreateFireballProps): Entity {
-  const { scene, x, y, dirX, dirY, speed, maxDistance, grid, startLayer } = props;
+  const { scene, x, y, dirX, dirY, speed, maxDistance, grid, startLayer, blockedAreaManager } = props;
   const entity = new Entity('fireball');
   entity.tags.add('enemy_projectile');
 
@@ -69,6 +71,7 @@ export function createFireballEntity(props: CreateFireballProps): Entity {
     startLayer,
     fromTransition: false,
     scene,
+    blockedAreaManager,
     onWallHit: (x, y) => createFireballBurst(scene, x, y),
     onMaxDistance: (x, y) => createFireballBurst(scene, x, y)
   }));

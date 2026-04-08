@@ -5,6 +5,7 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Depth } from '../../../constants/DepthConstants';
 
 const BULLET_MAX_DISTANCE_PX = 800;
@@ -21,10 +22,11 @@ export type CreateBulletDudeBulletProps = {
   speed: number;
   grid: Grid;
   layer?: number;
+  blockedAreaManager?: BlockedAreaManager;
 }
 
 export function createBulletDudeBulletEntity(props: CreateBulletDudeBulletProps): Entity {
-  const { scene, x, y, dirX, dirY, speed, grid, layer = 0 } = props;
+  const { scene, x, y, dirX, dirY, speed, grid, layer = 0, blockedAreaManager } = props;
   const entity = new Entity('bulletdude_bullet');
   entity.tags.add('enemy_projectile');
 
@@ -43,6 +45,7 @@ export function createBulletDudeBulletEntity(props: CreateBulletDudeBulletProps)
     startLayer: layer,
     fromTransition: false,
     scene,
+    blockedAreaManager,
     onWallHit: (x, y) => {
       const emitter = scene.add.particles(x, y, 'smoke', {
         speed: { min: 300, max: 500 },

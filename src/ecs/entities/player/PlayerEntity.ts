@@ -26,6 +26,8 @@ import { VignetteHealthComponent } from '../../components/visual/VignetteHealthC
 import { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
+import { BlockedAreaCollisionComponent } from '../../components/movement/BlockedAreaCollisionComponent';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -62,10 +64,11 @@ export type CreatePlayerEntityProps = {
   vignetteSprite?: Phaser.GameObjects.Image;
   initialHealth?: number;
   levelData: () => import('../../../systems/level/LevelLoader').LevelData;
+  blockedAreaManager?: BlockedAreaManager;
 }
 
 export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
-  const { scene, x, y, grid, joystick, getEnemies, entityManager, eventManager, vignetteSprite, initialHealth, levelData } = props;
+  const { scene, x, y, grid, joystick, getEnemies, entityManager, eventManager, vignetteSprite, initialHealth, levelData, blockedAreaManager } = props;
   const entity = new Entity('player');
 
   const transform = entity.add(new TransformComponent(x, y, 0, PLAYER_SCALE));
@@ -173,6 +176,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
 
   entity.add(new GridCollisionComponent(grid));
 
+  if (blockedAreaManager) {
+    entity.add(new BlockedAreaCollisionComponent({ blockedAreaManager }));
+  }
+
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
 
   if (initialHealth !== undefined) {
@@ -248,6 +255,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     InteractionComponent,
     WalkComponent,
     GridCollisionComponent,
+    BlockedAreaCollisionComponent,
     PetAbilityComponent,
     CollisionComponent,
     HealthComponent,

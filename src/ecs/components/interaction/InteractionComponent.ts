@@ -29,7 +29,7 @@ export class InteractionComponent implements Component {
   private currentAnimKey = '';
   
   constructor(private readonly grid: Grid) {
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }
   
   async moveTo(col: number, row: number, speedPxPerSec: number): Promise<void> {

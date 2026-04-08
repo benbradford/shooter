@@ -2,6 +2,7 @@ import type { InputComponent } from '../../components/input/InputComponent';
 import type { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import type { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import type { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export function handlePunchInput(
   input: InputComponent,
@@ -20,7 +21,10 @@ export function handlePunchInput(
     if (input.tryNPCInteraction()) {
       return true;
     }
-    attackCombo.tryStartPunch();
+    const canPunch = WorldStateManager.getInstance().getFlag('canPunch') === 'true';
+    if (canPunch) {
+      attackCombo.tryStartPunch();
+    }
     return true;
   }
 

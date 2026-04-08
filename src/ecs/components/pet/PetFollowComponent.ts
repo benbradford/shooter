@@ -160,7 +160,7 @@ export class PetFollowComponent implements Component {
     const startCell = this.grid.worldToCell(transform.x, transform.y);
     const goalCell = getPlayerFeetCell(this.playerEntity, this.grid);
     
-    const pathfinder = new Pathfinder(this.grid);
+    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
     
     this.path = pathfinder.findPath(
       startCell.col, startCell.row,

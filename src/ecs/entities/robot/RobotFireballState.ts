@@ -113,6 +113,7 @@ export class RobotFireballState implements IState {
     const gameScene = this.scene as Phaser.Scene & {
       entityManager?: { add: (entity: Entity) => void };
       getGrid?: () => Grid;
+      blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager;
     };
 
     if (!gameScene.entityManager || !gameScene.getGrid) return;
@@ -131,7 +132,8 @@ export class RobotFireballState implements IState {
       speed: fireballProps.speed,
       maxDistance,
       grid,
-      startLayer: robotLayer
+      startLayer: robotLayer,
+      blockedAreaManager: gameScene.blockedAreaManager,
     });
 
     gameScene.entityManager.add(fireball);

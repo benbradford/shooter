@@ -3,17 +3,21 @@ import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { createNPCAnimations, getNPCAnimKey } from './NPCAnimations';
-import type { Direction } from '../../../constants/Direction';
+import { type Direction, dirFromDelta } from '../../../constants/Direction';
 
 export class NPCIdleComponent implements Component {
   entity!: Entity;
   private hasInitialized = false;
   private frameCount = 0;
+  private _facePlayer: boolean;
 
   constructor(
     private direction: Direction,
-    private readonly spritesheet: string
-  ) {}
+    private readonly spritesheet: string,
+    facePlayer = false
+  ) {
+    this._facePlayer = facePlayer;
+  }
 
   update(_delta: number): void {
     const sprite = this.entity.require(SpriteComponent).sprite;
@@ -25,6 +29,15 @@ export class NPCIdleComponent implements Component {
       if (playerEntity) {
         const playerTransform = playerEntity.require(TransformComponent);
         sprite.setDepth(transform.y > playerTransform.y ? 1 : -1);
+
+        if (this._facePlayer && this.hasInitialized) {
+          const dx = playerTransform.x - transform.x;
+          const dy = playerTransform.y - transform.y;
+          const newDir = dirFromDelta(dx, dy);
+          if (newDir !== this.direction) {
+            this.setDirection(newDir);
+          }
+        }
       }
     }
     
@@ -54,6 +67,14 @@ export class NPCIdleComponent implements Component {
 
   getDirection(): Direction {
     return this.direction;
+  }
+
+  get facePlayer(): boolean {
+    return this._facePlayer;
+  }
+
+  set facePlayer(value: boolean) {
+    this._facePlayer = value;
   }
 
   getSpritesheet(): string {

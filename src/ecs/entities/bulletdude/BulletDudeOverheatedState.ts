@@ -35,7 +35,7 @@ export class BulletDudeOverheatedState implements IState {
     private readonly scene: Phaser.Scene,
     private readonly grid: Grid
   ) {
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }
 
   onEnter(): void {

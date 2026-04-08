@@ -23,7 +23,7 @@ export class SkeletonIdleState implements IState {
     private readonly playerEntity: Entity,
     private readonly grid: Grid
   ) {
-    this.pathfinder = new Pathfinder(grid);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }
 
   onEnter(): void {
