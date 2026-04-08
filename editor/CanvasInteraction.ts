@@ -94,6 +94,18 @@ export class CanvasInteraction {
       void this.bridge.saveLevel();
       return;
     }
+    if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+      if (this.bridge.copySelectedEntity()) e.preventDefault();
+      return;
+    }
+    if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
+      const sel = this.bridge.selectedCell;
+      if (sel) {
+        e.preventDefault();
+        this.bridge.pasteEntity(sel.col, sel.row);
+      }
+      return;
+    }
     if (!this.isMouseOverCanvas || this.isHtmlInputFocused()) return;
     if (this.bridge.isLoading) return;
 

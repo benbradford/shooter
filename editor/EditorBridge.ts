@@ -34,6 +34,9 @@ export class EditorBridge {
   isDirty = false;
   currentLevelName: string | null = null;
 
+  // Clipboard
+  private clipboardEntity: LevelEntity | null = null;
+
   // Guards
   isLoading = false;
   private isSaving = false;
@@ -422,6 +425,71 @@ export class EditorBridge {
       if (meta.respawnable !== undefined) {
         entityDef.respawnable = meta.respawnable || undefined;
       }
+    });
+  }
+
+  // --- Copy/Paste ---
+  copySelectedEntity(): boolean {
+    if (!this.selectedEntity) return false;
+    const levelData = this.scene.getLevelData();
+    const entityDef = levelData.entities?.find(e => e.id === this.selectedEntity!.id);
+    if (!entityDef) return false;
+    this.clipboardEntity = JSON.parse(JSON.stringify(entityDef));
+    this.toast?.show(`Copied ${entityDef.id}`, 'success');
+    return true;
+  }
+
+  pasteEntity(col: number, row: number): void {
+    if (!this.clipboardEntity) return;
+    const type = this.clipboardEntity.type;
+
+    this._applyMutation(`Paste ${type} at ${col},${row}`, () => {
+      const entityManager = this.getEntityManager();
+      const levelData = this.scene.getLevelData();
+
+      const allIds = new Set(entityManager.getAll().map(e => e.id));
+      for (const e of levelData.entities ?? []) allIds.add(e.id);
+      let idNum = 0;
+      while (allIds.has(`${type}${idNum}`)) idNum++;
+      const newId = `${type}${idNum}`;
+
+      const clone: LevelEntity = JSON.parse(JSON.stringify(this.clipboardEntity));
+      clone.id = newId;
+      clone.data.col = col;
+      clone.data.row = row;
+
+      levelData.entities ??= [];
+      levelData.entities.push(clone);
+
+      const dataOnlyTypes = new Set(['trigger', 'exit', 'eventchainer', 'cellmodifier', 'interaction']);
+      if (!dataOnlyTypes.has(type)) {
+        const camera = this.scene.cameras.main;
+        const camX = camera.scrollX;
+        const camY = camera.scrollY;
+        const camZoom = camera.zoom;
+
+        this.isLoading = true;
+        this.scene.scene.restart({ editorMode: true, levelName: this.currentLevelName, levelData });
+
+        const pendingEntityId = newId;
+        const origOnReady = this.onSceneReady;
+        this.onSceneReady = () => {
+          this.onSceneReady = origOnReady;
+          origOnReady?.();
+          const cam = this.scene.cameras.main;
+          cam.scrollX = camX;
+          cam.scrollY = camY;
+          cam.setZoom(camZoom);
+
+          const entity = this.getEntityManager().getAll().find(e => e.id === pendingEntityId);
+          if (entity) {
+            this.setTool('select');
+            this.selectEntity(entity);
+          }
+        };
+      }
+
+      this.toast?.show(`Pasted ${type}: ${newId}`, 'success');
     });
   }
 

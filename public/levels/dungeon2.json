@@ -464,8 +464,8 @@
       "type": "exit",
       "data": {
         "targetLevel": "dungeon3",
-        "targetCol": 16,
-        "targetRow": 13,
+        "targetCol": 9,
+        "targetRow": 12,
         "triggerCells": [
           {
             "col": 4,
