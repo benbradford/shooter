@@ -273,7 +273,7 @@ if (theme === 'dungeon') {
 
 ### 4. Add to Theme Editor
 
-Update `src/editor/ThemeEditorState.ts`:
+The editor theme dropdown is in the Level Info panel. Themes are defined in `src/scenes/GameScene.ts`.
 
 ```typescript
 const themes = ['dungeon', 'swamp', 'cave'];
@@ -457,5 +457,5 @@ vignette.setBlendMode(2); // MULTIPLY for darkening effect
 - `src/scenes/theme/GrassSceneRenderer.ts` - Grass theme implementation
 - `src/systems/SceneOverlays.ts` - Overlay placement system
 - `src/scenes/GameScene.ts` - Theme instantiation and switching
-- `src/editor/ThemeEditorState.ts` - Theme selection UI
+- `editor/SpritesheetTextures.ts` - Spritesheet sub-sprite definitions
 - `src/systems/level/LevelLoader.ts` - LevelTheme type definition

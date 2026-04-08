@@ -73,7 +73,7 @@ if (enemyData.id) {
 }
 ```
 
-Then extract in `EditorScene.extractEntities()`.
+Then extract in `EditorBridge.extractEntities()`.
 
 ## Checklist for New Spawner Entity
 
@@ -89,7 +89,7 @@ Then extract in `EditorScene.extractEntities()`.
 - [ ] Register `pointerdown` event in edit state for drag-to-move
 - [ ] Add click detection in default editor state
 - [ ] Add to level data structure (interface in LevelLoader.ts)
-- [ ] Add extraction method in EditorScene.ts
+- [ ] Add extraction method in EditorBridge.ts
 - [ ] Call extraction method in getCurrentLevelData()
 - [ ] Load from level JSON in GameScene
 - [ ] Test spawning, movement, difficulty, and editor

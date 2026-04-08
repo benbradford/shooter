@@ -80,4 +80,4 @@ Multiple components can listen to the same event.
 - `src/ecs/components/core/BaseEventComponent.ts` - Base class for event components
 - `src/ecs/components/core/TriggerComponent.ts` - Trigger implementation
 - `src/trigger/TriggerEntity.ts` - Trigger entity factory
-- `src/editor/TriggerEditorState.ts` - Trigger editor UI
+- `editor/panels/ContextPanel.ts` - Trigger editor UI

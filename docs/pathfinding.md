@@ -4,7 +4,7 @@ The pathfinding system provides A* pathfinding for entities to navigate around w
 
 ## Overview
 
-**Location:** `src/utils/Pathfinder.ts`
+**Location:** `src/systems/Pathfinder.ts`
 
 The `Pathfinder` class uses the A* algorithm to find the shortest path between two grid positions, respecting:
 - Layer-based collision (entities can only move on same layer)

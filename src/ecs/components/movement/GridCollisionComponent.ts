@@ -74,7 +74,7 @@ export class GridCollisionComponent implements Component {
 
     // Block movement into water if player can't swim
     const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
-    if (!canSwim && toCell.properties.has('water')) {
+    if (!canSwim && toCell.properties.has('water') && !toCell.properties.has('bridge')) {
       return false;
     }
 

@@ -230,12 +230,12 @@ When implementing HUD elements, test:
 ## Related Files
 
 - `src/main.ts` - Game config (resolution, scale mode)
-- `src/GameScene.ts` - Camera setup (zoom = 1)
-- `src/ecs/components/TouchJoystickComponent.ts` - Movement joystick with multi-touch
-- `src/ecs/components/AimJoystickComponent.ts` - Aim joystick with multi-touch
-- `src/ecs/components/JoystickVisualsComponent.ts` - Movement joystick HUD rendering
-- `src/ecs/components/AimJoystickVisualsComponent.ts` - Aim joystick HUD rendering
-- `src/ecs/components/CrosshairVisualsComponent.ts` - Crosshair HUD rendering
+- `src/scenes/GameScene.ts` - Camera setup (zoom = 1)
+- `src/ecs/components/input/TouchJoystickComponent.ts` - Movement joystick with multi-touch
+- `src/ecs/components/input/AimJoystickComponent.ts` - Aim joystick with multi-touch
+- `src/ecs/components/ui/JoystickVisualsComponent.ts` - Movement joystick HUD rendering
+- `src/ecs/components/ui/AimJoystickVisualsComponent.ts` - Aim joystick HUD rendering
+- `src/ecs/components/ui/CrosshairVisualsComponent.ts` - Crosshair HUD rendering
 
 ## Summary
 

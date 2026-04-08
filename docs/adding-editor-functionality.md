@@ -4,22 +4,20 @@ Guide for adding new editor modes based on lessons learned from implementing the
 
 ## ⚠️ CRITICAL: Always Update extractEntities() ⚠️
 
-When adding ANY new field to entity data that can be edited, you MUST also update `EditorScene.extractEntities()` to preserve the field when logging. This is the most commonly forgotten step.
+When adding ANY new field to entity data that can be edited, you MUST also update `EditorBridge.extractEntities()` to preserve the field when logging. This is the most commonly forgotten step.
 
 **Checklist:**
 - [ ] Update level data type (LevelEntity, LevelData, etc.)
 - [ ] Update editor state to modify the field
-- [ ] **Update EditorScene.extractEntities()** ← Most commonly forgotten!
+- [ ] **Update EditorBridge.extractEntities()** ← Most commonly forgotten!
 - [ ] Test: Edit field → Click Log → Verify field in JSON
 
 ## Architecture
 
-EditorScene is an overlay on paused GameScene using a state machine:
-- `DefaultEditorState` — Main menu with tool buttons
-- `GridEditorState` — Cell editing with keyboard navigation
-- `TriggerEditorState` — Trigger placement
-- `MoveEditorState` — Entity movement
-- `ResizeEditorState` — Grid resizing
+The editor uses a split architecture:
+- `editor/EditorBridge.ts` — Singleton connecting HTML UI ↔ Phaser. All edits go through `_applyMutation()`.
+- `editor/CanvasInteraction.ts` — Handles Phaser input events, WASD camera, zoom, tool routing
+- `editor/panels/` — HTML panel classes (Toolbar, ContextPanel, TexturePicker, Toast, PanelController)
 
 ## Critical Patterns
 
@@ -46,10 +44,10 @@ Always clean up in `onExit()`. Use arrow functions for event handlers to maintai
 ## Step-by-Step: Adding New Editor Mode
 
 1. Create `EditorState` class with `onEnter()`, `onExit()`, UI creation
-2. Add to EditorScene state machine
+2. Add tool handling in `editor/CanvasInteraction.ts`
 3. Add button to DefaultEditorState
 4. Update LevelData type in LevelLoader.ts
-5. Update `EditorScene.extractEntities()` to preserve data
+5. Update `EditorBridge.extractEntities()` to preserve data
 6. Add loading in GameScene
 
 ## Testing Checklist

@@ -5,14 +5,14 @@
 **When adding ANY new field to entity data that can be edited:**
 
 1. Modify the entity data in the editor state (e.g., `entityData.myNewField = value`)
-2. **MUST also update `EditorScene.extractEntities()`** to preserve the field when logging
+2. **MUST also update `EditorBridge.extractEntities()`** to preserve the field when logging
 
 **Common mistake:** Adding a field to level data and updating it in the editor, but forgetting to extract it in `extractEntities()`. Result: Field doesn't appear in logged JSON.
 
 **Checklist when adding editor features:**
 - [ ] Update level data type (LevelEntity, LevelData, etc.)
 - [ ] Update editor state to modify the field
-- [ ] **Update EditorScene.extractEntities() to preserve the field** ← Most commonly forgotten!
+- [ ] **Update EditorBridge.extractEntities() to preserve the field** ← Most commonly forgotten!
 - [ ] Test: Edit field → Click Log → Verify field in JSON
 
 ## Overview
@@ -176,10 +176,10 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/cellmodifier/CellModifierEntity.ts` - CellModifier entity
 - `src/ecs/components/eventchainer/EventChainerComponent.ts` - EventChainer logic
 - `src/ecs/components/core/CellModifierComponent.ts` - CellModifier logic
-- `src/editor/AddEntityEditorState.ts` - Unified entity placement
-- `src/editor/TriggerEditorState.ts` - Trigger list/edit UI
-- `src/editor/CellModifierEditorState.ts` - CellModifier list/edit UI
-- `src/scenes/EditorScene.ts` - Entity extraction to JSON
+- `editor/CanvasInteraction.ts` - Entity placement and selection
+- `editor/EditorBridge.ts` - Entity extraction to JSON
+- `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI
+- `src/scenes/GameScene.ts` - Entity extraction to JSON
 
 ## Entity Destruction Events
 
@@ -197,7 +197,7 @@ When adding a new entity type that should be placeable in the editor, you must u
 - Add ghost sprite texture mapping in createGhostSprite()
 - Add data structure in placeEntity()
 
-### 3. Add to EditorScene.extractEntities()
+### 3. Add to EditorBridge.extractEntities()
 **CRITICAL:** This is where entities are extracted to JSON when you click Log/Save.
 
 ### 4. Update Entity Factory to Accept entityId
@@ -211,7 +211,7 @@ When adding a new entity type that should be placeable in the editor, you must u
 - [ ] Added to ENTITY_TYPES array in AddEntityEditorState.ts
 - [ ] Added ghost sprite texture mapping in createGhostSprite()
 - [ ] Added data structure in placeEntity()
-- [ ] **Added extraction logic in EditorScene.extractEntities()** ← Most commonly forgotten!
+- [ ] **Added extraction logic in EditorBridge.extractEntities()** ← Most commonly forgotten!
 - [ ] **Updated entity factory to accept entityId parameter** ← Required for unique IDs!
 - [ ] **Entity factory uses entityId in new Entity(entityId)** ← Not hardcoded string!
 - [ ] **Updated EntityLoader to pass entityId** ← Required for unique IDs!

@@ -28,9 +28,9 @@ Use both pathfinding distance (cells) and pixel distance with hysteresis:
 
 1. Create editor state with `hitTestPointer()` check before grid clicks
 2. Add button to DefaultEditorState
-3. Add state to EditorScene state machine
+3. Add state to editor tool system
 4. Modify GameScene's level data directly via `getLevelData()`
-5. Preserve changes in `EditorScene.getCurrentLevelData()`
+5. Preserve changes in `EditorBridge.getCurrentLevelData()`
 
 ## Common Pitfalls
 

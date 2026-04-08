@@ -57,7 +57,7 @@ Player → Trigger → EventChainer → Entities
 - `src/systems/EntityLoader.ts` - Loading from JSON
 - `src/eventchainer/EventChainerEntity.ts` - EventChainer implementation
 - `src/cellmodifier/CellModifierEntity.ts` - CellModifier implementation
-- `src/editor/AddEntityEditorState.ts` - Unified entity placement
-- `src/editor/TriggerEditorState.ts` - Trigger list/edit UI
-- `src/editor/CellModifierEditorState.ts` - CellModifier list/edit UI
+- `editor/CanvasInteraction.ts` - Entity placement and selection
+- `editor/EditorBridge.ts` - Entity extraction, mutations
+- `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI
 - `docs/entity-creation-system.md` - Full documentation

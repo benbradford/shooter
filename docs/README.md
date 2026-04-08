@@ -45,14 +45,15 @@ This checks:
 
 **When asked to "audit the docs":**
 1. Run the audit script
-2. Review files >300 lines for condensation opportunities
-3. Check code blocks - keep only non-obvious patterns
-4. Check JSON examples - remove if they duplicate level files
-5. Look for stale information (references to deleted features)
-6. Suggest consolidation opportunities
-7. **Don't automatically change** - present findings and wait for approval
-
-**Current status:** 6,265 lines (under 7,000 target) after March 2026 condensation
+2. **Fact-check all file paths** — verify every `src/`, `editor/`, `public/` path referenced in docs actually exists in the codebase
+3. **Fact-check all constant/symbol names** — verify every constant, class, function, or variable name referenced in docs exists (use code search)
+4. **Fact-check all code references** — verify method signatures, property names, and type names match actual code
+5. Review files >300 lines for condensation opportunities
+6. Check code blocks - keep only non-obvious patterns
+7. Check JSON examples - remove if they duplicate level files
+8. Look for stale information (references to deleted features)
+9. Suggest consolidation opportunities
+10. **Don't automatically change** - present findings and wait for approval
 
 When asked to "update the docs":
 1. Update existing sections to reflect code changes
