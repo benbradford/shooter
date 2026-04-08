@@ -491,6 +491,13 @@ export class ContextPanel {
         <div class="form-group"><label>Direction</label>
         <select id="ef-npcdir">${['Down', 'Up', 'Left', 'Right', 'DownLeft', 'DownRight', 'UpLeft', 'UpRight', 'facePlayer'].map(d => `<option ${data.direction === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
         <div class="form-group"><label>Name</label><input id="ef-npcname" value="${data.name ?? ''}" /></div>
+        <div class="form-group" style="font-size:11px;color:#7f8c8d;margin-top:4px">Transform</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div class="form-group"><label>scaleX</label><input type="number" id="ef-nsx" value="${(data.transformOverride as any)?.scaleX ?? 1}" step="0.1" /></div>
+          <div class="form-group"><label>scaleY</label><input type="number" id="ef-nsy" value="${(data.transformOverride as any)?.scaleY ?? 1}" step="0.1" /></div>
+          <div class="form-group"><label>offsetX</label><input type="number" id="ef-nox" value="${(data.transformOverride as any)?.offsetX ?? 0}" step="1" /></div>
+          <div class="form-group"><label>offsetY</label><input type="number" id="ef-noy" value="${(data.transformOverride as any)?.offsetY ?? 0}" step="1" /></div>
+        </div>
         <div class="form-group"><label>Interactions (JSON)</label>
         <textarea id="ef-interactions" rows="6">${JSON.stringify(data.interactions ?? [], null, 2)}</textarea></div>`;
     }
@@ -589,6 +596,17 @@ export class ContextPanel {
     this.container.querySelector('#ef-npcname')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { name: (e.target as HTMLInputElement).value });
     });
+    const applyNpcTransform = () => {
+      const sx = Number.parseFloat((this.container.querySelector('#ef-nsx') as HTMLInputElement)?.value ?? '1');
+      const sy = Number.parseFloat((this.container.querySelector('#ef-nsy') as HTMLInputElement)?.value ?? '1');
+      const ox = Number.parseFloat((this.container.querySelector('#ef-nox') as HTMLInputElement)?.value ?? '0');
+      const oy = Number.parseFloat((this.container.querySelector('#ef-noy') as HTMLInputElement)?.value ?? '0');
+      if (Number.isNaN(sx) || Number.isNaN(sy) || Number.isNaN(ox) || Number.isNaN(oy)) return;
+      this.bridge.updateEntityData(entityId, { transformOverride: { scaleX: sx, scaleY: sy, offsetX: ox, offsetY: oy } });
+    };
+    for (const id of ['#ef-nsx', '#ef-nsy', '#ef-nox', '#ef-noy']) {
+      this.container.querySelector(id)?.addEventListener('input', applyNpcTransform);
+    }
     this.container.querySelector('#ef-interactions')?.addEventListener('change', (e) => {
       try { this.bridge.updateEntityData(entityId, { interactions: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
     });

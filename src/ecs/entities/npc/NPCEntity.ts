@@ -31,10 +31,11 @@ export type CreateNPCProps = {
   readonly scale?: number;
   readonly name?: string;
   readonly facePlayer?: boolean;
+  readonly transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number };
 }
 
 export function createNPCEntity(props: CreateNPCProps): Entity {
-  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1, name, facePlayer = false } = props;
+  const { scene, grid, entityId, assets, col, row, direction, interactions, scale = 1, name, facePlayer = false, transformOverride } = props;
   const entity = new Entity(entityId);
   entity.tags.add('npc');
   
@@ -50,7 +51,7 @@ export function createNPCEntity(props: CreateNPCProps): Entity {
   sprite.sprite.setDepth(Depth.enemy);
   sprite.sprite.setOrigin(0.5, 0.5);
 
-  entity.add(new NPCIdleComponent(direction, assets, facePlayer));
+  entity.add(new NPCIdleComponent(direction, assets, facePlayer, transformOverride));
   entity.add(new NPCInteractionComponent(interactions, col, row));
 
   entity.setUpdateOrder([

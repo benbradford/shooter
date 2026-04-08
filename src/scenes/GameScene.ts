@@ -3,6 +3,7 @@ import { Depth } from '../constants/DepthConstants';
 import { Grid, type CellProperty } from "../systems/grid/Grid";
 import { LevelLoader, type LevelData, type LevelTheme } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
+import { NPCIdleComponent } from "../ecs/entities/npc/NPCIdleComponent";
 import { Entity } from "../ecs/Entity";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
@@ -180,6 +181,11 @@ export default class GameScene extends Phaser.Scene {
               const fitScale = this.cellSize / Math.max(sprite.sprite.width, sprite.sprite.height);
               sprite.sprite.setScale(fitScale);
             }
+          }
+          // Initialize NPC idle components in editor (update() doesn't run)
+          const idle = entity.get(NPCIdleComponent);
+          if (idle) {
+            idle.update(0);
           }
         }
 

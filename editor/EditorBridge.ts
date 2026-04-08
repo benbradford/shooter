@@ -286,9 +286,32 @@ export class EditorBridge {
       // For data-only types (trigger, exit, eventchainer, cellmodifier, interaction), just add to levelData
       const dataOnlyTypes = new Set(['trigger', 'exit', 'eventchainer', 'cellmodifier', 'interaction']);
       if (!dataOnlyTypes.has(type)) {
-        // Restart scene to spawn the entity via EntityLoader
+        // Save camera position before restart
+        const camera = this.scene.cameras.main;
+        const camX = camera.scrollX;
+        const camY = camera.scrollY;
+        const camZoom = camera.zoom;
+
         this.isLoading = true;
         this.scene.scene.restart({ editorMode: true, levelName: this.currentLevelName, levelData });
+
+        // Restore camera and select new entity after scene is ready
+        const pendingEntityId = newId;
+        const origOnReady = this.onSceneReady;
+        this.onSceneReady = () => {
+          this.onSceneReady = origOnReady;
+          origOnReady?.();
+          const cam = this.scene.cameras.main;
+          cam.scrollX = camX;
+          cam.scrollY = camY;
+          cam.setZoom(camZoom);
+
+          const entity = this.getEntityManager().getAll().find(e => e.id === pendingEntityId);
+          if (entity) {
+            this.setTool('select');
+            this.selectEntity(entity);
+          }
+        };
       }
 
       this.toast?.show(`Added ${type}: ${newId}`, 'success');
@@ -362,6 +385,23 @@ export class EditorBridge {
             if (!idle.facePlayer) {
               idle.setDirection(Direction[dirStr as keyof typeof Direction]);
             }
+          }
+        }
+      }
+      // Update NPC transform override if present
+      if (updates.transformOverride !== undefined) {
+        const entity = this.getEntityManager().getAll().find(e => e.id === entityId);
+        if (entity) {
+          const idle = entity.get(NPCIdleComponent);
+          if (idle) {
+            const t = updates.transformOverride as { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number };
+            idle.transformOverride = {
+              scaleX: t.scaleX ?? 1,
+              scaleY: t.scaleY ?? 1,
+              offsetX: t.offsetX ?? 0,
+              offsetY: t.offsetY ?? 0,
+            };
+            idle.update(0);
           }
         }
       }
@@ -668,14 +708,15 @@ export class EditorBridge {
         type = 'npc';
         const idle = entity.get(NPCIdleComponent);
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
-        const npcData = existing?.data as { assets?: string; interactions?: unknown[]; scale?: number; name?: string } | undefined;
+        const npcData = existing?.data as { assets?: string; interactions?: unknown[]; scale?: number; name?: string; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } } | undefined;
         data = {
           col: cell.col, row: cell.row,
-          assets: idle?.getSpritesheet() ?? npcData?.assets ?? 'npc1',
+          assets: npcData?.assets ?? idle?.getSpritesheet() ?? 'npc1',
           direction: idle?.facePlayer ? 'facePlayer' : Direction[idle?.getDirection() ?? Direction.Down],
           interactions: npcData?.interactions ?? [],
           ...(npcData?.scale ? { scale: npcData.scale } : {}),
-          ...(npcData?.name ? { name: npcData.name } : {})
+          ...(npcData?.name ? { name: npcData.name } : {}),
+          ...(npcData?.transformOverride ? { transformOverride: npcData.transformOverride } : {})
         };
       }
 

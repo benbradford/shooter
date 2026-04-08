@@ -127,7 +127,7 @@ Entity form shows all editable fields per type:
 - Enemies: difficulty (easy/medium/hard)
 - Puma: startDirection
 - Robot: waypoints list
-- NPC: assets, direction, name, interactions (JSON)
+- NPC: assets, direction (including facePlayer), name, interactions (JSON)
 - Trigger: eventToRaise, oneShot, triggerCells + **Edit Cells** button
 - Exit: targetLevel, targetCol, targetRow, triggerCells + **Edit Cells** button + **Leave** button (loads target level)
 - EventChainer: eventsToRaise (JSON)

@@ -62,8 +62,8 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `startDirection`: Direction enum value 1-8 (puma only)
 
 ### NPC
-- `assets`: Spritesheet key (e.g., "npc1")
-- `direction`: Direction string (e.g., "Down", "Left")
+- `assets`: Spritesheet key — `npc1`, `village_old_man`, `village_girl`, `village_wizard`
+- `direction`: Direction string (e.g., "Down", "Left") or `"facePlayer"` to always face the player
 - `interactions`: Array of NPCInteraction objects
   - `name`: Event name for the interaction script
   - `whenFlagSet`: Optional flag condition {name, condition, value}

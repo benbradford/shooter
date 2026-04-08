@@ -83,13 +83,20 @@ Level transitions work automatically via exit triggers. The system:
 - `player.look(direction)` - Change player facing
 
 **NPC Properties in JSON:**
-- `assets`: Spritesheet key (e.g., "npc1")
-- `direction`: Facing direction ("Down", "Left", etc.)
+- `assets`: Spritesheet key — `npc1`, `village_old_man`, `village_girl`, `village_wizard`
+- `direction`: Facing direction — `"Down"`, `"Left"`, `"UpRight"`, etc., or `"facePlayer"` to always face the player
 - `scale`: Optional size multiplier (default 1)
 - `name`: Optional display name for dialogue
 - `interactions`: Array of interaction objects with name, flag conditions, position overrides
 
-**Editor:** Press E → Add → NPC → Select asset → Click to place. Click NPC to edit direction (8-direction grid) and interactions (JSON textarea).
+**Adding a new NPC spritesheet:**
+1. Place 8 rotation PNGs in `public/assets/npc/{name}/rotations/` (east, north-east, north-west, north, south-east, south-west, south, west)
+2. Generate spritesheet: `montage rotations/{east,north-east,north-west,north,south-east,south-west,south,west}.png -tile 8x1 -geometry {W}x{H}+0+0 -background none {name}_spritesheet.png`
+3. Register in `src/assets/AssetRegistry.ts` with key, path, type `'spritesheet'`, config `{ frameWidth, frameHeight }`
+4. Add asset group: `{name}: ['{name}'] as const` in `ASSET_GROUPS`
+5. The asset loader auto-detects NPC assets from level JSON — no other changes needed
+
+**Editor:** Open editor → Entity tool → npc → click to place. Select NPC to edit assets, direction (including facePlayer), name, and interactions.
 
 ## Adding Assets
 

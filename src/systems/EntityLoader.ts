@@ -430,6 +430,7 @@ export class EntityLoader {
             interactions: NPCInteraction[];
             scale?: number;
             name?: string;
+            transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number };
           };
           return createNPCEntity({
             scene: this.scene as GameScene,
@@ -443,6 +444,7 @@ export class EntityLoader {
             scale: npcData.scale,
             name: npcData.name,
             facePlayer: npcData.direction === 'facePlayer',
+            transformOverride: npcData.transformOverride,
           });
         };
 

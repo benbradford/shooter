@@ -29,6 +29,24 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 56, frameHeight: 56 }
   },
+  village_old_man: {
+    key: 'village_old_man',
+    path: 'assets/npc/village_old_man/village_old_man_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
+  village_girl: {
+    key: 'village_girl',
+    path: 'assets/npc/village_girl/village_girl_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
+  village_wizard: {
+    key: 'village_wizard',
+    path: 'assets/npc/village_wizard/village_wizard_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
   floating_robot: {
     key: 'floating_robot',
     path: 'assets/floating_robot/floating-robot-spritesheet.png',
@@ -629,6 +647,9 @@ export const ASSET_GROUPS = {
 
   // NPCs
   npc1: ['npc1'] as const,
+  village_old_man: ['village_old_man'] as const,
+  village_girl: ['village_girl'] as const,
+  village_wizard: ['village_wizard'] as const,
 
   // Breakables
   breakables: ['dungeon_vase', 'pillar'] as const,

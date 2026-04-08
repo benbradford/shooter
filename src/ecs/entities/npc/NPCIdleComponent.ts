@@ -5,23 +5,42 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { createNPCAnimations, getNPCAnimKey } from './NPCAnimations';
 import { type Direction, dirFromDelta } from '../../../constants/Direction';
 
+export type NPCTransformOverride = {
+  scaleX: number;
+  scaleY: number;
+  offsetX: number;
+  offsetY: number;
+};
+
 export class NPCIdleComponent implements Component {
   entity!: Entity;
   private hasInitialized = false;
   private frameCount = 0;
   private _facePlayer: boolean;
+  transformOverride: NPCTransformOverride;
 
   constructor(
     private direction: Direction,
     private readonly spritesheet: string,
-    facePlayer = false
+    facePlayer = false,
+    transformOverride?: Partial<NPCTransformOverride>
   ) {
     this._facePlayer = facePlayer;
+    this.transformOverride = {
+      scaleX: transformOverride?.scaleX ?? 1,
+      scaleY: transformOverride?.scaleY ?? 1,
+      offsetX: transformOverride?.offsetX ?? 0,
+      offsetY: transformOverride?.offsetY ?? 0,
+    };
   }
 
   update(_delta: number): void {
     const sprite = this.entity.require(SpriteComponent).sprite;
     const transform = this.entity.require(TransformComponent);
+
+    sprite.setScale(this.transformOverride.scaleX, this.transformOverride.scaleY);
+    sprite.x += this.transformOverride.offsetX;
+    sprite.y += this.transformOverride.offsetY;
     
     const gameScene = sprite.scene.scene.get('game') as any;
     if (gameScene?.entityManager) {
