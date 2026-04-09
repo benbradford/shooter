@@ -35,7 +35,8 @@ export class EditorBridge {
   currentLevelName: string | null = null;
 
   // Clipboard
-  private clipboardEntity: LevelEntity | null = null;
+  clipboardEntity: LevelEntity | null = null;
+  private clipboardCell: { backgroundTexture?: unknown; animatedTexture?: unknown } | null = null;
 
   // Guards
   isLoading = false;
@@ -267,6 +268,7 @@ export class EditorBridge {
 
       const defaults: Record<string, Record<string, unknown>> = {
         skeleton: { col, row, difficulty: 'medium' },
+        red_skeleton: { col, row, difficulty: 'medium' },
         thrower: { col, row, difficulty: 'medium' },
         stalking_robot: { col, row, difficulty: 'medium', waypoints: [{ col, row }] },
         bug_base: { col, row, difficulty: 'medium' },
@@ -315,6 +317,9 @@ export class EditorBridge {
             this.selectEntity(entity);
           }
         };
+      } else {
+        this.setTool('select');
+        this.selectDataEntity(newId);
       }
 
       this.toast?.show(`Added ${type}: ${newId}`, 'success');
@@ -429,14 +434,54 @@ export class EditorBridge {
   }
 
   // --- Copy/Paste ---
-  copySelectedEntity(): boolean {
-    if (!this.selectedEntity) return false;
-    const levelData = this.scene.getLevelData();
-    const entityDef = levelData.entities?.find(e => e.id === this.selectedEntity!.id);
-    if (!entityDef) return false;
-    this.clipboardEntity = JSON.parse(JSON.stringify(entityDef));
-    this.toast?.show(`Copied ${entityDef.id}`, 'success');
-    return true;
+  copySelected(): boolean {
+    if (this.selectedEntity) {
+      const levelData = this.scene.getLevelData();
+      const entityDef = levelData.entities?.find(e => e.id === this.selectedEntity!.id);
+      if (!entityDef) return false;
+      this.clipboardEntity = JSON.parse(JSON.stringify(entityDef));
+      this.clipboardCell = null;
+      this.toast?.show(`Copied ${entityDef.id}`, 'success');
+      return true;
+    }
+    if (this.selectedCell) {
+      const levelData = this.scene.getLevelData();
+      const cell = levelData.cells.find(c => c.col === this.selectedCell!.col && c.row === this.selectedCell!.row);
+      if (!cell?.backgroundTexture && !cell?.animatedTexture) return false;
+      this.clipboardCell = JSON.parse(JSON.stringify({
+        backgroundTexture: cell.backgroundTexture,
+        animatedTexture: cell.animatedTexture,
+      }));
+      this.clipboardEntity = null;
+      const texName = typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : (cell.backgroundTexture as { image: string })?.image ?? 'texture';
+      this.toast?.show(`Copied ${texName}`, 'success');
+      return true;
+    }
+    return false;
+  }
+
+  pasteToCell(col: number, row: number): void {
+    if (!this.clipboardCell) return;
+    this._applyMutation(`Paste texture to ${col},${row}`, () => {
+      const levelData = this.scene.getLevelData();
+      let cell = levelData.cells.find(c => c.col === col && c.row === row);
+      if (!cell) {
+        cell = { col, row };
+        levelData.cells.push(cell);
+      }
+      if (this.clipboardCell!.backgroundTexture) {
+        cell.backgroundTexture = JSON.parse(JSON.stringify(this.clipboardCell!.backgroundTexture));
+      }
+      if (this.clipboardCell!.animatedTexture) {
+        cell.animatedTexture = JSON.parse(JSON.stringify(this.clipboardCell!.animatedTexture));
+      }
+      const grid = this.getGrid();
+      const texKey = typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : (cell.backgroundTexture as { image: string })?.image;
+      if (texKey) {
+        grid.setCell(col, row, { backgroundTexture: texKey });
+      }
+    });
+    this.scene.getSceneRenderer().reinitializeSprites(this.getGrid(), this.scene.getLevelData());
   }
 
   pasteEntity(col: number, row: number): void {
@@ -751,6 +796,9 @@ export class EditorBridge {
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
       } else if (entity.id.startsWith('thrower')) {
         type = 'thrower';
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('red_skeleton')) {
+        type = 'red_skeleton';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
       } else if (entity.id.startsWith('skeleton')) {
         type = 'skeleton';

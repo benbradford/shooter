@@ -46,7 +46,11 @@ export class WaterAnimator {
       
       this.generator.generateTileset(offsetKey, tilesetKey);
       this.generatedTextureKeys.push(tilesetKey);
-      this.tilesetKeys.push(tilesetKey);
+      if (this.scene.textures.exists(tilesetKey)) {
+        this.tilesetKeys.push(tilesetKey);
+      } else {
+        console.error(`[WaterAnimator] Failed to generate tileset: ${tilesetKey}`);
+      }
     }
 
     return this.tilesetKeys;

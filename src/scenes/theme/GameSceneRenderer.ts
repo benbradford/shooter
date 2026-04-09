@@ -504,7 +504,7 @@ export abstract class GameSceneRenderer {
 
           if (isWater && levelData?.background?.water) {
             pathTextures = this.waterAnimator?.getTilesetKeys() ?? null;
-            pathTexture = pathTextures ? pathTextures[0] : undefined;
+            pathTexture = pathTextures?.length ? pathTextures[0] : undefined;
           } else if (isWater && Array.isArray(levelData?.background?.water_texture)) {
             pathTextures = levelData.background.water_texture;
             pathTexture = pathTextures[0];

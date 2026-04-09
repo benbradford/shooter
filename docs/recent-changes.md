@@ -2,6 +2,79 @@
 
 ## April 2026
 
+### canPunch World State Flag
+
+**Change**: Punching now requires `canPunch` flag set to `"true"` in world state. Attack button hidden when `canPunch` is false, unless NPC interaction is available (shows lips icon).
+
+**Files Changed:**
+- `src/ecs/entities/player/PlayerStateHelpers.ts` — Gate `tryStartPunch` on `canPunch` flag
+- `src/ecs/components/input/AttackButtonComponent.ts` — Hide button when `canPunch` false, show for NPC interactions
+- `public/states/default.json`, `public/states/empty.json` — Added `canPunch: "false"`
+
+### canSwim Bridge Fix
+
+**Change**: Players can now cross bridge cells even when `canSwim` is `"false"`. Previously the water check blocked all cells with the `water` property, including bridge+water cells.
+
+**Files Changed:**
+- `src/ecs/components/movement/GridCollisionComponent.ts` — Exclude bridge cells from canSwim block
+
+### NPC: facePlayer Direction
+
+**Change**: NPCs can now be set to `"facePlayer"` direction, making them always face toward the player.
+
+**Files Changed:**
+- `src/ecs/entities/npc/NPCIdleComponent.ts` — Added `facePlayer` mode with per-frame direction update
+- `src/ecs/entities/npc/NPCEntity.ts` — Added `facePlayer` prop
+- `src/systems/EntityLoader.ts` — Pass `facePlayer` when direction is `'facePlayer'`
+- `editor/panels/ContextPanel.ts` — Added `facePlayer` to direction dropdown
+- `editor/EditorBridge.ts` — Handle `facePlayer` in direction update and extraction
+
+### NPC: Transform Override
+
+**Change**: NPCs now support `transformOverride` with `scaleX`, `scaleY`, `offsetX`, `offsetY` for per-instance sizing and positioning.
+
+**Files Changed:**
+- `src/ecs/entities/npc/NPCIdleComponent.ts` — Added `NPCTransformOverride`, applied each frame
+- `src/ecs/entities/npc/NPCEntity.ts` — Pass `transformOverride` to idle component
+- `src/systems/EntityLoader.ts` — Pass `transformOverride` from JSON
+- `editor/panels/ContextPanel.ts` — Transform fields with live preview
+- `editor/EditorBridge.ts` — Sync transform override to live component
+
+### NPC: New Spritesheets
+
+**Change**: Added `village_old_man`, `village_girl`, `village_wizard` NPC spritesheets (68×68 frames, 8 directions).
+
+**Files Changed:**
+- `src/assets/AssetRegistry.ts` — Registered spritesheets + individual asset groups
+- `public/assets/npc/village_*/` — Spritesheets and metadata
+
+### Editor: Entity Copy/Paste
+
+**Change**: Ctrl+C copies selected entity (all properties including difficulty, createOnAnyEvent, etc.). Click a cell, Ctrl+V pastes a clone with unique ID.
+
+**Files Changed:**
+- `editor/EditorBridge.ts` — `copySelectedEntity()`, `pasteEntity()` methods
+- `editor/CanvasInteraction.ts` — Ctrl+C/V keyboard handling
+
+### Editor: Camera Preserved on Entity Add
+
+**Change**: Adding an entity no longer snaps the camera back to start. Camera position and zoom are saved before scene restart and restored after.
+
+**Files Changed:**
+- `editor/EditorBridge.ts` — Save/restore camera in `addEntity()`, auto-select new entity
+
+### Editor: Blocked Areas Tool
+
+**Change**: New "Area" tool for drawing convex polygon blocked areas. Player collision uses SAT with MTV push-out. Enemies use cell-based avoidance.
+
+**Files Changed:**
+- `src/math/PolygonUtils.ts`, `src/math/SATCollision.ts` — Polygon math
+- `src/systems/BlockedAreaManager.ts` — Polygon validation and spatial queries
+- `src/ecs/components/movement/BlockedAreaCollisionComponent.ts` — Player polygon collision
+- `editor/CanvasInteraction.ts` — Drawing tool, selection, rendering
+- `editor/EditorBridge.ts` — Blocked area mutations
+- `editor/panels/ContextPanel.ts` — Layer/blocksProjectiles editing
+
 ### Editor: Drag-to-Move Entities
 
 **Change**: Removed the Move tool button. Entities are now moved by click-and-drag in Select mode.

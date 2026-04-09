@@ -642,6 +642,7 @@ export const ASSET_GROUPS = {
   bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small'] as const,
+  red_skeleton: ['skeleton', 'bone_small'] as const,
   puma: ['puma'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
 

@@ -95,14 +95,19 @@ export class CanvasInteraction {
       return;
     }
     if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
-      if (this.bridge.copySelectedEntity()) e.preventDefault();
+      if (this.bridge.copySelected()) e.preventDefault();
       return;
     }
     if (e.key === 'v' && (e.ctrlKey || e.metaKey)) {
       const sel = this.bridge.selectedCell;
       if (sel) {
         e.preventDefault();
-        this.bridge.pasteEntity(sel.col, sel.row);
+        if (this.bridge.clipboardEntity) {
+          this.bridge.pasteEntity(sel.col, sel.row);
+        } else {
+          this.bridge.pasteToCell(sel.col, sel.row);
+          this.renderOverlays();
+        }
       }
       return;
     }
@@ -413,7 +418,7 @@ export class CanvasInteraction {
 
     // Entity labels
     const labelMap: Record<string, string> = {
-      skeleton: 'S', thrower: 'T', stalking_robot: 'R', bug_base: 'BB',
+      skeleton: 'S', red_skeleton: 'RS', thrower: 'T', stalking_robot: 'R', bug_base: 'BB',
       bullet_dude: 'BD', puma: 'P', npc: 'NPC', breakable: 'BK',
     };
     for (const entity of entityManager.getAll()) {

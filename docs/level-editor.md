@@ -161,10 +161,13 @@ Saves automatically write to `public/levels/{levelName}.json` via the Vite dev s
 | Key | Action |
 |-----|--------|
 | Ctrl+S | Save |
+| Ctrl+C | Copy selected entity |
+| Ctrl+V | Paste entity at selected cell |
 | G | Toggle grid |
-| Delete | Delete selected entity |
-| Escape | Deselect |
+| Delete | Delete selected entity or blocked area |
+| Escape | Deselect / cancel blocked area drawing |
 | WASD | Pan camera (canvas focus only) |
+| Right-click | Undo last vertex (blocked area drawing) |
 
 ### Undo/Redo
 

@@ -1241,6 +1241,15 @@
       ]
     },
     {
+      "id": "red_skeleton0",
+      "type": "red_skeleton",
+      "data": {
+        "col": 15,
+        "row": 9,
+        "difficulty": "medium"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -1329,6 +1338,21 @@
       "createOnAnyEvent": [
         "event_trigger0"
       ]
+    },
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "dungeon3left",
+        "targetCol": 28,
+        "targetRow": 10,
+        "triggerCells": [
+          {
+            "col": 0,
+            "row": 6
+          }
+        ]
+      }
     }
   ],
   "levelTheme": "dungeon",

@@ -28,8 +28,16 @@ import { createInteractionEntity } from '../interaction/InteractionEntity';
 import { createNPCEntity, type NPCInteraction } from '../ecs/entities/npc/NPCEntity';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
+import { createRedSkeletonEntity } from '../ecs/entities/red_skeleton/RedSkeletonEntity';
+import type { SkeletonDifficulty } from '../ecs/entities/skeleton/SkeletonDifficultyConfig';
 import { createGrenadeEntity } from '../ecs/entities/projectile/GrenadeEntity';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
+import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { StateMachineComponent } from '../ecs/components/core/StateMachineComponent';
+import { GridCollisionComponent } from '../ecs/components/movement/GridCollisionComponent';
+import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
+import { SkeletonRiseComponent } from '../ecs/components/visual/SkeletonRiseComponent';
+import { ShadowComponent } from '../ecs/components/visual/ShadowComponent';
 import { getBugBaseDifficultyConfig } from '../ecs/entities/bug/BugBaseDifficulty';
 
 export class EntityLoader {
@@ -208,6 +216,33 @@ export class EntityLoader {
               blockedAreaManager: gameScene.blockedAreaManager,
             });
             this.entityManager.add(bone);
+          }
+        });
+
+      case 'red_skeleton':
+        return () => createRedSkeletonEntity({
+          scene: this.scene,
+          grid: this.grid,
+          entityId: entityDef.id,
+          playerEntity: player,
+          entityManager: this.entityManager,
+          eventManager: this.eventManager,
+          col: data.col as number,
+          row: data.row as number,
+          difficulty: data.difficulty as EnemyDifficulty,
+          onThrowBone: (x, y, dirX, dirY) => {
+            const gameScene = this.scene as Phaser.Scene & { blockedAreaManager?: import('./BlockedAreaManager').BlockedAreaManager };
+            const bone = createBoneProjectileEntity({
+              scene: this.scene, x, y, dirX, dirY,
+              grid: this.grid,
+              layer: player.require(GridPositionComponent).currentLayer,
+              blockedAreaManager: gameScene.blockedAreaManager,
+              tint: 0xff4444,
+            });
+            this.entityManager.add(bone);
+          },
+          onSpawnMiniSkeletons: (x, y, difficulty, layer) => {
+            this.spawnMiniSkeletons(x, y, difficulty as SkeletonDifficulty, layer, player);
           }
         });
 
@@ -451,6 +486,88 @@ export class EntityLoader {
       default:
         console.warn(`[EntityLoader] Unknown entity type: ${entityDef.type}`);
         return null;
+    }
+  }
+
+  private static miniSkeletonCounter = 0;
+
+  private spawnMiniSkeletons(x: number, y: number, difficulty: SkeletonDifficulty, _layer: number, player: Entity): void {
+    const MINI_SCALE = 0.8;
+    const SPREAD_PX = 20;
+    const JUMP_DISTANCE_PX = 40;
+    const JUMP_DURATION_MS = 300;
+    const MINI_COUNT = 4;
+    const sourceCell = this.grid.worldToCell(x, y);
+
+    for (let i = 0; i < MINI_COUNT; i++) {
+      const angle = (Math.PI * 2 * i) / MINI_COUNT + (Math.random() - 0.5) * 0.5;
+      const targetX = x + Math.cos(angle) * JUMP_DISTANCE_PX;
+      const targetY = y + Math.sin(angle) * JUMP_DISTANCE_PX;
+
+      const id = `mini_skeleton${EntityLoader.miniSkeletonCounter++}`;
+      const mini = createSkeletonEntity({
+        scene: this.scene,
+        grid: this.grid,
+        entityId: id,
+        playerEntity: player,
+        entityManager: this.entityManager,
+        eventManager: this.eventManager,
+        col: sourceCell.col,
+        row: sourceCell.row,
+        difficulty,
+        onThrowBone: (bx, by, dirX, dirY) => {
+          const gameScene = this.scene as Phaser.Scene & { blockedAreaManager?: import('./BlockedAreaManager').BlockedAreaManager };
+          const bone = createBoneProjectileEntity({
+            scene: this.scene, x: bx, y: by, dirX, dirY,
+            grid: this.grid,
+            layer: player.require(GridPositionComponent).currentLayer,
+            blockedAreaManager: gameScene.blockedAreaManager,
+            scaleOverride: 0.08,
+          });
+          this.entityManager.add(bone);
+        }
+      });
+
+      mini.remove(SkeletonRiseComponent);
+      const sm = mini.require(StateMachineComponent);
+      sm.stateMachine.enter('idle');
+
+      const collision = mini.get(CollisionComponent);
+      if (collision) collision.enabled = false;
+      mini.remove(GridCollisionComponent);
+
+      const miniTransform = mini.require(TransformComponent);
+      miniTransform.scale = MINI_SCALE;
+
+      const shadow = mini.get(ShadowComponent);
+      if (shadow?.shadow) {
+        shadow.shadow.setScale(MINI_SCALE * 0.5);
+        // Replace shadow with scaled-down offset
+        mini.remove(ShadowComponent);
+        const miniShadow = mini.add(new ShadowComponent(this.scene, {
+          scale: MINI_SCALE * 0.5,
+          offsetX: 3,
+          offsetY: 12,
+        }));
+        miniShadow.init();
+      }
+      miniTransform.x = x + (Math.random() - 0.5) * SPREAD_PX;
+      miniTransform.y = y + (Math.random() - 0.5) * SPREAD_PX;
+
+      this.entityManager.add(mini);
+
+      const grid = this.grid;
+      this.scene.tweens.add({
+        targets: miniTransform,
+        x: targetX,
+        y: targetY,
+        duration: JUMP_DURATION_MS,
+        ease: 'Cubic.easeOut',
+        onComplete: () => {
+          mini.add(new GridCollisionComponent(grid));
+          if (collision) collision.enabled = true;
+        }
+      });
     }
   }
 }

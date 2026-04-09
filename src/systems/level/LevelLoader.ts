@@ -7,6 +7,7 @@ export type EntityType =
   | 'bug_base' 
   | 'thrower' 
   | 'skeleton' 
+  | 'red_skeleton'
   | 'bullet_dude' 
   | 'puma'
   | 'eventchainer'

@@ -24,18 +24,21 @@ export type CreateBoneProjectileProps = {
   grid: Grid;
   layer: number;
   blockedAreaManager?: BlockedAreaManager;
+  tint?: number;
+  scaleOverride?: number;
 }
 
 export function createBoneProjectileEntity(props: CreateBoneProjectileProps): Entity {
-  const { scene, x, y, dirX, dirY, grid, layer, blockedAreaManager } = props;
+  const { scene, x, y, dirX, dirY, grid, layer, blockedAreaManager, tint, scaleOverride } = props;
 
   const entity = new Entity('bone_projectile');
   entity.tags.add('enemy_projectile');
 
-  const transform = entity.add(new TransformComponent(x, y, 0, BONE_SCALE));
+  const transform = entity.add(new TransformComponent(x, y, 0, scaleOverride ?? BONE_SCALE));
 
   const sprite = entity.add(new SpriteComponent(scene, 'bone_small', transform));
   sprite.sprite.setDepth(Depth.projectileHigh);
+  if (tint) sprite.sprite.setTint(tint);
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 30 }));
   shadow.init();

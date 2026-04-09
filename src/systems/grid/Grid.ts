@@ -81,15 +81,20 @@ export class Grid {
     this.graphics = scene.add.graphics({ lineStyle: { width: 1, color: 0xffffff, alpha: 0.3 } });
 
     // Toggle grid debug with G
-    const keyG = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
-    keyG?.on("down", () => {
-      this.isGridDebugEnabled = !this.isGridDebugEnabled;
-      this.render();
-    });
+    // Toggle grid debug with G (game only — editor handles this in CanvasInteraction with input focus check)
+    const isEditorMode = (scene as any).isEditorMode === true;
+    if (!isEditorMode) {
+      const keyG = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
+      keyG?.on("down", () => {
+        this.isGridDebugEnabled = !this.isGridDebugEnabled;
+        this.render();
+      });
+    }
 
-    // Toggle occupant highlighting and collision boxes with C
-    const keyC = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.C);
-    keyC?.on("down", () => {
+    // Toggle occupant highlighting and collision boxes with C (game only, not editor)
+    if (!isEditorMode) {
+      const keyC = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.C);
+      keyC?.on("down", () => {
       this.isShowingOccupants = !this.isShowingOccupants;
       this.isSceneDebugEnabled = !this.isSceneDebugEnabled;
       this.render();
@@ -103,6 +108,7 @@ export class Grid {
         gameScene.layerDebugText.setVisible(this.isSceneDebugEnabled);
       }
     });
+    }
   }
 
   /**
