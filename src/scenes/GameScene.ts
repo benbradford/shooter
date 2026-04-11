@@ -44,7 +44,7 @@ export default class GameScene extends Phaser.Scene {
   private grid!: Grid;
   private readonly cellSize: number = CELL_SIZE;
   private levelData!: LevelData;
-  private currentLevelName: string = 'grass_overworld1';
+  private currentLevelName: string = 'house3_interior';
   private levelEntrySnapshot: string | null = null;
   private vignette?: Phaser.GameObjects.Image;
   private background?: Phaser.GameObjects.Image;

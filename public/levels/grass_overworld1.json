@@ -747,14 +747,6 @@
       ]
     },
     {
-      "col": 33,
-      "row": 2,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
       "col": 34,
       "row": 2,
       "layer": 0,
@@ -934,14 +926,6 @@
       ]
     },
     {
-      "col": 33,
-      "row": 3,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
       "col": 34,
       "row": 3,
       "layer": 0,
@@ -955,171 +939,163 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ]
+    },
+    {
+      "col": 36,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 37,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 38,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 39,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 30,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 31,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 34,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 35,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "path"
       ],
       "backgroundTexture": {
-        "image": "house3",
+        "image": "house2",
         "transformOverride": {
           "scaleX": 4,
           "scaleY": 4,
-          "offsetX": 0,
-          "offsetY": 24
+          "offsetX": 24,
+          "offsetY": -15
         }
       }
     },
     {
       "col": 36,
-      "row": 3,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 37,
-      "row": 3,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 38,
-      "row": 3,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 39,
-      "row": 3,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 0,
-      "row": 4,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 1,
-      "row": 4,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 2,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 3,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 4,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 5,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 6,
-      "row": 4,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 7,
-      "row": 4,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 20,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 21,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 30,
-      "row": 4,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 31,
-      "row": 4,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 33,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 34,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 35,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "path"
-      ]
-    },
-    {
-      "col": 36,
       "row": 4,
       "layer": 0,
       "properties": [
@@ -1247,14 +1223,6 @@
       "layer": 1,
       "properties": [
         "platform"
-      ]
-    },
-    {
-      "col": 33,
-      "row": 5,
-      "layer": 0,
-      "properties": [
-        "blocked"
       ]
     },
     {
@@ -2760,8 +2728,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "bush1"
+      ]
     },
     {
       "col": 35,
@@ -2769,8 +2736,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "bush1"
+      ]
     },
     {
       "col": 36,
@@ -2787,8 +2753,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "bush1"
+      ]
     },
     {
       "col": 0,
@@ -2883,8 +2848,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "bush1"
+      ]
     },
     {
       "col": 35,
@@ -3014,8 +2978,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": "bush1"
+      ]
     },
     {
       "col": 35,
@@ -4107,7 +4070,16 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": {
+        "image": "house3",
+        "transformOverride": {
+          "scaleX": 4,
+          "scaleY": 4,
+          "offsetX": 0,
+          "offsetY": 24
+        }
+      }
     },
     {
       "col": 37,
@@ -4227,16 +4199,7 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ],
-      "backgroundTexture": {
-        "image": "house2",
-        "transformOverride": {
-          "scaleX": 4,
-          "scaleY": 4,
-          "offsetX": 24,
-          "offsetY": -15
-        }
-      }
+      ]
     },
     {
       "col": 36,
@@ -4359,7 +4322,7 @@
       ]
     },
     {
-      "col": 36,
+      "col": 35,
       "row": 26,
       "layer": 0,
       "properties": [
@@ -4499,24 +4462,27 @@
       "row": 27,
       "layer": 0,
       "properties": [
-        "path"
-      ]
+        "blocked"
+      ],
+      "backgroundTexture": "bush2"
     },
     {
       "col": 38,
       "row": 27,
       "layer": 0,
       "properties": [
-        "path"
-      ]
+        "blocked"
+      ],
+      "backgroundTexture": "bush2"
     },
     {
       "col": 39,
       "row": 27,
       "layer": 0,
       "properties": [
-        "path"
-      ]
+        "blocked"
+      ],
+      "backgroundTexture": "bush2"
     },
     {
       "col": 0,
@@ -5174,20 +5140,28 @@
         "row": 27,
         "assets": "village_wizard",
         "direction": "Down",
-        "name": "Otis",
         "interactions": [
           {
             "name": "otis_reward",
-            "whenFlagSet": { "name": "mist_orb", "condition": "gte", "value": "6" }
+            "whenFlagSet": {
+              "name": "mist_orb",
+              "condition": "gte",
+              "value": "6"
+            }
           },
           {
             "name": "otis_some_orbs",
-            "whenFlagSet": { "name": "show_mist_orbs", "condition": "eq", "value": "true" }
+            "whenFlagSet": {
+              "name": "show_mist_orbs",
+              "condition": "eq",
+              "value": "true"
+            }
           },
           {
             "name": "otis_no_orbs"
           }
         ],
+        "name": "Otis",
         "transformOverride": {
           "scaleX": 1.3,
           "scaleY": 1.3,
@@ -5375,20 +5349,38 @@
     {
       "id": "interaction2",
       "type": "interaction",
-      "data": { "col": 0, "row": 0, "filename": "otis_no_orbs" },
-      "createOnAnyEvent": ["otis_no_orbs"]
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "otis_no_orbs"
+      },
+      "createOnAnyEvent": [
+        "otis_no_orbs"
+      ]
     },
     {
       "id": "interaction3",
       "type": "interaction",
-      "data": { "col": 0, "row": 0, "filename": "otis_some_orbs" },
-      "createOnAnyEvent": ["otis_some_orbs"]
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "otis_some_orbs"
+      },
+      "createOnAnyEvent": [
+        "otis_some_orbs"
+      ]
     },
     {
       "id": "interaction4",
       "type": "interaction",
-      "data": { "col": 0, "row": 0, "filename": "otis_reward" },
-      "createOnAnyEvent": ["otis_reward"]
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "otis_reward"
+      },
+      "createOnAnyEvent": [
+        "otis_reward"
+      ]
     }
   ],
   "levelTheme": "grass_overworld1",
