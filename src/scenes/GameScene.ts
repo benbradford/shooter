@@ -225,8 +225,8 @@ export default class GameScene extends Phaser.Scene {
 
     // Load world state only on first load
     const worldState = WorldStateManager.getInstance();
-    if (!GameScene.hasLoadedWorldState) {
-      const profileName = (this.scene.settings.data as { profileName?: string })?.profileName;
+    const profileName = (this.scene.settings.data as { profileName?: string })?.profileName;
+    if (!GameScene.hasLoadedWorldState || profileName) {
       await worldState.loadFromFile(profileName);
       GameScene.hasLoadedWorldState = true;
     }

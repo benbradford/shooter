@@ -35,16 +35,12 @@ const config: Phaser.Types.Core.GameConfig = {
   input: {
     activePointers: 3,
   },
-  scene: [GameScene, HudScene, LoadingScene, TitleScene, ProfileSelectScene],
+  scene: startWithGame
+    ? [GameScene, HudScene, LoadingScene, TitleScene, ProfileSelectScene]
+    : [TitleScene, ProfileSelectScene, GameScene, HudScene, LoadingScene],
 };
 
 const game = new Phaser.Game(config);
-
-// Phaser auto-starts first scene (GameScene). If no ?level=, switch to title.
-if (!startWithGame) {
-  game.scene.start('title');
-  game.scene.stop('game');
-}
 if (params.get('test') === 'true') {
   (globalThis as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent; JoystickVisualsComponent: typeof JoystickVisualsComponent; AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent; GridPositionComponent: typeof GridPositionComponent; ProjectileComponent: typeof ProjectileComponent; PetAbilityComponent: typeof PetAbilityComponent }).game = game;
   (globalThis as unknown as { TransformComponent: typeof TransformComponent }).TransformComponent = TransformComponent;

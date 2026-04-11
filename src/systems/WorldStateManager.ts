@@ -199,7 +199,11 @@ export class WorldStateManager {
         const originalCell = originalLevelData.cells.find(c => c.col === col && c.row === row);
         const originalLayer = originalCell?.layer ?? 0;
         const originalProps = new Set(originalCell?.properties ?? []);
-        const originalTexture = originalCell?.backgroundTexture ?? '';
+        const originalTexture = typeof originalCell?.backgroundTexture === 'string'
+          ? originalCell.backgroundTexture
+          : typeof originalCell?.backgroundTexture === 'object' && originalCell?.backgroundTexture !== null
+            ? (originalCell.backgroundTexture as { image: string }).image
+            : '';
 
         const currentProps = Array.from(currentCell.properties);
         const currentTexture = currentCell.backgroundTexture ?? '';

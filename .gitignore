@@ -13,6 +13,10 @@ dist-ssr
 *.local
 tmp/
 
+public/states/Profile1.json
+public/states/Profile2.json
+public/states/Profile3.json
+
 # World state (user-specific save files)
 public/states/default.json
 

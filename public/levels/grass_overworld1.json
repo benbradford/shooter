@@ -5208,6 +5208,14 @@
         "direction": "Down",
         "interactions": [
           {
+            "name": "otis_complete",
+            "whenFlagSet": {
+              "name": "canPunch",
+              "condition": "eq",
+              "value": "true"
+            }
+          },
+          {
             "name": "otis_reward",
             "whenFlagSet": {
               "name": "mist_orb",
@@ -5469,6 +5477,12 @@
       "createOnAnyEvent": [
         "otis_reward"
       ]
+    },
+    {
+      "id": "interaction5",
+      "type": "interaction",
+      "data": { "col": 0, "row": 0, "filename": "otis_complete" },
+      "createOnAnyEvent": ["otis_complete"]
     }
   ],
   "levelTheme": "grass_overworld1",

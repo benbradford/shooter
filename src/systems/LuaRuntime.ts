@@ -207,6 +207,10 @@ export class LuaRuntime {
         const worldState = WorldStateManager.getInstance();
         return worldState.getFlag(name) ?? '';
       });
+
+      lua.global.set('saveState', () => {
+        void WorldStateManager.getInstance().saveToFile();
+      });
       
       lua.global.set('isFlagCondition', (name: string, condition: string, value: string | number): boolean => {
         const worldState = WorldStateManager.getInstance();
