@@ -238,6 +238,7 @@ export class BreakableComponent implements Component {
     if (!rarity) return;
 
     const coinRange = RARITY_COIN_COUNTS[rarity.rarity];
+    if (!coinRange) return;
     const coinCount = Math.floor(Math.random() * (coinRange.max - coinRange.min + 1)) + coinRange.min;
 
     const cellBottom = transform.y + sprite.sprite.displayHeight / 2;

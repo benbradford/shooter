@@ -144,14 +144,12 @@ export class SpeechBoxComponent implements Component {
   private onInput(): void {
     if (!this.isDismissed) {
       if (this.isSkipping) {
-        // Second press - dismiss
         this.isDismissed = true;
         if (this.dismissResolve) {
           this.dismissResolve();
           this.dismissResolve = null;
         }
       } else {
-        // First press - skip (speed up)
         this.isSkipping = true;
       }
     }
@@ -332,6 +330,7 @@ export class SpeechBoxComponent implements Component {
   }
   
   private waitForDismiss(timeout: number): Promise<void> {
+    if (this.isDismissed) return Promise.resolve();
     return new Promise(resolve => {
       this.dismissResolve = resolve;
       this.scene.time.delayedCall(timeout, () => {

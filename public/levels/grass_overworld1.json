@@ -4090,6 +4090,20 @@
       ]
     },
     {
+      "col": 39,
+      "row": 24,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "bush2",
+        "transformOverride": {
+          "scaleX": 1.3,
+          "scaleY": 1.3,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
+    },
+    {
       "col": 0,
       "row": 25,
       "layer": 1,
@@ -4218,6 +4232,20 @@
       ]
     },
     {
+      "col": 39,
+      "row": 25,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "bush2",
+        "transformOverride": {
+          "scaleX": 1.3,
+          "scaleY": 1.3,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
+    },
+    {
       "col": 0,
       "row": 26,
       "layer": 1,
@@ -4336,6 +4364,20 @@
       "properties": [
         "blocked"
       ]
+    },
+    {
+      "col": 39,
+      "row": 26,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "bush2",
+        "transformOverride": {
+          "scaleX": 1.3,
+          "scaleY": 1.3,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 0,
@@ -4464,7 +4506,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "bush2"
+      "backgroundTexture": {
+        "image": "bush2",
+        "transformOverride": {
+          "scaleX": 1.3,
+          "scaleY": 1.3,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 38,
@@ -4473,7 +4523,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "bush2"
+      "backgroundTexture": {
+        "image": "bush2",
+        "transformOverride": {
+          "scaleX": 1.3,
+          "scaleY": 1.3,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 39,
@@ -4482,7 +4540,15 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": "bush2"
+      "backgroundTexture": {
+        "image": "bush2",
+        "transformOverride": {
+          "scaleX": 1.3,
+          "scaleY": 1.3,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
     },
     {
       "col": 0,
@@ -5202,6 +5268,28 @@
           "offsetX": 0,
           "offsetY": 0
         }
+      }
+    },
+    {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 20,
+        "row": 0,
+        "texture": "stone_wall",
+        "health": 1,
+        "rarity": "nothing"
+      }
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 21,
+        "row": 0,
+        "texture": "stone_wall",
+        "health": 1,
+        "rarity": "nothing"
       }
     },
     {

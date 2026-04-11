@@ -533,7 +533,7 @@ export class ContextPanel {
       typeFields += `<div class="form-group"><label>Texture</label><input id="ef-btex" value="${data.texture ?? ''}" /></div>
         <div class="form-group"><label>Health</label><input type="number" id="ef-bhealth" value="${data.health ?? 1}" /></div>
         <div class="form-group"><label>Rarity</label>
-        <select id="ef-brarity">${['common', 'uncommon', 'rare', 'epic', 'legendary'].map(r => `<option ${data.rarity === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>`;
+        <select id="ef-brarity">${['nothing', 'common', 'uncommon', 'rare', 'epic', 'legendary'].map(r => `<option ${data.rarity === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>`;
     }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;

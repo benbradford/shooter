@@ -94,7 +94,7 @@ export class EntityLoader {
       if (entityDef.suppressOnAnyFlag) {
         const worldState = WorldStateManager.getInstance();
         let shouldSuppress = false;
-        
+
         for (const flagCondition of entityDef.suppressOnAnyFlag) {
           if (worldState.isFlagCondition(flagCondition.name, flagCondition.condition, flagCondition.value)) {
             shouldSuppress = true;
@@ -102,12 +102,12 @@ export class EntityLoader {
             break;
           }
         }
-        
+
         if (shouldSuppress) {
           continue;
         }
       }
-      
+
       // Check if entity should be spawned based on world state
       if (!isEditorMode) {
         // Skip if destroyed (unless respawnable)
@@ -308,7 +308,7 @@ export class EntityLoader {
             texture: breakableData.texture,
             health: breakableData.health,
             entityId: entityDef.id,
-            rarity: (breakableData.rarity as Rarity) ?? 'epic',
+            rarity: (breakableData.rarity as Rarity) ?? 'nothing',
             playerEntity: player,
             onSpawnCoin: (x, y, velocityX, velocityY, targetY) => {
               const coin = createCoinEntity({
