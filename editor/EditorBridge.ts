@@ -8,8 +8,6 @@ import { GridPositionComponent } from '../src/ecs/components/movement/GridPositi
 import { DifficultyComponent } from '../src/ecs/components/ai/DifficultyComponent';
 import { SpriteComponent } from '../src/ecs/components/core/SpriteComponent';
 import { PatrolComponent } from '../src/ecs/components/ai/PatrolComponent';
-import { BreakableComponent } from '../src/ecs/components/breakable/BreakableComponent';
-import { RarityComponent } from '../src/ecs/components/core/RarityComponent';
 import { NPCIdleComponent } from '../src/ecs/entities/npc/NPCIdleComponent';
 import { Direction } from '../src/constants/Direction';
 import type { Toast } from './panels/Toast';
@@ -813,10 +811,9 @@ export class EditorBridge {
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
       } else if (entity.id.startsWith('breakable')) {
         type = 'breakable';
-        const sprite = entity.get(SpriteComponent);
-        const breakable = entity.get(BreakableComponent);
-        const rarity = entity.get(RarityComponent);
-        data = { col: cell.col, row: cell.row, texture: sprite?.sprite.texture.key ?? 'dungeon_vase', health: breakable?.getHealth() ?? 1, rarity: rarity?.rarity ?? 'epic' };
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const existingData = existing?.data as { texture?: string; health?: number; rarity?: string } | undefined;
+        data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'dungeon_vase', health: existingData?.health ?? 1, rarity: existingData?.rarity ?? 'epic' };
       } else if (entity.id.startsWith('collectible')) {
         type = 'collectible';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

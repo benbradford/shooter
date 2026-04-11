@@ -1,0 +1,41 @@
+{
+  "character": {
+    "id": "ef53c4ef-0544-4aea-b2bf-64d87154c3a7",
+    "name": "small druid like character in the style of metal slug",
+    "prompt": "small druid like character in the style of metal slug",
+    "size": {
+      "width": 48,
+      "height": 48
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-02-01T14:58:15.264333+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {
+      "Fireball-50d36945": {
+        "south": [
+          "animations/Fireball-50d36945/south/frame_000.png",
+          "animations/Fireball-50d36945/south/frame_001.png",
+          "animations/Fireball-50d36945/south/frame_002.png",
+          "animations/Fireball-50d36945/south/frame_003.png",
+          "animations/Fireball-50d36945/south/frame_004.png",
+          "animations/Fireball-50d36945/south/frame_005.png"
+        ]
+      }
+    }
+  },
+  "export_version": "2.0",
+  "export_date": "2026-04-11T09:30:01.883579"
+}

@@ -17,6 +17,7 @@ export class NPCIdleComponent implements Component {
   private hasInitialized = false;
   private frameCount = 0;
   private _facePlayer: boolean;
+  private paused = false;
   transformOverride: NPCTransformOverride;
 
   constructor(
@@ -77,10 +78,18 @@ export class NPCIdleComponent implements Component {
 
   setDirection(direction: Direction): void {
     this.direction = direction;
+    if (this.paused) return;
     const sprite = this.entity.require(SpriteComponent).sprite;
     const animKey = getNPCAnimKey(this.spritesheet, this.direction, this.frameCount);
     if (sprite.scene.anims.exists(animKey)) {
       sprite.play(animKey);
+    }
+  }
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+    if (!paused) {
+      this.setDirection(this.direction);
     }
   }
 

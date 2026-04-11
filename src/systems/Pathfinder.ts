@@ -14,6 +14,7 @@ type PathNode = {
 export class Pathfinder {
   private readonly grid: Grid;
   private readonly blockedAreaCells?: ReadonlySet<string>;
+  allowWater = false;
 
   constructor(grid: Grid, blockedAreaCells?: ReadonlySet<string>) {
     this.grid = grid;
@@ -194,9 +195,9 @@ export class Pathfinder {
       }
     }
 
-    // Block movement into water (unless bridge)
+    // Block movement into water (unless bridge or canSwim)
     if (targetCell.properties.has('water') && !targetCell.properties.has('bridge')) {
-      return null;
+      if (!this.allowWater) return null;
     }
 
     // Block movement into walls

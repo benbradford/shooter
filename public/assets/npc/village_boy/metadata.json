@@ -1,0 +1,30 @@
+{
+  "character": {
+    "id": "5d169313-ca06-4ab1-b527-e690280d97e3",
+    "name": "A small boy in the style of metal slug with blond hair and dungarees",
+    "prompt": "A small boy in the style of metal slug with blond hair and dungarees",
+    "size": {
+      "width": 48,
+      "height": 48
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-03-13T14:39:51.071185+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {}
+  },
+  "export_version": "2.0",
+  "export_date": "2026-04-08T10:42:14.793315"
+}

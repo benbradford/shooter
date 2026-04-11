@@ -3,6 +3,14 @@ import { Direction } from '../../../constants/Direction';
 
 const ALPHABETICAL_DIRS = ['east', 'north-east', 'north-west', 'north', 'south-east', 'south-west', 'south', 'west'];
 
+type NPCAnimDef = { name: string; startFrame: number; frameCount: number; frameRate: number; repeat?: number };
+
+const NPC_ANIM_METADATA: Record<string, NPCAnimDef[]> = {
+  village_swim_teacher: [
+    { name: 'push', startFrame: 8, frameCount: 6, frameRate: 10 },
+  ],
+};
+
 const DIR_TO_INDEX: Record<Direction, number> = {
   [Direction.None]: 6,
   [Direction.Down]: 6,
@@ -26,6 +34,10 @@ export function createNPCAnimations(scene: Phaser.Scene, spritesheet: string): v
     // Stale — remove all animations for this spritesheet
     ALPHABETICAL_DIRS.forEach((dir) => scene.anims.remove(`${spritesheet}_idle_${dir}`));
     scene.anims.remove(`${spritesheet}_idle_static`);
+    const metadata = NPC_ANIM_METADATA[spritesheet];
+    if (metadata) {
+      for (const anim of metadata) scene.anims.remove(`${spritesheet}_${anim.name}`);
+    }
   }
 
   const texture = scene.textures.get(spritesheet);
@@ -49,6 +61,26 @@ export function createNPCAnimations(scene: Phaser.Scene, spritesheet: string): v
       repeat: 0
     });
   });
+
+  // Create extra animations if spritesheet has more than 8 frames
+  // Frames 8+ are additional animations defined in metadata
+  if (frameCount > 8) {
+    const metadata = NPC_ANIM_METADATA[spritesheet];
+    if (metadata) {
+      for (const anim of metadata) {
+        const frames = [];
+        for (let i = anim.startFrame; i < anim.startFrame + anim.frameCount; i++) {
+          frames.push({ key: spritesheet, frame: i });
+        }
+        scene.anims.create({
+          key: `${spritesheet}_${anim.name}`,
+          frames,
+          frameRate: anim.frameRate,
+          repeat: anim.repeat ?? 0
+        });
+      }
+    }
+  }
 }
 
 export function getNPCAnimKey(spritesheet: string, direction: Direction, frameCount: number): string {

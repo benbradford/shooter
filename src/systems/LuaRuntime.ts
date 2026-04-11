@@ -5,6 +5,7 @@ import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent'
 import { InteractionComponent } from '../ecs/components/interaction/InteractionComponent';
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
+import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { WalkComponent } from '../ecs/components/movement/WalkComponent';
 import { WorldStateManager } from './WorldStateManager';
@@ -36,7 +37,9 @@ type Command =
   | { type: 'spendCoins'; amount: number }
   | { type: 'obtainCoins'; amount: number }
   | { type: 'fadeOut'; durationMs: number }
-  | { type: 'fadeIn'; durationMs: number };
+  | { type: 'fadeIn'; durationMs: number }
+  | { type: 'npcPlayAnim'; npcId: string; animKey: string; repeatType: string }
+  | { type: 'teleportTo'; col: number; row: number };
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
@@ -92,6 +95,9 @@ export class LuaRuntime {
         },
         look: (direction: string) => {
           this.commandQueue.push({ type: 'look', direction });
+        },
+        teleportTo: (col: number, row: number) => {
+          this.commandQueue.push({ type: 'teleportTo', col, row });
         }
       };
       lua.global.set('player', player);
@@ -126,6 +132,9 @@ export class LuaRuntime {
               throw new Error(`[LuaRuntime] Invalid direction: ${direction}`);
             }
             this.commandQueue.push({ type: 'npcLook', npcId, direction: dir });
+          },
+          playAnim: (animKey: string, repeatType: string) => {
+            this.commandQueue.push({ type: 'npcPlayAnim', npcId, animKey, repeatType: repeatType ?? 'once' });
           }
         };
         lua.global.set('npc', npc);
@@ -321,6 +330,31 @@ export class LuaRuntime {
               }
             });
           });
+        }
+      } else if (cmd.type === 'teleportTo') {
+        const transform = this.playerEntity.require(TransformComponent);
+        const gridPos = this.playerEntity.get(GridPositionComponent);
+        const grid = this.scene.getGrid();
+        const worldPos = grid.cellToWorld(cmd.col, cmd.row);
+        transform.x = worldPos.x + grid.cellSize / 2;
+        transform.y = worldPos.y + grid.cellSize / 2;
+        if (gridPos) {
+          gridPos.currentCell = { col: cmd.col, row: cmd.row };
+        }
+      } else if (cmd.type === 'npcPlayAnim') {
+        const npcEntity = this.scene.entityManager.getAll().find(e => e.id === cmd.npcId);
+        const sprite = npcEntity?.get(SpriteComponent);
+        if (sprite) {
+          const idle = npcEntity?.get(NPCIdleComponent);
+          if (idle) idle.setPaused(true);
+          const repeat = cmd.repeatType === 'repeat' ? -1 : 0;
+          sprite.sprite.play({ key: cmd.animKey, repeat });
+          if (cmd.repeatType === 'once') {
+            await new Promise<void>(resolve => {
+              sprite.sprite.once('animationcomplete', () => resolve());
+            });
+            if (idle) idle.setPaused(false);
+          }
         }
       }
     } finally {

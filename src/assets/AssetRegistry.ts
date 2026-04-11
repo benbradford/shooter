@@ -47,6 +47,18 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 68, frameHeight: 68 }
   },
+  village_boy: {
+    key: 'village_boy',
+    path: 'assets/npc/village_boy/village_boy_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  village_swim_teacher: {
+    key: 'village_swim_teacher',
+    path: 'assets/npc/village_swim_teacher/village_swim_teacher_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
   floating_robot: {
     key: 'floating_robot',
     path: 'assets/floating_robot/floating-robot-spritesheet.png',
@@ -656,6 +668,8 @@ export const ASSET_GROUPS = {
   village_old_man: ['village_old_man'] as const,
   village_girl: ['village_girl'] as const,
   village_wizard: ['village_wizard'] as const,
+  village_boy: ['village_boy'] as const,
+  village_swim_teacher: ['village_swim_teacher'] as const,
 
   // Breakables
   breakables: ['dungeon_vase', 'pillar'] as const,
