@@ -6,11 +6,11 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { Depth } from '../../../constants/DepthConstants';
 import type { SkeletonDifficulty } from '../skeleton/SkeletonDifficultyConfig';
 
-const DEATH_PARTICLE_COUNT_MIN = 4;
-const DEATH_PARTICLE_COUNT_MAX = 8;
-const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 50;
-const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 150;
-const DEATH_PARTICLE_LIFESPAN_MS = 600;
+const DEATH_PARTICLE_COUNT_MIN = 1;
+const DEATH_PARTICLE_COUNT_MAX = 3;
+const DEATH_PARTICLE_SPEED_MIN_PX_PER_SEC = 100;
+const DEATH_PARTICLE_SPEED_MAX_PX_PER_SEC = 225;
+const DEATH_PARTICLE_LIFESPAN_MS = 400;
 
 export class RedSkeletonDeathState implements IState {
   private hasSpawned = false;
@@ -45,7 +45,8 @@ export class RedSkeletonDeathState implements IState {
       lifespan: DEATH_PARTICLE_LIFESPAN_MS,
       quantity: particleCount,
       rotate: { min: -50, max: 50 },
-      blendMode: 'NORMAL'
+      blendMode: 'NORMAL',
+      tint: 0xff4444,
     });
     emitter.setDepth(Depth.player);
 

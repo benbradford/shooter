@@ -75,19 +75,6 @@
 - `editor/EditorBridge.ts` — Blocked area mutations
 - `editor/panels/ContextPanel.ts` — Layer/blocksProjectiles editing
 
-### Editor: Drag-to-Move Entities
-
-**Change**: Removed the Move tool button. Entities are now moved by click-and-drag in Select mode.
-
-**How it works:**
-- Click an entity in Select mode to select it
-- Keep holding and drag to reposition it cell-by-cell
-- Release to finalize position
-
-**Files Changed:**
-- `editor/CanvasInteraction.ts` — Added `dragEntityId` tracking, removed `handleMove` method and `move` tool branch
-- `editor/panels/Toolbar.ts` — Removed Move from GRID_TOOLS array
-
 ### Editor: Dropdown Auto-Blur
 
 **Change**: All dropdowns (level, entity type, theme) now blur after selection so WASD camera movement works immediately.
@@ -193,15 +180,35 @@
 **Files Changed:**
 - `editor/CanvasInteraction.ts` — Collect all candidates at cell, cycle on repeated clicks
 
-### canSwim World State Flag
+### Red Skeleton Enemy
 
-**Change**: Water now blocks player movement unless the `canSwim` flag is `"true"` in world state. Replaced compile-time `CAN_SUBMERGE` constant with runtime flag check.
+**Change**: New `red_skeleton` enemy type. Red-tinted skeleton that splits into 4 mini skeletons on death. Mini skeletons are half-size, inherit difficulty, throw smaller bones.
 
 **Files Changed:**
-- `src/ecs/components/movement/GridCollisionComponent.ts` — Check `canSwim` flag instead of `CAN_SUBMERGE`
-- `src/ecs/entities/player/PlayerEntity.ts` — Always add WaterEffectComponent
-- `src/constants/GameConstants.ts` — Removed `CAN_SUBMERGE`
-- `public/states/default.json` — Added `canSwim: "false"`
+- `src/ecs/entities/red_skeleton/RedSkeletonEntity.ts` — Red-tinted skeleton with split-on-death
+- `src/ecs/entities/red_skeleton/RedSkeletonDeathState.ts` — Spawns red bone particles + mini skeletons
+- `src/systems/EntityLoader.ts` — `red_skeleton` case + `spawnMiniSkeletons` method
+- `src/systems/level/LevelLoader.ts` — Added `red_skeleton` to EntityType
+- `src/ecs/components/visual/HitFlashComponent.ts` — Added `baseTint` parameter
+- `src/ecs/entities/skeleton/BoneProjectileEntity.ts` — Added `tint` and `scaleOverride` props
+- `src/assets/AssetRegistry.ts` — `red_skeleton` asset group
+- `src/assets/AssetLoader.ts` — Load skeleton assets for `red_skeleton` type
+
+### Water Blocks Enemy Movement
+
+**Change**: Enemies can no longer walk on water. Water cells block pathfinding and grid collision for all entities without `WaterEffectComponent`. Bridge+water cells remain walkable.
+
+**Files Changed:**
+- `src/systems/Pathfinder.ts` — Block water cells (unless bridge) in `getValidNeighbor`
+- `src/ecs/components/movement/GridCollisionComponent.ts` — Block water for entities without `WaterEffectComponent`
+- `src/ecs/components/movement/KnockbackComponent.ts` — Block knockback into water cells
+
+### Editor: Keyboard Isolation
+
+**Change**: G and C key debug toggles no longer fire when typing in editor form fields. Both keys are now only registered in game mode.
+
+**Files Changed:**
+- `src/systems/grid/Grid.ts` — Skip G/C key registration in editor mode
 
 ### Editor: Resizable Panels, State Tab, Level Info Improvements
 
@@ -210,6 +217,7 @@
 - **Level** and **State** buttons added to tool row
 - Level Info panel: editable player start position, theme dropdown, data entities list (interactions/eventchainers/cellmodifiers)
 - State panel: edit player health, coins, flags with Save State button
+- State panel: Clear button per level + Clear All button to reset level states
 - Animated texture editing in cell form (add/remove/transform)
 - Exit form: Leave button loads target level
 - Remembers last edited level via localStorage
@@ -226,6 +234,29 @@
 - `editor/EditorBridge.ts` — onToolChanged callback, save-state support
 - `editor/CanvasInteraction.ts` — Level/State tool handling, zoom step
 - `vite.config.ts` — Added `/api/save-state` endpoint
+
+### Editor: Drag-to-Move Entities
+
+**Change**: Removed the Move tool button. Entities are now moved by click-and-drag in Select mode.
+
+**How it works:**
+- Click an entity in Select mode to select it
+- Keep holding and drag to reposition it cell-by-cell
+- Release to finalize position
+
+**Files Changed:**
+- `editor/CanvasInteraction.ts` — Added `dragEntityId` tracking, removed `handleMove` method and `move` tool branch
+- `editor/panels/Toolbar.ts` — Removed Move from GRID_TOOLS array
+
+### canSwim World State Flag
+
+**Change**: Water now blocks player movement unless the `canSwim` flag is `"true"` in world state. Replaced compile-time `CAN_SUBMERGE` constant with runtime flag check.
+
+**Files Changed:**
+- `src/ecs/components/movement/GridCollisionComponent.ts` — Check `canSwim` flag instead of `CAN_SUBMERGE`
+- `src/ecs/entities/player/PlayerEntity.ts` — Always add WaterEffectComponent
+- `src/constants/GameConstants.ts` — Removed `CAN_SUBMERGE`
+- `public/states/default.json` — Added `canSwim: "false"`
 
 ### Water Config: Customizable Ripples and Splash
 

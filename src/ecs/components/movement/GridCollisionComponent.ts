@@ -72,14 +72,16 @@ export class GridCollisionComponent implements Component {
       return false;
     }
 
-    // Block movement into water if player can't swim
+    // Block movement into water if player can't swim, or if entity is not a swimmer (enemies)
+    const waterEffect = this.entity.get(WaterEffectComponent);
     const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
-    if (!canSwim && toCell.properties.has('water') && !toCell.properties.has('bridge')) {
-      return false;
+    if (!toCell.properties.has('bridge') && toCell.properties.has('water')) {
+      if (!waterEffect || !canSwim) {
+        return false;
+      }
     }
 
     // Block walking from bridge onto water (without bridge) - but allow if swimming
-    const waterEffect = this.entity.get(WaterEffectComponent);
     const isSwimming = waterEffect?.getIsInWater() ?? false;
     if (!isSwimming && fromCell.properties.has('bridge') && toCell.properties.has('water') && !toCell.properties.has('bridge')) {
       return false;

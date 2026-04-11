@@ -121,7 +121,7 @@ export default class GameScene extends Phaser.Scene {
         } else if (theme === 'grass') {
           this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
         } else if (theme === 'wilds') {
-          this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+          this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
         } else {
           this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
         }
@@ -271,7 +271,7 @@ export default class GameScene extends Phaser.Scene {
     } else if (theme === 'grass') {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
-      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
     } else if (theme === 'default') {
       this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     } else {
@@ -660,7 +660,7 @@ export default class GameScene extends Phaser.Scene {
     } else if (theme === 'grass') {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
-      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize);
+      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
     } else if (theme === 'default') {
       this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     }

@@ -194,6 +194,11 @@ export class Pathfinder {
       }
     }
 
+    // Block movement into water (unless bridge)
+    if (targetCell.properties.has('water') && !targetCell.properties.has('bridge')) {
+      return null;
+    }
+
     // Block movement into walls
     if (this.grid.isWall(targetCell)) {
       // Always block horizontal movement into walls

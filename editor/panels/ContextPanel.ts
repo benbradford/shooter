@@ -60,7 +60,10 @@ export class ContextPanel {
         { key: 'firedTriggers', label: 'Fired Triggers', items: data.firedTriggers },
       ];
       return `
-        <div class="collapsible-header section-header" data-target="lvl-${levelName}">${levelName}</div>
+        <div class="collapsible-header section-header" data-target="lvl-${levelName}" style="display:flex;justify-content:space-between;align-items:center">
+          <span>${levelName}</span>
+          <button class="ed-btn danger st-lclear" data-level="${levelName}" style="padding:1px 6px;font-size:10px">Clear</button>
+        </div>
         <div class="collapsible-body" id="lvl-${levelName}">
           ${fields.map(f => `
             <div class="collapsible-header" data-target="lvl-${levelName}-${f.key}" style="font-size:11px;color:#95a5a6;margin:4px 0 2px">${f.label} (${f.items.length})</div>
@@ -88,7 +91,7 @@ export class ContextPanel {
         </div>`).join('')}
       </div>
       <button class="ed-btn" id="st-add-flag" style="width:100%;margin-bottom:8px">+ Add Flag</button>
-      <div class="section-header" style="margin-top:8px">Levels</div>
+      <div class="section-header" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>Levels</span><button class="ed-btn danger" id="st-clear-all" style="padding:1px 6px;font-size:10px">Clear All</button></div>
       <div id="st-levels">${levelEntries.map(([name, data]) => renderLevelSection(name, data)).join('')}</div>
       <button class="ed-btn save" id="st-save" style="width:100%;margin-top:8px">Save State</button>
     `;
@@ -100,12 +103,37 @@ export class ContextPanel {
 
     // Collapsible toggle
     for (const header of this.container.querySelectorAll<HTMLElement>('.collapsible-header')) {
-      header.addEventListener('click', () => {
+      header.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).classList.contains('st-lclear')) return;
         header.classList.toggle('open');
         const body = this.container.querySelector(`#${header.dataset.target}`) as HTMLElement | null;
         body?.classList.toggle('open');
       });
     }
+
+    // Clear level buttons
+    for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.st-lclear')) {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const levelName = btn.dataset.level!;
+        const body = this.container.querySelector(`#lvl-${levelName}`) as HTMLElement | null;
+        if (!body) return;
+        for (const container of body.querySelectorAll<HTMLElement>('.st-list-container')) {
+          container.innerHTML = '';
+        }
+        const textarea = body.querySelector<HTMLTextAreaElement>('.st-mcells');
+        if (textarea) textarea.value = '[]';
+        this.bridge.toast?.show(`Cleared ${levelName}`, 'success');
+      });
+    }
+
+    // Clear all levels
+    this.container.querySelector('#st-clear-all')?.addEventListener('click', () => {
+      for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.st-lclear')) {
+        btn.click();
+      }
+      this.bridge.toast?.show('Cleared all levels', 'success');
+    });
 
     // Delete buttons (flags)
     for (const btn of this.container.querySelectorAll('.st-fdel')) {

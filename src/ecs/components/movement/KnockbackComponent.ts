@@ -35,7 +35,7 @@ export class KnockbackComponent implements Component {
     const targetCell = this.grid.worldToCell(targetX, targetY);
     const cell = this.grid.getCell(targetCell.col, targetCell.row);
 
-    if (cell?.layer === gridPos.currentLayer && !this.grid.isWall(cell)) {
+    if (cell?.layer === gridPos.currentLayer && !this.grid.isWall(cell) && !(cell.properties.has('water') && !cell.properties.has('bridge'))) {
       this.velocityX = dirX * force;
       this.velocityY = dirY * force;
       this.elapsed = 0;

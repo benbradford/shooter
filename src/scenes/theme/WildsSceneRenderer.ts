@@ -3,9 +3,32 @@ import { Depth } from '../../constants/DepthConstants';
 
 const EDGE_COLOR = 0x4a3a2a;
 const MIST_DRIFT_SPEED_PX_PER_SEC = 20;
+const DEFAULT_MIST_BASE_ALPHA = 0.3;
+const DEFAULT_MIST_ALPHA_RANGE = 0.7;
+const DEFAULT_MIST_BASE_SCALE = 45;
+const DEFAULT_MIST_SCALE_RANGE = 50;
+
+export type WildsMistConfig = {
+  baseAlpha?: number;
+  alphaRange?: number;
+  baseScale?: number;
+  scaleRange?: number;
+};
 
 export class WildsSceneRenderer extends GameSceneRenderer {
   private mistEmitters: Phaser.GameObjects.Particles.ParticleEmitter[] = [];
+  private readonly mistBaseAlpha: number;
+  private readonly mistAlphaRange: number;
+  private readonly mistBaseScale: number;
+  private readonly mistScaleRange: number;
+
+  constructor(scene: Phaser.Scene, cellSize: number, mistConfig?: WildsMistConfig) {
+    super(scene, cellSize);
+    this.mistBaseAlpha = mistConfig?.baseAlpha ?? DEFAULT_MIST_BASE_ALPHA;
+    this.mistAlphaRange = mistConfig?.alphaRange ?? DEFAULT_MIST_ALPHA_RANGE;
+    this.mistBaseScale = mistConfig?.baseScale ?? DEFAULT_MIST_BASE_SCALE;
+    this.mistScaleRange = mistConfig?.scaleRange ?? DEFAULT_MIST_SCALE_RANGE;
+  }
 
   protected getEdgeColor(): number {
     return EDGE_COLOR;
@@ -71,7 +94,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
             if (!particle) return 120;
             (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY = particle.y;
             const yRatio = particle.y / worldHeight;
-            const baseScale = 45 + (yRatio * 50);
+            const baseScale = this.mistBaseScale + (yRatio * this.mistScaleRange);
             return baseScale + (Math.random() * 30 - 10);
           }
         },
@@ -81,7 +104,7 @@ export class WildsSceneRenderer extends GameSceneRenderer {
             const life = particle.lifeT;
             const initialY = (particle as Phaser.GameObjects.Particles.Particle & { initialY?: number }).initialY ?? particle.y;
             const yRatio = initialY / worldHeight;
-            const baseAlpha = 0.3 + (yRatio * 0.7);
+            const baseAlpha = this.mistBaseAlpha + (yRatio * this.mistAlphaRange);
             if (life < 0.3) return baseAlpha * (life / 0.3);
             if (life > 0.7) return baseAlpha * ((1 - life) / 0.3);
             return baseAlpha;

@@ -29,6 +29,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 
 ### Entity Types
 - `skeleton` - Throws bone projectiles
+- `red_skeleton` - Red-tinted skeleton, splits into 4 mini skeletons on death
 - `thrower` - Throws grenades
 - `stalking_robot` - Patrols waypoints, shoots fireballs
 - `bug_base` - Spawns bugs continuously
@@ -192,10 +193,10 @@ When any entity is destroyed, an event `{entityId}_destroyed` is automatically r
 When adding a new entity type that should be placeable in the editor, you must update **FIVE** files:
 
 ### 1. Add to EntityType (LevelLoader.ts)
-### 2. Add to AddEntityEditorState.ts
-- Add to ENTITY_TYPES array
-- Add ghost sprite texture mapping in createGhostSprite()
-- Add data structure in placeEntity()
+### 2. Add to Editor
+- Add to `ENTITY_TYPES` array in `editor/panels/Toolbar.ts`
+- Add default data in `EditorBridge.addEntity()` defaults map
+- Add label in `CanvasInteraction` labelMap
 
 ### 3. Add to EditorBridge.extractEntities()
 **CRITICAL:** This is where entities are extracted to JSON when you click Log/Save.
@@ -208,15 +209,17 @@ When adding a new entity type that should be placeable in the editor, you must u
 ### Checklist for New Entity Types
 
 - [ ] Added to EntityType in LevelLoader.ts
-- [ ] Added to ENTITY_TYPES array in AddEntityEditorState.ts
-- [ ] Added ghost sprite texture mapping in createGhostSprite()
-- [ ] Added data structure in placeEntity()
+- [ ] Added to `ENTITY_TYPES` array in `editor/panels/Toolbar.ts`
+- [ ] Added default data in `EditorBridge.addEntity()`
+- [ ] Added label in `CanvasInteraction` labelMap
 - [ ] **Added extraction logic in EditorBridge.extractEntities()** ← Most commonly forgotten!
 - [ ] **Updated entity factory to accept entityId parameter** ← Required for unique IDs!
 - [ ] **Entity factory uses entityId in new Entity(entityId)** ← Not hardcoded string!
 - [ ] **Updated EntityLoader to pass entityId** ← Required for unique IDs!
+- [ ] Added asset group in AssetRegistry (if new assets needed)
+- [ ] Added to asset loading check in `AssetLoader.getRequiredAssetGroups()`
 - [ ] Tested placing entity in editor
-- [ ] Tested clicking Log button shows entity in JSON
+- [ ] Tested clicking Save shows entity in JSON
 - [ ] Tested loading level with entity from JSON
 - [ ] Tested placing multiple entities of same type (should have unique IDs: type0, type1, type2...)
 - [ ] **Tested moving entity in editor and saving (position should persist)** ← Requires GridPositionComponent update

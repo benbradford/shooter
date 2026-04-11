@@ -85,7 +85,7 @@ export default class LoadingScene extends Phaser.Scene {
       const theme = levelData.levelTheme ?? 'dungeon';
       let renderer: GameSceneRenderer;
       if (theme === 'wilds') {
-        renderer = new WildsSceneRenderer(this, CELL_SIZE);
+        renderer = new WildsSceneRenderer(this, CELL_SIZE, levelData.mistConfig);
       } else if (theme === 'swamp') {
         renderer = new SwampSceneRenderer(this, CELL_SIZE);
       } else if (theme === 'grass') {

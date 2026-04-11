@@ -1241,15 +1241,6 @@
       ]
     },
     {
-      "id": "red_skeleton0",
-      "type": "red_skeleton",
-      "data": {
-        "col": 15,
-        "row": 9,
-        "difficulty": "medium"
-      }
-    },
-    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -1349,6 +1340,21 @@
         "triggerCells": [
           {
             "col": 0,
+            "row": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit2",
+      "type": "exit",
+      "data": {
+        "targetLevel": "dungeon3right",
+        "targetCol": 1,
+        "targetRow": 17,
+        "triggerCells": [
+          {
+            "col": 19,
             "row": 6
           }
         ]

@@ -1,0 +1,2204 @@
+{
+  "width": 30,
+  "height": 20,
+  "playerStart": {
+    "x": 1,
+    "y": 17
+  },
+  "cells": [
+    {
+      "col": 0,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 6,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 7,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 8,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 9,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 10,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 11,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "stairs"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 11,
+      "layer": 2,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 11,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 12,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 13,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 14,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 3,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": "pillar"
+    },
+    {
+      "col": 4,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "stairs"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 15,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 16,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 17,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 17,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 18,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 19,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "thrower0",
+      "type": "thrower",
+      "data": {
+        "col": 4,
+        "row": 7,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "dungeon3",
+        "targetCol": 18,
+        "targetRow": 6,
+        "triggerCells": [
+          {
+            "col": 0,
+            "row": 17
+          }
+        ]
+      }
+    }
+  ],
+  "levelTheme": "dungeon",
+  "background": {
+    "floor_texture": "dungeon_floor",
+    "floor_tile": 8,
+    "floorAlpha": 0.7,
+    "platform_texture": "dungeon_platform",
+    "stairs_texture": "stone_stairs",
+    "wall_texture": "stone_wall",
+    "overlays": {
+      "spritesheet": "assets/cell_drawables/dungeon_overlays_spritesheet.png",
+      "spriteList": "assets/cell_drawables/dungeon_overlays_sprite_list.txt",
+      "frequency": 5,
+      "seed": 1,
+      "alphaBlend": "medium"
+    },
+    "edgeDarkening": {
+      "depth": 6,
+      "intensity": 0.7
+    },
+    "path_texture": "stone_floor",
+    "water": {
+      "sourceImage": "murky_water",
+      "rippleSpritesheet": "murky_ripple",
+      "splashParticle": "murky_splash",
+      "flowDirection": "down",
+      "numFrames": 10,
+      "animSpeedMs": 300,
+      "force": 30
+    }
+  }
+}

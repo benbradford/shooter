@@ -184,6 +184,12 @@ export type LevelData = {
   cells: LevelCell[];
   entities?: LevelEntity[];
   levelTheme?: LevelTheme;
+  mistConfig?: {
+    baseAlpha?: number;
+    alphaRange?: number;
+    baseScale?: number;
+    scaleRange?: number;
+  };
   background?: LevelBackground;
   
   blockedAreas?: BlockedAreaDef[];
