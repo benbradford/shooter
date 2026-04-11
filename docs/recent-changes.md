@@ -2,6 +2,104 @@
 
 ## April 2026
 
+### Collectible Entity System
+
+**Change**: New `collectible` entity type for placeable pickup items. Collectibles bob, pulse, and glow. Walking near one collects it and increments a world state flag.
+
+**Preset system**: Collectibles use named presets (e.g., `mist_orb`) that define texture, flag name, and tint color. New presets added to `PRESETS` in `CollectibleEntity.ts`.
+
+**World state**: Collecting increments `{flagName}` (e.g., `mist_orb: "3"`) and sets `show_{flagName}s: "true"` on first pickup.
+
+**HUD counter**: `MistOrbCounterComponent` shows cyan orb count in top-right when `show_mist_orbs` flag is `"true"`.
+
+**Files Created:**
+- `src/ecs/components/pickup/CollectibleComponent.ts` — Proximity detection + flag increment
+- `src/ecs/components/visual/CollectibleVisualComponent.ts` — Bobbing + glow effect
+- `src/ecs/entities/collectible/CollectibleEntity.ts` — Factory with preset system
+- `src/ecs/components/ui/MistOrbCounterComponent.ts` — HUD counter (lazy-created)
+
+**Files Changed:**
+- `src/systems/level/LevelLoader.ts` — Added `'collectible'` to `EntityType`
+- `src/systems/EntityLoader.ts` — Added collectible case
+- `src/assets/AssetRegistry.ts` — Registered `mist_orb`, added `collectibles` group, added to `core` group
+- `src/assets/AssetLoader.ts` — Load `collectibles` group when level has collectible entities
+- `src/ecs/entities/hud/JoystickEntity.ts` — Added `MistOrbCounterComponent`
+- `editor/panels/Toolbar.ts` — Added `'collectible'` to entity dropdown
+- `editor/EditorBridge.ts` — Added defaults + extraction logic
+- `editor/CanvasInteraction.ts` — Added `'CO'` label
+
+### Wilds Theme: Configurable Mist Intensity
+
+**Change**: `WildsSceneRenderer` now accepts optional `mistConfig` from level JSON for per-level mist intensity.
+
+**Usage:**
+```json
+{
+  "levelTheme": "wilds",
+  "mistConfig": {
+    "baseAlpha": 0.6,
+    "alphaRange": 0.4,
+    "baseScale": 70,
+    "scaleRange": 60
+  }
+}
+```
+
+**Defaults** (match original behavior): `baseAlpha: 0.3`, `alphaRange: 0.7`, `baseScale: 45`, `scaleRange: 50`
+
+**Files Changed:**
+- `src/scenes/theme/WildsSceneRenderer.ts` — Added `WildsMistConfig`, constructor parameter
+- `src/systems/level/LevelLoader.ts` — Added `mistConfig` to `LevelData`
+- `src/scenes/GameScene.ts` — Pass `mistConfig` to renderer
+- `src/scenes/LoadingScene.ts` — Pass `mistConfig` to renderer
+
+### Lua Runtime: getFlag Helper
+
+**Change**: Added `getFlag(name)` to Lua runtime. Returns flag value as string, or empty string if not set.
+
+**Usage in Lua:**
+```lua
+local count = getFlag("mist_orb")
+say("NPC", "You have " .. count .. " orbs", 50, 3000)
+```
+
+**Files Changed:**
+- `src/systems/LuaRuntime.ts` — Added `getFlag` global function
+
+### Speech Box: Cyan Color Tag
+
+**Change**: Added `<cyan>` to inline color tags for speech text.
+
+**Usage:** `say("NPC", "Collect <cyan>mist orbs</cyan> for me", 50, 3000)`
+
+**Files Changed:**
+- `src/ecs/components/ui/SpeechBoxComponent.ts` — Added `cyan` to regex and color map
+
+### Speech Box: Dismiss Fix
+
+**Change**: Fixed two issues where speech boxes could get stuck:
+1. After text finishes animating, first press now dismisses immediately (was requiring two presses)
+2. If space pressed in the gap between text completion and dismiss listener setup, dismiss is no longer lost
+
+**Files Changed:**
+- `src/ecs/components/ui/SpeechBoxComponent.ts` — Set `isSkipping = true` after animation, early return in `waitForDismiss` if already dismissed
+
+### NPC Animation: Stale Frame Fix
+
+**Change**: NPC animations now detect and recreate stale frames after texture unload/reload during level transitions.
+
+**Problem**: NPC texture unloaded during transition, reloaded on re-entry, but global animation still referenced old (null) frames → crash.
+
+**Files Changed:**
+- `src/ecs/entities/npc/NPCAnimations.ts` — Check frame validity, remove and recreate if stale
+
+### Breakable: Rarity Guard
+
+**Change**: Added guard in `spawnCoins` for unknown rarity values to prevent crash.
+
+**Files Changed:**
+- `src/ecs/components/breakable/BreakableComponent.ts` — Guard against undefined `coinRange`
+
 ### canPunch World State Flag
 
 **Change**: Punching now requires `canPunch` flag set to `"true"` in world state. Attack button hidden when `canPunch` is false, unless NPC interaction is available (shows lips icon).

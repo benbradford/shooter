@@ -81,6 +81,21 @@ Level transitions work automatically via exit triggers. The system:
 - `player.name()` - Returns "Player"
 - `npc.look(direction)` - Change NPC facing ("down", "up_left", etc.)
 - `player.look(direction)` - Change player facing
+- `setFlag(name, value)` - Set world state flag
+- `getFlag(name)` - Get flag value as string (returns `""` if not set)
+- `isFlagCondition(name, condition, value)` - Check flag condition
+- Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
+- Newlines: `<newline/>`
+
+**⚠️ CRITICAL: NPC Interaction Setup — Two-Part Requirement**
+
+Each interaction needs BOTH:
+1. Entry in NPC's `interactions` array (picks which script based on flag conditions)
+2. A matching `interaction` entity with `createOnAnyEvent` (loads and runs the Lua file)
+
+Without #2, the lips icon shows but nothing happens. See `entity-creation-system.md` for full example.
+
+**⚠️ `getFlag` returns a string.** Use `tonumber()` in Lua for numeric comparisons.
 
 **NPC Properties in JSON:**
 - `assets`: Spritesheet key — `npc1`, `village_old_man`, `village_girl`, `village_wizard`

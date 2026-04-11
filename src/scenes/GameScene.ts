@@ -89,7 +89,7 @@ export default class GameScene extends Phaser.Scene {
           this.levelData = {
             name: this.currentLevelName,
             width: 10, height: 10,
-            playerStart: { x: 0, y: 0 },
+            playerStart: { x: 1, y: 3 },
             cells: [], entities: [],
             levelTheme: 'dungeon' as LevelTheme,
           };
@@ -219,10 +219,10 @@ export default class GameScene extends Phaser.Scene {
       worldState.setTrackDestructions(true);
       GameScene.previousEntityManager = undefined;
     }
-    
+
     // Start with camera faded out (prevents green flash)
     this.cameras.main.fadeFrom(0, 0, 0, 0, true);
-    
+
     // Load world state only on first load
     const worldState = WorldStateManager.getInstance();
     if (!GameScene.hasLoadedWorldState) {
@@ -236,7 +236,7 @@ export default class GameScene extends Phaser.Scene {
     this.eventManager = new EventManagerSystem();
     this.entityManager.setEventManager(this.eventManager);
     this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
-    
+
     // Initialize NPC manager
     NPCManager.getInstance(this);
 
@@ -250,7 +250,7 @@ export default class GameScene extends Phaser.Scene {
 
     const params = new URLSearchParams(globalThis.location.search);
     const levelParam = params.get('level');
-    
+
     // Only use URL parameter on first load, not on transitions
     if (levelParam && !GameScene.hasLoadedFromURL) {
       this.currentLevelName = levelParam;
@@ -371,10 +371,10 @@ export default class GameScene extends Phaser.Scene {
     this.grid = new Grid(this, level.width, level.height, this.cellSize);
 
     for (const cell of level.cells) {
-      const bgTexture = cell.backgroundTexture 
+      const bgTexture = cell.backgroundTexture
         ? (typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : cell.backgroundTexture.image)
         : undefined;
-        
+
       this.grid.setCell(cell.col, cell.row, {
         layer: cell.layer ?? 0,
         properties: new Set(cell.properties ?? []),
@@ -476,7 +476,7 @@ export default class GameScene extends Phaser.Scene {
     // Fade in after level loads (skip in editor mode - scene is paused)
     if (!this.isEditorMode) {
       this.cameras.main.fadeIn(500, 0, 0, 0);
-    
+
       // Fade in background and vignette after camera fade completes
       this.cameras.main.once('camerafadeincomplete', () => {
         if (this.background) {
@@ -518,7 +518,7 @@ export default class GameScene extends Phaser.Scene {
       console.log('[GameScene] Already resetting, skipping');
       return;
     }
-    
+
     console.log('[GameScene] resetScene called from:', new Error().stack);
     this.isResetting = true;
     const wasGridDebugEnabled = this.grid.gridDebugEnabled;
@@ -542,7 +542,7 @@ export default class GameScene extends Phaser.Scene {
     if (wasGridDebugEnabled) {
       this.grid.setGridDebugEnabled(true);
     }
-    
+
     this.isResetting = false;
   }
   private spawnEntities(): void {
@@ -719,7 +719,7 @@ export default class GameScene extends Phaser.Scene {
     // Fade out, then start transition
     console.log('[DBGAME] Starting fade out');
     this.cameras.main.fadeOut(500, 0, 0, 0);
-    
+
     // Use timeout instead of callback (more reliable)
     this.time.delayedCall(500, () => {
       console.log('[DBGAME] Fade complete (timeout), starting LoadingScene');

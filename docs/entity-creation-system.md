@@ -36,6 +36,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `bullet_dude` - Shoots bullets
 - `puma` - Rests, detects player, chases with momentum, jumps
 - `npc` - Non-player character with interactions
+- `collectible` - Pickup item that increments a world state flag (e.g., mist orbs)
 - `trigger` - Invisible area that fires event when player enters
 - `exit` - Level transition portal
 - `eventchainer` - Raises multiple events sequentially with delays
@@ -71,6 +72,55 @@ All entities in the game are defined in a unified `entities` array in level JSON
   - `position`: Optional {col, row} override for where NPC stands during interaction
 - `scale`: Optional number (default 1)
 - `name`: Optional string - NPC's display name for dialogue
+
+**⚠️ CRITICAL: NPC Interaction Setup**
+
+Each NPC interaction requires TWO things in the level JSON:
+
+1. An entry in the NPC's `interactions` array (selects which script to run)
+2. A corresponding `interaction` entity with `createOnAnyEvent` matching the interaction name (actually loads and runs the Lua script)
+
+**Without the interaction entity, the NPC shows the lips icon but nothing happens when you interact.**
+
+**Example — wizard with conditional dialogue:**
+```json
+{
+  "id": "npc1",
+  "type": "npc",
+  "data": {
+    "name": "Otis",
+    "assets": "village_wizard",
+    "interactions": [
+      { "name": "otis_complete", "whenFlagSet": { "name": "canPunch", "condition": "eq", "value": "true" } },
+      { "name": "otis_reward", "whenFlagSet": { "name": "mist_orb", "condition": "gte", "value": "6" } },
+      { "name": "otis_no_orbs" }
+    ]
+  }
+}
+```
+Plus one interaction entity per script:
+```json
+{ "id": "interaction2", "type": "interaction", "data": { "col": 0, "row": 0, "filename": "otis_complete" }, "createOnAnyEvent": ["otis_complete"] },
+{ "id": "interaction3", "type": "interaction", "data": { "col": 0, "row": 0, "filename": "otis_reward" }, "createOnAnyEvent": ["otis_reward"] },
+{ "id": "interaction4", "type": "interaction", "data": { "col": 0, "row": 0, "filename": "otis_no_orbs" }, "createOnAnyEvent": ["otis_no_orbs"] }
+```
+
+**How it works:** Player presses interact → NPC picks first valid interaction (most-specific condition first) → raises event with interaction name → interaction entity spawns and runs the Lua file.
+
+**Interaction priority:** First match wins. Put most-specific conditions first in the array, fallback (no condition) last.
+
+**Lua helpers for interactions:**
+- `say(name, text, speed, timeout)` — Show speech box
+- `wait(ms)` — Pause between lines
+- `faceEachOther()` / `restoreDirections()` — NPC and player face each other
+- `setFlag(name, value)` — Set world state flag
+- `getFlag(name)` — Get flag value as string (returns `""` if not set)
+- `isFlagCondition(name, condition, value)` — Check flag condition
+- `npc.name()` / `player.name()` — Get display names
+- Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
+- Newlines: `<newline/>`
+
+**⚠️ `getFlag` returns a string.** Use `tonumber()` in Lua for numeric comparisons: `if tonumber(getFlag("mist_orb")) == 1 then`
 
 ### Trigger
 - `eventToRaise`: Event name to fire

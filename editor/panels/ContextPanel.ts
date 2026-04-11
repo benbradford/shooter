@@ -28,10 +28,10 @@ export class ContextPanel {
     };
     let state: FullState;
     try {
-      const res = await fetch('/states/default.json');
+      const res = await fetch('/states/empty.json');
       state = await res.json() as FullState;
     } catch {
-      this.container.innerHTML = '<p>No default.json found</p>';
+      this.container.innerHTML = '<p>No empty.json found</p>';
       return;
     }
 

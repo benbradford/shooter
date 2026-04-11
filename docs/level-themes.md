@@ -88,13 +88,27 @@ The base class handles all edge detection:
 - Brown vignette
 - Edge color: `0x4a3a2a`
 
-### Wilds Theme
-- Desolate grey/brown gradient background
-- Animated mist layers that drift slowly eastward
-- Mist density increases toward the south (fog gradient)
-- Mist fades in/out over 6-10 second lifespan
-- Brown vignette
-- Edge color: `0x4a3a2a`
+**Configurable mist intensity** via `mistConfig` in level JSON:
+```json
+{
+  "levelTheme": "wilds",
+  "mistConfig": {
+    "baseAlpha": 0.6,
+    "alphaRange": 0.4,
+    "baseScale": 70,
+    "scaleRange": 60
+  }
+}
+```
+
+| Property | Default | Effect |
+|----------|---------|--------|
+| `baseAlpha` | 0.3 | Minimum mist opacity (north edge) |
+| `alphaRange` | 0.7 | Opacity increase going south (top + range = max) |
+| `baseScale` | 45 | Minimum particle size (north) |
+| `scaleRange` | 50 | Size increase going south |
+
+All fields optional — defaults match original behavior.
 
 ## Using a Theme
 

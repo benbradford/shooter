@@ -4,8 +4,10 @@
     "health": 100,
     "coins": 0,
     "currentLevel": "house3_interior",
-    "entryCell": { "col": 0, "row": 0 }
+    "spawnCol": 1,
+    "spawnRow": 3
   },
+
   "flags": {
     "canPunch": "false"
   },
