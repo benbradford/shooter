@@ -1330,6 +1330,69 @@
       }
     },
     {
+      "id": "collectible0",
+      "type": "collectible",
+      "data": {
+        "col": 20,
+        "row": 4,
+        "preset": "mist_orb"
+      }
+    },
+    {
+      "id": "collectible1",
+      "type": "collectible",
+      "data": {
+        "col": 2,
+        "row": 17,
+        "preset": "mist_orb"
+      }
+    },
+    {
+      "id": "collectible2",
+      "type": "collectible",
+      "data": {
+        "col": 10,
+        "row": 20,
+        "preset": "mist_orb"
+      }
+    },
+    {
+      "id": "collectible3",
+      "type": "collectible",
+      "data": {
+        "col": 37,
+        "row": 23,
+        "preset": "mist_orb"
+      }
+    },
+    {
+      "id": "collectible4",
+      "type": "collectible",
+      "data": {
+        "col": 35,
+        "row": 5,
+        "preset": "mist_orb"
+      }
+    },
+    {
+      "id": "collectible5",
+      "type": "collectible",
+      "data": {
+        "col": 29,
+        "row": 16,
+        "preset": "mist_orb"
+      }
+    },
+    {
+      "id": "collectible6",
+      "type": "collectible",
+      "data": {
+        "col": 5,
+        "row": 22,
+        "preset": "mist_orb"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

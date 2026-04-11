@@ -84,6 +84,9 @@ export class SpeechBoxComponent implements Component {
     
     await this.animateText();
     
+    // Text is fully revealed - next input should dismiss immediately
+    this.isSkipping = true;
+
     // Show continue indicator
     this.showContinueIndicator();
     
@@ -213,7 +216,7 @@ export class SpeechBoxComponent implements Component {
   
   private parseColorTags(text: string): TextSegment[] {
     const segments: TextSegment[] = [];
-    const regex = /<(red|green|purple|gold)>(.*?)<\/\1>|<newline\/>|([^<]+)/g;
+    const regex = /<(red|green|purple|gold|cyan)>(.*?)<\/\1>|<newline\/>|([^<]+)/g;
     let match;
     
     while ((match = regex.exec(text)) !== null) {
@@ -236,7 +239,8 @@ export class SpeechBoxComponent implements Component {
       'red': '#ff0000',
       'green': '#00ff00',
       'purple': '#9370db',
-      'gold': '#ffd700'
+      'gold': '#ffd700',
+      'cyan': '#66ddff'
     };
     return colors[colorName] ?? '#ffffff';
   }

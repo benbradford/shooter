@@ -6,6 +6,7 @@ import { PetActionButtonComponent } from '../../components/ui/PetActionButtonCom
 import { PetCarouselComponent } from '../../components/ui/PetCarouselComponent';
 import { ControlModeComponent } from '../../components/input/ControlModeComponent';
 import { CoinCounterComponent } from '../../components/ui/CoinCounterComponent';
+import { MistOrbCounterComponent } from '../../components/ui/MistOrbCounterComponent';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventManagerSystem): Entity {
@@ -35,6 +36,8 @@ export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventMan
   const coinCounter = entity.add(new CoinCounterComponent(scene, eventManager));
   coinCounter.init();
 
+  entity.add(new MistOrbCounterComponent(scene));
+
   entity.setUpdateOrder([
     TouchJoystickComponent,
     JoystickVisualsComponent,
@@ -43,6 +46,7 @@ export function createJoystickEntity(scene: Phaser.Scene, eventManager: EventMan
     PetCarouselComponent,
     ControlModeComponent,
     CoinCounterComponent,
+    MistOrbCounterComponent,
   ]);
 
   return entity;

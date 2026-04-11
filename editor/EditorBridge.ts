@@ -275,6 +275,7 @@ export class EditorBridge {
         bullet_dude: { col, row, difficulty: 'medium' },
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic' },
+        collectible: { col, row, preset: 'mist_orb' },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
         exit: { targetLevel: '', targetCol: 0, targetRow: 0, triggerCells: [{ col, row }] },
@@ -816,6 +817,10 @@ export class EditorBridge {
         const breakable = entity.get(BreakableComponent);
         const rarity = entity.get(RarityComponent);
         data = { col: cell.col, row: cell.row, texture: sprite?.sprite.texture.key ?? 'dungeon_vase', health: breakable?.getHealth() ?? 1, rarity: rarity?.rarity ?? 'epic' };
+      } else if (entity.id.startsWith('collectible')) {
+        type = 'collectible';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        data = { col: cell.col, row: cell.row, preset: (existing?.data as { preset?: string })?.preset ?? 'mist_orb' };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

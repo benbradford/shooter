@@ -16,6 +16,7 @@ export type EntityType =
   | 'breakable'
   | 'cellmodifier'
   | 'interaction'
+  | 'collectible'
   | 'npc';
 
 export type LevelEntity = {

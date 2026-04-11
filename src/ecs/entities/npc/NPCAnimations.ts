@@ -18,7 +18,14 @@ const DIR_TO_INDEX: Record<Direction, number> = {
 export function createNPCAnimations(scene: Phaser.Scene, spritesheet: string): void {
   const firstKey = `${spritesheet}_idle_${ALPHABETICAL_DIRS[0]}`;
   if (scene.anims.exists(firstKey)) {
-    return;
+    // Check if frames are still valid (texture may have been unloaded/reloaded)
+    const anim = scene.anims.get(firstKey);
+    if ((anim?.frames[0]?.frame as { sourceSize?: unknown })?.sourceSize) {
+      return;
+    }
+    // Stale — remove all animations for this spritesheet
+    ALPHABETICAL_DIRS.forEach((dir) => scene.anims.remove(`${spritesheet}_idle_${dir}`));
+    scene.anims.remove(`${spritesheet}_idle_static`);
   }
 
   const texture = scene.textures.get(spritesheet);

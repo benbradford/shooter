@@ -1,0 +1,6 @@
+faceEachOther()
+say("Otis", "Excellent! Here is your <purple>special power!</purple>", 50, 3000)
+wait(1000)
+setFlag("canPunch", "true")
+say("Otis", "Now I have granted you a <purple>super punch ability!</purple>", 50, 3500)
+restoreDirections()

@@ -20,6 +20,7 @@ import { createExhaustedBugBaseEntity } from '../ecs/entities/bug/ExhaustedBugBa
 import { createTriggerEntity } from '../trigger/TriggerEntity';
 import { createLevelExitEntity } from '../exit/LevelExitEntity';
 import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
+import { createCollectibleEntity } from '../ecs/entities/collectible/CollectibleEntity';
 import { createCoinEntity, COIN_SPRITE_SCALE, COIN_SIZE_PX } from '../ecs/entities/pickup/CoinEntity';
 import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
@@ -328,6 +329,20 @@ export class EntityLoader {
               });
               this.entityManager.add(medipack);
             }
+          });
+        };
+
+      case 'collectible':
+        return () => {
+          const collectibleData = data as { col: number; row: number; preset: string };
+          return createCollectibleEntity({
+            scene: this.scene,
+            col: collectibleData.col,
+            row: collectibleData.row,
+            grid: this.grid,
+            entityId: entityDef.id,
+            preset: (collectibleData.preset ?? 'mist_orb') as 'mist_orb',
+            playerEntity: player,
           });
         };
 
