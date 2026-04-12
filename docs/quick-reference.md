@@ -80,10 +80,15 @@ Level transitions work automatically via exit triggers. The system:
 - `npc.name()` - Returns NPC's name from JSON (or "NPC")
 - `player.name()` - Returns "Player"
 - `npc.look(direction)` - Change NPC facing ("down", "up_left", etc.)
+- `npc.playAnim(animKey, repeatType)` - Play custom animation ("once" waits, "repeat" loops)
 - `player.look(direction)` - Change player facing
+- `player.moveTo(col, row, speed)` - Pathfind player to cell
+- `player.teleportTo(col, row)` - Instant move (bypasses pathfinding)
 - `setFlag(name, value)` - Set world state flag
 - `getFlag(name)` - Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` - Check flag condition
+- `saveState()` - Save world state to profile file
+- `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
 - Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
 - Newlines: `<newline/>`
 

@@ -115,6 +115,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/lips.png',
     type: 'image' as const,
   },
+  speech_bubble: {
+    key: 'speech_bubble',
+    path: 'assets/player/speech_bubble.png',
+    type: 'image' as const,
+  },
   slide_icon: {
     key: 'slide_icon',
     path: 'assets/player/slide_icon.png',
@@ -648,7 +653,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb'] as const,
+  core: ['vignette', 'shadow', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

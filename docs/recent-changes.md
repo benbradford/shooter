@@ -100,6 +100,58 @@ say("NPC", "You have " .. count .. " orbs", 50, 3000)
 **Files Changed:**
 - `src/ecs/components/breakable/BreakableComponent.ts` — Guard against undefined `coinRange`
 
+### Lua Runtime: saveState and teleportTo
+
+**Change**: Added `saveState()` and `player.teleportTo(col, row)` to Lua runtime.
+
+**Files Changed:**
+- `src/systems/LuaRuntime.ts` — Added `saveState`, `teleportTo` commands
+
+### NPC Animation: Custom Animations
+
+**Change**: NPC spritesheets can now include extra animations beyond the 8 idle frames. Defined via `NPC_ANIM_METADATA` in `NPCAnimations.ts`. Playable from Lua via `npc.playAnim(animKey, repeatType)`.
+
+**Files Changed:**
+- `src/ecs/entities/npc/NPCAnimations.ts` — Added `NPC_ANIM_METADATA`, extra animation creation
+- `src/ecs/entities/npc/NPCIdleComponent.ts` — Added `setPaused()` to prevent idle overriding custom anims
+- `src/systems/LuaRuntime.ts` — Added `npcPlayAnim` command
+
+### NPC: New Spritesheets
+
+**Change**: Added `village_boy` and `village_swim_teacher` NPC spritesheets (48×48 frames, 8 directions). `village_swim_teacher` includes a 6-frame push animation.
+
+**Files Changed:**
+- `src/assets/AssetRegistry.ts` — Registered spritesheets + asset groups
+
+### Title Screen: Scene Ordering Fix
+
+**Change**: Without `?level=` param, TitleScene now starts first (was GameScene). Prevents race condition where GameScene briefly loads `default.json` before profile is selected.
+
+**Files Changed:**
+- `src/main.ts` — Conditional scene ordering based on `startWithGame`
+
+### World State: Modified Cells Fix
+
+**Change**: Fixed `updateModifiedCells` incorrectly saving cells with object-format `backgroundTexture` (e.g., `{ image, sourceRect }`) as modified. Now extracts the `image` field for comparison.
+
+**Files Changed:**
+- `src/systems/WorldStateManager.ts` — Handle object backgroundTexture in comparison
+
+### Editor: Breakable Extraction Fix
+
+**Change**: Breakable entity properties (texture, health, rarity) now read from `levelData` instead of live components, so editor changes persist on save.
+
+**Files Changed:**
+- `editor/EditorBridge.ts` — Read breakable data from `existingLevelData`
+
+### Pathfinder: Water Traversal
+
+**Change**: Pathfinder now supports water traversal via `allowWater` flag. `InteractionComponent.moveTo` sets this based on `canSwim` world state flag.
+
+**Files Changed:**
+- `src/systems/Pathfinder.ts` — Added `allowWater` property
+- `src/ecs/components/interaction/InteractionComponent.ts` — Set `allowWater` from `canSwim` flag
+
 ### canPunch World State Flag
 
 **Change**: Punching now requires `canPunch` flag set to `"true"` in world state. Attack button hidden when `canPunch` is false, unless NPC interaction is available (shows lips icon).
@@ -482,35 +534,7 @@ say("NPC", "You have " .. count .. " orbs", 50, 3000)
 
 ### Background Texture Transforms in JSON
 
-**Change**: Transform overrides for background textures moved from code to level JSON files.
-
-**Before**: Hardcoded in `GameSceneRenderer.ts`:
-```typescript
-const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES = {
-  house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
-  // ...
-};
-```
-
-**After**: Stored in level JSON:
-```json
-"backgroundTexture": {
-  "image": "house1",
-  "transformOverride": {
-    "scaleX": 4,
-    "scaleY": 4,
-    "offsetX": 23,
-    "offsetY": 0
-  }
-}
-```
-
-**Benefits**:
-- Data-driven: No code changes needed for new textures with transforms
-- Per-instance: Each cell can have different transforms for the same texture
-- Editor-friendly: Transforms preserved when editing levels
-
-**Backward compatible**: String format `"backgroundTexture": "texture_name"` still works.
+**Change**: Transform overrides moved from hardcoded `GameSceneRenderer.ts` to level JSON as `backgroundTexture: { image, transformOverride: { scaleX, scaleY, offsetX, offsetY } }`. Data-driven, per-instance, editor-friendly. String format still works.
 
 ### Asset Management System
 

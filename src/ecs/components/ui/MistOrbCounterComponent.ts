@@ -44,7 +44,7 @@ export class MistOrbCounterComponent implements Component {
     if (!this.icon || !this.text) return;
 
     const wsm = WorldStateManager.getInstance();
-    const shouldShow = wsm.getFlag('show_mist_orbs') === 'true';
+    const shouldShow = wsm.getFlag('show_mist_orbs') === 'true' && wsm.getFlag('canPunch') !== 'true';
 
     this.icon.setVisible(shouldShow);
     this.text.setVisible(shouldShow);

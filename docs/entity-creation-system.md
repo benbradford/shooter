@@ -116,7 +116,13 @@ Plus one interaction entity per script:
 - `setFlag(name, value)` — Set world state flag
 - `getFlag(name)` — Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` — Check flag condition
+- `saveState()` — Save world state to profile file
 - `npc.name()` / `player.name()` — Get display names
+- `npc.look(direction)` / `player.look(direction)` — Change facing ("down", "up_left", etc.)
+- `npc.playAnim(animKey, repeatType)` — Play custom animation ("once" waits, "repeat" loops)
+- `player.moveTo(col, row, speed)` — Pathfind player to cell
+- `player.teleportTo(col, row)` — Instant move (bypasses pathfinding)
+- `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` — Coin management
 - Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
 - Newlines: `<newline/>`
 

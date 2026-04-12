@@ -19,7 +19,9 @@ const BASE_CIRCLE_RADIUS_PX = 180;
 const RING_SCALE = 1.6 * (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE) / 128;
 
 const PUNCH_TEXTURE = 'crosshair';
-const LIPS_TEXTURE = 'lips_icon';
+const SPEECH_TEXTURE = 'speech_bubble';
+const SPEECH_SCALE_FACTOR = 0.42;
+const BOUNCE_DURATION_MS = 300;
 
 export class AttackButtonComponent implements Component {
   entity!: Entity;
@@ -31,8 +33,9 @@ export class AttackButtonComponent implements Component {
   private posX: number = 0;
   private posY: number = 0;
   private initialized: boolean = false;
-  private currentIcon: 'punch' | 'lips' = 'punch';
+  private currentIcon: 'punch' | 'speech' = 'punch';
   private isHudVisible: boolean = true;
+  private bounceTween: Phaser.Tweens.Tween | null = null;
 
   constructor(private readonly scene: Phaser.Scene) {
     this.sprite = scene.add.sprite(0, 0, 'crosshair');
@@ -78,7 +81,8 @@ export class AttackButtonComponent implements Component {
 
     if (distance <= radius) {
       this.isPressed = true;
-      this.sprite.setScale(PRESSED_SCALE);
+      const factor = this.currentIcon === 'speech' ? SPEECH_SCALE_FACTOR : 1;
+      this.sprite.setScale(PRESSED_SCALE * factor);
       this.sprite.setAlpha(ALPHA_PRESSED);
       this.sprite.setTint(0xff6666);
       this.ring.setAlpha(ALPHA_PRESSED);
@@ -88,7 +92,8 @@ export class AttackButtonComponent implements Component {
 
   private readonly handlePointerUp = (): void => {
     this.isPressed = false;
-    this.sprite.setScale(UNPRESSED_SCALE);
+    const factor = this.currentIcon === 'speech' ? SPEECH_SCALE_FACTOR : 1;
+    this.sprite.setScale(UNPRESSED_SCALE * factor);
     this.sprite.setAlpha(ALPHA_UNPRESSED);
     this.sprite.clearTint();
     this.ring.setAlpha(ALPHA_UNPRESSED);
@@ -110,7 +115,8 @@ export class AttackButtonComponent implements Component {
       this.shadow.fillCircle(this.posX, this.posY + 4, shadowRadius);
     }
 
-    this.sprite.setPosition(this.posX, this.posY);
+    const speechOffsetY = this.currentIcon === 'speech' ? 20 : 0;
+    this.sprite.setPosition(this.posX, this.posY + speechOffsetY);
     this.ring.setPosition(this.posX, this.posY);
     this.bg.setPosition(this.posX, this.posY);
 
@@ -127,10 +133,27 @@ export class AttackButtonComponent implements Component {
     const npcManager = NPCManager.getInstance();
     const closestNPC = npcManager.getClosestInteractableNPC(player);
 
-    const newIcon = closestNPC ? 'lips' : 'punch';
+    const newIcon = closestNPC ? 'speech' : 'punch';
     if (newIcon !== this.currentIcon) {
       this.currentIcon = newIcon;
-      this.sprite.setTexture(newIcon === 'punch' ? PUNCH_TEXTURE : LIPS_TEXTURE);
+      this.sprite.setTexture(newIcon === 'punch' ? PUNCH_TEXTURE : SPEECH_TEXTURE);
+      const baseScale = newIcon === 'punch' ? UNPRESSED_SCALE : UNPRESSED_SCALE * SPEECH_SCALE_FACTOR;
+      this.sprite.setScale(baseScale);
+      if (this.bounceTween) {
+        this.bounceTween.destroy();
+        this.bounceTween = null;
+      }
+      if (newIcon === 'speech') {
+        this.bounceTween = this.scene.tweens.add({
+          targets: this.sprite,
+          scaleX: baseScale * 1.2,
+          scaleY: baseScale * 1.2,
+          duration: BOUNCE_DURATION_MS,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+        });
+      }
     }
 
     if (this.isHudVisible) {
