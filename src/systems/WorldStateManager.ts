@@ -31,6 +31,10 @@ export class WorldStateManager {
     return this.trackDestructions;
   }
 
+  getProfileName(): string | undefined {
+    return this.profileName ?? undefined;
+  }
+
   async loadFromFile(profileName?: string): Promise<void> {
     this.profileName = profileName ?? null;
     const statePath = profileName ? `/states/${profileName}.json` : WORLD_STATE_PATH;

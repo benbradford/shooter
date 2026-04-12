@@ -28,7 +28,7 @@ export class ContextPanel {
     };
     let state: FullState;
     try {
-      const res = await fetch('/states/empty.json');
+      const res = await fetch('/states/default.json');
       state = await res.json() as FullState;
     } catch {
       this.container.innerHTML = '<p>No empty.json found</p>';
@@ -94,6 +94,7 @@ export class ContextPanel {
       <div class="section-header" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>Levels</span><button class="ed-btn danger" id="st-clear-all" style="padding:1px 6px;font-size:10px">Clear All</button></div>
       <div id="st-levels">${levelEntries.map(([name, data]) => renderLevelSection(name, data)).join('')}</div>
       <button class="ed-btn save" id="st-save" style="width:100%;margin-top:8px">Save State</button>
+      <button class="ed-btn" id="st-refresh" style="width:100%;margin-top:4px">↻ Refresh from File</button>
     `;
 
     // Prevent WASD in all inputs/textareas
@@ -199,6 +200,11 @@ export class ContextPanel {
         await fetch('/api/save-state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state, null, 2) });
         this.bridge.toast?.show('State saved', 'success');
       } catch (err) { this.bridge.toast?.show(`Save failed: ${err}`, 'error'); }
+    });
+
+    this.container.querySelector('#st-refresh')?.addEventListener('click', () => {
+      void this.showStatePanel();
+      this.bridge.toast?.show('State refreshed from file', 'success');
     });
   }
 

@@ -56,7 +56,6 @@ export class EntityCreatorManager implements EventListener {
   }
 
   onEvent(eventName: string): void {
-
     const worldState = WorldStateManager.getInstance();
     const currentLevel = worldState.getCurrentLevelName();
 
@@ -74,12 +73,17 @@ export class EntityCreatorManager implements EventListener {
         this.firedEvents.add(eventName);
       }
 
-      for (const { creator, entityId, suppressOnAnyFlag } of anyCreators) {
+      for (const { creator, entityId, suppressOnAnyFlag, isInteraction } of anyCreators) {
         // Check if entity should be suppressed by flags
         if (suppressOnAnyFlag) {
           let shouldSuppress = false;
           for (const flagCondition of suppressOnAnyFlag) {
             if (worldState.isFlagCondition(flagCondition.name, flagCondition.condition, flagCondition.value)) {
+              // Stale _live flag — clear it and don't suppress
+              if (isInteraction && flagCondition.name.endsWith('_live')) {
+                worldState.setFlag(flagCondition.name, 'false');
+                continue;
+              }
               shouldSuppress = true;
               break;
             }

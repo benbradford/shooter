@@ -212,21 +212,21 @@ export class PathTilesetGenerator {
     if (isDeadEnd) {
       if (west) {
         ctx.beginPath();
-        ctx.moveTo(centerX - radius, centerY - radius);
-        ctx.lineTo(centerX - radius, y);
+        ctx.moveTo(x, centerY - radius);
+        ctx.lineTo(centerX + radius, centerY - radius);
+        ctx.moveTo(x, centerY + radius);
+        ctx.lineTo(centerX + radius, centerY + radius);
         ctx.moveTo(centerX + radius, centerY - radius);
-        ctx.lineTo(centerX + radius, y);
-        ctx.moveTo(centerX - radius, centerY + radius);
         ctx.lineTo(centerX + radius, centerY + radius);
         ctx.stroke();
       } else if (east) {
         ctx.beginPath();
         ctx.moveTo(centerX - radius, centerY - radius);
-        ctx.lineTo(centerX - radius, y);
-        ctx.moveTo(centerX + radius, centerY - radius);
-        ctx.lineTo(centerX + radius, y);
+        ctx.lineTo(x + TILE_SIZE_PX, centerY - radius);
         ctx.moveTo(centerX - radius, centerY + radius);
-        ctx.lineTo(centerX + radius, centerY + radius);
+        ctx.lineTo(x + TILE_SIZE_PX, centerY + radius);
+        ctx.moveTo(centerX - radius, centerY - radius);
+        ctx.lineTo(centerX - radius, centerY + radius);
         ctx.stroke();
       } else if (north) {
         ctx.beginPath();

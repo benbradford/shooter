@@ -351,6 +351,15 @@ export default class GameScene extends Phaser.Scene {
       worldStateKey.on('down', () => {
         this.saveWorldState();
       });
+
+      const reloadStateKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+      reloadStateKey.on('down', () => {
+        const wsm = WorldStateManager.getInstance();
+        void wsm.loadFromFile(wsm.getProfileName()).then(() => {
+          console.log('[DBGAME] State reloaded from file');
+          void this.resetScene();
+        });
+      });
     }
   }
 

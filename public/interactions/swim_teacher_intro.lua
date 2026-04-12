@@ -14,7 +14,7 @@ if not isFlagCondition("canSwim", "eq","true") then
     say(npc.name(), "Right, first thing's first.....", 50, 2500)
     npc.playAnim("village_swim_teacher_push", "once")
     setFlag("canSwim", "true")
-    player.moveTo(6, 10, 300)
+    player.moveTo(6, 11, 300)
 
     saveState()
     wait(300)
