@@ -5,6 +5,7 @@ import { TransformComponent } from '../core/TransformComponent';
 import { HealthComponent } from '../core/HealthComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
+import { SpriteComponent } from '../core/SpriteComponent';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
@@ -35,6 +36,8 @@ export type AttackComboComponentProps = {
 }
 
 const HOLD_FRAME_INDEX = 4;
+
+const SHAKE_INTENSITY_PX = 1.5;
 
 export class AttackComboComponent implements Component {
   entity!: Entity;
@@ -68,7 +71,12 @@ export class AttackComboComponent implements Component {
       // Hold phase: freeze on frame 5, allow direction changes
       if (this.isHoldingPunch) {
         if (this.isHoldingAttack) {
-          // Still holding — allow direction changes
+          // Still holding — shake + allow direction changes
+          const sprite = this.entity.get(SpriteComponent);
+          if (sprite) {
+            sprite.sprite.x += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
+            sprite.sprite.y += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
+          }
           if (walk && anim && walk.lastDir !== this.lastHoldDir) {
             this.lastHoldDir = walk.lastDir;
             anim.animationSystem.play(`punch_${walk.lastDir}`);

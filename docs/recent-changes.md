@@ -190,6 +190,15 @@ say("NPC", "You have " .. count .. " orbs", 50, 3000)
 **Files Changed:**
 - `src/scenes/theme/PathTilesetGenerator.ts` — Fixed west/east dead end stroke rendering
 
+### Punch Hold System
+
+**Change**: Replaced hold-to-repeat punching with a hold-to-charge system. Quick tap punches normally. Holding freezes on frame 5 with a shake effect — player can spin to aim but can't move. Releasing completes the punch (hitbox + particles fire on release, not on press). Prepares for future super-punch feature.
+
+**Files Changed:**
+- `src/ecs/components/combat/AttackComboComponent.ts` — Hold phase, deferred hitbox, shake effect
+- `src/systems/animation/Animation.ts` — Added `getIndex()`, `setIndex()`
+- `src/systems/animation/AnimationSystem.ts` — Added `getCurrentAnimation()`
+
 ### canPunch World State Flag
 
 **Files Changed:**

@@ -54,9 +54,9 @@ Level transitions work automatically via exit triggers. The system:
 
 **Hold-to-Repeat:**
 - Tap: Single punch, can move
-- Hold: Auto-repeats every 250ms after first completes
-- Movement locked during repeat punches
-- Release: Returns to idle
+- Hold: Freezes on frame 5 with shake effect, can spin to aim, movement locked
+- Release: Hitbox + particles fire, animation completes
+- Prepares for future super-punch feature
 
 **Slide Ability:**
 - Press H or tap pet action button
