@@ -180,6 +180,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 - **P** - Toggle punch targeting mode
 - **V** - Toggle HUD visibility
 - **Y** - Save world state
+- **R** - Reload state from file and reset scene
 - **E** - Enter level editor
 - **H** - Pet ability (if pet active)
 

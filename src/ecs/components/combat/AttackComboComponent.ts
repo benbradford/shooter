@@ -34,6 +34,8 @@ export type AttackComboComponentProps = {
   getEnemies: () => Entity[];
 }
 
+const HOLD_FRAME_INDEX = 4;
+
 export class AttackComboComponent implements Component {
   entity!: Entity;
   private currentPhase: ComboPhase = 'idle';
@@ -41,7 +43,8 @@ export class AttackComboComponent implements Component {
   private wasAttackPressed: boolean = false;
   private hitboxCreated: boolean = false;
   private isHoldingAttack: boolean = false;
-  private punchCount: number = 0;
+  private isHoldingPunch: boolean = false;
+  private lastHoldDir: number = -1;
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
   private readonly getEnemies: () => Entity[];
@@ -56,39 +59,60 @@ export class AttackComboComponent implements Component {
     const health = this.entity.require(HealthComponent);
     const hasOverheal = health.isOverhealed();
     const punchDuration = hasOverheal ? PUNCH_DURATION_MS / 2 : PUNCH_DURATION_MS;
-    const animSpeed = hasOverheal ? 2 : 1;
 
     if (this.currentPhase === 'punch') {
+      const anim = this.entity.get(AnimationComponent);
+      const walk = this.entity.get(WalkComponent);
+      const currentAnim = anim?.animationSystem.getCurrentAnimation();
+
+      // Hold phase: freeze on frame 5, allow direction changes
+      if (this.isHoldingPunch) {
+        if (this.isHoldingAttack) {
+          // Still holding — allow direction changes
+          if (walk && anim && walk.lastDir !== this.lastHoldDir) {
+            this.lastHoldDir = walk.lastDir;
+            anim.animationSystem.play(`punch_${walk.lastDir}`);
+            anim.animationSystem.getCurrentAnimation()?.setIndex(HOLD_FRAME_INDEX);
+            anim.animationSystem.setTimeScale(0);
+          }
+          return;
+        }
+        // Released — create hitbox + particles, resume animation
+        this.isHoldingPunch = false;
+        this.hitboxCreated = true;
+        this.phaseTimer = 0;
+        this.createPunchHitbox();
+        const animSpeed = hasOverheal ? 2 : 1;
+        anim?.animationSystem.setTimeScale(animSpeed);
+        return;
+      }
+
       this.phaseTimer += delta;
 
-      if (!this.hitboxCreated && this.phaseTimer >= PUNCH_HITBOX_DELAY_MS) {
+      // Check if we should enter hold phase
+      if (this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
+        this.isHoldingPunch = true;
+        currentAnim.setIndex(HOLD_FRAME_INDEX);
+        anim!.animationSystem.setTimeScale(0);
+        if (walk) this.lastHoldDir = walk.lastDir;
+        return;
+      }
+
+      // Quick tap — released before hold frame, do normal punch
+      if (!this.isHoldingAttack && !this.hitboxCreated && this.phaseTimer >= PUNCH_HITBOX_DELAY_MS) {
         this.hitboxCreated = true;
         this.createPunchHitbox();
       }
 
       if (this.phaseTimer >= punchDuration) {
-        if (this.isHoldingAttack) {
-          this.phaseTimer = 0;
-          this.hitboxCreated = false;
-          this.punchCount++;
+        this.currentPhase = 'idle';
+        this.phaseTimer = 0;
+        this.hitboxCreated = false;
+        this.isHoldingPunch = false;
 
-          const walk = this.entity.get(WalkComponent);
-          const anim = this.entity.get(AnimationComponent);
-          if (walk && anim) {
-            anim.animationSystem.play(`punch_${walk.lastDir}`, animSpeed);
-          }
-        } else {
-          this.currentPhase = 'idle';
-          this.phaseTimer = 0;
-          this.hitboxCreated = false;
-          this.punchCount = 0;
-
-          const walk = this.entity.get(WalkComponent);
-          const anim = this.entity.get(AnimationComponent);
-          if (walk && anim) {
-            const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
-            anim.animationSystem.play(animKey);
-          }
+        if (walk && anim) {
+          const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
+          anim.animationSystem.play(animKey);
         }
       }
     }
@@ -226,7 +250,7 @@ export class AttackComboComponent implements Component {
     this.currentPhase = 'punch';
     this.phaseTimer = 0;
     this.hitboxCreated = false;
-    this.punchCount = 0;
+    this.isHoldingPunch = false;
   }
 
   checkAttackReleased(isPressed: boolean): void {
@@ -234,7 +258,6 @@ export class AttackComboComponent implements Component {
 
     if (!isPressed) {
       this.wasAttackPressed = false;
-      this.punchCount = 0;
     }
   }
 
@@ -243,7 +266,7 @@ export class AttackComboComponent implements Component {
   }
 
   isMovementLocked(): boolean {
-    return this.currentPhase === 'punch' && this.punchCount > 0;
+    return this.isHoldingPunch;
   }
 
   onDestroy(): void {

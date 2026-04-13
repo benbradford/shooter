@@ -187,111 +187,21 @@ export type LevelTheme = 'dungeon' | 'swamp' | 'cave';
 
 ### 2. Create a Theme Renderer
 
-Create a new file `src/scenes/theme/YourThemeSceneRenderer.ts`:
+Create `src/scenes/theme/YourThemeSceneRenderer.ts` extending `GameSceneRenderer`. Implement:
+- `getEdgeColor()` — Return hex color for wall/platform edges
+- `renderGrid(grid)` — Clear graphics, call `renderPlatformsAndWalls()`, render shadows/stairs
+- `renderWallPattern(x, y, cellSize, topBarY, seed)` — Custom wall pattern (bricks, stones)
+- `renderTheme(width, height)` — Create background canvas + vignette, return both
 
-```typescript
-import type { Grid } from '../../systems/grid/Grid';
-import { GameSceneRenderer } from './GameSceneRenderer';
-
-const EDGE_COLOR = 0x3a3a3e;
-
-export class CaveSceneRenderer extends GameSceneRenderer {
-  constructor(scene: Phaser.Scene, private readonly cellSize: number) {
-    super(scene);
-  }
-
-  protected getEdgeColor(): number {
-    return EDGE_COLOR;
-  }
-
-  renderGrid(grid: Grid): void {
-    this.graphics.clear();
-    this.renderTransitionSteps(grid);
-    this.renderPlatformsAndWalls(grid, this.cellSize);
-    this.renderShadows(grid);
-  }
-
-  protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
-    // Your custom wall pattern rendering (bricks, stones, etc.)
-    // This is called for each wall cell
-    // topBarY is at 15% from top (where horizontal line is drawn)
-  }
-
-  private renderTransitionSteps(grid: Grid): void {
-    // Render stairs/transition cells
-  }
-
-  private renderShadows(grid: Grid): void {
-    // Render shadows below layer 1 cells
-  }
-
-  renderTheme(width: number, height: number): { 
-    background: Phaser.GameObjects.Image; 
-    vignette: Phaser.GameObjects.Image 
-  } {
-    const worldWidth = width * this.cellSize;
-    const worldHeight = height * this.cellSize;
-
-    // Remove existing texture if switching themes
-    if (this.scene.textures.exists('cave_gradient')) {
-      this.scene.textures.remove('cave_gradient');
-    }
-
-    // Create background texture
-    const canvas = this.scene.textures.createCanvas('cave_gradient', worldWidth, worldHeight);
-    const ctx = canvas?.context;
-    if (!ctx) throw new Error('Failed to create canvas context');
-
-    // Draw your theme's background
-    // ... gradient, patterns, etc.
-
-    canvas?.refresh();
-
-    const background = this.scene.add.image(0, 0, 'cave_gradient');
-    background.setOrigin(0, 0);
-    background.setDisplaySize(worldWidth, worldHeight);
-    background.setDepth(Depth.floor);
-
-    // Create vignette
-    const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
-    vignette.setDisplaySize(worldWidth, worldHeight);
-    vignette.setDepth(Depth.vignette);
-    vignette.setAlpha(0.4);
-    vignette.setTint(0x004400); // Your tint color
-    vignette.setBlendMode(2); // MULTIPLY
-
-    return { background, vignette };
-  }
-}
-```
+Use `DungeonSceneRenderer` or `SwampSceneRenderer` as reference implementations.
 
 ### 3. Register in GameScene
 
-Update `src/scenes/GameScene.ts` to instantiate your renderer:
-
-```typescript
-import { CaveSceneRenderer } from "./theme/CaveSceneRenderer";
-
-// In create() method:
-const theme = this.levelData.levelTheme || 'dungeon';
-if (theme === 'dungeon') {
-  this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-} else if (theme === 'swamp') {
-  this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-} else if (theme === 'cave') {
-  this.sceneRenderer = new CaveSceneRenderer(this, this.cellSize);
-} else {
-  this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-}
-```
+Add an `else if` branch in `src/scenes/GameScene.ts` for your theme (search for `levelTheme`).
 
 ### 4. Add to Theme Editor
 
 The editor theme dropdown is in the Level Info panel. Themes are defined in `src/scenes/GameScene.ts`.
-
-```typescript
-const themes = ['dungeon', 'swamp', 'cave'];
-```
 
 ### 5. Test Your Theme
 
@@ -375,36 +285,7 @@ Individual cells can have custom background textures that override theme renderi
 
 ## Theme Switching
 
-When switching themes in the editor:
-
-```typescript
-setTheme(theme: 'dungeon' | 'swamp'): void {
-  this.levelData.levelTheme = theme;
-  
-  // Destroy old resources
-  if (this.background) this.background.destroy();
-  if (this.vignette) this.vignette.destroy();
-  if (this.sceneRenderer) {
-    this.sceneRenderer.destroy(); // Destroys graphics object
-  }
-  
-  // Create new renderer
-  if (theme === 'dungeon') {
-    this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-  } else if (theme === 'swamp') {
-    this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-  }
-  
-  // Render new theme
-  const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
-  this.background = rendered.background;
-  this.vignette = rendered.vignette;
-  
-  this.grid.render();
-}
-```
-
-**Critical:** Always destroy old renderer before creating new one to prevent render artifacts.
+Always destroy old renderer before creating new one to prevent render artifacts. See `GameScene.ts` for the switching implementation.
 
 ## Best Practices
 
@@ -442,18 +323,6 @@ protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: num
 Use dark colors for edges to create depth:
 - Dungeon: `0x2a2a3e` (dark blue-grey)
 - Swamp: `0x2a3a2e` (dark green-grey)
-
-### Vignette
-
-Standard vignette setup:
-```typescript
-const vignette = this.scene.add.image(worldWidth / 2, worldHeight / 2, 'vin');
-vignette.setDisplaySize(worldWidth, worldHeight);
-vignette.setDepth(Depth.vignette);
-vignette.setAlpha(0.2-0.5); // Adjust for theme
-vignette.setTint(0x221111); // Theme color
-vignette.setBlendMode(2); // MULTIPLY for darkening effect
-```
 
 ## Common Pitfalls
 

@@ -179,69 +179,7 @@ The entire process from "update thrower spritesheet" to working game should be a
 
 **Input:** `npm run update-spritesheet thrower public/assets/thrower/anims`
 
-**Automated steps:**
-1. **Detect frame size** - Read dimensions from first rotation frame
-2. **Scan animations** - Discover all animation directories and frame counts
-3. **Verify AssetRegistry** - Check if frameWidth/frameHeight match, update if needed
-4. **Generate spritesheet** - Create PNG with correct grid layout
-5. **Generate layout doc** - Create/update spritesheet-layout.md with frame indices
-6. **Generate/update animations file** - Create {Enemy}Animations.ts with:
-   - Alphabetical direction array
-   - DIR_TO_INDEX mapping
-   - Animation creation function with correct frame ranges
-   - Helper function for getting animation keys
-7. **Scan state files** - Find all {Enemy}*State.ts files
-8. **Update state imports** - Add `import { get{Enemy}AnimKey } from './{Enemy}Animations';`
-9. **Update animation calls** - Replace hardcoded keys with helper function calls
-10. **Verify entity factory** - Ensure `create{Enemy}Animations(scene)` is called
-11. **Run build and lint** - Verify everything compiles
-12. **Report** - Show summary of changes and any manual steps needed
-
-### Script Structure
-
-```javascript
-// scripts/update-spritesheet.mjs
-import { detectFrameSize } from './lib/frame-detector.mjs';
-import { scanAnimations } from './lib/animation-scanner.mjs';
-import { generateSpritesheet } from './lib/spritesheet-generator.mjs';
-import { updateAssetRegistry } from './lib/asset-registry-updater.mjs';
-import { generateAnimationsFile } from './lib/animations-generator.mjs';
-import { updateStateFiles } from './lib/state-updater.mjs';
-
-async function updateSpritesheet(enemyName, sourceDir) {
-  // 1. Detect and validate
-  const frameSize = await detectFrameSize(sourceDir);
-  const animations = await scanAnimations(sourceDir);
-  
-  // 2. Update AssetRegistry
-  await updateAssetRegistry(enemyName, frameSize);
-  
-  // 3. Generate spritesheet
-  await generateSpritesheet(enemyName, sourceDir, animations, frameSize);
-  
-  // 4. Generate documentation
-  await generateLayoutDoc(enemyName, animations, frameSize);
-  
-  // 5. Generate/update animations file
-  await generateAnimationsFile(enemyName, animations);
-  
-  // 6. Update state files
-  await updateStateFiles(enemyName);
-  
-  // 7. Verify
-  await runBuildAndLint();
-  
-  console.log('✓ Spritesheet update complete');
-}
-```
-
-### Benefits of Automation
-
-- **Consistency** - Same process every time, no human error
-- **Speed** - 30 seconds instead of 30 minutes
-- **Documentation** - Auto-generated docs always match code
-- **Confidence** - Automated verification catches issues immediately
-- **Scalability** - Easy to update multiple enemies
+**Steps:** Detect frame size → scan animations → verify AssetRegistry → generate spritesheet → generate layout doc → generate animations file → scan/update state files → build and lint → report.
 
 ### Implementation Priority
 

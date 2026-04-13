@@ -152,9 +152,45 @@ say("NPC", "You have " .. count .. " orbs", 50, 3000)
 - `src/systems/Pathfinder.ts` — Added `allowWater` property
 - `src/ecs/components/interaction/InteractionComponent.ts` — Set `allowWater` from `canSwim` flag
 
-### canPunch World State Flag
+### Stale Interaction Flag Auto-Clear
 
-**Change**: Punching now requires `canPunch` flag set to `"true"` in world state. Attack button hidden when `canPunch` is false, unless NPC interaction is available (shows lips icon).
+**Change**: If an interaction script errors out, the `{filename}_live` flag stays `"true"` and blocks future interactions. Now auto-cleared when the player re-triggers the same interaction.
+
+**Files Changed:**
+- `src/systems/EntityCreatorManager.ts` — Auto-clear stale `_live` flags for interaction entities
+
+### HUD: Speech Bubble Icon
+
+**Change**: NPC interaction icon changed from lips to a 128×128 speech bubble with continuous bounce animation. Renders at 1/3 punch icon size, offset 50px below center.
+
+**Files Changed:**
+- `src/ecs/components/input/AttackButtonComponent.ts` — Speech bubble texture, scale factor, bounce tween, offset
+- `src/assets/AssetRegistry.ts` — Registered `speech_bubble`
+- `public/assets/player/speech_bubble.png` — New asset
+
+### Editor: State Panel Sync
+
+**Change**: State panel now reads from `default.json` (was `empty.json`). Added "Refresh from File" button.
+
+**Files Changed:**
+- `editor/panels/ContextPanel.ts` — Load from `default.json`, refresh button
+
+### Debug: R Key Reloads State
+
+**Change**: Press R in-game to reload the active profile's state file and reset the scene.
+
+**Files Changed:**
+- `src/scenes/GameScene.ts` — R key handler
+- `src/systems/WorldStateManager.ts` — Added `getProfileName()`
+
+### Path Tileset: Dead End Fix
+
+**Change**: Fixed left/right path dead ends rendering with wrong cap orientation (was using vertical lines instead of horizontal).
+
+**Files Changed:**
+- `src/scenes/theme/PathTilesetGenerator.ts` — Fixed west/east dead end stroke rendering
+
+### canPunch World State Flag
 
 **Files Changed:**
 - `src/ecs/entities/player/PlayerStateHelpers.ts` — Gate `tryStartPunch` on `canPunch` flag
@@ -515,13 +551,12 @@ say("NPC", "You have " .. count .. " orbs", 50, 3000)
 - `sourceRect: { x, y, width, height }` crops a region from the source image
 - Renderer creates a Phaser texture frame on-the-fly from the source rect
 - Editor has spritesheet picker: green 📋 buttons open a sub-sprite selection panel
-- Spritesheet definitions in `src/editor/SpritesheetTextures.ts`
+- Spritesheet definitions in `editor/SpritesheetTextures.ts`
 
 **Files Changed:**
 - `src/systems/level/LevelLoader.ts` - Added `SourceRect` type and `sourceRect` to `BackgroundTextureConfig`
 - `src/scenes/theme/GameSceneRenderer.ts` - Handle `sourceRect` when creating background sprites
-- `src/editor/SpritesheetTextures.ts` - New file defining spritesheet sprite bounds
-- `src/editor/TextureEditorState.ts` - Spritesheet picker UI
+- `editor/SpritesheetTextures.ts` - New file defining spritesheet sprite bounds
 - `src/assets/AssetRegistry.ts` - Added `wilds_props` and `rocks_spritesheet`
 
 ### Editor Black Screen Fix

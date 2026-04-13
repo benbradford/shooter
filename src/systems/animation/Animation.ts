@@ -62,6 +62,15 @@ export class Animation {
     return this.frames[this.index];
   }
 
+  getIndex(): number {
+    return this.index;
+  }
+
+  setIndex(index: number): void {
+    this.index = Math.min(index, this.frames.length - 1);
+    this.elapsed = 0;
+  }
+
   reset() {
     this.index = 0;
     this.elapsed = 0;

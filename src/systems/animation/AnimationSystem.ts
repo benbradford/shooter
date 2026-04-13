@@ -40,4 +40,8 @@ export class AnimationSystem {
   getFrame(): string | undefined {
     return this.current?.getFrame();
   }
+
+  getCurrentAnimation(): Animation | undefined {
+    return this.current;
+  }
 }
