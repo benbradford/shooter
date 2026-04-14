@@ -42,4 +42,40 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
       { name: 'rocks6', sourceRect: { x: 1419, y: 90, width: 399, height: 139 } },
     ],
   },
+  {
+    textureKey: 'roots_spritesheet',
+    sprites: [
+      // Row 1
+      { name: 'root_stump_mossy', sourceRect: { x: 51, y: 52, width: 267, height: 132 } },
+      { name: 'root_arch', sourceRect: { x: 332, y: 76, width: 244, height: 95 } },
+      { name: 'root_twisted_stump', sourceRect: { x: 589, y: 48, width: 131, height: 130 } },
+      { name: 'root_spiral', sourceRect: { x: 737, y: 59, width: 279, height: 109 } },
+      { name: 'root_sprawl_flat', sourceRect: { x: 1033, y: 73, width: 211, height: 96 } },
+      { name: 'root_low_spread', sourceRect: { x: 1259, y: 100, width: 244, height: 62 } },
+      // Row 2
+      { name: 'root_cave_hole', sourceRect: { x: 25, y: 261, width: 291, height: 102 } },
+      { name: 'root_tangle_mossy', sourceRect: { x: 335, y: 268, width: 279, height: 88 } },
+      { name: 'root_upright_stump', sourceRect: { x: 627, y: 218, width: 204, height: 144 } },
+      { name: 'root_dark_pit', sourceRect: { x: 850, y: 257, width: 335, height: 111 } },
+      { name: 'root_mound', sourceRect: { x: 1203, y: 261, width: 274, height: 93 } },
+      // Row 3
+      { name: 'root_rocky_base', sourceRect: { x: 25, y: 439, width: 285, height: 133 } },
+      { name: 'root_mossy_tangle', sourceRect: { x: 339, y: 463, width: 283, height: 92 } },
+      { name: 'root_hollow_stump', sourceRect: { x: 642, y: 448, width: 284, height: 112 } },
+      { name: 'root_reaching', sourceRect: { x: 948, y: 445, width: 275, height: 100 } },
+      { name: 'root_cluster', sourceRect: { x: 1269, y: 453, width: 185, height: 92 } },
+      // Row 4
+      { name: 'root_stone_weave', sourceRect: { x: 41, y: 629, width: 262, height: 115 } },
+      { name: 'root_wide_spread', sourceRect: { x: 310, y: 631, width: 304, height: 108 } },
+      { name: 'root_flat_tangle', sourceRect: { x: 622, y: 649, width: 384, height: 76 } },
+      { name: 'root_broken_stump', sourceRect: { x: 1006, y: 622, width: 187, height: 118 } },
+      { name: 'root_debris', sourceRect: { x: 1233, y: 626, width: 235, height: 112 } },
+      // Row 5
+      { name: 'root_rocky_pile', sourceRect: { x: 30, y: 792, width: 292, height: 130 } },
+      { name: 'root_tangled_mass', sourceRect: { x: 324, y: 805, width: 265, height: 115 } },
+      { name: 'root_long_crawl', sourceRect: { x: 591, y: 793, width: 486, height: 111 } },
+      { name: 'root_mossy_crawl', sourceRect: { x: 1095, y: 807, width: 224, height: 104 } },
+      { name: 'root_small_knot', sourceRect: { x: 1344, y: 814, width: 145, height: 89 } },
+    ],
+  },
 ] as const;

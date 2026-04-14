@@ -283,6 +283,62 @@ Individual cells can have custom background textures that override theme renderi
 4. Add key to `BACKGROUND_TEXTURE_KEYS` in `editor/panels/TexturePicker.ts` (so it appears in the Background tab)
 5. For spritesheets: Add to `SPRITESHEET_TEXTURES` in `editor/SpritesheetTextures.ts`
 
+### Adding a Spritesheet to SPRITESHEET_TEXTURES
+
+When adding a new spritesheet image containing multiple sprites to `editor/SpritesheetTextures.ts`:
+
+**Step 1: Register the asset**
+- Add to `ASSET_REGISTRY` as `type: 'image'` (not `'spritesheet'` — Phaser spritesheets are for animations)
+- Add to the `editor` asset group
+
+**Step 2: Extract accurate sourceRects using Python**
+
+Do NOT assume a uniform grid. Sprites are rarely evenly spaced. Use this script to find actual sprite boundaries from transparent gaps:
+
+```python
+from PIL import Image
+import numpy as np
+
+img = Image.open('path/to/spritesheet.png').convert('RGBA')
+alpha = np.array(img)[:, :, 3]
+W, H = img.size
+ALPHA_THRESH = 20  # Low threshold to catch semi-transparent edges
+
+# Step 1: Find row bands (horizontal strips of sprites separated by transparent rows)
+row_sums = np.sum(alpha > ALPHA_THRESH, axis=1)
+# Find contiguous regions where row_sums > 50
+
+# Step 2: For each row band, find column gaps
+# Column gap = contiguous columns where np.sum(band_alpha > ALPHA_THRESH, axis=0) < 2
+# Only count gaps wider than 5px
+
+# Step 3: Split each row at gap midpoints, then find tight bounds + 4px padding
+```
+
+**Key rules:**
+- **Find gaps per row, not globally** — each row has different sprite widths and positions
+- **Use `col_sum < 2` threshold** for gap detection (not zero — stray pixels exist)
+- **Minimum gap width: 5px** — smaller "gaps" are stray pixels within a sprite
+- **Use alpha threshold of 10-20** for tight bounds — catches semi-transparent edges that threshold 128+ would miss
+- **Add 4px padding** around tight bounds — prevents clipping semi-transparent edges
+- **Clamp padding to gap boundaries** — don't let padding extend into neighboring sprites
+- **Some sprites are genuinely wide** — if no gap exists between two visual sprites, they're connected in the pixel data and should be treated as one sprite
+- **Verify with a debug image** — draw red rectangles on the spritesheet and visually confirm each sprite is fully contained with no neighbors leaking in
+
+**Step 3: Add to SpritesheetTextures.ts**
+
+```typescript
+{
+  textureKey: 'my_spritesheet',
+  sprites: [
+    { name: 'descriptive_name', sourceRect: { x, y, width, height } },
+    // ...
+  ],
+},
+```
+
+Optional fields: `scaleX`, `scaleY` (default scaling), `zOffsetOverride` (depth offset).
+
 ## Theme Switching
 
 Always destroy old renderer before creating new one to prevent render artifacts. See `GameScene.ts` for the switching implementation.

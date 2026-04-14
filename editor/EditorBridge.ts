@@ -232,6 +232,77 @@ export class EditorBridge {
     });
   }
 
+  moveCellTexturePixel(fromCol: number, fromRow: number, worldX: number, worldY: number): void {
+    const grid = this.getGrid();
+    const cellSize = grid.cellSize;
+    const levelData = this.scene.getLevelData();
+    const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
+    if (!fromCell?.backgroundTexture) return;
+
+    // Compute offset from source cell center to world position
+    const centerX = fromCol * cellSize + cellSize / 2;
+    const centerY = fromRow * cellSize + cellSize / 2;
+    const offsetX = worldX - centerX;
+    const offsetY = worldY - centerY;
+
+    // Update transformOverride with temporary offset for visual feedback
+    if (typeof fromCell.backgroundTexture === 'string') {
+      fromCell.backgroundTexture = { image: fromCell.backgroundTexture, transformOverride: { scaleX: 1, scaleY: 1, offsetX, offsetY } };
+    } else {
+      fromCell.backgroundTexture = { ...fromCell.backgroundTexture, transformOverride: { ...(fromCell.backgroundTexture.transformOverride ?? { scaleX: 1, scaleY: 1 }), offsetX, offsetY } };
+    }
+    this.scene.refreshSprites();
+  }
+
+  finalizeCellTexturePixelDrop(fromCol: number, fromRow: number, worldX: number, worldY: number): void {
+    this._applyMutation(`Pixel-drop texture from ${fromCol},${fromRow}`, () => {
+      const grid = this.getGrid();
+      const cellSize = grid.cellSize;
+      const levelData = this.scene.getLevelData();
+      const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
+      if (!fromCell?.backgroundTexture) return;
+
+      // Find nearest cell to drop position
+      const toCol = Math.round(worldX / cellSize - 0.5);
+      const toRow = Math.round(worldY / cellSize - 0.5);
+      const clampedCol = Math.max(0, Math.min(grid.width - 1, toCol));
+      const clampedRow = Math.max(0, Math.min(grid.height - 1, toRow));
+
+      // Compute offset from target cell center
+      const targetCenterX = clampedCol * cellSize + cellSize / 2;
+      const targetCenterY = clampedRow * cellSize + cellSize / 2;
+      const offsetX = Math.round(worldX - targetCenterX);
+      const offsetY = Math.round(worldY - targetCenterY);
+
+      // Get texture data (strip the temporary drag offset)
+      const tex = fromCell.backgroundTexture;
+      const animTex = fromCell.animatedTexture;
+
+      // Clear source
+      grid.setCell(fromCol, fromRow, { backgroundTexture: '' });
+      delete fromCell.backgroundTexture;
+      delete fromCell.animatedTexture;
+
+      // Set destination with offset
+      let toCell = levelData.cells.find(c => c.col === clampedCol && c.row === clampedRow);
+      if (!toCell) { toCell = { col: clampedCol, row: clampedRow }; levelData.cells.push(toCell); }
+
+      if (typeof tex === 'string') {
+        toCell.backgroundTexture = { image: tex, transformOverride: { scaleX: 1, scaleY: 1, offsetX, offsetY } };
+      } else {
+        const existingTransform = tex.transformOverride ?? { scaleX: 1, scaleY: 1 };
+        toCell.backgroundTexture = { ...tex, transformOverride: { ...existingTransform, offsetX, offsetY } };
+      }
+      if (animTex) toCell.animatedTexture = animTex;
+
+      const texKey = typeof tex === 'string' ? tex : tex.image;
+      grid.setCell(clampedCol, clampedRow, { backgroundTexture: texKey });
+
+      this.scene.refreshSprites();
+      grid.render();
+    });
+  }
+
   setCellLayer(col: number, row: number, layer: number): void {
     this._applyMutation(`Set layer ${layer} at ${col},${row}`, () => {
       const grid = this.getGrid();

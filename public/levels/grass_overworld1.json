@@ -2608,6 +2608,86 @@
       ]
     },
     {
+      "col": 25,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "roots_spritesheet",
+        "sourceRect": {
+          "x": 622,
+          "y": 649,
+          "width": 384,
+          "height": 76
+        },
+        "transformOverride": {
+          "scaleX": 1,
+          "scaleY": 1,
+          "offsetX": -2,
+          "offsetY": 13
+        }
+      }
+    },
+    {
+      "col": 26,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "roots_spritesheet",
+        "sourceRect": {
+          "x": 737,
+          "y": 59,
+          "width": 279,
+          "height": 109
+        },
+        "transformOverride": {
+          "scaleX": 1,
+          "scaleY": 1,
+          "offsetX": -13,
+          "offsetY": 19
+        }
+      }
+    },
+    {
+      "col": 27,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "roots_spritesheet",
+        "sourceRect": {
+          "x": 1033,
+          "y": 73,
+          "width": 211,
+          "height": 96
+        },
+        "transformOverride": {
+          "scaleX": 1,
+          "scaleY": 1,
+          "offsetX": -10,
+          "offsetY": 25
+        }
+      }
+    },
+    {
+      "col": 28,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": {
+        "image": "roots_spritesheet",
+        "sourceRect": {
+          "x": 591,
+          "y": 793,
+          "width": 486,
+          "height": 111
+        },
+        "transformOverride": {
+          "scaleX": 2,
+          "scaleY": 1,
+          "offsetX": -5,
+          "offsetY": 3
+        }
+      }
+    },
+    {
       "col": 38,
       "row": 15,
       "layer": 1,

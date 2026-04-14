@@ -385,6 +385,7 @@ export class ContextPanel {
               transformOverride: { scaleX: result.scaleX ?? 1, scaleY: result.scaleY ?? 1, offsetX: 0, offsetY: 0 }
             } : {})
           };
+          this.bridge.getGrid().setCell(col, row, { backgroundTexture: result.key });
           this.bridge.getScene().refreshSprites();
         }
         this.showCellForm(col, row);

@@ -16,6 +16,7 @@ export class CanvasInteraction {
   private lastPaintedCell: string | null = null;
   private dragEntityId: string | null = null;
   private dragTextureFrom: { col: number; row: number } | null = null;
+  private ctrlDragWorldPos: { x: number; y: number } | null = null;
   private lastClickCell: string | null = null;
   private clickCycleIndex = 0;
   private readonly hoverCoords: HTMLElement;
@@ -164,6 +165,7 @@ export class CanvasInteraction {
       this.lastPaintedCell = null;
       this.dragEntityId = null;
       this.dragTextureFrom = null;
+      this.ctrlDragWorldPos = null;
     }
 
     const grid = this.bridge.getGrid();
@@ -230,6 +232,15 @@ export class CanvasInteraction {
 
     if (!this.isDragging) return;
     const key = `${cell.col},${cell.row}`;
+
+    // Ctrl+texture drag needs per-pixel updates, skip the cell-change gate
+    if (this.dragTextureFrom && p.event instanceof MouseEvent && (p.event.ctrlKey || p.event.metaKey)) {
+      this.ctrlDragWorldPos = { x: p.worldX, y: p.worldY };
+      this.bridge.moveCellTexturePixel(this.dragTextureFrom.col, this.dragTextureFrom.row, p.worldX, p.worldY);
+      this.renderOverlays();
+      return;
+    }
+
     if (key === this.lastPaintedCell) return;
     this.lastPaintedCell = key;
 
@@ -239,6 +250,7 @@ export class CanvasInteraction {
       this.bridge.moveEntity(this.dragEntityId, cell.col, cell.row);
       this.renderOverlays();
     } else if (this.dragTextureFrom) {
+      this.ctrlDragWorldPos = null;
       this.bridge.moveCellTexture(this.dragTextureFrom.col, this.dragTextureFrom.row, cell.col, cell.row);
       this.dragTextureFrom = { col: cell.col, row: cell.row };
       this.bridge.selectedCell = { col: cell.col, row: cell.row };
@@ -251,8 +263,12 @@ export class CanvasInteraction {
   }
 
   private onPointerUp(): void {
+    if (this.ctrlDragWorldPos && this.dragTextureFrom) {
+      this.bridge.finalizeCellTexturePixelDrop(this.dragTextureFrom.col, this.dragTextureFrom.row, this.ctrlDragWorldPos.x, this.ctrlDragWorldPos.y);
+    }
     this.dragEntityId = null;
     this.dragTextureFrom = null;
+    this.ctrlDragWorldPos = null;
     if (this.isDragging) {
       this.bridge.endDragMutation();
       this.isDragging = false;
