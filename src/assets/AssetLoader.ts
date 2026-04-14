@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { ASSET_REGISTRY, ASSET_GROUPS, type AssetKey, type AssetGroupKey } from './AssetRegistry';
 import type { LevelData } from '../systems/level/LevelLoader';
+import { normalizeBgTextures, bgTextureKey } from '../systems/level/LevelLoader';
 
 /**
  * Preloads assets from the registry
@@ -121,14 +122,14 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
   if (levelData.cells) {
     for (const cell of levelData.cells) {
       if (cell.backgroundTexture) {
-        const textureName = typeof cell.backgroundTexture === 'string'
-          ? cell.backgroundTexture
-          : cell.backgroundTexture.image;
-
-        if (textureName && textureName in ASSET_REGISTRY) {
-          textureSet.add(textureName as AssetKey);
-        } else if (textureName && textureName !== '') {
-          console.warn('[AssetLoader] Cell texture not in registry:', textureName);
+        const textures = normalizeBgTextures(cell.backgroundTexture);
+        for (const tex of textures ?? []) {
+          const textureName = bgTextureKey(tex);
+          if (textureName && textureName in ASSET_REGISTRY) {
+            textureSet.add(textureName as AssetKey);
+          } else if (textureName && textureName !== '') {
+            console.warn('[AssetLoader] Cell texture not in registry:', textureName);
+          }
         }
       }
 

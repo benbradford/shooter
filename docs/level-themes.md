@@ -276,6 +276,17 @@ Individual cells can have custom background textures that override theme renderi
 - `sourceRect`: Crops a region from the source image (creates a Phaser texture frame). If omitted, uses the full image.
 - `sourceRect` and `transformOverride` can be combined
 
+**Array format** (multiple textures per cell):
+```json
+{
+  "backgroundTexture": [
+    "rocks1",
+    { "image": "roots_spritesheet", "sourceRect": { "x": 51, "y": 52, "width": 267, "height": 132 } }
+  ]
+}
+```
+Each texture in the array renders independently with its own transform/sourceRect. Old single-value format is auto-normalized to an array during rendering.
+
 **Adding new background textures:**
 1. Add image to `public/assets/{category}/` (e.g., `public/assets/cell_drawables/bush2.png`)
 2. Register in `src/assets/AssetRegistry.ts` (add entry with key, path, type: `'image'`)

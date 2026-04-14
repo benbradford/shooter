@@ -94,7 +94,9 @@ Click a cell with the **Select** tool to open the Cell form:
 - **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields with Apply Transform button
 - **Clear Cell** — Remove all properties and texture
 - **Animated Texture** — When present, shows spritesheet info + transform fields + Apply/Remove buttons. When absent, shows **+ Animated Texture** button to add one.
-- **Drag textures** — Click and hold a cell with a texture in Select mode, then drag to move the texture (and animated texture) to another cell
+- **Drag textures** — Click and hold a cell with a texture in Select mode, then drag to move that texture to another cell
+- **Ctrl+drag** — Hold Ctrl while dragging a texture for pixel-precise placement (not snapped to grid). On release, the texture is assigned to the nearest cell with an offset to maintain exact position.
+- **Multiple textures per cell** — Click **+ Add Texture** multiple times to stack textures on the same cell. Each has its own transform (scale, offset). Click cycling selects the closest texture to your click point.
 
 ### Texture Picker
 
@@ -104,7 +106,7 @@ Opens as a full-screen overlay with four tabs:
 |-----|----------|
 | **Background** | ~50 curated single-image textures (rocks, furniture, doors, etc.) |
 | **Animated** | Spritesheet textures for animated cells (sconce_flame, fire_interior) |
-| **Spritesheet** | Sub-sprites from wilds_props and rocks_spritesheet with source rect |
+| **Spritesheet** | Sub-sprites from wilds_props, rocks_spritesheet, and roots_spritesheet with source rect |
 | **All** | Every texture currently loaded in Phaser |
 
 Search box filters in real-time. Click a thumbnail to apply.
@@ -163,6 +165,7 @@ Saves automatically write to `public/levels/{levelName}.json` via the Vite dev s
 | Ctrl+S | Save |
 | Ctrl+C | Copy selected entity |
 | Ctrl+V | Paste entity at selected cell |
+| Ctrl+drag | Pixel-precise texture placement (not grid-snapped) |
 | G | Toggle grid |
 | Delete | Delete selected entity or blocked area |
 | Escape | Deselect / cancel blocked area drawing |

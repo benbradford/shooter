@@ -104,13 +104,27 @@ export type BackgroundTextureConfig = {
   zOffsetOverride?: number;
 }
 
+export type SingleBackgroundTexture = string | BackgroundTextureConfig;
+
 export type LevelCell = {
   col: number;
   row: number;
   layer?: number;
   properties?: CellProperty[];
-  backgroundTexture?: string | BackgroundTextureConfig;
+  backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[];
   animatedTexture?: AnimatedTextureConfig;
+}
+
+/** Normalize backgroundTexture to always be an array (or undefined). */
+export function normalizeBgTextures(bt: SingleBackgroundTexture | SingleBackgroundTexture[] | undefined): SingleBackgroundTexture[] | undefined {
+  if (bt === undefined || bt === '') return undefined;
+  if (Array.isArray(bt)) return bt.length > 0 ? bt : undefined;
+  return [bt];
+}
+
+/** Extract the string key from a single texture entry. */
+export function bgTextureKey(tex: SingleBackgroundTexture): string {
+  return typeof tex === 'string' ? tex : tex.image;
 }
 
 export type LevelRobot = {

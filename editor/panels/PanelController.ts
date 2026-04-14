@@ -32,6 +32,13 @@ export class PanelController {
         this.contextPanel.clear();
       }
     };
+    bridge.onDrawingStateChanged = (isDrawing) => {
+      if (isDrawing) {
+        this.contextPanel.showDrawingPanel();
+      } else {
+        this.contextPanel.clear();
+      }
+    };
     bridge.onSelectionCleared = () => {
       if (bridge.currentTool === 'level') {
         this.contextPanel.showLevelInfo();

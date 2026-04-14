@@ -2611,81 +2611,134 @@
       "col": 25,
       "row": 15,
       "layer": 0,
-      "backgroundTexture": {
-        "image": "roots_spritesheet",
-        "sourceRect": {
-          "x": 622,
-          "y": 649,
-          "width": 384,
-          "height": 76
+      "backgroundTexture": [
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 737,
+            "y": 59,
+            "width": 279,
+            "height": 109
+          },
+          "transformOverride": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "offsetX": -13,
+            "offsetY": 19
+          }
         },
-        "transformOverride": {
-          "scaleX": 1,
-          "scaleY": 1,
-          "offsetX": -2,
-          "offsetY": 13
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 591,
+            "y": 793,
+            "width": 486,
+            "height": 111
+          },
+          "transformOverride": {
+            "scaleX": 2.5,
+            "scaleY": 1,
+            "offsetX": -3,
+            "offsetY": 17
+          }
         }
-      }
+      ]
     },
     {
       "col": 26,
       "row": 15,
       "layer": 0,
-      "backgroundTexture": {
-        "image": "roots_spritesheet",
-        "sourceRect": {
-          "x": 737,
-          "y": 59,
-          "width": 279,
-          "height": 109
-        },
-        "transformOverride": {
-          "scaleX": 1,
-          "scaleY": 1,
-          "offsetX": -13,
-          "offsetY": 19
+      "backgroundTexture": [
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 591,
+            "y": 793,
+            "width": 486,
+            "height": 111
+          },
+          "transformOverride": {
+            "scaleX": 2,
+            "scaleY": 1,
+            "offsetX": -5,
+            "offsetY": 3
+          }
         }
-      }
+      ]
     },
     {
       "col": 27,
       "row": 15,
       "layer": 0,
-      "backgroundTexture": {
-        "image": "roots_spritesheet",
-        "sourceRect": {
-          "x": 1033,
-          "y": 73,
-          "width": 211,
-          "height": 96
+      "backgroundTexture": [
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 25,
+            "y": 261,
+            "width": 291,
+            "height": 102
+          },
+          "transformOverride": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "offsetX": -31,
+            "offsetY": 15
+          }
         },
-        "transformOverride": {
-          "scaleX": 1,
-          "scaleY": 1,
-          "offsetX": -10,
-          "offsetY": 25
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 1033,
+            "y": 73,
+            "width": 211,
+            "height": 96
+          },
+          "transformOverride": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "offsetX": -10,
+            "offsetY": 25
+          }
+        },
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 622,
+            "y": 649,
+            "width": 384,
+            "height": 76
+          },
+          "transformOverride": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "offsetX": 18,
+            "offsetY": -6
+          }
         }
-      }
+      ]
     },
     {
       "col": 28,
       "row": 15,
       "layer": 0,
-      "backgroundTexture": {
-        "image": "roots_spritesheet",
-        "sourceRect": {
-          "x": 591,
-          "y": 793,
-          "width": 486,
-          "height": 111
-        },
-        "transformOverride": {
-          "scaleX": 2,
-          "scaleY": 1,
-          "offsetX": -5,
-          "offsetY": 3
+      "backgroundTexture": [
+        {
+          "image": "roots_spritesheet",
+          "sourceRect": {
+            "x": 591,
+            "y": 793,
+            "width": 486,
+            "height": 111
+          },
+          "transformOverride": {
+            "scaleX": 3,
+            "scaleY": 1,
+            "offsetX": 5,
+            "offsetY": 5
+          }
         }
-      }
+      ]
     },
     {
       "col": 38,
@@ -2803,22 +2856,6 @@
       ]
     },
     {
-      "col": 34,
-      "row": 16,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 35,
-      "row": 16,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
       "col": 36,
       "row": 16,
       "layer": 0,
@@ -2833,7 +2870,8 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "backgroundTexture": "bush1"
     },
     {
       "col": 0,
@@ -2920,14 +2958,6 @@
       "layer": 0,
       "properties": [
         "path"
-      ]
-    },
-    {
-      "col": 34,
-      "row": 17,
-      "layer": 0,
-      "properties": [
-        "blocked"
       ]
     },
     {
@@ -3050,14 +3080,6 @@
       "layer": 0,
       "properties": [
         "path"
-      ]
-    },
-    {
-      "col": 34,
-      "row": 18,
-      "layer": 0,
-      "properties": [
-        "blocked"
       ]
     },
     {
@@ -5308,29 +5330,16 @@
         "row": 16,
         "assets": "village_old_man",
         "direction": "Down",
-        "interactions": [],
+        "interactions": [
+          {
+            "name": "village_tree_man"
+          }
+        ],
         "transformOverride": {
           "scaleX": 1.2,
           "scaleY": 1.2,
           "offsetX": 0,
           "offsetY": 5
-        }
-      }
-    },
-    {
-      "id": "npc3",
-      "type": "npc",
-      "data": {
-        "col": 36,
-        "row": 14,
-        "assets": "npc1",
-        "direction": "facePlayer",
-        "interactions": [],
-        "transformOverride": {
-          "scaleX": 1.1,
-          "scaleY": 1.1,
-          "offsetX": 0,
-          "offsetY": 0
         }
       }
     },
@@ -5393,22 +5402,6 @@
           "offsetX": 0,
           "offsetY": 0
         }
-      }
-    },
-    {
-      "id": "triggertest",
-      "type": "trigger",
-      "data": {
-        "eventToRaise": "test_interaction_event",
-        "triggerCells": [
-          {
-            "col": 12,
-            "row": 2
-          }
-        ],
-        "oneShot": false,
-        "col": 12,
-        "row": 2
       }
     },
     {
@@ -5596,6 +5589,18 @@
       "createOnAnyEvent": [
         "swim_teacher_intro"
       ]
+    },
+    {
+      "id": "interaction7",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "village_tree_man"
+      },
+      "createOnAnyEvent": [
+        "village_tree_man"
+      ]
     }
   ],
   "levelTheme": "grass_overworld1",
@@ -5628,53 +5633,6 @@
   },
   "blockedAreas": [
     {
-      "id": "ba0",
-      "vertices": [
-        {
-          "x": 1812.6058402555927,
-          "y": 863.7612762312638
-        },
-        {
-          "x": 1766.8039233226855,
-          "y": 825.2173790149898
-        },
-        {
-          "x": 1699.7368306709282,
-          "y": 818.2794775160604
-        },
-        {
-          "x": 1622.037150159746,
-          "y": 858.3651306209854
-        },
-        {
-          "x": 1593.410952076679,
-          "y": 908.4721970021417
-        },
-        {
-          "x": 1599.9540830670944,
-          "y": 977.0803340471097
-        },
-        {
-          "x": 1640.0307603833883,
-          "y": 1021.7912548179876
-        },
-        {
-          "x": 1726.7272460063914,
-          "y": 1034.1253019271953
-        },
-        {
-          "x": 1815.8774057508003,
-          "y": 1003.290184154176
-        },
-        {
-          "x": 1835.5067987220464,
-          "y": 905.3886852248398
-        }
-      ],
-      "layer": 0,
-      "blocksProjectiles": true
-    },
-    {
       "id": "ba1",
       "vertices": [
         {
@@ -5692,6 +5650,109 @@
         {
           "x": 2304.1751871813544,
           "y": 1543.5872164948441
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    },
+    {
+      "id": "ba2",
+      "vertices": [
+        {
+          "x": 1660.1311182108675,
+          "y": 834.2875117773042
+        },
+        {
+          "x": 1624.961789137385,
+          "y": 862.0391177730216
+        },
+        {
+          "x": 1597.9713738019218,
+          "y": 905.979160599574
+        },
+        {
+          "x": 1611.0576357827524,
+          "y": 986.9213447537497
+        },
+        {
+          "x": 1553.805239616618,
+          "y": 993.859246252679
+        },
+        {
+          "x": 1551.3515654952125,
+          "y": 1023.9234860813729
+        },
+        {
+          "x": 1604.514504792337,
+          "y": 1038.570167023557
+        },
+        {
+          "x": 1688.7573162939345,
+          "y": 1033.944899357604
+        },
+        {
+          "x": 1732.923450479238,
+          "y": 1040.8828008565333
+        },
+        {
+          "x": 1776.2716932907397,
+          "y": 1037.7992890792314
+        },
+        {
+          "x": 1782.8148242811549,
+          "y": 1020.0690963597453
+        },
+        {
+          "x": 1867.8755271565542,
+          "y": 1023.9234860813729
+        },
+        {
+          "x": 1908.7700958466503,
+          "y": 1016.2147066381181
+        },
+        {
+          "x": 1914.4953354632635,
+          "y": 983.8378329764478
+        },
+        {
+          "x": 1900.591182108631,
+          "y": 971.50378586724
+        },
+        {
+          "x": 1879.326006389781,
+          "y": 982.2960770877967
+        },
+        {
+          "x": 1820.437827476043,
+          "y": 990.775734475377
+        },
+        {
+          "x": 1826.9809584664586,
+          "y": 960.7114946466833
+        },
+        {
+          "x": 1837.6135463258834,
+          "y": 917.5423297644563
+        },
+        {
+          "x": 1821.255718849845,
+          "y": 878.2275546038567
+        },
+        {
+          "x": 1793.44741214058,
+          "y": 847.3924368308374
+        },
+        {
+          "x": 1781.9969329073529,
+          "y": 843.5380471092101
+        },
+        {
+          "x": 1750.0991693290782,
+          "y": 826.5787323340494
+        },
+        {
+          "x": 1723.108753993615,
+          "y": 818.099074946469
         }
       ],
       "layer": 0,

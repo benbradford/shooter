@@ -149,22 +149,16 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": {
-        "image": "bed1",
-        "transformOverride": {
-          "scaleX": 3.3,
-          "scaleY": 1.5,
-          "offsetX": 0,
-          "offsetY": -20
+      "backgroundTexture": [
+        {
+          "image": "bed1",
+          "transformOverride": {
+            "scaleX": 2.5,
+            "scaleY": 1.2,
+            "offsetX": -22,
+            "offsetY": -3
+          }
         }
-      }
-    },
-    {
-      "col": 3,
-      "row": 2,
-      "layer": 0,
-      "properties": [
-        "blocked"
       ]
     },
     {
@@ -320,7 +314,20 @@
       "layer": 0,
       "properties": [
         "blocked"
-      ]
+      ],
+      "animatedTexture": {
+        "spritesheet": "sconce_flame",
+        "frameWidth": 78,
+        "frameHeight": 85,
+        "frameCount": 2,
+        "frameRate": 8,
+        "transformOverride": {
+          "scaleX": 0.32,
+          "scaleY": 0.32,
+          "offsetX": 6.5,
+          "offsetY": -36
+        }
+      }
     },
     {
       "col": 5,
@@ -582,5 +589,30 @@
   "levelTheme": "default",
   "background": {
     "floor_texture": "interior7"
-  }
+  },
+  "blockedAreas": [
+    {
+      "id": "ba0",
+      "vertices": [
+        {
+          "x": 188.31755280407867,
+          "y": 192.98969072164948
+        },
+        {
+          "x": 216.285506190823,
+          "y": 192.16494845360825
+        },
+        {
+          "x": 216.285506190823,
+          "y": 126.18556701030927
+        },
+        {
+          "x": 192.97887836853604,
+          "y": 124.5360824742268
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    }
+  ]
 }

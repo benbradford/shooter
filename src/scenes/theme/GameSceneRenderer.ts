@@ -1,5 +1,6 @@
 import type { Grid } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
+import { normalizeBgTextures } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
 import { WaterAnimator, type WaterConfig } from './WaterAnimator';
@@ -13,7 +14,7 @@ export abstract class GameSceneRenderer {
   private floorOverlay: Phaser.GameObjects.Image | null = null;
   private readonly floorSprites: Phaser.GameObjects.Image[] = [];
   private readonly cellSprites: Array<Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
-  private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image> = new Map();
+  private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image[]> = new Map();
   private spritesInitialized: boolean = false;
   private readonly waterSprites: Array<Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private waterAnimator: WaterAnimator | null = null;
@@ -206,72 +207,68 @@ export abstract class GameSceneRenderer {
       const key = `${cell.col},${cell.row}`;
       const animKey = `${key}_anim`;
 
-      // Handle static background texture
-      if (cell.backgroundTexture) {
-        if (this.renderedCellTextures.has(key)) {
-          continue;
-        }
-
-        // Parse backgroundTexture (can be string or object)
-        let textureName: string;
-        let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
-        let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
-        let zOffsetOverride: number | undefined;
-        
-        if (typeof cell.backgroundTexture === 'string') {
-          textureName = cell.backgroundTexture;
-          transform = undefined;
-        } else {
-          textureName = cell.backgroundTexture.image;
-          transform = cell.backgroundTexture.transformOverride;
-          sourceRect = cell.backgroundTexture.sourceRect;
-          zOffsetOverride = cell.backgroundTexture.zOffsetOverride;
-        }
-        
-        if (textureName === '') {
-          continue;
-        }
-
-        const x = cell.col * this.cellSize;
-        const y = cell.row * this.cellSize;
-        const centerX = x + this.cellSize / 2;
-        const centerY = y + this.cellSize / 2;
-        const spriteX = transform ? centerX + transform.offsetX : centerX;
-        const spriteY = transform ? centerY + transform.offsetY : centerY;
-
-        let sprite: Phaser.GameObjects.Image;
-
-        if (sourceRect && this.scene.textures.exists(textureName)) {
-          // Create a frame from the source rect if it doesn't exist
-          const frameName = `${textureName}_${sourceRect.x}_${sourceRect.y}_${sourceRect.width}_${sourceRect.height}`;
-          const texture = this.scene.textures.get(textureName);
-          if (!texture.has(frameName)) {
-            texture.add(frameName, 0, sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height);
-          }
-          sprite = this.scene.add.image(spriteX, spriteY, textureName, frameName);
-        } else {
-          sprite = this.addImage(spriteX, spriteY, textureName);
-        }
-
-        if (transform) {
-          sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
-        } else {
-          sprite.setDisplaySize(this.cellSize, this.cellSize);
-        }
-
+      // Handle static background texture(s)
+      const textures = normalizeBgTextures(cell.backgroundTexture);
+      if (textures && !this.renderedCellTextures.has(key)) {
         const cellData = grid.getCell(cell.col, cell.row);
         const isWater = cellData?.properties.has('water') ?? false;
         const isBridge = cellData?.properties.has('bridge') ?? false;
+        const baseDepth = isBridge ? Depth.stairs : isWater ? Depth.waterTexture : Depth.cellTextureModified;
+        const cellX = cell.col * this.cellSize;
+        const cellY = cell.row * this.cellSize;
+        const centerX = cellX + this.cellSize / 2;
+        const centerY = cellY + this.cellSize / 2;
+        const sprites: Phaser.GameObjects.Image[] = [];
 
-        let depth: number;
-        if (isBridge) depth = Depth.stairs;
-        else if (isWater) depth = Depth.waterTexture;
-        else depth = Depth.cellTextureModified;
-        if (zOffsetOverride !== undefined) depth += zOffsetOverride;
-        sprite.setDepth(depth);
+        for (const tex of textures) {
+          let textureName: string;
+          let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
+          let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
+          let zOffsetOverride: number | undefined;
 
-        this.cellSprites.push(sprite);
-        this.renderedCellTextures.set(key, sprite);
+          if (typeof tex === 'string') {
+            textureName = tex;
+          } else {
+            textureName = tex.image;
+            transform = tex.transformOverride;
+            sourceRect = tex.sourceRect;
+            zOffsetOverride = tex.zOffsetOverride;
+          }
+
+          if (textureName === '') continue;
+
+          const spriteX = transform ? centerX + transform.offsetX : centerX;
+          const spriteY = transform ? centerY + transform.offsetY : centerY;
+
+          let sprite: Phaser.GameObjects.Image;
+          if (sourceRect && this.scene.textures.exists(textureName)) {
+            const frameName = `${textureName}_${sourceRect.x}_${sourceRect.y}_${sourceRect.width}_${sourceRect.height}`;
+            const texture = this.scene.textures.get(textureName);
+            if (!texture.has(frameName)) {
+              texture.add(frameName, 0, sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height);
+            }
+            sprite = this.scene.add.image(spriteX, spriteY, textureName, frameName);
+          } else {
+            sprite = this.addImage(spriteX, spriteY, textureName);
+          }
+
+          if (transform) {
+            sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
+          } else {
+            sprite.setDisplaySize(this.cellSize, this.cellSize);
+          }
+
+          let depth = baseDepth;
+          if (zOffsetOverride !== undefined) depth += zOffsetOverride;
+          sprite.setDepth(depth);
+
+          this.cellSprites.push(sprite);
+          sprites.push(sprite);
+        }
+
+        if (sprites.length > 0) {
+          this.renderedCellTextures.set(key, sprites);
+        }
       }
 
       // Handle animated texture (can coexist with backgroundTexture)
@@ -337,7 +334,7 @@ export abstract class GameSceneRenderer {
         animSprite.play(animationKey);
 
         this.cellSprites.push(animSprite);
-        this.renderedCellTextures.set(animKey, animSprite);
+        this.renderedCellTextures.set(animKey, [animSprite]);
       }
     }
   }
@@ -382,8 +379,8 @@ export abstract class GameSceneRenderer {
       this.waterAnimator.destroy();
       this.waterAnimator = null;
     }
-    for (const sprite of this.renderedCellTextures.values()) {
-      sprite.destroy();
+    for (const sprites of this.renderedCellTextures.values()) {
+      for (const s of sprites) s.destroy();
     }
     this.renderedCellTextures.clear();
     this.spritesInitialized = false;
@@ -395,8 +392,8 @@ export abstract class GameSceneRenderer {
       sprite.destroy();
     }
     this.cellSprites.length = 0;
-    for (const sprite of this.renderedCellTextures.values()) {
-      sprite.destroy();
+    for (const sprites of this.renderedCellTextures.values()) {
+      for (const s of sprites) s.destroy();
     }
     this.renderedCellTextures.clear();
   }
@@ -406,16 +403,16 @@ export abstract class GameSceneRenderer {
 
     for (const cell of cells) {
       const key = `${cell.col},${cell.row}`;
-      const cellTexture = this.renderedCellTextures.get(key);
-      if (cellTexture) {
-        this.scene.tweens.add({
-          targets: cellTexture,
-          alpha: 0,
-          duration: FADE_DURATION_MS,
-          onComplete: () => {
-            cellTexture.destroy();
-          }
-        });
+      const cellTextures = this.renderedCellTextures.get(key);
+      if (cellTextures) {
+        for (const tex of cellTextures) {
+          this.scene.tweens.add({
+            targets: tex,
+            alpha: 0,
+            duration: FADE_DURATION_MS,
+            onComplete: () => { tex.destroy(); }
+          });
+        }
         this.renderedCellTextures.delete(key);
       }
 

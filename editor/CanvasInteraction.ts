@@ -1,7 +1,7 @@
 import type { EditorBridge } from './EditorBridge';
 import { TransformComponent } from '../src/ecs/components/core/TransformComponent';
 import { Depth } from '../src/constants/DepthConstants';
-import { isConvex, ensureClockwise, isPointInPolygon } from '../src/math/PolygonUtils';
+import { ensureClockwise, isPointInPolygon } from '../src/math/PolygonUtils';
 
 const CAMERA_SPEED_PX_PER_SEC = 400;
 const MIN_ZOOM = 0.25;
@@ -15,7 +15,7 @@ export class CanvasInteraction {
   private isDragging = false;
   private lastPaintedCell: string | null = null;
   private dragEntityId: string | null = null;
-  private dragTextureFrom: { col: number; row: number } | null = null;
+  private dragTextureFrom: { col: number; row: number; textureIndex: number } | null = null;
   private ctrlDragWorldPos: { x: number; y: number } | null = null;
   private lastClickCell: string | null = null;
   private clickCycleIndex = 0;
@@ -32,6 +32,7 @@ export class CanvasInteraction {
   private graphics: Phaser.GameObjects.Graphics | null = null;
 
   constructor(private readonly bridge: EditorBridge, canvasContainer: HTMLElement) {
+    bridge.cancelDrawing = () => this.cancelDrawing();
     canvasContainer.addEventListener('mouseenter', () => { this.isMouseOverCanvas = true; });
     canvasContainer.addEventListener('mouseleave', () => { this.isMouseOverCanvas = false; });
 
@@ -133,6 +134,7 @@ export class CanvasInteraction {
       case 'escape':
         if (this.drawingVertices.length > 0) {
           this.drawingVertices = [];
+          this.bridge.onDrawingStateChanged?.(false);
           this.renderOverlays();
         } else {
           this.bridge.clearSelection();
@@ -236,7 +238,7 @@ export class CanvasInteraction {
     // Ctrl+texture drag needs per-pixel updates, skip the cell-change gate
     if (this.dragTextureFrom && p.event instanceof MouseEvent && (p.event.ctrlKey || p.event.metaKey)) {
       this.ctrlDragWorldPos = { x: p.worldX, y: p.worldY };
-      this.bridge.moveCellTexturePixel(this.dragTextureFrom.col, this.dragTextureFrom.row, p.worldX, p.worldY);
+      this.bridge.moveCellTexturePixel(this.dragTextureFrom.col, this.dragTextureFrom.row, this.dragTextureFrom.textureIndex, p.worldX, p.worldY);
       this.renderOverlays();
       return;
     }
@@ -251,9 +253,10 @@ export class CanvasInteraction {
       this.renderOverlays();
     } else if (this.dragTextureFrom) {
       this.ctrlDragWorldPos = null;
-      this.bridge.moveCellTexture(this.dragTextureFrom.col, this.dragTextureFrom.row, cell.col, cell.row);
-      this.dragTextureFrom = { col: cell.col, row: cell.row };
+      this.bridge.moveSingleTexture(this.dragTextureFrom.col, this.dragTextureFrom.row, this.dragTextureFrom.textureIndex, cell.col, cell.row);
+      this.dragTextureFrom = { col: cell.col, row: cell.row, textureIndex: 0 };
       this.bridge.selectedCell = { col: cell.col, row: cell.row };
+      this.bridge.selectedTextureIndex = 0;
       this.renderOverlays();
     } else if (this.bridge.currentTool === 'texture' && this.bridge.selectedTexture) {
       this.bridge.setCellTexture(cell.col, cell.row, this.bridge.selectedTexture);
@@ -264,7 +267,7 @@ export class CanvasInteraction {
 
   private onPointerUp(): void {
     if (this.ctrlDragWorldPos && this.dragTextureFrom) {
-      this.bridge.finalizeCellTexturePixelDrop(this.dragTextureFrom.col, this.dragTextureFrom.row, this.ctrlDragWorldPos.x, this.ctrlDragWorldPos.y);
+      this.bridge.finalizeCellTexturePixelDrop(this.dragTextureFrom.col, this.dragTextureFrom.row, this.dragTextureFrom.textureIndex, this.ctrlDragWorldPos.x, this.ctrlDragWorldPos.y);
     }
     this.dragEntityId = null;
     this.dragTextureFrom = null;
@@ -337,7 +340,9 @@ export class CanvasInteraction {
       const gridCell = grid.getCell(cell.col, cell.row);
       const levelCell = levelData.cells.find(c => c.col === cell.col && c.row === cell.row);
       if (gridCell?.backgroundTexture || levelCell?.animatedTexture) {
-        this.dragTextureFrom = { col: cell.col, row: cell.row };
+        const texIndex = this.bridge.findClosestTextureIndex(cell.col, cell.row, p.worldX, p.worldY);
+        this.dragTextureFrom = { col: cell.col, row: cell.row, textureIndex: texIndex };
+        this.bridge.selectedTextureIndex = texIndex;
         this.isDragging = true;
         this.lastPaintedCell = cellKey;
       }
@@ -400,21 +405,23 @@ export class CanvasInteraction {
     this.drawingAutoLayer = gridCell?.layer ?? 0;
     this.drawingVertices = [{ x: wx, y: wy }];
     this.bridge.selectBlockedArea(null);
+    this.bridge.onDrawingStateChanged?.(true);
     this.renderOverlays();
   }
 
   private closePolygon(): void {
     const verts = ensureClockwise([...this.drawingVertices]);
     this.drawingVertices = [];
-
-    if (!isConvex(verts)) {
-      this.bridge.toast?.show('Polygon is not convex — discarded', 'error');
-      this.renderOverlays();
-      return;
-    }
+    this.bridge.onDrawingStateChanged?.(false);
 
     const id = this.bridge.addBlockedArea(verts, this.drawingAutoLayer);
     this.bridge.selectBlockedArea(id);
+    this.renderOverlays();
+  }
+
+  cancelDrawing(): void {
+    this.drawingVertices = [];
+    this.bridge.onDrawingStateChanged?.(false);
     this.renderOverlays();
   }
 

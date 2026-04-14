@@ -1,13 +1,14 @@
 import Phaser from "phaser";
 import { Depth } from '../constants/DepthConstants';
 import { Grid, type CellProperty } from "../systems/grid/Grid";
-import { LevelLoader, type LevelData, type LevelTheme } from "../systems/level/LevelLoader";
+import { LevelLoader, type LevelData, type LevelTheme, normalizeBgTextures, bgTextureKey } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
 import { NPCIdleComponent } from "../ecs/entities/npc/NPCIdleComponent";
 import { Entity } from "../ecs/Entity";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
+import { CompanionManager } from "../systems/CompanionManager";
 import { NPCManager } from "../systems/NPCManager";
 import type HudScene from "./HudScene";
 import { PLAYER_MAX_HEALTH, createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
@@ -140,9 +141,8 @@ export default class GameScene extends Phaser.Scene {
         // Initialize grid
         this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize);
         for (const cell of this.levelData.cells) {
-          const bgTexture = cell.backgroundTexture
-            ? (typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : cell.backgroundTexture.image)
-            : undefined;
+          const textures = normalizeBgTextures(cell.backgroundTexture);
+          const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
           this.grid.setCell(cell.col, cell.row, {
             layer: cell.layer ?? 0,
             properties: new Set(cell.properties ?? []),
@@ -380,9 +380,8 @@ export default class GameScene extends Phaser.Scene {
     this.grid = new Grid(this, level.width, level.height, this.cellSize);
 
     for (const cell of level.cells) {
-      const bgTexture = cell.backgroundTexture
-        ? (typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : cell.backgroundTexture.image)
-        : undefined;
+      const textures = normalizeBgTextures(cell.backgroundTexture);
+      const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
 
       this.grid.setCell(cell.col, cell.row, {
         layer: cell.layer ?? 0,
@@ -593,6 +592,9 @@ export default class GameScene extends Phaser.Scene {
     // Initialize PetManager
     void this.initializePetManager(player);
 
+    // Initialize CompanionManager
+    this.initializeCompanionManager(player);
+
     // Load entities from new format
     this.entityLoader.loadEntities(level, player, this.isEditorMode);
   }
@@ -601,6 +603,10 @@ export default class GameScene extends Phaser.Scene {
     const { PetManager } = await import('../systems/PetManager');
     const petManager = PetManager.getInstance();
     await petManager.initialize(this, this.grid, player);
+  }
+
+  private initializeCompanionManager(player: Entity): void {
+    CompanionManager.getInstance().initialize(this, this.entityManager, player);
   }
 
 

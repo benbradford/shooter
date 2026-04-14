@@ -161,7 +161,7 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 
 ## Adding Triggers
 
-Triggers fire events when player walks into them. Use editor: Press E → Trigger button → select cells → Add Trigger.
+Triggers fire events when player walks into them. Use editor: Entity tool → trigger → select cells → Add Trigger.
 
 ## Pet System
 
@@ -181,7 +181,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 - **V** - Toggle HUD visibility
 - **Y** - Save world state
 - **R** - Reload state from file and reset scene
-- **E** - Enter level editor
+- **E** - Enter level editor (standalone: `http://localhost:5173/editor/`)
 - **H** - Pet ability (if pet active)
 
 ## Managing Entities

@@ -2,7 +2,8 @@ import type GameScene from '../src/scenes/GameScene';
 import type { Grid, CellProperty } from '../src/systems/grid/Grid';
 import type { EntityManager } from '../src/ecs/EntityManager';
 import type { Entity } from '../src/ecs/Entity';
-import type { LevelData, LevelEntity, EntityType, BackgroundTextureConfig, AnimatedTextureConfig } from '../src/systems/level/LevelLoader';
+import type { LevelData, LevelEntity, EntityType, AnimatedTextureConfig, SingleBackgroundTexture } from '../src/systems/level/LevelLoader';
+import { normalizeBgTextures, bgTextureKey } from '../src/systems/level/LevelLoader';
 import { TransformComponent } from '../src/ecs/components/core/TransformComponent';
 import { GridPositionComponent } from '../src/ecs/components/movement/GridPositionComponent';
 import { DifficultyComponent } from '../src/ecs/components/ai/DifficultyComponent';
@@ -31,6 +32,7 @@ export class EditorBridge {
   gridLayer = 0;
   isDirty = false;
   currentLevelName: string | null = null;
+  selectedTextureIndex = 0;
 
   // Clipboard
   clipboardEntity: LevelEntity | null = null;
@@ -56,6 +58,8 @@ export class EditorBridge {
   onLoadError: ((levelName: string, error: unknown) => void) | null = null;
   onToolChanged: ((tool: string) => void) | null = null;
   onBlockedAreaSelected: ((id: string | null) => void) | null = null;
+  onDrawingStateChanged: ((isDrawing: boolean) => void) | null = null;
+  cancelDrawing: (() => void) | null = null;
 
   static getInstance(): EditorBridge {
     if (!EditorBridge.instance) {
@@ -222,8 +226,9 @@ export class EditorBridge {
       if (!toCell) { toCell = { col: toCol, row: toRow }; levelData.cells.push(toCell); }
       if (tex) {
         toCell.backgroundTexture = tex;
-        const texKey = typeof tex === 'string' ? tex : tex.image;
-        grid.setCell(toCol, toRow, { backgroundTexture: texKey });
+        const textures = normalizeBgTextures(tex);
+        const firstKey = textures ? bgTextureKey(textures[0]) : '';
+        grid.setCell(toCol, toRow, { backgroundTexture: firstKey });
       }
       if (animTex) toCell.animatedTexture = animTex;
 
@@ -232,71 +237,115 @@ export class EditorBridge {
     });
   }
 
-  moveCellTexturePixel(fromCol: number, fromRow: number, worldX: number, worldY: number): void {
+  findClosestTextureIndex(col: number, row: number, worldX: number, worldY: number): number {
+    const grid = this.getGrid();
+    const cellSize = grid.cellSize;
+    const levelData = this.scene.getLevelData();
+    const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+    const textures = normalizeBgTextures(levelCell?.backgroundTexture);
+    if (!textures || textures.length <= 1) return 0;
+
+    const centerX = col * cellSize + cellSize / 2;
+    const centerY = row * cellSize + cellSize / 2;
+    let bestIndex = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < textures.length; i++) {
+      const tex = textures[i];
+      const t = typeof tex === 'object' ? tex.transformOverride : undefined;
+      const sx = centerX + (t?.offsetX ?? 0);
+      const sy = centerY + (t?.offsetY ?? 0);
+      const dist = Math.hypot(worldX - sx, worldY - sy);
+      if (dist < bestDist) { bestDist = dist; bestIndex = i; }
+    }
+    return bestIndex;
+  }
+
+  moveSingleTexture(fromCol: number, fromRow: number, textureIndex: number, toCol: number, toRow: number): void {
+    this._applyMutation(`Move texture[${textureIndex}] ${fromCol},${fromRow} → ${toCol},${toRow}`, () => {
+      const grid = this.getGrid();
+      const levelData = this.scene.getLevelData();
+      const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
+      const textures = normalizeBgTextures(fromCell?.backgroundTexture);
+      if (!textures || textureIndex >= textures.length) return;
+
+      const tex = textures.splice(textureIndex, 1)[0];
+      if (fromCell) {
+        fromCell.backgroundTexture = textures.length > 0 ? textures : undefined;
+        if (!fromCell.backgroundTexture) {
+          delete fromCell.backgroundTexture;
+          grid.setCell(fromCol, fromRow, { backgroundTexture: '' });
+        }
+      }
+
+      let toCell = levelData.cells.find(c => c.col === toCol && c.row === toRow);
+      if (!toCell) { toCell = { col: toCol, row: toRow }; levelData.cells.push(toCell); }
+      const destTextures = normalizeBgTextures(toCell.backgroundTexture) ?? [];
+      destTextures.push(tex);
+      toCell.backgroundTexture = destTextures;
+      grid.setCell(toCol, toRow, { backgroundTexture: bgTextureKey(destTextures[0]) });
+
+      this.scene.refreshSprites();
+      grid.render();
+    });
+  }
+
+  moveCellTexturePixel(fromCol: number, fromRow: number, textureIndex: number, worldX: number, worldY: number): void {
     const grid = this.getGrid();
     const cellSize = grid.cellSize;
     const levelData = this.scene.getLevelData();
     const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
-    if (!fromCell?.backgroundTexture) return;
+    const textures = normalizeBgTextures(fromCell?.backgroundTexture);
+    if (!textures || textureIndex >= textures.length) return;
 
-    // Compute offset from source cell center to world position
     const centerX = fromCol * cellSize + cellSize / 2;
     const centerY = fromRow * cellSize + cellSize / 2;
     const offsetX = worldX - centerX;
     const offsetY = worldY - centerY;
 
-    // Update transformOverride with temporary offset for visual feedback
-    if (typeof fromCell.backgroundTexture === 'string') {
-      fromCell.backgroundTexture = { image: fromCell.backgroundTexture, transformOverride: { scaleX: 1, scaleY: 1, offsetX, offsetY } };
-    } else {
-      fromCell.backgroundTexture = { ...fromCell.backgroundTexture, transformOverride: { ...(fromCell.backgroundTexture.transformOverride ?? { scaleX: 1, scaleY: 1 }), offsetX, offsetY } };
-    }
+    const tex = textures[textureIndex];
+    const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
+    entry.transformOverride = { ...(entry.transformOverride ?? { scaleX: 1, scaleY: 1 }), offsetX, offsetY };
+    textures[textureIndex] = entry;
+    fromCell!.backgroundTexture = textures;
     this.scene.refreshSprites();
   }
 
-  finalizeCellTexturePixelDrop(fromCol: number, fromRow: number, worldX: number, worldY: number): void {
-    this._applyMutation(`Pixel-drop texture from ${fromCol},${fromRow}`, () => {
+  finalizeCellTexturePixelDrop(fromCol: number, fromRow: number, textureIndex: number, worldX: number, worldY: number): void {
+    this._applyMutation(`Pixel-drop texture[${textureIndex}] from ${fromCol},${fromRow}`, () => {
       const grid = this.getGrid();
       const cellSize = grid.cellSize;
       const levelData = this.scene.getLevelData();
       const fromCell = levelData.cells.find(c => c.col === fromCol && c.row === fromRow);
-      if (!fromCell?.backgroundTexture) return;
+      const textures = normalizeBgTextures(fromCell?.backgroundTexture);
+      if (!textures || textureIndex >= textures.length) return;
 
-      // Find nearest cell to drop position
-      const toCol = Math.round(worldX / cellSize - 0.5);
-      const toRow = Math.round(worldY / cellSize - 0.5);
-      const clampedCol = Math.max(0, Math.min(grid.width - 1, toCol));
-      const clampedRow = Math.max(0, Math.min(grid.height - 1, toRow));
-
-      // Compute offset from target cell center
-      const targetCenterX = clampedCol * cellSize + cellSize / 2;
-      const targetCenterY = clampedRow * cellSize + cellSize / 2;
+      const toCol = Math.max(0, Math.min(grid.width - 1, Math.round(worldX / cellSize - 0.5)));
+      const toRow = Math.max(0, Math.min(grid.height - 1, Math.round(worldY / cellSize - 0.5)));
+      const targetCenterX = toCol * cellSize + cellSize / 2;
+      const targetCenterY = toRow * cellSize + cellSize / 2;
       const offsetX = Math.round(worldX - targetCenterX);
       const offsetY = Math.round(worldY - targetCenterY);
 
-      // Get texture data (strip the temporary drag offset)
-      const tex = fromCell.backgroundTexture;
-      const animTex = fromCell.animatedTexture;
-
-      // Clear source
-      grid.setCell(fromCol, fromRow, { backgroundTexture: '' });
-      delete fromCell.backgroundTexture;
-      delete fromCell.animatedTexture;
-
-      // Set destination with offset
-      let toCell = levelData.cells.find(c => c.col === clampedCol && c.row === clampedRow);
-      if (!toCell) { toCell = { col: clampedCol, row: clampedRow }; levelData.cells.push(toCell); }
-
-      if (typeof tex === 'string') {
-        toCell.backgroundTexture = { image: tex, transformOverride: { scaleX: 1, scaleY: 1, offsetX, offsetY } };
-      } else {
-        const existingTransform = tex.transformOverride ?? { scaleX: 1, scaleY: 1 };
-        toCell.backgroundTexture = { ...tex, transformOverride: { ...existingTransform, offsetX, offsetY } };
+      // Remove from source
+      const tex = textures.splice(textureIndex, 1)[0];
+      if (fromCell) {
+        fromCell.backgroundTexture = textures.length > 0 ? textures : undefined;
+        if (!fromCell.backgroundTexture) {
+          delete fromCell.backgroundTexture;
+          grid.setCell(fromCol, fromRow, { backgroundTexture: '' });
+        }
       }
-      if (animTex) toCell.animatedTexture = animTex;
 
-      const texKey = typeof tex === 'string' ? tex : tex.image;
-      grid.setCell(clampedCol, clampedRow, { backgroundTexture: texKey });
+      // Add to destination with offset
+      const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
+      entry.transformOverride = { ...(entry.transformOverride ?? { scaleX: 1, scaleY: 1 }), offsetX, offsetY };
+
+      let toCell = levelData.cells.find(c => c.col === toCol && c.row === toRow);
+      if (!toCell) { toCell = { col: toCol, row: toRow }; levelData.cells.push(toCell); }
+      const destTextures = normalizeBgTextures(toCell.backgroundTexture) ?? [];
+      destTextures.push(entry);
+      toCell.backgroundTexture = destTextures;
+      grid.setCell(toCol, toRow, { backgroundTexture: bgTextureKey(destTextures[0]) });
 
       this.scene.refreshSprites();
       grid.render();
@@ -807,7 +856,7 @@ export class EditorBridge {
   private extractGridCells(grid: Grid, existingLevelData: LevelData): Array<{
     col: number; row: number; layer: number;
     properties?: CellProperty[];
-    backgroundTexture?: string | BackgroundTextureConfig;
+    backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[];
     animatedTexture?: AnimatedTextureConfig;
   }> {
     const cells = [];
@@ -824,7 +873,7 @@ export class EditorBridge {
           const cellData: {
             col: number; row: number; layer: number;
             properties?: CellProperty[];
-            backgroundTexture?: string | BackgroundTextureConfig;
+            backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[];
             animatedTexture?: AnimatedTextureConfig;
           } = { col, row, layer };
 

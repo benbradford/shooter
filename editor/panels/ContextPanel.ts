@@ -1,6 +1,7 @@
 import type { EditorBridge } from '../EditorBridge';
 import { TexturePicker } from './TexturePicker';
 import type { PickResult } from './TexturePicker';
+import { normalizeBgTextures, bgTextureKey } from '../../src/systems/level/LevelLoader';
 import { ASSET_REGISTRY } from '../../src/assets/AssetRegistry';
 
 export class ContextPanel {
@@ -283,8 +284,7 @@ export class ContextPanel {
     const levelData = this.bridge.getScene().getLevelData();
     const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
     const bgTex = levelCell?.backgroundTexture;
-    const texKey = typeof bgTex === 'string' ? bgTex : bgTex?.image ?? cell.backgroundTexture ?? '';
-    const transform = typeof bgTex === 'object' && bgTex && 'transformOverride' in bgTex ? bgTex.transformOverride : null;
+    const texArray = normalizeBgTextures(bgTex);
     const animTex = levelCell?.animatedTexture;
     const animTransform = animTex?.transformOverride;
 
@@ -299,23 +299,26 @@ export class ContextPanel {
         ${allProps.map(p => `<label style="display:block"><input type="checkbox" data-prop="${p}" ${props.includes(p as import('../../src/systems/grid/Grid').CellProperty) ? 'checked' : ''} /> ${p}</label>`).join('')}
       </div>
       <div class="form-group">
-        <label>Texture</label>
-        <div style="display:flex;gap:4px;align-items:center">
-          <span style="flex:1;font-size:11px;color:#95a5a6">${texKey || '(none)'}</span>
-          <button class="ed-btn" id="cf-choose-tex">Choose</button>
-          <button class="ed-btn danger" id="cf-clear-tex">✕</button>
-        </div>
+        <label>Textures${texArray && texArray.length > 1 ? ` (${texArray.length})` : ''}</label>
+        <button class="ed-btn" id="cf-choose-tex" style="width:100%;margin-bottom:4px">+ Add Texture</button>
+        <button class="ed-btn danger" id="cf-clear-tex" style="width:100%;margin-bottom:4px">Clear All Textures</button>
       </div>
-      ${texKey ? `
-      <div class="section-header">Transform Override</div>
+      ${(texArray ?? []).map((tex, i) => {
+        const key = bgTextureKey(tex);
+        const t = typeof tex === 'object' && 'transformOverride' in tex ? tex.transformOverride : null;
+        return `
+      <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11px">${i}: ${key}</span>
+        <button class="ed-btn danger tex-delete" data-tex-idx="${i}" style="padding:1px 6px;font-size:10px">✕</button>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
-        <div class="form-group"><label>scaleX</label><input type="number" id="cf-sx" value="${transform?.scaleX ?? 1}" step="0.1" /></div>
-        <div class="form-group"><label>scaleY</label><input type="number" id="cf-sy" value="${transform?.scaleY ?? 1}" step="0.1" /></div>
-        <div class="form-group"><label>offsetX</label><input type="number" id="cf-ox" value="${transform?.offsetX ?? 0}" /></div>
-        <div class="form-group"><label>offsetY</label><input type="number" id="cf-oy" value="${transform?.offsetY ?? 0}" /></div>
+        <div class="form-group"><label>scaleX</label><input type="number" class="tex-sx" data-tex-idx="${i}" value="${t?.scaleX ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>scaleY</label><input type="number" class="tex-sy" data-tex-idx="${i}" value="${t?.scaleY ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>offsetX</label><input type="number" class="tex-ox" data-tex-idx="${i}" value="${t?.offsetX ?? 0}" /></div>
+        <div class="form-group"><label>offsetY</label><input type="number" class="tex-oy" data-tex-idx="${i}" value="${t?.offsetY ?? 0}" /></div>
       </div>
-      <button class="ed-btn" id="cf-apply-transform" style="width:100%;margin-bottom:6px">Apply Transform</button>
-      ` : ''}
+      <button class="ed-btn tex-apply" data-tex-idx="${i}" style="width:100%;margin-bottom:6px">Apply Transform</button>`;
+      }).join('')}
       ${animTex ? `
       <div class="section-header">Animated Texture</div>
       <div class="level-info-grid" style="font-size:11px">
@@ -366,7 +369,11 @@ export class ContextPanel {
         if (!levelCell) { levelCell = { col, row }; levelData.cells.push(levelCell); }
 
         if (result.type === 'image') {
-          this.bridge.setCellTexture(col, row, result.key);
+          const existing = normalizeBgTextures(levelCell.backgroundTexture) ?? [];
+          existing.push(result.key);
+          levelCell.backgroundTexture = existing;
+          this.bridge.getGrid().setCell(col, row, { backgroundTexture: result.key });
+          this.bridge.getScene().refreshSprites();
         } else if (result.type === 'animated') {
           const asset = ASSET_REGISTRY[result.key as keyof typeof ASSET_REGISTRY] as { config?: { frameWidth: number; frameHeight: number } };
           levelCell.animatedTexture = {
@@ -378,13 +385,16 @@ export class ContextPanel {
           };
           this.bridge.getScene().refreshSprites();
         } else if (result.type === 'spritesheet') {
-          levelCell.backgroundTexture = {
+          const newTex = {
             image: result.key,
             sourceRect: result.sourceRect,
             ...(result.scaleX !== undefined || result.scaleY !== undefined ? {
               transformOverride: { scaleX: result.scaleX ?? 1, scaleY: result.scaleY ?? 1, offsetX: 0, offsetY: 0 }
             } : {})
           };
+          const existing = normalizeBgTextures(levelCell.backgroundTexture) ?? [];
+          existing.push(newTex);
+          levelCell.backgroundTexture = existing;
           this.bridge.getGrid().setCell(col, row, { backgroundTexture: result.key });
           this.bridge.getScene().refreshSprites();
         }
@@ -395,24 +405,45 @@ export class ContextPanel {
       this.bridge.clearCellTexture(col, row);
       this.showCellForm(col, row);
     });
-    this.container.querySelector('#cf-apply-transform')?.addEventListener('click', () => {
-      const get = (id: string) => Number.parseFloat((this.container.querySelector(`#${id}`) as HTMLInputElement).value);
-      const levelData = this.bridge.getScene().getLevelData();
-      let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
-      if (!levelCell) { levelCell = { col, row }; levelData.cells.push(levelCell); }
-      const currentKey = typeof levelCell.backgroundTexture === 'string'
-        ? levelCell.backgroundTexture
-        : (levelCell.backgroundTexture as { image?: string })?.image ?? '';
-      if (currentKey) {
-        const existing = typeof levelCell.backgroundTexture === 'object' ? levelCell.backgroundTexture : {};
-        levelCell.backgroundTexture = {
-          ...existing,
-          image: currentKey,
-          transformOverride: { scaleX: get('cf-sx'), scaleY: get('cf-sy'), offsetX: get('cf-ox'), offsetY: get('cf-oy') }
-        };
+    // Per-texture Apply Transform buttons
+    for (const btn of this.container.querySelectorAll('.tex-apply')) {
+      btn.addEventListener('click', () => {
+        const idx = Number.parseInt((btn as HTMLElement).dataset.texIdx!, 10);
+        const getVal = (cls: string) => Number.parseFloat((this.container.querySelector(`.${cls}[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
+        const levelData = this.bridge.getScene().getLevelData();
+        let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+        if (!levelCell) return;
+        const texArr = normalizeBgTextures(levelCell.backgroundTexture);
+        if (!texArr || idx >= texArr.length) return;
+        const tex = texArr[idx];
+        const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
+        entry.transformOverride = { scaleX: getVal('tex-sx'), scaleY: getVal('tex-sy'), offsetX: getVal('tex-ox'), offsetY: getVal('tex-oy') };
+        texArr[idx] = entry;
+        levelCell.backgroundTexture = texArr;
         this.bridge.getScene().refreshSprites();
-      }
-    });
+      });
+    }
+    // Per-texture Delete buttons
+    for (const btn of this.container.querySelectorAll('.tex-delete')) {
+      btn.addEventListener('click', () => {
+        const idx = Number.parseInt((btn as HTMLElement).dataset.texIdx!, 10);
+        const levelData = this.bridge.getScene().getLevelData();
+        const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+        if (!levelCell) return;
+        const texArr = normalizeBgTextures(levelCell.backgroundTexture);
+        if (!texArr || idx >= texArr.length) return;
+        texArr.splice(idx, 1);
+        levelCell.backgroundTexture = texArr.length > 0 ? texArr : undefined;
+        if (!levelCell.backgroundTexture) {
+          delete levelCell.backgroundTexture;
+          this.bridge.getGrid().setCell(col, row, { backgroundTexture: '' });
+        } else {
+          this.bridge.getGrid().setCell(col, row, { backgroundTexture: bgTextureKey(texArr[0]) });
+        }
+        this.bridge.getScene().refreshSprites();
+        this.showCellForm(col, row);
+      });
+    }
     this.container.querySelector('#cf-apply-anim-transform')?.addEventListener('click', () => {
       const get = (id: string) => Number.parseFloat((this.container.querySelector(`#${id}`) as HTMLInputElement).value);
       const levelData = this.bridge.getScene().getLevelData();
@@ -656,6 +687,17 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });
+    });
+  }
+
+  showDrawingPanel(): void {
+    this.container.innerHTML = `
+      <div class="section-header">Drawing Area</div>
+      <p style="font-size:11px;color:#95a5a6;margin:4px 0 8px">Click to add vertices. Click near the first point to close.</p>
+      <button class="ed-btn danger" id="cancel-drawing" style="width:100%">Cancel Drawing</button>
+    `;
+    this.container.querySelector('#cancel-drawing')?.addEventListener('click', () => {
+      this.bridge.cancelDrawing?.();
     });
   }
 
