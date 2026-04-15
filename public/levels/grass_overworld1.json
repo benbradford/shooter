@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 10,
-    "y": 8
+    "x": 6,
+    "y": 26
   },
   "cells": [
     {
@@ -5405,6 +5405,16 @@
       }
     },
     {
+      "id": "lever0",
+      "type": "lever",
+      "data": {
+        "col": 4,
+        "row": 26,
+        "eventToRaise": "lever_lever0",
+        "startState": "off"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -5600,6 +5610,67 @@
       },
       "createOnAnyEvent": [
         "village_tree_man"
+      ]
+    },
+    {
+      "id": "cellmodifier0",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 8,
+            "row": 24,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 9,
+            "row": 24,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 8,
+            "row": 25,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 9,
+            "row": 25,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 10,
+            "row": 24,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 11,
+            "row": 24,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 10,
+            "row": 25,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 11,
+            "row": 25,
+            "properties": [],
+            "layer": 0
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "lever_lever0|on"
       ]
     }
   ],

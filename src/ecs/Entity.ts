@@ -77,7 +77,7 @@ export class Entity {
     const worldState = WorldStateManager.getInstance();
     if (worldState.shouldTrackDestructions() && this.levelName && this.id && /^[a-z_]+\d+$/.test(this.id)) {
       // Don't track interaction entities
-      if (!this.tags.has('interaction')) {
+      if (!this.tags.has('interaction') && !this.tags.has('cell_modifier')) {
         worldState.removeLiveEntity(this.levelName, this.id);
         worldState.addDestroyedEntity(this.levelName, this.id);
       }

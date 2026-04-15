@@ -437,6 +437,26 @@ export abstract class GameSceneRenderer {
         this.cellSprites.splice(index, 1);
       }
     }
+
+    // Destroy floor/platform sprites that overlap modified cells
+    for (let i = this.floorSprites.length - 1; i >= 0; i--) {
+      const sprite = this.floorSprites[i];
+      const sx = sprite.x - sprite.displayWidth / 2;
+      const sy = sprite.y - sprite.displayHeight / 2;
+      const sw = sprite.displayWidth;
+      const sh = sprite.displayHeight;
+
+      const overlaps = cells.some(cell => {
+        const cx = cell.col * this.cellSize;
+        const cy = cell.row * this.cellSize;
+        return cx >= sx && cx < sx + sw && cy >= sy && cy < sy + sh;
+      });
+
+      if (overlaps && sprite.depth === Depth.stairs) {
+        sprite.destroy();
+        this.floorSprites.splice(i, 1);
+      }
+    }
   }
 
   private renderFloorOverlay(grid: Grid, _levelData: LevelData): void {

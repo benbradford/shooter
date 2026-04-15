@@ -7,7 +7,7 @@ const FLICKER_ALPHA = 0.7;
 const FLICKER_DURATION_MS = 120;
 const FLICKER_MIN_INTERVAL_MS = 3000;
 const FLICKER_MAX_INTERVAL_MS = 8000;
-const GLOW_TINT = 0xccffff;
+const GLOW_TINT = 0xeeffff;
 
 export class CompanionGlowComponent implements Component {
   entity!: Entity;

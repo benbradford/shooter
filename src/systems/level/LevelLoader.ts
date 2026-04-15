@@ -17,7 +17,8 @@ export type EntityType =
   | 'cellmodifier'
   | 'interaction'
   | 'collectible'
-  | 'npc';
+  | 'npc'
+  | 'lever';
 
 export type LevelEntity = {
   id: string;

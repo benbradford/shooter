@@ -69,6 +69,9 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     if (entityTypes.has('collectible')) {
       groups.push('collectibles');
     }
+    if (entityTypes.has('lever')) {
+      groups.push('lever');
+    }
     for (const entity of levelData.entities) {
       if (entity.type === 'npc' && typeof entity.data.assets === 'string') {
         const assetGroup = entity.data.assets as AssetGroupKey;

@@ -173,6 +173,21 @@ Triggers fire events when player walks into them. Use editor: Entity tool → tr
 
 See [Pet System](./pets-quick-ref.md) for details.
 
+## Companion (Guide Fragment)
+
+**Enable:** Set WorldState flag `companion_active` to `"true"`
+**Sprite:** `narry.png` — floating crystal construct
+**Behavior:** Follows ahead-right of player using lerp-based smooth movement. Overshoots slightly when player stops, then corrects. After 2s idle, starts orbiting the player (restless). Teleports if >600px away.
+**Visuals:** Soft white-cyan additive glow behind sprite. Dual trail (cyan outer + white inner dots). Subtle alpha flicker every 3-8s.
+**Coexists with pet:** Yes, independent system.
+
+**Key files:**
+- `src/systems/CompanionManager.ts` — Singleton, flag-activated spawning
+- `src/ecs/entities/companion/CompanionEntity.ts` — Entity factory
+- `src/ecs/components/companion/CompanionFollowComponent.ts` — Movement logic
+- `src/ecs/components/companion/CompanionTrailComponent.ts` — Cyan+white particle trail
+- `src/ecs/components/companion/CompanionGlowComponent.ts` — Glow + flicker
+
 ## Debug Controls
 
 - **G** - Toggle grid debug (layers, transitions, triggers)

@@ -39,6 +39,7 @@ export { PunchParticlesComponent } from './components/visual/PunchParticlesCompo
 export { RotatingProjectileComponent } from './components/visual/RotatingProjectileComponent';
 export { WaterEffectComponent } from './components/visual/WaterEffectComponent';
 export { NPCIdleComponent } from './entities/npc/NPCIdleComponent';
+export { LeverComponent } from './components/lever/LeverComponent';
 export { NPCInteractionComponent } from './entities/npc/NPCInteractionComponent';
 export type { NPCInteraction, FlagCondition } from './entities/npc/NPCEntity';
 export { createNPCEntity } from './entities/npc/NPCEntity';

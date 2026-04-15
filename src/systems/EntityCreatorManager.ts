@@ -98,7 +98,7 @@ export class EntityCreatorManager implements EventListener {
         this.entityManager.add(entity);
 
         // Don't track interaction entities in liveEntities
-        if (!entity.tags.has('interaction')) {
+        if (!entity.tags.has('interaction') && !entity.tags.has('cell_modifier')) {
           worldState.addLiveEntity(currentLevel, entityId);
         }
       }
@@ -138,7 +138,7 @@ export class EntityCreatorManager implements EventListener {
           this.entityManager.add(entity);
 
           // Don't track interaction entities in liveEntities
-          if (!entity.tags.has('interaction')) {
+          if (!entity.tags.has('interaction') && !entity.tags.has('cell_modifier')) {
             worldState.addLiveEntity(currentLevel, tracker.entityId);
           }
 

@@ -549,8 +549,18 @@ export class ContextPanel {
         <textarea id="ef-events" rows="4">${JSON.stringify(events, null, 2)}</textarea></div>`;
     }
     if (entityDef.type === 'cellmodifier') {
-      typeFields += `<div class="form-group"><label>Cells to Modify</label>
-        <textarea id="ef-cellmod" rows="4">${JSON.stringify(data.cellsToModify ?? [], null, 2)}</textarea></div>`;
+      const cells = (data.cellsToModify as Array<{ col: number; row: number; properties?: string[]; layer?: number }>) ?? [];
+      const cellRows = cells.map((c, i) => `<div class="cellmod-row" style="display:grid;grid-template-columns:1fr 1fr 2fr 1fr auto;gap:4px;align-items:center;margin-bottom:4px">
+        <input type="number" class="cm-col" data-i="${i}" value="${c.col}" style="width:100%" placeholder="col" />
+        <input type="number" class="cm-row" data-i="${i}" value="${c.row}" style="width:100%" placeholder="row" />
+        <input class="cm-props" data-i="${i}" value="${(c.properties ?? []).join(',')}" style="width:100%" placeholder="props" />
+        <input type="number" class="cm-layer" data-i="${i}" value="${c.layer ?? ''}" style="width:100%" placeholder="layer" />
+        <button class="ed-btn cm-remove" data-i="${i}" style="padding:2px 6px">✕</button>
+      </div>`).join('');
+      typeFields += `<div class="form-group"><label>Cells to Modify (${cells.length})</label>
+        <div style="font-size:10px;color:#7f8c8d;margin-bottom:4px">col | row | properties | layer</div>
+        <div id="ef-cellmod-list">${cellRows}</div>
+        <button class="ed-btn" id="ef-cellmod-add" style="margin-top:4px;width:100%">+ Add Cell</button></div>`;
     }
     if (entityDef.type === 'npc') {
       typeFields += `<div class="form-group"><label>Assets</label><input id="ef-assets" value="${data.assets ?? 'npc1'}" /></div>
@@ -572,6 +582,12 @@ export class ContextPanel {
         <div class="form-group"><label>Health</label><input type="number" id="ef-bhealth" value="${data.health ?? 1}" /></div>
         <div class="form-group"><label>Rarity</label>
         <select id="ef-brarity">${['nothing', 'common', 'uncommon', 'rare', 'epic', 'legendary'].map(r => `<option ${data.rarity === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>`;
+    }
+    if (entityDef.type === 'lever') {
+      typeFields += `<div class="form-group"><label>Event to Raise</label>
+        <input id="ef-lever-event" value="${data.eventToRaise ?? ''}" /></div>
+        <div class="form-group"><label>Start State</label>
+        <select id="ef-lever-state">${['off', 'on'].map(s => `<option ${data.startState === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>`;
     }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
@@ -650,8 +666,43 @@ export class ContextPanel {
     this.container.querySelector('#ef-events')?.addEventListener('change', (e) => {
       try { this.bridge.updateEntityData(entityId, { eventsToRaise: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
     });
-    this.container.querySelector('#ef-cellmod')?.addEventListener('change', (e) => {
-      try { this.bridge.updateEntityData(entityId, { cellsToModify: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
+    // CellModifier structured UI
+    const collectCellMods = () => {
+      const rows = this.container.querySelectorAll('.cellmod-row');
+      const mods: Array<{ col: number; row: number; properties?: string[]; layer?: number }> = [];
+      for (const row of rows) {
+        const col = Number.parseInt((row.querySelector('.cm-col') as HTMLInputElement).value);
+        const rowVal = Number.parseInt((row.querySelector('.cm-row') as HTMLInputElement).value);
+        const propsStr = (row.querySelector('.cm-props') as HTMLInputElement).value.trim();
+        const layerStr = (row.querySelector('.cm-layer') as HTMLInputElement).value.trim();
+        const mod: { col: number; row: number; properties?: string[]; layer?: number } = { col, row: rowVal };
+        mod.properties = propsStr ? propsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+        if (layerStr !== '') mod.layer = Number.parseInt(layerStr);
+        mods.push(mod);
+      }
+      return mods;
+    };
+    for (const input of this.container.querySelectorAll('.cm-col, .cm-row, .cm-props, .cm-layer')) {
+      input.addEventListener('change', () => {
+        this.bridge.updateEntityData(entityId, { cellsToModify: collectCellMods() });
+      });
+    }
+    for (const btn of this.container.querySelectorAll('.cm-remove')) {
+      btn.addEventListener('click', () => {
+        const mods = collectCellMods();
+        const i = Number.parseInt((btn as HTMLElement).dataset.i!);
+        mods.splice(i, 1);
+        this.bridge.updateEntityData(entityId, { cellsToModify: mods });
+        const fakeEntity = { id: entityId, tags: new Set<string>() } as import('../../src/ecs/Entity').Entity;
+        this.showEntityForm(fakeEntity);
+      });
+    }
+    this.container.querySelector('#ef-cellmod-add')?.addEventListener('click', () => {
+      const mods = collectCellMods();
+      mods.push({ col: 0, row: 0, properties: [], layer: 0 });
+      this.bridge.updateEntityData(entityId, { cellsToModify: mods });
+      const fakeEntity = { id: entityId, tags: new Set<string>() } as import('../../src/ecs/Entity').Entity;
+      this.showEntityForm(fakeEntity);
     });
     this.container.querySelector('#ef-assets')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { assets: (e.target as HTMLInputElement).value });
@@ -687,6 +738,12 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-lever-event')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { eventToRaise: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-lever-state')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { startState: (e.target as HTMLSelectElement).value });
     });
   }
 

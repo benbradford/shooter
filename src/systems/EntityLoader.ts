@@ -21,6 +21,7 @@ import { createTriggerEntity } from '../trigger/TriggerEntity';
 import { createLevelExitEntity } from '../exit/LevelExitEntity';
 import { createBreakableEntity } from '../ecs/entities/breakable/BreakableEntity';
 import { createCollectibleEntity } from '../ecs/entities/collectible/CollectibleEntity';
+import { createLeverEntity } from '../ecs/entities/lever/LeverEntity';
 import { createCoinEntity, COIN_SPRITE_SCALE, COIN_SIZE_PX } from '../ecs/entities/pickup/CoinEntity';
 import { createMedipackEntity } from '../ecs/entities/pickup/MedipackEntity';
 import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
@@ -343,6 +344,21 @@ export class EntityLoader {
             entityId: entityDef.id,
             preset: (collectibleData.preset ?? 'mist_orb') as 'mist_orb',
             playerEntity: player,
+          });
+        };
+
+      case 'lever':
+        return () => {
+          const leverData = data as { col: number; row: number; eventToRaise: string; startState?: string };
+          return createLeverEntity({
+            scene: this.scene,
+            col: leverData.col,
+            row: leverData.row,
+            grid: this.grid,
+            entityId: entityDef.id,
+            eventToRaise: leverData.eventToRaise,
+            startState: (leverData.startState as 'on' | 'off') ?? 'off',
+            eventManager: this.eventManager,
           });
         };
 
