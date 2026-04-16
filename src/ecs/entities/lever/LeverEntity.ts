@@ -17,11 +17,12 @@ export type CreateLeverProps = {
   entityId: string;
   eventToRaise: string;
   startState: LeverState;
+  oneShot: boolean;
   eventManager: EventManagerSystem;
 };
 
 export function createLeverEntity(props: CreateLeverProps): Entity {
-  const { scene, col, row, grid, entityId, eventToRaise, startState, eventManager } = props;
+  const { scene, col, row, grid, entityId, eventToRaise, startState, oneShot, eventManager } = props;
   const entity = new Entity(entityId);
   entity.tags.add('lever');
 
@@ -38,7 +39,7 @@ export function createLeverEntity(props: CreateLeverProps): Entity {
   const sprite = entity.add(new SpriteComponent(scene, 'lever', transform));
   sprite.sprite.setDepth(Depth.breakable);
 
-  const lever = entity.add(new LeverComponent({ eventToRaise, eventManager, startState }));
+  const lever = entity.add(new LeverComponent({ entityId, eventToRaise, eventManager, startState, oneShot }));
   lever.init();
 
   const COLLISION_SIZE = grid.cellSize;

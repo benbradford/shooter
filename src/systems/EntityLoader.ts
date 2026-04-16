@@ -349,7 +349,7 @@ export class EntityLoader {
 
       case 'lever':
         return () => {
-          const leverData = data as { col: number; row: number; eventToRaise: string; startState?: string };
+          const leverData = data as { col: number; row: number; eventToRaise: string; startState?: string; oneShot?: boolean };
           return createLeverEntity({
             scene: this.scene,
             col: leverData.col,
@@ -358,6 +358,7 @@ export class EntityLoader {
             entityId: entityDef.id,
             eventToRaise: leverData.eventToRaise,
             startState: (leverData.startState as 'on' | 'off') ?? 'off',
+            oneShot: leverData.oneShot ?? false,
             eventManager: this.eventManager,
           });
         };

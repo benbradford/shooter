@@ -394,7 +394,7 @@ export class EditorBridge {
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic' },
         collectible: { col, row, preset: 'mist_orb' },
-        lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off' },
+        lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
         exit: { targetLevel: '', targetCol: 0, targetRow: 0, triggerCells: [{ col, row }] },
@@ -942,8 +942,8 @@ export class EditorBridge {
       } else if (entity.id.startsWith('lever')) {
         type = 'lever';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
-        const existingData = existing?.data as { eventToRaise?: string; startState?: string } | undefined;
-        data = { col: cell.col, row: cell.row, eventToRaise: existingData?.eventToRaise ?? '', startState: existingData?.startState ?? 'off' };
+        const existingData = existing?.data as { eventToRaise?: string; startState?: string; oneShot?: boolean } | undefined;
+        data = { col: cell.col, row: cell.row, eventToRaise: existingData?.eventToRaise ?? '', startState: existingData?.startState ?? 'off', oneShot: existingData?.oneShot ?? false };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

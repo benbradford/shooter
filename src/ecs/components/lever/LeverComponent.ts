@@ -2,41 +2,64 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { SpriteComponent } from '../core/SpriteComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type LeverState = 'on' | 'off';
 
 export type LeverComponentProps = {
+  entityId: string;
   eventToRaise: string;
   eventManager: EventManagerSystem;
   startState: LeverState;
+  oneShot: boolean;
 };
 
 export class LeverComponent implements Component {
   entity!: Entity;
+  private readonly entityId: string;
   private readonly eventToRaise: string;
   private readonly eventManager: EventManagerSystem;
+  private readonly oneShot: boolean;
   private state: LeverState;
 
   constructor(props: LeverComponentProps) {
+    this.entityId = props.entityId;
     this.eventToRaise = props.eventToRaise;
     this.eventManager = props.eventManager;
-    this.state = props.startState;
+    this.oneShot = props.oneShot;
+
+    const saved = WorldStateManager.getInstance().getFlag(`lever_${props.entityId}`);
+    this.state = (saved === 'on' || saved === 'off') ? saved : props.startState;
+  }
+
+  private get isLocked(): boolean {
+    return this.oneShot && WorldStateManager.getInstance().getFlag(`lever_${this.entityId}_locked`) === 'true';
   }
 
   init(): void {
+    const sprite = this.entity.require(SpriteComponent);
+    if (this.isLocked) {
+      sprite.sprite.setTexture('lever_dead');
+    }
     if (this.state === 'on') {
-      const sprite = this.entity.require(SpriteComponent);
       sprite.sprite.setFlipX(true);
     }
   }
 
   activate(): void {
+    if (this.isLocked) return;
+
     this.state = this.state === 'on' ? 'off' : 'on';
 
     const sprite = this.entity.require(SpriteComponent);
     sprite.sprite.setFlipX(this.state === 'on');
 
+    const wsm = WorldStateManager.getInstance();
+    wsm.setFlag(`lever_${this.entityId}`, this.state);
+    if (this.oneShot) {
+      wsm.setFlag(`lever_${this.entityId}_locked`, 'true');
+      sprite.sprite.setTexture('lever_dead');
+    }
     this.eventManager.raiseEvent(`${this.eventToRaise}|${this.state}`);
-    console.log(`${this.eventToRaise}|${this.state}`);
   }
 }

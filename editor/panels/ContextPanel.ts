@@ -587,7 +587,8 @@ export class ContextPanel {
       typeFields += `<div class="form-group"><label>Event to Raise</label>
         <input id="ef-lever-event" value="${data.eventToRaise ?? ''}" /></div>
         <div class="form-group"><label>Start State</label>
-        <select id="ef-lever-state">${['off', 'on'].map(s => `<option ${data.startState === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>`;
+        <select id="ef-lever-state">${['off', 'on'].map(s => `<option ${data.startState === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
+        <div class="form-group"><label><input type="checkbox" id="ef-lever-oneshot" ${data.oneShot ? 'checked' : ''} /> One Shot</label></div>`;
     }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
@@ -744,6 +745,9 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-lever-state')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { startState: (e.target as HTMLSelectElement).value });
+    });
+    this.container.querySelector('#ef-lever-oneshot')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { oneShot: (e.target as HTMLInputElement).checked });
     });
   }
 

@@ -5411,7 +5411,8 @@
         "col": 4,
         "row": 26,
         "eventToRaise": "lever_lever0",
-        "startState": "off"
+        "startState": "off",
+        "oneShot": true
       }
     },
     {
