@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 
+import { WorldStateManager } from '../systems/WorldStateManager';
+
 const SLOT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   fontSize: '24px', color: '#aaaaaa', fontFamily: 'sans-serif',
   backgroundColor: '#00000088', padding: { x: 40, y: 12 },
@@ -31,10 +33,22 @@ export default class ProfileSelectScene extends Phaser.Scene {
     this.cameras.main.fadeIn(500);
 
     let existing: string[] = [];
-    try {
-      const res = await fetch('/api/profiles');
-      existing = await res.json() as string[];
-    } catch { /* */ }
+    const isLocal = await WorldStateManager.shouldUseLocalStorage();
+    if (isLocal) {
+      for (let i = 1; i <= 3; i++) {
+        if (localStorage.getItem(`state_Profile${i}`)) existing.push(`Profile${i}`);
+      }
+    } else {
+      try {
+        const res = await fetch('/api/profiles');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        existing = await res.json() as string[];
+      } catch {
+        for (let i = 1; i <= 3; i++) {
+          if (localStorage.getItem(`state_Profile${i}`)) existing.push(`Profile${i}`);
+        }
+      }
+    }
 
     const existingSet = new Set(existing);
     const slotY = [height * 0.35, height * 0.5, height * 0.65];
@@ -46,9 +60,15 @@ export default class ProfileSelectScene extends Phaser.Scene {
 
       if (hasProfile) {
         try {
-          const res = await fetch(`/states/${profileName}.json`);
-          const data = await res.json() as { timePlayed?: number };
-          const totalSec = Math.floor(data.timePlayed ?? 0);
+          let data: { timePlayed?: number } | null = null;
+          const localData = localStorage.getItem(`state_${profileName}`);
+          if (localData) {
+            data = JSON.parse(localData) as { timePlayed?: number };
+          } else {
+            const res = await fetch(`/states/${profileName}.json`);
+            data = await res.json() as { timePlayed?: number };
+          }
+          const totalSec = Math.floor(data?.timePlayed ?? 0);
           const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
           const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
           const s = String(totalSec % 60).padStart(2, '0');
@@ -112,10 +132,12 @@ export default class ProfileSelectScene extends Phaser.Scene {
     yesBtn.on('pointerover', () => yesBtn.setColor('#ff4444'));
     yesBtn.on('pointerout', () => yesBtn.setColor('#aaaaaa'));
     yesBtn.on('pointerdown', () => {
+      localStorage.removeItem(`state_${profileName}`);
       void fetch('/api/delete-profile', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: profileName })
-      }).then(() => void this.buildUI());
+      }).catch(() => { /* server unavailable, localStorage already cleared */ });
+      void this.buildUI();
     });
 
     const noBtn = this.add.text(width / 2 + 50, y + 15, 'No', BTN_STYLE);
@@ -129,9 +151,21 @@ export default class ProfileSelectScene extends Phaser.Scene {
   private launchProfile(profileName: string, exists: boolean): void {
     this.input.removeAllListeners();
     if (!exists) {
-      void fetch('/api/create-profile', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: profileName })
+      void WorldStateManager.shouldUseLocalStorage().then(isLocal => {
+        if (isLocal) {
+          const emptyState = JSON.stringify({
+            timePlayed: 0,
+            player: { health: 100, coins: 0, currentLevel: 'house3_interior', spawnCol: 1, spawnRow: 3 },
+            flags: { canPunch: 'false' },
+            levels: {}
+          });
+          localStorage.setItem(`state_${profileName}`, emptyState);
+        } else {
+          void fetch('/api/create-profile', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: profileName })
+          }).catch(() => { /* server unavailable */ });
+        }
       });
     }
     this.cameras.main.fadeOut(500);

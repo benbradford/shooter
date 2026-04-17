@@ -25,6 +25,21 @@ Press **Y** during gameplay to:
 
 The game automatically loads the active profile's state file on startup. When using `?level=` param, loads `default.json`. When using the profile select screen, loads `ProfileX.json`.
 
+### Platform-Specific Storage
+
+**Dev server (localhost:5173):**
+- Save/load uses Vite dev server API (`/api/save-state`, `/api/profiles`)
+- Writes directly to `public/states/{profile}.json`
+- Editor changes to state files are picked up on game refresh
+
+**Android / Production (Capacitor):**
+- Save/load uses `localStorage` (keys: `state_{profileName}`)
+- Detected automatically by probing `/api/profiles` on first save/load
+- First launch with no localStorage falls back to bundled `states/empty.json` template
+- Profile listing, creation, and deletion all use localStorage
+
+**Detection logic:** `WorldStateManager.shouldUseLocalStorage()` probes `/api/profiles` once — if it returns a JSON array, dev server is available; otherwise localStorage is used.
+
 ### Time Played
 
 The `timePlayed` field tracks real elapsed seconds. Updated on level transitions, player death, and manual save (Y key).
@@ -219,4 +234,3 @@ When bug bases are destroyed:
 
 - Pickups (medipacks) are not tracked - they respawn on re-entry
 - Player death/respawn not yet implemented (uses `entryCell` for future feature)
-- World state only persists via manual save (Y key) until mobile deployment

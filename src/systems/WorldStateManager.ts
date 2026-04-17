@@ -37,17 +37,38 @@ export class WorldStateManager {
 
   async loadFromFile(profileName?: string): Promise<void> {
     this.profileName = profileName ?? null;
+    const profile = profileName ?? 'default';
     const statePath = profileName ? `/states/${profileName}.json` : WORLD_STATE_PATH;
+    const isLocal = await WorldStateManager.shouldUseLocalStorage();
+
+    if (isLocal) {
+      // No dev server — use localStorage
+      const localData = localStorage.getItem(`state_${profile}`);
+      if (localData) {
+        try {
+          this.worldState = JSON.parse(localData);
+          this.resetTimeTracker();
+          console.log(`[WorldState] Loaded from localStorage: state_${profile}`);
+          return;
+        } catch {
+          console.warn('[WorldState] Invalid localStorage data, starting fresh');
+        }
+      }
+      console.log('[WorldState] No localStorage data, starting fresh');
+      return;
+    }
+
+    // Dev server available — load from file (editor writes here)
     try {
       const response = await fetch(statePath);
       if (response.ok) {
         this.worldState = await response.json();
         this.resetTimeTracker();
-        console.log(`[WorldState] Loaded from ${statePath}:`, this.worldState);
+        console.log(`[WorldState] Loaded from ${statePath}`);
       } else {
         console.log('[WorldState] No saved state found, starting fresh');
       }
-    } catch (_error) {
+    } catch {
       console.log('[WorldState] No saved state found, starting fresh');
     }
   }
@@ -242,18 +263,44 @@ export class WorldStateManager {
     return JSON.stringify(this.worldState, null, 2);
   }
 
+  private static useLocalStorage: boolean | null = null;
+
+  static async shouldUseLocalStorage(): Promise<boolean> {
+    if (WorldStateManager.useLocalStorage === null) {
+      try {
+        // Dev server has /api/profiles endpoint; Capacitor's local server does not
+        const res = await fetch('/api/profiles');
+        const text = await res.text();
+        // Dev server returns JSON array; anything else means no dev server
+        WorldStateManager.useLocalStorage = !text.startsWith('[');
+      } catch {
+        WorldStateManager.useLocalStorage = true;
+      }
+    }
+    return WorldStateManager.useLocalStorage;
+  }
+
   async saveToFile(): Promise<void> {
     const json = this.serializeToJSON();
     const profile = this.profileName ?? 'default';
+
+    if (await WorldStateManager.shouldUseLocalStorage()) {
+      localStorage.setItem(`state_${profile}`, json);
+      console.log(`[WorldState] Saved to localStorage: state_${profile}`);
+      return;
+    }
+
     try {
-      await fetch('/api/save-state', {
+      const res = await fetch('/api/save-state', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ profile, data: json })
       });
-      console.log(`[WorldState] Saved to ${profile}.json`);
-    } catch (err) {
-      console.warn('[WorldState] Save failed:', err);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      console.log(`[WorldState] Saved to ${profile}.json (server)`);
+    } catch {
+      localStorage.setItem(`state_${profile}`, json);
+      console.log(`[WorldState] Saved to localStorage: state_${profile}`);
     }
   }
 

@@ -150,7 +150,7 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 
 ## Creating Entities
 
-1. Create factory function in `src/entityType/`
+1. Create factory function in `src/ecs/entities/{type}/`
 2. Add necessary components
 3. Set update order (order matters!)
 
