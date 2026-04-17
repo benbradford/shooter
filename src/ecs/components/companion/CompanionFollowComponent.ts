@@ -9,6 +9,10 @@ const OFFSET_AHEAD_PX = 80;
 const OFFSET_SIDE_PX = 32;
 const TELEPORT_DISTANCE_PX = 600;
 
+// Swerve while following
+const SWERVE_AMPLITUDE_PX = 18;
+const SWERVE_SPEED_RAD_PER_SEC = 2.4;
+
 // Idle restlessness
 const IDLE_ORBIT_RADIUS_PX = 28;
 const IDLE_ORBIT_SPEED_RAD_PER_SEC = 0.8;

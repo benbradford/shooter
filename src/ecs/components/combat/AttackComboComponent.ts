@@ -11,6 +11,8 @@ import { dirFromDelta, type Direction } from '../../../constants/Direction';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
+import { WaterEffectComponent } from '../visual/WaterEffectComponent';
+
 const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
 const PUNCH_DURATION_MS = 500;
@@ -80,6 +82,17 @@ export class AttackComboComponent implements Component {
     const animSpeed = hasOverheal ? 2 : 1;
 
     if (this.currentPhase !== 'punch') return;
+
+    // Cancel punch if player starts hopping into/out of water
+    const waterEffect = this.entity.get(WaterEffectComponent);
+    if (waterEffect?.isHopping()) {
+      this.currentPhase = 'idle';
+      this.isHoldingPunch = false;
+      this.isHoldingAttack = false;
+      const anim = this.entity.get(AnimationComponent);
+      anim?.animationSystem.setTimeScale(1);
+      return;
+    }
 
     const anim = this.entity.get(AnimationComponent);
     const walk = this.entity.get(WalkComponent);
@@ -209,6 +222,8 @@ export class AttackComboComponent implements Component {
 
   tryStartPunch(): void {
     if (this.currentPhase !== 'idle' || this.wasAttackPressed) return;
+    const waterEffect = this.entity.get(WaterEffectComponent);
+    if (waterEffect?.isHopping()) return;
     this.wasAttackPressed = true;
 
     const walk = this.entity.require(WalkComponent);

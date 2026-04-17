@@ -178,13 +178,66 @@ cp -r dist/* android/app/src/main/assets/public/
 ```
 
 3. **In Android Studio:**
-- Click "Sync Project with Gradle Files"
-- Click Run (green play button)
+- Open the `android/` folder as a project
+- Click Run ▶ (or Shift+F10)
+- Gradle auto-detects changed assets and rebuilds
 
 **Configuration:**
 - Game locked to landscape orientation (AndroidManifest.xml)
 - Resolution: 1280x720 (16:9 aspect ratio)
 - Scales to fit device screen automatically
+- State saves to `localStorage` (detected automatically, no dev server needed)
+
+**Updating the app icon:**
+```bash
+# Generate all Android icon sizes from a source image
+SRC="public/icon.png"
+RES="android/app/src/main/res"
+for size_dir in "48 mdpi" "72 hdpi" "96 xhdpi" "144 xxhdpi" "192 xxxhdpi"; do
+  set -- $size_dir; sips -z $1 $1 "$SRC" --out "$RES/mipmap-$2/ic_launcher.png"
+  cp "$RES/mipmap-$2/ic_launcher.png" "$RES/mipmap-$2/ic_launcher_round.png"
+done
+```
+
+**Updating the app name:** Edit `android/app/src/main/res/values/strings.xml`.
+
+#### Publishing a Signed APK to GitHub
+
+**One-time: Create a signing key**
+
+In Android Studio: **Build → Generate Signed Bundle / APK → APK → Next → Create new...**
+
+- **Key store path**: Save outside the repo (e.g., `~/beneath-the-roots-keystore.jks`)
+- **Password**: Choose something memorable
+- **Key alias**: `beneath-the-roots`
+- Fill in at least one name field, click OK
+
+⚠️ **Back up the keystore file** — you need the same key for future updates. Add `*.jks` and `*.keystore` to `.gitignore`.
+
+**Build the signed APK**
+
+1. Build and copy web assets first:
+```bash
+npm run build
+rm -rf android/app/src/main/assets/public/*
+cp -r dist/* android/app/src/main/assets/public/
+```
+
+2. In Android Studio: **Build → Generate Signed Bundle / APK → APK**
+3. Select your keystore, enter passwords
+4. Select **release** build variant → Finish
+5. APK is at `android/app/release/app-release.apk`
+
+**Upload to GitHub Releases**
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Then on GitHub: **Releases → Draft a new release → select tag → drag APK into assets → Publish**
+
+Users can download the APK and sideload it (they'll need "Install from unknown sources" enabled).
 
 #### Deploy to Raspberry Pi (Local Web Server)
 

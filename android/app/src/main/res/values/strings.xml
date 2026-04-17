@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Dodging Bullets</string>
-    <string name="title_activity_main">Dodging Bullets</string>
+    <string name="app_name">Beneath The Roots</string>
+    <string name="title_activity_main">Beneath The Roots</string>
     <string name="package_name">com.dodgingbullets.game</string>
     <string name="custom_url_scheme">com.dodgingbullets.game</string>
 </resources>
