@@ -156,6 +156,17 @@ When loading a new level, the system performs comprehensive cleanup:
 
 This ensures no artifacts from the previous level remain visible.
 
+## Audio Assets
+
+Audio assets use `type: 'audio'` in the registry and are loaded via `scene.load.audio()`.
+
+**Critical differences from textures:**
+- `AssetLoader.loadAsset()` checks `scene.cache.audio.exists(key)` to skip already-loaded audio (textures use `scene.textures.exists()`)
+- `AssetLoadCoordinator` skips audio assets during texture verification — audio isn't a texture
+- Audio is never unloaded during level transitions (only textures are unloaded)
+
+**Without both checks, level transitions fail with "Failed to load assets".**
+
 ## Debugging
 
 Asset loading logs to console:

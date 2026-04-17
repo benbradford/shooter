@@ -40,7 +40,8 @@ export function createBoneProjectileEntity(props: CreateBoneProjectileProps): En
   sprite.sprite.setDepth(Depth.projectileHigh);
   if (tint) sprite.sprite.setTint(tint);
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 30 }));
+  const shadowScale = (scaleOverride ?? BONE_SCALE) / BONE_SCALE;
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5 * shadowScale, offsetX: 0, offsetY: 30 * shadowScale }));
   shadow.init();
 
   entity.add(new DamageComponent(BONE_DAMAGE));

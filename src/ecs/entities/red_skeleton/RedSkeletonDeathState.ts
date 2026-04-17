@@ -47,7 +47,7 @@ export class RedSkeletonDeathState implements IState {
       quantity: particleCount,
       rotate: { min: -50, max: 50 },
       blendMode: 'NORMAL',
-      tint: 0xff4444,
+      tint: 0xdd8888,
     });
     emitter.setDepth(Depth.player);
 

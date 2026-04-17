@@ -7,7 +7,7 @@ import { WalkComponent } from '../movement/WalkComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { InputComponent } from '../input/InputComponent';
-import { dirFromDelta } from '../../../constants/Direction';
+import { dirFromDelta, type Direction } from '../../../constants/Direction';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
@@ -16,6 +16,8 @@ const PUNCH_RANGE_PX = 128;
 const PUNCH_DURATION_MS = 500;
 const PUNCH_FOV_RADIANS = Math.PI * 0.6;
 const PUNCH_HITBOX_DELAY_MS = 170;
+const HOLD_FRAME_INDEX = 4;
+const SHAKE_INTENSITY_PX = 1.5;
 
 let mustFaceEnemy = true;
 
@@ -37,10 +39,6 @@ export type AttackComboComponentProps = {
   getEnemies: () => Entity[];
 }
 
-const HOLD_FRAME_INDEX = 4;
-
-const SHAKE_INTENSITY_PX = 1.5;
-
 export class AttackComboComponent implements Component {
   entity!: Entity;
   private currentPhase: ComboPhase = 'idle';
@@ -49,10 +47,10 @@ export class AttackComboComponent implements Component {
   private hitboxCreated: boolean = false;
   private isHoldingAttack: boolean = false;
   private isHoldingPunch: boolean = false;
-  private lastHoldDir: number = -1;
+  private punchDir: Direction = 1; // Direction.Down
+  private lastAnimDir: Direction = 1;
   private punchDirX: number = 0;
   private punchDirY: number = 1;
-  private punchAnimDir: number = 1;
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
   private readonly getEnemies: () => Entity[];
@@ -63,93 +61,91 @@ export class AttackComboComponent implements Component {
     this.getEnemies = props.getEnemies;
   }
 
-  update(delta: number): void {
-    // Always track joystick direction for punch aiming
+  private updatePunchDirection(): void {
     const input = this.entity.get(InputComponent);
-    const rawInput = input?.getRawInputDelta();
-    if (rawInput && (rawInput.dx !== 0 || rawInput.dy !== 0)) {
-      this.punchDirX = rawInput.dx;
-      this.punchDirY = rawInput.dy;
+    const raw = input?.getRawInputDelta();
+    if (raw && (raw.dx !== 0 || raw.dy !== 0)) {
+      this.punchDirX = raw.dx;
+      this.punchDirY = raw.dy;
     }
+    this.punchDir = dirFromDelta(this.punchDirX, this.punchDirY);
+  }
+
+  update(delta: number): void {
+    this.updatePunchDirection();
 
     const health = this.entity.require(HealthComponent);
     const hasOverheal = health.isOverhealed();
     const punchDuration = hasOverheal ? PUNCH_DURATION_MS / 2 : PUNCH_DURATION_MS;
+    const animSpeed = hasOverheal ? 2 : 1;
 
-    if (this.currentPhase === 'punch') {
-      const anim = this.entity.get(AnimationComponent);
-      const walk = this.entity.get(WalkComponent);
-      const currentAnim = anim?.animationSystem.getCurrentAnimation();
+    if (this.currentPhase !== 'punch') return;
 
-      // Update punch animation direction if joystick changed
-      if (anim && !this.isHoldingPunch) {
-        const newDir = dirFromDelta(this.punchDirX, this.punchDirY);
-        if (newDir !== this.punchAnimDir) {
-          this.punchAnimDir = newDir;
-          const currentIndex = currentAnim?.getIndex() ?? 0;
-          const animSpeed = hasOverheal ? 2 : 1;
-          anim.animationSystem.play(`punch_${newDir}`, animSpeed);
-          anim.animationSystem.getCurrentAnimation()?.setIndex(currentIndex);
-          if (walk) walk.updateFacingDirection(this.punchDirX, this.punchDirY);
+    const anim = this.entity.get(AnimationComponent);
+    const walk = this.entity.get(WalkComponent);
+
+    // Update punch animation when direction changes
+    if (anim && !this.isHoldingPunch && this.punchDir !== this.lastAnimDir) {
+      this.lastAnimDir = this.punchDir;
+      const currentAnim = anim.animationSystem.getCurrentAnimation();
+      const idx = currentAnim?.getIndex() ?? 0;
+      anim.animationSystem.play(`punch_${this.punchDir}`, animSpeed);
+      anim.animationSystem.getCurrentAnimation()?.setIndex(idx);
+      walk?.updateFacingDirection(this.punchDirX, this.punchDirY);
+    }
+
+    // Hold phase
+    if (this.isHoldingPunch) {
+      if (this.isHoldingAttack) {
+        const sprite = this.entity.get(SpriteComponent);
+        if (sprite) {
+          sprite.sprite.x += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
+          sprite.sprite.y += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
         }
-      }
-
-      // Hold phase: freeze on frame 5, allow direction changes
-      if (this.isHoldingPunch) {
-        if (this.isHoldingAttack) {
-          // Still holding — shake + allow direction changes
-          const sprite = this.entity.get(SpriteComponent);
-          if (sprite) {
-            sprite.sprite.x += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
-            sprite.sprite.y += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
-          }
-          if (walk && anim && walk.lastDir !== this.lastHoldDir) {
-            this.lastHoldDir = walk.lastDir;
-            this.punchDirX = walk.lastMoveX;
-            this.punchDirY = walk.lastMoveY;
-            anim.animationSystem.play(`punch_${walk.lastDir}`);
-            anim.animationSystem.getCurrentAnimation()?.setIndex(HOLD_FRAME_INDEX);
-            anim.animationSystem.setTimeScale(0);
-          }
-          return;
+        // Direction updates handled above via updatePunchDirection + anim swap
+        // but during hold, freeze on hold frame
+        if (anim) {
+          anim.animationSystem.play(`punch_${this.punchDir}`);
+          anim.animationSystem.getCurrentAnimation()?.setIndex(HOLD_FRAME_INDEX);
+          anim.animationSystem.setTimeScale(0);
         }
-        // Released — create hitbox + particles, resume animation
-        this.isHoldingPunch = false;
-        this.hitboxCreated = true;
-        this.phaseTimer = 0;
-        this.createPunchHitbox();
-        const animSpeed = hasOverheal ? 2 : 1;
-        anim?.animationSystem.setTimeScale(animSpeed);
         return;
       }
+      // Released — fire
+      this.isHoldingPunch = false;
+      this.hitboxCreated = true;
+      this.phaseTimer = 0;
+      this.createPunchHitbox();
+      anim?.animationSystem.setTimeScale(animSpeed);
+      return;
+    }
 
-      this.phaseTimer += delta;
+    this.phaseTimer += delta;
 
-      // Check if we should enter hold phase
-      if (this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
-        this.isHoldingPunch = true;
-        currentAnim.setIndex(HOLD_FRAME_INDEX);
-        anim!.animationSystem.setTimeScale(0);
-        if (walk) this.lastHoldDir = walk.lastDir;
-        return;
-      }
+    // Enter hold phase
+    const currentAnim = anim?.animationSystem.getCurrentAnimation();
+    if (this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
+      this.isHoldingPunch = true;
+      currentAnim.setIndex(HOLD_FRAME_INDEX);
+      anim!.animationSystem.setTimeScale(0);
+      return;
+    }
 
-      // Quick tap — released before hold frame, do normal punch
-      if (!this.isHoldingAttack && !this.hitboxCreated && this.phaseTimer >= PUNCH_HITBOX_DELAY_MS) {
-        this.hitboxCreated = true;
-        this.createPunchHitbox();
-      }
+    // Quick tap
+    if (!this.isHoldingAttack && !this.hitboxCreated && this.phaseTimer >= PUNCH_HITBOX_DELAY_MS) {
+      this.hitboxCreated = true;
+      this.createPunchHitbox();
+    }
 
-      if (this.phaseTimer >= punchDuration) {
-        this.currentPhase = 'idle';
-        this.phaseTimer = 0;
-        this.hitboxCreated = false;
-        this.isHoldingPunch = false;
+    if (this.phaseTimer >= punchDuration) {
+      this.currentPhase = 'idle';
+      this.phaseTimer = 0;
+      this.hitboxCreated = false;
+      this.isHoldingPunch = false;
 
-        if (walk && anim) {
-          const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
-          anim.animationSystem.play(animKey);
-        }
+      if (walk && anim) {
+        const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
+        anim.animationSystem.play(animKey);
       }
     }
   }
@@ -159,135 +155,69 @@ export class AttackComboComponent implements Component {
     this.scene.sound.play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
 
     const transform = this.entity.require(TransformComponent);
-    const enemies = this.getEnemies();
-
-    let nearestEnemy: Entity | null = null;
-    let nearestDistance = PUNCH_RANGE_PX;
-
     const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
-
-    for (const enemy of enemies) {
-      const enemyTransform = enemy.get(TransformComponent);
-      if (!enemyTransform) continue;
-
-      const dx = enemyTransform.x - transform.x;
-      const dy = enemyTransform.y - transform.y;
-      const distance = Math.hypot(dx, dy);
-
-      if (distance < nearestDistance) {
-        if (mustFaceEnemy) {
-          const angleToEnemy = Math.atan2(dy, dx);
-          let angleDiff = angleToEnemy - facingAngle;
-
-          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-          if (Math.abs(angleDiff) <= PUNCH_FOV_RADIANS / 2) {
-            nearestEnemy = enemy;
-            nearestDistance = distance;
-          }
-        } else {
-          nearestEnemy = enemy;
-          nearestDistance = distance;
-        }
-      }
-    }
 
     let dirX = this.punchDirX;
     let dirY = this.punchDirY;
 
-    if (nearestEnemy) {
-      const enemyTransform = nearestEnemy.require(TransformComponent);
-      const dx = enemyTransform.x - transform.x;
-      const dy = enemyTransform.y - transform.y;
-      const length = Math.hypot(dx, dy);
-      dirX = dx / length;
-      dirY = dy / length;
+    // Snap to nearest enemy in FOV
+    let nearestEnemy: Entity | null = null;
+    let nearestDistance = PUNCH_RANGE_PX;
+
+    for (const enemy of this.getEnemies()) {
+      const et = enemy.get(TransformComponent);
+      if (!et) continue;
+      const dx = et.x - transform.x;
+      const dy = et.y - transform.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist >= nearestDistance) continue;
+
+      if (mustFaceEnemy) {
+        let diff = Math.atan2(dy, dx) - facingAngle;
+        while (diff > Math.PI) diff -= 2 * Math.PI;
+        while (diff < -Math.PI) diff += 2 * Math.PI;
+        if (Math.abs(diff) > PUNCH_FOV_RADIANS / 2) continue;
+      }
+      nearestEnemy = enemy;
+      nearestDistance = dist;
     }
 
-    const punchStartX = transform.x + dirX * 30;
-    const punchStartY = transform.y + dirY * 30;
+    if (nearestEnemy) {
+      const et = nearestEnemy.require(TransformComponent);
+      const dx = et.x - transform.x;
+      const dy = et.y - transform.y;
+      const len = Math.hypot(dx, dy);
+      dirX = dx / len;
+      dirY = dy / len;
+    }
+
+    const startX = transform.x + dirX * 30;
+    const startY = transform.y + dirY * 30;
 
     this.entityManager.add(createPunchProjectileEntity({
       scene: this.scene,
-      x: punchStartX,
-      y: punchStartY,
-      dirX,
-      dirY,
+      x: startX, y: startY,
+      dirX, dirY,
       playerEntity: this.entity,
       damage: PUNCH_DAMAGE
     }));
 
-    const walkComp = this.entity.require(WalkComponent);
     const particleEntity = new Entity('punch_particles');
-    particleEntity.add(new PunchParticlesComponent(this.scene, punchStartX, punchStartY, dirX, dirY, walkComp.lastDir, this.entity));
+    particleEntity.add(new PunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
     this.entityManager.add(particleEntity);
   }
 
   tryStartPunch(): void {
-    if (this.currentPhase !== 'idle') {
-      return;
-    }
-
-    if (this.wasAttackPressed) {
-      return;
-    }
-
+    if (this.currentPhase !== 'idle' || this.wasAttackPressed) return;
     this.wasAttackPressed = true;
 
-    const transform = this.entity.require(TransformComponent);
     const walk = this.entity.require(WalkComponent);
-    const health = this.entity.require(HealthComponent);
-    const enemies = this.getEnemies();
-
-    // Update facing to match current punch direction
     walk.updateFacingDirection(this.punchDirX, this.punchDirY);
 
-    let nearestEnemy: Entity | null = null;
-    let nearestDistance = PUNCH_RANGE_PX;
-
-    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
-
-    for (const enemy of enemies) {
-      const enemyTransform = enemy.get(TransformComponent);
-      if (!enemyTransform) continue;
-
-      const dx = enemyTransform.x - transform.x;
-      const dy = enemyTransform.y - transform.y;
-      const distance = Math.hypot(dx, dy);
-
-      if (distance < nearestDistance) {
-        if (mustFaceEnemy) {
-          const angleToEnemy = Math.atan2(dy, dx);
-          let angleDiff = angleToEnemy - facingAngle;
-
-          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-
-          if (Math.abs(angleDiff) <= PUNCH_FOV_RADIANS / 2) {
-            nearestEnemy = enemy;
-            nearestDistance = distance;
-          }
-        } else {
-          nearestEnemy = enemy;
-          nearestDistance = distance;
-        }
-      }
-    }
-
-    if (nearestEnemy) {
-      const enemyTransform = nearestEnemy.require(TransformComponent);
-      const dx = enemyTransform.x - transform.x;
-      const dy = enemyTransform.y - transform.y;
-      walk.updateFacingDirection(dx, dy);
-    }
-
     const anim = this.entity.get(AnimationComponent);
-    this.punchAnimDir = dirFromDelta(this.punchDirX, this.punchDirY);
-    if (anim) {
-      const animSpeed = health.isOverhealed() ? 2 : 1;
-      anim.animationSystem.play(`punch_${this.punchAnimDir}`, animSpeed);
-    }
+    const animSpeed = this.entity.require(HealthComponent).isOverhealed() ? 2 : 1;
+    anim?.animationSystem.play(`punch_${this.punchDir}`, animSpeed);
+    this.lastAnimDir = this.punchDir;
 
     this.currentPhase = 'punch';
     this.phaseTimer = 0;
@@ -297,10 +227,7 @@ export class AttackComboComponent implements Component {
 
   checkAttackReleased(isPressed: boolean): void {
     this.isHoldingAttack = isPressed;
-
-    if (!isPressed) {
-      this.wasAttackPressed = false;
-    }
+    if (!isPressed) this.wasAttackPressed = false;
   }
 
   isPunching(): boolean {

@@ -88,6 +88,7 @@ Level transitions work automatically via exit triggers. The system:
 - `getFlag(name)` - Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` - Check flag condition
 - `saveState()` - Save world state to profile file
+- `raiseEvent(eventName)` - Raise a game event (triggers createOnAnyEvent entities)
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
 - Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
 - Newlines: `<newline/>`
@@ -130,6 +131,22 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 1. Add sprite sheet to `public/assets/`
 2. Register in `src/assets/AssetRegistry.ts`
 3. Add to appropriate group in `src/assets/AssetLoader.ts`
+
+**Sound effects:**
+1. Place MP3 in `public/assets/sounds/`
+2. Register in `AssetRegistry.ts` with `type: 'audio'`
+3. Add key to appropriate asset group (core for universal sounds, enemy group for enemy-specific)
+4. Play with `scene.sound.play('key')` or `sprite.scene.sound.play('key')`
+
+**Sound loading rules:**
+- `core` group: Always loaded (punch, splash, coin, shimmer sounds)
+- Enemy groups: Only loaded when that enemy type is in the level (e.g., skeleton sounds in `skeleton` group)
+- `breakables` group: Only loaded when level has breakable entities
+
+**⚠️ Audio gotchas:**
+- `AssetLoader.loadAsset()` checks `scene.cache.audio.exists(key)` to skip already-loaded audio
+- `AssetLoadCoordinator` skips audio assets during texture verification (audio isn't a texture)
+- Both checks are required or level transitions fail with "Failed to load assets"
 
 ## Creating Entities
 

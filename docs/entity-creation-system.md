@@ -118,6 +118,7 @@ Plus one interaction entity per script:
 - `getFlag(name)` — Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` — Check flag condition
 - `saveState()` — Save world state to profile file
+- `raiseEvent(eventName)` — Raise a game event (triggers createOnAnyEvent entities)
 - `npc.name()` / `player.name()` — Get display names
 - `npc.look(direction)` / `player.look(direction)` — Change facing ("down", "up_left", etc.)
 - `npc.playAnim(animKey, repeatType)` — Play custom animation ("once" waits, "repeat" loops)

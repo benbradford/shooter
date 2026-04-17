@@ -27,7 +27,7 @@ import { Direction } from '../../../constants/Direction';
 import { Depth } from '../../../constants/DepthConstants';
 import type { CreatorData } from '../../../systems/CreatorData';
 
-const RED_TINT = 0xff4444;
+const RED_TINT = 0xdd8888;
 const SKELETON_SCALE = 1.6;
 const SKELETON_GRID_COLLISION_BOX = { offsetX: 6, offsetY: 16, width: 24, height: 14 };
 const SKELETON_ENTITY_COLLISION_BOX = { offsetX: -6, offsetY: -17, width: 24, height: 42 };
