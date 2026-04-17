@@ -5,7 +5,7 @@ import { createCompanionEntity } from '../ecs/entities/companion/CompanionEntity
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { WorldStateManager } from './WorldStateManager';
 
-const COMPANION_FLAG = 'companion_active';
+const COMPANION_FLAG = 'hasCompanion';
 
 export class CompanionManager {
   private static instance: CompanionManager | null = null;

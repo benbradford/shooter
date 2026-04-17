@@ -7,4 +7,5 @@ if not isFlagCondition("otis_first_interaction_complete", "eq","true") then
 end
 say("Otis", "Can you collect 6 <cyan>mist orbs</cyan> from the moors for me?<newline/>I will grant you a <purple>special power</purple> if you can do it.<newline/>Just look out for the <red>wild cats</red> Keep moving is my advice!", 50, 3500)
 setFlag("otis_first_interaction_complete", "true")
+raiseEvent("enter_wilds1")
 restoreDirections()

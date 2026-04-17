@@ -573,7 +573,8 @@ export class EditorBridge {
         animatedTexture: cell.animatedTexture,
       }));
       this.clipboardEntity = null;
-      const texName = typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : (cell.backgroundTexture as { image: string })?.image ?? 'texture';
+      const firstTex = Array.isArray(cell.backgroundTexture) ? cell.backgroundTexture[0] : cell.backgroundTexture;
+      const texName = (firstTex ? bgTextureKey(firstTex) : '') || 'texture';
       this.toast?.show(`Copied ${texName}`, 'success');
       return true;
     }
@@ -596,7 +597,8 @@ export class EditorBridge {
         cell.animatedTexture = JSON.parse(JSON.stringify(this.clipboardCell!.animatedTexture));
       }
       const grid = this.getGrid();
-      const texKey = typeof cell.backgroundTexture === 'string' ? cell.backgroundTexture : (cell.backgroundTexture as { image: string })?.image;
+      const textures = normalizeBgTextures(cell.backgroundTexture);
+      const texKey = textures ? bgTextureKey(textures[0]) : undefined;
       if (texKey) {
         grid.setCell(col, row, { backgroundTexture: texKey });
       }

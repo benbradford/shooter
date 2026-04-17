@@ -175,7 +175,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 
 ## Companion (Guide Fragment)
 
-**Enable:** Set WorldState flag `companion_active` to `"true"`
+**Enable:** Set WorldState flag `hasCompanion` to `"true"`
 **Sprite:** `narry.png` — floating crystal construct
 **Behavior:** Follows ahead-right of player using lerp-based smooth movement. Overshoots slightly when player stops, then corrects. After 2s idle, starts orbiting the player (restless). Teleports if >600px away.
 **Visuals:** Soft white-cyan additive glow behind sprite. Dual trail (cyan outer + white inner dots). Subtle alpha flicker every 3-8s.

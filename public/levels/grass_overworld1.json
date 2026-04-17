@@ -2,8 +2,8 @@
   "width": 40,
   "height": 30,
   "playerStart": {
-    "x": 6,
-    "y": 26
+    "x": 28,
+    "y": 25
   },
   "cells": [
     {
@@ -4793,7 +4793,11 @@
       "row": 28,
       "layer": 0,
       "properties": [
+        "blocked",
         "path"
+      ],
+      "backgroundTexture": [
+        "fence1"
       ]
     },
     {
@@ -4801,7 +4805,11 @@
       "row": 28,
       "layer": 0,
       "properties": [
+        "blocked",
         "path"
+      ],
+      "backgroundTexture": [
+        "fence1"
       ]
     },
     {
@@ -5672,6 +5680,35 @@
       },
       "createOnAnyEvent": [
         "lever_lever0|on"
+      ]
+    },
+    {
+      "id": "cellmodifier1",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 20,
+            "row": 28,
+            "properties": [
+              "path"
+            ],
+            "layer": 0
+          },
+          {
+            "col": 21,
+            "row": 28,
+            "properties": [
+              "path"
+            ],
+            "layer": 0
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "enter_wilds1"
       ]
     }
   ],

@@ -212,6 +212,10 @@ export class LuaRuntime {
         worldState.setFlag(name, value);
       });
 
+      lua.global.set('raiseEvent', (eventName: string) => {
+        this.scene.eventManager.raiseEvent(eventName);
+      });
+
       lua.global.set('getFlag', (name: string): string => {
         const worldState = WorldStateManager.getInstance();
         return worldState.getFlag(name) ?? '';
