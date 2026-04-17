@@ -453,7 +453,12 @@ export abstract class GameSceneRenderer {
       });
 
       if (overlaps && sprite.depth === Depth.stairs) {
-        sprite.destroy();
+        this.scene.tweens.add({
+          targets: sprite,
+          alpha: 0,
+          duration: FADE_DURATION_MS,
+          onComplete: () => { sprite.destroy(); }
+        });
         this.floorSprites.splice(i, 1);
       }
     }

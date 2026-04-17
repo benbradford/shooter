@@ -38,7 +38,10 @@ export class AssetLoadCoordinator {
     const textureKeys: string[] = [];
     for (const key of requiredAssets) {
       if (key in ASSET_REGISTRY) {
-        textureKeys.push(key);
+        const asset = ASSET_REGISTRY[key as keyof typeof ASSET_REGISTRY];
+        if (asset.type !== 'audio') {
+          textureKeys.push(key);
+        }
       }
     }
 

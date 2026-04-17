@@ -5,7 +5,7 @@
 **All entities are in the `entities` array in level JSON.**
 
 - **Entity ID**: Unique identifier (e.g., "skeleton0", "robot1")
-- **Entity Type**: skeleton, thrower, stalking_robot, bug_base, bullet_dude, puma, trigger, exit, eventchainer, cellmodifier
+- **Entity Type**: skeleton, thrower, stalking_robot, bug_base, bullet_dude, puma, trigger, exit, eventchainer, cellmodifier, lever
 - **createOnAnyEvent**: Optional - array of events, spawns when ANY fires
 - **createOnAllEvents**: Optional - array of events, spawns when ALL fire
 - **Immediate spawn**: No createOnAnyEvent/createOnAllEvents = spawns on level load
@@ -18,6 +18,7 @@
 - **exit** - Transitions to another level (has targetLevel, targetCol, targetRow, triggerCells)
 - **eventchainer** - Raises multiple events with delays (has eventsToRaise array)
 - **cellmodifier** - Modifies grid cells when event fires (has cellsToModify array)
+- **lever** - Punchable toggle switch (has eventToRaise, startState, oneShot)
 
 ## Event Flow Example
 

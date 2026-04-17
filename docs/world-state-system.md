@@ -115,7 +115,9 @@ Entities can be marked as `respawnable` in the editor:
 Only entities from level JSON are tracked (ID pattern: `{type}{number}` like "skeleton0", "bug_base1"):
 - Each entity has a `levelName` property set when spawned
 - Temporary entities (bullets, coins, particles) are not tracked
+- Interaction and cell_modifier entities are excluded from tracking (they self-destruct after executing)
 - Entities are only added to `destroyedEntities` for their own level
+- Lever state persists via flags: `lever_{entityId}` (on/off) and `lever_{entityId}_locked` (one-shot)
 
 ### Trigger Handling
 

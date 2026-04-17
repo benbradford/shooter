@@ -152,6 +152,10 @@ export class WaterEffectComponent implements Component {
       this.startX = transform.x;
       this.startY = transform.y;
 
+      if (!nowInWater) {
+        this.scene.sound.play('splash1');
+      }
+
       if (!nowInWater && wasInWater) {
         this.createSplashEffect(transform.x, transform.y, false);
       }
@@ -197,6 +201,7 @@ export class WaterEffectComponent implements Component {
 
       if (this.hopProgress >= 1 && this.isInWater) {
         this.createSplashEffect(transform.x, transform.y, false);
+        this.scene.sound.play('splash2');
       }
     } else {
       sprite.sprite.y = transform.y;

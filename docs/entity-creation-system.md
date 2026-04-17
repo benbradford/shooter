@@ -42,6 +42,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `eventchainer` - Raises multiple events sequentially with delays
 - `cellmodifier` - Modifies grid cells (properties, textures, layers) when event fires
 - `interaction` - Loads and executes Lua script when event fires
+- `lever` - Punchable switch that toggles on/off and fires events
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
@@ -153,8 +154,21 @@ Plus one interaction entity per script:
   - `backgroundTexture`: string (optional - if not specified, removes texture)
   - `layer`: number (optional - if not specified, keeps existing layer)
 - Executes immediately when created
-- Fades textures in/out over 500ms
+- Fades textures and platform sprites out over 500ms with sparkle particle effect
+- Re-renders grid graphics (edges) after fade completes
+- Not tracked in destroyedEntities or liveEntities (like interactions)
 - No position required (defaults to 0,0)
+
+**⚠️ Platform cells:** When clearing platform properties, you must also set `"layer": 0` — clearing properties alone leaves the cell at layer 1 which still blocks movement.
+
+### Lever
+- `eventToRaise`: Base event name
+- `startState`: `"on"` or `"off"` (default `"off"`)
+- `oneShot`: Boolean (default false) - If true, lever can only be triggered once
+- When punched, toggles state and fires `{eventToRaise}|on` or `{eventToRaise}|off`
+- State persists across level transitions via WorldState flag `lever_{entityId}`
+- One-shot levers show `lever_dead.png` (black handle) after activation
+- One-shot locked state persists via WorldState flag `lever_{entityId}_locked`
 
 ## How It Works
 
@@ -233,6 +247,8 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/cellmodifier/CellModifierEntity.ts` - CellModifier entity
 - `src/ecs/components/eventchainer/EventChainerComponent.ts` - EventChainer logic
 - `src/ecs/components/core/CellModifierComponent.ts` - CellModifier logic
+- `src/ecs/entities/lever/LeverEntity.ts` - Lever entity factory
+- `src/ecs/components/lever/LeverComponent.ts` - Lever toggle logic and state persistence
 - `editor/CanvasInteraction.ts` - Entity placement and selection
 - `editor/EditorBridge.ts` - Entity extraction to JSON
 - `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI

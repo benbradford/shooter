@@ -19,8 +19,8 @@ export function preloadAssets(scene: Phaser.Scene, keys?: AssetKey[]): void {
  * Loads a single asset by key
  */
 export function loadAsset(scene: Phaser.Scene, key: AssetKey): void {
-  // Skip if already loaded — simple existence check, not full verification
-  if (scene.textures.exists(key)) {
+  // Skip if already loaded
+  if (scene.textures.exists(key) || scene.cache.audio.exists(key)) {
     return;
   }
 

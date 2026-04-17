@@ -176,6 +176,36 @@ export const ASSET_REGISTRY = {
     path: 'assets/generic/lever_dead.png',
     type: 'image' as const,
   },
+  shimmer1: {
+    key: 'shimmer1',
+    path: 'assets/sounds/shimmer1.mp3',
+    type: 'audio' as const,
+  },
+  splash1: {
+    key: 'splash1',
+    path: 'assets/sounds/splash1.mp3',
+    type: 'audio' as const,
+  },
+  splash2: {
+    key: 'splash2',
+    path: 'assets/sounds/splash2.mp3',
+    type: 'audio' as const,
+  },
+  punch1: {
+    key: 'punch1',
+    path: 'assets/sounds/punch1.mp3',
+    type: 'audio' as const,
+  },
+  punch2: {
+    key: 'punch2',
+    path: 'assets/sounds/punch2.mp3',
+    type: 'audio' as const,
+  },
+  punch3: {
+    key: 'punch3',
+    path: 'assets/sounds/punch3.mp3',
+    type: 'audio' as const,
+  },
   coin: {
     key: 'coin',
     path: 'assets/pickups/coin.png',
@@ -673,7 +703,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

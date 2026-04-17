@@ -133,8 +133,9 @@ Entity form shows all editable fields per type:
 - Trigger: eventToRaise, oneShot, triggerCells + **Edit Cells** button
 - Exit: targetLevel, targetCol, targetRow, triggerCells + **Edit Cells** button + **Leave** button (loads target level)
 - EventChainer: eventsToRaise (JSON)
-- CellModifier: cellsToModify (JSON)
+- CellModifier: cellsToModify (structured form with col/row/properties/layer per entry)
 - Interaction: filename
+- Lever: eventToRaise, startState (on/off), oneShot
 
 ### Editing Trigger Cells
 
