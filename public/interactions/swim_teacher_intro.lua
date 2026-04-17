@@ -28,6 +28,9 @@ if not isFlagCondition("canSwim", "eq","true") then
     wait(100)
     player.moveTo(6, 12, 300)
     say(npc.name(), "Oh wow look! You're a natural!!!!!<newline/>Sometimes it is best to just jump in at the deep end!!", 50, 1000)
+    player.moveTo(7, 8, 300)
+    celebrate()
+    say("", "You have now <purple>learned how to swim!</purple><newline/>Jump into the water to swim at any time!", 50, 3500)
   else
     say(npc.name(), "Hmm, you don't have enough coins yet. Come back when you have at least <gold>50 coins!</gold>", 50, 4000)
     restoreDirections()

@@ -76,4 +76,12 @@ export class Animation {
     this.elapsed = 0;
     this.forward = true;
   }
+
+  isOnLastFrame(): boolean {
+    return this.index >= this.frames.length - 1;
+  }
+
+  getFrames(): readonly string[] {
+    return this.frames;
+  }
 }

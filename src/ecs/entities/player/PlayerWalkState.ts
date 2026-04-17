@@ -32,7 +32,7 @@ export class PlayerWalkState implements IState {
 
   onUpdate(_delta: number): void {
     const interaction = this.entity.get(InteractionComponent);
-    if (interaction?.isActive) return;
+    if (interaction?.isActive || this.entity.tags.has('interaction_active')) return;
     
     const walk = this.entity.require(WalkComponent);
     const anim = this.entity.require(AnimationComponent);

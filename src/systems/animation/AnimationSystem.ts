@@ -29,6 +29,17 @@ export class AnimationSystem {
     this.setTimeScale(speedMultiplier);
   }
 
+  playFrameRange(animKey: string, startFrame: number, endFrame: number, style: 'once' | 'repeat', secondsPerFrame?: number): void {
+    const source = this.animations.get(animKey);
+    if (!source) {
+      console.warn("No anim for " + animKey);
+      return;
+    }
+    const subFrames = source.getFrames().slice(startFrame, endFrame + 1);
+    this.current = new Animation(subFrames, style, secondsPerFrame ?? 0.08);
+    this.setTimeScale(1);
+  }
+
   setTimeScale(scale: number) {
     this.timeScale = Math.max(0, scale);
   }

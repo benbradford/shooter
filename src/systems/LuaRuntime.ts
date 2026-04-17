@@ -6,9 +6,11 @@ import { InteractionComponent } from '../ecs/components/interaction/InteractionC
 import { SpeechBoxComponent } from '../ecs/components/ui/SpeechBoxComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { AnimationComponent } from '../ecs/components/core/AnimationComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { WalkComponent } from '../ecs/components/movement/WalkComponent';
 import { WorldStateManager } from './WorldStateManager';
+import { AttackComboComponent } from '../ecs/components/combat/AttackComboComponent';
 import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
 import { NPCInteractionComponent } from '../ecs/entities/npc/NPCInteractionComponent';
 import { Direction, dirFromDelta } from '../constants/Direction';
@@ -39,7 +41,9 @@ type Command =
   | { type: 'fadeOut'; durationMs: number }
   | { type: 'fadeIn'; durationMs: number }
   | { type: 'npcPlayAnim'; npcId: string; animKey: string; repeatType: string }
-  | { type: 'teleportTo'; col: number; row: number };
+  | { type: 'teleportTo'; col: number; row: number }
+  | { type: 'punch'; direction: Direction }
+  | { type: 'playerPlayAnim'; animKey: string; repeatType: string; startFrame?: number; endFrame?: number };
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
@@ -98,6 +102,21 @@ export class LuaRuntime {
         },
         teleportTo: (col: number, row: number) => {
           this.commandQueue.push({ type: 'teleportTo', col, row });
+        },
+        punch: (direction: string) => {
+          const dir = DIRECTION_MAP[direction];
+          if (dir === undefined) {
+            throw new Error(`[LuaRuntime] Invalid direction for punch: ${direction}`);
+          }
+          this.commandQueue.push({ type: 'punch', direction: dir });
+        },
+        playAnim: (animName: string, repeatType: string, direction?: string, startFrame?: number, endFrame?: number) => {
+          const dir = direction ? DIRECTION_MAP[direction] : Direction.Down;
+          if (dir === undefined) {
+            throw new Error(`[LuaRuntime] Invalid direction for playAnim: ${direction}`);
+          }
+          const animKey = `${animName}_${dir}`;
+          this.commandQueue.push({ type: 'playerPlayAnim', animKey, repeatType: repeatType ?? 'once', startFrame, endFrame });
         }
       };
       lua.global.set('player', player);
@@ -210,6 +229,18 @@ export class LuaRuntime {
       lua.global.set('setFlag', (name: string, value: string | number) => {
         const worldState = WorldStateManager.getInstance();
         worldState.setFlag(name, value);
+      });
+
+      lua.global.set('celebrate', () => {
+        const dirs = ['down', 'down_left', 'left', 'up_left', 'up', 'up_right', 'right', 'down_right', 'down'];
+        const SPIN_DELAY_MS = 30;
+        // Play initial powerup frames 0-5 facing down
+        this.commandQueue.push({ type: 'playerPlayAnim', animKey: `powerup_${DIRECTION_MAP['down']}`, repeatType: 'once', startFrame: 0, endFrame: 5 });
+        // Spin through all directions holding frame 5
+        for (let i = 1; i < dirs.length; i++) {
+          this.commandQueue.push({ type: 'wait', ms: SPIN_DELAY_MS });
+          this.commandQueue.push({ type: 'playerPlayAnim', animKey: `powerup_${DIRECTION_MAP[dirs[i]]}`, repeatType: 'once', startFrame: 5, endFrame: 5 });
+        }
       });
 
       lua.global.set('raiseEvent', (eventName: string) => {
@@ -344,6 +375,38 @@ export class LuaRuntime {
         transform.y = worldPos.y + grid.cellSize / 2;
         if (gridPos) {
           gridPos.currentCell = { col: cmd.col, row: cmd.row };
+        }
+      } else if (cmd.type === 'punch') {
+        const combo = this.playerEntity.get(AttackComboComponent);
+        if (combo) {
+          combo.forcePunch(cmd.direction);
+          await new Promise<void>(resolve => {
+            const check = () => {
+              if (!combo.isPunching()) { resolve(); return; }
+              setTimeout(check, 16);
+            };
+            setTimeout(check, 50);
+          });
+        }
+      } else if (cmd.type === 'playerPlayAnim') {
+        const anim = this.playerEntity.get(AnimationComponent);
+        if (anim) {
+          if (cmd.startFrame !== undefined && cmd.endFrame !== undefined) {
+            const style = cmd.repeatType === 'repeat' ? 'repeat' : 'once';
+            anim.animationSystem.playFrameRange(cmd.animKey, cmd.startFrame, cmd.endFrame, style);
+          } else {
+            anim.animationSystem.play(cmd.animKey);
+          }
+          if (cmd.repeatType === 'once') {
+            const currentAnim = anim.animationSystem.getCurrentAnimation();
+            await new Promise<void>(resolve => {
+              const check = () => {
+                if (currentAnim?.isOnLastFrame()) { resolve(); return; }
+                setTimeout(check, 16);
+              };
+              setTimeout(check, 50);
+            });
+          }
         }
       } else if (cmd.type === 'npcPlayAnim') {
         const npcEntity = this.scene.entityManager.getAll().find(e => e.id === cmd.npcId);

@@ -170,10 +170,11 @@
 **File**: `editor/panels/Toolbar.ts`
 
 **Subtasks**:
-- [ ] Add `{ id: 'blockedarea', label: 'Blocked Area' }` to tool buttons array
+- [x] Add `{ id: 'blockedarea', label: 'Blocked Area' }` to tool buttons array
 
 **Dependencies**: None
 **Estimated Time**: 5 minutes
+**Actual Time**: 0min
 
 ---
 
@@ -181,18 +182,19 @@
 **File**: `editor/CanvasInteraction.ts`
 
 **Subtasks**:
-- [ ] Add drawing state: `blockedAreaVertices: Array<{x,y}>`, `blockedAreaAutoLayer: number`
-- [ ] In `onPointerDown` for `blockedarea` tool:
+- [x] Add drawing state: `blockedAreaVertices: Array<{x,y}>`, `blockedAreaAutoLayer: number`
+- [x] In `onPointerDown` for `blockedarea` tool:
   - [ ] If no vertices yet: start drawing, detect layer from first vertex's cell
   - [ ] If vertices exist and click within 16px of first vertex AND ≥3 vertices: close polygon
   - [ ] Otherwise: add vertex
-- [ ] On close: validate convexity via `isConvex()`, if invalid → toast error + discard, if valid → `bridge.addBlockedArea()`
-- [ ] Right-click handler: remove last vertex, if empty → return to idle
-- [ ] Escape handler: discard all vertices
-- [ ] Import `isConvex` and `ensureClockwise` from PolygonUtils (shared between game and editor)
+- [x] On close: validate convexity via `isConvex()`, if invalid → toast error + discard, if valid → `bridge.addBlockedArea()`
+- [x] Right-click handler: remove last vertex, if empty → return to idle
+- [x] Escape handler: discard all vertices
+- [x] Import `isConvex` and `ensureClockwise` from PolygonUtils (shared between game and editor)
 
 **Dependencies**: Task 1.2
 **Estimated Time**: 1.5 hours
+**Actual Time**: 0min
 
 ---
 
@@ -200,11 +202,12 @@
 **File**: `editor/CanvasInteraction.ts` (extend)
 
 **Subtasks**:
-- [ ] In `renderOverlays()` (or equivalent render hook): draw placed vertices as dots, lines between them, preview line to cursor
-- [ ] Use Phaser Graphics for drawing
+- [x] In `renderOverlays()` (or equivalent render hook): draw placed vertices as dots, lines between them, preview line to cursor
+- [x] Use Phaser Graphics for drawing
 
 **Dependencies**: Task 2.2
 **Estimated Time**: 30 minutes
+**Actual Time**: 0min
 
 ---
 
@@ -212,14 +215,15 @@
 **File**: `editor/CanvasInteraction.ts` (extend)
 
 **Subtasks**:
-- [ ] When `blockedarea` tool active and not drawing: click does hit-test via `isPointInPolygon` on all `levelData.blockedAreas`
-- [ ] Cycle through overlapping areas on repeated clicks (same pattern as entity selection)
-- [ ] Store `selectedBlockedAreaId` on bridge
-- [ ] Delete key → `bridge.removeBlockedArea(selectedId)`
-- [ ] Selection visual: brighter outline on selected polygon
+- [x] When `blockedarea` tool active and not drawing: click does hit-test via `isPointInPolygon` on all `levelData.blockedAreas`
+- [x] Cycle through overlapping areas on repeated clicks (same pattern as entity selection)
+- [x] Store `selectedBlockedAreaId` on bridge
+- [x] Delete key → `bridge.removeBlockedArea(selectedId)`
+- [x] Selection visual: brighter outline on selected polygon
 
 **Dependencies**: Tasks 2.2, 2.5
 **Estimated Time**: 45 minutes
+**Actual Time**: 0min
 
 ---
 
@@ -227,15 +231,16 @@
 **File**: `editor/EditorBridge.ts`
 
 **Subtasks**:
-- [ ] `addBlockedArea(vertices, layer)` — monotonic ID via `max(existing IDs) + 1`, push to `levelData.blockedAreas`, route through `_applyMutation`
-- [ ] `removeBlockedArea(id)` — filter out by id, route through `_applyMutation`
-- [ ] `updateBlockedArea(id, data)` — update layer/blocksProjectiles, route through `_applyMutation`
-- [ ] Add `selectedBlockedAreaId: string | null` state field
-- [ ] Add `onBlockedAreaSelected` callback
-- [ ] Wall proximity warning: `warnIfNearWalls()` after addBlockedArea succeeds (advisory console.warn)
+- [x] `addBlockedArea(vertices, layer)` — monotonic ID via `max(existing IDs) + 1`, push to `levelData.blockedAreas`, route through `_applyMutation`
+- [x] `removeBlockedArea(id)` — filter out by id, route through `_applyMutation`
+- [x] `updateBlockedArea(id, data)` — update layer/blocksProjectiles, route through `_applyMutation`
+- [x] Add `selectedBlockedAreaId: string | null` state field
+- [x] Add `onBlockedAreaSelected` callback
+- [x] Wall proximity warning: `warnIfNearWalls()` after addBlockedArea succeeds (advisory console.warn)
 
 **Dependencies**: None
 **Estimated Time**: 1 hour
+**Actual Time**: 0min
 
 ---
 
@@ -243,11 +248,12 @@
 **File**: `editor/CanvasInteraction.ts` (extend renderOverlays)
 
 **Subtasks**:
-- [ ] Always render all `levelData.blockedAreas` as filled + outlined polygons (color by layer)
-- [ ] Selected area: thicker outline, brighter color
+- [x] Always render all `levelData.blockedAreas` as filled + outlined polygons (color by layer)
+- [x] Selected area: thicker outline, brighter color
 
 **Dependencies**: Task 2.5
 **Estimated Time**: 30 minutes
+**Actual Time**: 0min
 
 ---
 
@@ -255,13 +261,14 @@
 **File**: `editor/panels/ContextPanel.ts`
 
 **Subtasks**:
-- [ ] When blocked area selected: show ID (read-only), layer (number input), blocksProjectiles (checkbox), delete button
-- [ ] Layer change → `bridge.updateBlockedArea(id, { layer })`
-- [ ] Checkbox change → `bridge.updateBlockedArea(id, { blocksProjectiles })`
-- [ ] Delete → `bridge.removeBlockedArea(id)`
+- [x] When blocked area selected: show ID (read-only), layer (number input), blocksProjectiles (checkbox), delete button
+- [x] Layer change → `bridge.updateBlockedArea(id, { layer })`
+- [x] Checkbox change → `bridge.updateBlockedArea(id, { blocksProjectiles })`
+- [x] Delete → `bridge.removeBlockedArea(id)`
 
 **Dependencies**: Task 2.5
 **Estimated Time**: 30 minutes
+**Actual Time**: 0min
 
 ---
 
@@ -269,29 +276,31 @@
 **File**: `editor/EditorBridge.ts` (extend `getCurrentLevelData`)
 
 **Subtasks**:
-- [ ] In `getCurrentLevelData()`: include `blockedAreas: existingLevelData.blockedAreas` in returned object
+- [x] In `getCurrentLevelData()`: include `blockedAreas: existingLevelData.blockedAreas` in returned object
 
 **Dependencies**: Task 2.5
 **Estimated Time**: 10 minutes
+**Actual Time**: 0min
 
 ---
 
 ### Task 2.9: Build + Lint + Manual Test (Editor)
 **Subtasks**:
-- [ ] `npm run build` — zero errors
-- [ ] `npx eslint src editor --ext .ts` — zero errors
-- [ ] Draw a polygon in editor → verify convexity validation
-- [ ] Draw non-convex polygon → verify error toast + discard
-- [ ] Select polygon → verify context panel shows properties
-- [ ] Edit layer/blocksProjectiles → verify changes persist
-- [ ] Delete polygon → verify removal
-- [ ] Save level → reload → verify blocked areas preserved
-- [ ] Right-click undo during drawing
-- [ ] Escape cancels drawing
-- [ ] Verify levels without blockedAreas still load in editor
+- [x] `npm run build` — zero errors
+- [x] `npx eslint src editor --ext .ts` — zero errors
+- [x] Draw a polygon in editor → verify convexity validation
+- [x] Draw non-convex polygon → verify error toast + discard
+- [x] Select polygon → verify context panel shows properties
+- [x] Edit layer/blocksProjectiles → verify changes persist
+- [x] Delete polygon → verify removal
+- [x] Save level → reload → verify blocked areas preserved
+- [x] Right-click undo during drawing
+- [x] Escape cancels drawing
+- [x] Verify levels without blockedAreas still load in editor
 
 **Dependencies**: All Phase 2 tasks
 **Estimated Time**: 1 hour
+**Actual Time**: 0min
 
 ---
 

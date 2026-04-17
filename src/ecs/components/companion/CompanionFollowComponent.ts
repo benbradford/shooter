@@ -35,6 +35,7 @@ export class CompanionFollowComponent implements Component {
   private overshootX = 0;
   private overshootY = 0;
   private isOvershooting = false;
+  private swerveAngleRad = 0;
 
   constructor(playerEntity: Entity) {
     this.playerEntity = playerEntity;
@@ -57,11 +58,13 @@ export class CompanionFollowComponent implements Component {
       this.isOvershooting = false;
       this.wasPlayerMoving = true;
 
-      // Target: ahead-right of player
+      // Target: ahead-right of player with swerve
       const perpX = -this.dirY;
       const perpY = this.dirX;
-      this.targetX = pt.x + this.dirX * OFFSET_AHEAD_PX + perpX * OFFSET_SIDE_PX;
-      this.targetY = pt.y + this.dirY * OFFSET_AHEAD_PX + perpY * OFFSET_SIDE_PX;
+      this.swerveAngleRad += SWERVE_SPEED_RAD_PER_SEC * deltaSec;
+      const swerve = Math.sin(this.swerveAngleRad) * SWERVE_AMPLITUDE_PX;
+      this.targetX = pt.x + this.dirX * OFFSET_AHEAD_PX + perpX * (OFFSET_SIDE_PX + swerve);
+      this.targetY = pt.y + this.dirY * OFFSET_AHEAD_PX + perpY * (OFFSET_SIDE_PX + swerve);
 
       // Smooth follow
       t.x += (this.targetX - t.x) * FOLLOW_LERP;

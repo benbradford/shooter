@@ -225,7 +225,25 @@ export class AttackComboComponent implements Component {
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) return;
     this.wasAttackPressed = true;
+    this.startPunchInternal();
+  }
 
+  forcePunch(direction: Direction): void {
+    if (this.currentPhase !== 'idle') return;
+    const DIAG = 0.707;
+    const DIR_DELTAS: Record<number, [number, number]> = {
+      [1]: [0, 1], [2]: [0, -1], [3]: [-1, 0], [4]: [1, 0],
+      [5]: [-DIAG, -DIAG], [6]: [DIAG, -DIAG], [7]: [-DIAG, DIAG], [8]: [DIAG, DIAG],
+    };
+    const [dx, dy] = DIR_DELTAS[direction] ?? [0, 1];
+    this.punchDirX = dx;
+    this.punchDirY = dy;
+    this.punchDir = direction;
+    this.isHoldingAttack = false;
+    this.startPunchInternal();
+  }
+
+  private startPunchInternal(): void {
     const walk = this.entity.require(WalkComponent);
     walk.updateFacingDirection(this.punchDirX, this.punchDirY);
 

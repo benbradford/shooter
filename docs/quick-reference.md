@@ -51,6 +51,7 @@ Level transitions work automatically via exit triggers. The system:
 - Hitbox spawns 150ms into animation
 - Finds nearest enemy, player faces them
 - Respects layer boundaries (can't hit different layers unless on stairs)
+- Cancelled if player starts water hop mid-punch; blocked during hop
 
 **Hold-to-Repeat:**
 - Tap: Single punch, can move
@@ -194,7 +195,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 
 **Enable:** Set WorldState flag `hasCompanion` to `"true"`
 **Sprite:** `narry.png` — floating crystal construct
-**Behavior:** Follows ahead-right of player using lerp-based smooth movement. Overshoots slightly when player stops, then corrects. After 2s idle, starts orbiting the player (restless). Teleports if >600px away.
+**Behavior:** Follows ahead-right of player using lerp-based smooth movement with gentle perpendicular swerve for natural motion. Overshoots slightly when player stops, then corrects. After 2s idle, starts orbiting the player (restless). Teleports if >600px away.
 **Visuals:** Soft white-cyan additive glow behind sprite. Dual trail (cyan outer + white inner dots). Subtle alpha flicker every 3-8s.
 **Coexists with pet:** Yes, independent system.
 
