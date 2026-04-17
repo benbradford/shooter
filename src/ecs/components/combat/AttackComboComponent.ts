@@ -6,6 +6,8 @@ import { HealthComponent } from '../core/HealthComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
+import { InputComponent } from '../input/InputComponent';
+import { dirFromDelta } from '../../../constants/Direction';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 
@@ -48,6 +50,9 @@ export class AttackComboComponent implements Component {
   private isHoldingAttack: boolean = false;
   private isHoldingPunch: boolean = false;
   private lastHoldDir: number = -1;
+  private punchDirX: number = 0;
+  private punchDirY: number = 1;
+  private punchAnimDir: number = 1;
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
   private readonly getEnemies: () => Entity[];
@@ -59,6 +64,14 @@ export class AttackComboComponent implements Component {
   }
 
   update(delta: number): void {
+    // Always track joystick direction for punch aiming
+    const input = this.entity.get(InputComponent);
+    const rawInput = input?.getRawInputDelta();
+    if (rawInput && (rawInput.dx !== 0 || rawInput.dy !== 0)) {
+      this.punchDirX = rawInput.dx;
+      this.punchDirY = rawInput.dy;
+    }
+
     const health = this.entity.require(HealthComponent);
     const hasOverheal = health.isOverhealed();
     const punchDuration = hasOverheal ? PUNCH_DURATION_MS / 2 : PUNCH_DURATION_MS;
@@ -67,6 +80,19 @@ export class AttackComboComponent implements Component {
       const anim = this.entity.get(AnimationComponent);
       const walk = this.entity.get(WalkComponent);
       const currentAnim = anim?.animationSystem.getCurrentAnimation();
+
+      // Update punch animation direction if joystick changed
+      if (anim && !this.isHoldingPunch) {
+        const newDir = dirFromDelta(this.punchDirX, this.punchDirY);
+        if (newDir !== this.punchAnimDir) {
+          this.punchAnimDir = newDir;
+          const currentIndex = currentAnim?.getIndex() ?? 0;
+          const animSpeed = hasOverheal ? 2 : 1;
+          anim.animationSystem.play(`punch_${newDir}`, animSpeed);
+          anim.animationSystem.getCurrentAnimation()?.setIndex(currentIndex);
+          if (walk) walk.updateFacingDirection(this.punchDirX, this.punchDirY);
+        }
+      }
 
       // Hold phase: freeze on frame 5, allow direction changes
       if (this.isHoldingPunch) {
@@ -79,6 +105,8 @@ export class AttackComboComponent implements Component {
           }
           if (walk && anim && walk.lastDir !== this.lastHoldDir) {
             this.lastHoldDir = walk.lastDir;
+            this.punchDirX = walk.lastMoveX;
+            this.punchDirY = walk.lastMoveY;
             anim.animationSystem.play(`punch_${walk.lastDir}`);
             anim.animationSystem.getCurrentAnimation()?.setIndex(HOLD_FRAME_INDEX);
             anim.animationSystem.setTimeScale(0);
@@ -131,13 +159,12 @@ export class AttackComboComponent implements Component {
     this.scene.sound.play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
 
     const transform = this.entity.require(TransformComponent);
-    const walk = this.entity.require(WalkComponent);
     const enemies = this.getEnemies();
 
     let nearestEnemy: Entity | null = null;
     let nearestDistance = PUNCH_RANGE_PX;
 
-    const facingAngle = Math.atan2(walk.lastMoveY, walk.lastMoveX);
+    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
 
     for (const enemy of enemies) {
       const enemyTransform = enemy.get(TransformComponent);
@@ -166,8 +193,8 @@ export class AttackComboComponent implements Component {
       }
     }
 
-    let dirX = walk.lastMoveX;
-    let dirY = walk.lastMoveY;
+    let dirX = this.punchDirX;
+    let dirY = this.punchDirY;
 
     if (nearestEnemy) {
       const enemyTransform = nearestEnemy.require(TransformComponent);
@@ -213,10 +240,13 @@ export class AttackComboComponent implements Component {
     const health = this.entity.require(HealthComponent);
     const enemies = this.getEnemies();
 
+    // Update facing to match current punch direction
+    walk.updateFacingDirection(this.punchDirX, this.punchDirY);
+
     let nearestEnemy: Entity | null = null;
     let nearestDistance = PUNCH_RANGE_PX;
 
-    const facingAngle = Math.atan2(walk.lastMoveY, walk.lastMoveX);
+    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
 
     for (const enemy of enemies) {
       const enemyTransform = enemy.get(TransformComponent);
@@ -253,9 +283,10 @@ export class AttackComboComponent implements Component {
     }
 
     const anim = this.entity.get(AnimationComponent);
+    this.punchAnimDir = dirFromDelta(this.punchDirX, this.punchDirY);
     if (anim) {
       const animSpeed = health.isOverhealed() ? 2 : 1;
-      anim.animationSystem.play(`punch_${walk.lastDir}`, animSpeed);
+      anim.animationSystem.play(`punch_${this.punchAnimDir}`, animSpeed);
     }
 
     this.currentPhase = 'punch';
