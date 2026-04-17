@@ -54,6 +54,7 @@ export class SkeletonAttackState implements IState {
       const normalizedDirY = dirY / distance;
 
       this.onThrowBone(transform.x, transform.y, normalizedDirX, normalizedDirY);
+      this.entity.require(SpriteComponent).sprite.scene.sound.play('throw_whoosh1');
     }
 
     if (this.elapsedMs >= JAB_ANIMATION_DURATION_MS) {

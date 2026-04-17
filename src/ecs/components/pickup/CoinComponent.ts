@@ -156,6 +156,8 @@ export class CoinComponent implements Component {
       if (distance < COLLECTION_DISTANCE_PX) {
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);
+        const coinSounds = ['coin1_sfx', 'coin2_sfx'];
+        sprite.sprite.scene.sound.play(coinSounds[Math.floor(Math.random() * coinSounds.length)]);
       }
     }
   }

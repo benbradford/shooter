@@ -206,6 +206,66 @@ export const ASSET_REGISTRY = {
     path: 'assets/sounds/punch3.mp3',
     type: 'audio' as const,
   },
+  coin1_sfx: {
+    key: 'coin1_sfx',
+    path: 'assets/sounds/coin1.mp3',
+    type: 'audio' as const,
+  },
+  coin2_sfx: {
+    key: 'coin2_sfx',
+    path: 'assets/sounds/coin2.mp3',
+    type: 'audio' as const,
+  },
+  vase1: {
+    key: 'vase1',
+    path: 'assets/sounds/vase1.mp3',
+    type: 'audio' as const,
+  },
+  vase2: {
+    key: 'vase2',
+    path: 'assets/sounds/vase2.mp3',
+    type: 'audio' as const,
+  },
+  vase3: {
+    key: 'vase3',
+    path: 'assets/sounds/vase3.mp3',
+    type: 'audio' as const,
+  },
+  rock_break1: {
+    key: 'rock_break1',
+    path: 'assets/sounds/rock_break1.mp3',
+    type: 'audio' as const,
+  },
+  rock_break2: {
+    key: 'rock_break2',
+    path: 'assets/sounds/rock_break2.mp3',
+    type: 'audio' as const,
+  },
+  thud1: {
+    key: 'thud1',
+    path: 'assets/sounds/thud1.mp3',
+    type: 'audio' as const,
+  },
+  throw_whoosh1: {
+    key: 'throw_whoosh1',
+    path: 'assets/sounds/throw_whoosh1.mp3',
+    type: 'audio' as const,
+  },
+  bones_spawn: {
+    key: 'bones_spawn',
+    path: 'assets/sounds/bones_spawn.mp3',
+    type: 'audio' as const,
+  },
+  skeleton_death: {
+    key: 'skeleton_death',
+    path: 'assets/sounds/skeleton_death.mp3',
+    type: 'audio' as const,
+  },
+  skeleton_hit: {
+    key: 'skeleton_hit',
+    path: 'assets/sounds/skeleton_hit.mp3',
+    type: 'audio' as const,
+  },
   coin: {
     key: 'coin',
     path: 'assets/pickups/coin.png',
@@ -703,7 +763,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'coin1_sfx', 'coin2_sfx'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,
@@ -713,8 +773,8 @@ export const ASSET_GROUPS = {
   floating_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
   bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
   thrower: ['thrower', 'grenade'] as const,
-  skeleton: ['skeleton', 'bone_small'] as const,
-  red_skeleton: ['skeleton', 'bone_small'] as const,
+  skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
+  red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   puma: ['puma'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
 
@@ -727,7 +787,7 @@ export const ASSET_GROUPS = {
   village_swim_teacher: ['village_swim_teacher'] as const,
 
   // Breakables
-  breakables: ['dungeon_vase', 'pillar'] as const,
+  breakables: ['dungeon_vase', 'pillar', 'vase1', 'vase2', 'vase3', 'rock_break1', 'rock_break2', 'thud1'] as const,
 
   // Collectibles
   collectibles: ['mist_orb'] as const,

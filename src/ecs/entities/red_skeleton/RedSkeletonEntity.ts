@@ -50,6 +50,7 @@ export function createRedSkeletonEntity(data: RedSkeletonCreatorData): Entity {
   const config = getSkeletonDifficultyConfig(difficulty);
 
   createSkeletonAnimations(scene);
+  scene.sound.play('bones_spawn');
 
   const worldPos = grid.cellToWorld(col, row);
   const x = worldPos.x + grid.cellSize / 2;
@@ -98,6 +99,7 @@ export function createRedSkeletonEntity(data: RedSkeletonCreatorData): Entity {
 
         const health = entity.require(HealthComponent);
         health.takeDamage(BULLET_DAMAGE);
+        scene.sound.play('skeleton_hit');
 
         const projectile = other.get(ProjectileComponent);
         if (projectile) {

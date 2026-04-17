@@ -24,6 +24,7 @@ export class RedSkeletonDeathState implements IState {
 
   onEnter(): void {
     this.hasSpawned = false;
+    this.scene.sound.play('skeleton_death');
     const collision = this.entity.get(CollisionComponent);
     if (collision) this.entity.remove(CollisionComponent);
   }

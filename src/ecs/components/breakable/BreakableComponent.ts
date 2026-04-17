@@ -21,6 +21,12 @@ export type BreakableComponentProps = {
   onSpawnMedipack: (x: number, y: number) => void;
 }
 
+const BREAKABLE_SOUNDS: Record<string, string[]> = {
+  dungeon_vase: ['vase1', 'vase2', 'vase3'],
+  stone_wall: ['rock_break1'],
+  pillar: ['rock_break2'],
+};
+
 export class BreakableComponent implements Component {
   entity!: Entity;
   private currentHealth: number;
@@ -41,6 +47,7 @@ export class BreakableComponent implements Component {
       this.currentHealth = 0;
       this.breakApart();
     } else {
+      this.scene.sound.play('thud1');
       this.spawnSingleShard();
       this.shakeSprite();
     }
@@ -147,6 +154,11 @@ export class BreakableComponent implements Component {
   private breakApart(): void {
     const transform = this.entity.require(TransformComponent);
     const sprite = this.entity.require(SpriteComponent);
+
+    const sounds = BREAKABLE_SOUNDS[sprite.sprite.texture.key];
+    if (sounds) {
+      this.scene.sound.play(sounds[Math.floor(Math.random() * sounds.length)]);
+    }
 
     this.spawnCoins(transform, sprite);
     this.spawnMedipack(transform, sprite);

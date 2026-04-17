@@ -20,6 +20,7 @@ export class SkeletonDeathState implements IState {
 
   onEnter(): void {
     this.hasSpawnedParticles = false;
+    this.scene.sound.play('skeleton_death');
 
     const collision = this.entity.get(CollisionComponent);
     if (collision) {
