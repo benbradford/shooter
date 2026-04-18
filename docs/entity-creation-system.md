@@ -114,6 +114,7 @@ Plus one interaction entity per script:
 - `say(name, text, speed, timeout)` — Show speech box
 - `wait(ms)` — Pause between lines
 - `faceEachOther()` / `restoreDirections()` — NPC and player face each other
+- `celebrate()` — Player power-up animation with directional spin
 - `setFlag(name, value)` — Set world state flag
 - `getFlag(name)` — Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` — Check flag condition
@@ -124,6 +125,8 @@ Plus one interaction entity per script:
 - `npc.playAnim(animKey, repeatType)` — Play custom animation ("once" waits, "repeat" loops)
 - `player.moveTo(col, row, speed)` — Pathfind player to cell
 - `player.teleportTo(col, row)` — Instant move (bypasses pathfinding)
+- `player.punch(direction)` — Force punch in direction, waits for completion
+- `player.playAnim(name, repeatType, direction, startFrame?, endFrame?)` — Play player animation
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` — Coin management
 - Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
 - Newlines: `<newline/>`

@@ -78,6 +78,7 @@ Level transitions work automatically via exit triggers. The system:
 **Lua Helpers:**
 - `faceEachOther()` - NPCs and player face each other (auto-waits 16ms for velocity to stop)
 - `restoreDirections()` - Restore original facing directions
+- `celebrate()` - Player power-up animation with directional spin
 - `npc.name()` - Returns NPC's name from JSON (or "NPC")
 - `player.name()` - Returns "Player"
 - `npc.look(direction)` - Change NPC facing ("down", "up_left", etc.)
@@ -85,6 +86,8 @@ Level transitions work automatically via exit triggers. The system:
 - `player.look(direction)` - Change player facing
 - `player.moveTo(col, row, speed)` - Pathfind player to cell
 - `player.teleportTo(col, row)` - Instant move (bypasses pathfinding)
+- `player.punch(direction)` - Force punch in direction, waits for completion
+- `player.playAnim(name, repeatType, direction, startFrame?, endFrame?)` - Play player animation
 - `setFlag(name, value)` - Set world state flag
 - `getFlag(name)` - Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` - Check flag condition
@@ -93,6 +96,9 @@ Level transitions work automatically via exit triggers. The system:
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
 - Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
 - Newlines: `<newline/>`
+
+**Player animation names:** `powerup`, `pickup`, `push`, `slide`, `uppercut`, `throw`, `punch`, `walk`, `run`, `death`, `swim`, `idle`
+**Directions:** `"down"`, `"up"`, `"left"`, `"right"`, `"up_left"`, `"up_right"`, `"down_left"`, `"down_right"`
 
 **⚠️ CRITICAL: NPC Interaction Setup — Two-Part Requirement**
 

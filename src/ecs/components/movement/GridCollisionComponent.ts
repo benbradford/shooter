@@ -16,7 +16,8 @@ export class GridCollisionComponent implements Component {
   entity!: Entity;
   private previousX: number = 0;
   private previousY: number = 0;
-  private occupiedCells: Set<string> = new Set(); // Track as "col,row" strings
+  private occupiedCells: Set<string> = new Set();
+  enabled = true;
 
   constructor(private readonly grid: Grid) {}
 
@@ -225,6 +226,8 @@ export class GridCollisionComponent implements Component {
 
   // eslint-disable-next-line complexity
   update(_delta: number): void {
+    if (!this.enabled) return;
+
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
 

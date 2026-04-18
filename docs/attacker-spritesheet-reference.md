@@ -1,178 +1,56 @@
 # Attacker Sprite Sheet Animation Reference
 
+**File:** `public/assets/attacker/attacker-spritesheet.png`
 **Frame Size:** 56x56 pixels
+**Sheet Dimensions:** 12 columns × 47 rows = 564 slots (560 used)
+**Total Frames:** 560
 
-## Directory Structure
+## Frame Layout
 
-```
-public/assets/attacker/
-├── rotations/              # 8 idle/standing frames (one per direction)
-└── animations/             # All animation sequences
-    ├── cross-punch/        # 48 frames (6 per direction, 8 directions)
-    ├── running-6-frames/   # 6 frames (south only)
-    ├── running-slide/      # 12 frames (6 per direction, 2 directions)
-    ├── surprise-uppercut/  # 28 frames (7 per direction, 4 directions)
-    ├── throw-object/       # 7 frames (east only)
-    └── walking-5/          # 32 frames (4 per direction, 8 directions)
-```
+All multi-direction animations use 8 directions in order: South, South-East, East, North-East, North, North-West, West, South-West.
 
-## Idle/Rotations (8 frames)
+| Frames | Animation | Frames/Dir | Key prefix |
+|--------|-----------|-----------|------------|
+| 0-7 | Idle rotations | 1 | `idle` |
+| 8-79 | Power up (raising arms) | 9 | `powerup` |
+| 80-127 | Cross punch | 6 | `punch` |
+| 128-183 | Falling back death | 7 | `death` |
+| 184-223 | Picking up | 5 | `pickup` |
+| 224-271 | Push object | 6 | `push` |
+| 272-319 | Running | 6 | `run` |
+| 320-367 | Sliding | 6 | `slide` |
+| 368-423 | Surprise uppercut | 7 | `uppercut` |
+| 424-479 | Throw object | 7 | `throw` |
+| 480-511 | Walking | 4 | `walk` |
+| 512-559 | Swimming | 6 | `swim` |
 
-Located in `rotations/` directory.
+## Idle Rotations (Frames 0-7)
 
-| Frame | Direction    | File           |
-|-------|-------------|----------------|
-| 0     | South       | south.png      |
-| 1     | South-East  | south-east.png |
-| 2     | East        | east.png       |
-| 3     | North-East  | north-east.png |
-| 4     | North       | north.png      |
-| 5     | North-West  | north-west.png |
-| 6     | West        | west.png       |
-| 7     | South-West  | south-west.png |
+**Critical:** Frame order is alphabetical by filename, NOT Direction enum order.
 
-## Cross-Punch Animation (48 frames total)
+| Frame | Direction | Direction Enum |
+|-------|-----------|----------------|
+| 0 | East | Direction.Right = 4 |
+| 1 | North-East | Direction.UpRight = 6 |
+| 2 | North-West | Direction.UpLeft = 5 |
+| 3 | North | Direction.Up = 2 |
+| 4 | South-East | Direction.DownRight = 8 |
+| 5 | South-West | Direction.DownLeft = 7 |
+| 6 | South | Direction.Down = 1 |
+| 7 | West | Direction.Left = 3 |
 
-6 frames per direction × 8 directions = 48 frames
+## Animation Key Format
 
-**Directory:** `animations/cross-punch/{direction}/frame_000.png` to `frame_005.png`
+In code: `{name}_{Direction enum value}` — e.g., `punch_1` = punch facing south (Down=1).
 
-| Frames | Direction    | Path                                    |
-|--------|-------------|-----------------------------------------|
-| 0-5    | South       | cross-punch/south/frame_000-005.png     |
-| 6-11   | South-East  | cross-punch/south-east/frame_000-005.png|
-| 12-17  | East        | cross-punch/east/frame_000-005.png      |
-| 18-23  | North-East  | cross-punch/north-east/frame_000-005.png|
-| 24-29  | North       | cross-punch/north/frame_000-005.png     |
-| 30-35  | North-West  | cross-punch/north-west/frame_000-005.png|
-| 36-41  | West        | cross-punch/west/frame_000-005.png      |
-| 42-47  | South-West  | cross-punch/south-west/frame_000-005.png|
+In Lua: `player.playAnim("punch", "once", "down")` — direction resolved automatically.
 
-## Walking Animation (32 frames total)
-
-4 frames per direction × 8 directions = 32 frames
-
-**Directory:** `animations/walking-5/{direction}/frame_000.png` to `frame_003.png`
-
-| Frames | Direction    | Path                                    |
-|--------|-------------|-----------------------------------------|
-| 0-3    | South       | walking-5/south/frame_000-003.png       |
-| 4-7    | South-East  | walking-5/south-east/frame_000-003.png  |
-| 8-11   | East        | walking-5/east/frame_000-003.png        |
-| 12-15  | North-East  | walking-5/north-east/frame_000-003.png  |
-| 16-19  | North       | walking-5/north/frame_000-003.png       |
-| 20-23  | North-West  | walking-5/north-west/frame_000-003.png  |
-| 24-27  | West        | walking-5/west/frame_000-003.png        |
-| 28-31  | South-West  | walking-5/south-west/frame_000-003.png  |
-
-## Surprise Uppercut Animation (28 frames total)
-
-7 frames per direction × 4 directions = 28 frames
-
-**Directory:** `animations/surprise-uppercut/{direction}/frame_000.png` to `frame_006.png`
-
-| Frames | Direction | Path                                         |
-|--------|-----------|----------------------------------------------|
-| 0-6    | South     | surprise-uppercut/south/frame_000-006.png    |
-| 7-13   | East      | surprise-uppercut/east/frame_000-006.png     |
-| 14-20  | North     | surprise-uppercut/north/frame_000-006.png    |
-| 21-27  | West      | surprise-uppercut/west/frame_000-006.png     |
-
-## Running Slide Animation (12 frames total)
-
-6 frames per direction × 2 directions = 12 frames
-
-**Directory:** `animations/running-slide/{direction}/frame_000.png` to `frame_005.png`
-
-| Frames | Direction | Path                                      |
-|--------|-----------|-------------------------------------------|
-| 0-5    | South     | running-slide/south/frame_000-005.png     |
-| 6-11   | East      | running-slide/east/frame_000-005.png      |
-
-## Running (6 Frames) Animation (6 frames total)
-
-6 frames × 1 direction = 6 frames
-
-**Directory:** `animations/running-6-frames/south/frame_000.png` to `frame_005.png`
-
-| Frames | Direction | Path                                           |
-|--------|-----------|------------------------------------------------|
-| 0-5    | South     | running-6-frames/south/frame_000-005.png       |
-
-## Throw Object Animation (7 frames total)
-
-7 frames × 1 direction = 7 frames
-
-**Directory:** `animations/throw-object/east/frame_000.png` to `frame_006.png`
-
-| Frames | Direction | Path                                      |
-|--------|-----------|-------------------------------------------|
-| 0-6    | East      | throw-object/east/frame_000-006.png       |
-
-## Sprite Sheet Layout Recommendation
-
-**Total frames needed:** 8 (idle) + 48 (cross-punch) + 32 (walking) + 28 (uppercut) + 12 (running-slide) + 6 (running-6) + 7 (throw) = **141 frames**
-
-**Recommended layout:** 12 columns × 12 rows = 144 frames (141 used, 3 empty)
-
-**Frame dimensions:** 56×56 pixels
-**Sheet dimensions:** 672×672 pixels (12×56 = 672)
-
-### Frame Index Mapping
-
-```
-Frames 0-7:     Idle rotations (S, SE, E, NE, N, NW, W, SW)
-Frames 8-55:    Cross-punch (8 directions × 6 frames)
-Frames 56-87:   Walking (8 directions × 4 frames)
-Frames 88-115:  Surprise uppercut (4 directions × 7 frames)
-Frames 116-127: Running slide (2 directions × 6 frames)
-Frames 128-133: Running 6-frames (1 direction × 6 frames)
-Frames 134-140: Throw object (1 direction × 7 frames)
-Frames 141-143: Empty/unused
-```
-
-## Creating the Sprite Sheet
-
-Use ImageMagick to combine all frames:
+## Regenerating the Sprite Sheet
 
 ```bash
-cd public/assets/attacker
-
-# Create ordered list of files
-{
-  # Idle (0-7)
-  ls rotations/south.png rotations/south-east.png rotations/east.png \
-     rotations/north-east.png rotations/north.png rotations/north-west.png \
-     rotations/west.png rotations/south-west.png
-  
-  # Cross-punch (8-55)
-  for dir in south south-east east north-east north north-west west south-west; do
-    ls animations/cross-punch/$dir/frame_*.png | sort
-  done
-  
-  # Walking (56-87)
-  for dir in south south-east east north-east north north-west west south-west; do
-    ls animations/walking-5/$dir/frame_*.png | sort
-  done
-  
-  # Uppercut (88-115)
-  for dir in south east north west; do
-    ls animations/surprise-uppercut/$dir/frame_*.png | sort
-  done
-  
-  # Running slide (116-127)
-  for dir in south east; do
-    ls animations/running-slide/$dir/frame_*.png | sort
-  done
-  
-  # Running 6-frames (128-133)
-  ls animations/running-6-frames/south/frame_*.png | sort
-  
-  # Throw object (134-140)
-  ls animations/throw-object/east/frame_*.png | sort
-  
-} > frame_list.txt
-
-# Create sprite sheet
-montage @frame_list.txt -tile 12x12 -geometry 56x56+0+0 -background none attacker-spritesheet-new.png
+node scripts/generate-attacker-spritesheet.js
 ```
+
+This discovers all animations in `public/assets/attacker/animations/`, generates swimming frames from Push_Object, and creates the spritesheet.
+
+See `agent-sops/updating-attacker-spritesheet.md` for complete SOP.

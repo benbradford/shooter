@@ -45,7 +45,7 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   const animComp = new AnimationComponent(animSystem, spriteComp);
   entity.add(animComp);
 
-  const followComp = new PetFollowComponent(grid, playerEntity);
+  const followComp = new PetFollowComponent(grid, playerEntity, config.directions);
   if (config.runAnim) {
     followComp.setHasRunAnim(true);
   }
