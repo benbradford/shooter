@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import GameScene from "./scenes/GameScene";
 import HudScene from "./scenes/HudScene";
 import LoadingScene from "./scenes/LoadingScene";
+import BootScene from "./scenes/BootScene";
 import TitleScene from "./scenes/TitleScene";
 import ProfileSelectScene from "./scenes/ProfileSelectScene";
 import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
@@ -36,8 +37,8 @@ const config: Phaser.Types.Core.GameConfig = {
     activePointers: 3,
   },
   scene: startWithGame
-    ? [GameScene, HudScene, LoadingScene, TitleScene, ProfileSelectScene]
-    : [TitleScene, ProfileSelectScene, GameScene, HudScene, LoadingScene],
+    ? [GameScene, HudScene, LoadingScene, BootScene, TitleScene, ProfileSelectScene]
+    : [BootScene, TitleScene, ProfileSelectScene, GameScene, HudScene, LoadingScene],
 };
 
 const game = new Phaser.Game(config);

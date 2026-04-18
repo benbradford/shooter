@@ -81,13 +81,16 @@ export function computeNormals(vertices: ReadonlyArray<Vec2>): Vec2[] | null {
 
 export function isPointInPolygon(px: number, py: number, vertices: ReadonlyArray<Vec2>): boolean {
   const n = vertices.length;
-  for (let i = 0; i < n; i++) {
-    const a = vertices[i];
-    const b = vertices[(i + 1) % n];
-    const cross = (b.x - a.x) * (py - a.y) - (b.y - a.y) * (px - a.x);
-    if (cross > 0) return false;
+  // Ray-casting algorithm — works for convex and concave polygons
+  let inside = false;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = vertices[i].x, yi = vertices[i].y;
+    const xj = vertices[j].x, yj = vertices[j].y;
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) {
+      inside = !inside;
+    }
   }
-  return true;
+  return inside;
 }
 
 export function ensureClockwise(vertices: ReadonlyArray<Vec2>): Vec2[] {

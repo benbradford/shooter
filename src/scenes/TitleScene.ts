@@ -5,10 +5,6 @@ export default class TitleScene extends Phaser.Scene {
     super('title');
   }
 
-  preload(): void {
-    this.load.image('title_bg', 'assets/concept/title.png');
-  }
-
   create(): void {
     const { width, height } = this.cameras.main;
     const bg = this.add.image(width / 2, height / 2, 'title_bg');

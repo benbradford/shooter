@@ -70,6 +70,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create(data?: { editorMode?: boolean; levelName?: string; levelData?: LevelData }) {
+    // Stop title music when game starts
+    this.sound.stopByKey('btr_music');
+
     // --- EDITOR MODE ---
     if (data?.editorMode) {
       this.isEditorMode = true;

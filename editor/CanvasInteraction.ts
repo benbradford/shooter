@@ -290,7 +290,7 @@ export class CanvasInteraction {
     // Collect all selectable items at this cell
     const cellKey = `${cell.col},${cell.row}`;
     const halfCell = grid.cellSize / 2;
-    type Candidate = { kind: 'entity'; entity: import('../src/ecs/Entity').Entity } | { kind: 'data'; id: string } | { kind: 'cell' };
+    type Candidate = { kind: 'entity'; entity: import('../src/ecs/Entity').Entity } | { kind: 'data'; id: string } | { kind: 'blockedarea'; id: string } | { kind: 'cell' };
     const candidates: Candidate[] = [];
 
     // ECS entities at this cell
@@ -316,6 +316,13 @@ export class CanvasInteraction {
       }
     }
 
+    // Blocked areas containing click point
+    for (const area of levelData.blockedAreas ?? []) {
+      if (isPointInPolygon(p.worldX, p.worldY, area.vertices)) {
+        candidates.push({ kind: 'blockedarea', id: area.id });
+      }
+    }
+
     // Always add the cell itself as last option
     candidates.push({ kind: 'cell' });
 
@@ -335,6 +342,8 @@ export class CanvasInteraction {
       this.lastPaintedCell = cellKey;
     } else if (pick.kind === 'data') {
       this.bridge.selectDataEntity(pick.id);
+    } else if (pick.kind === 'blockedarea') {
+      this.bridge.selectBlockedArea(pick.id);
     } else {
       this.bridge.selectCell(cell.col, cell.row);
       const gridCell = grid.getCell(cell.col, cell.row);

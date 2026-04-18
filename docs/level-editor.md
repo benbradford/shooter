@@ -122,7 +122,7 @@ Spritesheet definitions: `editor/SpritesheetTextures.ts`
 2. Switch to **Select** tool, click an entity to open its property form
 3. **Drag to move**: Click and hold an entity in Select mode, then drag to reposition it
 4. Clicking on highlighted trigger/exit cells also selects the corresponding data entity
-5. **Click cycling**: When multiple entities share a cell, repeated clicks cycle through them (entities → triggers/exits → cell)
+5. **Click cycling**: When multiple entities share a cell, repeated clicks cycle through them (entities → triggers/exits → blocked areas → cell)
 
 Entity form shows all editable fields per type:
 - All: position, createOnAnyEvent, createOnAllEvents, respawnable

@@ -22,15 +22,20 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 
 ## Dog Bark Ability
 
-**Activation:** H key when enemy is within 3 path-cells of dog (not pixel distance)
+**Activation:** H key or tap pet action button (works with or without enemies nearby)
 
-**Flow:** Dog pathfinds to enemy → barks → expanding wave pulse → enemies within 400px enter fear state for 4 seconds
+**Flow with enemy:** Dog pathfinds to nearest enemy → barks → bark effect + sound → enemies within 400px enter fear state for 4 seconds
+
+**Flow without enemy:** Dog barks on the spot in its current facing direction → bark effect + sound (no fear applied)
+
+**Bark effect:** Cyan expanding ring (15→156px, 300ms, Cubic.Out), inner pulse, echo ring (80ms delay), particle burst (15 cyan particles)
+
+**Sound:** `bark.mp3` plays on every bark
 
 **Fear Effects:**
 - Enemies flee at 0.6× speed with zig-zag movement (direction changes every 300ms)
 - Blue tint pulses between `0x8888ff` and white
 - Fear icon particles emit around enemy (small, fading, floating upward)
-- Bark wave: expanding white circle ring (480ms, 5px line, 0.5 alpha)
 
 **Fear Immunity:** BugBase (stationary, can't flee)
 
@@ -39,7 +44,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - Bugs have 1.5s attack cooldown after fear ends
 - Active hops cancelled when fear applied
 
-**HUD:** Bark icon shown when dog selected, dims when no reachable enemy
+**HUD:** Bark icon shown when dog selected, only dims during cooldown or swimming
 
 ## Following Behavior
 
@@ -49,7 +54,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - **Wandering** (<128px): Alternates between slow walks to random nearby points (0.6-1.5s) and pauses (0.8-2s), walk animation
 - **Speed transition:** 500ms lerp between run speed (300px/s) and wander speed (60px/s)
 - **Teleport:** If >800px away, teleports to player
-- **Water:** Hides when player enters water
+- **Water:** Pet rides on player's back when swimming, matches player direction, resumes follow on exit
 
 ## ⚠️ Pathfinding Pitfalls (Critical)
 
