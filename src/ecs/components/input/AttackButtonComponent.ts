@@ -115,7 +115,7 @@ export class AttackButtonComponent implements Component {
       this.shadow.fillCircle(this.posX, this.posY + 4, shadowRadius);
     }
 
-    const speechOffsetY = this.currentIcon === 'speech' ? 20 : 0;
+    const speechOffsetY = 0;
     this.sprite.setPosition(this.posX, this.posY + speechOffsetY);
     this.ring.setPosition(this.posX, this.posY);
     this.bg.setPosition(this.posX, this.posY);

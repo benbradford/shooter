@@ -94,7 +94,7 @@ Level transitions work automatically via exit triggers. The system:
 - `saveState()` - Save world state to profile file
 - `raiseEvent(eventName)` - Raise a game event (triggers createOnAnyEvent entities)
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
-- Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
+- Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 
 **Player animation names:** `powerup`, `pickup`, `push`, `slide`, `uppercut`, `throw`, `punch`, `walk`, `run`, `death`, `swim`, `idle`

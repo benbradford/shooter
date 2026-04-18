@@ -128,7 +128,7 @@ Plus one interaction entity per script:
 - `player.punch(direction)` — Force punch in direction, waits for completion
 - `player.playAnim(name, repeatType, direction, startFrame?, endFrame?)` — Play player animation
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` — Coin management
-- Inline colors: `<red>`, `<green>`, `<purple>`, `<gold>`, `<cyan>`
+- Inline colors: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 
 **⚠️ `getFlag` returns a string.** Use `tonumber()` in Lua for numeric comparisons: `if tonumber(getFlag("mist_orb")) == 1 then`

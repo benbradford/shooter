@@ -1,5 +1,6 @@
 export type WorldState = {
   timePlayed: number; // seconds
+  profileDisplayName?: string;
   player: {
     health: number;
     coins: number;
