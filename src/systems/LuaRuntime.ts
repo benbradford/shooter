@@ -47,7 +47,7 @@ type Command =
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
-  private speechBackgroundColor: string = 'black';
+  private speechBackgroundColor: string = 'purple';
   private speechTextColor: string = 'white';
   private fadeRectangle: Phaser.GameObjects.Rectangle | null = null;
   
@@ -62,7 +62,7 @@ export class LuaRuntime {
     
     try {
       this.commandQueue = [];
-      this.speechBackgroundColor = 'black';
+      this.speechBackgroundColor = 'purple';
       this.speechTextColor = 'white';
       
       lua.global.set('wait', (ms: number) => {

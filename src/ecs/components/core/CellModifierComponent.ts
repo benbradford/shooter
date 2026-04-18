@@ -32,47 +32,38 @@ export class CellModifierComponent implements Component {
   }
 
   update(_delta: number): void {
-    console.log("Executing");
     if (this.executed) return;
     this.executed = true;
 
-    console.log("Executed");
     for (const mod of this.cellsToModify) {
       const cell = this.grid.getCell(mod.col, mod.row);
       if (!cell) {
         console.warn(`[CellModifier] Cell (${mod.col}, ${mod.row}) not found`);
         continue;
       }
-      console.log("Has cell");
 
       const updates: { properties?: Set<CellProperty>; backgroundTexture?: string; layer?: number } = {};
 
       if ('properties' in mod) {
-        console.log("Has properties");
-        updates.properties = mod.properties ? new Set(mod.properties) : new Set();
+         updates.properties = mod.properties ? new Set(mod.properties) : new Set();
       } else {
-        console.log("No properties");
         updates.properties = new Set();
       }
 
       if ('backgroundTexture' in mod) {
-        console.log("has bg");
         updates.backgroundTexture = mod.backgroundTexture;
       } else {
-        console.log("No bg");
         updates.backgroundTexture = undefined;
       }
 
       if (mod.layer !== undefined) {
-        console.log("no layer");
         updates.layer = mod.layer;
       }
-      console.log("Setting cell");
       this.grid.setCell(mod.col, mod.row, updates);
     }
 
     const gameScene = this.scene as unknown as {
-      sceneRenderer?: { 
+      sceneRenderer?: {
         invalidateCells: (cells: Array<{ col: number; row: number }>) => void;
         updateGraphics: (grid: Grid, levelData?: unknown) => void;
       };

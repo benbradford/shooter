@@ -41,7 +41,6 @@ export class PetAbilityComponent implements Component {
       const barkAbility = petEntity?.get(DogBarkAbility);
       if (!barkAbility || barkAbility.isActive()) return false;
       const target = barkAbility.getNearestEnemyInRange();
-      if (!target) return false;
       barkAbility.activate(target);
       this.cooldownMs = config.abilityCooldownMs;
       return true;
@@ -58,9 +57,6 @@ export class PetAbilityComponent implements Component {
     const petManager = PetManager.getInstance();
     if (!petManager.isActive()) return false;
     
-    const punch = this.entity.get(AttackComboComponent);
-    if (punch?.isPunching()) return false;
-    
     const water = this.entity.get(WaterEffectComponent);
     if (water?.getIsInWater()) return false;
     
@@ -72,7 +68,6 @@ export class PetAbilityComponent implements Component {
       const petEntity = petManager.getActivePetEntity();
       const barkAbility = petEntity?.get(DogBarkAbility);
       if (!barkAbility || barkAbility.isActive()) return false;
-      if (!barkAbility.getNearestEnemyInRange()) return false;
     }
     
     return true;

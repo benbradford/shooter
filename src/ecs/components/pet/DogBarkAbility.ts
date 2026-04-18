@@ -21,9 +21,6 @@ const FEAR_RADIUS_PX = 400;
 const BARK_ANIM_DURATION_MS = 1500;
 const APPROACH_SPEED_PX_PER_SEC = 300;
 const APPROACH_PATH_RECALC_MS = 500;
-const BARK_WAVE_DURATION_MS = 480;
-const BARK_WAVE_LINE_WIDTH_PX = 5;
-const BARK_WAVE_INITIAL_ALPHA = 0.5;
 
 type BarkState = 'idle' | 'approaching' | 'barking';
 
@@ -84,9 +81,13 @@ export class DogBarkAbility implements Component {
     return nearest;
   }
 
-  activate(target: Entity): void {
+  activate(target: Entity | null): void {
     this.targetEntity = target;
-    this.state = 'approaching';
+    if (target) {
+      this.state = 'approaching';
+    } else {
+      this.startBarkingInPlace();
+    }
     const follow = this.entity.get(PetFollowComponent);
     follow?.setBarking(true);
   }
@@ -160,6 +161,22 @@ export class DogBarkAbility implements Component {
     }
   }
 
+  private startBarkingInPlace(): void {
+    this.state = 'barking';
+    this.barkTimerMs = 0;
+
+    const follow = this.entity.get(PetFollowComponent);
+    const dir = follow?.getCurrentDirection() ?? Direction.Down;
+    const anim = this.entity.get(AnimationComponent);
+    if (anim) {
+      anim.animationSystem.play(`bark_${dir}`);
+    }
+
+    this.scene.sound.play('bark_sfx');
+    this.applyFearToNearbyEnemies();
+    this.createBarkWave();
+  }
+
   private startBarking(dx: number, dy: number): void {
     this.state = 'barking';
     this.barkTimerMs = 0;
@@ -170,6 +187,7 @@ export class DogBarkAbility implements Component {
       anim.animationSystem.play(`bark_${dir}`);
     }
 
+    this.scene.sound.play('bark_sfx');
     this.applyFearToNearbyEnemies();
     this.createBarkWave();
   }
@@ -248,27 +266,87 @@ export class DogBarkAbility implements Component {
     const transform = this.entity.require(TransformComponent);
     const x = transform.x;
     const y = transform.y;
-    const graphics = this.scene.add.graphics();
-    graphics.setDepth(Depth.particle);
+    this.spawnBarkEffect(x, y);
+  }
 
+  private spawnBarkEffect(x: number, y: number): void {
+    const TINT = 0x88ccff;
+    const RING_DURATION_MS = 300;
+    const RING_MAX_RADIUS_PX = 156;
+    const RING_START_RADIUS_PX = 15;
+    const RING_LINE_PX = 3;
+    const PULSE_DURATION_MS = 150;
+    const PULSE_MAX_RADIUS_PX = 27;
+    const ECHO_DELAY_MS = 80;
+
+    // Main expanding ring
+    const ring = this.scene.add.graphics();
+    ring.setDepth(Depth.particle);
+    this.animateRing(ring, x, y, RING_START_RADIUS_PX, RING_MAX_RADIUS_PX, RING_LINE_PX, TINT, 0.8, RING_DURATION_MS);
+
+    // Inner pulse (filled)
+    const pulse = this.scene.add.graphics();
+    pulse.setDepth(Depth.particle);
+    this.animatePulse(pulse, x, y, 6, PULSE_MAX_RADIUS_PX, TINT, 0.25, PULSE_DURATION_MS);
+
+    // Echo ring (delayed)
+    this.scene.time.delayedCall(ECHO_DELAY_MS, () => {
+      const echo = this.scene.add.graphics();
+      echo.setDepth(Depth.particle);
+      this.animateRing(echo, x, y, RING_START_RADIUS_PX, RING_MAX_RADIUS_PX, RING_LINE_PX, TINT, 0.4, RING_DURATION_MS);
+    });
+
+    // Particle burst
+    const emitter = this.scene.add.particles(x, y, 'smoke', {
+      speed: { min: 20, max: 80 },
+      scale: { start: 0.15, end: 0 },
+      alpha: { start: 0.5, end: 0 },
+      lifespan: { min: 300, max: 600 },
+      tint: TINT,
+      gravityY: -15,
+      quantity: 15,
+      emitting: false,
+    });
+    emitter.setDepth(Depth.particle);
+    emitter.explode(15);
+    this.scene.time.delayedCall(700, () => emitter.destroy());
+  }
+
+  private animateRing(g: Phaser.GameObjects.Graphics, x: number, y: number, startR: number, endR: number, lineW: number, color: number, startAlpha: number, durationMs: number): void {
     let elapsedMs = 0;
-
     const tick = (_time: number, delta: number): void => {
       elapsedMs += delta;
-      const progress = Math.min(elapsedMs / BARK_WAVE_DURATION_MS, 1);
-      const radiusPx = FEAR_RADIUS_PX * progress;
-      const alpha = BARK_WAVE_INITIAL_ALPHA * (1 - progress);
-
-      graphics.clear();
-      graphics.lineStyle(BARK_WAVE_LINE_WIDTH_PX, 0xffffff, alpha);
-      graphics.strokeCircle(x, y, radiusPx);
-
-      if (progress >= 1) {
+      const t = Math.min(elapsedMs / durationMs, 1);
+      const ease = 1 - Math.pow(1 - t, 3); // Cubic.Out
+      const radius = startR + (endR - startR) * ease;
+      const alpha = startAlpha * (1 - t);
+      g.clear();
+      g.lineStyle(lineW, color, alpha);
+      g.strokeCircle(x, y, radius);
+      if (t >= 1) {
         this.scene.events.off('update', tick);
-        graphics.destroy();
+        g.destroy();
       }
     };
+    this.scene.events.on('update', tick);
+  }
 
+  private animatePulse(g: Phaser.GameObjects.Graphics, x: number, y: number, startR: number, endR: number, color: number, startAlpha: number, durationMs: number): void {
+    let elapsedMs = 0;
+    const tick = (_time: number, delta: number): void => {
+      elapsedMs += delta;
+      const t = Math.min(elapsedMs / durationMs, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      const radius = startR + (endR - startR) * ease;
+      const alpha = startAlpha * (1 - t);
+      g.clear();
+      g.fillStyle(color, alpha);
+      g.fillCircle(x, y, radius);
+      if (t >= 1) {
+        this.scene.events.off('update', tick);
+        g.destroy();
+      }
+    };
     this.scene.events.on('update', tick);
   }
 }

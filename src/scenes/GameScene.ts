@@ -263,6 +263,8 @@ export default class GameScene extends Phaser.Scene {
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
 
+    worldState.setFlag(`level_entered_${this.currentLevelName}`, 'true');
+
     const theme = this.levelData.levelTheme ?? 'dungeon';
     if (theme === 'dungeon') {
       this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);

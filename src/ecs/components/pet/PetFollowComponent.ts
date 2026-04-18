@@ -327,6 +327,10 @@ export class PetFollowComponent implements Component {
     return this.isHidden;
   }
 
+  getCurrentDirection(): Direction {
+    return this.currentDirection;
+  }
+
   private playAnim(anim: AnimationComponent, key: string): void {
     if (key === this.lastAnimKey) return;
     this.lastAnimKey = key;

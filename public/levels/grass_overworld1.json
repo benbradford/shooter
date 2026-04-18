@@ -5381,7 +5381,11 @@
         "row": 1,
         "assets": "village_boy",
         "direction": "Down",
-        "interactions": [],
+        "interactions": [
+          { "name": "thom_dungeon_warning", "whenFlagSet": { "name": "level_entered_dungeon1", "condition": "eq", "value": "true" } },
+          { "name": "thom_wall_hint" }
+        ],
+        "name": "Thom",
         "transformOverride": {
           "scaleX": 1.3,
           "scaleY": 1.3,
@@ -5619,6 +5623,30 @@
       },
       "createOnAnyEvent": [
         "village_tree_man"
+      ]
+    },
+    {
+      "id": "interaction8",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "thom_dungeon_warning"
+      },
+      "createOnAnyEvent": [
+        "thom_dungeon_warning"
+      ]
+    },
+    {
+      "id": "interaction9",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "thom_wall_hint"
+      },
+      "createOnAnyEvent": [
+        "thom_wall_hint"
       ]
     },
     {
