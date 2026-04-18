@@ -32,10 +32,10 @@ const RIDE_OFFSETS: Record<Direction, { x: number; y: number; deg: number }> = {
   [Direction.Up]: { x: 0, y: 0, deg: 0 },
   [Direction.Left]: { x: 10, y: -4, deg: 30 },
   [Direction.Right]: { x: -12, y: -6, deg: -30 },
-  [Direction.UpLeft]: { x: 5, y: 0, deg: 0 },
-  [Direction.UpRight]: { x: -4, y: 0, deg: 0 },
-  [Direction.DownLeft]: { x: 0, y: -8, deg: 0 },
-  [Direction.DownRight]: { x: 0, y: -8, deg: 0 },
+  [Direction.UpLeft]: { x: 10, y: 0, deg: -10 },
+  [Direction.UpRight]: { x: -10, y: 0, deg: 10 },
+  [Direction.DownLeft]: { x: 5, y: -12, deg: 40 },
+  [Direction.DownRight]: { x: -5, y: -12, deg: -40 },
 };
 
 type PetState = 'idle' | 'following' | 'wandering_move' | 'wandering_pause' | 'riding';
@@ -203,21 +203,24 @@ export class PetFollowComponent implements Component {
     transform.y = playerTransform.y + offset.y;
     if (sprite) sprite.sprite.setAngle(offset.deg);
 
-    // Match player direction (snap to 4-dir if pet only has 4)
+    // Match player direction
     if (playerWalk) {
-      let dir = playerWalk.lastDir;
-      if (this.directionCount === 4 && dir !== Direction.None) {
-        if (dir === Direction.UpLeft || dir === Direction.UpRight) dir = Direction.Up;
-        else if (dir === Direction.DownLeft || dir === Direction.DownRight) dir = Direction.Down;
-      }
-      if (dir !== Direction.None && dir !== this.currentDirection) {
+      const dir = playerWalk.lastDir;
+      if (dir !== Direction.None) {
         this.currentDirection = dir;
-        this.playAnim(anim, `idle_${this.currentDirection}`);
+
+        // Snap to 4-dir for animation only if pet has 4 directions
+        let animDir = dir;
+        if (this.directionCount === 4) {
+          if (dir === Direction.UpLeft || dir === Direction.UpRight) animDir = Direction.Up;
+          else if (dir === Direction.DownLeft || dir === Direction.DownRight) animDir = Direction.Down;
+        }
+        this.playAnim(anim, `idle_${animDir}`);
       }
 
       // Render behind player when facing down, on top otherwise
       if (sprite) {
-        const isFacingDown = dir === Direction.Down || dir === Direction.DownLeft || dir === Direction.DownRight;
+        const isFacingDown = this.currentDirection === Direction.Down || this.currentDirection === Direction.DownLeft || this.currentDirection === Direction.DownRight;
         sprite.sprite.setDepth(isFacingDown ? Depth.playerSwimming - 1 : Depth.playerSwimming + 1);
       }
     }
