@@ -9,7 +9,7 @@ import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { TransformComponent } from '../../components/core/TransformComponent';
-import { PushableComponent } from '../../components/pushable/PushableComponent';
+import { PushableComponent, PUSH_ALIGNMENT_DIVISOR } from '../../components/pushable/PushableComponent';
 import { Direction } from '../../../constants/Direction';
 import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
@@ -78,7 +78,7 @@ export class PlayerIdleState implements IState {
             // Check player is within central 50% of pushable on the perpendicular axis
             const transform = this.entity.require(TransformComponent);
             const pushableTransform = blockedEntity.require(TransformComponent);
-            const halfCell = gridCollision.getGrid().cellSize / 4;
+            const halfCell = gridCollision.getGrid().cellSize / PUSH_ALIGNMENT_DIVISOR;
             const isHorizontalPush = pushDir === Direction.Left || pushDir === Direction.Right;
             const offset = isHorizontalPush
               ? Math.abs(transform.y - pushableTransform.y)

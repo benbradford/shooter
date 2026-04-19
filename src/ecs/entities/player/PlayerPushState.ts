@@ -12,6 +12,7 @@ import { HealthComponent } from '../../components/core/HealthComponent';
 import { PushableComponent } from '../../components/pushable/PushableComponent';
 import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { AttackButtonComponent } from '../../components/input/AttackButtonComponent';
+import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { Direction } from '../../../constants/Direction';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 
@@ -30,6 +31,14 @@ const PUSH_POSITION_OFFSETS: Partial<Record<Direction, { x: number; y: number }>
   [Direction.Down]: { x: 0, y: 20 },
   [Direction.Left]: { x: -6, y: 0 },
   [Direction.Right]: { x: 6, y: 0 },
+};
+
+// Per-direction shadow offset adjustments while pushing
+const PUSH_SHADOW_OFFSETS: Partial<Record<Direction, { x: number; y: number }>> = {
+  [Direction.Up]: { x: 0, y: 0 },
+  [Direction.Down]: { x: 0, y: 0 },
+  [Direction.Left]: { x: 17, y: 0 },
+  [Direction.Right]: { x: -17, y: 0 },
 };
 
 export type PushStateData = {
@@ -114,6 +123,13 @@ export class PlayerPushState implements IState {
       gridCollision?.syncPreviousPosition(transform.x, transform.y);
     }
 
+    // Apply shadow offset
+    const shadow = this.entity.get(ShadowComponent);
+    const shadowOffset = PUSH_SHADOW_OFFSETS[this.direction];
+    if (shadow && shadowOffset) {
+      shadow.pushOffset(shadowOffset.x, shadowOffset.y);
+    }
+
     const anim = this.entity.require(AnimationComponent);
     anim.animationSystem.play(`push_${this.direction}`);
     anim.animationSystem.setTimeScale(0);
@@ -158,6 +174,10 @@ export class PlayerPushState implements IState {
         }
       }
       // Joystick pointing toward pushable — stay in contact
+    } else {
+      // Joystick released — disengage
+      this.disengage();
+      return;
     }
 
     // Check attack button → tryPush
@@ -278,6 +298,10 @@ export class PlayerPushState implements IState {
 
     const attackButton = this.joystickEntity?.get(AttackButtonComponent);
     attackButton?.setIconOverride(null);
+
+    // Restore shadow offsets
+    const shadow = this.entity.get(ShadowComponent);
+    shadow?.popOffset();
 
     this.damagePending = false;
   }

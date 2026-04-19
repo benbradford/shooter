@@ -15,6 +15,8 @@ export type PushableProps = {
 
 const MOVE_SPEED_PX_PER_SEC = 100;
 
+export const PUSH_ALIGNMENT_DIVISOR = 2.5;
+
 export class PushableComponent implements Component {
   entity!: Entity;
   readonly pushEnabled: boolean;

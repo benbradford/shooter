@@ -10,7 +10,7 @@ import { WaterEffectComponent } from '../../components/visual/WaterEffectCompone
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { TransformComponent } from '../../components/core/TransformComponent';
-import { PushableComponent } from '../../components/pushable/PushableComponent';
+import { PushableComponent, PUSH_ALIGNMENT_DIVISOR } from '../../components/pushable/PushableComponent';
 import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { Direction } from '../../../constants/Direction';
@@ -92,7 +92,7 @@ export class PlayerWalkState implements IState {
           const transform = this.entity.require(TransformComponent);
           const pushableTransform = blockedEntity.require(TransformComponent);
           const gridCollision = this.entity.require(GridCollisionComponent);
-          const halfCell = gridCollision.getGrid().cellSize / 4;
+          const halfCell = gridCollision.getGrid().cellSize / PUSH_ALIGNMENT_DIVISOR;
           const isHorizontalPush = pushDir === Direction.Left || pushDir === Direction.Right;
           const offset = isHorizontalPush
             ? Math.abs(transform.y - pushableTransform.y)

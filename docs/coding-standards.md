@@ -127,5 +127,8 @@ Some components need `init()` after `add()` because they need `this.entity` refe
 ### Avoiding Duplicate Configuration
 Single source of truth - components should reference owner's values, not duplicate them.
 
+### Reversible State Modifications (Stack Pattern)
+When multiple systems need to modify the same property (offsets, speeds, tints), use a push/pop stack instead of saving/restoring original values. Stacks compose cleanly and prevent bugs when modifications overlap. See `ShadowComponent.pushOffset()`/`popOffset()` for the reference implementation.
+
 ## ESLint Rules
 Key enforced rules: no-unused-vars, no-explicit-any, prefer-readonly, no-empty-function, consistent-type-definitions, no-useless-fallback-in-spread, prefer-class-fields, no-nested-ternary.

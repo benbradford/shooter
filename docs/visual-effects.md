@@ -42,6 +42,16 @@
 
 `ShadowComponent` handles shadows. Uses `shadow` texture, follows entity, renders at depth -1.
 
+**Offset Stack:** Shadow offsets use a stack so multiple systems can adjust offsets without conflicting:
+- Base offset set via props at construction (bottom of stack)
+- `pushOffset(x, y)` — adds a new offset layer (additive to current top)
+- `popOffset()` — removes the top layer, reverting to previous
+- `update()` always reads from the top of the stack
+
+**Example:** PlayerPushState pushes a direction-specific offset on enter, pops on exit. If a future system (e.g., knockback, swimming) also needs to adjust the shadow, it pushes its own layer independently.
+
+**Pattern:** Prefer stack/push-pop patterns over saving and restoring original values. Stacks compose cleanly when multiple systems modify the same property.
+
 ## Rotating Projectiles
 
 `RotatingProjectileComponent` for spinning projectiles (bones, shurikens).
