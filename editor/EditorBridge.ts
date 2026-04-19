@@ -394,6 +394,7 @@ export class EditorBridge {
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic' },
         pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false },
+        hole: { col, row, texture: 'hole_with_roots', targetLevel: '', targetCol: 0, targetRow: 0 },
         collectible: { col, row, preset: 'mist_orb' },
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
@@ -943,6 +944,11 @@ export class EditorBridge {
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         const existingData = existing?.data as { texture?: string; pushEnabled?: boolean; doesPersist?: boolean } | undefined;
         data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'pushing_box', pushEnabled: existingData?.pushEnabled !== false, doesPersist: existingData?.doesPersist ?? false };
+      } else if (entity.id.startsWith('hole')) {
+        type = 'hole';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const existingData = existing?.data as { texture?: string; targetLevel?: string; targetCol?: number; targetRow?: number; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } } | undefined;
+        data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'hole_with_roots', targetLevel: existingData?.targetLevel ?? '', targetCol: existingData?.targetCol ?? 0, targetRow: existingData?.targetRow ?? 0, ...(existingData?.transformOverride ? { transformOverride: existingData.transformOverride } : {}) };
       } else if (entity.id.startsWith('collectible')) {
         type = 'collectible';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

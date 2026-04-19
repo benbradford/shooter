@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Create swimming animation from pushing animation
-INPUT_DIR="public/assets/attacker/animations/Push_Object-a6de6ee4"
+INPUT_DIR="public/assets/attacker/animations/breaststroke-4db27c90"
 OUTPUT_DIR="public/assets/attacker/animations/swimming"
 
 mkdir -p "$OUTPUT_DIR"

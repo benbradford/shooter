@@ -1,0 +1,11 @@
+{
+  "width": 20,
+  "height": 11,
+  "playerStart": {
+    "x": 1,
+    "y": 3
+  },
+  "cells": [],
+  "entities": [],
+  "levelTheme": "dungeon"
+}

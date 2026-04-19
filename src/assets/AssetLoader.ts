@@ -158,6 +158,12 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
           textureSet.add(texture as AssetKey);
         }
       }
+      if (entity.type === 'hole') {
+        const texture = (entity.data.texture as string) ?? 'hole_with_roots';
+        if (texture in ASSET_REGISTRY) {
+          textureSet.add(texture as AssetKey);
+        }
+      }
     }
   }
 

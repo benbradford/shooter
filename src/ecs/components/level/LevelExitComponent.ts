@@ -1,5 +1,6 @@
 import { BaseEventComponent } from '../core/BaseEventComponent';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type LevelExitComponentProps = {
   eventName: string;
@@ -25,6 +26,7 @@ export class LevelExitComponent extends BaseEventComponent {
   }
 
   onEvent(_eventName: string): void {
+    WorldStateManager.getInstance().setFlag('_enteredViaHole', '');
     this.onTransition(this.targetLevel, this.targetCol, this.targetRow);
   }
 }

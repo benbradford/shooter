@@ -136,6 +136,8 @@ Entity form shows all editable fields per type:
 - CellModifier: cellsToModify (structured form with col/row/properties/layer per entry)
 - Interaction: filename
 - Lever: eventToRaise, startState (on/off), oneShot
+- Pushable: texture, pushEnabled, doesPersist
+- Hole: texture, targetLevel, targetCol, targetRow, transformOverride (scaleX/Y, offsetX/Y) + **Leave** button
 
 ### Editing Trigger Cells
 

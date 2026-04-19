@@ -19,7 +19,8 @@ export type EntityType =
   | 'collectible'
   | 'npc'
   | 'lever'
-  | 'pushable';
+  | 'pushable'
+  | 'hole';
 
 export type LevelEntity = {
   id: string;

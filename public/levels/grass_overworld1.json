@@ -5440,11 +5440,29 @@
       "id": "pushable0",
       "type": "pushable",
       "data": {
-        "col": 13,
-        "row": 5,
+        "col": 3,
+        "row": 6,
         "texture": "pushing_box",
         "pushEnabled": true,
         "doesPersist": false
+      }
+    },
+    {
+      "id": "hole0",
+      "type": "hole",
+      "data": {
+        "col": 14,
+        "row": 5,
+        "texture": "hole_with_roots",
+        "targetLevel": "tunnels1",
+        "targetCol": 10,
+        "targetRow": 5,
+        "transformOverride": {
+          "scaleX": 1.4,
+          "scaleY": 1.4,
+          "offsetX": 0,
+          "offsetY": 0
+        }
       }
     },
     {

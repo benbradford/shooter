@@ -43,6 +43,8 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `cellmodifier` - Modifies grid cells (properties, textures, layers) when event fires
 - `interaction` - Loads and executes Lua script when event fires
 - `lever` - Punchable switch that toggles on/off and fires events
+- `pushable` - Box the player can push one cell at a time in cardinal directions
+- `hole` - Visual pit that triggers a hop animation then level transition (like exit but with hop)
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
@@ -174,6 +176,25 @@ Plus one interaction entity per script:
 - One-shot levers show `lever_dead.png` (black handle) after activation
 - One-shot locked state persists via WorldState flag `lever_{entityId}_locked`
 
+### Pushable
+- `texture`: Sprite texture key (default `'pushing_box'`)
+- `pushEnabled`: Boolean - whether the box can be pushed
+- `doesPersist`: Boolean - whether pushed position persists across level transitions
+- Player must walk into the pushable (blocked by GridCellBlocker) and be within the central portion of the box on the perpendicular axis to engage push mode
+- Push direction is cardinal only (up/down/left/right)
+- Push engagement uses `GridCollisionComponent.blockedByPushable` — detected when movement is actually blocked, not proximity
+
+### Hole
+- `texture`: Sprite texture key (default `'hole_with_roots'`)
+- `targetLevel`: Level filename without .json
+- `targetCol`: Spawn column in target level
+- `targetRow`: Spawn row in target level
+- `transformOverride`: Optional `{ scaleX, scaleY, offsetX, offsetY }` for scaling/positioning the hole sprite
+- When player walks onto the hole cell, a 300ms hop animation plays (sine arc + shrink), then level transition fires
+- Behaves like an exit but with a visual hop-into-pit animation
+- On the destination level, player drops in from above with gravity easing, plays landing animation, then can move
+- Drop-in persists across death/restart (flag cleared only by normal exits)
+
 ## How It Works
 
 ### EntityCreatorManager
@@ -253,6 +274,10 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/ecs/components/core/CellModifierComponent.ts` - CellModifier logic
 - `src/ecs/entities/lever/LeverEntity.ts` - Lever entity factory
 - `src/ecs/components/lever/LeverComponent.ts` - Lever toggle logic and state persistence
+- `src/ecs/entities/pushable/PushableEntity.ts` - Pushable entity factory
+- `src/ecs/components/pushable/PushableComponent.ts` - Push movement logic
+- `src/ecs/entities/hole/HoleEntity.ts` - Hole entity factory
+- `src/ecs/components/hole/HoleComponent.ts` - Hop animation and transition trigger
 - `editor/CanvasInteraction.ts` - Entity placement and selection
 - `editor/EditorBridge.ts` - Entity extraction to JSON
 - `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI

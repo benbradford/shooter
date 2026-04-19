@@ -97,7 +97,7 @@ Level transitions work automatically via exit triggers. The system:
 - Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 
-**Player animation names:** `powerup`, `pickup`, `push`, `slide`, `uppercut`, `throw`, `punch`, `walk`, `run`, `death`, `swim`, `idle`
+**Player animation names:** `powerup`, `pickup`, `push`, `slide`, `uppercut`, `throw`, `punch`, `walk`, `run`, `death`, `swim`, `fall`, `idle`
 **Directions:** `"down"`, `"up"`, `"left"`, `"right"`, `"up_left"`, `"up_right"`, `"down_left"`, `"down_right"`
 
 **⚠️ CRITICAL: NPC Interaction Setup — Two-Part Requirement**
@@ -125,6 +125,41 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 5. The asset loader auto-detects NPC assets from level JSON — no other changes needed
 
 **Editor:** Open editor → Entity tool → npc → click to place. Select NPC to edit assets, direction (including facePlayer), name, and interactions.
+
+## Pushable System
+
+**Push engagement:** Player walks into pushable → `GridCollisionComponent.blockedByPushable` detects the blocking entity → walk/idle state checks perpendicular alignment (`PUSH_ALIGNMENT_DIVISOR`) → enters push state
+
+**Push mechanics:**
+- Cardinal directions only (up/down/left/right)
+- Player must be within central portion of box on perpendicular axis to engage
+- Joystick toward pushable = stay in contact; joystick away or released = disengage
+- Attack button triggers the actual push (one cell at a time)
+- Push animation freezes on first frame during contact, plays during movement (`setTimeScale(0/1)`)
+- Player moves exactly `cellSize` pixels in push direction at same speed as box
+
+**Key patterns from implementation:**
+- `GridCollisionComponent.blockedByPushable` — set when movement blocked by GridCellBlocker entity, cleared each frame
+- `GridCollisionComponent.syncPreviousPosition()` — must be called after teleporting/offsetting an entity to prevent snap-back
+- Per-direction position offsets (`PUSH_POSITION_OFFSETS`) and shadow offsets (`PUSH_SHADOW_OFFSETS`) applied on push enter, reversed on exit
+- Shadow uses stack pattern: `pushOffset()` on enter, `popOffset()` on exit
+
+**⚠️ Common pitfalls:**
+- After moving an entity programmatically (disable GridCollision → move → re-enable), always call `syncPreviousPosition()` with the final position before re-enabling
+- `AttackButtonComponent.setIconOverride(null)` must force-reset the texture — clearing the override alone doesn't trigger re-render if `currentIcon` matches
+
+## Hole Entity
+
+Holes are visual pits that trigger a hop animation then level transition (like exit but with hop).
+
+**Behavior:** Player walks onto hole cell → 300ms hop animation (sine arc + shrink to 30%) → level transition fires
+
+**Level JSON:**
+- `texture`: Default `'hole_with_roots'`
+- `targetLevel`, `targetCol`, `targetRow`: Same as exit
+- `transformOverride`: Optional `{ scaleX, scaleY, offsetX, offsetY }` for scaling the sprite
+
+**Drop-in on destination:** Player falls from above with gravity easing → plays landing animation → movement enabled. Persists across death/restart (cleared only by normal exits).
 
 ## Adding Assets
 
@@ -269,11 +304,21 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 
 ## Sprite Sheets
 
-**Attacker** (player): 672×2072, 56×56 frames
+**Attacker** (player): 672×2968, 56×56 frames
 - Frames 0-7: Idle (alphabetical order, NOT Direction enum order)
 - Frames 8-55: Cross-punch
-- Frames 56-87: Walking
-- Frames 116-163: Slide
+- Frames 56-111: Falling back death
+- Frames 112-118: Landing (south only)
+- Frames 119-158: Picking up
+- Frames 159-230: Power up
+- Frames 231-278: Pushing
+- Frames 279-326: Running
+- Frames 327-382: Surprise uppercut
+- Frames 383-438: Throw object
+- Frames 439-470: Walking
+- Frames 471-518: Sliding
+- Frames 519-574: Breaststroke (raw)
+- Frames 575-630: Swimming (blue tint)
 
 See `attacker-spritesheet-reference.md` for complete mapping.
 

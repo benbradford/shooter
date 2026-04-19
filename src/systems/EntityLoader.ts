@@ -29,6 +29,7 @@ import { createCellModifierEntity } from '../cellmodifier/CellModifierEntity';
 import { createInteractionEntity } from '../interaction/InteractionEntity';
 import { createNPCEntity, type NPCInteraction } from '../ecs/entities/npc/NPCEntity';
 import { createPushableEntity } from '../ecs/entities/pushable/PushableEntity';
+import { createHoleEntity } from '../ecs/entities/hole/HoleEntity';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createRedSkeletonEntity } from '../ecs/entities/red_skeleton/RedSkeletonEntity';
@@ -531,6 +532,26 @@ export class EntityLoader {
             entityId: entityDef.id,
             originalCol: pushableData.col,
             originalRow: pushableData.row,
+          });
+        };
+
+      case 'hole':
+        return () => {
+          const holeData = data as { col: number; row: number; texture?: string; targetLevel: string; targetCol: number; targetRow: number; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
+          return createHoleEntity({
+            scene: this.scene,
+            col: holeData.col,
+            row: holeData.row,
+            grid: this.grid,
+            texture: holeData.texture ?? 'hole_with_roots',
+            entityId: entityDef.id,
+            targetLevel: holeData.targetLevel,
+            targetCol: holeData.targetCol,
+            targetRow: holeData.targetRow,
+            transformOverride: holeData.transformOverride,
+            onTransition: (targetLevel, targetCol, targetRow) => {
+              this.onTransition(targetLevel, targetCol, targetRow);
+            }
           });
         };
 

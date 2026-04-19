@@ -588,6 +588,18 @@ export class ContextPanel {
         <div class="form-group"><label><input type="checkbox" id="ef-push-enabled" ${data.pushEnabled !== false ? 'checked' : ''} /> Push Enabled</label></div>
         <div class="form-group"><label><input type="checkbox" id="ef-push-persist" ${data.doesPersist ? 'checked' : ''} /> Persist Position</label></div>`;
     }
+    if (entityDef.type === 'hole') {
+      const holeData = data as { texture?: string; targetLevel?: string; targetCol?: number; targetRow?: number; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
+      typeFields += `<div class="form-group"><label>Texture</label><input id="ef-htex" value="${holeData.texture ?? 'hole_with_roots'}" /></div>
+        <div class="form-group"><label>Target Level</label><input id="ef-htarget" value="${holeData.targetLevel ?? ''}" /></div>
+        <div class="form-group"><label>Target Col</label><input type="number" id="ef-htcol" value="${holeData.targetCol ?? 0}" /></div>
+        <div class="form-group"><label>Target Row</label><input type="number" id="ef-htrow" value="${holeData.targetRow ?? 0}" /></div>
+        <div class="form-group"><label>Scale X</label><input type="number" step="0.1" id="ef-hsx" value="${holeData.transformOverride?.scaleX ?? 1}" /></div>
+        <div class="form-group"><label>Scale Y</label><input type="number" step="0.1" id="ef-hsy" value="${holeData.transformOverride?.scaleY ?? 1}" /></div>
+        <div class="form-group"><label>Offset X</label><input type="number" id="ef-hox" value="${holeData.transformOverride?.offsetX ?? 0}" /></div>
+        <div class="form-group"><label>Offset Y</label><input type="number" id="ef-hoy" value="${holeData.transformOverride?.offsetY ?? 0}" /></div>
+        <button class="ed-btn play" id="ef-hleave" style="width:100%;margin-top:4px">Leave → ${holeData.targetLevel || '?'}</button>`;
+    }
     if (entityDef.type === 'lever') {
       typeFields += `<div class="form-group"><label>Event to Raise</label>
         <input id="ef-lever-event" value="${data.eventToRaise ?? ''}" /></div>
@@ -750,6 +762,31 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-push-persist')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { doesPersist: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ef-htex')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { texture: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-htarget')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { targetLevel: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-htcol')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { targetCol: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-htrow')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { targetRow: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    for (const id of ['#ef-hsx', '#ef-hsy', '#ef-hox', '#ef-hoy']) {
+      this.container.querySelector(id)?.addEventListener('change', () => {
+        const sx = Number.parseFloat((this.container.querySelector('#ef-hsx') as HTMLInputElement)?.value ?? '1');
+        const sy = Number.parseFloat((this.container.querySelector('#ef-hsy') as HTMLInputElement)?.value ?? '1');
+        const ox = Number.parseFloat((this.container.querySelector('#ef-hox') as HTMLInputElement)?.value ?? '0');
+        const oy = Number.parseFloat((this.container.querySelector('#ef-hoy') as HTMLInputElement)?.value ?? '0');
+        this.bridge.updateEntityData(entityId, { transformOverride: { scaleX: sx, scaleY: sy, offsetX: ox, offsetY: oy } });
+      });
+    }
+    this.container.querySelector('#ef-hleave')?.addEventListener('click', () => {
+      const target = (this.container.querySelector('#ef-htarget') as HTMLInputElement)?.value;
+      if (target) void this.bridge.loadLevel(target);
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });

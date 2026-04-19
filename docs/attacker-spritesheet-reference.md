@@ -2,8 +2,8 @@
 
 **File:** `public/assets/attacker/attacker-spritesheet.png`
 **Frame Size:** 56x56 pixels
-**Sheet Dimensions:** 12 columns × 47 rows = 564 slots (560 used)
-**Total Frames:** 560
+**Sheet Dimensions:** 12 columns × 53 rows = 636 slots (631 used)
+**Total Frames:** 631
 
 ## Frame Layout
 
@@ -12,17 +12,19 @@ All multi-direction animations use 8 directions in order: South, South-East, Eas
 | Frames | Animation | Frames/Dir | Key prefix |
 |--------|-----------|-----------|------------|
 | 0-7 | Idle rotations | 1 | `idle` |
-| 8-79 | Power up (raising arms) | 9 | `powerup` |
-| 80-127 | Cross punch | 6 | `punch` |
-| 128-183 | Falling back death | 7 | `death` |
-| 184-223 | Picking up | 5 | `pickup` |
-| 224-271 | Push object | 6 | `push` |
-| 272-319 | Running | 6 | `run` |
-| 320-367 | Sliding | 6 | `slide` |
-| 368-423 | Surprise uppercut | 7 | `uppercut` |
-| 424-479 | Throw object | 7 | `throw` |
-| 480-511 | Walking | 4 | `walk` |
-| 512-559 | Swimming | 6 | `swim` |
+| 8-55 | Cross punch | 6 | `punch` |
+| 56-111 | Falling back death | 7 | `death` |
+| 112-118 | Landing (south only) | 7 | `fall` |
+| 119-158 | Picking up | 5 | `pickup` |
+| 159-230 | Power up (raising arms) | 9 | `powerup` |
+| 231-278 | Pushing | 6 | `push` |
+| 279-326 | Running | 6 | `run` |
+| 327-382 | Surprise uppercut | 7 | `uppercut` |
+| 383-438 | Throw object | 7 | `throw` |
+| 439-470 | Walking | 4 | `walk` |
+| 471-518 | Sliding | 6 | `slide` |
+| 519-574 | Breaststroke (raw) | 7 | — |
+| 575-630 | Swimming (blue tint) | 7 | `swim` |
 
 ## Idle Rotations (Frames 0-7)
 
@@ -51,6 +53,6 @@ In Lua: `player.playAnim("punch", "once", "down")` — direction resolved automa
 node scripts/generate-attacker-spritesheet.js
 ```
 
-This discovers all animations in `public/assets/attacker/animations/`, generates swimming frames from Push_Object, and creates the spritesheet.
+This discovers all animations in `public/assets/attacker/animations/`, generates swimming frames from breaststroke, and creates the spritesheet.
 
 See `agent-sops/updating-attacker-spritesheet.md` for complete SOP.

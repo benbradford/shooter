@@ -23,6 +23,9 @@ import { GridPositionComponent } from "../ecs/components/movement/GridPositionCo
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
+import { AnimationComponent } from "../ecs/components/core/AnimationComponent";
+import { WalkComponent } from "../ecs/components/movement/WalkComponent";
+import { Direction } from "../constants/Direction";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
@@ -602,6 +605,66 @@ export default class GameScene extends Phaser.Scene {
 
     // Load entities from new format
     this.entityLoader.loadEntities(level, player, this.isEditorMode);
+
+    // Hole drop-in sequence
+    const worldState2 = WorldStateManager.getInstance();
+    if (worldState2.getFlag('_enteredViaHole') === 'true') {
+      this.playHoleDropIn(player, startX, startY);
+    }
+  }
+
+  private playHoleDropIn(player: Entity, _targetX: number, targetY: number): void {
+    const DROP_DURATION_MS = 600;
+    const DROP_HEIGHT_PX = 300;
+
+    const transform = player.require(TransformComponent);
+    const sprite = player.require(SpriteComponent);
+    const input = player.get(InputComponent);
+    const walk = player.get(WalkComponent);
+    const anim = player.require(AnimationComponent);
+
+    // Disable movement
+    input?.setEnabled(false);
+    if (walk) {
+      walk.setEnabled(false);
+      walk.resetVelocity(true, true);
+      walk.lastDir = Direction.Down;
+    }
+
+    // Start above target
+    const startY = targetY - DROP_HEIGHT_PX;
+    transform.y = startY;
+    sprite.sprite.y = startY;
+
+    // Play powerup south frames 4-5 on loop during fall
+    anim.animationSystem.playFrameRange(`powerup_${Direction.Down}`, 4, 5, 'repeat', 0.08);
+
+    let elapsed = 0;
+    const dropUpdate = (_time: number, delta: number) => {
+      elapsed += delta;
+      const progress = Math.min(1, elapsed / DROP_DURATION_MS);
+
+      // Ease in (accelerate like gravity)
+      const eased = progress * progress;
+      transform.y = startY + (targetY - startY) * eased;
+
+      if (progress >= 1) {
+        this.events.off('update', dropUpdate);
+        transform.y = targetY;
+
+        // Play landing animation once
+        anim.animationSystem.play(`fall_${Direction.Down}`);
+
+        // Wait for landing anim to finish (7 frames × 0.1s = 700ms)
+        this.time.delayedCall(700, () => {
+          input?.setEnabled(true);
+          if (walk) walk.setEnabled(true);
+          anim.animationSystem.play(`idle_${Direction.Down}`);
+        });
+      }
+    };
+
+    this.events.on('update', dropUpdate);
   }
 
   private async initializePetManager(player: Entity): Promise<void> {
