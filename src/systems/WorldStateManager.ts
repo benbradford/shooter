@@ -109,7 +109,21 @@ export class WorldStateManager {
         modifiedCells: []
       };
     }
+    // Backward compat: ensure movedEntities exists on old saves
+    this.worldState.levels[levelName].movedEntities ??= [];
     return this.worldState.levels[levelName];
+  }
+
+  updateMovedEntity(levelName: string, entityId: string, col: number, row: number): void {
+    const levelState = this.getLevelState(levelName);
+    const existing = levelState.movedEntities?.find(e => e.id === entityId);
+    if (existing) {
+      existing.col = col;
+      existing.row = row;
+    } else {
+      levelState.movedEntities ??= [];
+      levelState.movedEntities.push({ id: entityId, col, row });
+    }
   }
 
   setPlayerHealth(health: number): void {

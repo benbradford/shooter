@@ -5382,8 +5382,17 @@
         "assets": "village_boy",
         "direction": "Down",
         "interactions": [
-          { "name": "thom_dungeon_warning", "whenFlagSet": { "name": "level_entered_dungeon1", "condition": "eq", "value": "true" } },
-          { "name": "thom_wall_hint" }
+          {
+            "name": "thom_dungeon_warning",
+            "whenFlagSet": {
+              "name": "level_entered_dungeon1",
+              "condition": "eq",
+              "value": "true"
+            }
+          },
+          {
+            "name": "thom_wall_hint"
+          }
         ],
         "name": "Thom",
         "transformOverride": {
@@ -5425,6 +5434,17 @@
         "eventToRaise": "lever_lever0",
         "startState": "off",
         "oneShot": true
+      }
+    },
+    {
+      "id": "pushable0",
+      "type": "pushable",
+      "data": {
+        "col": 13,
+        "row": 5,
+        "texture": "pushing_box",
+        "pushEnabled": true,
+        "doesPersist": false
       }
     },
     {

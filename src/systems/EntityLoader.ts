@@ -28,6 +28,7 @@ import { createEventChainerEntity } from '../eventchainer/EventChainerEntity';
 import { createCellModifierEntity } from '../cellmodifier/CellModifierEntity';
 import { createInteractionEntity } from '../interaction/InteractionEntity';
 import { createNPCEntity, type NPCInteraction } from '../ecs/entities/npc/NPCEntity';
+import { createPushableEntity } from '../ecs/entities/pushable/PushableEntity';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createRedSkeletonEntity } from '../ecs/entities/red_skeleton/RedSkeletonEntity';
@@ -510,6 +511,26 @@ export class EntityLoader {
             name: npcData.name,
             facePlayer: npcData.direction === 'facePlayer',
             transformOverride: npcData.transformOverride,
+          });
+        };
+
+      case 'pushable':
+        return () => {
+          const pushableData = data as { col: number; row: number; texture: string; pushEnabled?: boolean; doesPersist?: boolean };
+          const movedEntry = levelState.movedEntities?.find((e: { id: string }) => e.id === entityDef.id);
+          const spawnCol = movedEntry?.col ?? pushableData.col;
+          const spawnRow = movedEntry?.row ?? pushableData.row;
+          return createPushableEntity({
+            scene: this.scene,
+            col: spawnCol,
+            row: spawnRow,
+            grid: this.grid,
+            texture: pushableData.texture,
+            pushEnabled: pushableData.pushEnabled ?? true,
+            doesPersist: pushableData.doesPersist ?? false,
+            entityId: entityDef.id,
+            originalCol: pushableData.col,
+            originalRow: pushableData.row,
           });
         };
 

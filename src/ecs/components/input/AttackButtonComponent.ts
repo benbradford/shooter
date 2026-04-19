@@ -34,6 +34,7 @@ export class AttackButtonComponent implements Component {
   private posY: number = 0;
   private initialized: boolean = false;
   private currentIcon: 'punch' | 'speech' = 'punch';
+  private iconOverride: string | null = null;
   private isHudVisible: boolean = true;
   private bounceTween: Phaser.Tweens.Tween | null = null;
 
@@ -124,6 +125,17 @@ export class AttackButtonComponent implements Component {
   }
 
   private updateIcon(): void {
+    // Override takes priority (push state)
+    if (this.iconOverride === 'push') {
+      if (this.currentIcon !== 'punch' || this.sprite.texture.key !== 'push_icon') {
+        this.currentIcon = 'punch';
+        this.sprite.setTexture('push_icon');
+        this.sprite.setScale(UNPRESSED_SCALE * 0.9);
+        if (this.bounceTween) { this.bounceTween.destroy(); this.bounceTween = null; }
+      }
+      return;
+    }
+
     const gameScene = this.scene.scene.get('game') as GameScene;
     if (!gameScene) return;
 
@@ -165,6 +177,17 @@ export class AttackButtonComponent implements Component {
 
   isAttackPressed(): boolean {
     return this.isPressed;
+  }
+
+  setIconOverride(icon: string | null): void {
+    const wasOverridden = this.iconOverride !== null;
+    this.iconOverride = icon;
+    if (icon === null && wasOverridden) {
+      // Force re-apply by setting texture to punch (override may have changed it)
+      this.sprite.setTexture(PUNCH_TEXTURE);
+      this.sprite.setScale(UNPRESSED_SCALE);
+      this.currentIcon = 'punch';
+    }
   }
 
   setVisible(visible: boolean): void {

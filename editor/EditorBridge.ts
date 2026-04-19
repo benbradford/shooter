@@ -393,6 +393,7 @@ export class EditorBridge {
         bullet_dude: { col, row, difficulty: 'medium' },
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic' },
+        pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false },
         collectible: { col, row, preset: 'mist_orb' },
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
@@ -937,6 +938,11 @@ export class EditorBridge {
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         const existingData = existing?.data as { texture?: string; health?: number; rarity?: string } | undefined;
         data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'dungeon_vase', health: existingData?.health ?? 1, rarity: existingData?.rarity ?? 'epic' };
+      } else if (entity.id.startsWith('pushable')) {
+        type = 'pushable';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const existingData = existing?.data as { texture?: string; pushEnabled?: boolean; doesPersist?: boolean } | undefined;
+        data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'pushing_box', pushEnabled: existingData?.pushEnabled !== false, doesPersist: existingData?.doesPersist ?? false };
       } else if (entity.id.startsWith('collectible')) {
         type = 'collectible';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

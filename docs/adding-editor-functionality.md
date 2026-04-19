@@ -47,7 +47,7 @@ Always clean up in `onExit()`. Use arrow functions for event handlers to maintai
 2. Add tool handling in `editor/CanvasInteraction.ts`
 3. Add button to DefaultEditorState
 4. Update LevelData type in LevelLoader.ts
-5. Update `EditorBridge.extractEntities()` to preserve data
+5. **Add extraction logic in `EditorBridge.extractEntities()`** — see `entity-creation-system.md` for the pattern
 6. Add loading in GameScene
 
 ## Testing Checklist

@@ -35,6 +35,7 @@ import { StateMachine } from '../../../systems/state/StateMachine';
 import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import { PlayerDeathState } from './PlayerDeathState';
+import { PlayerPushState } from './PlayerPushState';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
@@ -165,6 +166,12 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`push_${Direction.Left}`, new Animation(['260', '261', '262', '263', '264', '265'], 'once', 0.1));
   animMap.set(`push_${Direction.DownLeft}`, new Animation(['266', '267', '268', '269', '270', '271'], 'once', 0.1));
 
+  // Push lean animations (first 3 frames of push, looped) — cardinal only
+  animMap.set(`push_lean_${Direction.Down}`, new Animation(['224', '225', '226'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Right}`, new Animation(['236', '237', '238'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Up}`, new Animation(['248', '249', '250'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Left}`, new Animation(['260', '261', '262'], 'repeat', 0.15));
+
   animMap.set(`slide_${Direction.Down}`, new Animation(['320', '321', '322', '323', '324', '325'], 'once', 0.07));
   animMap.set(`slide_${Direction.DownRight}`, new Animation(['326', '327', '328', '329', '330', '331'], 'once', 0.07));
   animMap.set(`slide_${Direction.Right}`, new Animation(['332', '333', '334', '335', '336', '337'], 'once', 0.07));
@@ -268,6 +275,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
       idle: new PlayerIdleState(entity),
       walk: new PlayerWalkState(entity),
       death: new PlayerDeathState(entity, scene),
+      push: new PlayerPushState(entity, grid),
     },
     'idle'
   );

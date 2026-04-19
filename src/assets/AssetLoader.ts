@@ -152,6 +152,12 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
           textureSet.add(texture as AssetKey);
         }
       }
+      if (entity.type === 'pushable' && entity.data.texture) {
+        const texture = entity.data.texture as string;
+        if (texture in ASSET_REGISTRY) {
+          textureSet.add(texture as AssetKey);
+        }
+      }
     }
   }
 

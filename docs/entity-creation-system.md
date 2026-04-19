@@ -264,23 +264,46 @@ When any entity is destroyed, an event `{entityId}_destroyed` is automatically r
 
 ## Adding New Entity Types to Editor
 
-⚠️ **MOST COMMON BUG:** Forgetting to add `entityId` parameter to entity factory causes "Duplicate entity ID" errors. Every entity factory MUST accept `entityId: string` in props and use it in `new Entity(entityId)`.
+⚠️ **MOST COMMON BUG:** Forgetting to add extraction logic in `extractEntities()`. Without it, entities appear in the editor but vanish on save. Every new entity type needs an `else if` block that maps the entity back to JSON.
 
-When adding a new entity type that should be placeable in the editor, you must update **FIVE** files:
+When adding a new entity type that should be placeable in the editor, you must update these files:
 
-### 1. Add to EntityType (LevelLoader.ts)
-### 2. Add to Editor
-- Add to `ENTITY_TYPES` array in `editor/panels/Toolbar.ts`
-- Add default data in `EditorBridge.addEntity()` defaults map
-- Add label in `CanvasInteraction` labelMap
+### 1. Add to EntityType (`src/systems/level/LevelLoader.ts`)
+Add the type name to the `EntityType` union.
 
-### 3. Add to EditorBridge.extractEntities()
-**CRITICAL:** This is where entities are extracted to JSON when you click Log/Save.
+### 2. Add to Editor UI (3 files)
+- `editor/panels/Toolbar.ts` — Add to `ENTITY_TYPES` array (appears in dropdown)
+- `editor/EditorBridge.ts` — Add default data in `addEntity()` defaults map (what gets created on click)
+- `editor/CanvasInteraction.ts` — Add label in `labelMap` (what shows on the canvas)
 
-### 4. Update Entity Factory to Accept entityId
-**CRITICAL:** Entity factories must accept and use the entityId parameter for unique IDs.
+### 3. Add to `EditorBridge.extractEntities()` ← MOST COMMONLY FORGOTTEN
+This method converts live ECS entities back to JSON when saving. Without an extraction block for your type, the entity is silently dropped from the output.
 
-### 5. Update EntityLoader to Pass entityId
+Add an `else if` block that matches on `entity.id.startsWith('yourtype')`:
+```typescript
+} else if (entity.id.startsWith('pushable')) {
+  type = 'pushable';
+  const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+  const existingData = existing?.data as { texture?: string; pushEnabled?: boolean } | undefined;
+  data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'pushing_box', pushEnabled: existingData?.pushEnabled !== false };
+}
+```
+
+**Key pattern:** Position (`col`, `row`) comes from the live `GridPositionComponent`. All other fields come from `existingLevelData` (the last-saved JSON), because the ECS entity doesn't store editor-only fields like `texture` or `pushEnabled` in a way that's easily read back. The `existing?.data` lookup preserves whatever the user edited in the form.
+
+### 4. Add Entity Form Fields (`editor/panels/ContextPanel.ts`)
+Add an `if (entityDef.type === 'yourtype')` block that renders form inputs for editable fields. Wire up `change` listeners that write back to `entityDef.data`.
+
+### 5. Update Entity Factory to Accept `entityId`
+Entity factories MUST accept `entityId: string` in props and use it in `new Entity(entityId)`. Without this, placing multiple entities of the same type causes "Duplicate entity ID" errors.
+
+### 6. Update EntityLoader to Create the Entity
+Add a `case 'yourtype':` in `EntityLoader` that calls your factory. Pass `entityDef.id` as `entityId`.
+
+### 7. Register Assets
+- Add textures to `AssetRegistry.ts`
+- Add to `editor` asset group (so textures load in editor)
+- Add to `AssetLoader.getRequiredAssetGroups()` (so textures load in-game)
 
 ### Checklist for New Entity Types
 

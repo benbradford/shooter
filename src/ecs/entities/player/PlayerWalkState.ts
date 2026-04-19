@@ -8,8 +8,21 @@ import { AttackComboComponent } from '../../components/combat/AttackComboCompone
 import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
+import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
+import { TransformComponent } from '../../components/core/TransformComponent';
+import { PushableComponent } from '../../components/pushable/PushableComponent';
 import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
+import { Direction } from '../../../constants/Direction';
+
+function getCardinalPushDirection(dx: number, dy: number): Direction | null {
+  if (dx !== 0 && dy !== 0) return null;
+  if (dx > 0) return Direction.Right;
+  if (dx < 0) return Direction.Left;
+  if (dy > 0) return Direction.Down;
+  if (dy < 0) return Direction.Up;
+  return null;
+}
 
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
@@ -65,6 +78,41 @@ export class PlayerWalkState implements IState {
     if (newKey !== this.lastAnimKey) {
       this.lastAnimKey = newKey;
       anim.animationSystem.play(newKey);
+    }
+
+    // Check if player was blocked by a pushable this frame
+    const gridCollision = this.entity.require(GridCollisionComponent);
+    const blockedEntity = gridCollision.blockedByPushable;
+    if (blockedEntity) {
+      const pushable = blockedEntity.get(PushableComponent);
+      if (pushable?.pushEnabled) {
+        const pushDir = getCardinalPushDirection(dx, dy);
+        if (pushDir) {
+          // Check player is within central 50% of pushable on the perpendicular axis
+          const transform = this.entity.require(TransformComponent);
+          const pushableTransform = blockedEntity.require(TransformComponent);
+          const gridCollision = this.entity.require(GridCollisionComponent);
+          const halfCell = gridCollision.getGrid().cellSize / 4;
+          const isHorizontalPush = pushDir === Direction.Left || pushDir === Direction.Right;
+          const offset = isHorizontalPush
+            ? Math.abs(transform.y - pushableTransform.y)
+            : Math.abs(transform.x - pushableTransform.x);
+          if (offset > halfCell) {
+            // Not aligned — just block movement, don't engage push
+          } else {
+            const gameScene = this.entity.getScene() as import('../../../scenes/GameScene').default;
+            const hudScene = gameScene.scene.get('HudScene') as import('../../../scenes/HudScene').default;
+            sm.stateMachine.enter('push', {
+              pushableEntity: blockedEntity,
+              direction: pushDir,
+              joystickEntity: hudScene.getJoystickEntity(),
+              blockedAreaManager: (gameScene as unknown as { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
+              levelName: gameScene.getCurrentLevelName(),
+            } as unknown as void);
+            return;
+          }
+        }
+      }
     }
   }
 }

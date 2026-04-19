@@ -13,18 +13,7 @@ export type WorldState = {
     [key: string]: string;
   };
   levels: {
-    [levelName: string]: {
-      liveEntities: string[];
-      destroyedEntities: string[];
-      firedTriggers: string[];
-      modifiedCells: Array<{
-        col: number;
-        row: number;
-        properties?: string[];
-        backgroundTexture?: string;
-        layer?: number;
-      }>;
-    };
+    [levelName: string]: LevelState;
   };
 };
 
@@ -38,5 +27,10 @@ export type LevelState = {
     properties?: string[];
     backgroundTexture?: string;
     layer?: number;
+  }>;
+  movedEntities?: Array<{
+    id: string;
+    col: number;
+    row: number;
   }>;
 };

@@ -125,6 +125,16 @@ export const ASSET_REGISTRY = {
     path: 'assets/player/slide_icon.png',
     type: 'image' as const,
   },
+  push_icon: {
+    key: 'push_icon',
+    path: 'assets/player/push_icon.png',
+    type: 'image' as const,
+  },
+  pushing_box: {
+    key: 'pushing_box',
+    path: 'assets/pushables/pushing_box.png',
+    type: 'image' as const,
+  },
   hud_rings: {
     key: 'hud_rings',
     path: 'assets/player/hud_rings.png',
@@ -768,7 +778,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'coin1_sfx', 'coin2_sfx', 'bark_sfx'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'coin1_sfx', 'coin2_sfx', 'bark_sfx'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,
@@ -801,7 +811,7 @@ export const ASSET_GROUPS = {
   lever: ['lever', 'lever_dead'] as const,
 
   // Editor - all textures that can be used in editor
-  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'roots_spritesheet'] as const,
+  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'roots_spritesheet', 'pushing_box'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

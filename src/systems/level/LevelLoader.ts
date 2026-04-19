@@ -18,7 +18,8 @@ export type EntityType =
   | 'interaction'
   | 'collectible'
   | 'npc'
-  | 'lever';
+  | 'lever'
+  | 'pushable';
 
 export type LevelEntity = {
   id: string;

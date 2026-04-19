@@ -18,11 +18,17 @@ export class GridCollisionComponent implements Component {
   private previousY: number = 0;
   private occupiedCells: Set<string> = new Set();
   enabled = true;
+  blockedByPushable: Entity | null = null;
 
   constructor(private readonly grid: Grid) {}
 
   getGrid(): Grid {
     return this.grid;
+  }
+
+  syncPreviousPosition(x: number, y: number): void {
+    this.previousX = x;
+    this.previousY = y;
   }
 
   private wasCellOccupied(
@@ -51,6 +57,7 @@ export class GridCollisionComponent implements Component {
     // Check if target cell has any occupants with GridCellBlocker
     for (const occupant of toCell.occupants) {
       if (occupant.get(GridCellBlocker)) {
+        this.blockedByPushable = occupant;
         return false;
       }
     }
@@ -227,6 +234,7 @@ export class GridCollisionComponent implements Component {
   // eslint-disable-next-line complexity
   update(_delta: number): void {
     if (!this.enabled) return;
+    this.blockedByPushable = null;
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);

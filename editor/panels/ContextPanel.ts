@@ -583,6 +583,11 @@ export class ContextPanel {
         <div class="form-group"><label>Rarity</label>
         <select id="ef-brarity">${['nothing', 'common', 'uncommon', 'rare', 'epic', 'legendary'].map(r => `<option ${data.rarity === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>`;
     }
+    if (entityDef.type === 'pushable') {
+      typeFields += `<div class="form-group"><label>Texture</label><input id="ef-ptex" value="${data.texture ?? ''}" /></div>
+        <div class="form-group"><label><input type="checkbox" id="ef-push-enabled" ${data.pushEnabled !== false ? 'checked' : ''} /> Push Enabled</label></div>
+        <div class="form-group"><label><input type="checkbox" id="ef-push-persist" ${data.doesPersist ? 'checked' : ''} /> Persist Position</label></div>`;
+    }
     if (entityDef.type === 'lever') {
       typeFields += `<div class="form-group"><label>Event to Raise</label>
         <input id="ef-lever-event" value="${data.eventToRaise ?? ''}" /></div>
@@ -736,6 +741,15 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-brarity')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { rarity: (e.target as HTMLSelectElement).value });
+    });
+    this.container.querySelector('#ef-ptex')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { texture: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-push-enabled')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { pushEnabled: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ef-push-persist')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { doesPersist: (e.target as HTMLInputElement).checked });
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });
