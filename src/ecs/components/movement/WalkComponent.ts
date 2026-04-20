@@ -87,18 +87,25 @@ export class WalkComponent implements Component {
 
     const attackCombo = this.entity.get(AttackComboComponent);
     const isLocked = attackCombo?.isMovementLocked() ?? false;
+    const chargeMultiplier = attackCombo?.getChargeSpeedMultiplier() ?? 1;
+    const facingLocked = attackCombo?.isFacingLocked() ?? false;
 
     const mode = this.controlMode?.getMode() ?? 1;
-    const movementInput = isLocked ? { dx: 0, dy: 0 } : this.inputComp.getInputDelta();
+    const rawInput = this.inputComp.getInputDelta();
+    const movementInput = isLocked ? { dx: 0, dy: 0 } : rawInput;
     const facingInput = this.inputComp.getRawInputDelta();
 
-    if (mode === 1) {
-      this.updateMode1(facingInput);
-    } else {
-      this.updateMode2(facingInput);
+    if (!facingLocked) {
+      if (mode === 1) {
+        this.updateMode1(facingInput);
+      } else {
+        this.updateMode2(facingInput);
+      }
     }
 
     const targetVelocity = this.calculateTargetVelocity(movementInput.dx, movementInput.dy);
+    targetVelocity.x *= chargeMultiplier;
+    targetVelocity.y *= chargeMultiplier;
 
     this.applyMomentum(targetVelocity, delta);
 

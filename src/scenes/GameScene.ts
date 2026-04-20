@@ -616,6 +616,8 @@ export default class GameScene extends Phaser.Scene {
   private playHoleDropIn(player: Entity, _targetX: number, targetY: number): void {
     const DROP_DURATION_MS = 600;
     const DROP_HEIGHT_PX = 300;
+    const PET_OFFSET_X_PX = 30;
+    const PET_OFFSET_Y_PX = 20;
 
     const transform = player.require(TransformComponent);
     const sprite = player.require(SpriteComponent);
@@ -639,6 +641,11 @@ export default class GameScene extends Phaser.Scene {
     // Play powerup south frames 4-5 on loop during fall
     anim.animationSystem.playFrameRange(`powerup_${Direction.Down}`, 4, 5, 'repeat', 0.08);
 
+    const petTargetX = transform.x + PET_OFFSET_X_PX;
+    const petStartY = startY + PET_OFFSET_Y_PX;
+    const petTargetY = targetY + PET_OFFSET_Y_PX;
+    let petLocked = false;
+
     let elapsed = 0;
     const dropUpdate = (_time: number, delta: number) => {
       elapsed += delta;
@@ -647,6 +654,20 @@ export default class GameScene extends Phaser.Scene {
       // Ease in (accelerate like gravity)
       const eased = progress * progress;
       transform.y = startY + (targetY - startY) * eased;
+
+      // Override pet position after its update runs
+      const petEntity = this.entityManager.getFirst('pet');
+      if (petEntity) {
+        const petSpriteComp = petEntity.get(SpriteComponent);
+        const petTransform = petEntity.get(TransformComponent);
+        if (petSpriteComp && petTransform) {
+          petLocked = true;
+          const petY = petStartY + (petTargetY - petStartY) * eased;
+          petTransform.x = petTargetX;
+          petTransform.y = petY;
+          petSpriteComp.sprite.setPosition(petTargetX, petY);
+        }
+      }
 
       if (progress >= 1) {
         this.events.off('update', dropUpdate);
@@ -661,6 +682,26 @@ export default class GameScene extends Phaser.Scene {
           if (walk) walk.setEnabled(true);
           anim.animationSystem.play(`idle_${Direction.Down}`);
         });
+
+        // Keep overriding pet position during landing anim, then release
+        if (petLocked) {
+          const petHoldUpdate = () => {
+            const pe = this.entityManager.getFirst('pet');
+            if (pe) {
+              const ps = pe.get(SpriteComponent);
+              const pt = pe.get(TransformComponent);
+              if (ps && pt) {
+                pt.x = petTargetX;
+                pt.y = petTargetY;
+                ps.sprite.setPosition(petTargetX, petTargetY);
+              }
+            }
+          };
+          this.events.on('update', petHoldUpdate);
+          this.time.delayedCall(700, () => {
+            this.events.off('update', petHoldUpdate);
+          });
+        }
       }
     };
 

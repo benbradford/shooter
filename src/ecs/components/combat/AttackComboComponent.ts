@@ -10,8 +10,10 @@ import { InputComponent } from '../input/InputComponent';
 import { dirFromDelta, type Direction } from '../../../constants/Direction';
 import { createPunchProjectileEntity } from '../../entities/projectile/PunchProjectileEntity';
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
-
+import { SuperPunchParticlesComponent } from '../visual/SuperPunchParticlesComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { ChargeCircleEffect } from './ChargeCircleEffect';
 
 const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
@@ -20,6 +22,10 @@ const PUNCH_FOV_RADIANS = Math.PI * 0.6;
 const PUNCH_HITBOX_DELAY_MS = 170;
 const HOLD_FRAME_INDEX = 4;
 const SHAKE_INTENSITY_PX = 1.5;
+const SUPER_PUNCH_HOLD_THRESHOLD_MS = 1000;
+const SUPER_PUNCH_DAMAGE_MULTIPLIER = 3;
+const SUPER_PUNCH_HITBOX_SIZE_PX = 72;
+const SUPER_PUNCH_DURATION_MS = 840;
 
 let mustFaceEnemy = true;
 
@@ -49,6 +55,8 @@ export class AttackComboComponent implements Component {
   private hitboxCreated: boolean = false;
   private isHoldingAttack: boolean = false;
   private isHoldingPunch: boolean = false;
+  private holdDurationMs: number = 0;
+  private isSuperPunching: boolean = false;
   private punchDir: Direction = 1; // Direction.Down
   private lastAnimDir: Direction = 1;
   private punchDirX: number = 0;
@@ -56,6 +64,7 @@ export class AttackComboComponent implements Component {
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
   private readonly getEnemies: () => Entity[];
+  private chargeCircle: ChargeCircleEffect | null = null;
 
   constructor(props: AttackComboComponentProps) {
     this.scene = props.scene;
@@ -74,7 +83,9 @@ export class AttackComboComponent implements Component {
   }
 
   update(delta: number): void {
-    this.updatePunchDirection();
+    if (!this.isHoldingPunch && !this.isSuperPunching) {
+      this.updatePunchDirection();
+    }
 
     const health = this.entity.require(HealthComponent);
     const hasOverheal = health.isOverhealed();
@@ -89,6 +100,7 @@ export class AttackComboComponent implements Component {
       this.currentPhase = 'idle';
       this.isHoldingPunch = false;
       this.isHoldingAttack = false;
+      this.destroyChargeCircle();
       const anim = this.entity.get(AnimationComponent);
       anim?.animationSystem.setTimeScale(1);
       return;
@@ -98,7 +110,7 @@ export class AttackComboComponent implements Component {
     const walk = this.entity.get(WalkComponent);
 
     // Update punch animation when direction changes
-    if (anim && !this.isHoldingPunch && this.punchDir !== this.lastAnimDir) {
+    if (anim && !this.isHoldingPunch && !this.isSuperPunching && this.punchDir !== this.lastAnimDir) {
       this.lastAnimDir = this.punchDir;
       const currentAnim = anim.animationSystem.getCurrentAnimation();
       const idx = currentAnim?.getIndex() ?? 0;
@@ -110,11 +122,21 @@ export class AttackComboComponent implements Component {
     // Hold phase
     if (this.isHoldingPunch) {
       if (this.isHoldingAttack) {
+        this.holdDurationMs += delta;
         const sprite = this.entity.get(SpriteComponent);
         if (sprite) {
           sprite.sprite.x += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
           sprite.sprite.y += (Math.random() - 0.5) * SHAKE_INTENSITY_PX * 2;
         }
+
+        // Charge circle
+        const transform = this.entity.require(TransformComponent);
+        if (!this.chargeCircle) {
+          this.chargeCircle = new ChargeCircleEffect(this.scene);
+        }
+        const progress = this.holdDurationMs / SUPER_PUNCH_HOLD_THRESHOLD_MS;
+        this.chargeCircle.update(transform.x, transform.y, progress, delta);
+
         // Direction updates handled above via updatePunchDirection + anim swap
         // but during hold, freeze on hold frame
         if (anim) {
@@ -124,12 +146,27 @@ export class AttackComboComponent implements Component {
         }
         return;
       }
-      // Released — fire
+      // Released — destroy charge circle
+      this.destroyChargeCircle();
+      // Released — check for super punch
+      const isSuperPunch = this.holdDurationMs >= SUPER_PUNCH_HOLD_THRESHOLD_MS &&
+        WorldStateManager.getInstance().getFlag('hasSuperPunch') === 'true';
       this.isHoldingPunch = false;
       this.hitboxCreated = true;
       this.phaseTimer = 0;
-      this.createPunchHitbox();
-      anim?.animationSystem.setTimeScale(animSpeed);
+
+      if (isSuperPunch) {
+        this.isSuperPunching = true;
+        this.createSuperPunchHitbox();
+        if (anim) {
+          anim.animationSystem.play(`uppercut_${this.punchDir}`, animSpeed * 0.5);
+        }
+        // Extend duration for uppercut animation at half speed (7 frames × 60ms × 2 = 840ms)
+        this.phaseTimer = -(SUPER_PUNCH_DURATION_MS - punchDuration);
+      } else {
+        this.createPunchHitbox();
+        anim?.animationSystem.setTimeScale(animSpeed);
+      }
       return;
     }
 
@@ -139,6 +176,7 @@ export class AttackComboComponent implements Component {
     const currentAnim = anim?.animationSystem.getCurrentAnimation();
     if (this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
       this.isHoldingPunch = true;
+      this.holdDurationMs = 0;
       currentAnim.setIndex(HOLD_FRAME_INDEX);
       anim!.animationSystem.setTimeScale(0);
       return;
@@ -155,6 +193,7 @@ export class AttackComboComponent implements Component {
       this.phaseTimer = 0;
       this.hitboxCreated = false;
       this.isHoldingPunch = false;
+      this.isSuperPunching = false;
 
       if (walk && anim) {
         const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
@@ -220,6 +259,64 @@ export class AttackComboComponent implements Component {
     this.entityManager.add(particleEntity);
   }
 
+  private createSuperPunchHitbox(): void {
+    const superPunchSounds = ['punch1', 'punch2', 'punch3'];
+    this.scene.sound.play(superPunchSounds[Math.floor(Math.random() * superPunchSounds.length)]);
+
+    const transform = this.entity.require(TransformComponent);
+    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
+
+    let dirX = this.punchDirX;
+    let dirY = this.punchDirY;
+
+    let nearestEnemy: Entity | null = null;
+    let nearestDistance = PUNCH_RANGE_PX;
+
+    for (const enemy of this.getEnemies()) {
+      const et = enemy.get(TransformComponent);
+      if (!et) continue;
+      const dx = et.x - transform.x;
+      const dy = et.y - transform.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist >= nearestDistance) continue;
+
+      if (mustFaceEnemy) {
+        let diff = Math.atan2(dy, dx) - facingAngle;
+        while (diff > Math.PI) diff -= 2 * Math.PI;
+        while (diff < -Math.PI) diff += 2 * Math.PI;
+        if (Math.abs(diff) > PUNCH_FOV_RADIANS / 2) continue;
+      }
+      nearestEnemy = enemy;
+      nearestDistance = dist;
+    }
+
+    if (nearestEnemy) {
+      const et = nearestEnemy.require(TransformComponent);
+      const dx = et.x - transform.x;
+      const dy = et.y - transform.y;
+      const len = Math.hypot(dx, dy);
+      dirX = dx / len;
+      dirY = dy / len;
+    }
+
+    const startX = transform.x + dirX * 30;
+    const startY = transform.y + dirY * 30;
+
+    const halfSize = SUPER_PUNCH_HITBOX_SIZE_PX / 2;
+    this.entityManager.add(createPunchProjectileEntity({
+      scene: this.scene,
+      x: startX, y: startY,
+      dirX, dirY,
+      playerEntity: this.entity,
+      damage: PUNCH_DAMAGE * SUPER_PUNCH_DAMAGE_MULTIPLIER,
+      hitboxOverride: { offsetX: -halfSize, offsetY: -halfSize, width: SUPER_PUNCH_HITBOX_SIZE_PX, height: SUPER_PUNCH_HITBOX_SIZE_PX }
+    }));
+
+    const particleEntity = new Entity('super_punch_particles');
+    particleEntity.add(new SuperPunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
+    this.entityManager.add(particleEntity);
+  }
+
   tryStartPunch(): void {
     if (this.currentPhase !== 'idle' || this.wasAttackPressed) return;
     const waterEffect = this.entity.get(WaterEffectComponent);
@@ -268,10 +365,27 @@ export class AttackComboComponent implements Component {
   }
 
   isMovementLocked(): boolean {
-    return this.isHoldingPunch;
+    return this.isSuperPunching;
+  }
+
+  getChargeSpeedMultiplier(): number {
+    if (this.isSuperPunching) return 0;
+    if (this.isHoldingPunch) return 0.25;
+    return 1;
+  }
+
+  isFacingLocked(): boolean {
+    return this.currentPhase === 'punch';
   }
 
   onDestroy(): void {
-    // No cleanup needed
+    this.destroyChargeCircle();
+  }
+
+  private destroyChargeCircle(): void {
+    if (this.chargeCircle) {
+      this.chargeCircle.destroy();
+      this.chargeCircle = null;
+    }
   }
 }

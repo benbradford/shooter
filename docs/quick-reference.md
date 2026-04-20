@@ -159,7 +159,7 @@ Holes are visual pits that trigger a hop animation then level transition (like e
 - `targetLevel`, `targetCol`, `targetRow`: Same as exit
 - `transformOverride`: Optional `{ scaleX, scaleY, offsetX, offsetY }` for scaling the sprite
 
-**Drop-in on destination:** Player falls from above with gravity easing → plays landing animation → movement enabled. Persists across death/restart (cleared only by normal exits).
+**Drop-in on destination:** Player falls from above with gravity easing → plays landing animation → movement enabled. Pet (if active) falls alongside in idle south pose. Persists across death/restart (cleared only by normal exits).
 
 ## Adding Assets
 

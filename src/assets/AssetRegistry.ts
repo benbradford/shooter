@@ -507,6 +507,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/rocks/rocks6.png',
     type: 'image' as const
   },
+  muddy_floor: {
+    key: 'muddy_floor',
+    path: 'assets/cell_drawables/muddy_floor.png',
+    type: 'image' as const,
+  },
   dungeon_floor: {
     key: 'dungeon_floor',
     path: 'assets/cell_drawables/dungeon_floor.png',

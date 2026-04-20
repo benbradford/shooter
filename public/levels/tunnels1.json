@@ -7,5 +7,10 @@
   },
   "cells": [],
   "entities": [],
-  "levelTheme": "dungeon"
+  "levelTheme": "dungeon",
+   "background": {
+    "floor_texture": "muddy_floor",
+    "floor_tile": 8,
+    "floorAlpha": 0.7
+   }
 }
