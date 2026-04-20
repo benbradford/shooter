@@ -40,7 +40,7 @@ export default class ProfileSelectScene extends Phaser.Scene {
 
     const profiles = await this.getExistingProfiles();
     const existingSet = new Set(profiles);
-    const slotY = [height * 0.35, height * 0.5, height * 0.65];
+    const slotY = [height * 0.28, height * 0.42, height * 0.56, height * 0.70];
 
     for (let i = 0; i < 3; i++) {
       const profileName = `Profile${i + 1}`;
@@ -62,6 +62,14 @@ export default class ProfileSelectScene extends Phaser.Scene {
         }
       });
     }
+
+    // Cheat slot
+    const cheatSlot = this.add.text(width / 2, slotY[3], 'Cheat', SLOT_STYLE);
+    cheatSlot.setOrigin(0.5);
+    cheatSlot.setInteractive({ useHandCursor: true });
+    cheatSlot.on('pointerover', () => cheatSlot.setColor('#ff88ff'));
+    cheatSlot.on('pointerout', () => cheatSlot.setColor('#aaaaaa'));
+    cheatSlot.on('pointerdown', () => this.launchCheatProfile());
   }
 
   private showProfileSubscreen(profileName: string, label: string): void {
@@ -242,6 +250,44 @@ export default class ProfileSelectScene extends Phaser.Scene {
     } catch {
       return `Slot ${slotNum} — ${profileName}`;
     }
+  }
+
+  private launchCheatProfile(): void {
+    const profileName = 'Cheat';
+    const state = {
+      timePlayed: 0,
+      profileDisplayName: 'Cheat',
+      player: { health: 100, coins: 0, currentLevel: 'house3_interior', spawnCol: 1, spawnRow: 3 },
+      flags: {
+        canPunch: 'true',
+        canSwim: 'true',
+        pet_rock_collected: 'true',
+        pet_selected: 'dog',
+        pet_dog_collected: 'true',
+        hasSuperPunch: 'true',
+        hasCompanion: 'true'
+      },
+      levels: {}
+    };
+    localStorage.setItem(`state_${profileName}`, JSON.stringify(state));
+    void WorldStateManager.shouldUseLocalStorage().then(isLocal => {
+      if (!isLocal) {
+        void fetch('/api/create-profile', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: profileName })
+        }).then(() =>
+          fetch('/api/save-state', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ profile: profileName, data: JSON.stringify(state, null, 2) })
+          })
+        ).catch(() => { /* server unavailable */ });
+      }
+    });
+    this.input.removeAllListeners();
+    this.cameras.main.fadeOut(500);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('game', { profileName });
+    });
   }
 
   private launchProfile(profileName: string, exists: boolean, displayName?: string): void {

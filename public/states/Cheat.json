@@ -1,0 +1,45 @@
+{
+  "timePlayed": 2.934,
+  "profileDisplayName": "Cheat",
+  "player": {
+    "health": 100,
+    "coins": 0,
+    "currentLevel": "grass_overworld1",
+    "spawnCol": 35,
+    "spawnRow": 6,
+    "entryCell": {
+      "col": 35,
+      "row": 6
+    }
+  },
+  "flags": {
+    "canPunch": "true",
+    "canSwim": "true",
+    "pet_rock_collected": "true",
+    "pet_selected": "dog",
+    "pet_dog_collected": "true",
+    "hasSuperPunch": "true",
+    "hasCompanion": "true",
+    "level_entered_house3_interior": "true",
+    "_enteredViaHole": ""
+  },
+  "levels": {
+    "house3_interior": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [],
+      "modifiedCells": [
+        {
+          "col": 2,
+          "row": 2,
+          "layer": 0,
+          "properties": [
+            "blocked"
+          ],
+          "backgroundTexture": "bed1"
+        }
+      ],
+      "movedEntities": []
+    }
+  }
+}

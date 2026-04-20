@@ -1,11 +1,12 @@
-import type Phaser from 'phaser';
+import Phaser from 'phaser';
 
-const CIRCLE_RADIUS_PX = 34;
-const CIRCLE_LINE_WIDTH_PX = 3;
+const LINE_WIDTH_PX = 64;
+const LINE_THICKNESS_PX = 3;
+const LINE_OFFSET_Y_PX = -30;
 const PULSE_SPEED = 8;
-const PULSE_AMOUNT_PX = 3;
+const PULSE_AMOUNT_PX = 1;
+const COLOR_TWEEN_SPEED = 8;
 const PARTICLE_INTERVAL_MS = 120;
-const COLOR_TWEEN_SPEED = 4;
 
 export class ChargeCircleEffect {
   private readonly graphics: Phaser.GameObjects.Graphics;
@@ -32,30 +33,30 @@ export class ChargeCircleEffect {
       this.pulseTime += delta / 1000;
     }
 
-    // Interpolate yellow (0xffff00) → red (0xff0000)
+    // Color: yellow → red during fill, tween when full
     let color: number;
     if (this.isFull) {
-      // Tween between yellow and red when fully charged
       const t = (Math.sin(this.pulseTime * COLOR_TWEEN_SPEED) + 1) / 2;
-      const g = Math.round(255 * t);
-      color = (0xff << 16) | (g << 8);
+      // Tween between muted red (0xdd3300) and muted yellow (0xddcc00)
+      const r = 0xdd;
+      const g = Math.round(0x33 + t * (0xcc - 0x33));
+      color = (r << 16) | (g << 8);
     } else {
       const g = Math.round(255 * (1 - clamped));
       color = (0xff << 16) | (g << 8);
     }
 
-    let radius = CIRCLE_RADIUS_PX;
+    // Line grows from center outward
+    let halfWidth = (LINE_WIDTH_PX / 2) * clamped;
     if (this.isFull) {
-      radius += Math.sin(this.pulseTime * PULSE_SPEED) * PULSE_AMOUNT_PX;
+      halfWidth += Math.sin(this.pulseTime * PULSE_SPEED) * PULSE_AMOUNT_PX;
     }
 
-    // Draw arc from top (-90°) clockwise
-    const startAngle = -Math.PI / 2;
-    const endAngle = startAngle + clamped * Math.PI * 2;
-
-    this.graphics.lineStyle(CIRCLE_LINE_WIDTH_PX, color, 0.9);
+    const lineY = y + LINE_OFFSET_Y_PX;
+    this.graphics.lineStyle(LINE_THICKNESS_PX, color, 0.9);
     this.graphics.beginPath();
-    this.graphics.arc(x, y, radius, startAngle, endAngle, false);
+    this.graphics.moveTo(x - halfWidth, lineY);
+    this.graphics.lineTo(x + halfWidth, lineY);
     this.graphics.strokePath();
 
     // Particles when full
@@ -64,7 +65,7 @@ export class ChargeCircleEffect {
       if (!wasFull || this.particleTimer >= PARTICLE_INTERVAL_MS) {
         this.particleTimer = 0;
         if (!this.emitter) {
-          this.emitter = this.scene.add.particles(x, y, 'fire', {
+          this.emitter = this.scene.add.particles(x, lineY, 'fire', {
             speed: { min: 20, max: 60 },
             angle: { min: 0, max: 360 },
             scale: { start: 0.015, end: 0 },
@@ -72,11 +73,12 @@ export class ChargeCircleEffect {
             tint: [0xff4400, 0xffaa00],
             lifespan: 400,
             frequency: PARTICLE_INTERVAL_MS,
-            blendMode: 'ADD'
+            blendMode: 'ADD',
+            emitZone: { type: 'random' as const, source: new Phaser.Geom.Rectangle(-LINE_WIDTH_PX / 2, -2, LINE_WIDTH_PX, 4) as unknown as Phaser.Types.GameObjects.Particles.RandomZoneSource }
           });
           this.emitter.setDepth(2000);
         }
-        this.emitter.setPosition(x, y);
+        this.emitter.setPosition(x, lineY);
       }
     }
 
