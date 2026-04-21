@@ -10,7 +10,7 @@ const BACKGROUND_TEXTURE_KEYS = [
   'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6',
   'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8',
   'stone_floor', 'stone_stairs', 'stone_wall', 'submerged_rock1',
-  'table1', 'table2', 'tree1', 'tree2', 'wall_torch',
+  'table1', 'table2', 'tree1', 'tree2', 'wall_cracked', 'wall_torch',
   'sconce_bg', 'grass1', 'grass2', 'rock', 'dungeon_vase',
 ];
 

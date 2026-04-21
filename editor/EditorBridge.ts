@@ -392,7 +392,7 @@ export class EditorBridge {
         bug_base: { col, row, difficulty: 'medium' },
         bullet_dude: { col, row, difficulty: 'medium' },
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
-        breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic' },
+        breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic', requiresSuperPunch: false },
         pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false },
         hole: { col, row, texture: 'hole_with_roots', targetLevel: '', targetCol: 0, targetRow: 0 },
         collectible: { col, row, preset: 'mist_orb' },
@@ -937,8 +937,15 @@ export class EditorBridge {
       } else if (entity.id.startsWith('breakable')) {
         type = 'breakable';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
-        const existingData = existing?.data as { texture?: string; health?: number; rarity?: string } | undefined;
-        data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'dungeon_vase', health: existingData?.health ?? 1, rarity: existingData?.rarity ?? 'epic' };
+        const existingData = existing?.data as { texture?: string; health?: number; rarity?: string; requiresSuperPunch?: boolean; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } } | undefined;
+        data = {
+          col: cell.col, row: cell.row,
+          texture: existingData?.texture ?? 'dungeon_vase',
+          health: existingData?.health ?? 1,
+          rarity: existingData?.rarity ?? 'epic',
+          ...(existingData?.requiresSuperPunch ? { requiresSuperPunch: true } : {}),
+          ...(existingData?.transformOverride ? { transformOverride: existingData.transformOverride } : {}),
+        };
       } else if (entity.id.startsWith('pushable')) {
         type = 'pushable';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

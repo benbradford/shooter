@@ -302,7 +302,7 @@ export class EntityLoader {
 
       case 'breakable':
         return () => {
-          const breakableData = data as { col: number; row: number; texture: string; health: number; rarity?: string };
+          const breakableData = data as { col: number; row: number; texture: string; health: number; rarity?: string; requiresSuperPunch?: boolean; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
           return createBreakableEntity({
             scene: this.scene,
             col: breakableData.col,
@@ -312,6 +312,8 @@ export class EntityLoader {
             health: breakableData.health,
             entityId: entityDef.id,
             rarity: (breakableData.rarity as Rarity) ?? 'nothing',
+            requiresSuperPunch: breakableData.requiresSuperPunch ?? false,
+            transformOverride: breakableData.transformOverride,
             playerEntity: player,
             onSpawnCoin: (x, y, velocityX, velocityY, targetY) => {
               const coin = createCoinEntity({

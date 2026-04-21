@@ -184,6 +184,24 @@
       }
     },
     {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 4,
+        "row": 1,
+        "texture": "wall_cracked",
+        "health": 1,
+        "rarity": "nothing",
+        "requiresSuperPunch": true,
+        "transformOverride": {
+          "scaleX": 1,
+          "scaleY": 1,
+          "offsetX": 0,
+          "offsetY": -1
+        }
+      }
+    },
+    {
       "id": "exit1",
       "type": "exit",
       "data": {
@@ -198,6 +216,44 @@
         ],
         "oneShot": true
       }
+    },
+    {
+      "id": "cellmodifier0",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 4,
+            "row": 1,
+            "properties": [],
+            "layer": 0,
+            "backgroundTexture": "hole_in_wall"
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "breakable2_destroyed"
+      ]
+    },
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "interior2n",
+        "targetCol": 5,
+        "targetRow": 5,
+        "triggerCells": [
+          {
+            "col": 4,
+            "row": 1
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "breakable2_destroyed"
+      ]
     }
   ],
   "background": {

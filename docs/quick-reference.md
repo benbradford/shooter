@@ -66,14 +66,17 @@ Level transitions work automatically via exit triggers. The system:
 - Animation: `uppercut_${dir}` at 0.5× speed, 840ms duration
 - Damage: 60 (3× normal), Hitbox: 72×72px (vs 44×44 normal)
 - Particles: `SuperPunchParticlesComponent` — white/yellow/orange directional burst + radial ring
-- Sound: Reuses punch1/2/3 (placeholder)
+- Sound: `superpunch.mp3`
 - Movement and new punches blocked for full duration
 - Charge indicator: `ChargeCircleEffect` (actually a horizontal bar) — destroyed on release regardless of charge level
+- Rise effect: Player sprite rises 25px in a sine arc during the uppercut, using `SpriteComponent.visualOffsetYPx`
 
 **Key files:**
 - `src/ecs/components/combat/AttackComboComponent.ts` — hold tracking, super punch dispatch
 - `src/ecs/components/combat/ChargeCircleEffect.ts` — charge bar visual (line + particles)
 - `src/ecs/components/visual/SuperPunchParticlesComponent.ts` — super punch particle effects
+
+**⚠️ `SpriteComponent.visualOffsetYPx`:** Visual-only Y offset that doesn't affect transform, camera, shadow, or collision. Any component that directly sets `sprite.y` (like `WaterEffectComponent`) must add `sprite.visualOffsetYPx` to respect it.
 
 **Slide Ability:**
 - Press H or tap pet action button

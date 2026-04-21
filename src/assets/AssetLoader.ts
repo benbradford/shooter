@@ -164,6 +164,13 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
           textureSet.add(texture as AssetKey);
         }
       }
+      if (entity.type === 'cellmodifier' && Array.isArray(entity.data.cellsToModify)) {
+        for (const mod of entity.data.cellsToModify as Array<{ backgroundTexture?: string }>) {
+          if (mod.backgroundTexture && mod.backgroundTexture in ASSET_REGISTRY) {
+            textureSet.add(mod.backgroundTexture as AssetKey);
+          }
+        }
+      }
     }
   }
 

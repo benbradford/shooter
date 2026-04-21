@@ -549,16 +549,17 @@ export class ContextPanel {
         <textarea id="ef-events" rows="4">${JSON.stringify(events, null, 2)}</textarea></div>`;
     }
     if (entityDef.type === 'cellmodifier') {
-      const cells = (data.cellsToModify as Array<{ col: number; row: number; properties?: string[]; layer?: number }>) ?? [];
-      const cellRows = cells.map((c, i) => `<div class="cellmod-row" style="display:grid;grid-template-columns:1fr 1fr 2fr 1fr auto;gap:4px;align-items:center;margin-bottom:4px">
+      const cells = (data.cellsToModify as Array<{ col: number; row: number; properties?: string[]; layer?: number; backgroundTexture?: string }>) ?? [];
+      const cellRows = cells.map((c, i) => `<div class="cellmod-row" style="display:grid;grid-template-columns:1fr 1fr 2fr 1fr 2fr auto;gap:4px;align-items:center;margin-bottom:4px">
         <input type="number" class="cm-col" data-i="${i}" value="${c.col}" style="width:100%" placeholder="col" />
         <input type="number" class="cm-row" data-i="${i}" value="${c.row}" style="width:100%" placeholder="row" />
         <input class="cm-props" data-i="${i}" value="${(c.properties ?? []).join(',')}" style="width:100%" placeholder="props" />
         <input type="number" class="cm-layer" data-i="${i}" value="${c.layer ?? ''}" style="width:100%" placeholder="layer" />
+        <input class="cm-tex" data-i="${i}" value="${c.backgroundTexture ?? ''}" style="width:100%" placeholder="texture" />
         <button class="ed-btn cm-remove" data-i="${i}" style="padding:2px 6px">✕</button>
       </div>`).join('');
       typeFields += `<div class="form-group"><label>Cells to Modify (${cells.length})</label>
-        <div style="font-size:10px;color:#7f8c8d;margin-bottom:4px">col | row | properties | layer</div>
+        <div style="font-size:10px;color:#7f8c8d;margin-bottom:4px">col | row | properties | layer | texture</div>
         <div id="ef-cellmod-list">${cellRows}</div>
         <button class="ed-btn" id="ef-cellmod-add" style="margin-top:4px;width:100%">+ Add Cell</button></div>`;
     }
@@ -578,10 +579,16 @@ export class ContextPanel {
         <textarea id="ef-interactions" rows="6">${JSON.stringify(data.interactions ?? [], null, 2)}</textarea></div>`;
     }
     if (entityDef.type === 'breakable') {
-      typeFields += `<div class="form-group"><label>Texture</label><input id="ef-btex" value="${data.texture ?? ''}" /></div>
-        <div class="form-group"><label>Health</label><input type="number" id="ef-bhealth" value="${data.health ?? 1}" /></div>
+      const bData = data as { texture?: string; health?: number; rarity?: string; requiresSuperPunch?: boolean; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
+      typeFields += `<div class="form-group"><label>Texture</label><input id="ef-btex" value="${bData.texture ?? ''}" /></div>
+        <div class="form-group"><label>Health</label><input type="number" id="ef-bhealth" value="${bData.health ?? 1}" /></div>
         <div class="form-group"><label>Rarity</label>
-        <select id="ef-brarity">${['nothing', 'common', 'uncommon', 'rare', 'epic', 'legendary'].map(r => `<option ${data.rarity === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>`;
+        <select id="ef-brarity">${['nothing', 'common', 'uncommon', 'rare', 'epic', 'legendary'].map(r => `<option ${bData.rarity === r ? 'selected' : ''}>${r}</option>`).join('')}</select></div>
+        <div class="form-group"><label><input type="checkbox" id="ef-bsuper" ${bData.requiresSuperPunch ? 'checked' : ''} /> Requires Super Punch</label></div>
+        <div class="form-group"><label>Scale X</label><input type="number" step="0.1" id="ef-bsx" value="${bData.transformOverride?.scaleX ?? 1}" /></div>
+        <div class="form-group"><label>Scale Y</label><input type="number" step="0.1" id="ef-bsy" value="${bData.transformOverride?.scaleY ?? 1}" /></div>
+        <div class="form-group"><label>Offset X</label><input type="number" id="ef-box" value="${bData.transformOverride?.offsetX ?? 0}" /></div>
+        <div class="form-group"><label>Offset Y</label><input type="number" id="ef-boy" value="${bData.transformOverride?.offsetY ?? 0}" /></div>`;
     }
     if (entityDef.type === 'pushable') {
       typeFields += `<div class="form-group"><label>Texture</label><input id="ef-ptex" value="${data.texture ?? ''}" /></div>
@@ -687,20 +694,22 @@ export class ContextPanel {
     // CellModifier structured UI
     const collectCellMods = () => {
       const rows = this.container.querySelectorAll('.cellmod-row');
-      const mods: Array<{ col: number; row: number; properties?: string[]; layer?: number }> = [];
+      const mods: Array<{ col: number; row: number; properties?: string[]; layer?: number; backgroundTexture?: string }> = [];
       for (const row of rows) {
         const col = Number.parseInt((row.querySelector('.cm-col') as HTMLInputElement).value);
         const rowVal = Number.parseInt((row.querySelector('.cm-row') as HTMLInputElement).value);
         const propsStr = (row.querySelector('.cm-props') as HTMLInputElement).value.trim();
         const layerStr = (row.querySelector('.cm-layer') as HTMLInputElement).value.trim();
-        const mod: { col: number; row: number; properties?: string[]; layer?: number } = { col, row: rowVal };
+        const texStr = (row.querySelector('.cm-tex') as HTMLInputElement).value.trim();
+        const mod: { col: number; row: number; properties?: string[]; layer?: number; backgroundTexture?: string } = { col, row: rowVal };
         mod.properties = propsStr ? propsStr.split(',').map(s => s.trim()).filter(Boolean) : [];
         if (layerStr !== '') mod.layer = Number.parseInt(layerStr);
+        if (texStr) mod.backgroundTexture = texStr;
         mods.push(mod);
       }
       return mods;
     };
-    for (const input of this.container.querySelectorAll('.cm-col, .cm-row, .cm-props, .cm-layer')) {
+    for (const input of this.container.querySelectorAll('.cm-col, .cm-row, .cm-props, .cm-layer, .cm-tex')) {
       input.addEventListener('change', () => {
         this.bridge.updateEntityData(entityId, { cellsToModify: collectCellMods() });
       });
@@ -753,6 +762,26 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-brarity')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { rarity: (e.target as HTMLSelectElement).value });
+    });
+    this.container.querySelector('#ef-bsuper')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { requiresSuperPunch: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ef-bsx')?.addEventListener('change', () => {
+      this.bridge.updateEntityData(entityId, { transformOverride: {
+        scaleX: Number.parseFloat((this.container.querySelector('#ef-bsx') as HTMLInputElement).value),
+        scaleY: Number.parseFloat((this.container.querySelector('#ef-bsy') as HTMLInputElement).value),
+        offsetX: Number.parseInt((this.container.querySelector('#ef-box') as HTMLInputElement).value),
+        offsetY: Number.parseInt((this.container.querySelector('#ef-boy') as HTMLInputElement).value),
+      }});
+    });
+    this.container.querySelector('#ef-bsy')?.addEventListener('change', () => {
+      (this.container.querySelector('#ef-bsx') as HTMLInputElement).dispatchEvent(new Event('change'));
+    });
+    this.container.querySelector('#ef-box')?.addEventListener('change', () => {
+      (this.container.querySelector('#ef-bsx') as HTMLInputElement).dispatchEvent(new Event('change'));
+    });
+    this.container.querySelector('#ef-boy')?.addEventListener('change', () => {
+      (this.container.querySelector('#ef-bsx') as HTMLInputElement).dispatchEvent(new Event('change'));
     });
     this.container.querySelector('#ef-ptex')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { texture: (e.target as HTMLInputElement).value });

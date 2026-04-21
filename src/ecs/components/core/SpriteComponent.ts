@@ -7,6 +7,8 @@ import { TextureReferenceTracker } from '../../../systems/TextureReferenceTracke
 export type SpriteComponentProps = {
   offsetXPx?: number;
   offsetYPx?: number;
+  scaleXOverride?: number;
+  scaleYOverride?: number;
 }
 
 export class SpriteComponent implements Component {
@@ -14,6 +16,8 @@ export class SpriteComponent implements Component {
   readonly sprite: Phaser.GameObjects.Sprite;
   private readonly offsetXPx: number;
   private readonly offsetYPx: number;
+  private readonly scaleXOverride?: number;
+  private readonly scaleYOverride?: number;
   private trackedTextureKey: string;
   visualOffsetYPx: number = 0;
 
@@ -25,6 +29,8 @@ export class SpriteComponent implements Component {
   ) {
     this.offsetXPx = props.offsetXPx ?? 0;
     this.offsetYPx = props.offsetYPx ?? 0;
+    this.scaleXOverride = props.scaleXOverride;
+    this.scaleYOverride = props.scaleYOverride;
     this.trackedTextureKey = texture;
     this.sprite = scene.add.sprite(
       transformComp.x + this.offsetXPx,
@@ -41,7 +47,11 @@ export class SpriteComponent implements Component {
       this.transformComp.y + this.offsetYPx + this.visualOffsetYPx
     );
     this.sprite.setRotation(this.transformComp.rotation);
-    this.sprite.setScale(this.transformComp.scale);
+    if (this.scaleXOverride !== undefined || this.scaleYOverride !== undefined) {
+      this.sprite.setScale(this.scaleXOverride ?? this.transformComp.scale, this.scaleYOverride ?? this.transformComp.scale);
+    } else {
+      this.sprite.setScale(this.transformComp.scale);
+    }
   }
 
   onDestroy(): void {

@@ -21,13 +21,17 @@ export type CreateBreakableProps = {
   health: number;
   entityId: string;
   rarity: Rarity;
+  requiresSuperPunch: boolean;
+  transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number };
   playerEntity: Entity;
   onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
   onSpawnMedipack: (x: number, y: number) => void;
 }
 
+const SUPER_PUNCH_DAMAGE_THRESHOLD = 60;
+
 export function createBreakableEntity(props: CreateBreakableProps): Entity {
-  const { scene, col, row, grid, texture, health, entityId, rarity, onSpawnCoin, onSpawnMedipack } = props;
+  const { scene, col, row, grid, texture, health, entityId, rarity, requiresSuperPunch, transformOverride, onSpawnCoin, onSpawnMedipack } = props;
   const entity = new Entity(entityId);
   entity.tags.add('breakable');
 
@@ -41,8 +45,15 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   const maxDimension = Math.max(frame.width, frame.height);
   const scale = targetSize / maxDimension;
 
+  const finalScaleX = scale * (transformOverride?.scaleX ?? 1);
+  const finalScaleY = scale * (transformOverride?.scaleY ?? 1);
   const transform = entity.add(new TransformComponent(x, y, 0, scale));
-  const sprite = entity.add(new SpriteComponent(scene, texture, transform));
+  const sprite = entity.add(new SpriteComponent(scene, texture, transform, {
+    offsetXPx: transformOverride?.offsetX ?? 0,
+    offsetYPx: transformOverride?.offsetY ?? 0,
+    scaleXOverride: transformOverride ? finalScaleX : undefined,
+    scaleYOverride: transformOverride ? finalScaleY : undefined,
+  }));
   sprite.sprite.setOrigin(0.5, 0.5);
   sprite.sprite.setDepth(Depth.breakable);
   sprite.sprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
@@ -74,7 +85,12 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
         const dmg = other.get(DamageComponent);
-        breakable.takeDamage(dmg?.damage ?? 10);
+        const damage = dmg?.damage ?? 10;
+        if (requiresSuperPunch && damage < SUPER_PUNCH_DAMAGE_THRESHOLD) {
+          scene.sound.play('thud1');
+          return;
+        }
+        breakable.takeDamage(damage);
         scene.time.delayedCall(0, () => other.destroy());
       }
     }
