@@ -320,6 +320,7 @@ export class RockThrowAbility implements Component {
       damage: THROW_DAMAGE,
       arcHeight: THROW_ARC_HEIGHT_PX,
       grid: this.grid,
+      blockedAreaManager: (this.scene as unknown as { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
       startLayer,
       onLand: (x: number, y: number) => {
         if (this.entity.isDestroyed) return;

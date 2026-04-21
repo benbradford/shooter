@@ -5,12 +5,77 @@
     "x": 1,
     "y": 3
   },
-  "cells": [],
+  "cells": [
+    {
+      "col": 7,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "platform",
+        "wall"
+      ]
+    }
+  ],
   "entities": [],
   "levelTheme": "dungeon",
-   "background": {
+  "background": {
     "floor_texture": "muddy_floor",
+    "wall_texture": "muddy_wall",
     "floor_tile": 8,
     "floorAlpha": 0.7
-   }
+  }
 }

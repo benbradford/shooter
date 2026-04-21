@@ -7,6 +7,7 @@ import { DamageComponent } from '../../components/core/DamageComponent';
 import { RockArcComponent } from '../../components/pet/RockArcComponent';
 import { Depth } from '../../../constants/DepthConstants';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 const ROCK_PROJECTILE_COLLISION_SIZE_PX = 24;
 const ROCK_PROJECTILE_SCALE = 0.6;
@@ -22,6 +23,7 @@ export type CreateRockProjectileProps = {
   damage: number;
   arcHeight: number;
   grid: Grid;
+  blockedAreaManager?: BlockedAreaManager;
   startLayer: number;
   onLand: (x: number, y: number) => void;
   onHit: (x: number, y: number) => void;
@@ -61,7 +63,7 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
   }));
 
   entity.add(new RockArcComponent({
-    dirX, dirY, speed, maxDistance, arcHeight, grid, onLand,
+    dirX, dirY, speed, maxDistance, arcHeight, grid, blockedAreaManager: props.blockedAreaManager, onLand,
   }));
 
   entity.setUpdateOrder([

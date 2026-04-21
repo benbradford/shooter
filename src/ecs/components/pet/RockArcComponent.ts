@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 export type RockArcProps = {
   dirX: number;
@@ -11,6 +12,7 @@ export type RockArcProps = {
   maxDistance: number;
   arcHeight: number;
   grid: Grid;
+  blockedAreaManager?: BlockedAreaManager;
   onLand: (x: number, y: number) => void;
 };
 
@@ -23,6 +25,7 @@ export class RockArcComponent implements Component {
   private readonly maxDistance: number;
   private readonly arcHeight: number;
   private readonly grid: Grid;
+  private readonly blockedAreaManager?: BlockedAreaManager;
   private readonly onLand: (x: number, y: number) => void;
   private isStopped = false;
   private hasLanded = false;
@@ -34,6 +37,7 @@ export class RockArcComponent implements Component {
     this.maxDistance = props.maxDistance;
     this.arcHeight = props.arcHeight;
     this.grid = props.grid;
+    this.blockedAreaManager = props.blockedAreaManager;
     this.onLand = props.onLand;
   }
 
@@ -52,16 +56,20 @@ export class RockArcComponent implements Component {
       const shouldCheckWalls = this.distanceTraveled > 40;
 
       if (shouldCheckWalls) {
-        const cell = this.grid.worldToCell(nextX, nextY);
-        const cellData = this.grid.getCell(cell.col, cell.row);
-        const isBlocked = cellData && (
-          cellData.properties.has('blocked') ||
-          cellData.properties.has('wall') ||
-           (cellData.properties.has('platform'))
-        );
-
-        if (isBlocked) {
+        if (this.blockedAreaManager?.isPointInside(nextX, nextY, 0)) {
           this.isStopped = true;
+        }
+
+        if (!this.isStopped) {
+          const cell = this.grid.worldToCell(nextX, nextY);
+          const cellData = this.grid.getCell(cell.col, cell.row);
+          const isBlocked = cellData && (
+            cellData.properties.has('blocked') ||
+            cellData.properties.has('wall')
+          );
+          if (isBlocked) {
+            this.isStopped = true;
+          }
         }
       }
 

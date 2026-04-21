@@ -79,14 +79,10 @@ Level transitions work automatically via exit triggers. The system:
 **⚠️ `SpriteComponent.visualOffsetYPx`:** Visual-only Y offset that doesn't affect transform, camera, shadow, or collision. Any component that directly sets `sprite.y` (like `WaterEffectComponent`) must add `sprite.visualOffsetYPx` to respect it.
 
 **Slide Ability:**
-- Press H or tap pet action button
+- Press P or tap pet action button
 - 250px slide at 400px/s, invulnerable during slide
 - 3 second cooldown
 - Button alpha: 0.9 unpressed, 1.0 pressed, 0.3 cooldown
-
-**Debug Mode (Press P):**
-- Toggle `mustFaceEnemy` (false = 128px radius, true = 108° FOV cone)
-- Press C to visualize FOV cone
 
 ## NPC System
 
@@ -244,7 +240,7 @@ Triggers fire events when player walks into them. Use editor: Entity tool → tr
 ## Pet System
 
 **Enable pets:** Set WorldState flags (`pet_rock_collected`, `pet_selected`)
-**Controls:** H key triggers pet ability
+**Controls:** P key triggers pet ability
 **Behavior:** Pet follows using smooth delta-based movement, stops within 128px, teleports if >800px, hides in water
 **Movement:** Always uses pathfinding on layer 0, speed lerps between run (300px/s) and wander (60px/s)
 **Available pets:** rock (4-dir), dog (8-dir)
