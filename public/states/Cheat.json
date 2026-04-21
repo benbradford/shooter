@@ -1,9 +1,9 @@
 {
-  "timePlayed": 2.934,
+  "timePlayed": 5.225,
   "profileDisplayName": "Cheat",
   "player": {
     "health": 100,
-    "coins": 0,
+    "coins": 2,
     "currentLevel": "grass_overworld1",
     "spawnCol": 35,
     "spawnRow": 6,
@@ -26,7 +26,10 @@
   "levels": {
     "house3_interior": {
       "liveEntities": [],
-      "destroyedEntities": [],
+      "destroyedEntities": [
+        "breakable2",
+        "breakable3"
+      ],
       "firedTriggers": [],
       "modifiedCells": [
         {

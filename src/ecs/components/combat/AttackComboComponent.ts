@@ -137,12 +137,26 @@ export class AttackComboComponent implements Component {
         const progress = this.holdDurationMs / SUPER_PUNCH_HOLD_THRESHOLD_MS;
         this.chargeCircle.update(transform.x, transform.y, progress, delta);
 
-        // Direction updates handled above via updatePunchDirection + anim swap
-        // but during hold, freeze on hold frame
+        // Use walking_punch if moving, freeze punch frame if not
+        const input = this.entity.get(InputComponent);
+        const moveDelta = input?.getInputDelta();
+        const isMoving = moveDelta && (moveDelta.dx !== 0 || moveDelta.dy !== 0);
+
         if (anim) {
-          anim.animationSystem.play(`punch_${this.punchDir}`);
-          anim.animationSystem.getCurrentAnimation()?.setIndex(HOLD_FRAME_INDEX);
-          anim.animationSystem.setTimeScale(0);
+          if (isMoving) {
+            const walkPunchKey = `walking_punch_${this.punchDir}`;
+            if (anim.animationSystem.getCurrentKey() !== walkPunchKey) {
+              anim.animationSystem.play(walkPunchKey);
+            }
+            anim.animationSystem.setTimeScale(1);
+          } else {
+            const punchKey = `punch_${this.punchDir}`;
+            if (anim.animationSystem.getCurrentKey() !== punchKey) {
+              anim.animationSystem.play(punchKey);
+            }
+            anim.animationSystem.getCurrentAnimation()?.setIndex(HOLD_FRAME_INDEX);
+            anim.animationSystem.setTimeScale(0);
+          }
         }
         return;
       }
