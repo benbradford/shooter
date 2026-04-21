@@ -185,6 +185,13 @@ The `Animation` class supports four styles:
 
 **Key behavior:** Calling `AnimationSystem.play()` with the same animation key resets it. This allows `'once'` animations to replay.
 
+**`getCurrentKey()`**: Returns the key of the currently playing animation. Use this to avoid calling `play()` every frame with the same key (which resets the animation). Pattern:
+```typescript
+if (anim.animationSystem.getCurrentKey() !== targetKey) {
+  anim.animationSystem.play(targetKey);
+}
+```
+
 ## Common Patterns
 
 ### Smooth Enemy Pushing

@@ -2,8 +2,8 @@
 
 **File:** `public/assets/attacker/attacker-spritesheet.png`
 **Frame Size:** 56x56 pixels
-**Sheet Dimensions:** 12 columns × 53 rows = 636 slots (631 used)
-**Total Frames:** 631
+**Sheet Dimensions:** 12 columns × 56 rows = 672 slots (671 used)
+**Total Frames:** 671
 
 ## Frame Layout
 
@@ -19,12 +19,13 @@ All multi-direction animations use 8 directions in order: South, South-East, Eas
 | 159-230 | Power up (raising arms) | 9 | `powerup` |
 | 231-278 | Pushing | 6 | `push` |
 | 279-326 | Running | 6 | `run` |
-| 327-382 | Surprise uppercut | 7 | `uppercut` |
-| 383-438 | Throw object | 7 | `throw` |
-| 439-470 | Walking | 4 | `walk` |
-| 471-518 | Sliding | 6 | `slide` |
+| 327-374 | Sliding | 6 | `slide` |
+| 375-430 | Surprise uppercut | 7 | `uppercut` |
+| 431-462 | Walking | 4 | `walk` |
+| 463-518 | Throw object | 7 | `throw` |
 | 519-574 | Breaststroke (raw) | 7 | — |
 | 575-630 | Swimming (blue tint) | 7 | `swim` |
+| 631-670 | Walking punch | 5 | `walking_punch` |
 
 ## Idle Rotations (Frames 0-7)
 

@@ -11,6 +11,7 @@ import { LineOfSightComponent } from '../../components/combat/LineOfSightCompone
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { FireballPropertiesComponent } from '../../components/ai/FireballPropertiesComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { DamageComponent } from '../../components/core/DamageComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
@@ -167,7 +168,8 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
         }
 
         const healthComp = entity.require(HealthComponent);
-        healthComp.takeDamage(ROBOT_BULLET_DAMAGE);
+        const dmg = other.get(DamageComponent);
+        healthComp.takeDamage(dmg?.damage ?? ROBOT_BULLET_DAMAGE);
 
         const hitParticles = entity.get(RobotHitParticlesComponent);
         if (hitParticles) {

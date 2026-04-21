@@ -53,11 +53,27 @@ Level transitions work automatically via exit triggers. The system:
 - Respects layer boundaries (can't hit different layers unless on stairs)
 - Cancelled if player starts water hop mid-punch; blocked during hop
 
-**Hold-to-Repeat:**
+**Hold-to-Charge:**
 - Tap: Single punch, can move
-- Hold: Freezes on frame 5 with shake effect, can spin to aim, movement locked
-- Release: Hitbox + particles fire, animation completes
-- Prepares for future super-punch feature
+- Hold: Freezes on frame 5 with shake effect, charge bar appears above player
+- During charge: Player can move at 25% speed, facing direction locked, plays `walking_punch` anim if moving
+- Charge bar: Horizontal line (64px) grows from center, yellow→red color, pulses when full
+- Release (< 1s): Normal punch
+- Release (≥ 1s + `hasSuperPunch` flag): Super punch — `uppercut` anim at half speed, 3× damage (60), 72×72 hitbox, extravagant particles (35 directional + 12 radial burst), movement fully locked during animation
+
+**Super Punch:**
+- Requires: Hold punch ≥ 1 second AND WorldState flag `hasSuperPunch` = `"true"`
+- Animation: `uppercut_${dir}` at 0.5× speed, 840ms duration
+- Damage: 60 (3× normal), Hitbox: 72×72px (vs 44×44 normal)
+- Particles: `SuperPunchParticlesComponent` — white/yellow/orange directional burst + radial ring
+- Sound: Reuses punch1/2/3 (placeholder)
+- Movement and new punches blocked for full duration
+- Charge indicator: `ChargeCircleEffect` (actually a horizontal bar) — destroyed on release regardless of charge level
+
+**Key files:**
+- `src/ecs/components/combat/AttackComboComponent.ts` — hold tracking, super punch dispatch
+- `src/ecs/components/combat/ChargeCircleEffect.ts` — charge bar visual (line + particles)
+- `src/ecs/components/visual/SuperPunchParticlesComponent.ts` — super punch particle effects
 
 **Slide Ability:**
 - Press H or tap pet action button
@@ -247,6 +263,15 @@ See [Pet System](./pets-quick-ref.md) for details.
 - `src/ecs/components/companion/CompanionTrailComponent.ts` — Cyan+white particle trail
 - `src/ecs/components/companion/CompanionGlowComponent.ts` — Glow + flicker
 
+## Cheat Profile
+
+The profile select screen has a 4th "Cheat" slot that starts with all abilities unlocked:
+- `canPunch`, `canSwim`, `hasSuperPunch`, `hasCompanion` = `"true"`
+- `pet_rock_collected`, `pet_dog_collected` = `"true"`, `pet_selected` = `"dog"`
+- Starts in `house3_interior`
+
+Useful for testing combat, pets, companion, and super punch without progression.
+
 ## Debug Controls
 
 - **G** - Toggle grid debug (layers, transitions, triggers)
@@ -335,6 +360,10 @@ See `attacker-spritesheet-reference.md` for complete mapping.
 8. AnimationComponent
 
 ## Troubleshooting
+
+### Known: Android Collision Issues (April 2026)
+**Symptom:** Pushable boxes and breakable entities don't respond to player collision/punch on Android, but work fine on web.
+**Status:** Unresolved. Affects `GridCellBlocker` detection (push engagement) and `CollisionSystem` hit detection (breakable damage). Code is identical between platforms — suspected WebView-specific issue with EXPAND mode coordinate handling or touch input timing. Needs investigation with `adb logcat` instrumentation.
 
 ### Player Spawning at Wrong Position
 **Cause:** GridCollisionComponent initializes previousX/Y to (0,0), thinks player is moving from origin.

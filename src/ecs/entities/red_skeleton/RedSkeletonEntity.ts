@@ -6,6 +6,7 @@ import { GridCollisionComponent } from '../../components/movement/GridCollisionC
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { DamageComponent } from '../../components/core/DamageComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
@@ -98,7 +99,8 @@ export function createRedSkeletonEntity(data: RedSkeletonCreatorData): Entity {
         if (!canPlayerHitEnemy(playerEntity, entity, grid)) return;
 
         const health = entity.require(HealthComponent);
-        health.takeDamage(BULLET_DAMAGE);
+        const dmg = other.get(DamageComponent);
+        health.takeDamage(dmg?.damage ?? BULLET_DAMAGE);
         scene.sound.play('skeleton_hit');
 
         const projectile = other.get(ProjectileComponent);

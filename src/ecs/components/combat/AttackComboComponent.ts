@@ -26,6 +26,7 @@ const SUPER_PUNCH_HOLD_THRESHOLD_MS = 1000;
 const SUPER_PUNCH_DAMAGE_MULTIPLIER = 3;
 const SUPER_PUNCH_HITBOX_SIZE_PX = 72;
 const SUPER_PUNCH_DURATION_MS = 840;
+const SUPER_PUNCH_RISE_PX = 25;
 
 let mustFaceEnemy = true;
 
@@ -202,6 +203,20 @@ export class AttackComboComponent implements Component {
       this.createPunchHitbox();
     }
 
+    // Super punch rise effect (visual only — no transform/camera/shadow change)
+    if (this.isSuperPunching) {
+      const elapsed = this.phaseTimer + (SUPER_PUNCH_DURATION_MS - punchDuration);
+      const progress = Math.max(0, Math.min(elapsed / SUPER_PUNCH_DURATION_MS, 1));
+      const riseOffset = Math.sin(progress * Math.PI) * SUPER_PUNCH_RISE_PX;
+      const sprite = this.entity.get(SpriteComponent);
+      if (sprite) {
+        sprite.visualOffsetYPx = -riseOffset;
+      }
+    } else {
+      const sprite = this.entity.get(SpriteComponent);
+      if (sprite) sprite.visualOffsetYPx = 0;
+    }
+
     if (this.phaseTimer >= punchDuration) {
       this.currentPhase = 'idle';
       this.phaseTimer = 0;
@@ -274,8 +289,7 @@ export class AttackComboComponent implements Component {
   }
 
   private createSuperPunchHitbox(): void {
-    const superPunchSounds = ['punch1', 'punch2', 'punch3'];
-    this.scene.sound.play(superPunchSounds[Math.floor(Math.random() * superPunchSounds.length)]);
+    this.scene.sound.play('superpunch');
 
     const transform = this.entity.require(TransformComponent);
     const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);

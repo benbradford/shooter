@@ -15,6 +15,7 @@ export class SpriteComponent implements Component {
   private readonly offsetXPx: number;
   private readonly offsetYPx: number;
   private trackedTextureKey: string;
+  visualOffsetYPx: number = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -37,7 +38,7 @@ export class SpriteComponent implements Component {
   update(_delta: number): void {
     this.sprite.setPosition(
       this.transformComp.x + this.offsetXPx,
-      this.transformComp.y + this.offsetYPx
+      this.transformComp.y + this.offsetYPx + this.visualOffsetYPx
     );
     this.sprite.setRotation(this.transformComp.rotation);
     this.sprite.setScale(this.transformComp.scale);

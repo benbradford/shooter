@@ -5358,7 +5358,7 @@
         "col": 20,
         "row": 0,
         "texture": "stone_wall",
-        "health": 30,
+        "health": 50,
         "rarity": "nothing"
       }
     },
@@ -5369,7 +5369,7 @@
         "col": 21,
         "row": 0,
         "texture": "stone_wall",
-        "health": 30,
+        "health": 50,
         "rarity": "nothing"
       }
     },

@@ -7,6 +7,7 @@ import { HealthComponent } from '../../components/core/HealthComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { DamageComponent } from '../../components/core/DamageComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { BugSpawnerComponent } from '../../components/ai/BugSpawnerComponent';
 import { BaseExplosionComponent } from '../../components/visual/BaseExplosionComponent';
@@ -76,7 +77,8 @@ export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
           return;
         }
 
-        health.takeDamage(10);
+        const dmg = other.get(DamageComponent);
+        health.takeDamage(dmg?.damage ?? 10);
 
         const hitFlash = entity.get(HitFlashComponent);
         if (hitFlash) {

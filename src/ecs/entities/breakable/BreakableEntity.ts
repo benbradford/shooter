@@ -6,6 +6,7 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { DamageComponent } from '../../components/core/DamageComponent';
 import { BreakableComponent } from '../../components/breakable/BreakableComponent';
 import { RarityComponent } from '../../components/core/RarityComponent';
 import type { Grid } from '../../../systems/grid/Grid';
@@ -72,7 +73,8 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
-        breakable.takeDamage(10);
+        const dmg = other.get(DamageComponent);
+        breakable.takeDamage(dmg?.damage ?? 10);
         scene.time.delayedCall(0, () => other.destroy());
       }
     }

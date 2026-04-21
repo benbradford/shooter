@@ -8,6 +8,7 @@ import { KnockbackComponent } from '../../components/movement/KnockbackComponent
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { DamageComponent } from '../../components/core/DamageComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { PunchHitboxComponent } from '../../components/combat/PunchHitboxComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
@@ -111,13 +112,13 @@ export function createBulletDudeEntity(props: CreateBulletDudeProps): Entity {
         }
 
         const health = entity.require(HealthComponent);
-        health.takeDamage(MELEE_DAMAGE);
+        const dmg = other.get(DamageComponent);
+        health.takeDamage(dmg?.damage ?? MELEE_DAMAGE);
 
         const projectile = other.get(ProjectileComponent);
         const punchHitbox = other.get(PunchHitboxComponent);
 
         if (projectile) {
-          const length = Math.hypot(projectile.dirX, projectile.dirY);
           lastHitDirX = projectile.dirX / length;
           lastHitDirY = projectile.dirY / length;
         } else if (punchHitbox) {

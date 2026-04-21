@@ -84,6 +84,18 @@ end
 - Flags persist across game sessions when saved (Y key)
 - Flags reset on new game start (same as other world state)
 
+### Known Gameplay Flags
+
+| Flag | Values | Effect |
+|------|--------|--------|
+| `canPunch` | `"true"` | Enables punch ability |
+| `canSwim` | `"true"` | Enables swimming (70% speed in water) |
+| `hasSuperPunch` | `"true"` | Enables super punch on 1s+ charge hold |
+| `hasCompanion` | `"true"` | Spawns companion (Narry) |
+| `pet_rock_collected` | `"true"` | Rock pet available |
+| `pet_dog_collected` | `"true"` | Dog pet available |
+| `pet_selected` | `"rock"` / `"dog"` | Active pet |
+
 ## How It Works
 
 ### Entity Spawning Logic

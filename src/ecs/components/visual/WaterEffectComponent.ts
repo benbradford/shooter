@@ -135,12 +135,10 @@ export class WaterEffectComponent implements Component {
     if (nowInWater && this.hopProgress >= 1) {
       // Swimming - render above water (-10) but below bridge textures (-5)
       if (sprite.sprite.depth !== Depth.playerSwimming) {
-        console.log(`[WaterEffect] Setting player depth to swimming: ${Depth.playerSwimming}`);
         sprite.sprite.setDepth(Depth.playerSwimming);
       }
     } else if (sprite.sprite.depth !== Depth.player) {
       // Walking - render at normal depth
-      console.log(`[WaterEffect] Setting player depth to normal: ${Depth.player}`);
       sprite.sprite.setDepth(Depth.player);
     }
 
@@ -204,7 +202,7 @@ export class WaterEffectComponent implements Component {
         this.scene.sound.play('splash2');
       }
     } else {
-      sprite.sprite.y = transform.y;
+      sprite.sprite.y = transform.y + sprite.visualOffsetYPx;
 
       if (this.isInWater && walk) {
         const isMoving = walk.isMoving();
