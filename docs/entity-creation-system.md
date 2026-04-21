@@ -45,6 +45,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `lever` - Punchable switch that toggles on/off and fires events
 - `pushable` - Box the player can push one cell at a time in cardinal directions
 - `hole` - Visual pit that triggers a hop animation then level transition (like exit but with hop)
+- `breakable` - Destructible object (vases, walls) with health, rarity drops, optional super-punch-only
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
@@ -194,6 +195,15 @@ Plus one interaction entity per script:
 - Behaves like an exit but with a visual hop-into-pit animation
 - On the destination level, player drops in from above with gravity easing, plays landing animation, then can move
 - Drop-in persists across death/restart (flag cleared only by normal exits)
+
+### Breakable
+- `texture`: Sprite texture key (e.g., `'dungeon_vase'`, `'wall_cracked'`)
+- `health`: Number — hit points before destruction
+- `rarity`: Drop rarity — `'nothing'`, `'common'`, `'uncommon'`, `'rare'`, `'epic'`, `'legendary'`
+- `requiresSuperPunch`: Boolean (optional, default false) — if true, only super punch (≥60 damage) can damage it; normal punches play `thud1` sound
+- `transformOverride`: Optional `{ scaleX, scaleY, offsetX, offsetY }` for scaling/positioning the sprite
+- Reads damage from projectile's `DamageComponent` (normal punch = 20, super punch = 60)
+- On destruction, raises `{entityId}_destroyed` event and spawns rarity-based drops
 
 ## How It Works
 

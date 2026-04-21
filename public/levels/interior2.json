@@ -242,8 +242,8 @@
       "type": "exit",
       "data": {
         "targetLevel": "interior2n",
-        "targetCol": 5,
-        "targetRow": 5,
+        "targetCol": 7,
+        "targetRow": 7,
         "triggerCells": [
           {
             "col": 4,

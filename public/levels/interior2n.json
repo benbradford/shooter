@@ -1,11 +1,417 @@
 {
-  "width": 10,
-  "height": 10,
+  "width": 15,
+  "height": 9,
   "playerStart": {
     "x": 1,
     "y": 3
   },
-  "cells": [],
-  "entities": [],
-  "levelTheme": "default"
+  "cells": [
+    {
+      "col": 0,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    }
+  ],
+  "entities": [
+    {
+      "id": "hole0",
+      "type": "hole",
+      "data": {
+        "col": 7,
+        "row": 4,
+        "texture": "hole_with_roots",
+        "targetLevel": "tunnels1",
+        "targetCol": 5,
+        "targetRow": 5,
+        "transformOverride": {
+          "scaleX": 1.7,
+          "scaleY": 1.7,
+          "offsetX": 0,
+          "offsetY": 0
+        }
+      }
+    },
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "interior2",
+        "targetCol": 4,
+        "targetRow": 2,
+        "triggerCells": [
+          {
+            "col": 7,
+            "row": 8
+          }
+        ]
+      }
+    }
+  ],
+  "levelTheme": "default",
+  "background": {
+    "floor_texture": "interior7"
+  }
 }
