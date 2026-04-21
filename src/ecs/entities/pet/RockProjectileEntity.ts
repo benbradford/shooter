@@ -2,7 +2,6 @@ import { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
-import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { RockArcComponent } from '../../components/pet/RockArcComponent';
@@ -29,7 +28,7 @@ export type CreateRockProjectileProps = {
 };
 
 export function createRockProjectileEntity(props: CreateRockProjectileProps): Entity {
-  const { scene, x, y, dirX, dirY, speed, maxDistance, damage, arcHeight, grid, startLayer, onLand, onHit } = props;
+  const { scene, x, y, dirX, dirY, speed, maxDistance, damage, arcHeight, grid, onLand, onHit } = props;
   const entity = new Entity(`rock_projectile_${Date.now()}`);
 
   entity.tags.add('player_projectile');
@@ -46,23 +45,6 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
 
   entity.add(new DamageComponent(damage));
 
-  entity.add(new ProjectileComponent({
-    dirX,
-    dirY,
-    speed,
-    maxDistance,
-    grid,
-    startLayer,
-    fromTransition: false,
-    scene,
-    onWallHit: (wx: number, wy: number) => {
-      onLand(wx, wy);
-    },
-    onMaxDistance: (mx: number, my: number) => {
-      onLand(mx, my);
-    },
-  }));
-
   const halfSize = ROCK_PROJECTILE_COLLISION_SIZE_PX / 2;
   entity.add(new CollisionComponent({
     box: { offsetX: -halfSize, offsetY: -halfSize, width: ROCK_PROJECTILE_COLLISION_SIZE_PX, height: ROCK_PROJECTILE_COLLISION_SIZE_PX },
@@ -78,13 +60,14 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
     },
   }));
 
-  entity.add(new RockArcComponent({ speed, maxDistance, arcHeight }));
+  entity.add(new RockArcComponent({
+    dirX, dirY, speed, maxDistance, arcHeight, grid, onLand,
+  }));
 
   entity.setUpdateOrder([
     TransformComponent,
     SpriteComponent,
     ShadowComponent,
-    ProjectileComponent,
     RockArcComponent,
     CollisionComponent,
   ]);

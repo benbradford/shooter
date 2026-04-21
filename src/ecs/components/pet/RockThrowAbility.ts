@@ -1,4 +1,4 @@
-import type Phaser from 'phaser';
+import Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
@@ -15,6 +15,7 @@ import { createRockProjectileEntity } from '../../entities/pet/RockProjectileEnt
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EntityManager } from '../../EntityManager';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
+import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 
 type ThrowState = 'idle' | 'charging' | 'aiming' | 'throwing' | 'landed' | 'returning';
 
@@ -109,9 +110,11 @@ export class RockThrowAbility implements Component {
     const health = this.playerEntity.get(HealthComponent);
     this.lastKnownHealth = health?.getHealth() ?? 100;
 
-    // Pause pet follow
+    // Pause pet follow and disable grid collision during throw
     const follow = this.entity.get(PetFollowComponent);
     follow?.setBarking(true);
+    const gridCollision = this.entity.get(GridCollisionComponent);
+    if (gridCollision) gridCollision.enabled = false;
 
     // Play player throw animation, freeze at frame 2
     const playerAnim = this.playerEntity.get(AnimationComponent);
@@ -167,6 +170,8 @@ export class RockThrowAbility implements Component {
     } else if (this.state === 'landed') {
       this.landedTimerMs += delta;
       if (this.landedTimerMs >= LANDED_IDLE_DURATION_MS) {
+        const rockSprite = this.entity.get(SpriteComponent);
+        if (rockSprite) rockSprite.sprite.setVisible(true);
         this.state = 'returning';
       }
     } else if (this.state === 'returning') {
@@ -332,16 +337,43 @@ export class RockThrowAbility implements Component {
 
   private onProjectileLand(x: number, y: number): void {
     if (this.state !== 'throwing') return; // Guard against double notification
+
+    if (this.activeProjectile && !this.activeProjectile.isDestroyed) {
+      this.activeProjectile.destroy();
+    }
     this.activeProjectile = null;
 
-    // Show pet rock sprite at landing position
-    const rockSprite = this.entity.get(SpriteComponent);
-    if (rockSprite) {
-      rockSprite.sprite.setVisible(true);
-    }
     const rockTransform = this.entity.require(TransformComponent);
     rockTransform.x = x;
     rockTransform.y = y;
+
+    // Check if landed in water
+    const cell = this.grid.worldToCell(x, y);
+    const cellData = this.grid.getCell(cell.col, cell.row);
+    const landedInWater = cellData?.properties.has('water') ?? false;
+
+    const rockSprite = this.entity.get(SpriteComponent);
+    if (landedInWater) {
+      // Splash effect + sound, hide rock
+      this.scene.sound.play('splash1');
+      const emitter = this.scene.add.particles(x, y, 'water_splash', {
+        speed: { min: 50, max: 100 },
+        angle: { min: 0, max: -180 },
+        scale: { start: 0.15, end: 0 },
+        alpha: { start: 1, end: 0 },
+        lifespan: 1000,
+        frequency: 2,
+        blendMode: 'NORMAL',
+        gravityY: 300,
+        emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 12) } as Phaser.Types.GameObjects.Particles.EmitZoneData
+      });
+      emitter.setDepth(Depth.particle);
+      this.scene.time.delayedCall(80, () => emitter.stop());
+      this.scene.time.delayedCall(800, () => emitter.destroy());
+      if (rockSprite) rockSprite.sprite.setVisible(false);
+    } else {
+      if (rockSprite) rockSprite.sprite.setVisible(true);
+    }
 
     this.landedTimerMs = 0;
     this.state = 'landed';
@@ -375,9 +407,11 @@ export class RockThrowAbility implements Component {
       rockSprite.sprite.setDepth(Depth.pet);
     }
 
-    // Resume pet follow
+    // Resume pet follow and re-enable grid collision
     const follow = this.entity.get(PetFollowComponent);
     follow?.setBarking(false);
+    const gridCollision = this.entity.get(GridCollisionComponent);
+    if (gridCollision) gridCollision.enabled = true;
 
     // Restore player animation
     const playerAnim = this.playerEntity.get(AnimationComponent);
