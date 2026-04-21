@@ -34,7 +34,7 @@ export const PET_REGISTRY: Record<string, PetConfig> = {
     directions: 4,
     idleAnim: 'breathing-idle',
     walkAnim: 'walking',
-    abilityCooldownMs: 3000,
+    abilityCooldownMs: 10,
     worldStateFlag: 'pet_rock_collected',
     iconTexture: 'rock_icon',
   },

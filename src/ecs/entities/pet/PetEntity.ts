@@ -5,6 +5,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { AnimationComponent } from '../../components/core/AnimationComponent';
 import { PetFollowComponent } from '../../components/pet/PetFollowComponent';
 import { DogBarkAbility } from '../../components/pet/DogBarkAbility';
+import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
 import { Depth } from '../../../constants/DepthConstants';
@@ -59,6 +60,10 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
     entity.add(new DogBarkAbility(scene, grid));
   }
 
+  if (config.id === 'rock') {
+    entity.add(new RockThrowAbility(scene, grid, playerEntity));
+  }
+
   entity.tags.add('pet');
 
   const updateOrder: Array<new (...args: never[]) => Component> = [
@@ -71,6 +76,10 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
 
   if (config.id === 'dog') {
     updateOrder.push(DogBarkAbility);
+  }
+
+  if (config.id === 'rock') {
+    updateOrder.push(RockThrowAbility);
   }
 
   updateOrder.push(AnimationComponent);

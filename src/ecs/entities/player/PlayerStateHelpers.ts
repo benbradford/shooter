@@ -47,8 +47,17 @@ export function handlePetAbilityInput(
   }
   
   if (input.isPetActionPressed() && petAbility.canUseAbility() && !attackCombo.isPunching()) {
-    petAbility.tryAbility();
+    if (!petAbility.isAbilityHeld()) {
+      petAbility.setAbilityHeld(true);
+      petAbility.setAbilityHeldByKeyboard(true);
+      petAbility.tryAbility();
+    }
     return true;
+  }
+
+  if (!input.isPetActionPressed() && petAbility.isAbilityHeldByKeyboard()) {
+    petAbility.setAbilityHeld(false);
+    petAbility.setAbilityHeldByKeyboard(false);
   }
 
   return false;

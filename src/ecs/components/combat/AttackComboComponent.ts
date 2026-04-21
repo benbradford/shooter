@@ -14,6 +14,8 @@ import { SuperPunchParticlesComponent } from '../visual/SuperPunchParticlesCompo
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { ChargeCircleEffect } from './ChargeCircleEffect';
+import { PetManager } from '../../../systems/PetManager';
+import { RockThrowAbility } from '../pet/RockThrowAbility';
 
 const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
@@ -349,6 +351,8 @@ export class AttackComboComponent implements Component {
     if (this.currentPhase !== 'idle' || this.wasAttackPressed) return;
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) return;
+    const rockThrow = PetManager.getInstance().getActivePetEntity()?.get(RockThrowAbility);
+    if (rockThrow?.isActive()) return;
     this.wasAttackPressed = true;
     this.startPunchInternal();
   }

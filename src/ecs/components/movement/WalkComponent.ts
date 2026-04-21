@@ -10,6 +10,8 @@ import { HealthComponent } from '../core/HealthComponent';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { InteractionComponent } from '../interaction/InteractionComponent';
+import { PetManager } from '../../../systems/PetManager';
+import { RockThrowAbility } from '../pet/RockThrowAbility';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 export type WalkProps = {
@@ -90,12 +92,17 @@ export class WalkComponent implements Component {
     const chargeMultiplier = attackCombo?.getChargeSpeedMultiplier() ?? 1;
     const facingLocked = attackCombo?.isFacingLocked() ?? false;
 
+    // Check rock throw movement lock
+    const rockThrow = PetManager.getInstance().getActivePetEntity()?.get(RockThrowAbility);
+    const isThrowLocked = rockThrow?.isPlayerLocked() ?? false;
+    const isThrowAiming = rockThrow?.isAiming() ?? false;
+
     const mode = this.controlMode?.getMode() ?? 1;
     const rawInput = this.inputComp.getInputDelta();
-    const movementInput = isLocked ? { dx: 0, dy: 0 } : rawInput;
+    const movementInput = (isLocked || isThrowLocked) ? { dx: 0, dy: 0 } : rawInput;
     const facingInput = this.inputComp.getRawInputDelta();
 
-    if (!facingLocked) {
+    if ((!facingLocked && !isThrowLocked) || isThrowAiming) {
       if (mode === 1) {
         this.updateMode1(facingInput);
       } else {

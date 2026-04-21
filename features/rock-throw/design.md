@@ -43,8 +43,40 @@ idle → charging → aiming → throwing → returning → idle
 ### Cancellation
 
 If player takes damage during `charging` or `aiming`:
+- Detected by polling `HealthComponent.getHealth()` each frame (store `lastKnownHealth`, compare)
 - Rock drops 20px down from current position (quick tween)
 - Transition to `returning`
+
+## Mutual Exclusion
+
+**Punch vs Throw:** `AttackComboComponent.tryStartPunch()` must check if rock throw is active and refuse to start a punch. `PetAbilityComponent.tryAbility()` already checks `isPunching()`.
+
+## Button Hold Detection
+
+`PetActionButtonComponent` sets `abilityHeld` flag on `PetAbilityComponent` (player entity) via pointer events. `RockThrowAbility` reads this flag each frame via the player entity reference. Keyboard H key state also feeds into this flag via `InputComponent`.
+
+`PetAbilityComponent` exposes:
+- `isAbilityHeld(): boolean` — true while button/key is held
+- `setAbilityHeld(held: boolean)` — called by PetActionButtonComponent and InputComponent
+
+## Cleanup (onDestroy)
+
+`RockThrowAbility.onDestroy()` MUST:
+1. Destroy active projectile entity (if exists, store reference)
+2. Destroy arrow Graphics (if exists)
+3. Kill active tweens (charge tween, via `tween.stop()`)
+4. Unlock player movement
+5. Resume PetFollowComponent (`setBarking(false)`)
+
+All tween `onComplete` callbacks and projectile callbacks must guard: `if (this.entity.isDestroyed) return;`
+
+## Return Mechanism
+
+Use manual lerp in `update()` instead of Phaser tween for return. Lerps toward `playerTransform` position each frame, handling player movement during return. Arrives when distance < threshold (e.g., 5px).
+
+## Double Notification Guard
+
+Projectile `onHit` and `onMaxDistance` can both fire same frame. State machine guards: `if (this.state !== 'throwing') return;` in the notification handler.
 
 ## Components
 
@@ -111,14 +143,14 @@ const ARROW_LENGTH_PX = 30;
 
 const PLAYER_THROW_OFFSETS: Record<Direction, { x: number; y: number }> = {
   [Direction.None]: { x: 0, y: 0 },
-  [Direction.Down]: { x: 0, y: 0 },
-  [Direction.Up]: { x: 0, y: 0 },
-  [Direction.Left]: { x: 0, y: 0 },
-  [Direction.Right]: { x: 0, y: 0 },
-  [Direction.UpLeft]: { x: 0, y: 0 },
-  [Direction.UpRight]: { x: 0, y: 0 },
-  [Direction.DownLeft]: { x: 0, y: 0 },
-  [Direction.DownRight]: { x: 0, y: 0 },
+  [Direction.Down]: { x: 0, y: -10 },
+  [Direction.Up]: { x: 0, y: 10 },
+  [Direction.Left]: { x: 5, y: 0 },
+  [Direction.Right]: { x: -5, y: 0 },
+  [Direction.UpLeft]: { x: 3, y: 7 },
+  [Direction.UpRight]: { x: -3, y: 7 },
+  [Direction.DownLeft]: { x: 3, y: -7 },
+  [Direction.DownRight]: { x: -3, y: -7 },
 };
 ```
 
@@ -170,16 +202,20 @@ RockThrowAbility
 - `src/ecs/entities/pet/RockProjectileEntity.ts` — projectile entity factory
 
 ## Files to Modify
-- `src/ecs/components/pet/PetAbilityComponent.ts` — add rock routing, hold detection
-- `src/ecs/entities/pet/PetEntity.ts` — add RockThrowAbility to rock pet
+- `src/ecs/components/pet/PetAbilityComponent.ts` — add rock routing, hold detection (`isAbilityHeld()`, `setAbilityHeld()`)
+- `src/ecs/entities/pet/PetEntity.ts` — add RockThrowAbility to rock pet, add to update order
 - `src/ecs/components/movement/WalkComponent.ts` — check throw lock
 - `src/ecs/components/pet/PetFollowComponent.ts` — already has setBarking() for pause (reuse)
-- `src/ecs/components/input/PetActionButtonComponent.ts` — expose hold state
+- `src/ecs/components/input/PetActionButtonComponent.ts` — call `setAbilityHeld()` on pointer down/up
+- `src/ecs/components/combat/AttackComboComponent.ts` — block punch during active throw
 
 ## Edge Cases
-- Player enters water during charge → cancel throw, drop rock
 - Player takes damage during charge/aim → cancel, drop rock, return
 - Rock hits wall immediately (thrown into adjacent wall) → return immediately
 - Rock thrown over water → lands on water cell (no special behavior yet)
 - Ability button pressed while rock is returning → ignored (isActive() = true)
 - Player dies during throw → rock entity destroyed with pet
+- Pet despawned during throw → onDestroy cleans up projectile, graphics, tweens, unlocks player
+- Punch attempted during throw → blocked by AttackComboComponent guard
+- Double projectile notification (hit + max distance same frame) → state machine guard
+- Return targets moving player → manual lerp tracks live position

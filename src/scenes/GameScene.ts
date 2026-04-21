@@ -34,7 +34,7 @@ import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
 import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
 import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
-import { toggleMustFaceEnemy } from "../ecs/components/combat/AttackComboComponent";
+
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 import { BlockedAreaManager } from "../systems/BlockedAreaManager";
 
@@ -350,11 +350,6 @@ export default class GameScene extends Phaser.Scene {
 
     const keyboard = this.input.keyboard;
     if (keyboard) {
-      const punchModeKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.P);
-      punchModeKey.on('down', () => {
-        toggleMustFaceEnemy();
-      });
-
       const worldStateKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Y);
       worldStateKey.on('down', () => {
         this.saveWorldState();

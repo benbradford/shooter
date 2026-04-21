@@ -7,9 +7,9 @@ Say: "implement the rock throw ability from features/rock-throw/"
 
 ### What's Already Done
 - [x] Feature design (design.md)
-- [ ] Runtime analysis
-- [ ] Failure analysis
-- [ ] Task breakdown
+- [x] Runtime analysis — v1 failed (4 violations), v2 passed
+- [x] Failure analysis — v1 failed (3 HIGH risks), v2 passed
+- [x] Task breakdown (tasks.md) — 5 phases, ~7.5 hours estimated
 - [ ] Implementation
 
 ### Key Documents (Read in Order)

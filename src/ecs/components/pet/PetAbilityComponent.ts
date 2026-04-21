@@ -4,17 +4,43 @@ import { PetManager } from '../../../systems/PetManager';
 import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 import { PetFollowComponent } from './PetFollowComponent';
 import { DogBarkAbility } from './DogBarkAbility';
+import { RockThrowAbility } from './RockThrowAbility';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 
 export class PetAbilityComponent implements Component {
   entity!: Entity;
   private cooldownMs = 0;
+  private abilityHeld = false;
+  private abilityHeldByKeyboard = false;
   
   update(delta: number): void {
     if (this.cooldownMs > 0) {
       this.cooldownMs -= delta;
     }
+  }
+
+  isAbilityHeld(): boolean {
+    return this.abilityHeld;
+  }
+
+  setAbilityHeld(held: boolean): void {
+    this.abilityHeld = held;
+  }
+
+  startCooldown(): void {
+    const petId = PetManager.getInstance().getSelectedPetId();
+    if (petId) {
+      this.cooldownMs = PET_REGISTRY[petId].abilityCooldownMs;
+    }
+  }
+
+  isAbilityHeldByKeyboard(): boolean {
+    return this.abilityHeldByKeyboard;
+  }
+
+  setAbilityHeldByKeyboard(held: boolean): void {
+    this.abilityHeldByKeyboard = held;
   }
   
   tryAbility(): boolean {
@@ -45,6 +71,15 @@ export class PetAbilityComponent implements Component {
       this.cooldownMs = config.abilityCooldownMs;
       return true;
     }
+
+    if (config.id === 'rock') {
+      const petEntity = petManager.getActivePetEntity();
+      const throwAbility = petEntity?.get(RockThrowAbility);
+      if (!throwAbility || throwAbility.isActive()) return false;
+      throwAbility.activate();
+      // Cooldown set by RockThrowAbility.returnToIdle(), not here
+      return true;
+    }
     
     this.cooldownMs = config.abilityCooldownMs;
     console.log(`[PET] ${config.id} ability activated!`);
@@ -68,6 +103,12 @@ export class PetAbilityComponent implements Component {
       const petEntity = petManager.getActivePetEntity();
       const barkAbility = petEntity?.get(DogBarkAbility);
       if (!barkAbility || barkAbility.isActive()) return false;
+    }
+    if (petId === 'rock') {
+      const petEntity = petManager.getActivePetEntity();
+      const throwAbility = petEntity?.get(RockThrowAbility);
+      if (throwAbility?.isActive()) return true; // Button stays active during throw (for hold detection)
+      if (!throwAbility) return false;
     }
     
     return true;

@@ -26,7 +26,7 @@ export class InputComponent implements Component {
     if (keyboard) {
       this.cursors = keyboard.createCursorKeys();
       this.keys = keyboard.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
-      this.slideKey = keyboard.addKey('H');
+      this.slideKey = keyboard.addKey('P');
     }
   }
 

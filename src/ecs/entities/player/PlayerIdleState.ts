@@ -13,6 +13,8 @@ import { PushableComponent, PUSH_ALIGNMENT_DIVISOR } from '../../components/push
 import { Direction } from '../../../constants/Direction';
 import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
+import { PetManager } from '../../../systems/PetManager';
+import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
 
 function getCardinalPushDirectionIdle(dx: number, dy: number): Direction | null {
   if (dx !== 0 && dy !== 0) return null;
@@ -51,6 +53,12 @@ export class PlayerIdleState implements IState {
     const water = this.entity.get(WaterEffectComponent);
     
     if (handlePetAbilityInput(input, petAbility, attackCombo, water)) {
+      return;
+    }
+
+    const petEntity = PetManager.getInstance().getActivePetEntity();
+    const rockThrow = petEntity?.get(RockThrowAbility);
+    if (rockThrow?.isPlayerLocked()) {
       return;
     }
     

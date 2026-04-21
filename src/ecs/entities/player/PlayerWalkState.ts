@@ -13,6 +13,8 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { PushableComponent, PUSH_ALIGNMENT_DIVISOR } from '../../components/pushable/PushableComponent';
 import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
+import { PetManager } from '../../../systems/PetManager';
+import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
 import { Direction } from '../../../constants/Direction';
 
 function getCardinalPushDirection(dx: number, dy: number): Direction | null {
@@ -57,6 +59,13 @@ export class PlayerWalkState implements IState {
     const health = this.entity.require(HealthComponent);
 
     if (handlePetAbilityInput(input, petAbility, attackCombo, water)) {
+      return;
+    }
+
+    // Skip walk/idle transitions while rock throw controls the player
+    const petEntity = PetManager.getInstance().getActivePetEntity();
+    const rockThrow = petEntity?.get(RockThrowAbility);
+    if (rockThrow?.isPlayerLocked()) {
       return;
     }
 

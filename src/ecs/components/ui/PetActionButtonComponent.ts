@@ -57,7 +57,8 @@ export class PetActionButtonComponent implements Component {
 
     this.sprite.on('pointerdown', this.handlePointerDown, this);
     this.sprite.on('pointerup', this.handlePointerUp, this);
-    this.sprite.on('pointerout', this.handlePointerUp, this);
+    this.sprite.on('pointerout', this.handlePointerOut, this);
+    scene.input.on('pointerup', this.handleGlobalPointerUp, this);
   }
 
   update(): void {
@@ -123,7 +124,10 @@ export class PetActionButtonComponent implements Component {
       const gameScene = this.scene.scene.get('game') as unknown as { entityManager?: { getFirst(type: string): Entity | undefined } };
       const player = gameScene.entityManager?.getFirst('player');
       const petAbility = player?.get(PetAbilityComponent);
-      petAbility?.tryAbility();
+      if (petAbility) {
+        petAbility.setAbilityHeld(true);
+        petAbility.tryAbility();
+      }
     }
   };
 
@@ -131,6 +135,30 @@ export class PetActionButtonComponent implements Component {
     if (pointer.id === this.pointerId) {
       this.pointerId = -1;
       this.isPressed = false;
+
+      const gameScene = this.scene.scene.get('game') as unknown as { entityManager?: { getFirst(type: string): Entity | undefined } };
+      const player = gameScene.entityManager?.getFirst('player');
+      const petAbility = player?.get(PetAbilityComponent);
+      petAbility?.setAbilityHeld(false);
+    }
+  };
+
+  private readonly handlePointerOut = (pointer: Phaser.Input.Pointer): void => {
+    if (pointer.id === this.pointerId) {
+      this.pointerId = -1;
+      this.isPressed = false;
+    }
+  };
+
+  private readonly handleGlobalPointerUp = (pointer: Phaser.Input.Pointer): void => {
+    if (pointer.id === this.pointerId) {
+      this.pointerId = -1;
+      this.isPressed = false;
+
+      const gameScene = this.scene.scene.get('game') as unknown as { entityManager?: { getFirst(type: string): Entity | undefined } };
+      const player = gameScene.entityManager?.getFirst('player');
+      const petAbility = player?.get(PetAbilityComponent);
+      petAbility?.setAbilityHeld(false);
     }
   };
 
@@ -144,7 +172,8 @@ export class PetActionButtonComponent implements Component {
   onDestroy(): void {
     this.sprite.off('pointerdown', this.handlePointerDown, this);
     this.sprite.off('pointerup', this.handlePointerUp, this);
-    this.sprite.off('pointerout', this.handlePointerUp, this);
+    this.sprite.off('pointerout', this.handlePointerOut, this);
+    this.scene.input.off('pointerup', this.handleGlobalPointerUp, this);
     this.sprite.destroy();
     this.ring.destroy();
     this.bg.destroy();
