@@ -25,6 +25,7 @@ import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
 import { AnimationComponent } from "../ecs/components/core/AnimationComponent";
 import { WalkComponent } from "../ecs/components/movement/WalkComponent";
+import { GridCollisionComponent } from "../ecs/components/movement/GridCollisionComponent";
 import { Direction } from "../constants/Direction";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
@@ -33,6 +34,7 @@ import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
 import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
 import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
+import { TunnelsSceneRenderer } from "./theme/TunnelsSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
@@ -129,8 +131,14 @@ export default class GameScene extends Phaser.Scene {
           this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
         } else if (theme === 'wilds') {
           this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
+        } else if (theme === 'tunnels') {
+          this.sceneRenderer = new TunnelsSceneRenderer(this, this.cellSize);
         } else {
           this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
+        }
+
+        if (this.isEditorMode && this.sceneRenderer instanceof TunnelsSceneRenderer) {
+          this.sceneRenderer.setEditorMode(true);
         }
 
         await this.sceneRenderer.loadAllAssets(this.levelData);
@@ -280,6 +288,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
       this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
+    } else if (theme === 'tunnels') {
+      this.sceneRenderer = new TunnelsSceneRenderer(this, this.cellSize);
     } else if (theme === 'default') {
       this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     } else {
@@ -301,6 +311,14 @@ export default class GameScene extends Phaser.Scene {
     });
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
+
+    // Warm up audio buffers (eliminates first-play latency on Android)
+    const audioKeys = this.cache.audio.getKeys();
+    for (const key of audioKeys) {
+      if (key !== 'btr_music') {
+        this.sound.play(key, { volume: 0 });
+      }
+    }
 
     const rippleKey = this.levelData.background?.water?.rippleSpritesheet ?? 'water_ripple';
     if (!this.anims.exists(`${rippleKey}_anim`)) {
@@ -481,6 +499,10 @@ export default class GameScene extends Phaser.Scene {
       if (spriteComp) {
         this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
         this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
+
+        if (this.sceneRenderer instanceof TunnelsSceneRenderer) {
+          this.sceneRenderer.setPlayerSprite(spriteComp.sprite);
+        }
       }
     }
 
@@ -619,14 +641,16 @@ export default class GameScene extends Phaser.Scene {
     const input = player.get(InputComponent);
     const walk = player.get(WalkComponent);
     const anim = player.require(AnimationComponent);
+    const gridCollision = player.get(GridCollisionComponent);
 
-    // Disable movement
+    // Disable movement and collision during drop
     input?.setEnabled(false);
     if (walk) {
       walk.setEnabled(false);
       walk.resetVelocity(true, true);
       walk.lastDir = Direction.Down;
     }
+    if (gridCollision) gridCollision.enabled = false;
 
     // Start above target
     const startY = targetY - DROP_HEIGHT_PX;
@@ -656,6 +680,10 @@ export default class GameScene extends Phaser.Scene {
         const petSpriteComp = petEntity.get(SpriteComponent);
         const petTransform = petEntity.get(TransformComponent);
         if (petSpriteComp && petTransform) {
+          if (!petLocked) {
+            const petGC = petEntity.get(GridCollisionComponent);
+            if (petGC) petGC.enabled = false;
+          }
           petLocked = true;
           const petY = petStartY + (petTargetY - petStartY) * eased;
           petTransform.x = petTargetX;
@@ -673,6 +701,10 @@ export default class GameScene extends Phaser.Scene {
 
         // Wait for landing anim to finish (7 frames × 0.1s = 700ms)
         this.time.delayedCall(700, () => {
+          if (gridCollision) {
+            gridCollision.syncPreviousPosition(transform.x, transform.y);
+            gridCollision.enabled = true;
+          }
           input?.setEnabled(true);
           if (walk) walk.setEnabled(true);
           anim.animationSystem.play(`idle_${Direction.Down}`);
@@ -695,6 +727,14 @@ export default class GameScene extends Phaser.Scene {
           this.events.on('update', petHoldUpdate);
           this.time.delayedCall(700, () => {
             this.events.off('update', petHoldUpdate);
+            const pe = this.entityManager.getFirst('pet');
+            if (pe) {
+              const petGC = pe.get(GridCollisionComponent);
+              if (petGC) {
+                petGC.syncPreviousPosition(petTargetX, petTargetY);
+                petGC.enabled = true;
+              }
+            }
           });
         }
       }
@@ -763,7 +803,7 @@ export default class GameScene extends Phaser.Scene {
     this.stateMachine.enter('interaction', { scriptContent, filename, npcId });
   }
 
-  setTheme(theme: 'dungeon' | 'swamp' | 'grass' | 'wilds'): void {
+  setTheme(theme: 'dungeon' | 'swamp' | 'grass' | 'wilds' | 'tunnels'): void {
     this.levelData.levelTheme = theme;
 
     if (this.background) this.background.destroy();
@@ -780,6 +820,8 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
     } else if (theme === 'wilds') {
       this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
+    } else if (theme === 'tunnels') {
+      this.sceneRenderer = new TunnelsSceneRenderer(this, this.cellSize);
     } else if (theme === 'default') {
       this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
     }

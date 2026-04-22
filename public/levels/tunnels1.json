@@ -2,80 +2,966 @@
   "width": 20,
   "height": 11,
   "playerStart": {
-    "x": 1,
-    "y": 3
+    "x": 5,
+    "y": 5
   },
   "cells": [
     {
-      "col": 7,
-      "row": 3,
+      "col": 0,
+      "row": 0,
       "layer": 1,
       "properties": [
-        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 0,
+      "layer": 1,
+      "properties": [
         "wall"
       ]
     },
     {
       "col": 8,
-      "row": 3,
+      "row": 0,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
     {
       "col": 9,
-      "row": 3,
+      "row": 0,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
     {
       "col": 10,
-      "row": 3,
+      "row": 0,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
     {
       "col": 11,
-      "row": 3,
+      "row": 0,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
     {
       "col": 12,
-      "row": 3,
+      "row": 0,
       "layer": 1,
       "properties": [
-        "platform",
         "wall"
       ]
     },
     {
       "col": 13,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 1,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 2,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
       "row": 3,
       "layer": 1,
       "properties": [
-        "platform",
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 3,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 4,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 5,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 8,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 9,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 10,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 10,
+      "layer": 1,
+      "properties": [
         "wall"
       ]
     }
   ],
-  "entities": [],
-  "levelTheme": "dungeon",
+  "entities": [
+    {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 17,
+        "row": 8,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "rare"
+      }
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 16,
+        "row": 8,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 17,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable3",
+      "type": "breakable",
+      "data": {
+        "col": 16,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable4",
+      "type": "breakable",
+      "data": {
+        "col": 16,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable5",
+      "type": "breakable",
+      "data": {
+        "col": 17,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable6",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable7",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 2,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable8",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable9",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 3,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable10",
+      "type": "breakable",
+      "data": {
+        "col": 2,
+        "row": 8,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    },
+    {
+      "id": "breakable11",
+      "type": "breakable",
+      "data": {
+        "col": 3,
+        "row": 8,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "epic"
+      }
+    }
+  ],
+  "levelTheme": "tunnels",
   "background": {
     "floor_texture": "muddy_floor",
     "wall_texture": "muddy_wall",
-    "floor_tile": 8,
+    "floor_tile": 5,
     "floorAlpha": 0.7
   }
 }

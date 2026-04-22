@@ -17,7 +17,7 @@ const ENTITY_TYPES = [
   'npc', 'breakable', 'pushable', 'hole', 'collectible', 'lever', 'trigger', 'exit', 'eventchainer', 'cellmodifier', 'interaction'
 ];
 
-const THEMES = ['dungeon', 'swamp', 'grass', 'wilds', 'default'];
+const THEMES = ['dungeon', 'swamp', 'grass', 'wilds', 'tunnels', 'default'];
 
 export class Toolbar {
   private readonly levelSelect: HTMLSelectElement;

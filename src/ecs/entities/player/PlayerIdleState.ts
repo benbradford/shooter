@@ -66,6 +66,12 @@ export class PlayerIdleState implements IState {
     if (rockThrow?.isPlayerLocked()) {
       return;
     }
+
+    // After rock throw releases, the playing anim may be stale (throw anim)
+    const expectedIdleKey = `${water?.getIsInWater() ? 'swim' : 'idle'}_${this.lastDir}`;
+    if (anim.animationSystem.getCurrentKey() !== expectedIdleKey) {
+      anim.animationSystem.play(expectedIdleKey);
+    }
     
     if (handlePunchInput(input, attackCombo, water)) {
       return;

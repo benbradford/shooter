@@ -50,6 +50,7 @@ Level transitions work automatically via exit triggers. The system:
 - Range: 128px, Damage: 20, Duration: 250ms
 - Hitbox spawns 150ms into animation
 - Finds nearest enemy, player faces them
+- Direction normalized to unit length (consistent reach on all input devices)
 - Respects layer boundaries (can't hit different layers unless on stairs)
 - Cancelled if player starts water hop mid-punch; blocked during hop
 
@@ -155,11 +156,13 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 
 **Key patterns from implementation:**
 - `GridCollisionComponent.blockedByPushable` — set when movement blocked by GridCellBlocker entity, cleared each frame
+- **Proactive detection:** When player is already adjacent to a pushable and presses toward it, GridCollisionComponent probes the cell beyond the collision box edge to detect the GridCellBlocker (avoids requiring the player to walk away and back)
 - `GridCollisionComponent.syncPreviousPosition()` — must be called after teleporting/offsetting an entity to prevent snap-back
 - Per-direction position offsets (`PUSH_POSITION_OFFSETS`) and shadow offsets (`PUSH_SHADOW_OFFSETS`) applied on push enter, reversed on exit
 - Shadow uses stack pattern: `pushOffset()` on enter, `popOffset()` on exit
 
 **⚠️ Common pitfalls:**
+- **Cardinal direction detection uses dominant-axis, not strict equality** — `CARDINAL_DOMINANCE_RATIO = 3` means one axis must be >3× the other. This is required for touch joystick which always has both axes non-zero. Strict `dx !== 0 && dy !== 0` checks will break push on touch controls.
 - After moving an entity programmatically (disable GridCollision → move → re-enable), always call `syncPreviousPosition()` with the final position before re-enabling
 - `AttackButtonComponent.setIconOverride(null)` must force-reset the texture — clearing the override alone doesn't trigger re-render if `currentIcon` matches
 
@@ -359,10 +362,6 @@ See `attacker-spritesheet-reference.md` for complete mapping.
 8. AnimationComponent
 
 ## Troubleshooting
-
-### Known: Android Collision Issues (April 2026)
-**Symptom:** Pushable boxes and breakable entities don't respond to player collision/punch on Android, but work fine on web.
-**Status:** Unresolved. Affects `GridCellBlocker` detection (push engagement) and `CollisionSystem` hit detection (breakable damage). Code is identical between platforms — suspected WebView-specific issue with EXPAND mode coordinate handling or touch input timing. Needs investigation with `adb logcat` instrumentation.
 
 ### Player Spawning at Wrong Position
 **Cause:** GridCollisionComponent initializes previousX/Y to (0,0), thinks player is moving from origin.

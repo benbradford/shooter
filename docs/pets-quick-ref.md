@@ -112,7 +112,7 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 **During charge/aim:** Player movement locked, facing locked (except during aim where joystick changes direction). Punch blocked.
 
-**Wall collision:** Rock stops moving forward but completes its arc, landing at the wall boundary. Blocked areas also stop the rock.
+**Wall collision:** Rock stops moving forward but completes its arc, landing at the wall boundary. Blocked areas and platforms also stop the rock.
 
 **Water landing:** Splash particle effect + sound, rock hidden until return.
 

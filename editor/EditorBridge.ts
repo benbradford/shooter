@@ -723,7 +723,7 @@ export class EditorBridge {
   // --- Theme ---
   setTheme(theme: string): void {
     this._applyMutation(`Set theme to ${theme}`, () => {
-      this.scene.setTheme(theme as 'dungeon' | 'swamp' | 'grass' | 'wilds');
+      this.scene.setTheme(theme as 'dungeon' | 'swamp' | 'grass' | 'wilds' | 'tunnels');
       this.scene.renderGrid(this.getGrid());
     });
   }

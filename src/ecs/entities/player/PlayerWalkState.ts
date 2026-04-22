@@ -74,6 +74,11 @@ export class PlayerWalkState implements IState {
       return;
     }
 
+    // After rock throw releases, the playing anim may be stale (throw anim)
+    if (anim.animationSystem.getCurrentKey() !== this.lastAnimKey) {
+      anim.animationSystem.play(this.lastAnimKey);
+    }
+
     if (handlePunchInput(input, attackCombo, water)) {
       return;
     }

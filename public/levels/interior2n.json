@@ -2,8 +2,8 @@
   "width": 15,
   "height": 9,
   "playerStart": {
-    "x": 1,
-    "y": 3
+    "x": 7,
+    "y": 6
   },
   "cells": [
     {
@@ -384,7 +384,7 @@
         "row": 4,
         "texture": "hole_with_roots",
         "targetLevel": "tunnels1",
-        "targetCol": 5,
+        "targetCol": 10,
         "targetRow": 5,
         "transformOverride": {
           "scaleX": 1.7,
