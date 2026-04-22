@@ -11,7 +11,8 @@
     "test:headless": "HEADLESS=true ./test/run-all-tests.sh",
     "test:single": "./scripts/test-single.sh",
     "test:headless:single": "HEADLESS=true ./scripts/test-single.sh",
-    "kill": "lsof -ti:5173 | xargs kill -9 2>/dev/null || true"
+    "kill": "lsof -ti:5173 | xargs kill -9 2>/dev/null || true",
+    "build_for_android": "./scripts/build_for_android.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

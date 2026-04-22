@@ -10,13 +10,15 @@ import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 
 export class PetAbilityComponent implements Component {
   entity!: Entity;
-  private cooldownMs = 0;
+  private readonly cooldowns = new Map<string, number>();
   private abilityHeld = false;
   private abilityHeldByKeyboard = false;
   
   update(delta: number): void {
-    if (this.cooldownMs > 0) {
-      this.cooldownMs -= delta;
+    for (const [key, value] of this.cooldowns) {
+      if (value > 0) {
+        this.cooldowns.set(key, value - delta);
+      }
     }
   }
 
@@ -31,7 +33,7 @@ export class PetAbilityComponent implements Component {
   startCooldown(): void {
     const petId = PetManager.getInstance().getSelectedPetId();
     if (petId) {
-      this.cooldownMs = PET_REGISTRY[petId].abilityCooldownMs;
+      this.cooldowns.set(petId, PET_REGISTRY[petId].abilityCooldownMs);
     }
   }
 
@@ -60,7 +62,7 @@ export class PetAbilityComponent implements Component {
     if (!petId) return false;
     
     const config = PET_REGISTRY[petId];
-    if (this.cooldownMs > 0) return false;
+    if ((this.cooldowns.get(petId) ?? 0) > 0) return false;
     
     if (config.id === 'dog') {
       const petEntity = petManager.getActivePetEntity();
@@ -68,7 +70,7 @@ export class PetAbilityComponent implements Component {
       if (!barkAbility || barkAbility.isActive()) return false;
       const target = barkAbility.getNearestEnemyInRange();
       barkAbility.activate(target);
-      this.cooldownMs = config.abilityCooldownMs;
+      this.cooldowns.set(petId, config.abilityCooldownMs);
       return true;
     }
 
@@ -81,16 +83,18 @@ export class PetAbilityComponent implements Component {
       return true;
     }
     
-    this.cooldownMs = config.abilityCooldownMs;
+    this.cooldowns.set(petId, config.abilityCooldownMs);
     console.log(`[PET] ${config.id} ability activated!`);
     return true;
   }
   
   canUseAbility(): boolean {
-    if (this.cooldownMs > 0) return false;
-    
     const petManager = PetManager.getInstance();
     if (!petManager.isActive()) return false;
+
+    const petId = petManager.getSelectedPetId();
+    if (!petId) return false;
+    if ((this.cooldowns.get(petId) ?? 0) > 0) return false;
     
     const water = this.entity.get(WaterEffectComponent);
     if (water?.getIsInWater()) return false;
@@ -98,7 +102,6 @@ export class PetAbilityComponent implements Component {
     const follow = petManager.getActivePetEntity()?.get(PetFollowComponent);
     if (follow?.getIsTooFar()) return false;
     
-    const petId = petManager.getSelectedPetId();
     if (petId === 'dog') {
       const petEntity = petManager.getActivePetEntity();
       const barkAbility = petEntity?.get(DogBarkAbility);
@@ -119,6 +122,7 @@ export class PetAbilityComponent implements Component {
     if (!petId) return 0;
     
     const config = PET_REGISTRY[petId];
-    return this.cooldownMs / config.abilityCooldownMs;
+    const remaining = this.cooldowns.get(petId) ?? 0;
+    return remaining / config.abilityCooldownMs;
   }
 }

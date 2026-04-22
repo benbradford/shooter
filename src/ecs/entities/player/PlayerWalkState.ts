@@ -33,6 +33,7 @@ function getCardinalPushDirection(dx: number, dy: number): Direction | null {
 
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
+  private wasRockThrowLocked = false;
 
   constructor(private readonly entity: Entity) {}
 
@@ -71,11 +72,13 @@ export class PlayerWalkState implements IState {
     const petEntity = PetManager.getInstance().getActivePetEntity();
     const rockThrow = petEntity?.get(RockThrowAbility);
     if (rockThrow?.isPlayerLocked()) {
+      this.wasRockThrowLocked = true;
       return;
     }
 
-    // After rock throw releases, the playing anim may be stale (throw anim)
-    if (anim.animationSystem.getCurrentKey() !== this.lastAnimKey) {
+    // Recover animation only on the frame rock throw releases
+    if (this.wasRockThrowLocked) {
+      this.wasRockThrowLocked = false;
       anim.animationSystem.play(this.lastAnimKey);
     }
 

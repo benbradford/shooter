@@ -110,6 +110,14 @@ The base class handles all edge detection:
 
 All fields optional — defaults match original behavior.
 
+### Tunnels Theme
+- Murky dark olive-brown gradient background
+- Very dark vignette with multiply blend
+- No edge lines around walls/platforms
+- Dynamic darkness overlay with radial light following the player (350px radius)
+- Darkness overlay disabled in editor mode
+- Edge color: `0x1a1a1a` (unused — edges disabled)
+
 ## Using a Theme
 
 In your level JSON file, specify the theme:
@@ -405,6 +413,7 @@ Use dark colors for edges to create depth:
 - `src/scenes/theme/DungeonSceneRenderer.ts` - Dungeon theme implementation
 - `src/scenes/theme/SwampSceneRenderer.ts` - Swamp theme implementation
 - `src/scenes/theme/GrassSceneRenderer.ts` - Grass theme implementation
+- `src/scenes/theme/TunnelsSceneRenderer.ts` - Tunnels theme (darkness + player light)
 - `src/systems/SceneOverlays.ts` - Overlay placement system
 - `src/scenes/GameScene.ts` - Theme instantiation and switching
 - `editor/SpritesheetTextures.ts` - Spritesheet sub-sprite definitions

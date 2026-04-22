@@ -32,6 +32,7 @@ function getCardinalPushDirectionIdle(dx: number, dy: number): Direction | null 
 
 export class PlayerIdleState implements IState {
   private lastDir: Direction = Direction.Down;
+  private wasRockThrowLocked = false;
 
   constructor(private readonly entity: Entity) {}
 
@@ -64,13 +65,15 @@ export class PlayerIdleState implements IState {
     const petEntity = PetManager.getInstance().getActivePetEntity();
     const rockThrow = petEntity?.get(RockThrowAbility);
     if (rockThrow?.isPlayerLocked()) {
+      this.wasRockThrowLocked = true;
       return;
     }
 
-    // After rock throw releases, the playing anim may be stale (throw anim)
-    const expectedIdleKey = `${water?.getIsInWater() ? 'swim' : 'idle'}_${this.lastDir}`;
-    if (anim.animationSystem.getCurrentKey() !== expectedIdleKey) {
-      anim.animationSystem.play(expectedIdleKey);
+    // Recover animation only on the frame rock throw releases
+    if (this.wasRockThrowLocked) {
+      this.wasRockThrowLocked = false;
+      const prefix = water?.getIsInWater() ? 'swim' : 'idle';
+      anim.animationSystem.play(`${prefix}_${this.lastDir}`);
     }
     
     if (handlePunchInput(input, attackCombo, water)) {

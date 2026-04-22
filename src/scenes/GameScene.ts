@@ -312,14 +312,6 @@ export default class GameScene extends Phaser.Scene {
 
     await this.sceneRenderer.loadAllAssets(this.levelData);
 
-    // Warm up audio buffers (eliminates first-play latency on Android)
-    const audioKeys = this.cache.audio.getKeys();
-    for (const key of audioKeys) {
-      if (key !== 'btr_music') {
-        this.sound.play(key, { volume: 0 });
-      }
-    }
-
     const rippleKey = this.levelData.background?.water?.rippleSpritesheet ?? 'water_ripple';
     if (!this.anims.exists(`${rippleKey}_anim`)) {
       this.anims.create({
