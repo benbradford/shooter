@@ -17,12 +17,12 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 
 ## Controls
 
-- **H key** or tap pet action button — Trigger pet ability
+- **P key** or tap pet action button — Trigger pet ability
 - Pet follows automatically using pathfinding
 
 ## Dog Bark Ability
 
-**Activation:** H key or tap pet action button (works with or without enemies nearby)
+**Activation:** P key or tap pet action button (works with or without enemies nearby)
 
 **Flow with enemy:** Dog pathfinds to nearest enemy → barks → bark effect + sound → enemies within 400px enter fear state for 4 seconds
 
@@ -102,12 +102,36 @@ When applying fear, never return to aggressive/transitional states. These cause 
 const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup', 'threatening']);
 ```
 
+## Rock Throw Ability
+
+**Activation:** P key or tap pet action button (hold to aim)
+
+**Flow:** Press → rock tweens to player hand (throw anim frame 2) → hold to aim (arrow indicator, joystick changes direction) → release to throw → rock arcs 250px, 20 damage → lands (1s idle) → returns to player via lerp
+
+**States:** `idle` → `charging` → `aiming` → `throwing` → `landed` → `returning` → `idle`
+
+**During charge/aim:** Player movement locked, facing locked (except during aim where joystick changes direction). Punch blocked.
+
+**Wall collision:** Rock stops moving forward but completes its arc, landing at the wall boundary. Blocked areas also stop the rock.
+
+**Water landing:** Splash particle effect + sound, rock hidden until return.
+
+**Cancel on damage:** If player takes damage during charge/aim, rock drops 20px and returns.
+
+**Cooldown:** Starts after rock returns to player (not on activation).
+
+**Key constants:** `THROW_DISTANCE_PX = 250`, `THROW_SPEED_PX_PER_SEC = 500`, `THROW_DAMAGE = 20`, `THROW_ARC_HEIGHT_PX = 50`
+
+**Per-direction offsets:** `PLAYER_THROW_OFFSETS` defines `{ x, y, z }` per Direction — `z: 1` renders rock in front of player, `z: -1` behind.
+
 ## Architecture
 
 - **PetManager** — Singleton, spawns pets based on WorldState
 - **PetFollowComponent** — Pathfinding follow, wander state machine, speed lerp
 - **PetAbilityComponent** — Routes ability activation to pet-specific component
 - **DogBarkAbility** — Bark state machine (idle → approaching → barking), fear application
+- **RockThrowAbility** — Throw state machine (idle → charging → aiming → throwing → landed → returning)
+- **RockArcComponent** — Projectile arc motion + wall collision
 - **FearComponent** — Dynamic component added/removed from enemies, manages tint + particles
 - **EnemyFearState** — Shared IState for all enemy types, zig-zag flee movement
 - **PetActionButtonComponent** — HUD button, swaps icon per pet type

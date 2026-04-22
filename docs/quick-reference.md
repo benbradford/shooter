@@ -280,7 +280,7 @@ Useful for testing combat, pets, companion, and super punch without progression.
 - **Y** - Save world state
 - **R** - Reload state from file and reset scene
 - **E** - Enter level editor (standalone: `http://localhost:5173/editor/`)
-- **H** - Pet ability (if pet active)
+- **P** - Pet ability (if pet active)
 
 ## Managing Entities
 

@@ -65,7 +65,8 @@ export class RockArcComponent implements Component {
           const cellData = this.grid.getCell(cell.col, cell.row);
           const isBlocked = cellData && (
             cellData.properties.has('blocked') ||
-            cellData.properties.has('wall')
+            cellData.properties.has('wall') ||
+            cellData.properties.has('platform')
           );
           if (isBlocked) {
             this.isStopped = true;

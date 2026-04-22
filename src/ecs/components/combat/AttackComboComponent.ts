@@ -272,6 +272,9 @@ export class AttackComboComponent implements Component {
       const len = Math.hypot(dx, dy);
       dirX = dx / len;
       dirY = dy / len;
+    } else {
+      const len = Math.hypot(dirX, dirY);
+      if (len > 0) { dirX /= len; dirY /= len; }
     }
 
     const startX = transform.x + dirX * 30;
@@ -327,6 +330,9 @@ export class AttackComboComponent implements Component {
       const len = Math.hypot(dx, dy);
       dirX = dx / len;
       dirY = dy / len;
+    } else {
+      const len = Math.hypot(dirX, dirY);
+      if (len > 0) { dirX /= len; dirY /= len; }
     }
 
     const startX = transform.x + dirX * 30;

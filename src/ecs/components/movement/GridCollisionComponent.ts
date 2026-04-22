@@ -298,6 +298,39 @@ export class GridCollisionComponent implements Component {
       }
     }
 
+    // Proactive pushable detection: if player tried to move but blockedByPushable
+    // wasn't set (e.g., already adjacent and movement too small to enter new cell),
+    // check the cell just beyond the collision box edge in the movement direction.
+    if (!this.blockedByPushable && (newX !== this.previousX || newY !== this.previousY)) {
+      const dx = newX - this.previousX;
+      const dy = newY - this.previousY;
+      const boxLeft = transform.x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
+      const boxTop = transform.y + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
+      const boxRight = boxLeft + gridPos.collisionBox.width;
+      const boxBottom = boxTop + gridPos.collisionBox.height;
+      const centerX = (boxLeft + boxRight) / 2;
+      const centerY = (boxTop + boxBottom) / 2;
+
+      // Check one pixel beyond the edge in the dominant movement direction
+      let probeX = centerX;
+      let probeY = centerY;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        probeX = dx > 0 ? boxRight + 1 : boxLeft - 1;
+      } else {
+        probeY = dy > 0 ? boxBottom + 1 : boxTop - 1;
+      }
+      const probeCell = this.grid.worldToCell(probeX, probeY);
+      const probeCellData = this.grid.getCell(probeCell.col, probeCell.row);
+      if (probeCellData) {
+        for (const occupant of probeCellData.occupants) {
+          if (occupant.get(GridCellBlocker)) {
+            this.blockedByPushable = occupant;
+            break;
+          }
+        }
+      }
+    }
+
     const boxLeft = transform.x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
     const boxTop = transform.y + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
     const boxRight = boxLeft + gridPos.collisionBox.width;

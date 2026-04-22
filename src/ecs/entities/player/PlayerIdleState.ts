@@ -16,12 +16,17 @@ import { InteractionComponent } from '../../components/interaction/InteractionCo
 import { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
 
+const CARDINAL_DOMINANCE_RATIO = 3;
+
 function getCardinalPushDirectionIdle(dx: number, dy: number): Direction | null {
-  if (dx !== 0 && dy !== 0) return null;
-  if (dx > 0) return Direction.Right;
-  if (dx < 0) return Direction.Left;
-  if (dy > 0) return Direction.Down;
-  if (dy < 0) return Direction.Up;
+  const absDx = Math.abs(dx);
+  const absDy = Math.abs(dy);
+  if (absDx > absDy * CARDINAL_DOMINANCE_RATIO) {
+    return dx > 0 ? Direction.Right : Direction.Left;
+  }
+  if (absDy > absDx * CARDINAL_DOMINANCE_RATIO) {
+    return dy > 0 ? Direction.Down : Direction.Up;
+  }
   return null;
 }
 
