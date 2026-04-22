@@ -373,7 +373,10 @@ export class RockThrowAbility implements Component {
       this.scene.time.delayedCall(800, () => emitter.destroy());
       if (rockSprite) rockSprite.sprite.setVisible(false);
     } else {
-      if (rockSprite) rockSprite.sprite.setVisible(true);
+      if (rockSprite) {
+        rockSprite.sprite.setVisible(true);
+        rockSprite.visualOffsetYPx = 25;
+      }
     }
 
     this.landedTimerMs = 0;
@@ -406,6 +409,7 @@ export class RockThrowAbility implements Component {
     if (rockSprite) {
       rockSprite.sprite.setVisible(true);
       rockSprite.sprite.setDepth(Depth.pet);
+      rockSprite.visualOffsetYPx = 0;
     }
 
     // Resume pet follow and re-enable grid collision

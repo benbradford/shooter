@@ -83,7 +83,10 @@ export class RockArcComponent implements Component {
     // Arc always continues regardless of wall hit
     this.distanceTraveled += movePx;
     const progress = Math.min(this.distanceTraveled / this.maxDistance, 1);
-    const arcOffset = Math.sin(progress * Math.PI) * this.arcHeight;
+    // Rock starts elevated (in player's hand) and lands at ground level (25px lower)
+    const LAND_DROP_PX = 25;
+    const sineArc = Math.sin(progress * Math.PI) * this.arcHeight;
+    const arcOffset = sineArc - LAND_DROP_PX * progress;
     const sprite = this.entity.get(SpriteComponent);
     if (sprite) {
       sprite.visualOffsetYPx = -arcOffset;
@@ -92,7 +95,7 @@ export class RockArcComponent implements Component {
     // Land when arc completes
     if (progress >= 1) {
       this.hasLanded = true;
-      if (sprite) sprite.visualOffsetYPx = 0;
+      if (sprite) sprite.visualOffsetYPx = LAND_DROP_PX;
       this.onLand(transform.x, transform.y);
     }
   }

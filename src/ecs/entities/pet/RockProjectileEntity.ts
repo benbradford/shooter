@@ -41,7 +41,7 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
   sprite.sprite.setDepth(Depth.enemy);
   sprite.sprite.setFrame(0);
 
-  const shadow = new ShadowComponent(scene, { scale: 0.3, offsetX: 0, offsetY: 10 });
+  const shadow = new ShadowComponent(scene, { scale: 0.3, offsetX: 0, offsetY: 35 });
   entity.add(shadow);
   shadow.init();
 
