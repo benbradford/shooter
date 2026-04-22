@@ -29,6 +29,7 @@ import { GridCollisionComponent } from "../ecs/components/movement/GridCollision
 import { Direction } from "../constants/Direction";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
+import { SoundManager } from "../systems/SoundManager";
 import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
 import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
 import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
@@ -481,6 +482,11 @@ export default class GameScene extends Phaser.Scene {
         this.startLevelTransition(targetLevel, targetCol, targetRow);
       }
     );
+
+    // Ensure SoundManager has a game reference (covers ?level= skip-boot path)
+    if (!SoundManager.getInstance().isInitialized) {
+      void SoundManager.getInstance().initialize(this);
+    }
 
     this.spawnEntities();
 

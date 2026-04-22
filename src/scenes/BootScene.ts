@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { SoundManager } from '../systems/SoundManager';
 
 const MIN_DISPLAY_MS = 1000;
 
@@ -18,7 +19,7 @@ export default class BootScene extends Phaser.Scene {
       fontSize: '24px', color: '#888888', fontFamily: 'sans-serif',
     }).setOrigin(0.5);
 
-
+    void SoundManager.getInstance().initialize(this);
 
     this.time.delayedCall(MIN_DISPLAY_MS, () => {
       this.scene.start('title');

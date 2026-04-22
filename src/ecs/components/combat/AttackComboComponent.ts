@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import { Entity } from '../../Entity';
 import { EntityManager } from '../../EntityManager';
@@ -235,7 +236,7 @@ export class AttackComboComponent implements Component {
 
   private createPunchHitbox(): void {
     const punchSounds = ['punch1', 'punch2', 'punch3'];
-    this.scene.sound.play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
+    SoundManager.getInstance().play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
 
     const transform = this.entity.require(TransformComponent);
     const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
@@ -294,7 +295,7 @@ export class AttackComboComponent implements Component {
   }
 
   private createSuperPunchHitbox(): void {
-    this.scene.sound.play('superpunch');
+    SoundManager.getInstance().play('superpunch');
 
     const transform = this.entity.require(TransformComponent);
     const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);

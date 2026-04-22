@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import type { Grid, CellProperty } from '../../../systems/grid/Grid';
 import { Depth } from '../../../constants/DepthConstants';
@@ -92,7 +93,7 @@ export class CellModifierComponent implements Component {
 
       gameScene.sceneRenderer.invalidateCells(this.cellsToModify);
 
-      this.scene.sound.play('shimmer1');
+      SoundManager.getInstance().play('shimmer1');
 
       // Create spark texture at runtime if needed
       if (!this.scene.textures.exists('spark')) {

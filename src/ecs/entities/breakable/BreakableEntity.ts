@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
@@ -87,7 +88,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
         const dmg = other.get(DamageComponent);
         const damage = dmg?.damage ?? 10;
         if (requiresSuperPunch && damage < SUPER_PUNCH_DAMAGE_THRESHOLD) {
-          scene.sound.play('thud1');
+          SoundManager.getInstance().play('thud1');
           return;
         }
         breakable.takeDamage(damage);

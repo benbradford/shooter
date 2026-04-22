@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
@@ -47,7 +48,7 @@ export class BreakableComponent implements Component {
       this.currentHealth = 0;
       this.breakApart();
     } else {
-      this.scene.sound.play('thud1');
+      SoundManager.getInstance().play('thud1');
       this.spawnSingleShard();
       this.shakeSprite();
     }
@@ -157,7 +158,7 @@ export class BreakableComponent implements Component {
 
     const sounds = BREAKABLE_SOUNDS[sprite.sprite.texture.key];
     if (sounds) {
-      this.scene.sound.play(sounds[Math.floor(Math.random() * sounds.length)]);
+      SoundManager.getInstance().play(sounds[Math.floor(Math.random() * sounds.length)]);
     }
 
     this.spawnCoins(transform, sprite);

@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
@@ -172,7 +173,7 @@ export class DogBarkAbility implements Component {
       anim.animationSystem.play(`bark_${dir}`);
     }
 
-    this.scene.sound.play('bark_sfx');
+    SoundManager.getInstance().play('bark_sfx');
     this.applyFearToNearbyEnemies();
     this.createBarkWave();
   }
@@ -187,7 +188,7 @@ export class DogBarkAbility implements Component {
       anim.animationSystem.play(`bark_${dir}`);
     }
 
-    this.scene.sound.play('bark_sfx');
+    SoundManager.getInstance().play('bark_sfx');
     this.applyFearToNearbyEnemies();
     this.createBarkWave();
   }

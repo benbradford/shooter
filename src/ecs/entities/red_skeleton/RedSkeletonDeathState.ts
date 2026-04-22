@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
@@ -24,7 +25,7 @@ export class RedSkeletonDeathState implements IState {
 
   onEnter(): void {
     this.hasSpawned = false;
-    this.scene.sound.play('skeleton_death');
+    SoundManager.getInstance().play('skeleton_death');
     const collision = this.entity.get(CollisionComponent);
     if (collision) this.entity.remove(CollisionComponent);
   }

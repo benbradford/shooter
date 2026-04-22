@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
@@ -151,7 +152,7 @@ export class WaterEffectComponent implements Component {
       this.startY = transform.y;
 
       if (!nowInWater) {
-        this.scene.sound.play('splash1');
+        SoundManager.getInstance().play('splash1');
       }
 
       if (!nowInWater && wasInWater) {
@@ -199,7 +200,7 @@ export class WaterEffectComponent implements Component {
 
       if (this.hopProgress >= 1 && this.isInWater) {
         this.createSplashEffect(transform.x, transform.y, false);
-        this.scene.sound.play('splash2');
+        SoundManager.getInstance().play('splash2');
       }
     } else {
       sprite.sprite.y = transform.y + sprite.visualOffsetYPx;

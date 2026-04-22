@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
@@ -356,7 +357,7 @@ export class RockThrowAbility implements Component {
     const rockSprite = this.entity.get(SpriteComponent);
     if (landedInWater) {
       // Splash effect + sound, hide rock
-      this.scene.sound.play('splash1');
+      SoundManager.getInstance().play('splash1');
       const emitter = this.scene.add.particles(x, y, 'water_splash', {
         speed: { min: 50, max: 100 },
         angle: { min: 0, max: -180 },

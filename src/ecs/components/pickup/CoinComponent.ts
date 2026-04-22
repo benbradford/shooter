@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
@@ -157,7 +158,7 @@ export class CoinComponent implements Component {
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);
         const coinSounds = ['coin1_sfx', 'coin2_sfx'];
-        sprite.sprite.scene.sound.play(coinSounds[Math.floor(Math.random() * coinSounds.length)]);
+        SoundManager.getInstance().play(coinSounds[Math.floor(Math.random() * coinSounds.length)]);
       }
     }
   }

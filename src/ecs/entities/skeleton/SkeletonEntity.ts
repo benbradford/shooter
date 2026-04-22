@@ -1,3 +1,4 @@
+import { SoundManager } from '../../../systems/SoundManager';
 import { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
@@ -49,7 +50,7 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
   const config = getSkeletonDifficultyConfig(difficulty);
 
   createSkeletonAnimations(scene);
-  scene.sound.play('bones_spawn');
+  SoundManager.getInstance().play('bones_spawn');
 
   const worldPos = grid.cellToWorld(col, row);
   const x = worldPos.x + grid.cellSize / 2;
@@ -108,7 +109,7 @@ export function createSkeletonEntity(data: SkeletonCreatorData): Entity {
         const health = entity.require(HealthComponent);
         const dmg = other.get(DamageComponent);
         health.takeDamage(dmg?.damage ?? BULLET_DAMAGE);
-        scene.sound.play('skeleton_hit');
+        SoundManager.getInstance().play('skeleton_hit');
 
         const projectile = other.get(ProjectileComponent);
         if (projectile) {
