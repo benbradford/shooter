@@ -10,6 +10,7 @@ import { GridCellBlocker } from '../movement/GridCellBlocker';
 import { HealthComponent } from '../core/HealthComponent';
 import { HitFlashComponent } from '../visual/HitFlashComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
+import { StateMachineComponent } from '../core/StateMachineComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
@@ -23,6 +24,7 @@ const SPARK_TEXTURE_SIZE_PX = 4;
 const LASER_DAMAGE = 3;
 const DAMAGE_COOLDOWN_MS = 50;
 const PUSHBACK_MARGIN_PX = 20;
+const ENEMY_LASER_KILL_DAMAGE = 9999;
 
 export type LaserBeamProps = {
   scene: Phaser.Scene;
@@ -240,8 +242,19 @@ export class LaserBeamComponent implements Component {
       if (gridPos && gridPos.currentLayer !== this.layer) continue;
 
       const dist = this.pointToSegmentDist(transform.x, transform.y, startX, startY, endX, endY);
-      if (dist < BEAM_COLLISION_HALF_WIDTH_PX) {
-        entity.destroy();
+      const enemyCollision = entity.get(CollisionComponent);
+      const enemyHalfWidth = enemyCollision ? enemyCollision.box.width / 2 : 16;
+      if (dist < BEAM_COLLISION_HALF_WIDTH_PX + enemyHalfWidth) {
+        const health = entity.get(HealthComponent);
+        if (health && health.getHealth() > 0) {
+          health.takeDamage(ENEMY_LASER_KILL_DAMAGE);
+          const sm = entity.get(StateMachineComponent);
+          if (sm?.stateMachine.hasState('death')) {
+            sm.stateMachine.enter('death');
+          } else {
+            entity.destroy();
+          }
+        }
       }
     }
   }
