@@ -2160,9 +2160,10 @@
       "type": "laser",
       "data": {
         "col": 17,
-        "row": 11,
+        "row": 10,
         "angle": 180,
-        "flagName": "laser0_laser_on"
+        "flagName": "laser0_laser_on",
+        "onDestroyEvent": "lever_lever1|on"
       }
     },
     {
@@ -2214,6 +2215,17 @@
         "col": 14,
         "row": 8,
         "eventToRaise": "lever_lever0",
+        "startState": "off",
+        "oneShot": true
+      }
+    },
+    {
+      "id": "lever1",
+      "type": "lever",
+      "data": {
+        "col": 20,
+        "row": 12,
+        "eventToRaise": "lever_lever1",
         "startState": "off",
         "oneShot": true
       }

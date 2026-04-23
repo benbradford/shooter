@@ -192,6 +192,7 @@ Stationary beam emitter that fires a continuous beam at an arbitrary angle.
 **Toggle:** World state flag `{entityId}_laser_on` (configurable). `"false"` = off, `"true"` or unset = on. Works with levers, triggers, Lua scripts.
 
 **Visual:** 3-layer beam (red outer glow, white inner core, pulsing orange overlay) + impact spark particles at endpoint.
+Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.png`) overlays and rotates to match angle.
 
 **Editor:** Entity tool → laser → click to place. Select to edit angle (0°=up, 90°=right) and flag name.
 

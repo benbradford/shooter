@@ -973,8 +973,8 @@ export class EditorBridge {
       } else if (entity.id.startsWith('laser')) {
         type = 'laser';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
-        const existingData = existing?.data as { angle?: number; flagName?: string } | undefined;
-        data = { col: cell.col, row: cell.row, angle: existingData?.angle ?? 0, flagName: existingData?.flagName ?? `${entity.id}_laser_on` };
+        const existingData = existing?.data as { angle?: number; flagName?: string; onDestroyEvent?: string } | undefined;
+        data = { col: cell.col, row: cell.row, angle: existingData?.angle ?? 0, flagName: existingData?.flagName ?? `${entity.id}_laser_on`, ...(existingData?.onDestroyEvent ? { onDestroyEvent: existingData.onDestroyEvent } : {}) };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

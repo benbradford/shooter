@@ -561,7 +561,7 @@ export class EntityLoader {
 
       case 'laser':
         return () => {
-          const laserData = data as { col: number; row: number; angle: number; flagName?: string };
+          const laserData = data as { col: number; row: number; angle: number; flagName?: string; onDestroyEvent?: string };
           const gameScene = this.scene as Phaser.Scene & { blockedAreaManager?: import('./BlockedAreaManager').BlockedAreaManager };
           return createLaserEntity({
             scene: this.scene,
@@ -573,6 +573,8 @@ export class EntityLoader {
             flagName: laserData.flagName ?? `${entityDef.id}_laser_on`,
             blockedAreaManager: gameScene.blockedAreaManager,
             entityManager: this.entityManager,
+            onDestroyEvent: laserData.onDestroyEvent,
+            eventManager: this.eventManager,
           });
         };
 

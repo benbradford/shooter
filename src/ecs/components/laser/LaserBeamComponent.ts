@@ -4,6 +4,8 @@ import type { Entity } from '../../Entity';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EntityManager } from '../../EntityManager';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
+import type { EventManagerSystem } from '../../systems/EventManagerSystem';
+import type { EventListener } from '../../systems/EventListener';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCellBlocker } from '../movement/GridCellBlocker';
@@ -36,9 +38,12 @@ export type LaserBeamProps = {
   blockedAreaManager?: BlockedAreaManager;
   entityManager: EntityManager;
   nozzleSprite?: Phaser.GameObjects.Sprite;
+  onDestroyEvent?: string;
+  baseSprite: Phaser.GameObjects.Sprite;
+  eventManager?: EventManagerSystem;
 };
 
-export class LaserBeamComponent implements Component {
+export class LaserBeamComponent implements Component, EventListener {
   entity!: Entity;
 
   private readonly scene: Phaser.Scene;
@@ -52,8 +57,12 @@ export class LaserBeamComponent implements Component {
   private readonly graphics: Phaser.GameObjects.Graphics;
   private readonly emitter: Phaser.GameObjects.Particles.ParticleEmitter;
   private readonly nozzleSprite?: Phaser.GameObjects.Sprite;
+  private readonly baseSprite: Phaser.GameObjects.Sprite;
+  private readonly onDestroyEvent?: string;
+  private readonly eventManager?: EventManagerSystem;
 
   private isOn = true;
+  private isDestroyed = false;
   private pulseTimeMs = 0;
   private damageCooldownMs = 0;
 
@@ -64,6 +73,8 @@ export class LaserBeamComponent implements Component {
     this.layer = props.layer;
     this.blockedAreaManager = props.blockedAreaManager;
     this.entityManager = props.entityManager;
+    this.baseSprite = props.baseSprite;
+    this.onDestroyEvent = props.onDestroyEvent;
 
     const rad = (props.angle - 90) * Math.PI / 180;
     this.dirX = Math.cos(rad);
@@ -74,9 +85,52 @@ export class LaserBeamComponent implements Component {
     this.nozzleSprite = props.nozzleSprite;
 
     this.emitter = this.createImpactEmitter();
+
+    this.eventManager = props.eventManager;
+    if (this.onDestroyEvent && this.eventManager) {
+      this.eventManager.register(this.onDestroyEvent, this);
+    }
+  }
+
+  onEvent(eventName: string): void {
+    if (eventName === this.onDestroyEvent) {
+      this.destroyLaser();
+    }
+  }
+
+  private destroyLaser(): void {
+    this.isDestroyed = true;
+    this.graphics.setVisible(false);
+    this.emitter.stop();
+    this.nozzleSprite?.setVisible(false);
+
+    // Explosion particles
+    const transform = this.entity.require(TransformComponent);
+    const explosion = this.scene.add.particles(transform.x, transform.y, SPARK_TEXTURE_KEY, {
+      speed: { min: 50, max: 150 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 2, end: 0 },
+      lifespan: { min: 200, max: 500 },
+      quantity: 15,
+      tint: [0xffff00, 0xff6600, 0xff0000],
+      alpha: { start: 1, end: 0 },
+      blendMode: 'ADD',
+      emitting: false,
+    });
+    explosion.setDepth(Depth.particle);
+    explosion.explode();
+    this.scene.time.delayedCall(600, () => explosion.destroy());
+
+    // Swap base to destroyed texture
+    this.baseSprite.setTexture('laser_base_destroyed');
+
+    if (this.eventManager) {
+      this.eventManager.deregister(this.onDestroyEvent!, this);
+    }
   }
 
   update(delta: number): void {
+    if (this.isDestroyed) return;
     this.pulseTimeMs += delta;
     if (this.damageCooldownMs > 0) this.damageCooldownMs -= delta;
 
@@ -108,6 +162,9 @@ export class LaserBeamComponent implements Component {
     this.graphics.destroy();
     this.emitter.destroy();
     this.nozzleSprite?.destroy();
+    if (this.eventManager) {
+      this.eventManager.deregister(this.onDestroyEvent!, this);
+    }
   }
 
   private raycast(startX: number, startY: number): { x: number; y: number } {

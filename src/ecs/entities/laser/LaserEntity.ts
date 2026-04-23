@@ -22,6 +22,8 @@ export type CreateLaserProps = {
   flagName: string;
   blockedAreaManager?: BlockedAreaManager;
   entityManager: EntityManager;
+  onDestroyEvent?: string;
+  eventManager?: import('../../systems/EventManagerSystem').EventManagerSystem;
 };
 
 export function createLaserEntity(props: CreateLaserProps): Entity {
@@ -86,6 +88,9 @@ export function createLaserEntity(props: CreateLaserProps): Entity {
     blockedAreaManager: props.blockedAreaManager,
     entityManager: props.entityManager,
     nozzleSprite: nozzle,
+    baseSprite: sprite.sprite,
+    onDestroyEvent: props.onDestroyEvent,
+    eventManager: props.eventManager,
   }));
 
   entity.setUpdateOrder([

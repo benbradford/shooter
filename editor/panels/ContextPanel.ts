@@ -638,7 +638,9 @@ export class ContextPanel {
       typeFields += `<div class="form-group"><label>Angle (degrees)</label>
         <input type="number" id="ef-laser-angle" value="${data.angle ?? 0}" min="0" max="359" /></div>
         <div class="form-group"><label>Flag Name</label>
-        <input id="ef-laser-flag" value="${data.flagName ?? `${entityId}_laser_on`}" /></div>`;
+        <input id="ef-laser-flag" value="${data.flagName ?? `${entityId}_laser_on`}" /></div>
+        <div class="form-group"><label>Destroy on Event</label>
+        <input id="ef-laser-destroy" value="${data.onDestroyEvent ?? ''}" placeholder="(optional)" /></div>`;
     }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
@@ -863,6 +865,10 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-laser-flag')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { flagName: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-laser-destroy')?.addEventListener('change', (e) => {
+      const val = (e.target as HTMLInputElement).value.trim();
+      this.bridge.updateEntityData(entityId, { onDestroyEvent: val || undefined });
     });
   }
 
