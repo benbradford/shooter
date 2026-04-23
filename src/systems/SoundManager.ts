@@ -49,7 +49,15 @@ export class SoundManager {
     this._initialized = true;
   }
 
+  private readonly lastPlayedMs = new Map<string, number>();
+  private static readonly SOUND_COOLDOWN_MS = 50;
+
   play(key: string, options?: SoundOptions): void {
+    const now = performance.now();
+    const last = this.lastPlayedMs.get(key) ?? 0;
+    if (now - last < SoundManager.SOUND_COOLDOWN_MS) return;
+    this.lastPlayedMs.set(key, now);
+
     if (this.useNative && this.nativePlugin) {
       void this.nativePlugin.play({ key, volume: options?.volume ?? 1 }).catch(() => {
         this.game?.sound.play(key, options);

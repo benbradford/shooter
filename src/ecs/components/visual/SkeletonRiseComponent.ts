@@ -6,6 +6,7 @@ import { CollisionComponent } from '../combat/CollisionComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { ShadowComponent } from './ShadowComponent';
 import { createSmokeBurst } from './SmokeBurstHelper';
+import { SoundManager } from '../../../systems/SoundManager';
 
 export type SkeletonRiseComponentProps = {
   scene: Phaser.Scene;
@@ -36,6 +37,7 @@ export class SkeletonRiseComponent implements Component {
 
       if (this.elapsedMs === 0) {
         collision.enabled = false;
+        SoundManager.getInstance().play('bones_spawn');
         if (shadow?.shadow) {
           shadow.shadow.setVisible(false);
         }

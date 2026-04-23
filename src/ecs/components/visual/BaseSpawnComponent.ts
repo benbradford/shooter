@@ -4,6 +4,7 @@ import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { BugSpawnerComponent } from '../ai/BugSpawnerComponent';
 import { createSmokeBurst } from './SmokeBurstHelper';
+import { SoundManager } from '../../../systems/SoundManager';
 
 const SPAWN_RANGE_PX = 250;
 const SCALE_IN_DURATION_MS = 1500;
@@ -47,6 +48,7 @@ export class BaseSpawnComponent implements Component {
 
     sprite.sprite.setVisible(true);
     sprite.sprite.setAlpha(1);
+    SoundManager.getInstance().play('hole_stretch');
 
     this.scene.tweens.add({
       targets: transform,

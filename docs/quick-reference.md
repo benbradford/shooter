@@ -194,7 +194,7 @@ Stationary beam emitter that fires a continuous beam at an arbitrary angle.
 **Visual:** 3-layer beam (red outer glow, white inner core, pulsing orange overlay) + impact spark particles at endpoint.
 Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.png`) overlays and rotates to match angle.
 
-**Editor:** Entity tool → laser → click to place. Select to edit angle (0°=up, 90°=right) and flag name.
+**Editor:** Entity tool → laser → click to place. Select to edit angle (0°=up, 90°=right), flag name, and destroy event.
 
 **Key files:**
 - `src/ecs/entities/laser/LaserEntity.ts` — Entity factory
@@ -225,6 +225,7 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 - On web: delegates to `game.sound.play()` (Phaser Web Audio, no change)
 - Music stays on Phaser directly (`this.sound.play('btr_music', ...)`)
 - Initialized in BootScene and GameScene (covers all entry paths)
+- Per-sound cooldown: 50ms — prevents overlapping duplicate sounds
 
 **Sound loading rules:**
 - `core` group: Always loaded (punch, splash, coin, shimmer sounds)

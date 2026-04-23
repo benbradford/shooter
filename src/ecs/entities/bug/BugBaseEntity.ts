@@ -1,6 +1,7 @@
 import { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
 import type { EntityManager } from '../../EntityManager';
+import { SoundManager } from '../../../systems/SoundManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
@@ -92,7 +93,7 @@ export function createBugBaseEntity(props: CreateBugBaseProps): Entity {
           if (explosion) {
             explosion.explode();
           }
-
+          SoundManager.getInstance().play('rubble');
         }
 
         scene.time.delayedCall(0, () => other.destroy());

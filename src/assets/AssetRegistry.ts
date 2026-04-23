@@ -306,6 +306,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/sounds/bones_spawn.mp3',
     type: 'audio' as const,
   },
+  hole_stretch: {
+    key: 'hole_stretch',
+    path: 'assets/sounds/hole_stretch.mp3',
+    type: 'audio' as const,
+  },
+  splatter: {
+    key: 'splatter',
+    path: 'assets/sounds/splatter.mp3',
+    type: 'audio' as const,
+  },
+  rubble: {
+    key: 'rubble',
+    path: 'assets/sounds/rubble.mp3',
+    type: 'audio' as const,
+  },
   skeleton_death: {
     key: 'skeleton_death',
     path: 'assets/sounds/skeleton_death.mp3',
@@ -831,7 +846,7 @@ export const ASSET_GROUPS = {
   // Enemies
   stalking_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
   floating_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'] as const,
-  bug_base: ['bug_base', 'base_destroyed',  'bug'] as const,
+  bug_base: ['bug_base', 'base_destroyed', 'bug', 'hole_stretch', 'splatter', 'rubble'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,

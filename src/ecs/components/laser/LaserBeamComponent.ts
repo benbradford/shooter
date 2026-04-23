@@ -13,6 +13,8 @@ import { HealthComponent } from '../core/HealthComponent';
 import { HitFlashComponent } from '../visual/HitFlashComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
+import { BugBurstComponent } from '../visual/BugBurstComponent';
+import { SoundManager } from '../../../systems/SoundManager';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
@@ -106,20 +108,19 @@ export class LaserBeamComponent implements Component, EventListener {
 
     // Explosion particles
     const transform = this.entity.require(TransformComponent);
-    const explosion = this.scene.add.particles(transform.x, transform.y, SPARK_TEXTURE_KEY, {
-      speed: { min: 50, max: 150 },
+    const explosion = this.scene.add.particles(transform.x, transform.y, 'fire', {
+      speed: { min: 50, max: 100 },
       angle: { min: 0, max: 360 },
-      scale: { start: 2, end: 0 },
-      lifespan: { min: 200, max: 500 },
-      quantity: 15,
-      tint: [0xffff00, 0xff6600, 0xff0000],
+      scale: { start: 0.4, end: 0 },
       alpha: { start: 1, end: 0 },
+      tint: [0xffffff, 0xff8800, 0xff0000],
+      lifespan: 400,
+      frequency: 5,
       blendMode: 'ADD',
-      emitting: false,
     });
     explosion.setDepth(Depth.particle);
-    explosion.explode();
-    this.scene.time.delayedCall(600, () => explosion.destroy());
+    this.scene.time.delayedCall(80, () => explosion.stop());
+    this.scene.time.delayedCall(480, () => explosion.destroy());
 
     // Swap base to destroyed texture
     this.baseSprite.setTexture('laser_base_destroyed');
@@ -320,6 +321,9 @@ export class LaserBeamComponent implements Component, EventListener {
           if (sm?.stateMachine.hasState('death')) {
             sm.stateMachine.enter('death');
           } else {
+            const burst = entity.get(BugBurstComponent);
+            if (burst) burst.burst();
+            SoundManager.getInstance().play('splatter');
             entity.destroy();
           }
         }

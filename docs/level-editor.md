@@ -136,7 +136,7 @@ Entity form shows all editable fields per type:
 - CellModifier: cellsToModify (structured form with col/row/properties/layer per entry)
 - Interaction: filename
 - Lever: eventToRaise, startState (on/off), oneShot
-- Laser: angle (0°=up, 90°=right), flagName (world state toggle)
+- Laser: angle (0°=up, 90°=right), flagName (world state toggle), onDestroyEvent (optional)
 - Pushable: texture, pushEnabled, doesPersist, singlePushOnly
 - Hole: texture, targetLevel, targetCol, targetRow, transformOverride (scaleX/Y, offsetX/Y) + **Leave** button
 

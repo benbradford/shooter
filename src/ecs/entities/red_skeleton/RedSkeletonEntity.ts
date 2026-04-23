@@ -52,7 +52,6 @@ export function createRedSkeletonEntity(data: RedSkeletonCreatorData): Entity {
   const config = getSkeletonDifficultyConfig(difficulty);
 
   createSkeletonAnimations(scene);
-  SoundManager.getInstance().play('bones_spawn');
 
   const worldPos = grid.cellToWorld(col, row);
   const x = worldPos.x + grid.cellSize / 2;

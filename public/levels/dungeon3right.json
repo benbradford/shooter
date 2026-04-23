@@ -2231,6 +2231,15 @@
       }
     },
     {
+      "id": "bug_base0",
+      "type": "bug_base",
+      "data": {
+        "col": 19,
+        "row": 15,
+        "difficulty": "medium"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

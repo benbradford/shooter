@@ -210,6 +210,7 @@ Plus one interaction entity per script:
 ### Laser
 - `angle`: Number — beam direction in degrees (0=up, 90=right, 180=down, 270=left), supports arbitrary angles
 - `flagName`: String (optional) — world state flag controlling on/off, defaults to `{entityId}_laser_on`
+- `onDestroyEvent`: String (optional) — event name that destroys the laser (explosion + swap to `laser_base_destroyed.png`)
 - Beam is continuous, fires every frame from emitter center along angle
 - Beam stops at walls, platforms, blocked areas, GridCellBlocker occupants (pushables, breakables, other lasers)
 - **Player**: 3 damage per hit (50ms cooldown), pushes player perpendicular to beam (acts as impassable barrier)

@@ -1,5 +1,6 @@
 import { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
+import { SoundManager } from '../../../systems/SoundManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
@@ -131,6 +132,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
           if (burst) {
             burst.burst();
           }
+          SoundManager.getInstance().play('splatter');
           entity.destroy();
         }
 
