@@ -213,9 +213,10 @@ Plus one interaction entity per script:
 - Beam is continuous, fires every frame from emitter center along angle
 - Beam stops at walls, platforms, blocked areas, GridCellBlocker occupants (pushables, breakables, other lasers)
 - **Player**: 3 damage per hit (50ms cooldown), pushes player perpendicular to beam (acts as impassable barrier)
-- **Enemies**: Instant kill, triggers death state animation
+- **Enemies**: Instant kill, triggers death state animation (not just destroy)
 - Toggle: flag `"false"` = off (hidden, no damage), flag `"true"` or unset = on
-- Base sprite (`laser_base.png`) blocks movement and absorbs projectiles
+- Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.png`) overlays and rotates to match angle
+- Base blocks movement and absorbs projectiles
 - Tagged `'laser'` (not `'enemy'`) — not targetable by auto-aim
 - 3-layer beam visual: red outer glow, white inner core, pulsing orange overlay
 - Impact spark particles at beam endpoint

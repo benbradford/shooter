@@ -24,6 +24,7 @@ const SPARK_TEXTURE_SIZE_PX = 4;
 const LASER_DAMAGE = 3;
 const DAMAGE_COOLDOWN_MS = 50;
 const PUSHBACK_MARGIN_PX = 20;
+const BEAM_START_OFFSET_PX = 26;
 const ENEMY_LASER_KILL_DAMAGE = 9999;
 
 export type LaserBeamProps = {
@@ -34,6 +35,7 @@ export type LaserBeamProps = {
   layer: number;
   blockedAreaManager?: BlockedAreaManager;
   entityManager: EntityManager;
+  nozzleSprite?: Phaser.GameObjects.Sprite;
 };
 
 export class LaserBeamComponent implements Component {
@@ -49,6 +51,7 @@ export class LaserBeamComponent implements Component {
   private readonly entityManager: EntityManager;
   private readonly graphics: Phaser.GameObjects.Graphics;
   private readonly emitter: Phaser.GameObjects.Particles.ParticleEmitter;
+  private readonly nozzleSprite?: Phaser.GameObjects.Sprite;
 
   private isOn = true;
   private pulseTimeMs = 0;
@@ -68,6 +71,7 @@ export class LaserBeamComponent implements Component {
 
     this.graphics = props.scene.add.graphics();
     this.graphics.setDepth(Depth.particle);
+    this.nozzleSprite = props.nozzleSprite;
 
     this.emitter = this.createImpactEmitter();
   }
@@ -86,8 +90,8 @@ export class LaserBeamComponent implements Component {
     }
 
     const transform = this.entity.require(TransformComponent);
-    const startX = transform.x;
-    const startY = transform.y;
+    const startX = transform.x + this.dirX * BEAM_START_OFFSET_PX;
+    const startY = transform.y + this.dirY * BEAM_START_OFFSET_PX;
 
     const endpoint = this.raycast(startX, startY);
 
@@ -103,6 +107,7 @@ export class LaserBeamComponent implements Component {
   onDestroy(): void {
     this.graphics.destroy();
     this.emitter.destroy();
+    this.nozzleSprite?.destroy();
   }
 
   private raycast(startX: number, startY: number): { x: number; y: number } {

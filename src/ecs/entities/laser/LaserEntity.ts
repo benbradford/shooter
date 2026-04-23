@@ -39,11 +39,23 @@ export function createLaserEntity(props: CreateLaserProps): Entity {
 
   const angle = Number.isFinite(props.angle) ? props.angle : 0;
 
-  const spriteRotation = (angle - 180) * Math.PI / 180;
-  const transform = entity.add(new TransformComponent(x, y, spriteRotation, scale));
+  const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(scene, 'laser_base', transform));
   sprite.sprite.setDepth(Depth.breakable);
-  sprite.sprite.setRotation(spriteRotation);
+
+  // Nozzle overlay — rotates to match beam direction
+  const nozzleRotation = (angle - 180) * Math.PI / 180;
+  const beamRad = (angle - 90) * Math.PI / 180;
+  const nozzleOffsetPx = 4;
+  const nozzle = scene.add.sprite(
+    x + Math.cos(beamRad) * nozzleOffsetPx,
+    y + Math.sin(beamRad) * nozzleOffsetPx,
+    'laser_nozzle'
+  );
+  const nozzleFrame = scene.textures.get('laser_nozzle').get(0);
+  nozzle.setScale(grid.cellSize / Math.max(nozzleFrame.width, nozzleFrame.height) * 0.5);
+  nozzle.setDepth(Depth.breakable + 1);
+  nozzle.setRotation(nozzleRotation);
 
   const collisionSize = grid.cellSize;
   entity.add(new GridPositionComponent(col, row, {
@@ -73,6 +85,7 @@ export function createLaserEntity(props: CreateLaserProps): Entity {
     layer,
     blockedAreaManager: props.blockedAreaManager,
     entityManager: props.entityManager,
+    nozzleSprite: nozzle,
   }));
 
   entity.setUpdateOrder([
