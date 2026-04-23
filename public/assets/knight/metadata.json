@@ -1,0 +1,78 @@
+{
+  "character": {
+    "id": "17e9279f-9e9e-4737-8cbd-85e8da7400cd",
+    "name": "knight statue in armor",
+    "prompt": "knight statue in armor",
+    "size": {
+      "width": 68,
+      "height": 68
+    },
+    "template_id": "mannequin",
+    "directions": 4,
+    "view": "low top-down",
+    "created_at": "2026-04-23T14:04:07.866529+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "west": "rotations/west.png",
+      "east": "rotations/east.png",
+      "north": "rotations/north.png"
+    },
+    "animations": {
+      "Scary_Walk-634ffcec": {
+        "east": [
+          "animations/Scary_Walk-634ffcec/east/frame_000.png",
+          "animations/Scary_Walk-634ffcec/east/frame_001.png",
+          "animations/Scary_Walk-634ffcec/east/frame_002.png",
+          "animations/Scary_Walk-634ffcec/east/frame_003.png",
+          "animations/Scary_Walk-634ffcec/east/frame_004.png",
+          "animations/Scary_Walk-634ffcec/east/frame_005.png",
+          "animations/Scary_Walk-634ffcec/east/frame_006.png",
+          "animations/Scary_Walk-634ffcec/east/frame_007.png"
+        ],
+        "west": [
+          "animations/Scary_Walk-634ffcec/west/frame_000.png",
+          "animations/Scary_Walk-634ffcec/west/frame_001.png",
+          "animations/Scary_Walk-634ffcec/west/frame_002.png",
+          "animations/Scary_Walk-634ffcec/west/frame_003.png",
+          "animations/Scary_Walk-634ffcec/west/frame_004.png",
+          "animations/Scary_Walk-634ffcec/west/frame_005.png",
+          "animations/Scary_Walk-634ffcec/west/frame_006.png",
+          "animations/Scary_Walk-634ffcec/west/frame_007.png"
+        ],
+        "south": [
+          "animations/Scary_Walk-634ffcec/south/frame_000.png",
+          "animations/Scary_Walk-634ffcec/south/frame_001.png",
+          "animations/Scary_Walk-634ffcec/south/frame_002.png",
+          "animations/Scary_Walk-634ffcec/south/frame_003.png",
+          "animations/Scary_Walk-634ffcec/south/frame_004.png",
+          "animations/Scary_Walk-634ffcec/south/frame_005.png",
+          "animations/Scary_Walk-634ffcec/south/frame_006.png",
+          "animations/Scary_Walk-634ffcec/south/frame_007.png"
+        ],
+        "north": [
+          "animations/Scary_Walk-634ffcec/north/frame_000.png",
+          "animations/Scary_Walk-634ffcec/north/frame_001.png",
+          "animations/Scary_Walk-634ffcec/north/frame_002.png",
+          "animations/Scary_Walk-634ffcec/north/frame_003.png",
+          "animations/Scary_Walk-634ffcec/north/frame_004.png",
+          "animations/Scary_Walk-634ffcec/north/frame_005.png",
+          "animations/Scary_Walk-634ffcec/north/frame_006.png",
+          "animations/Scary_Walk-634ffcec/north/frame_007.png"
+        ]
+      },
+      "Arms_stretched_out_wide_to_the_side-e3948fe0": {
+        "south": [
+          "animations/Arms_stretched_out_wide_to_the_side-e3948fe0/south/frame_000.png",
+          "animations/Arms_stretched_out_wide_to_the_side-e3948fe0/south/frame_001.png",
+          "animations/Arms_stretched_out_wide_to_the_side-e3948fe0/south/frame_002.png",
+          "animations/Arms_stretched_out_wide_to_the_side-e3948fe0/south/frame_003.png",
+          "animations/Arms_stretched_out_wide_to_the_side-e3948fe0/south/frame_004.png"
+        ]
+      }
+    }
+  },
+  "export_version": "2.0",
+  "export_date": "2026-04-23T14:15:50.384502"
+}

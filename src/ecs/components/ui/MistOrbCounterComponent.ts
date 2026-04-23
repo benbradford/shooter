@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
-const ICON_SIZE_PX = 28;
+const ICON_SIZE_PX = 56;
 const POSITION_X_PERCENT = 0.92;
 const POSITION_Y_PERCENT = 0.06;
 const CYAN_COLOR = '#66ddff';
@@ -29,7 +29,7 @@ export class MistOrbCounterComponent implements Component {
     this.icon.setVisible(false);
 
     this.text = this.scene.add.text(0, 0, '0', {
-      fontSize: '22px',
+      fontSize: '44px',
       color: CYAN_COLOR,
       fontStyle: 'bold',
     });

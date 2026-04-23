@@ -118,6 +118,10 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 **Cancel on damage:** If player takes damage during charge/aim, rock drops 20px and returns.
 
+**Re-throw during return:** Pressing the pet button while the rock is returning interrupts the return and immediately starts a new throw sequence.
+
+**Button disabled:** Pet action button is disabled (dimmed) during flight (`throwing`) and landing cooldown (`landed`). Enabled during return for re-throw.
+
 **Cooldown:** Starts after rock returns to player (not on activation).
 
 **Key constants:** `THROW_DISTANCE_PX = 250`, `THROW_SPEED_PX_PER_SEC = 500`, `THROW_DAMAGE = 20`, `THROW_ARC_HEIGHT_PX = 20`

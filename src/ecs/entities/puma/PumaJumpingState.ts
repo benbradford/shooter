@@ -8,6 +8,9 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { dirFromDelta } from '../../../constants/Direction';
 import type { Grid } from '../../../systems/grid/Grid';
 import { getPumaAnimKey } from './PumaAnimations';
+import { SoundManager } from '../../../systems/SoundManager';
+
+const CAT_JUMP_SOUNDS = ['cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4'] as const;
 
 export class PumaJumpingState implements IState {
   private startX = 0;
@@ -50,6 +53,7 @@ export class PumaJumpingState implements IState {
     const direction = dirFromDelta(dx, dy);
     const animKey = getPumaAnimKey('jump', direction);
     sprite.sprite.play(animKey);
+    SoundManager.getInstance().play(CAT_JUMP_SOUNDS[Math.floor(Math.random() * CAT_JUMP_SOUNDS.length)]);
 
     this.elapsedMs = 0;
   }

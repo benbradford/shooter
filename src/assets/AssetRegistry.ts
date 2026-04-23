@@ -266,6 +266,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/sounds/bark.mp3',
     type: 'audio' as const,
   },
+  orb_sfx: {
+    key: 'orb_sfx',
+    path: 'assets/sounds/orb.mp3',
+    type: 'audio' as const,
+  },
   vase1: {
     key: 'vase1',
     path: 'assets/sounds/vase1.mp3',
@@ -764,6 +769,36 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 48, frameHeight: 48 }
   },
+  cat_detect: {
+    key: 'cat_detect',
+    path: 'assets/sounds/cat_detect.mp3',
+    type: 'audio' as const,
+  },
+  cat_sound1: {
+    key: 'cat_sound1',
+    path: 'assets/sounds/cat_sound1.mp3',
+    type: 'audio' as const,
+  },
+  cat_sound2: {
+    key: 'cat_sound2',
+    path: 'assets/sounds/cat_sound2.mp3',
+    type: 'audio' as const,
+  },
+  cat_sound3: {
+    key: 'cat_sound3',
+    path: 'assets/sounds/cat_sound3.mp3',
+    type: 'audio' as const,
+  },
+  cat_sound4: {
+    key: 'cat_sound4',
+    path: 'assets/sounds/cat_sound4.mp3',
+    type: 'audio' as const,
+  },
+  cat_death: {
+    key: 'cat_death',
+    path: 'assets/sounds/cat_death.mp3',
+    type: 'audio' as const,
+  },
   bone_small: {
     key: 'bone_small',
     path: 'assets/skeleton/bone-small.png',
@@ -843,7 +878,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'medi_pack', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,
@@ -855,7 +890,7 @@ export const ASSET_GROUPS = {
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
-  puma: ['puma'] as const,
+  puma: ['puma', 'cat_detect', 'cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4', 'cat_death'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
 
   // NPCs

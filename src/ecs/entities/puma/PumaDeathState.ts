@@ -5,6 +5,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { dirFromDelta } from '../../../constants/Direction';
 import { getPumaAnimKey } from './PumaAnimations';
+import { SoundManager } from '../../../systems/SoundManager';
 
 const DEATH_DURATION_MS = 1000;
 const KNOCKBACK_DISTANCE_PX = 80;
@@ -51,6 +52,7 @@ export class PumaDeathState implements IState {
     const direction = dirFromDelta(-dx, -dy);
     const animKey = getPumaAnimKey('idle', direction);
     sprite.sprite.play(animKey);
+    SoundManager.getInstance().play('cat_death');
   }
 
   onUpdate(delta: number): void {

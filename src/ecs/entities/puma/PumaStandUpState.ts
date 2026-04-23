@@ -5,6 +5,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { dirFromDelta } from '../../../constants/Direction';
 import { getPumaAnimKey } from './PumaAnimations';
+import { SoundManager } from '../../../systems/SoundManager';
 
 export class PumaStandUpState implements IState {
   constructor(
@@ -23,6 +24,7 @@ export class PumaStandUpState implements IState {
 
     const animKey = getPumaAnimKey('standup', direction);
     sprite.sprite.play(animKey);
+    SoundManager.getInstance().play('cat_detect');
   }
 
   onUpdate(_delta: number): void {
