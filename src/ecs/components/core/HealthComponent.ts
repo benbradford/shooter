@@ -11,6 +11,7 @@ const REGEN_TIMER_RATE_STILL = 1;
 export type HealthProps = {
   maxHealth: number;
   enableRegen?: boolean;
+  onDeath?: () => void;
 }
 
 export class HealthComponent implements Component, HudBarDataSource {
@@ -19,11 +20,14 @@ export class HealthComponent implements Component, HudBarDataSource {
   private maxHealth: number;
   private timeSinceLastDamageMs: number = 0;
   private readonly enableRegen: boolean;
+  private onDeath?: () => void;
+  private isDead = false;
 
   constructor(props: HealthProps) {
     this.maxHealth = props.maxHealth;
     this.currentHealth = this.maxHealth;
     this.enableRegen = props.enableRegen ?? false;
+    this.onDeath = props.onDeath;
   }
 
   getHealth(): number {
@@ -54,6 +58,10 @@ export class HealthComponent implements Component, HudBarDataSource {
   takeDamage(amount: number): void {
     this.currentHealth = Math.max(0, this.currentHealth - amount);
     this.timeSinceLastDamageMs = 0;
+    if (this.currentHealth <= 0 && !this.isDead) {
+      this.isDead = true;
+      this.onDeath?.();
+    }
   }
 
   heal(amount: number): void {
@@ -63,6 +71,10 @@ export class HealthComponent implements Component, HudBarDataSource {
 
   setHealth(value: number): void {
     this.currentHealth = Math.max(0, value);
+  }
+
+  setOnDeath(callback: () => void): void {
+    this.onDeath = callback;
   }
 
   update(delta: number): void {

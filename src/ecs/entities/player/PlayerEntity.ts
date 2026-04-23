@@ -293,6 +293,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   );
   entity.add(new StateMachineComponent(stateMachine));
 
+  health.setOnDeath(() => {
+    stateMachine.enter('death');
+  });
+
   entity.tags.add('player');
   entity.add(new CollisionComponent({
     box: PLAYER_ENTITY_COLLISION_BOX,
@@ -302,14 +306,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
         const damage = other.require(DamageComponent);
         health.takeDamage(damage.damage);
 
-        if (health.getHealth() <= 0) {
-          const sm = entity.require(StateMachineComponent);
-          sm.stateMachine.enter('death');
-          return;
+        if (health.getHealth() > 0) {
+          const hitFlash = entity.require(HitFlashComponent);
+          hitFlash.flash(300);
         }
-
-        const hitFlash = entity.require(HitFlashComponent);
-        hitFlash.flash(300);
       }
     }
   }));

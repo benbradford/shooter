@@ -2156,6 +2156,43 @@
       }
     },
     {
+      "id": "laser0",
+      "type": "laser",
+      "data": {
+        "col": 16,
+        "row": 11,
+        "angle": 180,
+        "flagName": "laser0_laser_on"
+      }
+    },
+    {
+      "id": "skeleton0",
+      "type": "skeleton",
+      "data": {
+        "col": 22,
+        "row": 15,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "skeleton1",
+      "type": "skeleton",
+      "data": {
+        "col": 22,
+        "row": 16,
+        "difficulty": "medium"
+      }
+    },
+    {
+      "id": "skeleton3",
+      "type": "skeleton",
+      "data": {
+        "col": 22,
+        "row": 14,
+        "difficulty": "medium"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

@@ -614,6 +614,12 @@ export class ContextPanel {
         <select id="ef-lever-state">${['off', 'on'].map(s => `<option ${data.startState === s ? 'selected' : ''}>${s}</option>`).join('')}</select></div>
         <div class="form-group"><label><input type="checkbox" id="ef-lever-oneshot" ${data.oneShot ? 'checked' : ''} /> One Shot</label></div>`;
     }
+    if (entityDef.type === 'laser') {
+      typeFields += `<div class="form-group"><label>Angle (degrees)</label>
+        <input type="number" id="ef-laser-angle" value="${data.angle ?? 0}" min="0" max="359" /></div>
+        <div class="form-group"><label>Flag Name</label>
+        <input id="ef-laser-flag" value="${data.flagName ?? `${entityId}_laser_on`}" /></div>`;
+    }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
     }
@@ -828,6 +834,12 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-lever-oneshot')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { oneShot: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ef-laser-angle')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { angle: Number((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-laser-flag')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { flagName: (e.target as HTMLInputElement).value });
     });
   }
 

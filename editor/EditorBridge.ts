@@ -397,6 +397,7 @@ export class EditorBridge {
         hole: { col, row, texture: 'hole_with_roots', targetLevel: '', targetCol: 0, targetRow: 0 },
         collectible: { col, row, preset: 'mist_orb' },
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
+        laser: { col, row, angle: 0, flagName: `${newId}_laser_on` },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
         exit: { targetLevel: '', targetCol: 0, targetRow: 0, triggerCells: [{ col, row }] },
@@ -965,6 +966,11 @@ export class EditorBridge {
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         const existingData = existing?.data as { eventToRaise?: string; startState?: string; oneShot?: boolean } | undefined;
         data = { col: cell.col, row: cell.row, eventToRaise: existingData?.eventToRaise ?? '', startState: existingData?.startState ?? 'off', oneShot: existingData?.oneShot ?? false };
+      } else if (entity.id.startsWith('laser')) {
+        type = 'laser';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const existingData = existing?.data as { angle?: number; flagName?: string } | undefined;
+        data = { col: cell.col, row: cell.row, angle: existingData?.angle ?? 0, flagName: existingData?.flagName ?? `${entity.id}_laser_on` };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

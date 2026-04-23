@@ -30,6 +30,7 @@ import { createInteractionEntity } from '../interaction/InteractionEntity';
 import { createNPCEntity, type NPCInteraction } from '../ecs/entities/npc/NPCEntity';
 import { createPushableEntity } from '../ecs/entities/pushable/PushableEntity';
 import { createHoleEntity } from '../ecs/entities/hole/HoleEntity';
+import { createLaserEntity } from '../ecs/entities/laser/LaserEntity';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createRedSkeletonEntity } from '../ecs/entities/red_skeleton/RedSkeletonEntity';
@@ -554,6 +555,23 @@ export class EntityLoader {
             onTransition: (targetLevel, targetCol, targetRow) => {
               this.onTransition(targetLevel, targetCol, targetRow);
             }
+          });
+        };
+
+      case 'laser':
+        return () => {
+          const laserData = data as { col: number; row: number; angle: number; flagName?: string };
+          const gameScene = this.scene as Phaser.Scene & { blockedAreaManager?: import('./BlockedAreaManager').BlockedAreaManager };
+          return createLaserEntity({
+            scene: this.scene,
+            col: laserData.col,
+            row: laserData.row,
+            grid: this.grid,
+            entityId: entityDef.id,
+            angle: laserData.angle ?? 0,
+            flagName: laserData.flagName ?? `${entityDef.id}_laser_on`,
+            blockedAreaManager: gameScene.blockedAreaManager,
+            entityManager: this.entityManager,
           });
         };
 
