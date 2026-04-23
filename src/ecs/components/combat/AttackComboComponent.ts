@@ -190,9 +190,10 @@ export class AttackComboComponent implements Component {
 
     this.phaseTimer += delta;
 
-    // Enter hold phase
+    // Enter hold phase (only if super punch is available)
     const currentAnim = anim?.animationSystem.getCurrentAnimation();
-    if (this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
+    const hasSuperPunch = WorldStateManager.getInstance().getFlag('hasSuperPunch') === 'true';
+    if (hasSuperPunch && this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
       this.isHoldingPunch = true;
       this.holdDurationMs = 0;
       currentAnim.setIndex(HOLD_FRAME_INDEX);

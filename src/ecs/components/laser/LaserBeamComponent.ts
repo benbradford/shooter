@@ -30,6 +30,8 @@ const DAMAGE_COOLDOWN_MS = 50;
 const PUSHBACK_MARGIN_PX = 20;
 const BEAM_START_OFFSET_PX = 26;
 const ENEMY_LASER_KILL_DAMAGE = 9999;
+const SOUND_MAX_DISTANCE_PX = 600;
+const SOUND_MAX_VOLUME = 0.4;
 
 export type LaserBeamProps = {
   scene: Phaser.Scene;
@@ -67,6 +69,7 @@ export class LaserBeamComponent implements Component, EventListener {
   private isDestroyed = false;
   private pulseTimeMs = 0;
   private damageCooldownMs = 0;
+  private readonly loopSound?: Phaser.Sound.BaseSound;
 
   constructor(props: LaserBeamProps) {
     this.scene = props.scene;
@@ -88,6 +91,11 @@ export class LaserBeamComponent implements Component, EventListener {
 
     this.emitter = this.createImpactEmitter();
 
+    if (props.scene.cache.audio.exists('laser_burn')) {
+      this.loopSound = props.scene.sound.add('laser_burn', { loop: true, volume: 0 });
+      this.loopSound.play();
+    }
+
     this.eventManager = props.eventManager;
     if (this.onDestroyEvent && this.eventManager) {
       this.eventManager.register(this.onDestroyEvent, this);
@@ -105,6 +113,7 @@ export class LaserBeamComponent implements Component, EventListener {
     this.graphics.setVisible(false);
     this.emitter.stop();
     this.nozzleSprite?.setVisible(false);
+    this.loopSound?.destroy();
 
     // Explosion particles
     const transform = this.entity.require(TransformComponent);
@@ -141,6 +150,7 @@ export class LaserBeamComponent implements Component, EventListener {
     if (!this.isOn) {
       this.graphics.setVisible(false);
       this.emitter.stop();
+      if (this.loopSound?.isPlaying) this.setLoopVolume(0);
       return;
     }
 
@@ -155,6 +165,8 @@ export class LaserBeamComponent implements Component, EventListener {
     this.emitter.setPosition(endpoint.x, endpoint.y);
     if (!this.emitter.emitting) this.emitter.start();
 
+    this.updateSoundVolume(transform.x, transform.y);
+
     this.checkPlayerCollision(startX, startY, endpoint.x, endpoint.y);
     this.checkEnemyCollision(startX, startY, endpoint.x, endpoint.y);
   }
@@ -163,6 +175,7 @@ export class LaserBeamComponent implements Component, EventListener {
     this.graphics.destroy();
     this.emitter.destroy();
     this.nozzleSprite?.destroy();
+    this.loopSound?.destroy();
     if (this.eventManager) {
       this.eventManager.deregister(this.onDestroyEvent!, this);
     }
@@ -231,6 +244,21 @@ export class LaserBeamComponent implements Component, EventListener {
     const pulseAlpha = 0.25 + Math.sin(t * Math.PI * 2) * 0.1;
     this.graphics.lineStyle(pulseWidthPx, 0xff4400, pulseAlpha);
     this.graphics.lineBetween(startX, startY, endX, endY);
+  }
+
+  private setLoopVolume(volume: number): void {
+    if (!this.loopSound) return;
+    (this.loopSound as unknown as { setVolume: (v: number) => void }).setVolume(volume);
+  }
+
+  private updateSoundVolume(laserX: number, laserY: number): void {
+    if (!this.loopSound) return;
+    const player = this.entityManager.getFirst('player');
+    if (!player || player.isDestroyed) return;
+    const pt = player.require(TransformComponent);
+    const dist = Math.hypot(pt.x - laserX, pt.y - laserY);
+    const volume = Math.max(0, 1 - dist / SOUND_MAX_DISTANCE_PX) * SOUND_MAX_VOLUME;
+    this.setLoopVolume(volume);
   }
 
   private checkPlayerCollision(startX: number, startY: number, endX: number, endY: number): void {

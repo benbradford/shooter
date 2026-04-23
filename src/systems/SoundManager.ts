@@ -72,10 +72,5 @@ export class SoundManager {
 
     // Last resort: find game from global scope
     console.warn("Cannot find this.game");
-    const game = (globalThis as unknown as { game?: Phaser.Game }).game;
-    if (game) {
-      this.game = game;
-      game.sound.play(key, options);
-    }
   }
 }
