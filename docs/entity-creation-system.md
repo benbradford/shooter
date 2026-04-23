@@ -46,6 +46,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `pushable` - Box the player can push one cell at a time in cardinal directions
 - `hole` - Visual pit that triggers a hop animation then level transition (like exit but with hop)
 - `breakable` - Destructible object (vases, walls) with health, rarity drops, optional super-punch-only
+- `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
@@ -173,14 +174,15 @@ Plus one interaction entity per script:
 - `startState`: `"on"` or `"off"` (default `"off"`)
 - `oneShot`: Boolean (default false) - If true, lever can only be triggered once
 - When punched, toggles state and fires `{eventToRaise}|on` or `{eventToRaise}|off`
-- State persists across level transitions via WorldState flag `lever_{entityId}`
+- State persists across level transitions via WorldState flag `{levelName}_lever_{entityId}`
 - One-shot levers show `lever_dead.png` (black handle) after activation
-- One-shot locked state persists via WorldState flag `lever_{entityId}_locked`
+- One-shot locked state persists via WorldState flag `{levelName}_lever_{entityId}_locked`
 
 ### Pushable
 - `texture`: Sprite texture key (default `'pushing_box'`)
 - `pushEnabled`: Boolean - whether the box can be pushed
 - `doesPersist`: Boolean - whether pushed position persists across level transitions
+- `singlePushOnly`: Boolean (default false) - if true, pushable can only be pushed one cell, then pushing is disabled
 - Player must walk into the pushable (blocked by GridCellBlocker) and be within the central portion of the box on the perpendicular axis to engage push mode
 - Push direction is cardinal only (up/down/left/right)
 - Push engagement uses `GridCollisionComponent.blockedByPushable` — detected when movement is actually blocked, not proximity
@@ -204,6 +206,19 @@ Plus one interaction entity per script:
 - `transformOverride`: Optional `{ scaleX, scaleY, offsetX, offsetY }` for scaling/positioning the sprite
 - Reads damage from projectile's `DamageComponent` (normal punch = 20, super punch = 60)
 - On destruction, raises `{entityId}_destroyed` event and spawns rarity-based drops
+
+### Laser
+- `angle`: Number — beam direction in degrees (0=up, 90=right, 180=down, 270=left), supports arbitrary angles
+- `flagName`: String (optional) — world state flag controlling on/off, defaults to `{entityId}_laser_on`
+- Beam is continuous, fires every frame from emitter center along angle
+- Beam stops at walls, platforms, blocked areas, GridCellBlocker occupants (pushables, breakables, other lasers)
+- **Player**: 3 damage per hit (50ms cooldown), pushes player perpendicular to beam (acts as impassable barrier)
+- **Enemies**: Instant kill, triggers death state animation
+- Toggle: flag `"false"` = off (hidden, no damage), flag `"true"` or unset = on
+- Base sprite (`laser_base.png`) blocks movement and absorbs projectiles
+- Tagged `'laser'` (not `'enemy'`) — not targetable by auto-aim
+- 3-layer beam visual: red outer glow, white inner core, pulsing orange overlay
+- Impact spark particles at beam endpoint
 
 ## How It Works
 
@@ -288,6 +303,8 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/ecs/components/pushable/PushableComponent.ts` - Push movement logic
 - `src/ecs/entities/hole/HoleEntity.ts` - Hole entity factory
 - `src/ecs/components/hole/HoleComponent.ts` - Hop animation and transition trigger
+- `src/ecs/entities/laser/LaserEntity.ts` - Laser entity factory
+- `src/ecs/components/laser/LaserBeamComponent.ts` - Beam raycast, rendering, collision, particles, toggle
 - `editor/CanvasInteraction.ts` - Entity placement and selection
 - `editor/EditorBridge.ts` - Entity extraction to JSON
 - `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI

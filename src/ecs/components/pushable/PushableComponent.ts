@@ -8,6 +8,7 @@ import { GridPositionComponent } from '../movement/GridPositionComponent';
 export type PushableProps = {
   pushEnabled: boolean;
   doesPersist: boolean;
+  singlePushOnly: boolean;
   spawnCol: number;
   spawnRow: number;
   layer: number;
@@ -19,8 +20,9 @@ export const PUSH_ALIGNMENT_DIVISOR = 2.5;
 
 export class PushableComponent implements Component {
   entity!: Entity;
-  readonly pushEnabled: boolean;
+  pushEnabled: boolean;
   readonly doesPersist: boolean;
+  private readonly singlePushOnly: boolean;
   readonly spawnCol: number;
   readonly spawnRow: number;
   readonly layer: number;
@@ -38,6 +40,7 @@ export class PushableComponent implements Component {
   constructor(props: PushableProps) {
     this.pushEnabled = props.pushEnabled;
     this.doesPersist = props.doesPersist;
+    this.singlePushOnly = props.singlePushOnly;
     this.spawnCol = props.spawnCol;
     this.spawnRow = props.spawnRow;
     this.layer = props.layer;
@@ -98,6 +101,10 @@ export class PushableComponent implements Component {
     if (this.moveProgress >= 1) {
       this.moveProgress = 1;
       this.isMoving = false;
+
+      if (this.singlePushOnly) {
+        this.pushEnabled = false;
+      }
 
       // Re-enable GridCollisionComponent and sync its previous position
       const gridCollision = this.entity.get(GridCollisionComponent);

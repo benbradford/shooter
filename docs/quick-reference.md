@@ -179,6 +179,26 @@ Holes are visual pits that trigger a hop animation then level transition (like e
 
 **Drop-in on destination:** Player falls from above with gravity easing → plays landing animation → movement enabled. Pet (if active) falls alongside in idle south pose. Persists across death/restart (cleared only by normal exits). GridCollisionComponent disabled for both player and pet during drop to prevent getting stuck on walls.
 
+## Laser Entity
+
+Stationary beam emitter that fires a continuous beam at an arbitrary angle.
+
+**Behavior:** Beam raycasts every frame from emitter center along angle, stops at walls/platforms/blockers/pushables/breakables/other lasers. Acts as an impassable barrier for the player.
+
+**Player:** 3 damage per hit (50ms cooldown), pushes player perpendicular to beam so they can't walk through. Hit flash on damage.
+
+**Enemies:** Instant kill — triggers death state animation (not just destroy).
+
+**Toggle:** World state flag `{entityId}_laser_on` (configurable). `"false"` = off, `"true"` or unset = on. Works with levers, triggers, Lua scripts.
+
+**Visual:** 3-layer beam (red outer glow, white inner core, pulsing orange overlay) + impact spark particles at endpoint.
+
+**Editor:** Entity tool → laser → click to place. Select to edit angle (0°=up, 90°=right) and flag name.
+
+**Key files:**
+- `src/ecs/entities/laser/LaserEntity.ts` — Entity factory
+- `src/ecs/components/laser/LaserBeamComponent.ts` — All beam logic
+
 ## Adding Assets
 
 **Background textures (for cells in editor):**

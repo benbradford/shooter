@@ -24,7 +24,7 @@ export class EventManagerSystem {
 
   raiseEvent(eventName: string): void {
     // NOSONAR - Keep for debugging
-    // console.log(`🎯 TRIGGER EVENT: ${eventName}`);
+    console.log(`🎯 TRIGGER EVENT: ${eventName}`);
 
     const list = this.listeners.get(eventName);
     if (!list) return;

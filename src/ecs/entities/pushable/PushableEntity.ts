@@ -18,6 +18,7 @@ export type CreatePushableProps = {
   texture: string;
   pushEnabled: boolean;
   doesPersist: boolean;
+  singlePushOnly: boolean;
   entityId: string;
   originalCol: number;
   originalRow: number;
@@ -59,6 +60,7 @@ export function createPushableEntity(props: CreatePushableProps): Entity {
   const pushable = entity.add(new PushableComponent({
     pushEnabled: props.pushEnabled,
     doesPersist: props.doesPersist,
+    singlePushOnly: props.singlePushOnly,
     spawnCol: originalCol,
     spawnRow: originalRow,
     layer,

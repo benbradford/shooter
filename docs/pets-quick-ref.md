@@ -120,7 +120,7 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 **Cooldown:** Starts after rock returns to player (not on activation).
 
-**Key constants:** `THROW_DISTANCE_PX = 250`, `THROW_SPEED_PX_PER_SEC = 500`, `THROW_DAMAGE = 20`, `THROW_ARC_HEIGHT_PX = 50`
+**Key constants:** `THROW_DISTANCE_PX = 250`, `THROW_SPEED_PX_PER_SEC = 500`, `THROW_DAMAGE = 20`, `THROW_ARC_HEIGHT_PX = 20`
 
 **Per-direction offsets:** `PLAYER_THROW_OFFSETS` defines `{ x, y, z }` per Direction — `z: 1` renders rock in front of player, `z: -1` behind.
 

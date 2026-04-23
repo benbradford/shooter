@@ -60,6 +60,7 @@ export class EditorBridge {
   onBlockedAreaSelected: ((id: string | null) => void) | null = null;
   onDrawingStateChanged: ((isDrawing: boolean) => void) | null = null;
   cancelDrawing: (() => void) | null = null;
+  saveStateCallback: (() => Promise<void>) | null = null;
 
   static getInstance(): EditorBridge {
     if (!EditorBridge.instance) {
@@ -393,7 +394,7 @@ export class EditorBridge {
         bullet_dude: { col, row, difficulty: 'medium' },
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic', requiresSuperPunch: false },
-        pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false },
+        pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false, singlePushOnly: false },
         hole: { col, row, texture: 'hole_with_roots', targetLevel: '', targetCol: 0, targetRow: 0 },
         collectible: { col, row, preset: 'mist_orb' },
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
@@ -804,6 +805,9 @@ export class EditorBridge {
     } finally {
       this.isSaving = false;
     }
+    if (this.saveStateCallback) {
+      await this.saveStateCallback();
+    }
   }
 
   async newLevel(name: string, width: number, height: number, theme: string): Promise<void> {
@@ -950,8 +954,8 @@ export class EditorBridge {
       } else if (entity.id.startsWith('pushable')) {
         type = 'pushable';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
-        const existingData = existing?.data as { texture?: string; pushEnabled?: boolean; doesPersist?: boolean } | undefined;
-        data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'pushing_box', pushEnabled: existingData?.pushEnabled !== false, doesPersist: existingData?.doesPersist ?? false };
+        const existingData = existing?.data as { texture?: string; pushEnabled?: boolean; doesPersist?: boolean; singlePushOnly?: boolean } | undefined;
+        data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'pushing_box', pushEnabled: existingData?.pushEnabled !== false, doesPersist: existingData?.doesPersist ?? false, singlePushOnly: existingData?.singlePushOnly ?? false };
       } else if (entity.id.startsWith('hole')) {
         type = 'hole';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

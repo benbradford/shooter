@@ -1490,6 +1490,50 @@
       ]
     },
     {
+      "col": 2,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "bush1"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "bush1"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "bush1"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "bush1"
+      ]
+    },
+    {
       "col": 20,
       "row": 7,
       "layer": 0,
@@ -5444,7 +5488,8 @@
         "row": 6,
         "texture": "pushing_box",
         "pushEnabled": true,
-        "doesPersist": false
+        "doesPersist": true,
+        "singlePushOnly": true
       }
     },
     {

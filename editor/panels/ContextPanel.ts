@@ -91,7 +91,8 @@ export class ContextPanel {
           <button class="ed-btn danger st-fdel" style="padding:2px 6px">✕</button>
         </div>`).join('')}
       </div>
-      <button class="ed-btn" id="st-add-flag" style="width:100%;margin-bottom:8px">+ Add Flag</button>
+      <button class="ed-btn" id="st-add-flag" style="width:100%;margin-bottom:4px">+ Add Flag</button>
+      <button class="ed-btn danger" id="st-reset-flags" style="width:100%;margin-bottom:8px">Reset Flags</button>
       <div class="section-header" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center"><span>Levels</span><button class="ed-btn danger" id="st-clear-all" style="padding:1px 6px;font-size:10px">Clear All</button></div>
       <div id="st-levels">${levelEntries.map(([name, data]) => renderLevelSection(name, data)).join('')}</div>
       <button class="ed-btn save" id="st-save" style="width:100%;margin-top:8px">Save State</button>
@@ -159,6 +160,22 @@ export class ContextPanel {
       flagsDiv.appendChild(row);
     });
 
+    this.container.querySelector('#st-reset-flags')?.addEventListener('click', () => {
+      const keepFlags = ['hasSuperPunch', 'canSwim', 'canPunch', 'hasCompanion', 'pet_rock_collected', 'pet_dog_collected', 'pet_selected'];
+      const flagsDiv = this.container.querySelector('#st-flags')!;
+      flagsDiv.innerHTML = '';
+      for (const key of keepFlags) {
+        const row = document.createElement('div');
+        row.className = 'form-group';
+        row.style.cssText = 'display:flex;gap:4px;align-items:center';
+        row.innerHTML = `<input class="st-fkey" value="${key}" style="flex:1" /><input class="st-fval" value="false" style="flex:1" /><button class="ed-btn danger st-fdel" style="padding:2px 6px">✕</button>`;
+        for (const input of row.querySelectorAll('input')) input.addEventListener('keydown', e => e.stopPropagation());
+        row.querySelector('.st-fdel')!.addEventListener('click', () => row.remove());
+        flagsDiv.appendChild(row);
+      }
+      this.bridge.toast?.show('Flags reset', 'success');
+    });
+
     // Add list item buttons
     for (const btn of this.container.querySelectorAll<HTMLButtonElement>('.st-ladd')) {
       btn.addEventListener('click', () => {
@@ -173,17 +190,15 @@ export class ContextPanel {
     }
 
     // Save
-    this.container.querySelector('#st-save')?.addEventListener('click', async () => {
-      state.player.health = Number.parseInt((this.container.querySelector('#st-health') as HTMLInputElement).value);
-      state.player.coins = Number.parseInt((this.container.querySelector('#st-coins') as HTMLInputElement).value);
+    const doSaveState = async (): Promise<void> => {
+      state.player.health = Number.parseInt((this.container.querySelector('#st-health') as HTMLInputElement)?.value ?? '100');
+      state.player.coins = Number.parseInt((this.container.querySelector('#st-coins') as HTMLInputElement)?.value ?? '0');
 
-      // Collect flags
       const fkeys = this.container.querySelectorAll<HTMLInputElement>('.st-fkey');
       const fvals = this.container.querySelectorAll<HTMLInputElement>('.st-fval');
       state.flags = {};
       fkeys.forEach((k, i) => { if (k.value.trim()) state.flags[k.value.trim()] = fvals[i].value; });
 
-      // Collect levels
       state.levels ??= {};
       for (const levelName of Object.keys(state.levels)) {
         const level = state.levels[levelName];
@@ -201,7 +216,11 @@ export class ContextPanel {
         await fetch('/api/save-state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state, null, 2) });
         this.bridge.toast?.show('State saved', 'success');
       } catch (err) { this.bridge.toast?.show(`Save failed: ${err}`, 'error'); }
-    });
+    };
+
+    this.bridge.saveStateCallback = doSaveState;
+
+    this.container.querySelector('#st-save')?.addEventListener('click', () => void doSaveState());
 
     this.container.querySelector('#st-refresh')?.addEventListener('click', () => {
       void this.showStatePanel();
@@ -593,7 +612,8 @@ export class ContextPanel {
     if (entityDef.type === 'pushable') {
       typeFields += `<div class="form-group"><label>Texture</label><input id="ef-ptex" value="${data.texture ?? ''}" /></div>
         <div class="form-group"><label><input type="checkbox" id="ef-push-enabled" ${data.pushEnabled !== false ? 'checked' : ''} /> Push Enabled</label></div>
-        <div class="form-group"><label><input type="checkbox" id="ef-push-persist" ${data.doesPersist ? 'checked' : ''} /> Persist Position</label></div>`;
+        <div class="form-group"><label><input type="checkbox" id="ef-push-persist" ${data.doesPersist ? 'checked' : ''} /> Persist Position</label></div>
+        <div class="form-group"><label><input type="checkbox" id="ef-push-single" ${data.singlePushOnly ? 'checked' : ''} /> Single Push Only</label></div>`;
     }
     if (entityDef.type === 'hole') {
       const holeData = data as { texture?: string; targetLevel?: string; targetCol?: number; targetRow?: number; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
@@ -797,6 +817,9 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-push-persist')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { doesPersist: (e.target as HTMLInputElement).checked });
+    });
+    this.container.querySelector('#ef-push-single')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { singlePushOnly: (e.target as HTMLInputElement).checked });
     });
     this.container.querySelector('#ef-htex')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { texture: (e.target as HTMLInputElement).value });

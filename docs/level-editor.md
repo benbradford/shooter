@@ -136,7 +136,8 @@ Entity form shows all editable fields per type:
 - CellModifier: cellsToModify (structured form with col/row/properties/layer per entry)
 - Interaction: filename
 - Lever: eventToRaise, startState (on/off), oneShot
-- Pushable: texture, pushEnabled, doesPersist
+- Laser: angle (0°=up, 90°=right), flagName (world state toggle)
+- Pushable: texture, pushEnabled, doesPersist, singlePushOnly
 - Hole: texture, targetLevel, targetCol, targetRow, transformOverride (scaleX/Y, offsetX/Y) + **Leave** button
 
 ### Editing Trigger Cells
@@ -159,7 +160,7 @@ Triggers and exits have an **Edit Cells** button in their property form:
 
 ### Saving
 
-Saves automatically write to `public/levels/{levelName}.json` via the Vite dev server plugin. No copy-paste needed. A green toast confirms success.
+Saves automatically write to `public/levels/{levelName}.json` via the Vite dev server plugin. No copy-paste needed. A green toast confirms success. Save and Play also auto-save world state (if the State panel has been opened).
 
 ### Keyboard Shortcuts
 

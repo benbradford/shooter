@@ -28,12 +28,17 @@ export class LeverComponent implements Component {
     this.eventManager = props.eventManager;
     this.oneShot = props.oneShot;
 
-    const saved = WorldStateManager.getInstance().getFlag(`lever_${props.entityId}`);
+    const flagKey = `${WorldStateManager.getInstance().getCurrentLevelName()}_lever_${props.entityId}`;
+    const saved = WorldStateManager.getInstance().getFlag(flagKey);
     this.state = (saved === 'on' || saved === 'off') ? saved : props.startState;
   }
 
+  private get flagPrefix(): string {
+    return `${WorldStateManager.getInstance().getCurrentLevelName()}_lever_${this.entityId}`;
+  }
+
   private get isLocked(): boolean {
-    return this.oneShot && WorldStateManager.getInstance().getFlag(`lever_${this.entityId}_locked`) === 'true';
+    return this.oneShot && WorldStateManager.getInstance().getFlag(`${this.flagPrefix}_locked`) === 'true';
   }
 
   init(): void {
@@ -55,9 +60,9 @@ export class LeverComponent implements Component {
     sprite.sprite.setFlipX(this.state === 'on');
 
     const wsm = WorldStateManager.getInstance();
-    wsm.setFlag(`lever_${this.entityId}`, this.state);
+    wsm.setFlag(this.flagPrefix, this.state);
     if (this.oneShot) {
-      wsm.setFlag(`lever_${this.entityId}_locked`, 'true');
+      wsm.setFlag(`${this.flagPrefix}_locked`, 'true');
       sprite.sprite.setTexture('lever_dead');
     }
     this.eventManager.raiseEvent(`${this.eventToRaise}|${this.state}`);

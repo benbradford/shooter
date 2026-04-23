@@ -39,10 +39,11 @@ export function createLaserEntity(props: CreateLaserProps): Entity {
 
   const angle = Number.isFinite(props.angle) ? props.angle : 0;
 
-  const transform = entity.add(new TransformComponent(x, y, 0, scale));
+  const spriteRotation = (angle - 180) * Math.PI / 180;
+  const transform = entity.add(new TransformComponent(x, y, spriteRotation, scale));
   const sprite = entity.add(new SpriteComponent(scene, 'laser_base', transform));
   sprite.sprite.setDepth(Depth.breakable);
-  sprite.sprite.setRotation((angle - 90) * Math.PI / 180);
+  sprite.sprite.setRotation(spriteRotation);
 
   const collisionSize = grid.cellSize;
   entity.add(new GridPositionComponent(col, row, {

@@ -39,7 +39,6 @@ Each grid cell tracks layer, properties (platform/wall/stairs/path/water/blocked
 - **'stairs'**: Transition between layers - allows vertical movement only
 - **'path'**: Stone path (grass theme only) - walkable, renders as connected grey stones
 - **'water'**: Water cells - player swims at reduced speed (70%), triggers water effects
-  - Uses `PLAYER_SWIMMING_GRID_COLLISION_BOX` (64×64) for collision detection
   - Background textures on water cells render at depth -8 (below swimming player at -7)
 - **'blocked'**: Blocks all movement - can be combined with 'water' to create obstacles in water
 - **'bridge'**: Bridge over water - when combined with 'water' property, allows walking over water at full speed

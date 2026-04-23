@@ -520,7 +520,7 @@ export class EntityLoader {
 
       case 'pushable':
         return () => {
-          const pushableData = data as { col: number; row: number; texture: string; pushEnabled?: boolean; doesPersist?: boolean };
+          const pushableData = data as { col: number; row: number; texture: string; pushEnabled?: boolean; doesPersist?: boolean; singlePushOnly?: boolean };
           const movedEntry = levelState.movedEntities?.find((e: { id: string }) => e.id === entityDef.id);
           const spawnCol = movedEntry?.col ?? pushableData.col;
           const spawnRow = movedEntry?.row ?? pushableData.row;
@@ -532,6 +532,7 @@ export class EntityLoader {
             texture: pushableData.texture,
             pushEnabled: pushableData.pushEnabled ?? true,
             doesPersist: pushableData.doesPersist ?? false,
+            singlePushOnly: pushableData.singlePushOnly ?? false,
             entityId: entityDef.id,
             originalCol: pushableData.col,
             originalRow: pushableData.row,

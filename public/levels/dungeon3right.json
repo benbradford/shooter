@@ -2159,8 +2159,8 @@
       "id": "laser0",
       "type": "laser",
       "data": {
-        "col": 16,
-        "row": 11,
+        "col": 17,
+        "row": 10,
         "angle": 180,
         "flagName": "laser0_laser_on"
       }
@@ -2190,6 +2190,31 @@
         "col": 22,
         "row": 14,
         "difficulty": "medium"
+      }
+    },
+    {
+      "id": "pushable0",
+      "type": "pushable",
+      "data": {
+        "col": 14,
+        "row": 11,
+        "texture": "pushing_box",
+        "pushEnabled": true,
+        "doesPersist": false
+      },
+      "createOnAnyEvent": [
+        "lever_lever0|on"
+      ]
+    },
+    {
+      "id": "lever0",
+      "type": "lever",
+      "data": {
+        "col": 14,
+        "row": 8,
+        "eventToRaise": "lever_lever0",
+        "startState": "off",
+        "oneShot": true
       }
     },
     {

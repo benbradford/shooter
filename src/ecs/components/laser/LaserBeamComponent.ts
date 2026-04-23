@@ -198,6 +198,12 @@ export class LaserBeamComponent implements Component {
     const hitFlash = player.get(HitFlashComponent);
     hitFlash?.flash(300);
 
+    // If player is in push state, force exit so knockback works
+    const sm = player.get(StateMachineComponent);
+    if (sm?.stateMachine.getCurrentKey() === 'push') {
+      sm.stateMachine.enter('idle');
+    }
+
     // Push player fully out of the beam so they can't walk through
     // Find perpendicular direction from beam to player
     const perpX = -this.dirY;
