@@ -105,7 +105,7 @@ export function createThrowerEntity(props: CreateThrowerProps): Entity {
       }
       
       if (other.tags.has('player_projectile')) {
-        if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
+        if (!canPlayerHitEnemy(playerEntity, entity, grid, other)) {
           return;
         }
 

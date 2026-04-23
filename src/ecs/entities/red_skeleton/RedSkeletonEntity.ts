@@ -96,7 +96,7 @@ export function createRedSkeletonEntity(data: RedSkeletonCreatorData): Entity {
       }
 
       if (other.tags.has('player_projectile')) {
-        if (!canPlayerHitEnemy(playerEntity, entity, grid)) return;
+        if (!canPlayerHitEnemy(playerEntity, entity, grid, other)) return;
 
         const health = entity.require(HealthComponent);
         const dmg = other.get(DamageComponent);

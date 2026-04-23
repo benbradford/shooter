@@ -6,6 +6,7 @@ import { SpriteComponent } from '../core/SpriteComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
+import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { Depth } from '../../../constants/DepthConstants';
@@ -107,6 +108,13 @@ export class PetFollowComponent implements Component {
     }
 
     if (this.isHidden || this.isBarking) return;
+
+    // Sync pet layer with player so walls/platforms only block when on higher layer
+    const playerGridPos = this.playerEntity.get(GridPositionComponent);
+    const petGridPos = this.entity.get(GridPositionComponent);
+    if (playerGridPos && petGridPos) {
+      petGridPos.currentLayer = playerGridPos.currentLayer;
+    }
 
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
@@ -235,10 +243,13 @@ export class PetFollowComponent implements Component {
 
     const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
 
+    const playerGridPos = this.playerEntity.get(GridPositionComponent);
+    const layer = playerGridPos?.currentLayer ?? 0;
+
     this.path = pathfinder.findPath(
       startCell.col, startCell.row,
       goalCell.col, goalCell.row,
-      0, false, true
+      layer, false, true
     );
     this.currentPathIndex = 1;
   }

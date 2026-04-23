@@ -99,7 +99,7 @@ export function createBugEntity(props: CreateBugProps): Entity {
     collidesWith: ['player_projectile', 'player'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
-        if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
+        if (!canPlayerHitEnemy(playerEntity, entity, grid, other)) {
           return;
         }
 

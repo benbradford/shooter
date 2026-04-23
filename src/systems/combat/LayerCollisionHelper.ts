@@ -2,7 +2,9 @@ import type { Entity } from '../../ecs/Entity';
 import type { Grid } from '../grid/Grid';
 import { GridPositionComponent } from '../../ecs/components/movement/GridPositionComponent';
 
-export function canPlayerHitEnemy(playerEntity: Entity, enemyEntity: Entity, grid: Grid): boolean {
+export function canPlayerHitEnemy(playerEntity: Entity, enemyEntity: Entity, grid: Grid, otherEntity?: Entity): boolean {
+  if (otherEntity?.tags.has('ignores_layers')) return true;
+
   const playerGridPos = playerEntity.get(GridPositionComponent);
   const enemyGridPos = enemyEntity.get(GridPositionComponent);
   

@@ -310,6 +310,8 @@ export class RockThrowAbility implements Component {
     const rockTransform = this.entity.require(TransformComponent);
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
     const startLayer = playerGridPos?.currentLayer ?? 0;
+    const playerCell = playerGridPos ? this.grid.getCell(playerGridPos.currentCell.col, playerGridPos.currentCell.row) : null;
+    const startedOnStairs = playerCell ? this.grid.isTransition(playerCell) : false;
 
     // Get EntityManager from scene
     const gameScene = this.scene as unknown as { entityManager?: EntityManager };
@@ -333,6 +335,7 @@ export class RockThrowAbility implements Component {
       grid: this.grid,
       blockedAreaManager: (this.scene as unknown as { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
       startLayer,
+      startedOnStairs,
       onLand: (x: number, y: number) => {
         if (this.entity.isDestroyed) return;
         this.onProjectileLand(x, y);

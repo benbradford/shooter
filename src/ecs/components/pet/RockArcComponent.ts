@@ -13,6 +13,8 @@ export type RockArcProps = {
   arcHeight: number;
   grid: Grid;
   blockedAreaManager?: BlockedAreaManager;
+  startLayer: number;
+  startedOnStairs: boolean;
   onLand: (x: number, y: number) => void;
 };
 
@@ -26,9 +28,11 @@ export class RockArcComponent implements Component {
   private readonly arcHeight: number;
   private readonly grid: Grid;
   private readonly blockedAreaManager?: BlockedAreaManager;
+  private readonly startLayer: number;
   private readonly onLand: (x: number, y: number) => void;
   private isStopped = false;
   private hasLanded = false;
+  private passedThroughStairs = false;
 
   constructor(props: RockArcProps) {
     this.dirX = props.dirX;
@@ -38,7 +42,9 @@ export class RockArcComponent implements Component {
     this.arcHeight = props.arcHeight;
     this.grid = props.grid;
     this.blockedAreaManager = props.blockedAreaManager;
+    this.startLayer = props.startLayer;
     this.onLand = props.onLand;
+    this.passedThroughStairs = props.startedOnStairs;
   }
 
   update(delta: number): void {
@@ -60,16 +66,21 @@ export class RockArcComponent implements Component {
           this.isStopped = true;
         }
 
-        if (!this.isStopped) {
+        if (!this.isStopped && !this.passedThroughStairs) {
           const cell = this.grid.worldToCell(nextX, nextY);
           const cellData = this.grid.getCell(cell.col, cell.row);
-          const isBlocked = cellData && (
-            cellData.properties.has('blocked') ||
-            cellData.properties.has('wall') ||
-            cellData.properties.has('platform')
-          );
-          if (isBlocked) {
-            this.isStopped = true;
+          if (cellData && this.grid.isTransition(cellData)) {
+            this.passedThroughStairs = true;
+          } else {
+            const cellLayer = cellData?.layer ?? 0;
+            const isBlocked = cellData && cellLayer > this.startLayer && (
+              cellData.properties.has('blocked') ||
+              cellData.properties.has('wall') ||
+              cellData.properties.has('platform')
+            );
+            if (isBlocked) {
+              this.isStopped = true;
+            }
           }
         }
       }

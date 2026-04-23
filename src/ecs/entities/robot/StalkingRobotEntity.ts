@@ -142,7 +142,7 @@ export function createStalkingRobotEntity(props: CreateStalkingRobotProps): Enti
     collidesWith: ['player_projectile'],
     onHit: (other) => {
       if (other.tags.has('player_projectile')) {
-        if (!canPlayerHitEnemy(playerEntity, entity, grid)) {
+        if (!canPlayerHitEnemy(playerEntity, entity, grid, other)) {
           return;
         }
 
