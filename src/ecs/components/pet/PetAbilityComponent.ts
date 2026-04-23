@@ -2,7 +2,6 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { PetManager } from '../../../systems/PetManager';
 import { PET_REGISTRY } from '../../entities/pet/PetConfig';
-import { PetFollowComponent } from './PetFollowComponent';
 import { DogBarkAbility } from './DogBarkAbility';
 import { RockThrowAbility } from './RockThrowAbility';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
@@ -13,7 +12,7 @@ export class PetAbilityComponent implements Component {
   private readonly cooldowns = new Map<string, number>();
   private abilityHeld = false;
   private abilityHeldByKeyboard = false;
-  
+
   update(delta: number): void {
     for (const [key, value] of this.cooldowns) {
       if (value > 0) {
@@ -44,26 +43,23 @@ export class PetAbilityComponent implements Component {
   setAbilityHeldByKeyboard(held: boolean): void {
     this.abilityHeldByKeyboard = held;
   }
-  
+
   tryAbility(): boolean {
     const petManager = PetManager.getInstance();
     if (!petManager.isActive()) return false;
-    
+
     const punch = this.entity.get(AttackComboComponent);
     if (punch?.isPunching()) return false;
-    
+
     const water = this.entity.get(WaterEffectComponent);
     if (water?.getIsInWater()) return false;
-    
-    const follow = petManager.getActivePetEntity()?.get(PetFollowComponent);
-    if (follow?.getIsTooFar()) return false;
-    
+
     const petId = petManager.getSelectedPetId();
     if (!petId) return false;
-    
+
     const config = PET_REGISTRY[petId];
     if ((this.cooldowns.get(petId) ?? 0) > 0) return false;
-    
+
     if (config.id === 'dog') {
       const petEntity = petManager.getActivePetEntity();
       const barkAbility = petEntity?.get(DogBarkAbility);
@@ -82,12 +78,12 @@ export class PetAbilityComponent implements Component {
       // Cooldown set by RockThrowAbility.returnToIdle(), not here
       return true;
     }
-    
+
     this.cooldowns.set(petId, config.abilityCooldownMs);
     console.log(`[PET] ${config.id} ability activated!`);
     return true;
   }
-  
+
   canUseAbility(): boolean {
     const petManager = PetManager.getInstance();
     if (!petManager.isActive()) return false;
@@ -95,13 +91,10 @@ export class PetAbilityComponent implements Component {
     const petId = petManager.getSelectedPetId();
     if (!petId) return false;
     if ((this.cooldowns.get(petId) ?? 0) > 0) return false;
-    
+
     const water = this.entity.get(WaterEffectComponent);
     if (water?.getIsInWater()) return false;
-    
-    const follow = petManager.getActivePetEntity()?.get(PetFollowComponent);
-    if (follow?.getIsTooFar()) return false;
-    
+
     if (petId === 'dog') {
       const petEntity = petManager.getActivePetEntity();
       const barkAbility = petEntity?.get(DogBarkAbility);
@@ -110,17 +103,18 @@ export class PetAbilityComponent implements Component {
     if (petId === 'rock') {
       const petEntity = petManager.getActivePetEntity();
       const throwAbility = petEntity?.get(RockThrowAbility);
+      if (throwAbility?.isInFlight()) return false; // Disable button during flight and landing
       if (throwAbility?.isActive()) return true; // Button stays active during throw (for hold detection)
       if (!throwAbility) return false;
     }
-    
+
     return true;
   }
-  
+
   getCooldownRatio(): number {
     const petId = PetManager.getInstance().getSelectedPetId();
     if (!petId) return 0;
-    
+
     const config = PET_REGISTRY[petId];
     const remaining = this.cooldowns.get(petId) ?? 0;
     return remaining / config.abilityCooldownMs;

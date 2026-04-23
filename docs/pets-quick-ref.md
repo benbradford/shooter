@@ -50,7 +50,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 
 **States:** `idle` → `following` → `wandering_move` / `wandering_pause`
 
-- **Following** (>192px): Runs toward player using pathfinding, run animation
+- **Following** (>192px): Runs toward player using pathfinding, run animation (speed scales 300–500px/s based on distance)
 - **Wandering** (<128px): Alternates between slow walks to random nearby points (0.6-1.5s) and pauses (0.8-2s), walk animation
 - **Speed transition:** 500ms lerp between run speed (300px/s) and wander speed (60px/s)
 - **Teleport:** If >800px away, teleports to player

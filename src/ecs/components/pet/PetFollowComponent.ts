@@ -14,10 +14,11 @@ import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { WalkComponent } from '../movement/WalkComponent';
 
 const FOLLOW_SPEED_PX_PER_SEC = 300;
+const CATCHUP_SPEED_PX_PER_SEC = 500;
+const CATCHUP_DISTANCE_PX = 400;
 const STOP_DISTANCE_PX = 128;
 const START_FOLLOW_DISTANCE_PX = 192;
 const TELEPORT_DISTANCE_PX = 800;
-const ABILITY_DISABLE_DISTANCE_PX = 250;
 const PATH_RECALC_MS = 1000;
 const WANDER_SPEED_PX_PER_SEC = 60;
 const WANDER_RADIUS_PX = 64;
@@ -261,7 +262,11 @@ export class PetFollowComponent implements Component {
       return;
     }
 
-    this.moveToward(transform, targetX, targetY, delta, anim, FOLLOW_SPEED_PX_PER_SEC);
+    const playerT = this.playerEntity.require(TransformComponent);
+    const distToPlayer = Math.hypot(playerT.x - transform.x, playerT.y - transform.y);
+    const t = Math.min(1, Math.max(0, (distToPlayer - START_FOLLOW_DISTANCE_PX) / (CATCHUP_DISTANCE_PX - START_FOLLOW_DISTANCE_PX)));
+    const speed = FOLLOW_SPEED_PX_PER_SEC + t * (CATCHUP_SPEED_PX_PER_SEC - FOLLOW_SPEED_PX_PER_SEC);
+    this.moveToward(transform, targetX, targetY, delta, anim, speed);
   }
 
   private moveToward(
@@ -314,13 +319,6 @@ export class PetFollowComponent implements Component {
     const newDir = dirFromDelta(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
     if (newDir !== Direction.None) this.currentDirection = newDir;
     this.playAnim(anim, `walk_${this.currentDirection}`);
-  }
-
-  getIsTooFar(): boolean {
-    const transform = this.entity.require(TransformComponent);
-    const playerTransform = this.playerEntity.require(TransformComponent);
-    const distancePx = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
-    return distancePx > ABILITY_DISABLE_DISTANCE_PX;
   }
 
   getIsHidden(): boolean {

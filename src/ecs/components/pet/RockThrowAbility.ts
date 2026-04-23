@@ -72,7 +72,11 @@ export class RockThrowAbility implements Component {
   }
 
   isActive(): boolean {
-    return this.state !== 'idle';
+    return this.state === 'charging' || this.state === 'aiming';
+  }
+
+  isInFlight(): boolean {
+    return this.state === 'throwing' || this.state === 'landed';
   }
 
   isPlayerLocked(): boolean {
@@ -86,7 +90,13 @@ export class RockThrowAbility implements Component {
   }
 
   activate(): void {
-    if (this.state !== 'idle') return;
+    if (this.state !== 'idle' && this.state !== 'returning') return;
+
+    // If interrupting return, reset rock visual state
+    if (this.state === 'returning') {
+      const rockSprite = this.entity.get(SpriteComponent);
+      if (rockSprite) rockSprite.visualOffsetYPx = 0;
+    }
 
     // Get player's current facing direction
     const walk = this.playerEntity.get(WalkComponent);

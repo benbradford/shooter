@@ -25,6 +25,7 @@ export class ContextPanel {
         destroyedEntities: string[];
         firedTriggers: string[];
         modifiedCells: Array<{ col: number; row: number; properties?: string[]; backgroundTexture?: string; layer?: number }>;
+        movedEntities?: Array<{ id: string; col: number; row: number }>;
       }>;
     };
     let state: FullState;
@@ -43,7 +44,7 @@ export class ContextPanel {
       state.levels ??= {};
       for (const l of levels) {
         if (!state.levels[l.name]) {
-          state.levels[l.name] = { liveEntities: [], destroyedEntities: [], firedTriggers: [], modifiedCells: [] };
+          state.levels[l.name] = { liveEntities: [], destroyedEntities: [], firedTriggers: [], modifiedCells: [], movedEntities: [] };
         }
       }
     } catch { /* levels API not available */ }
@@ -76,6 +77,10 @@ export class ContextPanel {
           <div class="collapsible-header" data-target="lvl-${levelName}-modifiedCells" style="font-size:11px;color:#95a5a6;margin:4px 0 2px">Modified Cells (${data.modifiedCells.length})</div>
           <div class="collapsible-body" id="lvl-${levelName}-modifiedCells">
             <textarea class="st-mcells" data-level="${levelName}" rows="4" style="font-size:10px;width:100%">${JSON.stringify(data.modifiedCells, null, 2)}</textarea>
+          </div>
+          <div class="collapsible-header" data-target="lvl-${levelName}-movedEntities" style="font-size:11px;color:#95a5a6;margin:4px 0 2px">Moved Entities (${(data.movedEntities ?? []).length})</div>
+          <div class="collapsible-body" id="lvl-${levelName}-movedEntities">
+            <textarea class="st-mentities" data-level="${levelName}" rows="4" style="font-size:10px;width:100%">${JSON.stringify(data.movedEntities ?? [], null, 2)}</textarea>
           </div>
         </div>`;
     };
@@ -126,6 +131,8 @@ export class ContextPanel {
         }
         const textarea = body.querySelector<HTMLTextAreaElement>('.st-mcells');
         if (textarea) textarea.value = '[]';
+        const meTextarea = body.querySelector<HTMLTextAreaElement>('.st-mentities');
+        if (meTextarea) meTextarea.value = '[]';
         this.bridge.toast?.show(`Cleared ${levelName}`, 'success');
       });
     }
@@ -209,6 +216,10 @@ export class ContextPanel {
         const mcTextarea = this.container.querySelector<HTMLTextAreaElement>(`.st-mcells[data-level="${levelName}"]`);
         if (mcTextarea) {
           try { level.modifiedCells = JSON.parse(mcTextarea.value); } catch { /* keep existing */ }
+        }
+        const meTextarea = this.container.querySelector<HTMLTextAreaElement>(`.st-mentities[data-level="${levelName}"]`);
+        if (meTextarea) {
+          try { level.movedEntities = JSON.parse(meTextarea.value); } catch { /* keep existing */ }
         }
       }
 

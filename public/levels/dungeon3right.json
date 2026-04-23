@@ -2223,8 +2223,8 @@
       "id": "lever1",
       "type": "lever",
       "data": {
-        "col": 20,
-        "row": 12,
+        "col": 18,
+        "row": 10,
         "eventToRaise": "lever_lever1",
         "startState": "off",
         "oneShot": true
