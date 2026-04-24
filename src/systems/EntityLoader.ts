@@ -527,13 +527,15 @@ export class EntityLoader {
           const movedEntry = levelState.movedEntities?.find((e: { id: string }) => e.id === entityDef.id);
           const spawnCol = movedEntry?.col ?? pushableData.col;
           const spawnRow = movedEntry?.row ?? pushableData.row;
+          const spawnCell = this.grid.getCell(spawnCol, spawnRow);
+          const isLocked = spawnCell?.properties.has('push_lock') ?? false;
           return createPushableEntity({
             scene: this.scene,
             col: spawnCol,
             row: spawnRow,
             grid: this.grid,
             texture: pushableData.texture,
-            pushEnabled: pushableData.pushEnabled ?? true,
+            pushEnabled: isLocked ? false : (pushableData.pushEnabled ?? true),
             doesPersist: pushableData.doesPersist ?? false,
             singlePushOnly: pushableData.singlePushOnly ?? false,
             entityId: entityDef.id,
@@ -593,6 +595,23 @@ export class EntityLoader {
           initialState = 'completed';
         } else if (ws.getFlag('current_escort') === entityDef.id) {
           initialState = 'following';
+          // Re-persist definition flags in case they were lost (e.g., after death reset)
+          const ed = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number; scale?: number; shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number };
+          const id = entityDef.id;
+          const ln = levelData.name ?? '';
+          ws.setFlag(`escort_${id}_type`, ed.escortType ?? 'knight');
+          ws.setFlag(`escort_${id}_origin_level`, ln);
+          ws.setFlag(`escort_${id}_destination_level`, ed.destinationLevel ?? '');
+          ws.setFlag(`escort_${id}_destination_col`, String(ed.destinationCol ?? 0));
+          ws.setFlag(`escort_${id}_destination_row`, String(ed.destinationRow ?? 0));
+          ws.setFlag(`escort_${id}_reach_distance`, String(ed.reachDistance ?? 15));
+          ws.setFlag(`escort_${id}_follow_speed`, String(ed.followSpeed ?? 200));
+          ws.setFlag(`escort_${id}_follow_to_levels`, (ed.followToLevels ?? []).join(','));
+          ws.setFlag(`escort_${id}_enemy_detect_px`, String(ed.enemyDetectDistancePx ?? 128));
+          if (ed.scale !== undefined) ws.setFlag(`escort_${id}_scale`, String(ed.scale));
+          if (ed.shadowScale !== undefined) ws.setFlag(`escort_${id}_shadow_scale`, String(ed.shadowScale));
+          if (ed.shadowOffsetX !== undefined) ws.setFlag(`escort_${id}_shadow_offset_x`, String(ed.shadowOffsetX));
+          if (ed.shadowOffsetY !== undefined) ws.setFlag(`escort_${id}_shadow_offset_y`, String(ed.shadowOffsetY));
         }
         const escortData = data as {
           col: number; row: number; escortType?: string; awakeOnEvent?: string;

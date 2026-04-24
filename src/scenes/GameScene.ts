@@ -492,6 +492,9 @@ export default class GameScene extends Phaser.Scene {
 
     this.spawnEntities();
 
+    // Snapshot world state at level entry for death/reload reset
+    this.levelEntrySnapshot = WorldStateManager.getInstance().serializeToJSON();
+
     // Camera follow player's sprite (unless in editor mode)
     const player = this.entityManager.getFirst('player');
     if (player && !this.isEditorMode) {
@@ -842,6 +845,31 @@ export default class GameScene extends Phaser.Scene {
   reloadCurrentLevel(): void {
     const worldState = WorldStateManager.getInstance();
 
+    // Save escort state before snapshot restore
+    const activeEscortId = worldState.getFlag('current_escort');
+    let escortPos: { col: number; row: number } | null = null;
+    const escortFlags: Array<[string, string]> = [];
+    if (activeEscortId) {
+      const escortEntity = this.entityManager.getAll().find(e => e.id === activeEscortId);
+      if (escortEntity) {
+        const t = escortEntity.get(TransformComponent);
+        if (t) {
+          const cell = this.grid.worldToCell(t.x, t.y);
+          escortPos = { col: cell.col, row: cell.row };
+        }
+      }
+      // Preserve escort definition flags
+      const flagKeys = [
+        'type', 'origin_level', 'destination_level', 'destination_col',
+        'destination_row', 'reach_distance', 'follow_speed', 'follow_to_levels', 'enemy_detect_px',
+        'scale', 'shadow_scale', 'shadow_offset_x', 'shadow_offset_y',
+      ];
+      for (const k of flagKeys) {
+        const val = worldState.getFlag(`escort_${activeEscortId}_${k}`);
+        if (val) escortFlags.push([`escort_${activeEscortId}_${k}`, val]);
+      }
+    }
+
     // (V6 fix): Explicit escort death reset before level reload
     this.handleEscortDeathReset();
 
@@ -851,6 +879,17 @@ export default class GameScene extends Phaser.Scene {
     } else {
       // Fallback: just restore health
       worldState.setPlayerHealth(PLAYER_MAX_HEALTH);
+    }
+
+    // Re-apply active escort so it spawns as 'following' at its death-time position
+    if (activeEscortId) {
+      worldState.setFlag('current_escort', activeEscortId);
+      for (const [key, val] of escortFlags) {
+        worldState.setFlag(key, val);
+      }
+      if (escortPos) {
+        worldState.updateMovedEntity(this.currentLevelName, activeEscortId, escortPos.col, escortPos.row);
+      }
     }
 
     const state = worldState.getState();
