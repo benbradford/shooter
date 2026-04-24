@@ -109,6 +109,8 @@ These are the complete and authoritative rules for bullet collision with layers.
 
 See `src/systems/grid/Grid.ts` for complete API.
 
+**GridReader interface:** Read-only view of Grid (coordinate conversion, cell queries, occupant checks). Most consumers (~70 files) use `GridReader` — only GameScene, EntityLoader, GridCollisionComponent, CellModifierComponent, and PushableComponent need full `Grid` mutation access.
+
 ### Debug Visualization
 
 Press **G** key to toggle debug rendering.

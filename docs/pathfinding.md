@@ -85,6 +85,8 @@ Import Pathfinder and create instance with grid reference.
 
 Skip first node (current position), move toward each subsequent node. When close enough (<10px), advance to next node.
 
+**PathFollower utility:** `src/ecs/systems/movement/PathFollower.ts` provides shared path-following logic used by escorts, pets, throwers, and robots. Handles node advancement, arrival detection, direction computation, and transform movement. Callers handle animation and path recalculation.
+
 ## How It Works
 
 ### Layer-Based Movement

@@ -175,7 +175,7 @@ export class AttackComboComponent implements Component {
 
       if (isSuperPunch) {
         this.isSuperPunching = true;
-        this.createSuperPunchHitbox();
+        this.createPunchHitbox(true);
         if (anim) {
           anim.animationSystem.play(`uppercut_${this.punchDir}`, animSpeed * 0.5);
         }
@@ -235,68 +235,13 @@ export class AttackComboComponent implements Component {
     }
   }
 
-  private createPunchHitbox(): void {
-    const punchSounds = ['punch1', 'punch2', 'punch3'];
-    SoundManager.getInstance().play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
-
-    const transform = this.entity.require(TransformComponent);
-    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
-
-    let dirX = this.punchDirX;
-    let dirY = this.punchDirY;
-
-    // Snap to nearest enemy in FOV
-    let nearestEnemy: Entity | null = null;
-    let nearestDistance = PUNCH_RANGE_PX;
-
-    for (const enemy of this.getEnemies()) {
-      const et = enemy.get(TransformComponent);
-      if (!et) continue;
-      const dx = et.x - transform.x;
-      const dy = et.y - transform.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist >= nearestDistance) continue;
-
-      if (mustFaceEnemy) {
-        let diff = Math.atan2(dy, dx) - facingAngle;
-        while (diff > Math.PI) diff -= 2 * Math.PI;
-        while (diff < -Math.PI) diff += 2 * Math.PI;
-        if (Math.abs(diff) > PUNCH_FOV_RADIANS / 2) continue;
-      }
-      nearestEnemy = enemy;
-      nearestDistance = dist;
-    }
-
-    if (nearestEnemy) {
-      const et = nearestEnemy.require(TransformComponent);
-      const dx = et.x - transform.x;
-      const dy = et.y - transform.y;
-      const len = Math.hypot(dx, dy);
-      dirX = dx / len;
-      dirY = dy / len;
+  private createPunchHitbox(isSuper = false): void {
+    if (isSuper) {
+      SoundManager.getInstance().play('superpunch');
     } else {
-      const len = Math.hypot(dirX, dirY);
-      if (len > 0) { dirX /= len; dirY /= len; }
+      const punchSounds = ['punch1', 'punch2', 'punch3'];
+      SoundManager.getInstance().play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
     }
-
-    const startX = transform.x + dirX * 30;
-    const startY = transform.y + dirY * 30;
-
-    this.entityManager.add(createPunchProjectileEntity({
-      scene: this.scene,
-      x: startX, y: startY,
-      dirX, dirY,
-      playerEntity: this.entity,
-      damage: PUNCH_DAMAGE
-    }));
-
-    const particleEntity = new Entity('punch_particles');
-    particleEntity.add(new PunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
-    this.entityManager.add(particleEntity);
-  }
-
-  private createSuperPunchHitbox(): void {
-    SoundManager.getInstance().play('superpunch');
 
     const transform = this.entity.require(TransformComponent);
     const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
@@ -340,19 +285,28 @@ export class AttackComboComponent implements Component {
     const startX = transform.x + dirX * 30;
     const startY = transform.y + dirY * 30;
 
+    const damage = isSuper ? PUNCH_DAMAGE * SUPER_PUNCH_DAMAGE_MULTIPLIER : PUNCH_DAMAGE;
     const halfSize = SUPER_PUNCH_HITBOX_SIZE_PX / 2;
+    const hitboxOverride = isSuper ? { offsetX: -halfSize, offsetY: -halfSize, width: SUPER_PUNCH_HITBOX_SIZE_PX, height: SUPER_PUNCH_HITBOX_SIZE_PX } : undefined;
+
     this.entityManager.add(createPunchProjectileEntity({
       scene: this.scene,
       x: startX, y: startY,
       dirX, dirY,
       playerEntity: this.entity,
-      damage: PUNCH_DAMAGE * SUPER_PUNCH_DAMAGE_MULTIPLIER,
-      hitboxOverride: { offsetX: -halfSize, offsetY: -halfSize, width: SUPER_PUNCH_HITBOX_SIZE_PX, height: SUPER_PUNCH_HITBOX_SIZE_PX }
+      damage,
+      hitboxOverride
     }));
 
-    const particleEntity = new Entity('super_punch_particles');
-    particleEntity.add(new SuperPunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
-    this.entityManager.add(particleEntity);
+    if (isSuper) {
+      const particleEntity = new Entity('super_punch_particles');
+      particleEntity.add(new SuperPunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
+      this.entityManager.add(particleEntity);
+    } else {
+      const particleEntity = new Entity('punch_particles');
+      particleEntity.add(new PunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
+      this.entityManager.add(particleEntity);
+    }
   }
 
   tryStartPunch(): void {

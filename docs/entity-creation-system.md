@@ -187,7 +187,8 @@ Plus one interaction entity per script:
 - Player must walk into the pushable (blocked by GridCellBlocker) and be within the central portion of the box on the perpendicular axis to engage push mode
 - Push direction is cardinal only (up/down/left/right)
 - Push engagement uses `GridCollisionComponent.blockedByPushable` — detected when movement is actually blocked, not proximity
-- **push_lock cells**: If a pushable lands on a cell with the `push_lock` property, it becomes permanently immovable, persists across level transitions (regardless of `doesPersist`), plays `click1` sound, and the player immediately disengages
+- **Sounds**: Plays random `drag1` or `drag2` sound once per cell push. Plays `click1` on push_lock.
+- **push_lock cells**: If a pushable lands on a cell with the `push_lock` property, it becomes permanently immovable, persists across level transitions (regardless of `doesPersist`), and the player immediately disengages
 
 ### Hole
 - `texture`: Sprite texture key (default `'hole_with_roots'`)
@@ -328,6 +329,8 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/ecs/components/laser/LaserBeamComponent.ts` - Beam raycast, rendering, collision, particles, toggle
 - `src/ecs/entities/escort/EscortEntity.ts` - Escort entity factory
 - `src/ecs/components/escort/EscortComponent.ts` - Escort state machine, following, crouching, completion, cross-level persistence
+- `src/ecs/components/escort/EscortPersistence.ts` - Typed escort WorldState flag accessors
+- `src/ecs/systems/movement/PathFollower.ts` - Shared path-following utility (used by escort, pet, thrower, robot)
 - `editor/CanvasInteraction.ts` - Entity placement and selection
 - `editor/EditorBridge.ts` - Entity extraction to JSON
 - `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI
