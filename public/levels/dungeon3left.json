@@ -2,7 +2,7 @@
   "width": 30,
   "height": 20,
   "playerStart": {
-    "x": 22,
+    "x": 18,
     "y": 18
   },
   "cells": [
@@ -3252,6 +3252,22 @@
       ]
     },
     {
+      "col": 24,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
       "col": 26,
       "row": 18,
       "layer": 0,
@@ -3595,7 +3611,7 @@
       "id": "breakable14",
       "type": "breakable",
       "data": {
-        "col": 25,
+        "col": 22,
         "row": 18,
         "texture": "dungeon_vase",
         "health": 1,
@@ -3644,15 +3660,13 @@
         "eventToRaise": "event_trigger0",
         "triggerCells": [
           {
-            "col": 25,
-            "row": 18
-          },
-          {
-            "col": 24,
+            "col": 21,
             "row": 18
           }
         ],
-        "oneShot": true
+        "oneShot": true,
+        "col": 23,
+        "row": 18
       }
     }
   ],

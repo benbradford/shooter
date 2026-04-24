@@ -1,0 +1,80 @@
+{
+  "character": {
+    "id": "581aa7ec-d177-4aac-82bc-4e0c1a3c5e0c",
+    "name": "a scary monk wearing a hood, instead of a head it had a tv screen with abscent looking, neutral, void like bluey-white faces that is still scary despite not really having an expression. the hood is up so only the face (tv) can be seen.",
+    "prompt": "a scary monk wearing a hood, instead of a head it had a tv screen with abscent looking, neutral, void like bluey-white faces that is still scary despite not really having an expression. the hood is up so only the face (tv) can be seen.",
+    "size": {
+      "width": 80,
+      "height": 80
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "high top-down",
+    "created_at": "2026-04-20T20:44:51.773523+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {
+      "Throw_Object-19bab6ad": {
+        "south": [
+          "animations/Throw_Object-19bab6ad/south/frame_000.png",
+          "animations/Throw_Object-19bab6ad/south/frame_001.png",
+          "animations/Throw_Object-19bab6ad/south/frame_002.png",
+          "animations/Throw_Object-19bab6ad/south/frame_003.png",
+          "animations/Throw_Object-19bab6ad/south/frame_004.png",
+          "animations/Throw_Object-19bab6ad/south/frame_005.png",
+          "animations/Throw_Object-19bab6ad/south/frame_006.png"
+        ]
+      },
+      "Fireball-79eac35c": {
+        "south": [
+          "animations/Fireball-79eac35c/south/frame_000.png",
+          "animations/Fireball-79eac35c/south/frame_001.png",
+          "animations/Fireball-79eac35c/south/frame_002.png",
+          "animations/Fireball-79eac35c/south/frame_003.png",
+          "animations/Fireball-79eac35c/south/frame_004.png",
+          "animations/Fireball-79eac35c/south/frame_005.png"
+        ]
+      },
+      "Taking_Punch-775bdfc1": {
+        "south": [
+          "animations/Taking_Punch-775bdfc1/south/frame_000.png",
+          "animations/Taking_Punch-775bdfc1/south/frame_001.png",
+          "animations/Taking_Punch-775bdfc1/south/frame_002.png",
+          "animations/Taking_Punch-775bdfc1/south/frame_003.png",
+          "animations/Taking_Punch-775bdfc1/south/frame_004.png",
+          "animations/Taking_Punch-775bdfc1/south/frame_005.png"
+        ]
+      },
+      "Drinking-396058d7": {
+        "south": [
+          "animations/Drinking-396058d7/south/frame_000.png",
+          "animations/Drinking-396058d7/south/frame_001.png",
+          "animations/Drinking-396058d7/south/frame_002.png",
+          "animations/Drinking-396058d7/south/frame_003.png",
+          "animations/Drinking-396058d7/south/frame_004.png",
+          "animations/Drinking-396058d7/south/frame_005.png"
+        ]
+      },
+      "Raise_both_hands_together_up_in_the_air-764d25b8": {
+        "south": [
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_000.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_001.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_002.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_003.png"
+        ]
+      }
+    }
+  },
+  "export_version": "2.0",
+  "export_date": "2026-04-24T19:25:40.732531"
+}

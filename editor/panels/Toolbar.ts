@@ -13,7 +13,7 @@ const GRID_TOOLS: Array<{ label: string; tool: string }> = [
 const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock'] as const;
 
 const ENTITY_TYPES = [
-  'skeleton', 'red_skeleton', 'thrower', 'stalking_robot', 'bug_base', 'bullet_dude', 'puma',
+  'skeleton', 'red_skeleton', 'thrower', 'stalking_robot', 'bug_base', 'bullet_dude', 'puma', 'tv_monk',
   'npc', 'escort', 'breakable', 'pushable', 'hole', 'collectible', 'lever', 'laser', 'trigger', 'exit', 'eventchainer', 'cellmodifier', 'interaction'
 ];
 

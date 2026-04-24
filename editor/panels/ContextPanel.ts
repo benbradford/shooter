@@ -13,6 +13,7 @@ export class ContextPanel {
   }
 
   clear(): void {
+    this.bridge.saveStateCallback = null;
     this.container.innerHTML = '';
   }
 
@@ -198,6 +199,7 @@ export class ContextPanel {
 
     // Save
     const doSaveState = async (): Promise<void> => {
+      if (!this.container.querySelector('#st-health')) return;
       state.player.health = Number.parseInt((this.container.querySelector('#st-health') as HTMLInputElement)?.value ?? '100');
       state.player.coins = Number.parseInt((this.container.querySelector('#st-coins') as HTMLInputElement)?.value ?? '0');
 

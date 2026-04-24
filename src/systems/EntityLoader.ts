@@ -9,6 +9,7 @@ import { EntityCreatorManager } from './EntityCreatorManager';
 import { WorldStateManager } from './WorldStateManager';
 import { createSkeletonEntity } from '../ecs/entities/skeleton/SkeletonEntity';
 import { createPumaEntity } from '../ecs/entities/puma/PumaEntity';
+import { createTvMonkEntity } from '../ecs/entities/tvmonk/TvMonkEntity';
 import type { PumaDifficulty } from '../ecs/entities/puma/PumaDifficulty';
 import { createThrowerEntity } from '../ecs/entities/thrower/ThrowerEntity';
 import { Direction } from '../constants/Direction';
@@ -263,6 +264,17 @@ export class EntityLoader {
           difficulty: (data.difficulty as PumaDifficulty) || 'medium',
           startDirection: (data.startDirection as Direction) || Direction.Down,
           entityId: entityDef.id
+        });
+
+      case 'tv_monk':
+        return () => createTvMonkEntity({
+          scene: this.scene,
+          grid: this.grid,
+          col: data.col as number,
+          row: data.row as number,
+          entityId: entityDef.id,
+          playerEntity: player,
+          eventManager: this.eventManager,
         });
 
       case 'trigger':

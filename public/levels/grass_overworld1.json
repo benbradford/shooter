@@ -5505,6 +5505,14 @@
       }
     },
     {
+      "id": "tv_monk0",
+      "type": "tv_monk",
+      "data": {
+        "col": 18,
+        "row": 4
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -5815,6 +5823,20 @@
       "createOnAnyEvent": [
         "enter_wilds1"
       ]
+    },
+    {
+      "id": "trigger0",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "monk_fight",
+        "triggerCells": [
+          {
+            "col": 18,
+            "row": 5
+          }
+        ],
+        "oneShot": true
+      }
     }
   ],
   "levelTheme": "grass_overworld1",

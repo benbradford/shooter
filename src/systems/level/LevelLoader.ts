@@ -10,6 +10,7 @@ export type EntityType =
   | 'red_skeleton'
   | 'bullet_dude' 
   | 'puma'
+  | 'tv_monk'
   | 'eventchainer'
   | 'trigger'
   | 'exit'

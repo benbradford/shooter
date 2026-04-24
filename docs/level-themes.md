@@ -181,7 +181,7 @@ Use `DungeonSceneRenderer` or `SwampSceneRenderer` as reference implementations.
 
 ### 3. Register in GameScene
 
-Add an `else if` branch in `src/scenes/GameScene.ts` for your theme (search for `levelTheme`).
+Add a `case` in `src/scenes/theme/ThemeRendererFactory.ts` for your theme.
 
 ### 4. Add to Theme Editor
 
@@ -365,6 +365,7 @@ Use dark colors for edges to create depth:
 ## Related Files
 
 - `src/scenes/theme/GameSceneRenderer.ts` - Abstract base class
+- `src/scenes/theme/ThemeRendererFactory.ts` - Theme instantiation (add new themes here)
 - `src/scenes/theme/DungeonSceneRenderer.ts` - Dungeon theme implementation
 - `src/scenes/theme/SwampSceneRenderer.ts` - Swamp theme implementation
 - `src/scenes/theme/GrassSceneRenderer.ts` - Grass theme implementation
@@ -372,6 +373,6 @@ Use dark colors for edges to create depth:
 - `src/scenes/theme/TunnelsSceneRenderer.ts` - Tunnels theme (darkness + player light)
 - `src/scenes/theme/DefaultSceneRenderer.ts` - Default/fallback theme
 - `src/systems/SceneOverlays.ts` - Overlay placement system
-- `src/scenes/GameScene.ts` - Theme instantiation and switching
+- `src/scenes/GameScene.ts` - Theme switching and editor mode
 - `editor/SpritesheetTextures.ts` - Spritesheet sub-sprite definitions
 - `src/systems/level/LevelLoader.ts` - LevelTheme type definition

@@ -393,6 +393,7 @@ export class EditorBridge {
         bug_base: { col, row, difficulty: 'medium' },
         bullet_dude: { col, row, difficulty: 'medium' },
         puma: { col, row, difficulty: 'medium', startDirection: 4 },
+        tv_monk: { col, row },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic', requiresSuperPunch: false },
         pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false, singlePushOnly: false },
         hole: { col, row, texture: 'hole_with_roots', targetLevel: '', targetCol: 0, targetRow: 0 },
@@ -940,6 +941,9 @@ export class EditorBridge {
       } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
         type = 'bullet_dude';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('tv_monk')) {
+        type = 'tv_monk';
+        data = { col: cell.col, row: cell.row };
       } else if (entity.id.startsWith('breakable')) {
         type = 'breakable';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
