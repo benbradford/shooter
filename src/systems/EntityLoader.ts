@@ -188,6 +188,7 @@ export class EntityLoader {
         }
       } else {
         const entity = creatorFunc();
+        if (!entity) continue;
         entity.levelName = levelData.name;
         this.entityManager.add(entity);
       }
@@ -584,6 +585,11 @@ export class EntityLoader {
         const ws = WorldStateManager.getInstance();
         let initialState: EscortState = 'dormant';
         if (ws.getFlag(`escort_${entityDef.id}_completed`) === 'true') {
+          const completedLevel = ws.getFlag(`escort_${entityDef.id}_completed_level`);
+          if (completedLevel && completedLevel !== (levelData.name ?? '')) {
+            // Completed on a different level — don't spawn on origin level
+            return () => null as unknown as Entity;
+          }
           initialState = 'completed';
         } else if (ws.getFlag('current_escort') === entityDef.id) {
           initialState = 'following';
@@ -592,14 +598,29 @@ export class EntityLoader {
           col: number; row: number; escortType?: string; awakeOnEvent?: string;
           destinationLevel?: string; destinationCol?: number; destinationRow?: number;
           reachDistance?: number; followSpeed?: number; followToLevels?: string[];
-          enemyDetectDistancePx?: number;
+          enemyDetectDistancePx?: number; scale?: number;
+          shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number;
         };
+        const movedEntry = levelState.movedEntities?.find((e: { id: string }) => e.id === entityDef.id);
+        let spawnCol: number;
+        let spawnRow: number;
+
+        if (initialState === 'following' && !movedEntry) {
+          // Escort is actively following player back to origin level — spawn at player spawn
+          const spawnPos = ws.getPlayerSpawnPosition();
+          spawnCol = spawnPos.col ?? escortData.col;
+          spawnRow = spawnPos.row ?? escortData.row;
+          initialState = 'waiting_for_player_move';
+        } else {
+          spawnCol = movedEntry?.col ?? escortData.col;
+          spawnRow = movedEntry?.row ?? escortData.row;
+        }
         return () => createEscortEntity({
           scene: this.scene,
           grid: this.grid,
           entityId: entityDef.id,
-          col: escortData.col,
-          row: escortData.row,
+          col: spawnCol,
+          row: spawnRow,
           playerEntity: player,
           entityManager: this.entityManager,
           eventManager: this.eventManager,
@@ -614,6 +635,10 @@ export class EntityLoader {
           enemyDetectDistancePx: escortData.enemyDetectDistancePx ?? 128,
           initialState,
           currentLevelName: levelData.name ?? '',
+          scale: escortData.scale,
+          shadowScale: escortData.shadowScale,
+          shadowOffsetX: escortData.shadowOffsetX,
+          shadowOffsetY: escortData.shadowOffsetY,
         });
       }
 

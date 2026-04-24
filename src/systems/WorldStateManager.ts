@@ -126,6 +126,13 @@ export class WorldStateManager {
     }
   }
 
+  removeMovedEntity(levelName: string, entityId: string): void {
+    const levelState = this.getLevelState(levelName);
+    if (levelState.movedEntities) {
+      levelState.movedEntities = levelState.movedEntities.filter(e => e.id !== entityId);
+    }
+  }
+
   setPlayerHealth(health: number): void {
     this.worldState.player.health = health;
   }

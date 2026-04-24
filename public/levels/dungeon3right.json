@@ -2251,12 +2251,14 @@
         "destinationRow": 5,
         "awakeOnEvent": "lever_lever0|on",
         "reachDistance": 15,
-        "followSpeed": 200,
+        "followSpeed": 100,
         "followToLevels": [
           "dungeon3right",
           "dungeon3"
         ],
-        "enemyDetectDistancePx": 128
+        "enemyDetectDistancePx": 128,
+        "scale": 1.5,
+        "shadowOffsetY": 30
       }
     },
     {

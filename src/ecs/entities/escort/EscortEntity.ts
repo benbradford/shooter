@@ -35,6 +35,10 @@ export type CreateEscortProps = {
   readonly enemyDetectDistancePx: number;
   readonly initialState: EscortState;
   readonly currentLevelName: string;
+  readonly scale?: number;
+  readonly shadowScale?: number;
+  readonly shadowOffsetX?: number;
+  readonly shadowOffsetY?: number;
 }
 
 const COLLISION_BOX_RATIO = 0.5;
@@ -49,7 +53,7 @@ export function createEscortEntity(props: CreateEscortProps): Entity {
 
   const x = props.col * props.grid.cellSize + props.grid.cellSize / 2;
   const y = props.row * props.grid.cellSize + props.grid.cellSize / 2;
-  const scale = props.grid.cellSize / KNIGHT_FRAME_SIZE_PX;
+  const scale = props.scale ?? (props.grid.cellSize / KNIGHT_FRAME_SIZE_PX);
 
   const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(props.scene, 'knight_spritesheet', transform));
@@ -57,9 +61,9 @@ export function createEscortEntity(props: CreateEscortProps): Entity {
 
   // (V1 fix): Call shadow.init() explicitly
   const shadow = entity.add(new ShadowComponent(props.scene, {
-    scale: SHADOW_SCALE,
-    offsetX: SHADOW_OFFSET_X_PX,
-    offsetY: SHADOW_OFFSET_Y_PX,
+    scale: props.shadowScale ?? SHADOW_SCALE,
+    offsetX: props.shadowOffsetX ?? SHADOW_OFFSET_X_PX,
+    offsetY: props.shadowOffsetY ?? SHADOW_OFFSET_Y_PX,
   }));
   shadow.init();
 
@@ -118,6 +122,10 @@ export function createEscortEntity(props: CreateEscortProps): Entity {
     currentLevelName: props.currentLevelName,
     col: props.col,
     row: props.row,
+    scale: props.scale,
+    shadowScale: props.shadowScale,
+    shadowOffsetX: props.shadowOffsetX,
+    shadowOffsetY: props.shadowOffsetY,
   }));
 
   entity.setUpdateOrder([

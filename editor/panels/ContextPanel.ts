@@ -654,7 +654,7 @@ export class ContextPanel {
         <input id="ef-laser-destroy" value="${data.onDestroyEvent ?? ''}" placeholder="(optional)" /></div>`;
     }
     if (entityDef.type === 'escort') {
-      const eData = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; awakeOnEvent?: string; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number };
+      const eData = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; awakeOnEvent?: string; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number; scale?: number; shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number };
       typeFields += `<div class="form-group"><label>Escort Type</label><input id="ef-etype" value="${eData.escortType ?? 'knight'}" /></div>
         <div class="form-group"><label>Awake on Event</label><input id="ef-eawake" value="${eData.awakeOnEvent ?? ''}" /></div>
         <div class="form-group"><label>Destination Level</label><input id="ef-edlevel" value="${eData.destinationLevel ?? ''}" /></div>
@@ -663,7 +663,11 @@ export class ContextPanel {
         <div class="form-group"><label>Reach Distance</label><input type="number" id="ef-ereach" value="${eData.reachDistance ?? 15}" /></div>
         <div class="form-group"><label>Follow Speed</label><input type="number" id="ef-espeed" value="${eData.followSpeed ?? 200}" /></div>
         <div class="form-group"><label>Follow to Levels (comma-sep)</label><input id="ef-elevels" value="${(eData.followToLevels ?? []).join(', ')}" /></div>
-        <div class="form-group"><label>Enemy Detect Px</label><input type="number" id="ef-edetect" value="${eData.enemyDetectDistancePx ?? 128}" /></div>`;
+        <div class="form-group"><label>Enemy Detect Px</label><input type="number" id="ef-edetect" value="${eData.enemyDetectDistancePx ?? 128}" /></div>
+        <div class="form-group"><label>Scale</label><input type="number" id="ef-escale" value="${eData.scale ?? ''}" step="0.1" placeholder="auto" /></div>
+        <div class="form-group"><label>Shadow Scale</label><input type="number" id="ef-eshadowscale" value="${eData.shadowScale ?? 1}" step="0.1" /></div>
+        <div class="form-group"><label>Shadow Offset X</label><input type="number" id="ef-eshadowx" value="${eData.shadowOffsetX ?? 0}" /></div>
+        <div class="form-group"><label>Shadow Offset Y</label><input type="number" id="ef-eshadowy" value="${eData.shadowOffsetY ?? 0}" /></div>`;
     }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
@@ -920,6 +924,19 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-edetect')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { enemyDetectDistancePx: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-escale')?.addEventListener('change', (e) => {
+      const v = Number.parseFloat((e.target as HTMLInputElement).value);
+      this.bridge.updateEntityData(entityId, v ? { scale: v } : {});
+    });
+    this.container.querySelector('#ef-eshadowscale')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { shadowScale: Number.parseFloat((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-eshadowx')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { shadowOffsetX: Number.parseFloat((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-eshadowy')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { shadowOffsetY: Number.parseFloat((e.target as HTMLInputElement).value) });
     });
   }
 

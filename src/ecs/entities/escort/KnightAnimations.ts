@@ -33,7 +33,7 @@ export function createKnightAnimationMap(): Map<string, Animation> {
     if (typeof dir !== 'number') continue;
     const knightDir = DIR_TO_KNIGHT[dir as Direction];
     animMap.set(`idle_${dir}`, new Animation(IDLE_FRAMES[knightDir], 'static', FRAME_DURATION_S));
-    animMap.set(`walk_${dir}`, new Animation(WALK_FRAMES[knightDir], 'repeat', FRAME_DURATION_S));
+    animMap.set(`walk_${dir}`, new Animation(WALK_FRAMES[knightDir], 'repeat', FRAME_DURATION_S * 2));
   }
 
   animMap.set('arms_stretched', new Animation(['40', '41', '42', '43', '44'], 'once', FRAME_DURATION_S));

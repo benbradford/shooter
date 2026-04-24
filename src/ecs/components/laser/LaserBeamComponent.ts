@@ -69,6 +69,10 @@ export class LaserBeamComponent implements Component, EventListener {
   private isDestroyed = false;
   private pulseTimeMs = 0;
   private damageCooldownMs = 0;
+
+  isActive(): boolean {
+    return this.isOn && !this.isDestroyed;
+  }
   private readonly loopSound?: Phaser.Sound.BaseSound;
 
   constructor(props: LaserBeamProps) {
@@ -133,6 +137,12 @@ export class LaserBeamComponent implements Component, EventListener {
 
     // Swap base to destroyed texture
     this.baseSprite.setTexture('laser_base_destroyed');
+
+    // Track as destroyed so it doesn't respawn on re-entry
+    if (this.entity.levelName) {
+      const ws = WorldStateManager.getInstance();
+      ws.addDestroyedEntity(this.entity.levelName, this.entity.id);
+    }
 
     if (this.eventManager) {
       this.eventManager.deregister(this.onDestroyEvent!, this);

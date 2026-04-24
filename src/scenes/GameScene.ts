@@ -878,6 +878,32 @@ export default class GameScene extends Phaser.Scene {
 
     worldState.updateModifiedCells(this.currentLevelName, this.grid, this.levelData);
     worldState.updateTimePlayed();
+
+    // Check if active escort is close enough to follow
+    const escortId = worldState.getFlag('current_escort');
+    if (escortId) {
+      const escortEntity = this.entityManager.getAll().find(e => e.id === escortId);
+      if (escortEntity && player) {
+        const escortT = escortEntity.get(TransformComponent);
+        const playerT = player.get(TransformComponent);
+        if (escortT && playerT) {
+          // Always save escort position in current level
+          const escortCell = this.grid.worldToCell(escortT.x, escortT.y);
+          worldState.updateMovedEntity(this.currentLevelName, escortId, escortCell.col, escortCell.row);
+
+          const dist = Math.hypot(playerT.x - escortT.x, playerT.y - escortT.y);
+          if (dist > 200) {
+            // Too far — escort stays in this level
+            worldState.setFlag(`escort_${escortId}_left_in_level`, this.currentLevelName);
+          } else {
+            // Close enough — escort follows, clear stale position data
+            worldState.setFlag(`escort_${escortId}_left_in_level`, '');
+            worldState.removeMovedEntity(this.currentLevelName, escortId);
+          }
+        }
+      }
+    }
+
     worldState.setCurrentLevel(targetLevel);
     worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
     void worldState.saveToFile();
@@ -945,9 +971,28 @@ export default class GameScene extends Phaser.Scene {
     const allowedLevels = levelsStr.split(',');
     if (!allowedLevels.includes(this.currentLevelName)) return;
 
-    const spawnPos = ws.getPlayerSpawnPosition();
-    const spawnCol = spawnPos.col ?? this.levelData.playerStart.x;
-    const spawnRow = spawnPos.row ?? this.levelData.playerStart.y;
+    // Check if escort was left behind in a level
+    const leftInLevel = ws.getFlag(`escort_${escortId}_left_in_level`);
+    if (leftInLevel && leftInLevel !== this.currentLevelName) return; // Left in another level, don't spawn
+
+    let spawnCol: number;
+    let spawnRow: number;
+    let initialState: EscortState;
+
+    if (leftInLevel === this.currentLevelName) {
+      // Escort was left in this level — spawn at saved position, following
+      const levelState = ws.getLevelState(this.currentLevelName);
+      const moved = levelState.movedEntities?.find(e => e.id === escortId);
+      spawnCol = moved?.col ?? this.levelData.playerStart.x;
+      spawnRow = moved?.row ?? this.levelData.playerStart.y;
+      initialState = 'following' as EscortState;
+    } else {
+      // Escort is following player — spawn at player's spawn cell, hidden
+      const spawnPos = ws.getPlayerSpawnPosition();
+      spawnCol = spawnPos.col ?? this.levelData.playerStart.x;
+      spawnRow = spawnPos.row ?? this.levelData.playerStart.y;
+      initialState = 'waiting_for_player_move' as EscortState;
+    }
 
     const escort = createEscortEntity({
       scene: this,
@@ -967,8 +1012,12 @@ export default class GameScene extends Phaser.Scene {
       followSpeed: Number(ws.getFlag(`escort_${escortId}_follow_speed`) ?? '200'),
       followToLevels: allowedLevels,
       enemyDetectDistancePx: Number(ws.getFlag(`escort_${escortId}_enemy_detect_px`) ?? '128'),
-      initialState: 'waiting_for_player_move' as EscortState,
+      initialState,
       currentLevelName: this.currentLevelName,
+      scale: ws.getFlag(`escort_${escortId}_scale`) ? Number(ws.getFlag(`escort_${escortId}_scale`)) : undefined,
+      shadowScale: ws.getFlag(`escort_${escortId}_shadow_scale`) ? Number(ws.getFlag(`escort_${escortId}_shadow_scale`)) : undefined,
+      shadowOffsetX: ws.getFlag(`escort_${escortId}_shadow_offset_x`) ? Number(ws.getFlag(`escort_${escortId}_shadow_offset_x`)) : undefined,
+      shadowOffsetY: ws.getFlag(`escort_${escortId}_shadow_offset_y`) ? Number(ws.getFlag(`escort_${escortId}_shadow_offset_y`)) : undefined,
     });
     this.entityManager.add(escort);
   }
@@ -1011,6 +1060,10 @@ export default class GameScene extends Phaser.Scene {
         enemyDetectDistancePx: 0,
         initialState: 'completed' as EscortState,
         currentLevelName: this.currentLevelName,
+        scale: ws.getFlag(`escort_${id}_scale`) ? Number(ws.getFlag(`escort_${id}_scale`)) : undefined,
+        shadowScale: ws.getFlag(`escort_${id}_shadow_scale`) ? Number(ws.getFlag(`escort_${id}_shadow_scale`)) : undefined,
+        shadowOffsetX: ws.getFlag(`escort_${id}_shadow_offset_x`) ? Number(ws.getFlag(`escort_${id}_shadow_offset_x`)) : undefined,
+        shadowOffsetY: ws.getFlag(`escort_${id}_shadow_offset_y`) ? Number(ws.getFlag(`escort_${id}_shadow_offset_y`)) : undefined,
       });
       this.entityManager.add(escort);
     }
