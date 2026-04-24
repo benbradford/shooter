@@ -5,7 +5,7 @@ import { CollectibleComponent } from '../../components/pickup/CollectibleCompone
 import { CollectibleVisualComponent } from '../../components/visual/CollectibleVisualComponent';
 import { PulsingScaleComponent } from '../../components/visual/PulsingScaleComponent';
 import { Depth } from '../../../constants/DepthConstants';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 const SPRITE_SIZE_RATIO = 0.3;
 const PULSE_AMPLITUDE = 0.08;
@@ -21,7 +21,7 @@ export type CreateCollectibleProps = {
   scene: Phaser.Scene;
   col: number;
   row: number;
-  grid: Grid;
+  grid: GridReader;
   entityId: string;
   preset: CollectiblePreset;
   playerEntity: Entity;

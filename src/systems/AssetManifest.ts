@@ -11,6 +11,9 @@ export class AssetManifest {
   static fromLevelData(levelData: LevelData): Set<AssetKey> {
     const assets = new Set<AssetKey>();
 
+    for (const key of ASSET_GROUPS.core) {
+      assets.add(key);
+    }
     this.addEntityAssets(assets, levelData);
     this.addBackgroundTextures(assets, levelData);
     this.addAnimatedTextures(assets, levelData);

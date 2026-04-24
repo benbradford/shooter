@@ -2,11 +2,11 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 type LineOfSightProps = {
   range: number;
-  grid: Grid;
+  grid: GridReader;
   fieldOfView: number; // In radians
 }
 
@@ -14,7 +14,7 @@ export class LineOfSightComponent implements Component {
   entity!: Entity;
   range: number;
   targetEntity: Entity | null;
-  grid: Grid;
+  grid: GridReader;
   fieldOfView: number;
   facingAngle: number;
 

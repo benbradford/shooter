@@ -1,4 +1,4 @@
-import type { Grid, CellData } from './grid/Grid';
+import type { GridReader, CellData } from './grid/Grid';
 import { GridCellBlocker } from '../ecs/components/movement/GridCellBlocker';
 
 type PathNode = {
@@ -12,11 +12,11 @@ type PathNode = {
 }
 
 export class Pathfinder {
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly blockedAreaCells?: ReadonlySet<string>;
   allowWater = false;
 
-  constructor(grid: Grid, blockedAreaCells?: ReadonlySet<string>) {
+  constructor(grid: GridReader, blockedAreaCells?: ReadonlySet<string>) {
     this.grid = grid;
     this.blockedAreaCells = blockedAreaCells;
   }

@@ -4,7 +4,7 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { Direction } from '../../../constants/Direction';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { getPumaAnimKey } from './PumaAnimations';
 
 const FOV_ANGLE_RAD = (30 * Math.PI) / 180;
@@ -15,7 +15,7 @@ export class PumaRestingState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    _grid: Grid,
+    _grid: GridReader,
     private readonly config: { lookDistancePx: number; detectDistancePx: number },
     startDirection: Direction
   ) {

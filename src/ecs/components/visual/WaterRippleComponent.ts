@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { WaterEffectComponent } from './WaterEffectComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 const RIPPLE_INTERVAL_MS = 250;
 const RIPPLE_INTERVAL_VARIANCE_MS = 100;
@@ -18,7 +18,7 @@ export class WaterRippleComponent implements Component {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly grid: Grid,
+    private readonly grid: GridReader,
     private readonly rippleTextureKey: string = 'water_ripple'
   ) {}
 

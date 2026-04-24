@@ -1,7 +1,7 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { PatrolComponent } from '../../components/ai/PatrolComponent';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { LineOfSightComponent } from '../../components/combat/LineOfSightComponent';
@@ -16,14 +16,14 @@ const PATH_RECALC_INTERVAL_MS = 1000;
 
 export class RobotPatrolState implements IState {
   private readonly entity: Entity;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly playerEntity: Entity;
   private readonly pathfinder: Pathfinder;
   private path: Array<{ col: number; row: number }> | null = null;
   private currentPathIndex: number = 0;
   private pathRecalcTimer: number = 0;
 
-  constructor(entity: Entity, grid: Grid, playerEntity: Entity) {
+  constructor(entity: Entity, grid: GridReader, playerEntity: Entity) {
     this.entity = entity;
     this.grid = grid;
     this.playerEntity = playerEntity;

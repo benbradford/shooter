@@ -6,7 +6,7 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { dirFromDelta } from '../../../constants/Direction';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { getPumaAnimKey } from './PumaAnimations';
 import { SoundManager } from '../../../systems/SoundManager';
 
@@ -25,7 +25,7 @@ export class PumaJumpingState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly grid: Grid,
+    private readonly grid: GridReader,
     private readonly config: { jumpSpeedPxPerSec: number; jumpDamage: number }
   ) {}
 

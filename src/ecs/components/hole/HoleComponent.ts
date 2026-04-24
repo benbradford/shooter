@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
@@ -16,7 +16,7 @@ const FALL_MIN_SCALE = 0;
 export type HoleComponentProps = {
   col: number;
   row: number;
-  grid: Grid;
+  grid: GridReader;
   targetLevel: string;
   targetCol: number;
   targetRow: number;
@@ -27,7 +27,7 @@ export class HoleComponent implements Component {
   entity!: Entity;
   private readonly col: number;
   private readonly row: number;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly targetLevel: string;
   private readonly targetCol: number;
   private readonly targetRow: number;

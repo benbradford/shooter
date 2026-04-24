@@ -1,13 +1,14 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { PathFollower } from '../../systems/movement/PathFollower';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { PatrolComponent } from '../../components/ai/PatrolComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 // Stalking state configuration
@@ -23,22 +24,22 @@ const CHASE_STOP_MULTIPLIER = 1.5;
 export class RobotStalkingState implements IState {
   private readonly entity: Entity;
   private readonly playerEntity: Entity;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly pathfinder: Pathfinder;
+  private readonly pathFollower: PathFollower;
   private readonly fireballDelayTime: number;
   private stalkingTime: number = 0;
   private currentDirection: Direction = Direction.Down;
   private animationFrame: number = 0;
   private animationTimer: number = 0;
-  private path: Array<{ col: number; row: number }> | null = null;
   private pathRecalcTimer: number = 0;
-  private currentPathIndex: number = 0;
 
-  constructor(entity: Entity, playerEntity: Entity, grid: Grid, fireballDelayTime: number) {
+  constructor(entity: Entity, playerEntity: Entity, grid: GridReader, fireballDelayTime: number) {
     this.entity = entity;
     this.playerEntity = playerEntity;
     this.grid = grid;
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
+    this.pathFollower = new PathFollower(grid.cellSize, 10);
     this.fireballDelayTime = fireballDelayTime;
   }
 
@@ -46,9 +47,8 @@ export class RobotStalkingState implements IState {
     this.stalkingTime = 0;
     this.animationFrame = 0;
     this.animationTimer = 0;
-    this.path = null;
+    this.pathFollower.clear();
     this.pathRecalcTimer = 0;
-    this.currentPathIndex = 0;
   }
 
   onExit(): void {
@@ -91,12 +91,12 @@ export class RobotStalkingState implements IState {
   }
 
   private updatePath(transform: TransformComponent, playerTransform: TransformComponent, gridPos: GridPositionComponent): void {
-    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL_MS || this.path === null) {
+    if (this.pathRecalcTimer >= PATH_RECALC_INTERVAL_MS || !this.pathFollower.hasPath()) {
       this.pathRecalcTimer = 0;
       const robotCell = this.grid.worldToCell(transform.x, transform.y);
       const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
-      this.path = this.pathfinder.findPath(
+      const path = this.pathfinder.findPath(
         robotCell.col,
         robotCell.row,
         playerCell.col,
@@ -106,10 +106,9 @@ export class RobotStalkingState implements IState {
         true
       );
 
-      this.currentPathIndex = 0;
+      this.pathFollower.setPath(path, 1);
 
-      // Check if player is too far away (use 1.5x multiplier for hysteresis)
-      const pathDistance = this.path ? this.path.length : Infinity;
+      const pathDistance = path ? path.length : Infinity;
       const pixelDistance = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
 
       if (pathDistance > MAX_CHASE_DISTANCE_CELLS * CHASE_STOP_MULTIPLIER || pixelDistance > MAX_CHASE_DISTANCE_PX * CHASE_STOP_MULTIPLIER) {
@@ -121,7 +120,7 @@ export class RobotStalkingState implements IState {
   }
 
   private moveAlongPath(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
-    if (this.path && this.path.length > 1) {
+    if (this.pathFollower.hasPath()) {
       this.followPath(transform, patrol, delta);
     } else {
       this.moveDirectly(transform, patrol, delta);
@@ -129,36 +128,10 @@ export class RobotStalkingState implements IState {
   }
 
   private followPath(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {
-    if (this.currentPathIndex === 0) {
-      this.currentPathIndex = 1;
-    }
+    const result = this.pathFollower.follow(transform, patrol.speed * STALKING_SPEED_MULTIPLIER, delta);
+    if (result.arrived) return;
 
-    if (!this.path) return;
-
-    const targetNode = this.path[this.currentPathIndex];
-    const targetWorld = this.grid.cellToWorld(targetNode.col, targetNode.row);
-    const targetX = targetWorld.x + this.grid.cellSize / 2;
-    const targetY = targetWorld.y + this.grid.cellSize / 2;
-
-    const dirX = targetX - transform.x;
-    const dirY = targetY - transform.y;
-    const distToTarget = Math.hypot(dirX, dirY);
-
-    if (distToTarget < 10) {
-      this.currentPathIndex++;
-      if (this.currentPathIndex >= this.path.length) {
-        this.path = null;
-      }
-    } else {
-      const normalizedDirX = dirX / distToTarget;
-      const normalizedDirY = dirY / distToTarget;
-      const moveSpeed = patrol.speed * STALKING_SPEED_MULTIPLIER * (delta / 1000);
-
-      transform.x += normalizedDirX * moveSpeed;
-      transform.y += normalizedDirY * moveSpeed;
-
-      this.currentDirection = dirFromDelta(normalizedDirX, normalizedDirY);
-    }
+    this.currentDirection = result.direction;
   }
 
   private moveDirectly(transform: TransformComponent, patrol: PatrolComponent, delta: number): void {

@@ -6,7 +6,7 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { RotatingProjectileComponent } from '../../components/visual/RotatingProjectileComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Depth } from '../../../constants/DepthConstants';
 
@@ -21,7 +21,7 @@ export type CreateBoneProjectileProps = {
   y: number;
   dirX: number;
   dirY: number;
-  grid: Grid;
+  grid: GridReader;
   layer: number;
   blockedAreaManager?: BlockedAreaManager;
   tint?: number;

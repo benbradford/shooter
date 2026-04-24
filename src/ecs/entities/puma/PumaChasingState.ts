@@ -5,7 +5,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { dirFromDelta } from '../../../constants/Direction';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getPumaAnimKey } from './PumaAnimations';
 
@@ -26,7 +26,7 @@ export class PumaChasingState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly grid: Grid,
+    private readonly grid: GridReader,
     private readonly config: { chaseSpeedPxPerSec: number; jumpDetectDistancePx: number }
   ) {
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());

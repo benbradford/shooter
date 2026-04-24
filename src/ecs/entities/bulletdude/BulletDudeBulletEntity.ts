@@ -4,7 +4,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Depth } from '../../../constants/DepthConstants';
 
@@ -20,7 +20,7 @@ export type CreateBulletDudeBulletProps = {
   dirX: number;
   dirY: number;
   speed: number;
-  grid: Grid;
+  grid: GridReader;
   layer?: number;
   blockedAreaManager?: BlockedAreaManager;
 }

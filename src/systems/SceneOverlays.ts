@@ -1,4 +1,4 @@
-import type { Grid } from './grid/Grid';
+import type { GridReader } from './grid/Grid';
 import type { LevelData } from './level/LevelLoader';
 import { Depth } from '../constants/DepthConstants';
 
@@ -42,7 +42,7 @@ export class SceneOverlays {
     }
   }
 
-  applyOverlays(grid: Grid): void {
+  applyOverlays(grid: GridReader): void {
     if (!this.levelData.background?.overlays || this.overlaySprites.length === 0) {
       console.log('[SceneOverlays] No overlays config or sprites:', {
         hasConfig: !!this.levelData.background?.overlays,

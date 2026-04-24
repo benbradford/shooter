@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 export type RockArcProps = {
@@ -11,7 +11,7 @@ export type RockArcProps = {
   speed: number;
   maxDistance: number;
   arcHeight: number;
-  grid: Grid;
+  grid: GridReader;
   blockedAreaManager?: BlockedAreaManager;
   startLayer: number;
   startedOnStairs: boolean;
@@ -26,7 +26,7 @@ export class RockArcComponent implements Component {
   private readonly speed: number;
   private readonly maxDistance: number;
   private readonly arcHeight: number;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly blockedAreaManager?: BlockedAreaManager;
   private readonly startLayer: number;
   private readonly onLand: (x: number, y: number) => void;

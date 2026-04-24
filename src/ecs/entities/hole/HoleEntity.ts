@@ -3,13 +3,13 @@ import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { HoleComponent } from '../../components/hole/HoleComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export type CreateHoleEntityProps = {
   scene: Phaser.Scene;
   col: number;
   row: number;
-  grid: Grid;
+  grid: GridReader;
   texture: string;
   entityId: string;
   targetLevel: string;

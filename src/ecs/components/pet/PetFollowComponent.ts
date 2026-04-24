@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
@@ -9,6 +9,7 @@ import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { PathFollower } from '../../systems/movement/PathFollower';
 import { Depth } from '../../../constants/DepthConstants';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
@@ -51,8 +52,7 @@ export class PetFollowComponent implements Component {
   private wasInWater = false;
   private lastAnimKey = '';
 
-  private path: Array<{ col: number; row: number }> | null = null;
-  private currentPathIndex = 0;
+  private readonly pathFollower: PathFollower;
   private pathRecalcTimerMs = 0;
   private currentDirection: Direction = Direction.Down;
   private hasRunAnim = false;
@@ -64,10 +64,12 @@ export class PetFollowComponent implements Component {
   private currentSpeedPxPerSec = 0;
 
   constructor(
-    private readonly grid: Grid,
+    private readonly grid: GridReader,
     private readonly playerEntity: Entity,
     private readonly directionCount: 4 | 8 = 8
-  ) {}
+  ) {
+    this.pathFollower = new PathFollower(grid.cellSize, 32);
+  }
 
   update(delta: number): void {
     // Check if player is in water or hopping
@@ -81,7 +83,7 @@ export class PetFollowComponent implements Component {
       if ((isInWater || isHopping) && this.state !== 'riding') {
         this.state = 'riding';
         this.wasInWater = true;
-        this.path = null;
+        this.pathFollower.clear();
         const sprite = this.entity.get(SpriteComponent);
         if (sprite) sprite.sprite.setAlpha(1);
         const gridCollision = this.entity.get(GridCollisionComponent);
@@ -128,7 +130,7 @@ export class PetFollowComponent implements Component {
       transform.x = playerTransform.x;
       transform.y = playerTransform.y;
       this.state = 'idle';
-      this.path = null;
+      this.pathFollower.clear();
       this.playAnim(anim, `idle_${this.currentDirection}`);
       return;
     }
@@ -152,11 +154,11 @@ export class PetFollowComponent implements Component {
       }
 
       this.pathRecalcTimerMs += delta;
-      if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
+      if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
         this.recalculatePath();
         this.pathRecalcTimerMs = 0;
       }
-      if (this.path && this.path.length > 0) {
+      if (this.pathFollower.hasPath()) {
         this.followPath(delta, transform, anim);
       }
       return;
@@ -246,38 +248,31 @@ export class PetFollowComponent implements Component {
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
     const layer = playerGridPos?.currentLayer ?? 0;
 
-    this.path = pathfinder.findPath(
+    const path = pathfinder.findPath(
       startCell.col, startCell.row,
       goalCell.col, goalCell.row,
       layer, false, true
     );
-    this.currentPathIndex = 1;
+    this.pathFollower.setPath(path);
   }
 
   private followPath(delta: number, transform: TransformComponent, anim: AnimationComponent): void {
-    if (!this.path || this.currentPathIndex >= this.path.length) {
-      this.path = null;
-      return;
-    }
-
-    const target = this.path[this.currentPathIndex];
-    const targetX = target.col * this.grid.cellSize + this.grid.cellSize / 2;
-    const targetY = target.row * this.grid.cellSize + this.grid.cellSize / 2;
-
-    const dx = targetX - transform.x;
-    const dy = targetY - transform.y;
-    const dist = Math.hypot(dx, dy);
-
-    if (dist < 32) {
-      this.currentPathIndex++;
-      return;
-    }
-
     const playerT = this.playerEntity.require(TransformComponent);
     const distToPlayer = Math.hypot(playerT.x - transform.x, playerT.y - transform.y);
     const t = Math.min(1, Math.max(0, (distToPlayer - START_FOLLOW_DISTANCE_PX) / (CATCHUP_DISTANCE_PX - START_FOLLOW_DISTANCE_PX)));
-    const speed = FOLLOW_SPEED_PX_PER_SEC + t * (CATCHUP_SPEED_PX_PER_SEC - FOLLOW_SPEED_PX_PER_SEC);
-    this.moveToward(transform, targetX, targetY, delta, anim, speed);
+    const targetSpeed = FOLLOW_SPEED_PX_PER_SEC + t * (CATCHUP_SPEED_PX_PER_SEC - FOLLOW_SPEED_PX_PER_SEC);
+
+    const lerpRate = Math.min(1, delta / SPEED_TRANSITION_DURATION_MS);
+    this.currentSpeedPxPerSec += (targetSpeed - this.currentSpeedPxPerSec) * lerpRate;
+
+    const result = this.pathFollower.follow(transform, this.currentSpeedPxPerSec, delta);
+    if (result.arrived) return;
+
+    const newDir = result.direction;
+    if (newDir !== Direction.None && newDir !== this.currentDirection) {
+      this.currentDirection = newDir;
+      this.playAnim(anim, `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
+    }
   }
 
   private moveToward(

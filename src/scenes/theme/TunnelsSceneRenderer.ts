@@ -1,6 +1,6 @@
 import { GameSceneRenderer } from './GameSceneRenderer';
 import { Depth } from '../../constants/DepthConstants';
-import type { Grid } from '../../systems/grid/Grid';
+import type { GridReader } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
 
 const EDGE_COLOR = 0x1a1a1a;
@@ -131,7 +131,7 @@ export class TunnelsSceneRenderer extends GameSceneRenderer {
     }
   }
 
-  override updateGraphics(grid: Grid, levelData?: LevelData): void {
+  override updateGraphics(grid: GridReader, levelData?: LevelData): void {
     this.graphics.clear();
     this.edgeGraphics.clear();
 

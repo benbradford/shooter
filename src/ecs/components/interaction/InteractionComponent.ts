@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
@@ -29,7 +29,7 @@ export class InteractionComponent implements Component {
   private readonly pathfinder: Pathfinder;
   private currentAnimKey = '';
   
-  constructor(private readonly grid: Grid) {
+  constructor(private readonly grid: GridReader) {
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }
   

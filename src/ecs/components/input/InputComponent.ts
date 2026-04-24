@@ -7,7 +7,7 @@ import type { ControlModeComponent } from './ControlModeComponent';
 import { RemoteInputComponent } from './RemoteInputComponent';
 import { NPCManager } from '../../../systems/NPCManager';
 import { NPCInteractionComponent } from '../../entities/npc/NPCInteractionComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 export class InputComponent implements Component {
@@ -18,7 +18,7 @@ export class InputComponent implements Component {
   private joystick: TouchJoystickComponent | null = null;
   private attackButton: AttackButtonComponent | null = null;
   private enabled: boolean = true;
-  private grid: Grid | null = null;
+  private grid: GridReader | null = null;
   private eventManager: EventManagerSystem | null = null;
 
   constructor(scene: Phaser.Scene) {
@@ -30,7 +30,7 @@ export class InputComponent implements Component {
     }
   }
 
-  setGridAndEventManager(grid: Grid, eventManager: EventManagerSystem): void {
+  setGridAndEventManager(grid: GridReader, eventManager: EventManagerSystem): void {
     this.grid = grid;
     this.eventManager = eventManager;
   }

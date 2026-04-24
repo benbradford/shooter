@@ -11,7 +11,7 @@ import { BugHopComponent } from '../movement/BugHopComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { Depth } from '../../../constants/DepthConstants';
 import { Pathfinder } from '../../../systems/Pathfinder';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 const FEAR_DURATION_MS = 4000;
 
@@ -36,7 +36,7 @@ export class DogBarkAbility implements Component {
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly grid: Grid
+    private readonly grid: GridReader
   ) {}
 
   isActive(): boolean {

@@ -8,7 +8,7 @@ import { ShadowComponent } from './ShadowComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export class WaterEffectComponent implements Component {
   entity!: Entity;
@@ -220,7 +220,7 @@ export class WaterEffectComponent implements Component {
     }
   }
 
-  private updateShadowMask(shadow: ShadowComponent, gridPos: GridPositionComponent, grid: Grid): void {
+  private updateShadowMask(shadow: ShadowComponent, gridPos: GridPositionComponent, grid: GridReader): void {
     // Destroy old mask
     if (this.shadowMaskGraphics) {
       this.shadowMaskGraphics.destroy();

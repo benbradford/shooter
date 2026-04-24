@@ -4,13 +4,13 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export type CoinComponentProps = {
   targetY: number;
   velocityX: number;
   velocityY: number;
-  grid: Grid;
+  grid: GridReader;
   playerEntity: Entity;
   coinSize: number;
 }
@@ -38,7 +38,7 @@ export class CoinComponent implements Component {
   private readonly targetY: number;
   private velocityX: number;
   private velocityY: number;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly playerEntity: Entity;
   private readonly coinSize: number;
   private hasLanded = false;

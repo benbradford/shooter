@@ -2,13 +2,13 @@ import { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export type CreateExhaustedBugBaseProps = {
   scene: Phaser.Scene;
   col: number;
   row: number;
-  grid: Grid;
+  grid: GridReader;
   entityId: string;
 }
 

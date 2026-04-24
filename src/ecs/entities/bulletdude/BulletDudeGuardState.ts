@@ -6,7 +6,7 @@ import { LineOfSightComponent } from '../../components/combat/LineOfSightCompone
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getBulletDudeDifficultyConfig, type BulletDudeDifficulty } from './BulletDudeDifficulty';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 const GUARD_DIRECTIONS = [
   Direction.Up,
@@ -38,7 +38,7 @@ export class BulletDudeGuardState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    _grid: Grid
+    _grid: GridReader
   ) {}
 
   onEnter(): void {

@@ -1,4 +1,4 @@
-import type { Grid } from '../../systems/grid/Grid';
+import type { GridReader } from '../../systems/grid/Grid';
 import type { LevelData } from '../../systems/level/LevelLoader';
 import { normalizeBgTextures } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
@@ -85,7 +85,7 @@ export abstract class GameSceneRenderer {
     return { success: failed.length === 0, failed };
   }
 
-  initializeSprites(grid: Grid, levelData: LevelData): void {
+  initializeSprites(grid: GridReader, levelData: LevelData): void {
     if (this.spritesInitialized) {
       return;
     }
@@ -99,13 +99,13 @@ export abstract class GameSceneRenderer {
     this.spritesInitialized = true;
   }
 
-  reinitializeSprites(grid: Grid, levelData: LevelData): void {
+  reinitializeSprites(grid: GridReader, levelData: LevelData): void {
     this.invalidateCache();
     this.spritesInitialized = false;
     this.initializeSprites(grid, levelData);
   }
 
-  updateGraphics(grid: Grid, levelData?: LevelData): void {
+  updateGraphics(grid: GridReader, levelData?: LevelData): void {
     this.graphics.clear();
     this.edgeGraphics.clear();
 
@@ -124,7 +124,7 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private createFloorSprites(grid: Grid, levelData: LevelData): void {
+  private createFloorSprites(grid: GridReader, levelData: LevelData): void {
     if (!levelData.background?.floor_texture) {
       return;
     }
@@ -190,15 +190,15 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private createWaterAndPathTileSprites(grid: Grid, levelData: LevelData): void {
+  private createWaterAndPathTileSprites(grid: GridReader, levelData: LevelData): void {
     this.renderAllCells(grid, levelData);
   }
 
-  refreshBackgroundTextureSprites(grid: Grid, levelData: LevelData): void {
+  refreshBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
     this.createBackgroundTextureSprites(grid, levelData);
   }
 
-  private createBackgroundTextureSprites(grid: Grid, levelData: LevelData): void {
+  private createBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
     if (!levelData.cells) {
       return;
     }
@@ -339,11 +339,11 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private createPlatformStairsWallSprites(_grid: Grid, _levelData: LevelData): void {
+  private createPlatformStairsWallSprites(_grid: GridReader, _levelData: LevelData): void {
     // Already handled in renderAllCells
   }
 
-  private createFloorOverlay(grid: Grid, levelData: LevelData): void {
+  private createFloorOverlay(grid: GridReader, levelData: LevelData): void {
     if (!levelData.background || this.floorOverlay) {
       return;
     }
@@ -464,7 +464,7 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private renderFloorOverlay(grid: Grid, _levelData: LevelData): void {
+  private renderFloorOverlay(grid: GridReader, _levelData: LevelData): void {
     const worldWidth = grid.width * this.cellSize;
     const worldHeight = grid.height * this.cellSize;
 
@@ -497,7 +497,7 @@ export abstract class GameSceneRenderer {
     this.floorOverlay.setBlendMode(Phaser.BlendModes.OVERLAY);
   }
 
-  private renderAllCells(grid: Grid, levelData?: LevelData): void {
+  private renderAllCells(grid: GridReader, levelData?: LevelData): void {
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
     const pathTexture = levelData?.background?.path_texture;
@@ -789,12 +789,12 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private renderGreyPaths(grid: Grid): void {
+  private renderGreyPaths(grid: GridReader): void {
     this.renderPathType(grid, 'path', 0x888888, 0x000000);
     this.renderPathType(grid, 'water', 0x4488ff, 0x000000);
   }
 
-  private renderPathType(grid: Grid, propertyType: CellProperty, fillColor: number, outlineColor: number): void {
+  private renderPathType(grid: GridReader, propertyType: CellProperty, fillColor: number, outlineColor: number): void {
     const radius = this.cellSize * 0.4;
 
     for (let row = 0; row < grid.height; row++) {
@@ -951,7 +951,7 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private renderEdges(grid: Grid): void {
+  private renderEdges(grid: GridReader): void {
     const edgeThickness = 4;
     const edgeColor = this.getEdgeColor();
 
@@ -1033,7 +1033,7 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private renderEdgeDarkening(grid: Grid, levelData?: LevelData): void {
+  private renderEdgeDarkening(grid: GridReader, levelData?: LevelData): void {
     const config = levelData?.background?.edgeDarkening;
     if (!config) return;
 
@@ -1079,7 +1079,7 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private renderShadows(grid: Grid): void {
+  private renderShadows(grid: GridReader): void {
     const shadowWidth = 64;
     const shadowSteps = 32;
     const shadowIntensity = 0.45;

@@ -28,10 +28,15 @@ Produces `tmp/architect-report.json` with structured metrics and rule violations
 
 Read the JSON report and add what the scanner can't:
 - **Responsibility analysis** — What concerns does this class mix? (scanner detects size, you detect WHY it's big)
-- **Coupling interpretation** — Are these imports necessary or a sign of poor boundaries?
+- **Paradigm violations** — Is this component actually a system in disguise? Is this imperative logic that should be data-driven? Name the violated principle (ECS separation, Open/Closed, SRP).
+- **Coupling interpretation** — Are these imports necessary or a sign of poor boundaries? Does high fan-in mean "well-used utility" or "god-service with no abstraction boundary"?
+- **Missing abstractions** — Duplicated code is a symptom. The disease is a missing domain primitive (movement system, persistence layer, tile rule engine). Name the missing abstraction, not just the duplication.
+- **Scaling analysis** — Will this pattern break when content doubles? Does adding a new entity/tile/behavior require modifying central files?
 - **"This is fine" judgments** — Explicitly call out when something looks large but is acceptable (see Acceptability Check below)
 - **Game-architecture judgment** — Is this update() loop actually fine for real-time? Is this coupling acceptable in ECS?
 - **Cross-cutting patterns** — Same anti-pattern repeated across multiple files
+
+**Be opinionated.** Don't just say "this is big, extract methods." Say what the code IS (a behavior system disguised as a component) and what it SHOULD BE (data component + behavior system). Name the paradigm gap.
 
 ### Phase 3: Deep Dive Tools (TARGETED — only for critical/high issues)
 
@@ -180,6 +185,129 @@ IMPACT AFTER REFACTOR:
     EFFORT: Low | Saves ~110 LOC duplication
 ```
 
+### 6. Architectural Profile (MANDATORY for codebase/directory scope)
+
+Before the detailed issues, include a high-level diagnosis of systemic patterns:
+
+```
+🧠 ARCHITECTURAL PROFILE:
+
+- Behavior logic embedded in components instead of systems
+- Heavy reliance on central coordinators (Grid, GameScene)
+- Repeated ad-hoc implementations of shared mechanics (pathfinding, state)
+- Imperative logic where data-driven approaches would scale better
+- Missing domain primitives (movement system, persistence layer)
+```
+
+This section answers: "What are the recurring architectural tendencies across the codebase?" Not per-file issues — systemic patterns.
+
+### 7. 🧨 ARCHITECTURAL CRITIQUE — BRUTAL MODE (MANDATORY)
+
+**After the standard pragmatic analysis, you MUST include this section.**
+
+This section ignores refactor cost and focuses on truth over safety. The standard report is pragmatic and actionable. This section is strategic, long-term, and truth-first. When the standard report says "acceptable," this section is allowed to disagree and explain why.
+
+**You are allowed to conclude that the architecture itself is flawed, even if individual files are "acceptable."**
+
+#### 7.1 Misapplied Patterns
+
+Call out when patterns are used incorrectly. Be explicit:
+- Components that are actually systems → "This is not a component — this is a full behavior system."
+- ECS used as OOP with extra steps → "This is not ECS, this is OOP with components."
+- "Coordinator" classes that are actually god objects → name them
+- State machines inconsistently applied → identify which entities break the pattern and why that's a problem
+
+Do NOT hedge. Say what it IS, not what it "might be."
+
+#### 7.2 Missing Core Abstractions
+
+Do NOT just report duplication. Instead ask:
+- What concept exists multiple times but has no name?
+- What domain concept should exist but doesn't?
+
+Report as:
+```
+MISSING ABSTRACTION: {name}
+  {concept} exists in {N} places but no shared primitive exists.
+  This is not duplication — this is a missing system.
+  Locations: {list files}
+```
+
+#### 7.3 Architectural Drift
+
+Look for signs of "feature stacking" — logic spread across unrelated files, cross-cutting concerns (persistence, navigation, state), repeated patterns with slight variations.
+
+Call it out explicitly:
+```
+ARCHITECTURAL DRIFT:
+  Features have been added incrementally without consolidating shared logic.
+  This results in fragile coupling and change amplification.
+  Evidence: {specific examples}
+```
+
+#### 7.4 Challenge Core Architectural Choices
+
+Evaluate whether the current architecture is being followed correctly:
+- Is ECS actually ECS, or just components with behavior?
+- Are systems missing entirely?
+- Are responsibilities aligned with architecture?
+
+Be direct:
+```
+ECS VIOLATION:
+  Behavior is embedded in components instead of systems.
+  These components are effectively mini-engines.
+  Examples: {list}
+```
+
+#### 7.5 Ideal Architecture (Ignore Cost)
+
+Describe what the system SHOULD look like if built cleanly from scratch:
+- What systems would exist?
+- What responsibilities would move where?
+- What disappears entirely?
+
+Do NOT worry about migration cost. This is the north star.
+
+#### 7.6 Hidden Coupling
+
+Specifically detect:
+- Singleton overuse and `.getInstance()` proliferation
+- Implicit dependencies not visible in constructors
+- Global state access patterns
+
+Explain why it's dangerous:
+```
+HIDDEN COUPLING:
+  {N} `.getInstance()` calls hide dependency relationships.
+  This prevents reasoning about change impact.
+  You cannot test {X} without {Y} being initialized first.
+```
+
+#### 7.7 Scaling Predictions
+
+For each major system, predict where it breaks:
+```
+SCALING LIMIT: {system}
+  This design will not scale beyond {threshold} because {reason}.
+  Symptom when it breaks: {what happens}
+```
+
+#### 7.8 Verdict
+
+End with a blunt overall assessment:
+- Is the architecture fundamentally sound with local issues?
+- Or is the architecture itself the problem?
+- What is the single most important structural change?
+
+**Tone rules for Brutal Mode:**
+- Prefer truth over politeness
+- Prefer clarity over diplomacy
+- Do NOT hedge excessively ("might", "could", "consider")
+- Use decisive language: "is", "causes", "breaks", "violates"
+- You are allowed to say: "This is a poor design choice", "This will not scale", "This is fragile", "This is the wrong abstraction"
+- When something is marked "acceptable" in the main report but is architecturally questionable long-term, keep it acceptable in the main report BUT challenge it here
+
 ## Rules for Central Coordination Files
 
 For files like GameScene, EntityLoader, and Grid:
@@ -189,10 +317,22 @@ For files like GameScene, EntityLoader, and Grid:
 - Suggest responsibility boundaries, not arbitrary size reductions
 - A 500 LOC orchestrator with clear sections is better than 10 tiny files with tangled dependencies
 
+## Report Persistence
+
+**ALWAYS save the full report to `tmp/` when analysis is complete.**
+
+After generating the report, write it to:
+```
+tmp/architecture-review-YYYY-MM-DD-HHmm.md
+```
+
+Use the current date and time (24-hour format). Example: `tmp/architecture-review-2026-04-24-1453.md`. This allows multiple reports per day to be distinguished.
+
 ## Hard Rules
 
 **DO:**
 - Run the scanner first, always
+- Save the full report to tmp/ (see Report Persistence above)
 - Only cite metrics from the scanner JSON
 - Include EFFORT/RISK on every suggestion
 - Include IMPACT AFTER REFACTOR on every suggestion
@@ -207,4 +347,5 @@ For files like GameScene, EntityLoader, and Grid:
 - Don't suggest event buses or observers that obscure real-time control flow
 - Don't flag small utility files (<100 LOC) as issues
 - Don't be vague — "consider refactoring" is useless, "extract X into Y at path Z" is useful
-- Don't suggest refactors where the cost exceeds the benefit — say "not worth it" instead
+- Don't suggest refactors where the cost exceeds the benefit — say "not worth it" instead. BUT still call out the architectural issue in the Critique section even if refactoring isn't practical right now
+- Don't confuse "working" with "correct" — code that works but violates architectural principles should be called out as such

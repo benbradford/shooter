@@ -7,16 +7,16 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { getThrowerDifficultyConfig } from './ThrowerDifficultyConfig';
 import { Pathfinder } from '../../../systems/Pathfinder';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { dirFromDelta } from '../../../constants/Direction';
+import { PathFollower } from '../../systems/movement/PathFollower';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { getThrowerAnimKey } from './ThrowerAnimations';
 
 export class ThrowerRunningState implements IState {
   private readonly pathfinder: Pathfinder;
-  private path: Array<{ col: number; row: number }> | null = null;
+  private readonly pathFollower: PathFollower;
   private pathRecalcTimerMs: number = 0;
-  private currentPathIndex: number = 0;
   private throwTimerMs: number = 0;
   private targetCol: number = -1;
   private targetRow: number = -1;
@@ -27,9 +27,10 @@ export class ThrowerRunningState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly grid: Grid
+    private readonly grid: GridReader
   ) {
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
+    this.pathFollower = new PathFollower(grid.cellSize, 10);
   }
 
   onEnter(): void {
@@ -71,7 +72,7 @@ export class ThrowerRunningState implements IState {
     
     if (currentCell.col === this.lastPositionCol && currentCell.row === this.lastPositionRow) {
       if (this.stuckTimerMs >= 1000) {
-        this.path = null;
+        this.pathFollower.clear();
         this.stuckTimerMs = 0;
       }
     } else {
@@ -80,12 +81,12 @@ export class ThrowerRunningState implements IState {
       this.stuckTimerMs = 0;
     }
 
-    if (this.pathRecalcTimerMs >= 500 || this.path === null) {
+    if (this.pathRecalcTimerMs >= 500 || !this.pathFollower.hasPath()) {
       this.pathRecalcTimerMs = 0;
       this.findCoverPosition();
       
       if (this.targetCol !== -1 && this.targetRow !== -1) {
-        this.path = this.pathfinder.findPath(
+        const path = this.pathfinder.findPath(
           currentCell.col,
           currentCell.row,
           this.targetCol,
@@ -94,11 +95,11 @@ export class ThrowerRunningState implements IState {
           false,
           true
         );
-        this.currentPathIndex = 0;
+        this.pathFollower.setPath(path, 1);
       }
     }
 
-    if (this.path && this.path.length > 1) {
+    if (this.pathFollower.hasPath()) {
       this.followPath(transform, config.speedPxPerSec, delta);
     }
   }
@@ -164,42 +165,14 @@ export class ThrowerRunningState implements IState {
   }
 
   private followPath(transform: TransformComponent, speedPxPerSec: number, delta: number): void {
-    if (!this.path || this.currentPathIndex >= this.path.length) {
-      this.path = null;
-      return;
-    }
+    const result = this.pathFollower.follow(transform, speedPxPerSec, delta);
+    if (result.arrived) return;
 
-    if (this.currentPathIndex === 0) {
-      this.currentPathIndex = 1;
-    }
-
-    const targetNode = this.path[this.currentPathIndex];
-    const targetWorld = this.grid.cellToWorld(targetNode.col, targetNode.row);
-    const targetX = targetWorld.x + this.grid.cellSize / 2;
-    const targetY = targetWorld.y + this.grid.cellSize / 2;
-
-    const dx = targetX - transform.x;
-    const dy = targetY - transform.y;
-    const distance = Math.hypot(dx, dy);
-
-    if (distance < 10) {
-      this.currentPathIndex++;
-      if (this.currentPathIndex >= this.path.length) {
-        this.path = null;
-      }
-    } else {
-      const moveX = (dx / distance) * speedPxPerSec * (delta / 1000);
-      const moveY = (dy / distance) * speedPxPerSec * (delta / 1000);
-      
-      transform.x += moveX;
-      transform.y += moveY;
-
-      const dir = dirFromDelta(dx, dy);
-      const animKey = getThrowerAnimKey('walk', dir);
-      const sprite = this.entity.require(SpriteComponent);
-      if (!sprite.sprite.anims.isPlaying || sprite.sprite.anims.currentAnim?.key !== animKey) {
-        sprite.sprite.play({ key: animKey, frameRate: 6 });
-      }
+    const dir = result.direction;
+    const animKey = getThrowerAnimKey('walk', dir);
+    const sprite = this.entity.require(SpriteComponent);
+    if (!sprite.sprite.anims.isPlaying || sprite.sprite.anims.currentAnim?.key !== animKey) {
+      sprite.sprite.play({ key: animKey, frameRate: 6 });
     }
   }
 }

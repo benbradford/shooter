@@ -12,7 +12,26 @@ import { Depth } from '../../constants/DepthConstants';
 import type { BlockedAreaManager } from '../BlockedAreaManager';
 export type { CellProperty, CellData } from './CellData';
 
-export class Grid {
+export type GridReader = {
+  readonly cellSize: number;
+  readonly width: number;
+  readonly height: number;
+  readonly rows: number;
+  readonly cols: number;
+  readonly cells: ReadonlyArray<ReadonlyArray<CellData>>;
+  worldToCell(x: number, y: number): { col: number; row: number };
+  cellToWorld(col: number, row: number): { x: number; y: number };
+  getCell(col: number, row: number): CellData | null;
+  getLayer(cell: CellData): number;
+  isTransition(cell: CellData): boolean;
+  isWall(cell: CellData): boolean;
+  isOccupied(col: number, row: number): boolean;
+  getOccupants(col: number, row: number): ReadonlySet<Entity>;
+  getEntitiesWithTag(tag: string): Entity[];
+  getBlockedAreaCells(): ReadonlySet<string> | undefined;
+};
+
+export class Grid implements GridReader {
   public width: number; // columns
   public height: number; // rows
   public readonly cellSize: number;

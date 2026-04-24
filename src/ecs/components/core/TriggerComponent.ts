@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
@@ -8,7 +8,7 @@ import { WorldStateManager } from '../../../systems/WorldStateManager';
 export type TriggerComponentProps = {
   eventName: string;
   triggerCells: Array<{ col: number; row: number }>;
-  grid: Grid;
+  grid: GridReader;
   eventManager: EventManagerSystem;
   oneShot: boolean;
 }
@@ -17,7 +17,7 @@ export class TriggerComponent implements Component {
   entity!: Entity;
   public readonly eventName: string;
   public readonly triggerCells: Array<{ col: number; row: number }>;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly eventManager: EventManagerSystem;
   private readonly oneShot: boolean;
   private triggered: boolean = false;

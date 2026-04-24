@@ -1,7 +1,7 @@
 import { type Vec2, isConvex, computeNormals, isPointInPolygon, ensureClockwise, triangulate } from '../math/PolygonUtils';
 import { getOverlappingCells } from '../math/SATCollision';
 import type { BlockedAreaDef } from './level/LevelLoader';
-import type { Grid } from './grid/Grid';
+import type { GridReader } from './grid/Grid';
 
 export type BlockedArea = {
   readonly id: string;
@@ -15,7 +15,7 @@ export class BlockedAreaManager {
   private readonly areas: BlockedArea[] = [];
   private readonly blockedCells: Set<string> = new Set();
 
-  constructor(defs: BlockedAreaDef[], grid: Grid) {
+  constructor(defs: BlockedAreaDef[], grid: GridReader) {
     for (const def of defs) {
       const cwVertices = ensureClockwise(def.vertices);
       const parts = isConvex(cwVertices) ? [cwVertices] : triangulate(cwVertices);

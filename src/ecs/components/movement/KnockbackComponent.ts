@@ -2,7 +2,7 @@ import type { Entity } from '../../Entity';
 import type { Component } from '../../Component';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export class KnockbackComponent implements Component {
   entity!: Entity;
@@ -16,7 +16,7 @@ export class KnockbackComponent implements Component {
   constructor(
     friction: number,
     duration: number,
-    private readonly grid: Grid
+    private readonly grid: GridReader
   ) {
     this.friction = friction;
     this.duration = duration;

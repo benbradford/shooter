@@ -2,7 +2,7 @@ import { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { CoinComponent, COIN_SPRITE_SCALE, COIN_SIZE_PX } from '../../components/pickup/CoinComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export { COIN_SPRITE_SCALE, COIN_SIZE_PX };
 
@@ -13,7 +13,7 @@ export type CreateCoinProps = {
   velocityX: number;
   velocityY: number;
   targetY: number;
-  grid: Grid;
+  grid: GridReader;
   playerEntity: Entity;
   scale: number;
   coinSize: number;

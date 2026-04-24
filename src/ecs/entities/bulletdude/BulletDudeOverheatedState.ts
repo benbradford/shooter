@@ -10,7 +10,7 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getBulletDudeDifficultyConfig, type BulletDudeDifficulty, type BulletDudeDifficultyConfig } from './BulletDudeDifficulty';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { BULLET_DUDE_EMITTER_OFFSETS } from './BulletDudeConstants';
 
@@ -33,7 +33,7 @@ export class BulletDudeOverheatedState implements IState {
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
     private readonly scene: Phaser.Scene,
-    private readonly grid: Grid
+    private readonly grid: GridReader
   ) {
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }

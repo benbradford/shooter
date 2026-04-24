@@ -4,7 +4,7 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { LeverComponent } from '../../components/lever/LeverComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 import type { LeverState } from '../../components/lever/LeverComponent';
@@ -13,7 +13,7 @@ export type CreateLeverProps = {
   scene: Phaser.Scene;
   col: number;
   row: number;
-  grid: Grid;
+  grid: GridReader;
   entityId: string;
   eventToRaise: string;
   startState: LeverState;

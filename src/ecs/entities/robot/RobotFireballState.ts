@@ -1,6 +1,6 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
@@ -112,7 +112,7 @@ export class RobotFireballState implements IState {
 
     const gameScene = this.scene as Phaser.Scene & {
       entityManager?: { add: (entity: Entity) => void };
-      getGrid?: () => Grid;
+      getGrid?: () => GridReader;
       blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager;
     };
 

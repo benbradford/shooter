@@ -6,11 +6,11 @@ import { CollisionComponent } from '../combat/CollisionComponent';
 import { GridCellBlocker } from '../movement/GridCellBlocker';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { createExhaustedBugBaseEntity } from '../../entities/bug/ExhaustedBugBaseEntity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export type BaseExplosionComponentProps = {
   scene: Phaser.Scene;
-  grid: Grid;
+  grid: GridReader;
   col: number;
   row: number;
   entityManager: EntityManager;
@@ -19,7 +19,7 @@ export type BaseExplosionComponentProps = {
 export class BaseExplosionComponent implements Component {
   entity!: import('../../Entity').Entity;
   private readonly scene: Phaser.Scene;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly col: number;
   private readonly row: number;
   private readonly entityManager: EntityManager;

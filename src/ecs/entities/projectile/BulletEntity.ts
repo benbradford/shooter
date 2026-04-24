@@ -6,7 +6,7 @@ import { ProjectileComponent } from '../../components/combat/ProjectileComponent
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { BULLET_DISPLAY_SIZE } from './ProjectileConfig';
 
@@ -18,7 +18,7 @@ export type CreateBulletProps = {
   y: number;
   dirX: number;
   dirY: number;
-  grid: Grid;
+  grid: GridReader;
   layer?: number;
   fromTransition?: boolean;
   blockedAreaManager?: BlockedAreaManager;

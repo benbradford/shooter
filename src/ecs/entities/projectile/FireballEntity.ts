@@ -10,7 +10,7 @@ import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
@@ -48,7 +48,7 @@ export type CreateFireballProps = {
   dirY: number;
   speed: number;
   maxDistance: number;
-  grid: Grid;
+  grid: GridReader;
   startLayer: number;
   blockedAreaManager?: BlockedAreaManager;
 }

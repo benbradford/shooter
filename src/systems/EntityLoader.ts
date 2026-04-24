@@ -33,6 +33,7 @@ import { createHoleEntity } from '../ecs/entities/hole/HoleEntity';
 import { createLaserEntity } from '../ecs/entities/laser/LaserEntity';
 import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
 import type { EscortState } from '../ecs/components/escort/EscortComponent';
+import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createRedSkeletonEntity } from '../ecs/entities/red_skeleton/RedSkeletonEntity';
@@ -584,34 +585,34 @@ export class EntityLoader {
         };
 
       case 'escort': {
-        const ws = WorldStateManager.getInstance();
+        const ep = new EscortPersistence();
         let initialState: EscortState = 'dormant';
-        if (ws.getFlag(`escort_${entityDef.id}_completed`) === 'true') {
-          const completedLevel = ws.getFlag(`escort_${entityDef.id}_completed_level`);
+        if (ep.isCompleted(entityDef.id)) {
+          const completedLevel = ep.getCompletedLevel(entityDef.id);
           if (completedLevel && completedLevel !== (levelData.name ?? '')) {
             // Completed on a different level — don't spawn on origin level
             return () => null as unknown as Entity;
           }
           initialState = 'completed';
-        } else if (ws.getFlag('current_escort') === entityDef.id) {
+        } else if (ep.getCurrentEscortId() === entityDef.id) {
           initialState = 'following';
           // Re-persist definition flags in case they were lost (e.g., after death reset)
           const ed = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number; scale?: number; shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number };
-          const id = entityDef.id;
-          const ln = levelData.name ?? '';
-          ws.setFlag(`escort_${id}_type`, ed.escortType ?? 'knight');
-          ws.setFlag(`escort_${id}_origin_level`, ln);
-          ws.setFlag(`escort_${id}_destination_level`, ed.destinationLevel ?? '');
-          ws.setFlag(`escort_${id}_destination_col`, String(ed.destinationCol ?? 0));
-          ws.setFlag(`escort_${id}_destination_row`, String(ed.destinationRow ?? 0));
-          ws.setFlag(`escort_${id}_reach_distance`, String(ed.reachDistance ?? 15));
-          ws.setFlag(`escort_${id}_follow_speed`, String(ed.followSpeed ?? 200));
-          ws.setFlag(`escort_${id}_follow_to_levels`, (ed.followToLevels ?? []).join(','));
-          ws.setFlag(`escort_${id}_enemy_detect_px`, String(ed.enemyDetectDistancePx ?? 128));
-          if (ed.scale !== undefined) ws.setFlag(`escort_${id}_scale`, String(ed.scale));
-          if (ed.shadowScale !== undefined) ws.setFlag(`escort_${id}_shadow_scale`, String(ed.shadowScale));
-          if (ed.shadowOffsetX !== undefined) ws.setFlag(`escort_${id}_shadow_offset_x`, String(ed.shadowOffsetX));
-          if (ed.shadowOffsetY !== undefined) ws.setFlag(`escort_${id}_shadow_offset_y`, String(ed.shadowOffsetY));
+          ep.persistDefinition(entityDef.id, {
+            escortType: ed.escortType ?? 'knight',
+            originLevel: levelData.name ?? '',
+            destinationLevel: ed.destinationLevel ?? '',
+            destinationCol: ed.destinationCol ?? 0,
+            destinationRow: ed.destinationRow ?? 0,
+            reachDistance: ed.reachDistance ?? 15,
+            followSpeed: ed.followSpeed ?? 200,
+            followToLevels: ed.followToLevels ?? [],
+            enemyDetectDistancePx: ed.enemyDetectDistancePx ?? 128,
+            scale: ed.scale,
+            shadowScale: ed.shadowScale,
+            shadowOffsetX: ed.shadowOffsetX,
+            shadowOffsetY: ed.shadowOffsetY,
+          });
         }
         const escortData = data as {
           col: number; row: number; escortType?: string; awakeOnEvent?: string;
@@ -626,7 +627,7 @@ export class EntityLoader {
 
         if (initialState === 'following' && !movedEntry) {
           // Escort is actively following player back to origin level — spawn at player spawn
-          const spawnPos = ws.getPlayerSpawnPosition();
+          const spawnPos = WorldStateManager.getInstance().getPlayerSpawnPosition();
           spawnCol = spawnPos.col ?? escortData.col;
           spawnRow = spawnPos.row ?? escortData.row;
           initialState = 'waiting_for_player_move';

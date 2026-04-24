@@ -10,7 +10,7 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { getBulletDudeDifficultyConfig, type BulletDudeDifficulty } from './BulletDudeDifficulty';
 import { createBulletDudeBulletEntity } from './BulletDudeBulletEntity';
 import { createShellCasingEntity } from '../projectile/ShellCasingEntity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { BULLET_DUDE_EMITTER_OFFSETS } from './BulletDudeConstants';
 
 export class BulletDudeShootingState implements IState {
@@ -86,7 +86,7 @@ export class BulletDudeShootingState implements IState {
       dirX,
       dirY,
       speed: config.bulletSpeed,
-      grid: (this.scene as Phaser.Scene & { grid: Grid }).grid,
+      grid: (this.scene as Phaser.Scene & { grid: GridReader }).grid,
       layer: gridPos.currentLayer,
       blockedAreaManager: (this.scene as Phaser.Scene & { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
     });

@@ -2,16 +2,16 @@ import type { Entity } from '../ecs/Entity';
 import { CollisionComponent } from '../ecs/components/combat/CollisionComponent';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
-import type { Grid } from './grid/Grid';
+import type { GridReader } from './grid/Grid';
 import { Depth } from '../constants/DepthConstants';
 
 export class CollisionSystem {
   private readonly scene: Phaser.Scene;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private debugGraphics: Phaser.GameObjects.Graphics | null = null;
   private debugEnabled: boolean = false;
 
-  constructor(scene: Phaser.Scene, grid: Grid) {
+  constructor(scene: Phaser.Scene, grid: GridReader) {
     this.scene = scene;
     this.grid = grid;
   }

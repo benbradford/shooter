@@ -3,16 +3,17 @@ import type { Entity } from '../../Entity';
 import type { EventListener } from '../../systems/EventListener';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import type { EntityManager } from '../../EntityManager';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { EscortPersistence } from './EscortPersistence';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { PathFollower } from '../../systems/movement/PathFollower';
 import { LaserBeamComponent } from '../laser/LaserBeamComponent';
 
 export type EscortState =
@@ -29,7 +30,7 @@ type CrouchPhase = 'crouching_down' | 'holding' | 'standing_up';
 
 export type EscortComponentProps = {
   readonly scene: Phaser.Scene;
-  readonly grid: Grid;
+  readonly grid: GridReader;
   readonly playerEntity: Entity;
   readonly entityManager: EntityManager;
   readonly eventManager: EventManagerSystem;
@@ -61,7 +62,7 @@ const DESTINATION_OFFSET_Y_PX = 16;
 export class EscortComponent implements Component, EventListener {
   entity!: Entity;
 
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly playerEntity: Entity;
   private readonly entityManager: EntityManager;
   private readonly eventManager: EventManagerSystem;
@@ -80,13 +81,13 @@ export class EscortComponent implements Component, EventListener {
   private readonly escortShadowOffsetX?: number;
   private readonly escortShadowOffsetY?: number;
 
+  private readonly persistence = new EscortPersistence();
   private state: EscortState;
   private crouchPhase: CrouchPhase = 'holding';
   private crouchCooldownMs = 0;
   private previousActiveState: 'following' | 'walking_to_destination' = 'following';
 
-  private path: Array<{ col: number; row: number }> | null = null;
-  private currentPathIndex = 0;
+  private readonly pathFollower: PathFollower;
   private pathRecalcTimerMs = 0;
   private currentDirection: Direction = Direction.Down;
   private lastAnimKey = '';
@@ -118,6 +119,7 @@ export class EscortComponent implements Component, EventListener {
     this.escortShadowScale = props.shadowScale;
     this.escortShadowOffsetX = props.shadowOffsetX;
     this.escortShadowOffsetY = props.shadowOffsetY;
+    this.pathFollower = new PathFollower(this.grid.cellSize, ARRIVAL_THRESHOLD_PX);
 
     // (V2 fix): Only register when dormant
     if (this.state === 'dormant' && this.awakeOnEvent) {
@@ -139,10 +141,9 @@ export class EscortComponent implements Component, EventListener {
     if (this.state !== 'dormant') return;
 
     // (F3 fix): Deactivate any existing active escort
-    const ws = WorldStateManager.getInstance();
-    const previousEscortId = ws.getFlag('current_escort');
+    const previousEscortId = this.persistence.getCurrentEscortId();
     if (previousEscortId && previousEscortId !== this.entity.id) {
-      this.clearEscortFlags(previousEscortId);
+      this.persistence.clearFlags(previousEscortId);
       for (const e of this.entityManager.getAll()) {
         if (e.id === previousEscortId && !e.isDestroyed) {
           const prevComp = e.get(EscortComponent);
@@ -154,8 +155,22 @@ export class EscortComponent implements Component, EventListener {
     this.state = 'awakening';
     this.playAnim('crouch_reverse');
 
-    ws.setFlag('current_escort', this.entity.id);
-    this.persistEscortDefinition();
+    this.persistence.setCurrentEscortId(this.entity.id);
+    this.persistence.persistDefinition(this.entity.id, {
+      escortType: this.escortType,
+      originLevel: this.currentLevelName,
+      destinationLevel: this.destinationLevel,
+      destinationCol: this.destinationCol,
+      destinationRow: this.destinationRow,
+      reachDistance: this.reachDistance,
+      followSpeed: this.followSpeed,
+      followToLevels: this.followToLevels,
+      enemyDetectDistancePx: this.enemyDetectDistancePx,
+      scale: this.escortScale,
+      shadowScale: this.escortShadowScale,
+      shadowOffsetX: this.escortShadowOffsetX,
+      shadowOffsetY: this.escortShadowOffsetY,
+    });
 
     // Deregister — one-shot
     this.eventManager.deregister(this.awakeOnEvent, this);
@@ -232,18 +247,18 @@ export class EscortComponent implements Component, EventListener {
     const dist = Math.hypot(dx, dy);
 
     if (dist <= STOP_DISTANCE_PX) {
-      this.path = null;
+      this.pathFollower.clear();
       this.playAnim(`idle_${this.currentDirection}`);
       return;
     }
 
     this.pathRecalcTimerMs += delta;
-    if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
+    if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
       this.recalculatePathToPlayer();
       this.pathRecalcTimerMs = 0;
     }
 
-    if (this.path && this.path.length > 0) {
+    if (this.pathFollower.hasPath()) {
       this.followPath(delta, transform);
     } else {
       this.playAnim(`idle_${this.currentDirection}`);
@@ -262,7 +277,7 @@ export class EscortComponent implements Component, EventListener {
         this.crouchPhase = 'crouching_down';
         this.crouchCooldownMs = 0;
         this.playAnim('crouch_forward');
-        this.path = null;
+        this.pathFollower.clear();
         return true;
       }
     }
@@ -317,8 +332,7 @@ export class EscortComponent implements Component, EventListener {
     if (path && path.length <= this.reachDistance) {
       this.state = 'walking_to_destination';
       this.previousActiveState = 'walking_to_destination';
-      this.path = path;
-      this.currentPathIndex = 1;
+      this.pathFollower.setPath(path);
       this.pathRecalcTimerMs = 0;
       this.playAnim(`walk_${this.currentDirection}`);
       return true;
@@ -362,12 +376,12 @@ export class EscortComponent implements Component, EventListener {
     }
 
     this.pathRecalcTimerMs += delta;
-    if (!this.path || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
+    if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
       this.recalculatePathToDestination();
       this.pathRecalcTimerMs = 0;
     }
 
-    if (this.path && this.path.length > 0) {
+    if (this.pathFollower.hasPath()) {
       this.followPath(delta, transform);
     }
   }
@@ -378,20 +392,17 @@ export class EscortComponent implements Component, EventListener {
     const startCell = this.grid.worldToCell(transform.x, transform.y);
     const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
 
-    this.path = pathfinder.findPath(
+    let path = pathfinder.findPath(
       startCell.col, startCell.row,
       this.destinationCol, this.destinationRow,
       this.getPlayerLayer(), false, true
     );
 
-    if (!this.path) {
-      // Try adjacent cells
-      this.path = this.findPathToAdjacentCell(pathfinder, startCell);
+    if (!path) {
+      path = this.findPathToAdjacentCell(pathfinder, startCell);
     }
 
-    if (!this.path) {
-      // Completely unreachable — revert to following only if far away
-      // If close, direct movement in updateWalkingToDestination will handle it
+    if (!path) {
       const destX = this.destinationCol * this.grid.cellSize + this.grid.cellSize / 2;
       const destY = this.destinationRow * this.grid.cellSize + this.grid.cellSize / 2;
       const distToDest = Math.hypot(destX - transform.x, destY - transform.y);
@@ -401,23 +412,18 @@ export class EscortComponent implements Component, EventListener {
       return;
     }
 
-    this.currentPathIndex = 1;
+    this.pathFollower.setPath(path);
   }
 
   // --- State: Completing (F1 fix) ---
 
   private enterCompleting(): void {
     this.state = 'completing';
-    this.path = null;
+    this.pathFollower.clear();
 
     // (F1 fix): Set completion flags IMMEDIATELY, before animation
-    const ws = WorldStateManager.getInstance();
-    ws.setFlag('current_escort', '');
-    ws.setFlag(`escort_${this.entity.id}_left_in_level`, '');
-    ws.setFlag(`escort_${this.entity.id}_completed`, 'true');
-    ws.setFlag(`escort_${this.entity.id}_completed_level`, this.currentLevelName);
-    ws.setFlag(`escort_${this.entity.id}_completed_col`, String(this.destinationCol));
-    ws.setFlag(`escort_${this.entity.id}_completed_row`, String(this.destinationRow));
+    this.persistence.clearCurrentEscort();
+    this.persistence.markCompleted(this.entity.id, this.currentLevelName, this.destinationCol, this.destinationRow);
 
     // Force animation change (clear dedup guard)
     this.lastAnimKey = '';
@@ -452,38 +458,15 @@ export class EscortComponent implements Component, EventListener {
     const playerTransform = this.playerEntity.require(TransformComponent);
     const goalCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
     const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-    this.path = pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, this.getPlayerLayer(), false, true);
-    this.currentPathIndex = 1;
+    const path = pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, this.getPlayerLayer(), false, true);
+    this.pathFollower.setPath(path);
   }
 
   private followPath(delta: number, transform: TransformComponent): void {
-    if (!this.path || this.currentPathIndex >= this.path.length) {
-      this.path = null;
-      return;
-    }
+    const result = this.pathFollower.follow(transform, this.followSpeed, delta);
+    if (result.arrived) return;
 
-    const target = this.path[this.currentPathIndex];
-    const targetX = target.col * this.grid.cellSize + this.grid.cellSize / 2;
-    const targetY = target.row * this.grid.cellSize + this.grid.cellSize / 2;
-    const dx = targetX - transform.x;
-    const dy = targetY - transform.y;
-    const dist = Math.hypot(dx, dy);
-
-    if (dist < ARRIVAL_THRESHOLD_PX) {
-      this.currentPathIndex++;
-      return;
-    }
-
-    const moveDist = this.followSpeed * (delta / 1000);
-    if (moveDist >= dist) {
-      transform.x = targetX;
-      transform.y = targetY;
-    } else {
-      transform.x += (dx / dist) * moveDist;
-      transform.y += (dy / dist) * moveDist;
-    }
-
-    const newDir = dirFromDelta(dx, dy);
+    const newDir = result.direction;
     if (newDir !== Direction.None && newDir !== this.currentDirection) {
       this.currentDirection = newDir;
     }
@@ -534,38 +517,6 @@ export class EscortComponent implements Component, EventListener {
     if (key === this.lastAnimKey) return;
     this.lastAnimKey = key;
     this.entity.require(AnimationComponent).animationSystem.play(key);
-  }
-
-  // --- World State Persistence ---
-
-  private persistEscortDefinition(): void {
-    const ws = WorldStateManager.getInstance();
-    const id = this.entity.id;
-    ws.setFlag(`escort_${id}_type`, this.escortType);
-    ws.setFlag(`escort_${id}_origin_level`, this.currentLevelName);
-    ws.setFlag(`escort_${id}_destination_level`, this.destinationLevel);
-    ws.setFlag(`escort_${id}_destination_col`, String(this.destinationCol));
-    ws.setFlag(`escort_${id}_destination_row`, String(this.destinationRow));
-    ws.setFlag(`escort_${id}_reach_distance`, String(this.reachDistance));
-    ws.setFlag(`escort_${id}_follow_speed`, String(this.followSpeed));
-    ws.setFlag(`escort_${id}_follow_to_levels`, this.followToLevels.join(','));
-    ws.setFlag(`escort_${id}_enemy_detect_px`, String(this.enemyDetectDistancePx));
-    if (this.escortScale) ws.setFlag(`escort_${id}_scale`, String(this.escortScale));
-    if (this.escortShadowScale !== undefined) ws.setFlag(`escort_${id}_shadow_scale`, String(this.escortShadowScale));
-    if (this.escortShadowOffsetX !== undefined) ws.setFlag(`escort_${id}_shadow_offset_x`, String(this.escortShadowOffsetX));
-    if (this.escortShadowOffsetY !== undefined) ws.setFlag(`escort_${id}_shadow_offset_y`, String(this.escortShadowOffsetY));
-  }
-
-  private clearEscortFlags(escortId: string): void {
-    const ws = WorldStateManager.getInstance();
-    const keys = [
-      'type', 'origin_level', 'destination_level', 'destination_col',
-      'destination_row', 'reach_distance', 'follow_speed', 'follow_to_levels', 'enemy_detect_px',
-      'scale', 'shadow_scale', 'shadow_offset_x', 'shadow_offset_y', 'left_in_level',
-    ];
-    for (const k of keys) {
-      ws.setFlag(`escort_${escortId}_${k}`, '');
-    }
   }
 
   // (F3 fix): Allow external force to completed

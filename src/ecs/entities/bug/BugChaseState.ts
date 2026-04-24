@@ -8,7 +8,7 @@ import { BugHopComponent } from '../../components/movement/BugHopComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { FearComponent } from '../../components/combat/FearComponent';
@@ -21,7 +21,7 @@ const POST_FEAR_COOLDOWN_MS = 1500;
 export class BugChaseState implements IState {
   private readonly entity: Entity;
   private readonly playerEntity: Entity;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly speedPxPerSec: number;
   private readonly pathfinder: Pathfinder;
   private readonly scene: Phaser.Scene;
@@ -35,7 +35,7 @@ export class BugChaseState implements IState {
   private currentPathIndex = 0;
   private attackCooldownMs = 0;
 
-  constructor(entity: Entity, playerEntity: Entity, grid: Grid, speedPxPerSec: number, scene: Phaser.Scene) {
+  constructor(entity: Entity, playerEntity: Entity, grid: GridReader, speedPxPerSec: number, scene: Phaser.Scene) {
     this.entity = entity;
     this.playerEntity = playerEntity;
     this.grid = grid;

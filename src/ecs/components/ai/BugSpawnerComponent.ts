@@ -3,7 +3,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { HealthComponent } from '../core/HealthComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 const ACTIVATION_RANGE_PX = 200;
 const MAX_BUGS = 6;
@@ -17,10 +17,10 @@ export class BugSpawnerComponent implements Component {
   private readonly onSpawn: (col: number, row: number) => void;
   private readonly playerEntity: Entity;
   private readonly spawnIntervalMs: number;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private activeBugs: Set<Entity> = new Set();
 
-  constructor(playerEntity: Entity, onSpawn: (col: number, row: number) => void, spawnIntervalMs: number, grid: Grid) {
+  constructor(playerEntity: Entity, onSpawn: (col: number, row: number) => void, spawnIntervalMs: number, grid: GridReader) {
     this.playerEntity = playerEntity;
     this.onSpawn = onSpawn;
     this.spawnIntervalMs = spawnIntervalMs;

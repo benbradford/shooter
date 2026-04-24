@@ -5,7 +5,7 @@ import { StateMachineComponent } from '../../components/core/StateMachineCompone
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { Direction } from '../../../constants/Direction';
 import { Pathfinder } from '../../../systems/Pathfinder';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 const IDLE_MIN_DURATION_MS = 500;
@@ -21,7 +21,7 @@ export class SkeletonIdleState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly grid: Grid
+    private readonly grid: GridReader
   ) {
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
   }

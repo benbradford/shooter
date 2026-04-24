@@ -9,7 +9,7 @@ import { Pathfinder } from '../../../systems/Pathfinder';
 import { getSkeletonDifficultyConfig, type SkeletonDifficulty } from './SkeletonDifficultyConfig';
 import { dirFromDelta, Direction } from '../../../constants/Direction';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 const WALK_IDLE_PAUSE_MIN_MS = 3000;
 const WALK_IDLE_PAUSE_MAX_MS = 5000;
@@ -35,7 +35,7 @@ export class SkeletonWalkState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly grid: Grid
+    private readonly grid: GridReader
   ) {
     this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
     this.nextPauseMs = WALK_IDLE_PAUSE_MIN_MS + Math.random() * (WALK_IDLE_PAUSE_MAX_MS - WALK_IDLE_PAUSE_MIN_MS);

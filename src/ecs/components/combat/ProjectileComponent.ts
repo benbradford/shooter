@@ -1,7 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 /**
@@ -22,7 +22,7 @@ export type ProjectileProps = {
   dirY: number;
   speed: number;
   maxDistance: number;
-  grid: Grid;
+  grid: GridReader;
   startLayer: number;
   fromTransition: boolean;
   scene?: Phaser.Scene;
@@ -37,7 +37,7 @@ export class ProjectileComponent implements Component {
   public readonly dirY: number;
   private readonly speed: number;
   private readonly maxDistance: number;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly onWallHit?: (x: number, y: number) => void;
   private readonly onMaxDistance?: (x: number, y: number) => void;
   private readonly blockedAreaManager?: BlockedAreaManager;

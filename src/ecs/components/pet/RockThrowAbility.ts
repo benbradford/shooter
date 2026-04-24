@@ -13,7 +13,7 @@ import { PetFollowComponent } from './PetFollowComponent';
 import { PetAbilityComponent } from './PetAbilityComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { createRockProjectileEntity } from '../../entities/pet/RockProjectileEntity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { EntityManager } from '../../EntityManager';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
@@ -36,6 +36,38 @@ const RETURN_ARRIVE_THRESHOLD_PX = 5;
 const LANDED_IDLE_DURATION_MS = 600;
 const THROW_LOCK_DURATION_MS = 200;
 
+// Defaults
+const DEFAULT_THROW_DIR_Y = 1;
+const DEFAULT_HEALTH = 100;
+const DEFAULT_LAYER = 0;
+
+// Arrow indicator
+const ARROW_DEPTH = 2000;
+const ARROW_OFFSET_FROM_PLAYER_PX = 30;
+const ARROW_HEAD_LENGTH_PX = 8;
+const ARROW_HEAD_ANGLE_RAD = Math.PI / 6;
+const ARROW_LINE_ALPHA = 0.8;
+const ARROW_HEAD_ALPHA = 0.9;
+
+// Splash particles
+const SPLASH_SPEED_MIN_PX_PER_SEC = 50;
+const SPLASH_SPEED_MAX_PX_PER_SEC = 100;
+const SPLASH_ANGLE_MIN_DEG = 0;
+const SPLASH_ANGLE_MAX_DEG = -180;
+const SPLASH_SCALE_START = 0.15;
+const SPLASH_SCALE_END = 0;
+const SPLASH_ALPHA_START = 1;
+const SPLASH_ALPHA_END = 0;
+const SPLASH_LIFESPAN_MS = 1000;
+const SPLASH_FREQUENCY = 2;
+const SPLASH_GRAVITY_PX_PER_SEC_SQ = 300;
+const SPLASH_RADIUS_PX = 12;
+const SPLASH_EMIT_DURATION_MS = 80;
+const SPLASH_CLEANUP_DELAY_MS = 800;
+
+// Rock visual
+const ROCK_LANDED_OFFSET_Y_PX = 25;
+
 const PLAYER_THROW_OFFSETS: Record<Direction, { x: number; y: number; z: number }> = {
   [Direction.None]: { x: 0, y: 0, z: 1 },
   [Direction.Down]: { x: -8, y: -15, z: -1 },
@@ -52,7 +84,7 @@ export class RockThrowAbility implements Component {
   entity!: Entity;
   private state: ThrowState = 'idle';
   private readonly scene: Phaser.Scene;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly playerEntity: Entity;
   private chargeTween: Phaser.Tweens.Tween | null = null;
   private chargeComplete = false;
@@ -60,12 +92,12 @@ export class RockThrowAbility implements Component {
   private arrowGraphics: Phaser.GameObjects.Graphics | null = null;
   private lastKnownHealth = -1;
   private throwDirX = 0;
-  private throwDirY = 1;
+  private throwDirY = DEFAULT_THROW_DIR_Y;
   private throwDir: Direction = Direction.Down;
   private landedTimerMs = 0;
   private throwTimerMs = 0;
 
-  constructor(scene: Phaser.Scene, grid: Grid, playerEntity: Entity) {
+  constructor(scene: Phaser.Scene, grid: GridReader, playerEntity: Entity) {
     this.scene = scene;
     this.grid = grid;
     this.playerEntity = playerEntity;
@@ -119,7 +151,7 @@ export class RockThrowAbility implements Component {
 
     // Store health for damage polling
     const health = this.playerEntity.get(HealthComponent);
-    this.lastKnownHealth = health?.getHealth() ?? 100;
+    this.lastKnownHealth = health?.getHealth() ?? DEFAULT_HEALTH;
 
     // Pause pet follow and disable grid collision during throw
     const follow = this.entity.get(PetFollowComponent);
@@ -209,7 +241,7 @@ export class RockThrowAbility implements Component {
     if (isHeld) {
       this.state = 'aiming';
       this.arrowGraphics = this.scene.add.graphics();
-      this.arrowGraphics.setDepth(2000);
+      this.arrowGraphics.setDepth(ARROW_DEPTH);
       return;
     }
 
@@ -309,7 +341,7 @@ export class RockThrowAbility implements Component {
     // Get launch position and player layer
     const rockTransform = this.entity.require(TransformComponent);
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
-    const startLayer = playerGridPos?.currentLayer ?? 0;
+    const startLayer = playerGridPos?.currentLayer ?? DEFAULT_LAYER;
     const playerCell = playerGridPos ? this.grid.getCell(playerGridPos.currentCell.col, playerGridPos.currentCell.row) : null;
     const startedOnStairs = playerCell ? this.grid.isTransition(playerCell) : false;
 
@@ -372,24 +404,24 @@ export class RockThrowAbility implements Component {
       // Splash effect + sound, hide rock
       SoundManager.getInstance().play('splash1');
       const emitter = this.scene.add.particles(x, y, 'water_splash', {
-        speed: { min: 50, max: 100 },
-        angle: { min: 0, max: -180 },
-        scale: { start: 0.15, end: 0 },
-        alpha: { start: 1, end: 0 },
-        lifespan: 1000,
-        frequency: 2,
+        speed: { min: SPLASH_SPEED_MIN_PX_PER_SEC, max: SPLASH_SPEED_MAX_PX_PER_SEC },
+        angle: { min: SPLASH_ANGLE_MIN_DEG, max: SPLASH_ANGLE_MAX_DEG },
+        scale: { start: SPLASH_SCALE_START, end: SPLASH_SCALE_END },
+        alpha: { start: SPLASH_ALPHA_START, end: SPLASH_ALPHA_END },
+        lifespan: SPLASH_LIFESPAN_MS,
+        frequency: SPLASH_FREQUENCY,
         blendMode: 'NORMAL',
-        gravityY: 300,
-        emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, 12) } as Phaser.Types.GameObjects.Particles.EmitZoneData
+        gravityY: SPLASH_GRAVITY_PX_PER_SEC_SQ,
+        emitZone: { type: 'random', source: new Phaser.Geom.Circle(0, 0, SPLASH_RADIUS_PX) } as Phaser.Types.GameObjects.Particles.EmitZoneData
       });
       emitter.setDepth(Depth.particle);
-      this.scene.time.delayedCall(80, () => emitter.stop());
-      this.scene.time.delayedCall(800, () => emitter.destroy());
+      this.scene.time.delayedCall(SPLASH_EMIT_DURATION_MS, () => emitter.stop());
+      this.scene.time.delayedCall(SPLASH_CLEANUP_DELAY_MS, () => emitter.destroy());
       if (rockSprite) rockSprite.sprite.setVisible(false);
     } else {
       if (rockSprite) {
         rockSprite.sprite.setVisible(true);
-        rockSprite.visualOffsetYPx = 25;
+        rockSprite.visualOffsetYPx = ROCK_LANDED_OFFSET_Y_PX;
       }
     }
 
@@ -460,14 +492,13 @@ export class RockThrowAbility implements Component {
     this.arrowGraphics.clear();
 
     const playerTransform = this.playerEntity.require(TransformComponent);
-    const offsetPx = 30;
-    const startX = playerTransform.x + this.throwDirX * offsetPx;
-    const startY = playerTransform.y + this.throwDirY * offsetPx;
+    const startX = playerTransform.x + this.throwDirX * ARROW_OFFSET_FROM_PLAYER_PX;
+    const startY = playerTransform.y + this.throwDirY * ARROW_OFFSET_FROM_PLAYER_PX;
     const endX = startX + this.throwDirX * ARROW_LENGTH_PX;
     const endY = startY + this.throwDirY * ARROW_LENGTH_PX;
 
     // Main line
-    this.arrowGraphics.lineStyle(ARROW_LINE_WIDTH_PX, ARROW_COLOR_START, 0.8);
+    this.arrowGraphics.lineStyle(ARROW_LINE_WIDTH_PX, ARROW_COLOR_START, ARROW_LINE_ALPHA);
     this.arrowGraphics.beginPath();
     this.arrowGraphics.moveTo(startX, startY);
     this.arrowGraphics.lineTo(endX, endY);
@@ -475,19 +506,17 @@ export class RockThrowAbility implements Component {
 
     // Arrowhead
     const angle = Math.atan2(this.throwDirY, this.throwDirX);
-    const headLen = 8;
-    const headAngle = Math.PI / 6;
-    this.arrowGraphics.lineStyle(ARROW_LINE_WIDTH_PX, ARROW_COLOR_END, 0.9);
+    this.arrowGraphics.lineStyle(ARROW_LINE_WIDTH_PX, ARROW_COLOR_END, ARROW_HEAD_ALPHA);
     this.arrowGraphics.beginPath();
     this.arrowGraphics.moveTo(endX, endY);
     this.arrowGraphics.lineTo(
-      endX - headLen * Math.cos(angle - headAngle),
-      endY - headLen * Math.sin(angle - headAngle)
+      endX - ARROW_HEAD_LENGTH_PX * Math.cos(angle - ARROW_HEAD_ANGLE_RAD),
+      endY - ARROW_HEAD_LENGTH_PX * Math.sin(angle - ARROW_HEAD_ANGLE_RAD)
     );
     this.arrowGraphics.moveTo(endX, endY);
     this.arrowGraphics.lineTo(
-      endX - headLen * Math.cos(angle + headAngle),
-      endY - headLen * Math.sin(angle + headAngle)
+      endX - ARROW_HEAD_LENGTH_PX * Math.cos(angle + ARROW_HEAD_ANGLE_RAD),
+      endY - ARROW_HEAD_LENGTH_PX * Math.sin(angle + ARROW_HEAD_ANGLE_RAD)
     );
     this.arrowGraphics.strokePath();
   }

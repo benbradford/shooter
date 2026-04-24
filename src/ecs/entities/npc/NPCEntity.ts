@@ -5,7 +5,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { NPCIdleComponent } from './NPCIdleComponent';
 import { NPCInteractionComponent } from './NPCInteractionComponent';
 import type { Direction } from '../../../constants/Direction';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export type FlagCondition = {
   readonly name: string;
@@ -21,7 +21,7 @@ export type NPCInteraction = {
 
 export type CreateNPCProps = {
   readonly scene: Phaser.Scene;
-  readonly grid: Grid;
+  readonly grid: GridReader;
   readonly entityId: string;
   readonly assets: string;
   readonly col: number;

@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 
 export type RockProjectileComponentProps = {
@@ -8,7 +8,7 @@ export type RockProjectileComponentProps = {
   targetY: number;
   speed: number;
   maxDistance: number;
-  grid: Grid;
+  grid: GridReader;
   playerStartLayer: number;
   onHit: (enemy: Entity) => void;
   onComplete: () => void;
@@ -20,7 +20,7 @@ export class RockProjectileComponent implements Component {
   private readonly targetY: number;
   private readonly speed: number;
   private readonly maxDistance: number;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly playerStartLayer: number;
   private readonly onHit: (enemy: Entity) => void;
   private readonly onComplete: () => void;

@@ -1,7 +1,7 @@
 import type Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 import type { EntityManager } from '../../EntityManager';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
@@ -35,7 +35,7 @@ const SOUND_MAX_VOLUME = 0.4;
 
 export type LaserBeamProps = {
   scene: Phaser.Scene;
-  grid: Grid;
+  grid: GridReader;
   angle: number;
   flagName: string;
   layer: number;
@@ -51,7 +51,7 @@ export class LaserBeamComponent implements Component, EventListener {
   entity!: Entity;
 
   private readonly scene: Phaser.Scene;
-  private readonly grid: Grid;
+  private readonly grid: GridReader;
   private readonly dirX: number;
   private readonly dirY: number;
   private readonly flagName: string;
