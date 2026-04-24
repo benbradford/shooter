@@ -154,6 +154,7 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 - Attack button triggers the actual push (one cell at a time)
 - Push animation freezes on first frame during contact, plays during movement (`setTimeScale(0/1)`)
 - Player moves exactly `cellSize` pixels in push direction at same speed as box
+- **push_lock cells**: If a pushable lands on a cell with the `push_lock` property, it becomes permanently immovable, persists across level transitions, plays `click1` sound, and the player immediately disengages
 
 **Key patterns from implementation:**
 - `GridCollisionComponent.blockedByPushable` — set when movement blocked by GridCellBlocker entity, cleared each frame

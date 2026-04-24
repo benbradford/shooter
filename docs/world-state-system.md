@@ -242,7 +242,15 @@ When bug bases are destroyed:
 8. Refresh browser
 9. Verify game loads with saved state (skeleton0 still dead, same health, same coins)
 
+## Death Reset
+
+On player death, the game takes a snapshot-based approach to reset the level:
+
+1. **Level entry snapshot**: When a level loads, `GameScene` takes a snapshot of WorldState via `serializeToJSON()` after entities spawn
+2. **On death**: `reloadCurrentLevel()` restores the snapshot, reverting `firedTriggers`, `liveEntities`, `destroyedEntities`, and `movedEntities` to their state when the level was entered
+3. **Escort preservation**: If an escort was active (`current_escort` flag), its ID, definition flags, and current position are saved before the snapshot restore and re-applied after — so the escort stays awake and at its death-time position
+4. **Push_lock persistence**: Pushables on `push_lock` cells persist across death because `movedEntities` is part of the snapshot
+
 ## Known Limitations
 
 - Pickups (medipacks) are not tracked - they respawn on re-entry
-- Player death/respawn not yet implemented (uses `entryCell` for future feature)

@@ -9,137 +9,137 @@
     {
       "col": 0,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 1,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 2,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 3,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 4,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 5,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 6,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 8,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 9,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 10,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 11,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 12,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 13,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 14,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 15,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 16,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -193,65 +193,65 @@
     {
       "col": 23,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 24,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 25,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 26,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 27,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 28,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 29,
       "row": 0,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -433,17 +433,17 @@
     {
       "col": 29,
       "row": 1,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 2,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -606,17 +606,17 @@
     {
       "col": 29,
       "row": 2,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 3,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -759,17 +759,17 @@
     {
       "col": 29,
       "row": 3,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 4,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -919,17 +919,17 @@
     {
       "col": 29,
       "row": 4,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 5,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -1082,17 +1082,17 @@
     {
       "col": 29,
       "row": 5,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 6,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -1266,17 +1266,17 @@
     {
       "col": 29,
       "row": 6,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 7,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -1516,17 +1516,17 @@
     {
       "col": 29,
       "row": 7,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 8,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -1709,17 +1709,17 @@
     {
       "col": 29,
       "row": 8,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 9,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -1837,9 +1837,9 @@
     {
       "col": 0,
       "row": 10,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -1984,9 +1984,9 @@
     {
       "col": 0,
       "row": 11,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -2120,9 +2120,9 @@
     {
       "col": 0,
       "row": 12,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -2330,17 +2330,17 @@
     {
       "col": 29,
       "row": 12,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 13,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -2523,17 +2523,17 @@
     {
       "col": 29,
       "row": 13,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 14,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -2691,17 +2691,17 @@
     {
       "col": 29,
       "row": 14,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 15,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -2838,17 +2838,17 @@
     {
       "col": 29,
       "row": 15,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 16,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -2998,17 +2998,17 @@
     {
       "col": 29,
       "row": 16,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 17,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -3182,17 +3182,17 @@
     {
       "col": 29,
       "row": 17,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 18,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
@@ -3278,249 +3278,249 @@
     {
       "col": 29,
       "row": 18,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 0,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 1,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 2,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 3,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 4,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 5,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 6,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 7,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 8,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 9,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 10,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 11,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 12,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 13,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 14,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 15,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 16,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 17,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 18,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 19,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 20,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 21,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 22,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 23,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 24,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 25,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 26,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 27,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 28,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     },
     {
       "col": 29,
       "row": 19,
-      "layer": 0,
+      "layer": 1,
       "properties": [
-        "water"
+        "platform"
       ]
     }
   ],

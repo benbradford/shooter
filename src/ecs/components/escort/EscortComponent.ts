@@ -56,6 +56,7 @@ const PATH_RECALC_MS = 500;
 const CROUCH_COOLDOWN_MS = 2000;
 const STOP_DISTANCE_PX = 64;
 const ARRIVAL_THRESHOLD_PX = 8;
+const DESTINATION_OFFSET_Y_PX = 16;
 
 export class EscortComponent implements Component, EventListener {
   entity!: Entity;
@@ -335,7 +336,7 @@ export class EscortComponent implements Component, EventListener {
 
     if (distToDest < ARRIVAL_THRESHOLD_PX) {
       transform.x = destX;
-      transform.y = destY;
+      transform.y = destY - DESTINATION_OFFSET_Y_PX;
       this.enterCompleting();
       return;
     }

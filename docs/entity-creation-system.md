@@ -187,6 +187,7 @@ Plus one interaction entity per script:
 - Player must walk into the pushable (blocked by GridCellBlocker) and be within the central portion of the box on the perpendicular axis to engage push mode
 - Push direction is cardinal only (up/down/left/right)
 - Push engagement uses `GridCollisionComponent.blockedByPushable` — detected when movement is actually blocked, not proximity
+- **push_lock cells**: If a pushable lands on a cell with the `push_lock` property, it becomes permanently immovable, persists across level transitions (regardless of `doesPersist`), plays `click1` sound, and the player immediately disengages
 
 ### Hole
 - `texture`: Sprite texture key (default `'hole_with_roots'`)
@@ -237,7 +238,7 @@ Plus one interaction entity per script:
 - Walk-through (no collision with player), invulnerable
 - Cross-level: follows player if within 200px on level exit, otherwise stays at current position (persisted via `movedEntities`)
 - Completion: plays arms_stretched animation, fires `{entityId}_reached_destination` event, persists via world state flags
-- Knight-specific: crouches when enemies or active lasers within detect distance, plays crouch animation forward/reverse
+- Knight-specific: crouches when enemies or active lasers within detect distance, plays crouch animation forward/reverse. 2-second cooldown before standing back up after threats leave (prevents bobbing when enemies are near detection edge)
 - Destroyed lasers (via `onDestroyEvent`) no longer scare the knight
 
 ## How It Works

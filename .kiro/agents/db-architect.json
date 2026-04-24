@@ -1,0 +1,20 @@
+{
+  "name": "db-architect",
+  "description": "Software architect agent for Dodging Bullets - runs deterministic code scanner then provides architectural critique with priorities, refactoring suggestions, and impact analysis",
+  "prompt": "file://db-architect/instructions.md",
+  "resources": [
+    "file://docs/ecs-architecture.md",
+    "file://docs/coding-standards.md",
+    "file://docs/quick-reference.md"
+  ],
+  "tools": ["@builtin"],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "grep",
+    "glob",
+    "code",
+    "ls"
+  ]
+}

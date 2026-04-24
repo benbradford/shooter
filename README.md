@@ -23,6 +23,13 @@ kiro-cli chat --agent dodging-bullets
 ```
 to start a kiro session with context on the project
 
+**Architecture Review:**
+
+```
+kiro-cli chat --agent db-architect
+```
+to run architectural analysis. Also available standalone: `node scripts/arch-scan.mjs --top=20`
+
 ## Setup Instructions
 
 ### Prerequisites

@@ -48,6 +48,7 @@ Each grid cell tracks layer, properties (platform/wall/stairs/path/water/blocked
   - Player renders at depth -7 when swimming (below bridge textures at -5, above water at -10)
   - Cannot hop out through bridge cells (blocked in all directions)
   - **Workaround**: Use 'blocked' property on water cells at corners to prevent swimming into land
+- **'push_lock'**: Locks pushable entities in place — any pushable that lands on this cell becomes permanently immovable and persists across level transitions. Renders a depression texture automatically.
 
 ### Layer System
 

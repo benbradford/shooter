@@ -364,6 +364,9 @@
       "layer": 1,
       "properties": [
         "platform"
+      ],
+      "backgroundTexture": [
+        "grey_platform"
       ]
     },
     {
@@ -388,6 +391,9 @@
       "layer": 1,
       "properties": [
         "platform"
+      ],
+      "backgroundTexture": [
+        "grey_platform"
       ]
     },
     {
@@ -513,6 +519,22 @@
     {
       "col": 19,
       "row": 5,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 6,
       "layer": 1,
       "properties": [
         "platform"
@@ -1343,7 +1365,10 @@
             "row": 6
           }
         ]
-      }
+      },
+      "createOnAnyEvent": [
+        "escort0_reached_destination"
+      ]
     },
     {
       "id": "exit2",
@@ -1359,6 +1384,31 @@
           }
         ]
       }
+    },
+    {
+      "id": "cellmodifier0",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 0,
+            "row": 6,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 1,
+            "row": 6,
+            "properties": [],
+            "layer": 0
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "escort0_reached_destination"
+      ]
     }
   ],
   "levelTheme": "dungeon",

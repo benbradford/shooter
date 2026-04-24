@@ -1104,6 +1104,7 @@ export default class GameScene extends Phaser.Scene {
         shadowOffsetX: ws.getFlag(`escort_${id}_shadow_offset_x`) ? Number(ws.getFlag(`escort_${id}_shadow_offset_x`)) : undefined,
         shadowOffsetY: ws.getFlag(`escort_${id}_shadow_offset_y`) ? Number(ws.getFlag(`escort_${id}_shadow_offset_y`)) : undefined,
       });
+      escort.require(TransformComponent).y -= 16;
       this.entityManager.add(escort);
     }
   }

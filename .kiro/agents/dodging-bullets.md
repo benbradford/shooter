@@ -29,10 +29,19 @@ STOP. Before reading ANY files or responding to the user:
    - "doesn't work"
    - "error"
 
+   **Architecture review phrases:**
+   - "evaluate the code quality"
+   - "architecture review"
+   - "code quality"
+   - "find code smells"
+   - "what should I refactor"
+   - "review the codebase"
+
 2. Check which workflow to use:
    - Design phrases → Multi-Agent Design Workflow
    - Implementation phrases → use_subagent with agent_name: "db-implementor"
    - Bug phrases → Bug Fix Workflow (MANDATORY)
+   - Architecture review phrases → use_subagent with agent_name: "db-architect"
 
 3. If delegation/workflow needed → IMMEDIATELY follow it
 4. If NO trigger phrases → Continue with normal task execution
@@ -152,6 +161,7 @@ Fix based on findings
 - `db-runtime-analyst.json` - Execution validation agent ⭐
 - `db-failure-analyst.json` - Chaos testing agent ⭐
 - `db-implementor.json` - Implementation agent
+- `db-architect.json` - Software architect / code quality agent ⭐
 - `db-asset-management.json` - Asset management agent (if exists)
 - `db-level-editor.json` - Level editor agent (if exists)
 - `db-level-designer.json` - Level designer agent
@@ -504,6 +514,33 @@ User: "Add editor mode for decorations"
 ```
 User: "design wilds1.json with rocks and ambush zones"
 → Delegate to db-level-designer agent
+```
+
+### Software Architect Agent (db-architect) ⭐
+**IMMEDIATELY delegate when user says:**
+- "evaluate the code quality"
+- "architecture review"
+- "analyze {file/system/directory}"
+- "code quality"
+- "find code smells"
+- "what should I refactor"
+- "review the codebase"
+
+**Agent capabilities:**
+- Runs deterministic scanner (`scripts/arch-scan.mjs`) for metrics
+- Identifies god objects, coupling, fragility, SOLID violations
+- Provides prioritized issues with fan-in/change impact analysis
+- Suggests concrete refactoring with target architecture and effort/risk
+- Identifies repeated patterns for unification
+- Calls out what's acceptable (not just problems)
+
+**Example:**
+```
+User: "evaluate the code quality"
+→ Delegate to db-architect: "Run a full architecture review using node scripts/arch-scan.mjs --top=20, then analyze the top priority files"
+
+User: "analyze the escort system"
+→ Delegate to db-architect: "Analyze the escort system — run node scripts/arch-scan.mjs src/ecs/components/escort/EscortComponent.ts then deep dive"
 ```
 
 **How to delegate with retry:**

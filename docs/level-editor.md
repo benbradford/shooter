@@ -74,7 +74,7 @@ The editor is **excluded from production builds** entirely.
 - **Play** — Opens game in new tab at current level
 - **New** — Create new level (name, dimensions, theme)
 - **Tool buttons** — Level, State, Select, Grid, Entity
-- **Grid sub-panel** — Visible when Grid tool active; checkboxes for wall, platform, stairs, water, bridge, blocked, path + layer radio (0, 1, 2)
+- **Grid sub-panel** — Visible when Grid tool active; checkboxes for wall, platform, stairs, water, bridge, blocked, path, push_lock + layer radio (0, 1, 2)
 - **Entity dropdown** — Visible when Entity tool active; choose type to place
 - **Theme dropdown** — On Level Info panel (not toolbar)
 
@@ -89,7 +89,7 @@ All dropdowns auto-blur after selection so WASD camera movement works immediatel
 
 Click a cell with the **Select** tool to open the Cell form:
 - **Layer** — Set cell layer (0 = ground, 1 = elevated)
-- **Properties** — Checkboxes for wall, platform, stairs, water, bridge, blocked
+- **Properties** — Checkboxes for wall, platform, stairs, water, bridge, blocked, push_lock
 - **Texture** — Click **Choose** to open the texture picker
 - **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields with Apply Transform button
 - **Clear Cell** — Remove all properties and texture
