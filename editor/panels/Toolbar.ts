@@ -10,7 +10,7 @@ const GRID_TOOLS: Array<{ label: string; tool: string }> = [
   { label: 'Area', tool: 'blockedarea' },
 ];
 
-const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path'] as const;
+const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock'] as const;
 
 const ENTITY_TYPES = [
   'skeleton', 'red_skeleton', 'thrower', 'stalking_robot', 'bug_base', 'bullet_dude', 'puma',

@@ -724,6 +724,13 @@ export abstract class GameSceneRenderer {
             }
           }
         }
+
+        if (cell?.properties.has('push_lock') && this.scene.textures.exists('push_lock_depression')) {
+          const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, 'push_lock_depression');
+          sprite.setDisplaySize(this.cellSize, this.cellSize);
+          sprite.setDepth(Depth.overlay + 1);
+          this.cellSprites.push(sprite);
+        }
       }
     }
 

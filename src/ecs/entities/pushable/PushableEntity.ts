@@ -58,6 +58,7 @@ export function createPushableEntity(props: CreatePushableProps): Entity {
   const layer = spawnCell ? grid.getLayer(spawnCell) : 0;
 
   const pushable = entity.add(new PushableComponent({
+    grid,
     pushEnabled: props.pushEnabled,
     doesPersist: props.doesPersist,
     singlePushOnly: props.singlePushOnly,

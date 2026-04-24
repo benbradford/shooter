@@ -245,6 +245,15 @@ export class PlayerPushState implements IState {
       const gridCollision = this.entity.get(GridCollisionComponent);
       gridCollision?.syncPreviousPosition(transform.x, transform.y);
 
+      // If pushable locked into push_lock cell, persist and disengage
+      if (pushable.getIsLocked()) {
+        const worldState = WorldStateManager.getInstance();
+        worldState.updateMovedEntity(this.levelName, this.pushableEntity.id, pushable.getCurrentCol(), pushable.getCurrentRow());
+        const sm = this.entity.require(StateMachineComponent);
+        sm.stateMachine.enter('idle');
+        return;
+      }
+
       if (this.damagePending) {
         this.disengage();
         return;

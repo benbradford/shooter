@@ -4,8 +4,10 @@ import type { Grid } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
+import { SoundManager } from '../../../systems/SoundManager';
 
 export type PushableProps = {
+  grid: Grid;
   pushEnabled: boolean;
   doesPersist: boolean;
   singlePushOnly: boolean;
@@ -23,9 +25,11 @@ export class PushableComponent implements Component {
   pushEnabled: boolean;
   readonly doesPersist: boolean;
   private readonly singlePushOnly: boolean;
+  private readonly grid: Grid;
   readonly spawnCol: number;
   readonly spawnRow: number;
   readonly layer: number;
+  private isLocked = false;
 
   private isMoving = false;
   private moveStartX = 0;
@@ -38,6 +42,7 @@ export class PushableComponent implements Component {
   private currentRow = 0;
 
   constructor(props: PushableProps) {
+    this.grid = props.grid;
     this.pushEnabled = props.pushEnabled;
     this.doesPersist = props.doesPersist;
     this.singlePushOnly = props.singlePushOnly;
@@ -53,6 +58,10 @@ export class PushableComponent implements Component {
 
   getIsMoving(): boolean {
     return this.isMoving;
+  }
+
+  getIsLocked(): boolean {
+    return this.isLocked;
   }
 
   getCurrentCol(): number {
@@ -104,6 +113,14 @@ export class PushableComponent implements Component {
 
       if (this.singlePushOnly) {
         this.pushEnabled = false;
+      }
+
+      // Check if landed on push_lock cell
+      const cell = this.grid.getCell(this.currentCol, this.currentRow);
+      if (cell?.properties.has('push_lock')) {
+        this.pushEnabled = false;
+        this.isLocked = true;
+        SoundManager.getInstance().play('click1');
       }
 
       // Re-enable GridCollisionComponent and sync its previous position

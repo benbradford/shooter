@@ -53,6 +53,7 @@ export type EscortComponentProps = {
 }
 
 const PATH_RECALC_MS = 500;
+const CROUCH_COOLDOWN_MS = 2000;
 const STOP_DISTANCE_PX = 64;
 const ARRIVAL_THRESHOLD_PX = 8;
 
@@ -80,6 +81,7 @@ export class EscortComponent implements Component, EventListener {
 
   private state: EscortState;
   private crouchPhase: CrouchPhase = 'holding';
+  private crouchCooldownMs = 0;
   private previousActiveState: 'following' | 'walking_to_destination' = 'following';
 
   private path: Array<{ col: number; row: number }> | null = null;
@@ -178,7 +180,7 @@ export class EscortComponent implements Component, EventListener {
         this.updateFollowing(delta);
         return;
       case 'crouching':
-        this.updateCrouching();
+        this.updateCrouching(delta);
         return;
       case 'walking_to_destination':
         if (this.checkEnemies()) return;
@@ -257,6 +259,7 @@ export class EscortComponent implements Component, EventListener {
         this.previousActiveState = this.state as 'following' | 'walking_to_destination';
         this.state = 'crouching';
         this.crouchPhase = 'crouching_down';
+        this.crouchCooldownMs = 0;
         this.playAnim('crouch_forward');
         this.path = null;
         return true;
@@ -265,7 +268,7 @@ export class EscortComponent implements Component, EventListener {
     return false;
   }
 
-  private updateCrouching(): void {
+  private updateCrouching(delta: number): void {
     const anim = this.entity.require(AnimationComponent);
 
     if (this.crouchPhase === 'crouching_down') {
@@ -276,9 +279,14 @@ export class EscortComponent implements Component, EventListener {
     }
 
     if (this.crouchPhase === 'holding') {
-      if (!this.areEnemiesNearby()) {
-        this.crouchPhase = 'standing_up';
-        this.playAnim('crouch_reverse');
+      if (this.areEnemiesNearby()) {
+        this.crouchCooldownMs = 0;
+      } else {
+        this.crouchCooldownMs += delta;
+        if (this.crouchCooldownMs >= CROUCH_COOLDOWN_MS) {
+          this.crouchPhase = 'standing_up';
+          this.playAnim('crouch_reverse');
+        }
       }
       return;
     }

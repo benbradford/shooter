@@ -1231,6 +1231,14 @@
       ]
     },
     {
+      "col": 17,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "push_lock"
+      ]
+    },
+    {
       "col": 28,
       "row": 11,
       "layer": 1,
@@ -2223,7 +2231,7 @@
       "id": "lever1",
       "type": "lever",
       "data": {
-        "col": 18,
+        "col": 5,
         "row": 10,
         "eventToRaise": "lever_lever1",
         "startState": "off",
@@ -2249,7 +2257,7 @@
         "destinationLevel": "dungeon3",
         "destinationCol": 11,
         "destinationRow": 5,
-        "awakeOnEvent": "lever_lever0|on",
+        "awakeOnEvent": "knight_1_begin",
         "reachDistance": 15,
         "followSpeed": 100,
         "followToLevels": [
@@ -2259,6 +2267,17 @@
         "enemyDetectDistancePx": 128,
         "scale": 1.5,
         "shadowOffsetY": 30
+      }
+    },
+    {
+      "id": "laser1",
+      "type": "laser",
+      "data": {
+        "col": 5,
+        "row": 11,
+        "angle": 270,
+        "flagName": "laser1_laser_on",
+        "onDestroyEvent": "lever_lever1|on"
       }
     },
     {
@@ -2275,6 +2294,36 @@
           }
         ]
       }
+    },
+    {
+      "id": "trigger0",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "event_trigger0",
+        "triggerCells": [
+          {
+            "col": 3,
+            "row": 12
+          },
+          {
+            "col": 2,
+            "row": 12
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "interaction0",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "awake_knight_1"
+      },
+      "createOnAnyEvent": [
+        "event_trigger0"
+      ]
     }
   ],
   "levelTheme": "dungeon",

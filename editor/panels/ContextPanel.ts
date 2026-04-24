@@ -168,14 +168,14 @@ export class ContextPanel {
     });
 
     this.container.querySelector('#st-reset-flags')?.addEventListener('click', () => {
-      const keepFlags = ['hasSuperPunch', 'canSwim', 'canPunch', 'hasCompanion', 'pet_rock_collected', 'pet_dog_collected', 'pet_selected'];
+      const resetFlags: Record<string, string> = { canPunch: 'true', canSwim: 'true', hasSuperPunch: 'true', hasCompanion: 'false', pet_rock_collected: 'true', pet_dog_collected: 'true', pet_selected: 'rock' };
       const flagsDiv = this.container.querySelector('#st-flags')!;
       flagsDiv.innerHTML = '';
-      for (const key of keepFlags) {
+      for (const [key, val] of Object.entries(resetFlags)) {
         const row = document.createElement('div');
         row.className = 'form-group';
         row.style.cssText = 'display:flex;gap:4px;align-items:center';
-        row.innerHTML = `<input class="st-fkey" value="${key}" style="flex:1" /><input class="st-fval" value="false" style="flex:1" /><button class="ed-btn danger st-fdel" style="padding:2px 6px">✕</button>`;
+        row.innerHTML = `<input class="st-fkey" value="${key}" style="flex:1" /><input class="st-fval" value="${val}" style="flex:1" /><button class="ed-btn danger st-fdel" style="padding:2px 6px">✕</button>`;
         for (const input of row.querySelectorAll('input')) input.addEventListener('keydown', e => e.stopPropagation());
         row.querySelector('.st-fdel')!.addEventListener('click', () => row.remove());
         flagsDiv.appendChild(row);
@@ -308,7 +308,7 @@ export class ContextPanel {
     if (!cell) return;
     const layer = grid.getLayer(cell);
     const props = Array.from(cell.properties);
-    const allProps = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path'];
+    const allProps = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock'];
 
     // Read full texture config from levelData (preserves transformOverride)
     const levelData = this.bridge.getScene().getLevelData();
