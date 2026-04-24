@@ -400,6 +400,7 @@ export class EditorBridge {
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
         laser: { col, row, angle: 0, flagName: `${newId}_laser_on` },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
+        escort: { col, row, escortType: 'knight', destinationLevel: '', destinationCol: 0, destinationRow: 0, awakeOnEvent: '', reachDistance: 15, followSpeed: 200, followToLevels: [], enemyDetectDistancePx: 128 },
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
         exit: { targetLevel: '', targetCol: 0, targetRow: 0, triggerCells: [{ col, row }] },
         eventchainer: { col: 0, row: 0, eventsToRaise: [] },
@@ -979,6 +980,10 @@ export class EditorBridge {
         type = 'eventchainer';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         data = existing ? existing.data : { col: cell.col, row: cell.row, eventsToRaise: [] };
+      } else if (entity.id.startsWith('escort') || entity.tags?.has('escort')) {
+        type = 'escort';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        data = { col: cell.col, row: cell.row, ...existing?.data };
       } else if (entity.id.startsWith('npc') || entity.tags?.has('npc')) {
         type = 'npc';
         const idle = entity.get(NPCIdleComponent);

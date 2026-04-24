@@ -54,6 +54,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - **Wandering** (<128px): Alternates between slow walks to random nearby points (0.6-1.5s) and pauses (0.8-2s), walk animation
 - **Speed transition:** 500ms lerp between run speed (300px/s) and wander speed (60px/s)
 - **Teleport:** If >800px away, teleports to player
+- **Layer sync:** Pet syncs `GridPositionComponent.currentLayer` with player each frame — walls/platforms only block on higher layers
 - **Water:** Pet rides on player's back when swimming, matches player direction, resumes follow on exit
 
 ## ⚠️ Pathfinding Pitfalls (Critical)
@@ -62,17 +63,19 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 
 **Never fall back to direct movement (`moveToward` toward player/target) when pathfinding returns null.** The dog will run straight through walls. If no path found, wait and retry.
 
-### Always Pathfind on Layer 0
+### Pathfind on Player's Layer
 
-**Hardcode layer 0** in `findPath()` calls. If the dog reads the layer from its current cell and happens to be near a wall (layer 1), the pathfinder starts from layer 1 and can't find a path to the player on layer 0. Use `allowLayerChanges: false`.
+Pet syncs its `GridPositionComponent.currentLayer` with the player's layer each frame. Pathfinding uses the player's current layer, so walls/platforms only block movement when on a higher layer than the player. Use `allowLayerChanges: false`.
 
 ```typescript
-// ✅ CORRECT
-pathfinder.findPath(startCol, startRow, goalCol, goalRow, 0, false, true);
+// ✅ CORRECT — use player's current layer
+const playerGridPos = playerEntity.get(GridPositionComponent);
+const layer = playerGridPos?.currentLayer ?? 0;
+pathfinder.findPath(startCol, startRow, goalCol, goalRow, layer, false, true);
 
 // ❌ WRONG - reads layer from cell, may be layer 1 near walls
-const layer = grid.getCell(col, row)?.layer ?? 0;
-pathfinder.findPath(startCol, startRow, goalCol, goalRow, layer, true, true);
+const cellLayer = grid.getCell(col, row)?.layer ?? 0;
+pathfinder.findPath(startCol, startRow, goalCol, goalRow, cellLayer, true, true);
 ```
 
 ### GridCollisionComponent + Pathfinding Interaction
@@ -112,7 +115,9 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 **During charge/aim:** Player movement locked, facing locked (except during aim where joystick changes direction). Punch blocked.
 
-**Wall collision:** Rock stops moving forward but completes its arc, landing at the wall boundary. Blocked areas and platforms also stop the rock.
+**Wall collision:** Rock stops moving forward but completes its arc, landing at the wall boundary. Blocked areas and platforms also stop the rock. Only walls/platforms on a higher layer than the player block the rock. If the rock passes through stairs at any point (or the player is standing on stairs when throwing), it ignores all walls and platforms for the rest of the flight.
+
+**Layer-independent damage:** Rock has `ignores_layers` tag — damages enemies regardless of layer differences.
 
 **Water landing:** Splash particle effect + sound, rock hidden until return.
 

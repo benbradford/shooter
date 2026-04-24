@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { ASSET_REGISTRY, ASSET_GROUPS, type AssetKey, type AssetGroupKey } from './AssetRegistry';
 import type { LevelData } from '../systems/level/LevelLoader';
 import { normalizeBgTextures, bgTextureKey } from '../systems/level/LevelLoader';
+import { WorldStateManager } from '../systems/WorldStateManager';
 
 /**
  * Preloads assets from the registry
@@ -75,11 +76,30 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     if (entityTypes.has('laser')) {
       groups.push('laser');
     }
+    if (entityTypes.has('escort')) {
+      groups.push('escort');
+    }
     for (const entity of levelData.entities) {
       if (entity.type === 'npc' && typeof entity.data.assets === 'string') {
         const assetGroup = entity.data.assets as AssetGroupKey;
         if (assetGroup in ASSET_GROUPS && !groups.includes(assetGroup)) {
           groups.push(assetGroup);
+        }
+      }
+    }
+  }
+
+  // (V3 fix): Load escort assets for cross-level spawn or completed escorts
+  if (!groups.includes('escort')) {
+    const ws = WorldStateManager.getInstance();
+    if (ws.getFlag('current_escort')) {
+      groups.push('escort');
+    } else {
+      const flags = ws.getState().flags;
+      for (const key of Object.keys(flags)) {
+        if (key.startsWith('escort_') && key.endsWith('_completed') && flags[key] === 'true') {
+          groups.push('escort');
+          break;
         }
       }
     }

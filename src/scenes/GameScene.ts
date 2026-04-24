@@ -39,6 +39,8 @@ import { TunnelsSceneRenderer } from "./theme/TunnelsSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
+import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
+import type { EscortState } from '../ecs/components/escort/EscortComponent';
 import { BlockedAreaManager } from "../systems/BlockedAreaManager";
 
 export default class GameScene extends Phaser.Scene {
@@ -621,6 +623,12 @@ export default class GameScene extends Phaser.Scene {
     // Load entities from new format
     this.entityLoader.loadEntities(level, player, this.isEditorMode);
 
+    // Spawn cross-level escorts
+    if (!this.isEditorMode) {
+      this.spawnCrossLevelEscort(player);
+      this.spawnCompletedEscorts(player);
+    }
+
     // Hole drop-in sequence
     const worldState2 = WorldStateManager.getInstance();
     if (worldState2.getFlag('_enteredViaHole') === 'true') {
@@ -834,6 +842,9 @@ export default class GameScene extends Phaser.Scene {
   reloadCurrentLevel(): void {
     const worldState = WorldStateManager.getInstance();
 
+    // (V6 fix): Explicit escort death reset before level reload
+    this.handleEscortDeathReset();
+
     // Restore world state to when we entered the level
     if (this.levelEntrySnapshot) {
       worldState.loadFromJSON(this.levelEntrySnapshot);
@@ -918,6 +929,113 @@ export default class GameScene extends Phaser.Scene {
     });
   }
 
+
+  // --- Escort Cross-Level Spawning ---
+
+  private spawnCrossLevelEscort(player: Entity): void {
+    const ws = WorldStateManager.getInstance();
+    const escortId = ws.getFlag('current_escort');
+    if (!escortId) return;
+
+    // Skip if escort already exists (origin level has it in JSON)
+    if (this.entityManager.getAll().find(e => e.id === escortId)) return;
+
+    const levelsStr = ws.getFlag(`escort_${escortId}_follow_to_levels`);
+    if (!levelsStr) return;
+    const allowedLevels = levelsStr.split(',');
+    if (!allowedLevels.includes(this.currentLevelName)) return;
+
+    const spawnPos = ws.getPlayerSpawnPosition();
+    const spawnCol = spawnPos.col ?? this.levelData.playerStart.x;
+    const spawnRow = spawnPos.row ?? this.levelData.playerStart.y;
+
+    const escort = createEscortEntity({
+      scene: this,
+      grid: this.grid,
+      entityId: escortId,
+      col: spawnCol,
+      row: spawnRow,
+      playerEntity: player,
+      entityManager: this.entityManager,
+      eventManager: this.eventManager,
+      escortType: ws.getFlag(`escort_${escortId}_type`) ?? 'knight',
+      awakeOnEvent: '',
+      destinationLevel: ws.getFlag(`escort_${escortId}_destination_level`) ?? '',
+      destinationCol: Number(ws.getFlag(`escort_${escortId}_destination_col`) ?? '0'),
+      destinationRow: Number(ws.getFlag(`escort_${escortId}_destination_row`) ?? '0'),
+      reachDistance: Number(ws.getFlag(`escort_${escortId}_reach_distance`) ?? '15'),
+      followSpeed: Number(ws.getFlag(`escort_${escortId}_follow_speed`) ?? '200'),
+      followToLevels: allowedLevels,
+      enemyDetectDistancePx: Number(ws.getFlag(`escort_${escortId}_enemy_detect_px`) ?? '128'),
+      initialState: 'waiting_for_player_move' as EscortState,
+      currentLevelName: this.currentLevelName,
+    });
+    this.entityManager.add(escort);
+  }
+
+  // (V7 fix): Spawn completed escorts on non-origin levels
+  private spawnCompletedEscorts(player: Entity): void {
+    const ws = WorldStateManager.getInstance();
+    const flags = ws.getState().flags;
+
+    for (const key of Object.keys(flags)) {
+      if (!key.startsWith('escort_') || !key.endsWith('_completed') || flags[key] !== 'true') continue;
+
+      const id = key.slice('escort_'.length, -'_completed'.length);
+      const completedLevel = ws.getFlag(`escort_${id}_completed_level`);
+      if (completedLevel !== this.currentLevelName) continue;
+
+      // Skip if entity already exists
+      if (this.entityManager.getAll().find(e => e.id === id)) continue;
+
+      const col = Number(ws.getFlag(`escort_${id}_completed_col`) ?? '0');
+      const row = Number(ws.getFlag(`escort_${id}_completed_row`) ?? '0');
+
+      const escort = createEscortEntity({
+        scene: this,
+        grid: this.grid,
+        entityId: id,
+        col,
+        row,
+        playerEntity: player,
+        entityManager: this.entityManager,
+        eventManager: this.eventManager,
+        escortType: ws.getFlag(`escort_${id}_type`) ?? 'knight',
+        awakeOnEvent: '',
+        destinationLevel: '',
+        destinationCol: col,
+        destinationRow: row,
+        reachDistance: 0,
+        followSpeed: 0,
+        followToLevels: [],
+        enemyDetectDistancePx: 0,
+        initialState: 'completed' as EscortState,
+        currentLevelName: this.currentLevelName,
+      });
+      this.entityManager.add(escort);
+    }
+  }
+
+  // (V6 fix): Explicit escort death reset
+  private handleEscortDeathReset(): void {
+    const ws = WorldStateManager.getInstance();
+    const escortId = ws.getFlag('current_escort');
+    if (!escortId) return;
+
+    const originLevel = ws.getFlag(`escort_${escortId}_origin_level`);
+    if (originLevel === this.currentLevelName) {
+      // Died on origin level — revert escort to dormant
+      ws.setFlag('current_escort', '');
+      const flagKeys = [
+        'type', 'origin_level', 'destination_level', 'destination_col',
+        'destination_row', 'reach_distance', 'follow_speed', 'follow_to_levels', 'enemy_detect_px',
+      ];
+      for (const k of flagKeys) {
+        ws.setFlag(`escort_${escortId}_${k}`, '');
+      }
+    }
+    // Died on non-origin level: current_escort stays set, cross-level spawn handles it
+  }
 
   getCurrentLevelName(): string {
     return this.currentLevelName;

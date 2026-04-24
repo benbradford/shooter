@@ -169,7 +169,7 @@ When asked to "update the docs":
    - Enabling pets via WorldState
    - Pet following behavior
    - Dog bark ability and fear system
-   - Pathfinding pitfalls (layer 0, no direct fallback)
+   - Pathfinding pitfalls (player layer sync, no direct fallback)
    - Water interaction
 
 ## Testing

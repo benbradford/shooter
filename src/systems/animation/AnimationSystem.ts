@@ -62,4 +62,9 @@ export class AnimationSystem {
   getCurrentKey(): string {
     return this.currentKey;
   }
+
+  isOnLastFrame(animKey: string): boolean {
+    if (this.currentKey !== animKey) return false;
+    return this.current?.isOnLastFrame() ?? false;
+  }
 }

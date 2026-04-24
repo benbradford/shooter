@@ -653,6 +653,18 @@ export class ContextPanel {
         <div class="form-group"><label>Destroy on Event</label>
         <input id="ef-laser-destroy" value="${data.onDestroyEvent ?? ''}" placeholder="(optional)" /></div>`;
     }
+    if (entityDef.type === 'escort') {
+      const eData = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; awakeOnEvent?: string; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number };
+      typeFields += `<div class="form-group"><label>Escort Type</label><input id="ef-etype" value="${eData.escortType ?? 'knight'}" /></div>
+        <div class="form-group"><label>Awake on Event</label><input id="ef-eawake" value="${eData.awakeOnEvent ?? ''}" /></div>
+        <div class="form-group"><label>Destination Level</label><input id="ef-edlevel" value="${eData.destinationLevel ?? ''}" /></div>
+        <div class="form-group"><label>Destination Col</label><input type="number" id="ef-edcol" value="${eData.destinationCol ?? 0}" /></div>
+        <div class="form-group"><label>Destination Row</label><input type="number" id="ef-edrow" value="${eData.destinationRow ?? 0}" /></div>
+        <div class="form-group"><label>Reach Distance</label><input type="number" id="ef-ereach" value="${eData.reachDistance ?? 15}" /></div>
+        <div class="form-group"><label>Follow Speed</label><input type="number" id="ef-espeed" value="${eData.followSpeed ?? 200}" /></div>
+        <div class="form-group"><label>Follow to Levels (comma-sep)</label><input id="ef-elevels" value="${(eData.followToLevels ?? []).join(', ')}" /></div>
+        <div class="form-group"><label>Enemy Detect Px</label><input type="number" id="ef-edetect" value="${eData.enemyDetectDistancePx ?? 128}" /></div>`;
+    }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
     }
@@ -880,6 +892,34 @@ export class ContextPanel {
     this.container.querySelector('#ef-laser-destroy')?.addEventListener('change', (e) => {
       const val = (e.target as HTMLInputElement).value.trim();
       this.bridge.updateEntityData(entityId, { onDestroyEvent: val || undefined });
+    });
+    // Escort fields
+    this.container.querySelector('#ef-etype')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { escortType: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-eawake')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { awakeOnEvent: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-edlevel')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { destinationLevel: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-edcol')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { destinationCol: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-edrow')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { destinationRow: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-ereach')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { reachDistance: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-espeed')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { followSpeed: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-elevels')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { followToLevels: (e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean) });
+    });
+    this.container.querySelector('#ef-edetect')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { enemyDetectDistancePx: Number.parseInt((e.target as HTMLInputElement).value) });
     });
   }
 

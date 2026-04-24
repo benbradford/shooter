@@ -34,7 +34,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `stalking_robot` - Patrols waypoints, shoots fireballs
 - `bug_base` - Spawns bugs continuously
 - `bullet_dude` - Shoots bullets
-- `puma` - Rests, detects player, chases with momentum, jumps
+- `puma` - Rests, detects player, chases with momentum, jumps. Sounds: `cat_detect` on detection, random `cat_sound1`–`cat_sound4` on jump, `cat_death` on death
 - `npc` - Non-player character with interactions
 - `collectible` - Pickup item that increments a world state flag (e.g., mist orbs)
 - `trigger` - Invisible area that fires event when player enters
@@ -47,6 +47,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `hole` - Visual pit that triggers a hop animation then level transition (like exit but with hop)
 - `breakable` - Destructible object (vases, walls) with health, rarity drops, optional super-punch-only
 - `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
+- `escort` - NPC that follows the player across levels to a destination cell, with subtype-specific behavior (e.g., knight)
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields

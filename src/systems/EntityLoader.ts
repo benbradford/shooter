@@ -31,6 +31,8 @@ import { createNPCEntity, type NPCInteraction } from '../ecs/entities/npc/NPCEnt
 import { createPushableEntity } from '../ecs/entities/pushable/PushableEntity';
 import { createHoleEntity } from '../ecs/entities/hole/HoleEntity';
 import { createLaserEntity } from '../ecs/entities/laser/LaserEntity';
+import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
+import type { EscortState } from '../ecs/components/escort/EscortComponent';
 import type GameScene from '../scenes/GameScene';
 import { createBoneProjectileEntity } from '../ecs/entities/skeleton/BoneProjectileEntity';
 import { createRedSkeletonEntity } from '../ecs/entities/red_skeleton/RedSkeletonEntity';
@@ -577,6 +579,43 @@ export class EntityLoader {
             eventManager: this.eventManager,
           });
         };
+
+      case 'escort': {
+        const ws = WorldStateManager.getInstance();
+        let initialState: EscortState = 'dormant';
+        if (ws.getFlag(`escort_${entityDef.id}_completed`) === 'true') {
+          initialState = 'completed';
+        } else if (ws.getFlag('current_escort') === entityDef.id) {
+          initialState = 'following';
+        }
+        const escortData = data as {
+          col: number; row: number; escortType?: string; awakeOnEvent?: string;
+          destinationLevel?: string; destinationCol?: number; destinationRow?: number;
+          reachDistance?: number; followSpeed?: number; followToLevels?: string[];
+          enemyDetectDistancePx?: number;
+        };
+        return () => createEscortEntity({
+          scene: this.scene,
+          grid: this.grid,
+          entityId: entityDef.id,
+          col: escortData.col,
+          row: escortData.row,
+          playerEntity: player,
+          entityManager: this.entityManager,
+          eventManager: this.eventManager,
+          escortType: escortData.escortType ?? 'knight',
+          awakeOnEvent: escortData.awakeOnEvent ?? '',
+          destinationLevel: escortData.destinationLevel ?? '',
+          destinationCol: escortData.destinationCol ?? 0,
+          destinationRow: escortData.destinationRow ?? 0,
+          reachDistance: escortData.reachDistance ?? 15,
+          followSpeed: escortData.followSpeed ?? 200,
+          followToLevels: escortData.followToLevels ?? [],
+          enemyDetectDistancePx: escortData.enemyDetectDistancePx ?? 128,
+          initialState,
+          currentLevelName: levelData.name ?? '',
+        });
+      }
 
       default:
         console.warn(`[EntityLoader] Unknown entity type: ${entityDef.type}`);

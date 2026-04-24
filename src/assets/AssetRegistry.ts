@@ -869,6 +869,12 @@ export const ASSET_REGISTRY = {
     path: 'assets/pets/dog/dog/fear_icon.png',
     type: 'image' as const,
   },
+  knight_spritesheet: {
+    key: 'knight_spritesheet',
+    path: 'assets/knight/knight_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
 } as const;
 
 export type AssetKey = keyof typeof ASSET_REGISTRY;
@@ -912,6 +918,9 @@ export const ASSET_GROUPS = {
 
   // Laser
   laser: ['laser_base', 'laser_nozzle', 'laser_base_destroyed', 'laser_burn'] as const,
+
+  // Escort
+  escort: ['knight_spritesheet'] as const,
 
   // Editor - all textures that can be used in editor
   editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'roots_spritesheet', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle'] as const,

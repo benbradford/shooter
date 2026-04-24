@@ -2240,6 +2240,26 @@
       }
     },
     {
+      "id": "escort0",
+      "type": "escort",
+      "data": {
+        "col": 2,
+        "row": 14,
+        "escortType": "knight",
+        "destinationLevel": "dungeon3",
+        "destinationCol": 11,
+        "destinationRow": 5,
+        "awakeOnEvent": "lever_lever0|on",
+        "reachDistance": 15,
+        "followSpeed": 200,
+        "followToLevels": [
+          "dungeon3right",
+          "dungeon3"
+        ],
+        "enemyDetectDistancePx": 128
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

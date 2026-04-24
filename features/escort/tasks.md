@@ -1,8 +1,8 @@
 # Escort Entity — Tasks
 
-## Phase 1: Foundation (no gameplay yet)
+## Phase 1: Foundation (no gameplay yet) ✅
 
-### 1.1 Type Registration & Asset Setup
+### 1.1 Type Registration & Asset Setup ✅
 - Add `'escort'` to `EntityType` union in `src/systems/level/LevelLoader.ts`
 - Add `escort` asset group to `src/assets/AssetRegistry.ts` with `knight_spritesheet` (68×68)
 - Modify `src/assets/AssetLoader.ts` `getRequiredAssetGroups()`:
@@ -10,13 +10,13 @@
   - **(V3 fix)**: Also load when `current_escort` flag is set OR any `escort_*_completed` flag exists
 - Add `isOnLastFrame(animKey)` helper to `src/systems/animation/AnimationSystem.ts`
 
-### 1.2 Knight Animation Map
+### 1.2 Knight Animation Map ✅
 - Create `src/ecs/entities/escort/KnightAnimations.ts`
 - Implement `createKnightAnimationMap()` returning `Map<string, Animation>`
 - Direction mapping: 8-dir Direction enum → 4 knight directions (east/north/south/west)
 - Animations: idle (static), walk (repeat), arms_stretched (once), crouch_forward (once), crouch_reverse (once)
 
-### 1.3 Entity Factory
+### 1.3 Entity Factory ✅
 - Create `src/ecs/entities/escort/EscortEntity.ts`
 - Implement `createEscortEntity(props)` with all components
 - **(V1 fix)**: Call `shadow.init()` after adding ShadowComponent
@@ -28,9 +28,9 @@
 
 ---
 
-## Phase 2: Core State Machine
+## Phase 2: Core State Machine ✅
 
-### 2.1 EscortComponent — Skeleton
+### 2.1 EscortComponent — Skeleton ✅
 - Create `src/ecs/components/escort/EscortComponent.ts`
 - Implement constructor with all props, state enum, `isEventRegistered` tracking
 - **(V2 fix)**: Only register event listener when `initialState === 'dormant'`
@@ -38,30 +38,30 @@
 - Implement `update()` switch dispatching to state handlers
 - Implement `onDestroy()` — **(V2 fix)**: deregister if `isEventRegistered` is true
 
-### 2.2 Awakening
+### 2.2 Awakening ✅
 - Implement `onEvent()` handler
 - **(F3 fix)**: Check `current_escort` flag — if already set to different escort, clear previous escort's flags and force it to completed state
 - Set `current_escort` flag, call `persistEscortDefinition()`
 - Deregister listener, set `isEventRegistered = false`
 - Implement `updateAwakening()` — check `isOnLastFrame('crouch_reverse')` → transition to following
 
-### 2.3 Following
+### 2.3 Following ✅
 - Implement `updateFollowing()` with pathfinding toward player
 - Teleport if >800px, idle if ≤64px
 - Layer sync with player
 - Path recalculation every 500ms
 
-### 2.4 Enemy Detection & Crouching
+### 2.4 Enemy Detection & Crouching ✅
 - Implement `checkEnemies()` — iterate entities with 'enemy' tag, distance check
 - Implement `updateCrouching()` with three phases: crouching_down → holding → standing_up
 - Store `previousActiveState` to resume correctly
 
-### 2.5 Destination Walking
+### 2.5 Destination Walking ✅
 - Implement `checkDestinationReachable()` — level match, pathfind, reach distance check
 - Implement `updateWalkingToDestination()` with path following
 - **(F2 fix)**: `recalculatePathToDestination()` tries exact cell, then adjacent cells, then reverts to 'following' if completely unreachable
 
-### 2.6 Completion
+### 2.6 Completion ✅
 - Implement `enterCompleting()` — **(F1 fix)**: set ALL completion flags BEFORE animation starts
 - Implement `updateCompleting()` — wait for animation, set state='completed' (cosmetic only)
 
@@ -69,25 +69,25 @@
 
 ---
 
-## Phase 3: Cross-Level & Persistence
+## Phase 3: Cross-Level & Persistence ✅
 
-### 3.1 EntityLoader Integration
+### 3.1 EntityLoader Integration ✅
 - Add `case 'escort'` to `EntityLoader.createEntityCreator()`
 - Read WorldState to determine initial state (dormant/following/completed)
 
-### 3.2 Cross-Level Spawn
+### 3.2 Cross-Level Spawn ✅
 - Add `spawnCrossLevelEscort()` to GameScene
 - Read all `escort_{id}_*` flags to reconstruct entity
 - Spawn at player start position with `initialState='waiting_for_player_move'`
 - Call after `spawnEntities()` in `initializeScene()`
 
-### 3.3 Completed Escort Spawn (V7 fix)
+### 3.3 Completed Escort Spawn (V7 fix) ✅
 - Add `spawnCompletedEscorts()` to GameScene
 - Iterate WorldState flags for `escort_*_completed === 'true'`
 - Match `completed_level` to current level, skip if entity already exists
 - Spawn at completed position with `initialState='completed'`
 
-### 3.4 Death Reset (V6 fix)
+### 3.4 Death Reset (V6 fix) ✅
 - Add `handleEscortDeathReset()` to GameScene
 - Call from `reloadCurrentLevel()` BEFORE level reload
 - If on origin level: clear `current_escort` and all persisted definition flags
@@ -97,9 +97,9 @@
 
 ---
 
-## Phase 4: Editor Integration
+## Phase 4: Editor Integration ✅
 
-### 4.1 Editor Support
+### 4.1 Editor Support ✅
 - Add `'escort'` to `ENTITY_TYPES` in `editor/panels/Toolbar.ts`
 - Add `'ES'` label in `editor/CanvasInteraction.ts` labelMap
 - Add escort defaults in `editor/EditorBridge.ts` `addEntity()`
