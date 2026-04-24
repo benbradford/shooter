@@ -10,63 +10,41 @@ Themes allow different levels to have distinct visual styles without duplicating
 
 ### GameSceneRenderer (Abstract Base Class)
 
-All theme renderers extend this base class which provides:
+All theme renderers extend this base class. The base class handles ALL rendering logic (edges, shadows, paths, floor tiles, water, sprites). Subclasses only customize the background/vignette and edge color.
 
-```typescript
-export abstract class GameSceneRenderer {
-  protected readonly graphics: Phaser.GameObjects.Graphics;
-  
-  constructor(protected readonly scene: Phaser.Scene) {
-    this.graphics = scene.add.graphics();
-    this.graphics.setDepth(Depth.rendererGraphics); // Render behind player
-  }
-  
-  abstract renderGrid(grid: Grid): void;
-  abstract renderTheme(width: number, height: number): { 
-    background: Phaser.GameObjects.Image; 
-    vignette: Phaser.GameObjects.Image 
-  };
-  protected abstract renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void;
-  protected abstract getEdgeColor(): number;
-  
-  destroy(): void {
-    this.graphics.destroy();
-  }
-  
-  // Common edge rendering logic
-  protected renderPlatformsAndWalls(grid: Grid, cellSize: number): void { /* ... */ }
-}
-```
+**Abstract methods (subclasses must implement):**
+- `renderTheme(width, height)` — Create background canvas + vignette image, return both
+- `getEdgeColor()` — Return hex color for wall/platform edges
 
-**Key Points:**
-- Graphics depth is -10 to render behind player
-- `renderPlatformsAndWalls()` contains all common edge detection logic
-- Subclasses only implement theme-specific parts (wall pattern rendering, edge color)
+**Key public methods (base class):**
+- `initializeSprites(grid, levelData)` — Creates all floor, cell, water, and platform sprites
+- `updateGraphics(grid, levelData)` — Redraws edges, shadows, paths, and floor overlay
+- `update(delta)` — Updates water animation each frame
+- `destroy()` — Cleans up all graphics, sprites, and water animator
+- `invalidateCells(cells, grid, levelData)` — Fades out and recreates sprites for modified cells
 
-### Edge Rendering Logic
+**Key points:**
+- Two graphics layers: `graphics` (depth -10) for shadows/paths, `edgeGraphics` (depth -9) for edges
+- All edge detection, shadow rendering, and path rendering is in the base class
+- Subclasses are very simple — typically just `renderTheme()` and `getEdgeColor()`
+- Tunnels theme is the exception: overrides `update()` for darkness overlay and `updateGraphics()` to disable edges
 
-The base class handles all edge detection:
-- **Left/Right edges**: Only drawn when adjacent cell is layer 0 (not when adjacent to another layer 1 cell)
+### Edge Rendering
+
+The base class `renderEdges()` handles all edge detection:
+- **Left/Right edges**: Only drawn when adjacent cell is layer 0 (not between two layer 1 cells)
 - **Top edges**: Only drawn when cell above is layer 0
-- **Bottom edges**: Only drawn for cells with `'wall'` property - horizontal line at 15% from top (85% height), then calls `renderWallPattern()` for theme-specific rendering
-
-**Wall vs Platform:**
-- **Walls** (cells with `'wall'` property): Render with brick/stone patterns via `renderWallPattern()`
-- **Platforms** (cells with `'platform'` property): Render as elevated with no special pattern
-
-**Critical:** No vertical lines between adjacent bottom-row cells - this prevents double-drawing edges.
+- No vertical lines between adjacent wall cells — prevents double-drawing
 
 ## Current Themes
 
 ### Dungeon Theme
 - Dark stone dungeon with radial gradient background
-- Brick pattern on walls (staggered layout)
 - Brown vignette
 - Edge color: `0x2a2a3e`
 
 ### Swamp Theme
 - Muddy/grassy background with radial gradient
-- Circle stones on walls (rocky appearance)
 - Green vignette
 - Edge color: `0x2a3a2e`
 
@@ -197,9 +175,7 @@ export type LevelTheme = 'dungeon' | 'swamp' | 'cave';
 
 Create `src/scenes/theme/YourThemeSceneRenderer.ts` extending `GameSceneRenderer`. Implement:
 - `getEdgeColor()` — Return hex color for wall/platform edges
-- `renderGrid(grid)` — Clear graphics, call `renderPlatformsAndWalls()`, render shadows/stairs
-- `renderWallPattern(x, y, cellSize, topBarY, seed)` — Custom wall pattern (bricks, stones)
-- `renderTheme(width, height)` — Create background canvas + vignette, return both
+- `renderTheme(width, height)` — Create background canvas + vignette image, return both
 
 Use `DungeonSceneRenderer` or `SwampSceneRenderer` as reference implementations.
 
@@ -372,27 +348,6 @@ Always destroy old renderer before creating new one to prevent render artifacts.
 4. **Remove textures before recreating** - Check `scene.textures.exists()` and `remove()` before `createCanvas()`
 5. **Don't draw edges between adjacent walls** - Only draw when adjacent cell is layer 0
 
-### Bottom Row Rendering
-
-The `renderBottomRow()` method receives:
-- `x, y` - Cell position
-- `cellSize` - Size of cell
-- `topBarY` - Y position of horizontal line (at 15% from top)
-- `seed` - Deterministic seed based on `col * 1000 + row`
-
-**Pattern:**
-```typescript
-protected renderWallPattern(x: number, y: number, cellSize: number, topBarY: number, seed: number): void {
-  let currentY = topBarY + 4; // Start just below horizontal line
-  
-  while (currentY < y + cellSize) {
-    // Render your pattern (bricks, stones, etc.)
-    // Use seed for deterministic randomness
-    currentY += stepSize;
-  }
-}
-```
-
 ### Edge Colors
 
 Use dark colors for edges to create depth:
@@ -413,7 +368,9 @@ Use dark colors for edges to create depth:
 - `src/scenes/theme/DungeonSceneRenderer.ts` - Dungeon theme implementation
 - `src/scenes/theme/SwampSceneRenderer.ts` - Swamp theme implementation
 - `src/scenes/theme/GrassSceneRenderer.ts` - Grass theme implementation
+- `src/scenes/theme/WildsSceneRenderer.ts` - Wilds theme (animated mist)
 - `src/scenes/theme/TunnelsSceneRenderer.ts` - Tunnels theme (darkness + player light)
+- `src/scenes/theme/DefaultSceneRenderer.ts` - Default/fallback theme
 - `src/systems/SceneOverlays.ts` - Overlay placement system
 - `src/scenes/GameScene.ts` - Theme instantiation and switching
 - `editor/SpritesheetTextures.ts` - Spritesheet sub-sprite definitions

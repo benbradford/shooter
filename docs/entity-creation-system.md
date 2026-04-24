@@ -223,6 +223,23 @@ Plus one interaction entity per script:
 - 3-layer beam visual: red outer glow, white inner core, pulsing orange overlay
 - Impact spark particles at beam endpoint
 
+### Escort
+- `escortType`: Subtype string (e.g., `'knight'`) — determines spritesheet and behavior
+- `awakeOnEvent`: Event name that transitions escort from dormant to active
+- `destinationLevel`: Target level name where escort walks to its destination
+- `destinationCol`, `destinationRow`: Target cell in destination level
+- `reachDistance`: Max path length (cells) for escort to start walking to destination
+- `followSpeed`: Movement speed in px/sec
+- `followToLevels`: Array of level names the escort follows into
+- `enemyDetectDistancePx`: Pixel distance for enemy/laser detection (knight crouches)
+- `scale`: Optional sprite scale override (default: cellSize/68 for knight)
+- `shadowScale`, `shadowOffsetX`, `shadowOffsetY`: Optional shadow overrides
+- Walk-through (no collision with player), invulnerable
+- Cross-level: follows player if within 200px on level exit, otherwise stays at current position (persisted via `movedEntities`)
+- Completion: plays arms_stretched animation, fires `{entityId}_reached_destination` event, persists via world state flags
+- Knight-specific: crouches when enemies or active lasers within detect distance, plays crouch animation forward/reverse
+- Destroyed lasers (via `onDestroyEvent`) no longer scare the knight
+
 ## How It Works
 
 ### EntityCreatorManager
@@ -308,6 +325,8 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/ecs/components/hole/HoleComponent.ts` - Hop animation and transition trigger
 - `src/ecs/entities/laser/LaserEntity.ts` - Laser entity factory
 - `src/ecs/components/laser/LaserBeamComponent.ts` - Beam raycast, rendering, collision, particles, toggle
+- `src/ecs/entities/escort/EscortEntity.ts` - Escort entity factory
+- `src/ecs/components/escort/EscortComponent.ts` - Escort state machine, following, crouching, completion, cross-level persistence
 - `editor/CanvasInteraction.ts` - Entity placement and selection
 - `editor/EditorBridge.ts` - Entity extraction to JSON
 - `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI

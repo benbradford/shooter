@@ -139,6 +139,7 @@ Entity form shows all editable fields per type:
 - Laser: angle (0°=up, 90°=right), flagName (world state toggle), onDestroyEvent (optional)
 - Pushable: texture, pushEnabled, doesPersist, singlePushOnly
 - Hole: texture, targetLevel, targetCol, targetRow, transformOverride (scaleX/Y, offsetX/Y) + **Leave** button
+- Escort: escortType, awakeOnEvent, destinationLevel, destinationCol/Row, reachDistance, followSpeed, followToLevels (comma-sep), enemyDetectPx, scale, shadowScale/offsetX/offsetY
 
 ### Editing Trigger Cells
 

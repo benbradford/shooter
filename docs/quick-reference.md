@@ -192,6 +192,8 @@ Stationary beam emitter that fires a continuous beam at an arbitrary angle.
 
 **Toggle:** World state flag `{entityId}_laser_on` (configurable). `"false"` = off, `"true"` or unset = on. Works with levers, triggers, Lua scripts.
 
+**Destruction:** When destroyed via `onDestroyEvent`, tracked in `destroyedEntities` — won't respawn on re-entry. Base swaps to `laser_base_destroyed.png`.
+
 **Visual:** 3-layer beam (red outer glow, white inner core, pulsing orange overlay) + impact spark particles at endpoint.
 Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.png`) overlays and rotates to match angle.
 
