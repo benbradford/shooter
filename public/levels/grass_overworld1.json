@@ -5493,6 +5493,18 @@
       }
     },
     {
+      "id": "pushable1",
+      "type": "pushable",
+      "data": {
+        "col": 13,
+        "row": 5,
+        "texture": "pushing_box",
+        "pushEnabled": true,
+        "doesPersist": false,
+        "singlePushOnly": false
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

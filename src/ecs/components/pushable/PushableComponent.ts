@@ -18,6 +18,8 @@ export type PushableProps = {
 
 const MOVE_SPEED_PX_PER_SEC = 100;
 
+const DRAG_SOUNDS = ['drag1', 'drag2'] as const;
+
 export const PUSH_ALIGNMENT_DIVISOR = 2.5;
 
 export class PushableComponent implements Component {
@@ -73,6 +75,7 @@ export class PushableComponent implements Component {
   }
 
   startMove(targetCol: number, targetRow: number, grid: Grid): void {
+    SoundManager.getInstance().play(DRAG_SOUNDS[Math.floor(Math.random() * DRAG_SOUNDS.length)]);
     const transform = this.entity.require(TransformComponent);
     this.moveStartX = transform.x;
     this.moveStartY = transform.y;

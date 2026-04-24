@@ -29,6 +29,7 @@ export class PetActionButtonComponent implements Component {
   private posX = 0;
   private posY = 0;
   private currentTextureKey = '';
+  private isHudVisible = true;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -79,12 +80,18 @@ export class PetActionButtonComponent implements Component {
     const selectedPetId = PetManager.getInstance().getSelectedPetId();
     const config = selectedPetId ? PET_REGISTRY[selectedPetId] : null;
 
-    // Hide button entirely if no pet selected
-    if (!selectedPetId) {
-      this.setVisible(false);
+    // Hide button entirely if no pet selected or HUD hidden
+    if (!selectedPetId || !this.isHudVisible) {
+      this.sprite.setVisible(false);
+      this.ring.setVisible(false);
+      this.bg.setVisible(false);
+      this.shadow.setVisible(false);
       return;
     }
-    this.setVisible(true);
+    this.sprite.setVisible(true);
+    this.ring.setVisible(true);
+    this.bg.setVisible(true);
+    this.shadow.setVisible(true);
 
     const desiredTexture = config?.iconTexture ?? 'slide_icon';
     if (desiredTexture !== this.currentTextureKey && this.scene.textures.exists(desiredTexture)) {
@@ -163,6 +170,7 @@ export class PetActionButtonComponent implements Component {
   };
 
   setVisible(visible: boolean): void {
+    this.isHudVisible = visible;
     this.sprite.setVisible(visible);
     this.ring.setVisible(visible);
     this.bg.setVisible(visible);
