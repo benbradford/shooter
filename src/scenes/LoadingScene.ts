@@ -5,12 +5,7 @@ import { AssetManifest } from '../systems/AssetManifest';
 import { AssetManager } from '../systems/AssetManager';
 import { MemoryMonitor } from '../systems/MemoryMonitor';
 import { WorldStateManager } from '../systems/WorldStateManager';
-import { DungeonSceneRenderer } from './theme/DungeonSceneRenderer';
-import { WildsSceneRenderer } from './theme/WildsSceneRenderer';
-import { SwampSceneRenderer } from './theme/SwampSceneRenderer';
-import { GrassSceneRenderer } from './theme/GrassSceneRenderer';
-import { DefaultSceneRenderer } from './theme/DefaultSceneRenderer';
-import type { GameSceneRenderer } from './theme/GameSceneRenderer';
+import { createThemeRenderer } from './theme/ThemeRendererFactory';
 import { CELL_SIZE } from '../constants/GameConstants';
 
 const ERROR_FONT_SIZE = '20px';
@@ -83,18 +78,7 @@ export default class LoadingScene extends Phaser.Scene {
       }
 
       const theme = levelData.levelTheme ?? 'dungeon';
-      let renderer: GameSceneRenderer;
-      if (theme === 'wilds') {
-        renderer = new WildsSceneRenderer(this, CELL_SIZE, levelData.mistConfig);
-      } else if (theme === 'swamp') {
-        renderer = new SwampSceneRenderer(this, CELL_SIZE);
-      } else if (theme === 'grass') {
-        renderer = new GrassSceneRenderer(this, CELL_SIZE);
-      } else if (theme === 'default') {
-        renderer = new DefaultSceneRenderer(this, CELL_SIZE);
-      } else {
-        renderer = new DungeonSceneRenderer(this, CELL_SIZE);
-      }
+      const renderer = createThemeRenderer(this, CELL_SIZE, theme, levelData.mistConfig);
 
       const tilesetResult = await renderer.prepareRuntimeTilesets(levelData);
       renderer.destroy();

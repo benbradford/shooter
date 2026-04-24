@@ -2256,7 +2256,7 @@
         "escortType": "knight",
         "destinationLevel": "dungeon3",
         "destinationCol": 11,
-        "destinationRow": 5,
+        "destinationRow": 4,
         "awakeOnEvent": "knight_1_begin",
         "reachDistance": 15,
         "followSpeed": 100,

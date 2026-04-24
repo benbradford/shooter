@@ -8,6 +8,70 @@ import { PathTilesetGenerator } from './PathTilesetGenerator';
 import { AssetManager } from '../../systems/AssetManager';
 import { TextureVerifier } from '../../systems/TextureVerifier';
 
+// Edge rendering
+const EDGE_THICKNESS_PX = 4;
+
+// Shadow rendering
+const SHADOW_WIDTH_PX = 64;
+const SHADOW_STEPS = 32;
+const SHADOW_INTENSITY = 0.45;
+
+// Edge darkening
+const DARKENING_STEPS_PER_CELL = 4;
+const DARKENING_MIN_ALPHA = 0.01;
+
+// Path / water rendering
+const PATH_RADIUS_FACTOR = 0.4;
+const PATH_FILL_COLOR = 0x888888;
+const WATER_FILL_COLOR = 0x4488ff;
+const PATH_OUTLINE_COLOR = 0x000000;
+const PATH_OUTLINE_WIDTH_PX = 2;
+const PATH_OUTLINE_STROKE_WIDTH_PX = 3;
+
+// Floor overlay gradient
+const OVERLAY_GRADIENT_STOP_1 = 0;
+const OVERLAY_GRADIENT_STOP_2 = 0.4;
+const OVERLAY_GRADIENT_STOP_3 = 0.7;
+const OVERLAY_GRADIENT_STOP_4 = 1;
+const OVERLAY_GRADIENT_ALPHA = 0.2;
+
+// Stairs fallback rendering
+const STAIRS_LINE_WIDTH_PX = 8;
+const STAIRS_STEP_COUNT = 5;
+const STAIRS_BRIGHTNESS_RANGE = 0.5;
+const STAIRS_BASE_COLOR = 0x4a4a5e;
+const STAIRS_COLOR_OFFSET = 0x202020;
+const STAIRS_STEP_LINE_WIDTH_PX = 2;
+
+// Wall fallback rendering
+const WALL_BRICK_HEIGHT_PX = 10;
+const WALL_BRICKS_PER_ROW = 3;
+const WALL_MORTAR_GAP_PX = 2;
+const WALL_BRICK_COLOR = 0x3a3a4e;
+
+// Platform fallback rendering
+const PLATFORM_FALLBACK_ALPHA = 0.3;
+
+// Tile autotiling frame indices
+const TILE_SINGLE_NEIGHBOR_FRAME: Record<string, number> = {
+  up: 1, right: 2, down: 3, left: 4
+};
+const TILE_FRAME_VERTICAL = 5;
+const TILE_FRAME_HORIZONTAL = 6;
+const TILE_CORNER_UP_RIGHT = 7;
+const TILE_CORNER_UP_RIGHT_DIAG = 8;
+const TILE_CORNER_UP_LEFT = 9;
+const TILE_CORNER_UP_LEFT_DIAG = 10;
+const TILE_CORNER_DOWN_RIGHT = 11;
+const TILE_CORNER_DOWN_RIGHT_DIAG = 12;
+const TILE_CORNER_DOWN_LEFT = 13;
+const TILE_CORNER_DOWN_LEFT_DIAG = 14;
+const TILE_THREE_NEIGHBOR_BASE_NO_LEFT = 15;
+const TILE_THREE_NEIGHBOR_BASE_NO_DOWN = 19;
+const TILE_THREE_NEIGHBOR_BASE_NO_RIGHT = 23;
+const TILE_THREE_NEIGHBOR_BASE_NO_UP = 27;
+const TILE_FOUR_NEIGHBOR_BASE = 31;
+
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
   protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
@@ -481,10 +545,10 @@ export abstract class GameSceneRenderer {
     const maxRadius = Math.hypot(centerX, centerY);
 
     const bgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
-    bgGradient.addColorStop(0, 'rgba(146, 151, 84, 0.2)');
-    bgGradient.addColorStop(0.4, 'rgba(163, 170, 132, 0.2)');
-    bgGradient.addColorStop(0.7, 'rgba(40, 105, 3, 0.2)');
-    bgGradient.addColorStop(1, 'rgba(163, 104, 2, 0.2)');
+    bgGradient.addColorStop(OVERLAY_GRADIENT_STOP_1, `rgba(146, 151, 84, ${OVERLAY_GRADIENT_ALPHA})`);
+    bgGradient.addColorStop(OVERLAY_GRADIENT_STOP_2, `rgba(163, 170, 132, ${OVERLAY_GRADIENT_ALPHA})`);
+    bgGradient.addColorStop(OVERLAY_GRADIENT_STOP_3, `rgba(40, 105, 3, ${OVERLAY_GRADIENT_ALPHA})`);
+    bgGradient.addColorStop(OVERLAY_GRADIENT_STOP_4, `rgba(163, 104, 2, ${OVERLAY_GRADIENT_ALPHA})`);
     ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, worldWidth, worldHeight);
 
@@ -501,7 +565,7 @@ export abstract class GameSceneRenderer {
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
     const pathTexture = levelData?.background?.path_texture;
-    const radius = this.cellSize * 0.4;
+    const radius = this.cellSize * PATH_RADIUS_FACTOR;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -568,34 +632,34 @@ export abstract class GameSceneRenderer {
             const count = adjacentCount;
 
             if (count === 1) {
-              if (hasUp) frame = 1;
-              else if (hasRight) frame = 2;
-              else if (hasDown) frame = 3;
-              else if (hasLeft) frame = 4;
+              if (hasUp) frame = TILE_SINGLE_NEIGHBOR_FRAME.up;
+              else if (hasRight) frame = TILE_SINGLE_NEIGHBOR_FRAME.right;
+              else if (hasDown) frame = TILE_SINGLE_NEIGHBOR_FRAME.down;
+              else if (hasLeft) frame = TILE_SINGLE_NEIGHBOR_FRAME.left;
             } else if (count === 2) {
-              if (hasUp && hasDown) frame = 5;
-              else if (hasLeft && hasRight) frame = 6;
-              else if (hasUp && hasRight) frame = hasUpRight ? 8 : 7;
-              else if (hasUp && hasLeft) frame = hasUpLeft ? 10 : 9;
-              else if (hasDown && hasRight) frame = hasDownRight ? 12 : 11;
-              else if (hasDown && hasLeft) frame = hasDownLeft ? 14 : 13;
+              if (hasUp && hasDown) frame = TILE_FRAME_VERTICAL;
+              else if (hasLeft && hasRight) frame = TILE_FRAME_HORIZONTAL;
+              else if (hasUp && hasRight) frame = hasUpRight ? TILE_CORNER_UP_RIGHT_DIAG : TILE_CORNER_UP_RIGHT;
+              else if (hasUp && hasLeft) frame = hasUpLeft ? TILE_CORNER_UP_LEFT_DIAG : TILE_CORNER_UP_LEFT;
+              else if (hasDown && hasRight) frame = hasDownRight ? TILE_CORNER_DOWN_RIGHT_DIAG : TILE_CORNER_DOWN_RIGHT;
+              else if (hasDown && hasLeft) frame = hasDownLeft ? TILE_CORNER_DOWN_LEFT_DIAG : TILE_CORNER_DOWN_LEFT;
             } else if (count === 3) {
               if (hasUp && hasRight && hasDown) {
                 const idx = (hasUpRight ? 1 : 0) | (hasDownRight ? 2 : 0);
-                frame = 15 + idx;
+                frame = TILE_THREE_NEIGHBOR_BASE_NO_LEFT + idx;
               } else if (hasUp && hasRight && hasLeft) {
                 const idx = (hasUpRight ? 1 : 0) | (hasUpLeft ? 2 : 0);
-                frame = 19 + idx;
+                frame = TILE_THREE_NEIGHBOR_BASE_NO_DOWN + idx;
               } else if (hasUp && hasDown && hasLeft) {
                 const idx = (hasUpLeft ? 1 : 0) | (hasDownLeft ? 2 : 0);
-                frame = 23 + idx;
+                frame = TILE_THREE_NEIGHBOR_BASE_NO_RIGHT + idx;
               } else if (hasRight && hasDown && hasLeft) {
                 const idx = (hasDownRight ? 1 : 0) | (hasDownLeft ? 2 : 0);
-                frame = 27 + idx;
+                frame = TILE_THREE_NEIGHBOR_BASE_NO_UP + idx;
               }
             } else if (count === 4) {
               const idx = (hasUpLeft ? 1 : 0) | (hasUpRight ? 2 : 0) | (hasDownLeft ? 4 : 0) | (hasDownRight ? 8 : 0);
-              frame = 31 + idx;
+              frame = TILE_FOUR_NEIGHBOR_BASE + idx;
             }
           }
 
@@ -668,37 +732,37 @@ export abstract class GameSceneRenderer {
                 this.cellSprites.push(sprite);
               }
             } else if (!levelData?.background?.platform_tile) {
-              this.graphics.fillStyle(0x000000, 0.3);
+              this.graphics.fillStyle(0x000000, PLATFORM_FALLBACK_ALPHA);
               this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
             }
           }
 
           // Fallback: render stairs with lines if no texture
           if (isStairs && (!hasBackgroundConfig || !levelData?.background?.stairs_texture) && !hasTexture) {
-            this.graphics.lineStyle(8, edgeColor, 1);
+            this.graphics.lineStyle(STAIRS_LINE_WIDTH_PX, edgeColor, 1);
             this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
 
-            const numSteps = 5;
+            const numSteps = STAIRS_STEP_COUNT;
             const stepHeight = this.cellSize / numSteps;
 
             for (let step = 0; step < numSteps; step++) {
               const stepY = y + step * stepHeight;
 
-              const brightness = 1 - (step / (numSteps - 1)) * 0.5;
-              const shadedColor = 0x4a4a5e - 0x202020 + Math.floor(0x202020 * brightness);
+              const brightness = 1 - (step / (numSteps - 1)) * STAIRS_BRIGHTNESS_RANGE;
+              const shadedColor = STAIRS_BASE_COLOR - STAIRS_COLOR_OFFSET + Math.floor(STAIRS_COLOR_OFFSET * brightness);
 
               this.graphics.fillStyle(shadedColor, 1);
               this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
 
-              this.graphics.lineStyle(2, edgeColor, 1);
+              this.graphics.lineStyle(STAIRS_STEP_LINE_WIDTH_PX, edgeColor, 1);
               this.graphics.strokeLineShape(new Phaser.Geom.Line(x, stepY, x + this.cellSize, stepY));
             }
           }
 
           // Fallback: render walls with pattern if no texture
           if (isWall && (!hasBackgroundConfig || !levelData?.background?.wall_texture) && !hasTexture) {
-            const brickHeight = 10;
-            const brickWidth = this.cellSize / 3;
+            const brickHeight = WALL_BRICK_HEIGHT_PX;
+            const brickWidth = this.cellSize / WALL_BRICKS_PER_ROW;
             let currentY = y;
             let rowIndex = 0;
 
@@ -708,13 +772,13 @@ export abstract class GameSceneRenderer {
 
               for (let brickX = x - offset; brickX < x + this.cellSize + brickWidth; brickX += brickWidth) {
                 const startX = Math.max(x, brickX);
-                const endX = Math.min(x + this.cellSize, brickX + brickWidth - 2);
+                const endX = Math.min(x + this.cellSize, brickX + brickWidth - WALL_MORTAR_GAP_PX);
 
                 if (startX < endX) {
-                  this.graphics.fillStyle(0x3a3a4e, 1);
+                  this.graphics.fillStyle(WALL_BRICK_COLOR, 1);
                   this.graphics.fillRect(startX, currentY, endX - startX, actualHeight);
 
-                  this.graphics.lineStyle(2, edgeColor, 1);
+                  this.graphics.lineStyle(WALL_MORTAR_GAP_PX, edgeColor, 1);
                   this.graphics.strokeRect(startX, currentY, endX - startX, actualHeight);
                 }
               }
@@ -744,8 +808,8 @@ export abstract class GameSceneRenderer {
           const y = row * this.cellSize;
           const centerX = x + this.cellSize / 2;
           const centerY = y + this.cellSize / 2;
-          const pathColor = 0x888888;
-          const outlineColor = 0x000000;
+          const pathColor = PATH_FILL_COLOR;
+          const outlineColor = PATH_OUTLINE_COLOR;
 
           const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
           const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
@@ -782,7 +846,7 @@ export abstract class GameSceneRenderer {
 
           this.graphics.fillCircle(centerX, centerY, radius);
 
-          this.graphics.lineStyle(2, outlineColor, 1);
+          this.graphics.lineStyle(PATH_OUTLINE_WIDTH_PX, outlineColor, 1);
           this.graphics.strokeCircle(centerX, centerY, radius);
         }
       }
@@ -790,12 +854,12 @@ export abstract class GameSceneRenderer {
   }
 
   private renderGreyPaths(grid: GridReader): void {
-    this.renderPathType(grid, 'path', 0x888888, 0x000000);
-    this.renderPathType(grid, 'water', 0x4488ff, 0x000000);
+    this.renderPathType(grid, 'path', PATH_FILL_COLOR, PATH_OUTLINE_COLOR);
+    this.renderPathType(grid, 'water', WATER_FILL_COLOR, PATH_OUTLINE_COLOR);
   }
 
   private renderPathType(grid: GridReader, propertyType: CellProperty, fillColor: number, outlineColor: number): void {
-    const radius = this.cellSize * 0.4;
+    const radius = this.cellSize * PATH_RADIUS_FACTOR;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -853,7 +917,7 @@ export abstract class GameSceneRenderer {
       }
     }
 
-    this.graphics.lineStyle(3, outlineColor, 1);
+    this.graphics.lineStyle(PATH_OUTLINE_STROKE_WIDTH_PX, outlineColor, 1);
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
@@ -952,7 +1016,7 @@ export abstract class GameSceneRenderer {
   }
 
   private renderEdges(grid: GridReader): void {
-    const edgeThickness = 4;
+    const edgeThickness = EDGE_THICKNESS_PX;
     const edgeColor = this.getEdgeColor();
 
     for (let row = 0; row < grid.height; row++) {
@@ -1039,7 +1103,7 @@ export abstract class GameSceneRenderer {
 
     const darkenSteps = config.depth;
     const maxIntensity = config.intensity;
-    const stepsPerCell = 4;
+    const stepsPerCell = DARKENING_STEPS_PER_CELL;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
@@ -1068,7 +1132,7 @@ export abstract class GameSceneRenderer {
               const intensity = Math.max(0, 1 - subDistToEdge / darkenSteps);
               const alpha = maxIntensity * intensity;
 
-              if (alpha > 0.01) {
+              if (alpha > DARKENING_MIN_ALPHA) {
                 this.edgeGraphics.fillStyle(0x000000, alpha);
                 this.edgeGraphics.fillRect(subX, subY, stepSize, stepSize);
               }
@@ -1080,9 +1144,9 @@ export abstract class GameSceneRenderer {
   }
 
   private renderShadows(grid: GridReader): void {
-    const shadowWidth = 64;
-    const shadowSteps = 32;
-    const shadowIntensity = 0.45;
+    const shadowWidth = SHADOW_WIDTH_PX;
+    const shadowSteps = SHADOW_STEPS;
+    const shadowIntensity = SHADOW_INTENSITY;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {

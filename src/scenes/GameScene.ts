@@ -30,11 +30,6 @@ import { Direction } from "../constants/Direction";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
-import { DungeonSceneRenderer } from "./theme/DungeonSceneRenderer";
-import { WildsSceneRenderer } from "./theme/WildsSceneRenderer";
-import { SwampSceneRenderer } from "./theme/SwampSceneRenderer";
-import { GrassSceneRenderer } from "./theme/GrassSceneRenderer";
-import { DefaultSceneRenderer } from "./theme/DefaultSceneRenderer";
 import { TunnelsSceneRenderer } from "./theme/TunnelsSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 
@@ -43,6 +38,7 @@ import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
 import type { EscortState } from '../ecs/components/escort/EscortComponent';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 import { BlockedAreaManager } from "../systems/BlockedAreaManager";
+import { createThemeRenderer } from "./theme/ThemeRendererFactory";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -127,19 +123,7 @@ export default class GameScene extends Phaser.Scene {
 
         // Setup theme renderer
         const theme = this.levelData.levelTheme ?? 'dungeon';
-        if (theme === 'dungeon') {
-          this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-        } else if (theme === 'swamp') {
-          this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-        } else if (theme === 'grass') {
-          this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
-        } else if (theme === 'wilds') {
-          this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
-        } else if (theme === 'tunnels') {
-          this.sceneRenderer = new TunnelsSceneRenderer(this, this.cellSize);
-        } else {
-          this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
-        }
+        this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
 
         if (this.isEditorMode && this.sceneRenderer instanceof TunnelsSceneRenderer) {
           this.sceneRenderer.setEditorMode(true);
@@ -213,7 +197,7 @@ export default class GameScene extends Phaser.Scene {
         if (!this.entityManager) this.entityManager = new EntityManager();
         if (!this.eventManager) this.eventManager = new EventManagerSystem();
         if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize);
-        if (!this.sceneRenderer) this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
+        if (!this.sceneRenderer) this.sceneRenderer = createThemeRenderer(this, this.cellSize, 'dungeon');
       }
 
       // ALWAYS notify bridge (Fixed: runtime violation #2, N1)
@@ -284,21 +268,7 @@ export default class GameScene extends Phaser.Scene {
     worldState.setFlag(`level_entered_${this.currentLevelName}`, 'true');
 
     const theme = this.levelData.levelTheme ?? 'dungeon';
-    if (theme === 'dungeon') {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    } else if (theme === 'swamp') {
-      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-    } else if (theme === 'grass') {
-      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
-    } else if (theme === 'wilds') {
-      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
-    } else if (theme === 'tunnels') {
-      this.sceneRenderer = new TunnelsSceneRenderer(this, this.cellSize);
-    } else if (theme === 'default') {
-      this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
-    } else {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    }
+    this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
 
     preloadLevelAssets(this, this.levelData);
     this.load.start();
@@ -822,19 +792,7 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer.destroy();
     }
 
-    if (theme === 'dungeon') {
-      this.sceneRenderer = new DungeonSceneRenderer(this, this.cellSize);
-    } else if (theme === 'swamp') {
-      this.sceneRenderer = new SwampSceneRenderer(this, this.cellSize);
-    } else if (theme === 'grass') {
-      this.sceneRenderer = new GrassSceneRenderer(this, this.cellSize);
-    } else if (theme === 'wilds') {
-      this.sceneRenderer = new WildsSceneRenderer(this, this.cellSize, this.levelData.mistConfig);
-    } else if (theme === 'tunnels') {
-      this.sceneRenderer = new TunnelsSceneRenderer(this, this.cellSize);
-    } else if (theme === 'default') {
-      this.sceneRenderer = new DefaultSceneRenderer(this, this.cellSize);
-    }
+    this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
