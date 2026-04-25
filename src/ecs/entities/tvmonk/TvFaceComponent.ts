@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import {
-  type TvMood, type FaceDirection, type FacePixel,
+  type TvMood, type FaceDirection, type FacePixel, type MoodDefinition,
   MOOD_DEFINITIONS, moodFromHealth,
 } from './TvFaceMoods';
 import { type ScreenMask, scanScreenMasks, EMPTY_MASK } from './TvScreenMaskScanner';
@@ -23,7 +23,7 @@ const BLINK_DURATION_MS = 150;
 
 // Transition: static frames
 const TRANSITION_FRAMES = 4;
-const TRANSITION_FRAME_DURATION_MS = 50;
+const TRANSITION_FRAME_DURATION_MS = 70;
 
 // Glitch: randomize every N ms
 const GLITCH_INTERVAL_MS = 200;
@@ -84,6 +84,10 @@ export class TvFaceComponent implements Component {
   // Glitch timer
   private glitchTimerMs = 0;
   private glitchSeed = 0;
+
+  // Face animation (alternates faces/faces2)
+  private faceAnimTimerMs = 0;
+  private faceAnimFrame = 0; // 0 = faces, 1 = faces2
 
   constructor(props: TvFaceComponentProps) {
     this.scene = props.scene;
@@ -157,18 +161,29 @@ export class TvFaceComponent implements Component {
       this.updateTransition(delta);
     }
 
-    // Update blink (not during off, booting, or glitching)
-    const hasFace = this.currentMood !== 'glitching' && this.currentMood !== 'booting' && this.currentMood !== 'off';
+    // Update blink (not during off, booting, glitching, stunned, charging)
+    const hasFace = this.currentMood !== 'glitching' && this.currentMood !== 'booting' && this.currentMood !== 'off' && this.currentMood !== 'stunned' && this.currentMood !== 'charging';
     if (!this.isTransitioning && hasFace) {
       this.updateBlink(delta);
     }
 
-    // Update dynamic static (glitching and booting)
-    if ((this.currentMood === 'glitching' || this.currentMood === 'booting') && !this.isTransitioning) {
+    // Update dynamic effects (glitching, booting, stunned flicker)
+    if ((this.currentMood === 'glitching' || this.currentMood === 'booting' || this.currentMood === 'stunned') && !this.isTransitioning) {
       this.glitchTimerMs += delta;
       if (this.glitchTimerMs >= GLITCH_INTERVAL_MS) {
         this.glitchTimerMs = 0;
         this.glitchSeed++;
+        this.lastRenderedFrame = -1; // force redraw
+      }
+    }
+
+    // Update face animation (faces/faces2 alternation)
+    const moodDef = MOOD_DEFINITIONS[this.currentMood];
+    if (moodDef.faces2 && moodDef.animIntervalMs && !this.isTransitioning) {
+      this.faceAnimTimerMs += delta;
+      if (this.faceAnimTimerMs >= moodDef.animIntervalMs) {
+        this.faceAnimTimerMs = 0;
+        this.faceAnimFrame = this.faceAnimFrame === 0 ? 1 : 0;
         this.lastRenderedFrame = -1; // force redraw
       }
     }
@@ -182,6 +197,8 @@ export class TvFaceComponent implements Component {
     this.transitionFrameIndex = 0;
     this.transitionTimerMs = 0;
     this.transitionTargetMood = targetMood;
+    this.faceAnimFrame = 0;
+    this.faceAnimTimerMs = 0;
     this.lastRenderedFrame = -1; // force redraw
   }
 
@@ -271,11 +288,20 @@ export class TvFaceComponent implements Component {
           this.renderGlitchFace(data, mask, true);
         } else if (this.currentMood === 'off') {
           // No face — just black bg (already filled)
+        } else if (this.currentMood === 'stunned') {
+          // Flicker bg brightness then draw face
+          const flicker = (this.glitchSeed % 3 === 0) ? 40 : (this.glitchSeed % 3 === 1) ? -30 : 0;
+          for (const p of mask.pixels) {
+            const idx = (p.row * FRAME_WIDTH_PX + p.col) * 4;
+            data[idx] = Math.min(255, Math.max(0, data[idx] + flicker));
+            data[idx + 1] = Math.min(255, Math.max(0, data[idx + 1] + flicker));
+            data[idx + 2] = Math.min(255, Math.max(0, data[idx + 2] + flicker));
+          }
+          this.stampPixels(data, mask, this.getAnimatedFace(moodDef, faceDir));
         } else if (this.isBlinking) {
           this.renderBlinkFace(data, mask);
         } else {
-          const pixels = moodDef.faces[faceDir];
-          this.stampPixels(data, mask, pixels);
+          this.stampPixels(data, mask, this.getAnimatedFace(moodDef, faceDir));
         }
       }
     }
@@ -283,6 +309,13 @@ export class TvFaceComponent implements Component {
     this.ctx.putImageData(imageData, 0, 0);
     this.canvasTexture.refresh();
     this.applySpriteTexture();
+  }
+
+  private getAnimatedFace(moodDef: MoodDefinition, faceDir: FaceDirection): readonly FacePixel[] {
+    if (this.faceAnimFrame === 1 && moodDef.faces2) {
+      return moodDef.faces2[faceDir];
+    }
+    return moodDef.faces[faceDir];
   }
 
   private stampPixels(data: Uint8ClampedArray, mask: ScreenMask, pixels: readonly FacePixel[]): void {
@@ -302,16 +335,16 @@ export class TvFaceComponent implements Component {
   }
 
   private renderStaticTransition(data: Uint8ClampedArray, mask: ScreenMask): void {
-    // Random static pixels for transition effect
+    // B&W TV static for transition
     const seed = this.transitionFrameIndex * 17 + 7;
     let rng = seed;
     const nextRng = (): number => { rng = (rng * 1103515245 + 12345) & 0x7fffffff; return rng; };
 
     for (const p of mask.pixels) {
       const idx = (p.row * FRAME_WIDTH_PX + p.col) * 4;
-      const v = nextRng() % 100;
+      const v = nextRng() % 200 + 40;
       data[idx] = v;
-      data[idx + 1] = v + (nextRng() % 60);
+      data[idx + 1] = v;
       data[idx + 2] = v;
       data[idx + 3] = 255;
     }

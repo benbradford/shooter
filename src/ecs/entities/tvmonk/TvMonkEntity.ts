@@ -17,7 +17,7 @@ import { Depth } from '../../../constants/DepthConstants';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 const TV_MONK_HEALTH = 120;
-const TV_MONK_SCALE = 1;
+const TV_MONK_SCALE = 1.3;
 const GRID_COLLISION_BOX = { offsetX: 0, offsetY: 12, width: 40, height: 20 };
 const ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -18, width: 36, height: 36 };
 

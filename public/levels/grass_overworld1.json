@@ -5837,6 +5837,76 @@
         ],
         "oneShot": true
       }
+    },
+    {
+      "id": "trigger1",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "monk_surprised",
+        "triggerCells": [
+          {
+            "col": 16,
+            "row": 7
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger2",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "monk_laughing",
+        "triggerCells": [
+          {
+            "col": 17,
+            "row": 7
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger3",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "monk_stunned",
+        "triggerCells": [
+          {
+            "col": 18,
+            "row": 7
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger4",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "monk_love",
+        "triggerCells": [
+          {
+            "col": 19,
+            "row": 7
+          }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger5",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "monk_scared",
+        "triggerCells": [
+          {
+            "col": 20,
+            "row": 7
+          }
+        ],
+        "oneShot": true
+      }
     }
   ],
   "levelTheme": "grass_overworld1",

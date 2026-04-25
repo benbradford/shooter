@@ -8,16 +8,21 @@ import { dirFromDelta, Direction } from '../../../constants/Direction';
 import { TvFaceComponent } from './TvFaceComponent';
 import type { TvMood } from './TvFaceMoods';
 
+import { SpriteComponent } from '../../components/core/SpriteComponent';
+
 const MONK_EVENTS: readonly string[] = [
   'monk_off', 'monk_booting', 'monk_neutral', 'monk_happy', 'monk_sad',
-  'monk_love', 'monk_scared', 'monk_angry', 'monk_enraged', 'monk_glitching',
-  'monk_fight',
+  'monk_love', 'monk_scared', 'monk_surprised', 'monk_smug', 'monk_laughing',
+  'monk_angry', 'monk_enraged', 'monk_charging', 'monk_stunned', 'monk_defeated',
+  'monk_glitching', 'monk_fight',
 ];
 
 const EVENT_TO_MOOD: Record<string, TvMood> = {
   monk_off: 'off', monk_booting: 'booting', monk_neutral: 'neutral',
   monk_happy: 'happy', monk_sad: 'sad', monk_love: 'love',
-  monk_scared: 'scared', monk_angry: 'angry', monk_enraged: 'enraged',
+  monk_scared: 'scared', monk_surprised: 'surprised', monk_smug: 'smug',
+  monk_laughing: 'laughing', monk_angry: 'angry', monk_enraged: 'enraged',
+  monk_charging: 'charging', monk_stunned: 'stunned', monk_defeated: 'defeated',
   monk_glitching: 'glitching',
 };
 
@@ -76,6 +81,14 @@ export class TvMonkBehaviorComponent implements Component, EventListener {
       this.currentDirection = dir;
       const face = this.entity.get(TvFaceComponent);
       face?.setDirection(dir);
+    }
+
+    // Depth sort: render behind player when player is below, in front when above
+    const sprite = this.entity.get(SpriteComponent);
+    const playerSprite = this.playerEntity.get(SpriteComponent);
+    if (sprite && playerSprite) {
+      const playerDepth = playerSprite.sprite.depth;
+      sprite.sprite.setDepth(playerTransform.y < transform.y ? playerDepth + 1 : playerDepth - 1);
     }
   }
 
