@@ -15,6 +15,7 @@ export class EntityManager {
   }
 
   remove(entity: Entity): void {
+    console.log("Removing entity " + entity.entityId);
     const index = this.entities.indexOf(entity);
     if (index > -1) {
       this.entities[index].destroy();
@@ -27,13 +28,13 @@ export class EntityManager {
 
   update(delta: number): void {
     const scene = this.entities[0]?.getScene() as { isInInteraction?: boolean } | undefined;
-    
+
     if (scene?.isInInteraction) {
       for (const entity of this.entities) {
         // Update interaction-active entities OR entities in HudScene
         const entityScene = entity.getScene();
         const isHudEntity = entityScene?.scene.key === 'HudScene';
-        
+
         if ((entity.tags.has('interaction_active') || isHudEntity) && !entity.isDestroyed) {
           entity.update(delta);
         }
@@ -48,7 +49,7 @@ export class EntityManager {
 
     const destroyedEntities = this.entities.filter(entity => entity.isDestroyed);
     this.entities = this.entities.filter(entity => !entity.isDestroyed);
-    
+
     if (this.eventManager) {
       for (const entity of destroyedEntities) {
         this.eventManager.raiseEvent(`${entity.id}_destroyed`);

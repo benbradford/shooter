@@ -800,6 +800,11 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 80, frameHeight: 80 }
   },
+  tv_static: {
+    key: 'tv_static',
+    path: 'assets/sounds/tv_static.mp3',
+    type: 'audio' as const,
+  },
   cat_detect: {
     key: 'cat_detect',
     path: 'assets/sounds/cat_detect.mp3',
@@ -928,7 +933,7 @@ export const ASSET_GROUPS = {
   skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   puma: ['puma', 'cat_detect', 'cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4', 'cat_death'] as const,
-  tv_monk: ['tv_monk'] as const,
+  tv_monk: ['tv_monk', 'tv_static'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
 
   // NPCs

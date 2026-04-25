@@ -24,27 +24,6 @@
       "south-west": "rotations/south-west.png"
     },
     "animations": {
-      "Throw_Object-19bab6ad": {
-        "south": [
-          "animations/Throw_Object-19bab6ad/south/frame_000.png",
-          "animations/Throw_Object-19bab6ad/south/frame_001.png",
-          "animations/Throw_Object-19bab6ad/south/frame_002.png",
-          "animations/Throw_Object-19bab6ad/south/frame_003.png",
-          "animations/Throw_Object-19bab6ad/south/frame_004.png",
-          "animations/Throw_Object-19bab6ad/south/frame_005.png",
-          "animations/Throw_Object-19bab6ad/south/frame_006.png"
-        ]
-      },
-      "Fireball-79eac35c": {
-        "south": [
-          "animations/Fireball-79eac35c/south/frame_000.png",
-          "animations/Fireball-79eac35c/south/frame_001.png",
-          "animations/Fireball-79eac35c/south/frame_002.png",
-          "animations/Fireball-79eac35c/south/frame_003.png",
-          "animations/Fireball-79eac35c/south/frame_004.png",
-          "animations/Fireball-79eac35c/south/frame_005.png"
-        ]
-      },
       "Taking_Punch-775bdfc1": {
         "south": [
           "animations/Taking_Punch-775bdfc1/south/frame_000.png",
@@ -55,26 +34,37 @@
           "animations/Taking_Punch-775bdfc1/south/frame_005.png"
         ]
       },
-      "Drinking-396058d7": {
-        "south": [
-          "animations/Drinking-396058d7/south/frame_000.png",
-          "animations/Drinking-396058d7/south/frame_001.png",
-          "animations/Drinking-396058d7/south/frame_002.png",
-          "animations/Drinking-396058d7/south/frame_003.png",
-          "animations/Drinking-396058d7/south/frame_004.png",
-          "animations/Drinking-396058d7/south/frame_005.png"
-        ]
-      },
       "Raise_both_hands_together_up_in_the_air-764d25b8": {
         "south": [
           "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_000.png",
           "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_001.png",
           "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_002.png",
           "animations/Raise_both_hands_together_up_in_the_air-764d25b8/south/frame_003.png"
+        ],
+        "north": [
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/north/frame_000.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/north/frame_001.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/north/frame_002.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/north/frame_003.png",
+          "animations/Raise_both_hands_together_up_in_the_air-764d25b8/north/frame_004.png"
+        ]
+      },
+      "Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319": {
+        "south": [
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_000.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_001.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_002.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_003.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_004.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_005.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_006.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_007.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_008.png",
+          "animations/Falling_down_forwards_onto_face._throw_arms_forwar-c8a0b319/south/frame_009.png"
         ]
       }
     }
   },
   "export_version": "2.0",
-  "export_date": "2026-04-24T19:25:40.732531"
+  "export_date": "2026-04-25T00:56:05.747268"
 }

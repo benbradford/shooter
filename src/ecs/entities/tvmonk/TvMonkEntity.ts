@@ -18,6 +18,9 @@ import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 
 const TV_MONK_HEALTH = 120;
 const TV_MONK_SCALE = 1.3;
+const DEATH_ANIM_START_FRAME = 40;
+const DEATH_ANIM_FRAME_COUNT = 10;
+const DEATH_ANIM_FRAME_RATE = 8;
 const GRID_COLLISION_BOX = { offsetX: 0, offsetY: 12, width: 40, height: 20 };
 const ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -18, width: 36, height: 36 };
 
@@ -56,12 +59,43 @@ export function createTvMonkEntity(props: CreateTvMonkProps): Entity {
     onHit: (other: Entity) => {
       const dmg = other.get(DamageComponent);
       const health = entity.get(HealthComponent);
-      if (dmg && health) {
+      if (dmg && health && health.getHealth() > 0) {
         health.takeDamage(dmg.damage);
         const flash = entity.get(HitFlashComponent);
         flash?.flash(300);
         if (health.getHealth() <= 0) {
-          entity.destroy();
+          // Remove collision and flash so monk can't be hit again
+          const col = entity.get(CollisionComponent);
+          if (col) entity.remove(CollisionComponent);
+          const hf = entity.get(HitFlashComponent);
+          if (hf) entity.remove(HitFlashComponent);
+
+          // Stop face rendering — death anim is baked into spritesheet
+          const face = entity.get(TvFaceComponent);
+          face?.die();
+
+          // Stop behavior (no more facing player)
+          const beh = entity.get(TvMonkBehaviorComponent);
+          if (beh) entity.remove(TvMonkBehaviorComponent);
+
+          // Play falling animation on the original spritesheet
+          const spr = entity.get(SpriteComponent);
+          if (spr) {
+            spr.sprite.setTexture('tv_monk');
+            spr.sprite.clearTint();
+            if (!scene.anims.exists('tv_monk_death')) {
+              scene.anims.create({
+                key: 'tv_monk_death',
+                frames: scene.anims.generateFrameNumbers('tv_monk', {
+                  start: DEATH_ANIM_START_FRAME,
+                  end: DEATH_ANIM_START_FRAME + DEATH_ANIM_FRAME_COUNT - 1,
+                }),
+                frameRate: DEATH_ANIM_FRAME_RATE,
+                repeat: 0,
+              });
+            }
+            spr.sprite.play('tv_monk_death');
+          }
         }
       }
     },

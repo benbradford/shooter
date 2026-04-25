@@ -10,10 +10,12 @@ import {
 import { type ScreenMask, scanScreenMasks, EMPTY_MASK } from './TvScreenMaskScanner';
 import { Direction } from '../../../constants/Direction';
 
+import { SoundManager } from '../../../systems/SoundManager';
+
 const SPRITESHEET_KEY = 'tv_monk';
 const FRAME_WIDTH_PX = 80;
 const FRAME_HEIGHT_PX = 80;
-const TOTAL_FRAMES = 37;
+const TOTAL_FRAMES = 50;
 const CANVAS_KEY = 'tv_monk_dynamic';
 
 // Idle animation: blink every 3-5 seconds, 2 frames closed
@@ -67,7 +69,7 @@ export class TvFaceComponent implements Component {
   private currentFrame = 6; // south idle
   private lastRenderedFrame = -1;
   private lastRenderedMood: TvMood | null = null;
-  private phase: 'pre-combat' | 'combat' = 'pre-combat';
+  private phase: 'pre-combat' | 'combat' | 'dead' = 'pre-combat';
 
   // Blink timer
   private blinkTimerMs = 0;
@@ -131,6 +133,7 @@ export class TvFaceComponent implements Component {
 
   /** Called by event system in pre-combat phase */
   setMood(mood: TvMood): void {
+    if (this.phase === 'dead') return;
     if (mood === this.currentMood || this.isTransitioning) return;
     this.startTransition(mood);
   }
@@ -143,7 +146,13 @@ export class TvFaceComponent implements Component {
     }
   }
 
+  /** Stop all face rendering — death anim plays on base spritesheet */
+  die(): void {
+    this.phase = 'dead';
+  }
+
   update(delta: number): void {
+    if (this.phase === 'dead') return;
     // In combat, mood is driven by health
     if (this.phase === 'combat') {
       const health = this.entity.get(HealthComponent);
@@ -199,7 +208,8 @@ export class TvFaceComponent implements Component {
     this.transitionTargetMood = targetMood;
     this.faceAnimFrame = 0;
     this.faceAnimTimerMs = 0;
-    this.lastRenderedFrame = -1; // force redraw
+    this.lastRenderedFrame = -1;
+    SoundManager.getInstance().play('tv_static');
   }
 
   private updateTransition(delta: number): void {

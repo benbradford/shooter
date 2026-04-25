@@ -233,6 +233,7 @@ When asked to "update the docs":
 - **Thrower**: Runs toward player, throws grenades in arc
 - **Skeleton**: Pathfinds to player, stops periodically, throws rotating bone projectiles
 - **Puma**: Rests until player detected (FOV or proximity), stands up, threatens, chases with momentum, jumps at player (2× distance), recovers with deceleration
+- **TV Monk**: Boss with dynamic TV screen face. Pre-combat mood set via events (`monk_happy`, `monk_angry`, etc.). Combat mood follows health (120 HP). 16 moods with idle animations, B&W static transitions. Faces player. Sound: `tv_static` on face transitions.
 
 ## Key Concepts
 

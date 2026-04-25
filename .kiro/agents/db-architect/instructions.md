@@ -216,6 +216,7 @@ Call out when patterns are used incorrectly. Be explicit:
 - ECS used as OOP with extra steps → "This is not ECS, this is OOP with components."
 - "Coordinator" classes that are actually god objects → name them
 - State machines inconsistently applied → identify which entities break the pattern and why that's a problem
+- **Shadow state variables** → boolean/string fields like `isDead`, `isCharging`, `phase` that duplicate what should be a state machine or union type. If a component has multiple `if (this.isDead) return` guards or a `phase` string that controls branching, it's a state machine in disguise. Call it out: "This is ad-hoc state management — use a typed union, enum, or StateMachine instead of scattered boolean/string guards."
 
 Do NOT hedge. Say what it IS, not what it "might be."
 

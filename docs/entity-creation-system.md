@@ -48,6 +48,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `breakable` - Destructible object (vases, walls) with health, rarity drops, optional super-punch-only
 - `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
 - `escort` - NPC that follows the player across levels to a destination cell, with subtype-specific behavior (e.g., knight)
+- `tv_monk` - Boss with dynamic TV screen face. Pre-combat: mood set via `monk_{state}` events. Combat: mood follows health. Faces player. Sound: `tv_static` on face transitions.
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields
@@ -332,6 +333,11 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/ecs/components/escort/EscortPersistence.ts` - Typed escort WorldState flag accessors
 - `src/ecs/systems/movement/PathFollower.ts` - Shared path-following utility (used by escort, pet, thrower, robot)
 - `editor/CanvasInteraction.ts` - Entity placement and selection
+- `src/ecs/entities/tvmonk/TvMonkEntity.ts` - TV Monk entity factory
+- `src/ecs/entities/tvmonk/TvFaceComponent.ts` - Dynamic TV face rendering (CanvasTexture, mood transitions, blink, glitch)
+- `src/ecs/entities/tvmonk/TvFaceMoods.ts` - Mood definitions (face patterns, colors, animations, health thresholds)
+- `src/ecs/entities/tvmonk/TvMonkBehaviorComponent.ts` - Event-driven mood changes, faces player
+- `src/ecs/entities/tvmonk/TvScreenMaskScanner.ts` - Pre-computes screen pixel masks from spritesheet
 - `editor/EditorBridge.ts` - Entity extraction to JSON
 - `editor/panels/ContextPanel.ts` - Trigger/CellModifier/Entity editing UI
 - `src/scenes/GameScene.ts` - Entity extraction to JSON
