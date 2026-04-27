@@ -147,6 +147,21 @@ EVIDENCE:
 WHY IT MATTERS:
   What breaks when someone changes this code?
 
+ROI: High / Medium / Low
+  High = frequent pain point, blocks new features, causes bugs
+  Medium = occasional friction, worth doing when nearby
+  Low = correct but expensive, defer unless area is being rewritten
+
+FEASIBILITY: High / Medium / Low
+  High = mechanical extraction, low risk, <2 hours
+  Medium = requires coordination across files, half-day
+  Low = architectural shift, multi-day, needs migration plan
+
+STABILITY TARGET: High / Medium / Low
+  High = core infrastructure (Grid, WorldState) — minimize changes, maximize stability
+  Medium = shared systems (pathfinding, collision) — change carefully
+  Low = leaf features (AI states, abilities) — change freely, iterate fast
+
 TARGET ARCHITECTURE:
   EscortComponent (coordinator, ~150 LOC)
    ├── EscortStateMachine
@@ -201,7 +216,82 @@ Before the detailed issues, include a high-level diagnosis of systemic patterns:
 
 This section answers: "What are the recurring architectural tendencies across the codebase?" Not per-file issues — systemic patterns.
 
-### 7. 🧨 ARCHITECTURAL CRITIQUE — BRUTAL MODE (MANDATORY)
+### 7. 🔥 HOT PATH AUDIT (MANDATORY for codebase/directory scope)
+
+Identify per-frame performance risks. This is a real-time game at 60fps — every `update()` call matters.
+
+```
+🔥 HOT PATH AUDIT:
+
+ 1. ALLOCATION IN UPDATE LOOP
+    File: src/ecs/components/X.ts:142
+    Issue: new Array() / object spread / .filter() creating garbage every frame
+    Impact: GC pressure at 60fps
+    Fix: Pre-allocate or reuse
+
+ 2. REPEATED EXPENSIVE COMPUTATION
+    File: src/ecs/components/Y.ts:89
+    Issue: Pathfinding called every frame instead of on timer
+    Impact: O(n²) per frame with many entities
+    Fix: Throttle to 500ms intervals
+
+ 3. DEEP CALL STACK IN HOT PATH
+    File: src/ecs/components/Z.ts:55
+    Issue: update() → helper() → helper2() → helper3() chain
+    Impact: Stack depth + inlining prevention
+    Fix: Flatten or cache results
+
+ 4. SPRITE/TEXTURE CREATION IN LOOP
+    File: src/ecs/components/W.ts:200
+    Issue: Creating sprites inside update() conditionally
+    Impact: Phaser object pool exhaustion
+    Fix: Create once, show/hide
+```
+
+Look specifically for:
+- `new` / object literals / array methods (.map, .filter, .reduce) inside update()
+- Pathfinding or grid queries called every frame without throttling
+- String concatenation or template literals in hot paths
+- Repeated `.get()` component lookups that could be cached
+- Sprite/texture/graphics creation inside update loops
+
+### 8. 🗺️ MIGRATION PATHS (for major architectural shifts)
+
+When suggesting large refactors (ROI: High but Feasibility: Low), provide an incremental migration path instead of a big-bang rewrite:
+
+```
+🗺️ MIGRATION PATH: {name of shift}
+
+Current State: {what exists now}
+Target State: {what it should become}
+
+Step 1: {smallest useful change} (~X hours)
+  - What to do
+  - What it unblocks
+  - Can be shipped independently: Yes/No
+
+Step 2: {next increment} (~X hours)
+  - What to do
+  - Depends on: Step 1
+  - Can be shipped independently: Yes/No
+
+Step 3: {expand coverage} (~X hours)
+  - What to do
+  - Depends on: Step 2
+
+Checkpoint: At this point, {what's better and what's left}
+
+Step 4: {complete migration} (~X hours)
+  - What to do
+  - Final cleanup
+
+Total: ~X hours across Y sessions
+Risk: Each step is independently shippable and testable
+```
+
+This turns expensive architectural critiques into actionable long-term plans. Include migration paths for any suggestion with Feasibility: Low.
+
+### 9. 🧨 ARCHITECTURAL CRITIQUE — BRUTAL MODE (MANDATORY)
 
 **After the standard pragmatic analysis, you MUST include this section.**
 
@@ -209,7 +299,7 @@ This section ignores refactor cost and focuses on truth over safety. The standar
 
 **You are allowed to conclude that the architecture itself is flawed, even if individual files are "acceptable."**
 
-#### 7.1 Misapplied Patterns
+#### 9.1 Misapplied Patterns
 
 Call out when patterns are used incorrectly. Be explicit:
 - Components that are actually systems → "This is not a component — this is a full behavior system."
@@ -220,7 +310,7 @@ Call out when patterns are used incorrectly. Be explicit:
 
 Do NOT hedge. Say what it IS, not what it "might be."
 
-#### 7.2 Missing Core Abstractions
+#### 9.2 Missing Core Abstractions
 
 Do NOT just report duplication. Instead ask:
 - What concept exists multiple times but has no name?
@@ -234,7 +324,7 @@ MISSING ABSTRACTION: {name}
   Locations: {list files}
 ```
 
-#### 7.3 Architectural Drift
+#### 9.3 Architectural Drift
 
 Look for signs of "feature stacking" — logic spread across unrelated files, cross-cutting concerns (persistence, navigation, state), repeated patterns with slight variations.
 
@@ -246,7 +336,7 @@ ARCHITECTURAL DRIFT:
   Evidence: {specific examples}
 ```
 
-#### 7.4 Challenge Core Architectural Choices
+#### 9.4 Challenge Core Architectural Choices
 
 Evaluate whether the current architecture is being followed correctly:
 - Is ECS actually ECS, or just components with behavior?
@@ -261,7 +351,7 @@ ECS VIOLATION:
   Examples: {list}
 ```
 
-#### 7.5 Ideal Architecture (Ignore Cost)
+#### 9.5 Ideal Architecture (Ignore Cost)
 
 Describe what the system SHOULD look like if built cleanly from scratch:
 - What systems would exist?
@@ -270,7 +360,7 @@ Describe what the system SHOULD look like if built cleanly from scratch:
 
 Do NOT worry about migration cost. This is the north star.
 
-#### 7.6 Hidden Coupling
+#### 9.6 Hidden Coupling
 
 Specifically detect:
 - Singleton overuse and `.getInstance()` proliferation
@@ -285,7 +375,7 @@ HIDDEN COUPLING:
   You cannot test {X} without {Y} being initialized first.
 ```
 
-#### 7.7 Scaling Predictions
+#### 9.7 Scaling Predictions
 
 For each major system, predict where it breaks:
 ```
@@ -294,7 +384,7 @@ SCALING LIMIT: {system}
   Symptom when it breaks: {what happens}
 ```
 
-#### 7.8 Verdict
+#### 9.8 Verdict
 
 End with a blunt overall assessment:
 - Is the architecture fundamentally sound with local issues?

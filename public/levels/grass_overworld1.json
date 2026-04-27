@@ -5919,7 +5919,7 @@
     "hasShadows": false,
     "path_texture": "stone_floor",
     "water": {
-      "sourceImage": "water2",
+      "sourceImage": "lava",
       "rippleSpritesheet": "water_ripple",
       "splashParticle": "water_splash",
       "flowDirection": "up",

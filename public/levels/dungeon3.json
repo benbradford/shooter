@@ -3,7 +3,7 @@
   "height": 14,
   "playerStart": {
     "x": 9,
-    "y": 11
+    "y": 2
   },
   "cells": [
     {
@@ -72,22 +72,6 @@
     },
     {
       "col": 8,
-      "row": 0,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 9,
-      "row": 0,
-      "layer": 1,
-      "properties": [
-        "platform"
-      ]
-    },
-    {
-      "col": 10,
       "row": 0,
       "layer": 1,
       "properties": [
@@ -1409,6 +1393,25 @@
       "createOnAnyEvent": [
         "escort0_reached_destination"
       ]
+    },
+    {
+      "id": "exit3",
+      "type": "exit",
+      "data": {
+        "targetLevel": "dungeon_arena",
+        "targetCol": 10,
+        "targetRow": 19,
+        "triggerCells": [
+          {
+            "col": 9,
+            "row": 0
+          },
+          {
+            "col": 10,
+            "row": 0
+          }
+        ]
+      }
     }
   ],
   "levelTheme": "dungeon",

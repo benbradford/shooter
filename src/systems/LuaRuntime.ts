@@ -43,7 +43,8 @@ type Command =
   | { type: 'npcPlayAnim'; npcId: string; animKey: string; repeatType: string }
   | { type: 'teleportTo'; col: number; row: number }
   | { type: 'punch'; direction: Direction }
-  | { type: 'playerPlayAnim'; animKey: string; repeatType: string; startFrame?: number; endFrame?: number };
+  | { type: 'playerPlayAnim'; animKey: string; repeatType: string; startFrame?: number; endFrame?: number }
+  | { type: 'raiseEvent'; eventName: string };
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
@@ -244,7 +245,7 @@ export class LuaRuntime {
       });
 
       lua.global.set('raiseEvent', (eventName: string) => {
-        this.scene.eventManager.raiseEvent(eventName);
+        this.commandQueue.push({ type: 'raiseEvent', eventName });
       });
 
       lua.global.set('getFlag', (name: string): string => {
@@ -423,6 +424,8 @@ export class LuaRuntime {
             if (idle) idle.setPaused(false);
           }
         }
+      } else if (cmd.type === 'raiseEvent') {
+        this.scene.eventManager.raiseEvent(cmd.eventName);
       }
     } finally {
       // Remove tag after command completes (before next command starts)

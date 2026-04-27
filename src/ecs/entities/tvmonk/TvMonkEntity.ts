@@ -13,14 +13,13 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { TvFaceComponent } from './TvFaceComponent';
 import { TvMonkBehaviorComponent } from './TvMonkBehaviorComponent';
 import { Depth } from '../../../constants/DepthConstants';
+import { Direction } from '../../../constants/Direction';
 
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
+import { createTvMonkAnimations, getTvMonkAnimKey } from './TvMonkAnimations';
 
 const TV_MONK_HEALTH = 120;
 const TV_MONK_SCALE = 1.3;
-const DEATH_ANIM_START_FRAME = 40;
-const DEATH_ANIM_FRAME_COUNT = 10;
-const DEATH_ANIM_FRAME_RATE = 8;
 const GRID_COLLISION_BOX = { offsetX: 0, offsetY: 12, width: 40, height: 20 };
 const ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -18, width: 36, height: 36 };
 
@@ -40,13 +39,17 @@ export function createTvMonkEntity(props: CreateTvMonkProps): Entity {
   const x = worldPos.x + grid.cellSize / 2;
   const y = worldPos.y + grid.cellSize / 2;
 
+  createTvMonkAnimations(scene);
+
   const entity = new Entity(entityId);
   entity.tags.add('enemy');
 
   const transform = entity.add(new TransformComponent(x, y, 0, TV_MONK_SCALE));
   const sprite = entity.add(new SpriteComponent(scene, 'tv_monk', transform));
   sprite.sprite.setDepth(Depth.enemy);
-  sprite.sprite.setFrame(6); // south idle
+
+  const idleAnimKey = getTvMonkAnimKey('idle', Direction.Down);
+  sprite.sprite.play(idleAnimKey);
 
   entity.add(new GridPositionComponent(col, row, GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
@@ -83,18 +86,8 @@ export function createTvMonkEntity(props: CreateTvMonkProps): Entity {
           if (spr) {
             spr.sprite.setTexture('tv_monk');
             spr.sprite.clearTint();
-            if (!scene.anims.exists('tv_monk_death')) {
-              scene.anims.create({
-                key: 'tv_monk_death',
-                frames: scene.anims.generateFrameNumbers('tv_monk', {
-                  start: DEATH_ANIM_START_FRAME,
-                  end: DEATH_ANIM_START_FRAME + DEATH_ANIM_FRAME_COUNT - 1,
-                }),
-                frameRate: DEATH_ANIM_FRAME_RATE,
-                repeat: 0,
-              });
-            }
-            spr.sprite.play('tv_monk_death');
+            const deathKey = getTvMonkAnimKey('death', Direction.Down);
+            spr.sprite.play(deathKey);
           }
         }
       }

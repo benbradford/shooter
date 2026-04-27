@@ -9,13 +9,15 @@ import {
 } from './TvFaceMoods';
 import { type ScreenMask, scanScreenMasks, EMPTY_MASK } from './TvScreenMaskScanner';
 import { Direction } from '../../../constants/Direction';
+import { getTvMonkIdleFrame } from './TvMonkAnimations';
 
 import { SoundManager } from '../../../systems/SoundManager';
 
 const SPRITESHEET_KEY = 'tv_monk';
 const FRAME_WIDTH_PX = 80;
 const FRAME_HEIGHT_PX = 80;
-const TOTAL_FRAMES = 50;
+const COLS_PER_ROW = 8;
+const TOTAL_FRAMES = 48;
 const CANVAS_KEY = 'tv_monk_dynamic';
 
 // Idle animation: blink every 3-5 seconds, 2 frames closed
@@ -29,18 +31,6 @@ const TRANSITION_FRAME_DURATION_MS = 70;
 
 // Glitch: randomize every N ms
 const GLITCH_INTERVAL_MS = 200;
-
-// Direction enum to spritesheet frame index (alphabetical order)
-const DIR_TO_IDLE_FRAME: Record<number, number> = {
-  [Direction.Right]: 0,      // east
-  [Direction.UpRight]: 1,    // north-east
-  [Direction.UpLeft]: 2,     // north-west
-  [Direction.Up]: 3,         // north
-  [Direction.DownRight]: 4,  // south-east
-  [Direction.DownLeft]: 5,   // south-west
-  [Direction.Down]: 6,       // south
-  [Direction.Left]: 7,       // west
-};
 
 // Which directions get full face drawing vs color-only
 const FACE_DIR_MAP: Partial<Record<number, FaceDirection>> = {
@@ -66,7 +56,7 @@ export class TvFaceComponent implements Component {
   private sourceCtx: CanvasRenderingContext2D | null = null;
 
   private currentMood: TvMood = 'off';
-  private currentFrame = 6; // south idle
+  private currentFrame = 4; // south idle (alphabetical index)
   private lastRenderedFrame = -1;
   private lastRenderedMood: TvMood | null = null;
   private phase: 'pre-combat' | 'combat' | 'dead' = 'pre-combat';
@@ -125,7 +115,7 @@ export class TvFaceComponent implements Component {
   }
 
   setDirection(dir: Direction): void {
-    const frame = DIR_TO_IDLE_FRAME[dir] ?? 6;
+    const frame = getTvMonkIdleFrame(dir);
     if (frame !== this.currentFrame) {
       this.currentFrame = frame;
     }
@@ -256,9 +246,8 @@ export class TvFaceComponent implements Component {
     this.lastRenderedFrame = renderKey;
     this.lastRenderedMood = this.currentMood;
 
-    const cols = Math.floor(this.sourceCanvas.width / FRAME_WIDTH_PX);
-    const srcCol = this.currentFrame % cols;
-    const srcRow = Math.floor(this.currentFrame / cols);
+    const srcCol = this.currentFrame % COLS_PER_ROW;
+    const srcRow = Math.floor(this.currentFrame / COLS_PER_ROW);
     const sx = srcCol * FRAME_WIDTH_PX;
     const sy = srcRow * FRAME_HEIGHT_PX;
 
@@ -398,8 +387,10 @@ export class TvFaceComponent implements Component {
 
   private directionFromFrame(): Direction {
     // Reverse lookup: frame index to Direction
-    for (const [dir, frame] of Object.entries(DIR_TO_IDLE_FRAME)) {
-      if (frame === this.currentFrame) return Number(dir) as Direction;
+    const directions = [Direction.Right, Direction.Up, Direction.UpRight, Direction.UpLeft,
+      Direction.Down, Direction.DownRight, Direction.DownLeft, Direction.Left] as const;
+    for (const dir of directions) {
+      if (getTvMonkIdleFrame(dir) === this.currentFrame) return dir;
     }
     return Direction.Down;
   }

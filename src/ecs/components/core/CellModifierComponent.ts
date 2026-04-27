@@ -3,11 +3,14 @@ import type { Component } from '../../Component';
 import type { Grid, CellProperty } from '../../../systems/grid/Grid';
 import { Depth } from '../../../constants/DepthConstants';
 
+import type { SingleBackgroundTexture } from '../../../systems/level/LevelLoader';
+import { bgTextureKey } from '../../../systems/level/LevelLoader';
+
 export type CellModification = {
   col: number;
   row: number;
   properties?: CellProperty[];
-  backgroundTexture?: string;
+  backgroundTexture?: SingleBackgroundTexture;
   layer?: number;
 }
 
@@ -52,9 +55,11 @@ export class CellModifierComponent implements Component {
       }
 
       if ('backgroundTexture' in mod) {
-        updates.backgroundTexture = mod.backgroundTexture;
-      } else {
-        updates.backgroundTexture = undefined;
+        if (mod.backgroundTexture) {
+          updates.backgroundTexture = bgTextureKey(mod.backgroundTexture);
+        } else {
+          updates.backgroundTexture = undefined;
+        }
       }
 
       if (mod.layer !== undefined) {
@@ -68,23 +73,23 @@ export class CellModifierComponent implements Component {
         invalidateCells: (cells: Array<{ col: number; row: number }>) => void;
         updateGraphics: (grid: Grid, levelData?: unknown) => void;
       };
-      getLevelData: () => { cells: Array<{ col: number; row: number; backgroundTexture?: string; properties?: string[]; layer?: number }> };
+      getLevelData: () => { cells: Array<{ col: number; row: number; backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[]; properties?: string[]; layer?: number }> };
     };
 
     if (gameScene.sceneRenderer && gameScene.getLevelData) {
       const levelData = gameScene.getLevelData();
-      const cellsWithNewTextures: Array<{ col: number; row: number; texture: string }> = [];
+      const cellsWithNewTextures: Array<{ col: number; row: number; texture: SingleBackgroundTexture }> = [];
 
       for (const mod of this.cellsToModify) {
-        const levelCell = levelData.cells.find(c => c.col === mod.col && c.row === mod.row);
-        if (levelCell) {
-          if ('backgroundTexture' in mod) {
-            if (mod.backgroundTexture) {
-              levelCell.backgroundTexture = mod.backgroundTexture;
-              cellsWithNewTextures.push({ col: mod.col, row: mod.row, texture: mod.backgroundTexture });
-            } else {
-              delete levelCell.backgroundTexture;
-            }
+        let levelCell = levelData.cells.find(c => c.col === mod.col && c.row === mod.row);
+        if (!levelCell) {
+          levelCell = { col: mod.col, row: mod.row };
+          levelData.cells.push(levelCell);
+        }
+        if ('backgroundTexture' in mod) {
+          if (mod.backgroundTexture) {
+            levelCell.backgroundTexture = mod.backgroundTexture;
+            cellsWithNewTextures.push({ col: mod.col, row: mod.row, texture: mod.backgroundTexture });
           } else {
             delete levelCell.backgroundTexture;
           }
@@ -151,12 +156,19 @@ export class CellModifierComponent implements Component {
 
       for (const cell of cellsWithNewTextures) {
         const worldPos = this.grid.cellToWorld(cell.col, cell.row);
+        const key = bgTextureKey(cell.texture);
         const sprite = this.scene.add.image(
           worldPos.x + this.grid.cellSize / 2,
           worldPos.y + this.grid.cellSize / 2,
-          cell.texture
+          key
         );
-        sprite.setDisplaySize(this.grid.cellSize, this.grid.cellSize);
+        const t = typeof cell.texture === 'object' ? cell.texture.transformOverride : undefined;
+        if (t) {
+          sprite.setScale(t.scaleX * this.grid.cellSize / sprite.width, t.scaleY * this.grid.cellSize / sprite.height);
+          sprite.setPosition(sprite.x + t.offsetX, sprite.y + t.offsetY);
+        } else {
+          sprite.setDisplaySize(this.grid.cellSize, this.grid.cellSize);
+        }
         sprite.setDepth(Depth.cellTextureModified);
         sprite.setAlpha(0);
 
