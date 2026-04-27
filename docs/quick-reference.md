@@ -109,7 +109,7 @@ Level transitions work automatically via exit triggers. The system:
 - `getFlag(name)` - Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` - Check flag condition
 - `saveState()` - Save world state to profile file
-- `raiseEvent(eventName)` - Raise a game event (triggers createOnAnyEvent entities)
+- `raiseEvent(eventName)` - Raise a game event (queued — executes in sequence with other commands, triggers createOnAnyEvent entities)
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
 - Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`

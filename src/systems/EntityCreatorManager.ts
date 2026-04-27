@@ -95,6 +95,10 @@ export class EntityCreatorManager implements EventListener {
 
         const entity = creator();
         entity.levelName = currentLevel;
+        // Cell modifiers and interactions must run even during cutscenes
+        if (entity.tags.has('cell_modifier') || entity.tags.has('interaction')) {
+          entity.tags.add('interaction_active');
+        }
         this.entityManager.add(entity);
 
         // Don't track interaction entities in liveEntities
@@ -135,6 +139,9 @@ export class EntityCreatorManager implements EventListener {
 
           const entity = tracker.creator();
           entity.levelName = currentLevel;
+          if (entity.tags.has('cell_modifier') || entity.tags.has('interaction')) {
+            entity.tags.add('interaction_active');
+          }
           this.entityManager.add(entity);
 
           // Don't track interaction entities in liveEntities

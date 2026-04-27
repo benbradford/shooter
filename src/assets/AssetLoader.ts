@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { ASSET_REGISTRY, ASSET_GROUPS, type AssetKey, type AssetGroupKey } from './AssetRegistry';
 import type { LevelData } from '../systems/level/LevelLoader';
-import { normalizeBgTextures, bgTextureKey } from '../systems/level/LevelLoader';
+import { normalizeBgTextures, bgTextureKey, type SingleBackgroundTexture } from '../systems/level/LevelLoader';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 
 /**
@@ -183,9 +183,12 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
         }
       }
       if (entity.type === 'cellmodifier' && Array.isArray(entity.data.cellsToModify)) {
-        for (const mod of entity.data.cellsToModify as Array<{ backgroundTexture?: string }>) {
-          if (mod.backgroundTexture && mod.backgroundTexture in ASSET_REGISTRY) {
-            textureSet.add(mod.backgroundTexture as AssetKey);
+        for (const mod of entity.data.cellsToModify as Array<{ backgroundTexture?: SingleBackgroundTexture }>) {
+          if (mod.backgroundTexture) {
+            const key = bgTextureKey(mod.backgroundTexture);
+            if (key in ASSET_REGISTRY) {
+              textureSet.add(key as AssetKey);
+            }
           }
         }
       }

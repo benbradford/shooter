@@ -125,7 +125,7 @@ Plus one interaction entity per script:
 - `getFlag(name)` — Get flag value as string (returns `""` if not set)
 - `isFlagCondition(name, condition, value)` — Check flag condition
 - `saveState()` — Save world state to profile file
-- `raiseEvent(eventName)` — Raise a game event (triggers createOnAnyEvent entities)
+- `raiseEvent(eventName)` — Raise a game event (queued — executes in sequence with other commands, triggers createOnAnyEvent entities)
 - `npc.name()` / `player.name()` — Get display names
 - `npc.look(direction)` / `player.look(direction)` — Change facing ("down", "up_left", etc.)
 - `npc.playAnim(animKey, repeatType)` — Play custom animation ("once" waits, "repeat" loops)
@@ -161,11 +161,12 @@ Plus one interaction entity per script:
   - `col`: number
   - `row`: number
   - `properties`: CellProperty[] (optional - if not specified, clears all properties)
-  - `backgroundTexture`: string (optional - if not specified, removes texture)
+  - `backgroundTexture`: string or `{image, transformOverride}` object (optional - if not specified, keeps existing texture)
   - `layer`: number (optional - if not specified, keeps existing layer)
-- Executes immediately when created
+- Executes immediately when created (including during cutscenes — tagged `interaction_active`)
 - Fades textures and platform sprites out over 500ms with sparkle particle effect
 - Re-renders grid graphics (edges) after fade completes
+- Creates the levelData cell entry if it doesn't already exist
 - Not tracked in destroyedEntities or liveEntities (like interactions)
 - No position required (defaults to 0,0)
 

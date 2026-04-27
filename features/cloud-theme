@@ -1,0 +1,180 @@
+Create a new CloudSceneRenderer using the 'cloud' theme.
+
+🎯 OBJECTIVE
+
+Generate a complete set of top-down 2D pixel-art tiles for a cloud-themed level in a grid-based game.
+
+Tiles must be:
+
+Fully tileable
+Consistent in style
+Readable for gameplay
+Compatible with a 64×64 grid system
+⚙️ GLOBAL RULES (APPLY TO EVERY TILE)
+
+These rules are mandatory and override everything else:
+
+All tiles must be 64x64 pixels.
+Top-down perspective.
+Pixel-art style, chunky and readable (Metal Slug–inspired).
+No directional lighting.
+No gradients that cross tile edges.
+Edges of every tile must match seamlessly when repeated horizontally and vertically.
+No large shapes cut off at tile borders.
+Use a consistent palette of soft whites and light blue tones.
+No shadows baked into tile edges.
+Maintain consistent scale and density of cloud shapes across all tiles.
+Background must be transparent (alpha) or cleanly tileable.
+
+🎨 STYLE DEFINITION
+Material: soft clouds, but slightly structured
+Shapes: rounded, puffy, medium density
+Contrast: low–medium (gameplay readability first)
+Avoid:
+Noise
+Hyper-detail
+Blurry gradients
+Think: solid clouds you can walk on
+🧱 TILE LIST (GENERATE EACH TILE SEPARATELY)
+☁️ FLOOR TILES
+F0 — Base Floor (generate FIRST)
+
+Cloud floor tile with evenly distributed soft rounded cloud shapes, medium density, no large features touching edges, perfectly seamless in all directions.
+
+F1 — Floor Variant (Swirl)
+
+Cloud floor tile with subtle swirl-like cloud formations, same density and scale as base tile, fully seamless.
+
+F2 — Floor Variant (Cluster)
+
+Cloud floor tile with slightly denser clustered puffs, small rounded bumps, evenly distributed, seamless.
+
+F3 — Floor Variant (Light Gaps)
+
+Cloud floor tile with slightly thinner cloud coverage and small soft gaps, still readable as solid ground, seamless.
+
+FS2 — Lowered Floor (Gameplay Tile)
+
+Cloud floor tile that appears slightly lower and softer, with more spaced-out cloud shapes, subtle “sunken” feel, seamless.
+
+☁️ WALL / BARRIER TILES
+
+(These must be denser than floor tiles)
+
+W0 — Full Wall
+
+Dense cloud wall tile with tightly packed cloud clusters forming a solid barrier, more compact than floor, seamless.
+
+W1 — Horizontal Wall
+
+Horizontal cloud wall segment spanning left to right, dense cloud formation, flat alignment for seamless tiling.
+
+W2 — Vertical Wall
+
+Vertical cloud wall segment spanning top to bottom, consistent thickness, seamless.
+
+INNER CORNERS
+W3 — Inner Corner Top-Left
+
+Dense cloud wall forming a concave corner (top-left), aligned for seamless tiling.
+
+W4 — Inner Corner Top-Right
+
+Dense cloud wall forming a concave corner (top-right), aligned for seamless tiling.
+
+W5 — Inner Corner Bottom-Left
+
+Dense cloud wall forming a concave corner (bottom-left), aligned for seamless tiling.
+
+W6 — Inner Corner Bottom-Right
+
+Dense cloud wall forming a concave corner (bottom-right), aligned for seamless tiling.
+
+OUTER CORNERS
+W7 — Outer Corner Top-Left
+
+Cloud wall convex corner (top-left), rounded outward, seamless with adjacent tiles.
+
+W8 — Outer Corner Top-Right
+
+Cloud wall convex corner (top-right), rounded outward, seamless.
+
+W9 — Outer Corner Bottom-Left
+
+Cloud wall convex corner (bottom-left), rounded outward, seamless.
+
+W10 — Outer Corner Bottom-Right
+
+Cloud wall convex corner (bottom-right), rounded outward, seamless.
+
+🌥️ EDGE / VOID TRANSITION TILES
+
+(These create the “floating in the sky” effect)
+
+E0 — Top Edge
+
+Cloud tile fading into open sky at the top edge, soft irregular cloud breakup, bottom fully solid for tiling.
+
+E1 — Bottom Edge
+
+Cloud tile fading into open sky at the bottom edge, top fully solid, seamless.
+
+E2 — Left Edge
+
+Cloud tile fading into open sky on the left side, right side fully tileable.
+
+E3 — Right Edge
+
+Cloud tile fading into open sky on the right side, left side fully tileable.
+
+EDGE CORNERS
+E4 — Outer Corner Top-Left
+
+Cloud tile occupying bottom-right, fading into sky on top and left sides.
+
+E5 — Outer Corner Top-Right
+
+Cloud tile occupying bottom-left, fading into sky on top and right sides.
+
+E6 — Outer Corner Bottom-Left
+
+Cloud tile occupying top-right, fading into sky on bottom and left sides.
+
+E7 — Outer Corner Bottom-Right
+
+Cloud tile occupying top-left, fading into sky on bottom and right sides.
+
+🌬️ GAMEPLAY / EFFECT TILES (OPTIONAL)
+G0 — Wind Tile
+
+Cloud floor tile with subtle horizontal wind streaks integrated into the surface, still clearly walkable.
+
+G1 — Updraft Tile
+
+Cloud tile with a soft vertical swirling pattern suggesting upward airflow.
+
+⚠️ GENERATION WORKFLOW (VERY IMPORTANT)
+
+Kiro must follow this order:
+
+Generate F0 (base floor)
+Ensure it tiles perfectly (repeat test)
+Generate all other floor variants
+Generate walls
+Generate edges LAST
+🚫 FAILURE CONDITIONS
+
+Reject and regenerate any tile that:
+
+Has visible seams when repeated
+Contains directional lighting
+Has large shapes cut off at edges
+Uses inconsistent scale vs other tiles
+💡 FINAL NOTE (IMPORTANT)
+
+All tiles must look like they belong to the same exact set:
+
+Same cloud size
+Same density
+Same palette
+Same softness level
