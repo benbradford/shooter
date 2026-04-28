@@ -43,6 +43,7 @@ export function createTvMonkEntity(props: CreateTvMonkProps): Entity {
 
   const entity = new Entity(entityId);
   entity.tags.add('enemy');
+  entity.tags.add('interaction_active');
 
   const transform = entity.add(new TransformComponent(x, y, 0, TV_MONK_SCALE));
   const sprite = entity.add(new SpriteComponent(scene, 'tv_monk', transform));

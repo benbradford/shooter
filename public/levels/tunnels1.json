@@ -471,6 +471,46 @@
       ]
     },
     {
+      "col": 8,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 6,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
       "col": 18,
       "row": 6,
       "layer": 1,
@@ -496,6 +536,46 @@
     },
     {
       "col": 1,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "stairs"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 7,
+      "layer": 1,
+      "properties": [
+        "wall"
+      ]
+    },
+    {
+      "col": 12,
       "row": 7,
       "layer": 1,
       "properties": [
@@ -961,6 +1041,8 @@
   "background": {
     "floor_texture": "muddy_floor",
     "wall_texture": "muddy_wall",
+    "platform_texture": "muddy_platform",
+    "stairs_texture": "muddy_stairs",
     "floor_tile": 5,
     "floorAlpha": 0.7
   }
