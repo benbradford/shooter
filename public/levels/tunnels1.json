@@ -375,6 +375,28 @@
       ]
     },
     {
+      "col": 9,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
       "col": 18,
       "row": 3,
       "layer": 1,
@@ -404,6 +426,39 @@
       "layer": 1,
       "properties": [
         "wall"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
       ]
     },
     {

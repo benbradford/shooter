@@ -27,6 +27,7 @@ import { AttackComboComponent } from '../../components/combat/AttackComboCompone
 import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { BlockedAreaCollisionComponent } from '../../components/movement/BlockedAreaCollisionComponent';
+import { VoidJumpComponent } from '../../components/movement/VoidJumpComponent';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
@@ -129,6 +130,33 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`death_${Direction.UpLeft}`, new Animation(['91', '92', '93', '94', '95', '96', '97'], 'once', 0.15));
   animMap.set(`death_${Direction.Left}`, new Animation(['98', '99', '100', '101', '102', '103', '104'], 'once', 0.15));
   animMap.set(`death_${Direction.DownLeft}`, new Animation(['105', '106', '107', '108', '109', '110', '111'], 'once', 0.15));
+
+  animMap.set(`jump_takeoff_${Direction.Down}`, new Animation(['112', '113', '114'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.DownRight}`, new Animation(['121', '122', '123'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.Right}`, new Animation(['130', '131', '132'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.UpRight}`, new Animation(['139', '140', '141'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.Up}`, new Animation(['148', '149', '150'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.UpLeft}`, new Animation(['157', '158', '159'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.Left}`, new Animation(['166', '167', '168'], 'once', 0.06));
+  animMap.set(`jump_takeoff_${Direction.DownLeft}`, new Animation(['175', '176', '177'], 'once', 0.06));
+
+  animMap.set(`jump_flight_${Direction.Down}`, new Animation(['115', '116', '117'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.DownRight}`, new Animation(['124', '125', '126'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.Right}`, new Animation(['133', '134', '135'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.UpRight}`, new Animation(['142', '143', '144'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.Up}`, new Animation(['151', '152', '153'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.UpLeft}`, new Animation(['160', '161', '162'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.Left}`, new Animation(['169', '170', '171'], 'repeat', 0.06));
+  animMap.set(`jump_flight_${Direction.DownLeft}`, new Animation(['178', '179', '180'], 'repeat', 0.06));
+
+  animMap.set(`jump_land_${Direction.Down}`, new Animation(['118', '119', '120'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.DownRight}`, new Animation(['127', '128', '129'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.Right}`, new Animation(['136', '137', '138'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.UpRight}`, new Animation(['145', '146', '147'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.Up}`, new Animation(['154', '155', '156'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.UpLeft}`, new Animation(['163', '164', '165'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.Left}`, new Animation(['172', '173', '174'], 'once', 0.06));
+  animMap.set(`jump_land_${Direction.DownLeft}`, new Animation(['181', '182', '183'], 'once', 0.06));
 
   animMap.set(`punch_${Direction.Down}`, new Animation(['8', '9', '10', '11', '12', '13'], 'once', 0.0415));
   animMap.set(`punch_${Direction.DownRight}`, new Animation(['14', '15', '16', '17', '18', '19'], 'once', 0.0415));
@@ -248,6 +276,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_GRID_COLLISION_BOX));
 
   entity.add(new GridCollisionComponent(grid));
+  entity.add(new VoidJumpComponent({ grid }));
 
   if (blockedAreaManager) {
     entity.add(new BlockedAreaCollisionComponent({ blockedAreaManager }));
@@ -342,6 +371,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     AnimationComponent,
     WaterRippleComponent,
     WaterEffectComponent,
+    VoidJumpComponent,
   ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);

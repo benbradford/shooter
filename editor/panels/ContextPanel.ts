@@ -310,7 +310,7 @@ export class ContextPanel {
     if (!cell) return;
     const layer = grid.getLayer(cell);
     const props = Array.from(cell.properties);
-    const allProps = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock'];
+    const allProps = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock', 'void'];
 
     // Read full texture config from levelData (preserves transformOverride)
     const levelData = this.bridge.getScene().getLevelData();

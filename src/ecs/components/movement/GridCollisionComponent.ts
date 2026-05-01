@@ -19,6 +19,7 @@ export class GridCollisionComponent implements Component {
   private occupiedCells: Set<string> = new Set();
   enabled = true;
   blockedByPushable: Entity | null = null;
+  blockedByVoid: { fromCol: number; fromRow: number; toCol: number; toRow: number } | null = null;
 
   constructor(private readonly grid: Grid) {}
 
@@ -92,6 +93,12 @@ export class GridCollisionComponent implements Component {
     // Block walking from bridge onto water (without bridge) - but allow if swimming
     const isSwimming = waterEffect?.getIsInWater() ?? false;
     if (!isSwimming && fromCell.properties.has('bridge') && toCell.properties.has('water') && !toCell.properties.has('bridge')) {
+      return false;
+    }
+
+    // Block movement into void cells — VoidJumpComponent reads this to trigger jump
+    if (toCell.properties.has('void')) {
+      this.blockedByVoid = { fromCol, fromRow, toCol, toRow };
       return false;
     }
 
@@ -235,6 +242,7 @@ export class GridCollisionComponent implements Component {
   update(_delta: number): void {
     if (!this.enabled) return;
     this.blockedByPushable = null;
+    this.blockedByVoid = null;
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
