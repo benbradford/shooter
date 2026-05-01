@@ -9,6 +9,7 @@ import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
+import { VoidJumpComponent } from './VoidJumpComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 
@@ -96,10 +97,13 @@ export class GridCollisionComponent implements Component {
       return false;
     }
 
-    // Block movement into void cells — VoidJumpComponent reads this to trigger jump
+    // Block movement into void cells
     if (toCell.properties.has('void')) {
-      this.blockedByVoid = { fromCol, fromRow, toCol, toRow };
-      return false;
+      if (this.entity.get(VoidJumpComponent)) {
+        this.blockedByVoid = { fromCol, fromRow, toCol, toRow };
+        return false;
+      }
+      return true; // Non-VoidJump entities pass through (pathfinding handles routing)
     }
 
     // Block swimming from bridge+water onto dry land

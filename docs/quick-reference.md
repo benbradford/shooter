@@ -357,6 +357,14 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Water + bridge = walk over at full speed
 - Per-level water config: `rippleSpritesheet` and `splashParticle` in background JSON
 
+## Void Cells
+
+- Blocks player and enemy movement but not projectiles
+- Player jumps over exactly 1 void cell (cardinal only) if landing cell is same layer, walkable, unblocked
+- Jump phases: takeoff (180ms, stationary) → flight (300ms, sine arc + movement) → landing (180ms, stationary)
+- Player invulnerable during jump
+- Key file: `src/ecs/components/movement/VoidJumpComponent.ts`
+
 ## Touch Joystick
 
 - Movement: 9% from left, 45% from top (activates in left 45%, bottom 70%)

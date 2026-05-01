@@ -14,7 +14,7 @@ All multi-direction animations use 8 directions in order: South, South-East, Eas
 | 0-7 | Idle rotations | 1 | `idle` |
 | 8-55 | Cross punch | 6 | `punch` |
 | 56-111 | Falling back death | 7 | `death` |
-| 112-183 | Jumping | 9 | `jump` |
+| 112-183 | Jumping | 9 | `jump_takeoff`, `jump_flight`, `jump_land` |
 | 184-190 | Landing (south only) | 7 | `fall` |
 | 191-230 | Picking up | 5 | `pickup` |
 | 231-302 | Power up (raising arms) | 9 | `powerup` |

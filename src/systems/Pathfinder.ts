@@ -67,7 +67,7 @@ export class Pathfinder {
         const key = `${neighbor.col},${neighbor.row},${neighbor.layer}`;
         if (closedSet.has(key)) continue;
 
-        const g = current.g + 1;
+        const g = current.g + neighbor.cost;
         const h = this.heuristic(neighbor.col, neighbor.row, goalCol, goalRow);
         const f = g + h;
 
@@ -101,8 +101,8 @@ export class Pathfinder {
     return Math.max(dx, dy);
   }
 
-  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean): Array<{ col: number; row: number; layer: number }> {
-    const neighbors: Array<{ col: number; row: number; layer: number }> = [];
+  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
+    const neighbors: Array<{ col: number; row: number; layer: number; cost: number }> = [];
     const currentCell = this.grid.getCell(col, row);
     if (!currentCell) return neighbors;
 
@@ -146,7 +146,7 @@ export class Pathfinder {
     newCol: number,
     newRow: number,
     allowLayerChanges: boolean
-  ): { col: number; row: number; layer: number } | null {
+  ): { col: number; row: number; layer: number; cost: number } | null {
     if (this.blockedAreaCells?.has(`${newCol},${newRow}`)) {
       return null;
     }
@@ -164,14 +164,14 @@ export class Pathfinder {
     const currentCellLayer = this.grid.getLayer(currentCell);
 
     if (this.grid.isTransition(targetCell)) {
-      return { col: newCol, row: newRow, layer: targetLayer + 1 };
+      return { col: newCol, row: newRow, layer: targetLayer + 1, cost: 1 };
     }
 
     if (this.grid.isTransition(currentCell)) {
       if (isHorizontal) {
         return null;
       }
-      return { col: newCol, row: newRow, layer: targetLayer };
+      return { col: newCol, row: newRow, layer: targetLayer, cost: 1 };
     }
 
     // Block diagonal movement across layer boundaries
@@ -200,6 +200,22 @@ export class Pathfinder {
       if (!this.allowWater) return null;
     }
 
+    // Void cells: jump over (cardinal only) if landing cell is valid
+    if (targetCell.properties.has('void')) {
+      if (isDiagonal) return null;
+      const landCol = newCol + dir.col;
+      const landRow = newRow + dir.row;
+      const landCell = this.grid.getCell(landCol, landRow);
+      if (!landCell) return null;
+      if (landCell.properties.has('void') || landCell.properties.has('wall') || landCell.properties.has('blocked')) return null;
+      if (this.grid.getLayer(landCell) !== currentLayer) return null;
+      for (const occupant of landCell.occupants) {
+        const entity = occupant as { get?: (type: typeof GridCellBlocker) => unknown };
+        if (entity.get?.(GridCellBlocker)) return null;
+      }
+      return { col: landCol, row: landRow, layer: currentLayer, cost: 2 };
+    }
+
     // Block movement into walls
     if (this.grid.isWall(targetCell)) {
       // Always block horizontal movement into walls
@@ -219,7 +235,7 @@ export class Pathfinder {
       return null;
     }
 
-    return { col: newCol, row: newRow, layer: currentLayer };
+    return { col: newCol, row: newRow, layer: currentLayer, cost: 1 };
   }
 
   private reconstructPath(node: PathNode): Array<{ col: number; row: number }> {

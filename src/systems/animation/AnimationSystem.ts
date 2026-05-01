@@ -12,6 +12,10 @@ export class AnimationSystem {
     this.currentKey = defaultKey;
   }
 
+  hasAnimation(key: string): boolean {
+    return this.animations.has(key);
+  }
+
   play(animKey: string, speedMultiplier: number = 1) {
     const next = this.animations.get(animKey);
 

@@ -49,6 +49,7 @@ Each grid cell tracks layer, properties (platform/wall/stairs/path/water/blocked
   - Cannot hop out through bridge cells (blocked in all directions)
   - **Workaround**: Use 'blocked' property on water cells at corners to prevent swimming into land
 - **'push_lock'**: Locks pushable entities in place — any pushable that lands on this cell becomes permanently immovable and persists across level transitions. Renders a depression texture automatically.
+- **'void'**: Impassable chasm — blocks player and enemy movement but not projectiles. Player can jump over exactly 1 void cell (cardinal only) if the landing cell is same layer, walkable, and unblocked. Jump has three phases: takeoff (180ms, stationary), flight (300ms, sine arc), landing (180ms, stationary). Player is invulnerable during the jump.
 
 ### Layer System
 

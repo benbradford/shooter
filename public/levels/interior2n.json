@@ -385,7 +385,7 @@
         "texture": "hole_with_roots",
         "targetLevel": "tunnels1",
         "targetCol": 10,
-        "targetRow": 5,
+        "targetRow": 6,
         "transformOverride": {
           "scaleX": 1.7,
           "scaleY": 1.7,

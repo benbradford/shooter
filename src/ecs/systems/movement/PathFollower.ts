@@ -34,6 +34,10 @@ export class PathFollower {
     return this.path;
   }
 
+  getCurrentIndex(): number {
+    return this.currentPathIndex;
+  }
+
   clear(): void {
     this.path = null;
     this.currentPathIndex = 0;

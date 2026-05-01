@@ -8,6 +8,7 @@ import { DogBarkAbility } from '../../components/pet/DogBarkAbility';
 import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { GridCollisionComponent } from '../../components/movement/GridCollisionComponent';
+import { VoidJumpComponent } from '../../components/movement/VoidJumpComponent';
 import { Depth } from '../../../constants/DepthConstants';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
@@ -55,6 +56,7 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   const startCell = grid.worldToCell(startX, startY);
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PET_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
+  entity.add(new VoidJumpComponent({ grid }));
 
   if (config.id === 'dog') {
     entity.add(new DogBarkAbility(scene, grid));
@@ -72,6 +74,7 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
     PetFollowComponent,
     GridPositionComponent,
     GridCollisionComponent,
+    VoidJumpComponent,
   ];
 
   if (config.id === 'dog') {

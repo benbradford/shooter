@@ -98,15 +98,19 @@ export class VoidJumpComponent implements Component {
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) gridCollision.enabled = false;
 
-    // Play takeoff animation
-    this.playAnim(`jump_takeoff_${this.jumpDir}`);
+    // Play takeoff animation (skip phase if no animation exists)
+    const hasJumpAnim = this.playAnim(`jump_takeoff_${this.jumpDir}`);
+    if (!hasJumpAnim) {
+      // No jump animations — go straight to flight (pets, escorts)
+      this.phase = 'flight';
+      this.phaseTimer = 0;
+    }
   }
 
   private updateJump(delta: number): void {
     this.phaseTimer += delta;
 
     if (this.phase === 'takeoff') {
-      // Player stays in place during takeoff
       this.playAnim(`jump_takeoff_${this.jumpDir}`);
       if (this.phaseTimer >= TAKEOFF_DURATION_MS) {
         this.phase = 'flight';
@@ -116,12 +120,10 @@ export class VoidJumpComponent implements Component {
     } else if (this.phase === 'flight') {
       const progress = Math.min(1, this.phaseTimer / FLIGHT_DURATION_MS);
 
-      // Move player along path
       const transform = this.entity.require(TransformComponent);
       transform.x = this.startX + (this.targetX - this.startX) * progress;
       transform.y = this.startY + (this.targetY - this.startY) * progress;
 
-      // Sine arc
       const sprite = this.entity.get(SpriteComponent);
       if (sprite) {
         sprite.visualOffsetYPx = Math.sin(progress * Math.PI) * -JUMP_HEIGHT_PX;
@@ -130,11 +132,16 @@ export class VoidJumpComponent implements Component {
       this.playAnim(`jump_flight_${this.jumpDir}`);
 
       if (progress >= 1) {
-        this.phase = 'landing';
-        this.phaseTimer = 0;
-        // Clear arc
-        if (sprite) sprite.visualOffsetYPx = 0;
-        this.playAnim(`jump_land_${this.jumpDir}`);
+        const hasLandAnim = this.playAnim(`jump_land_${this.jumpDir}`);
+        if (hasLandAnim) {
+          this.phase = 'landing';
+          this.phaseTimer = 0;
+          if (sprite) sprite.visualOffsetYPx = 0;
+        } else {
+          // No landing animation — finish immediately
+          if (sprite) sprite.visualOffsetYPx = 0;
+          this.finishJump();
+        }
       }
     } else if (this.phase === 'landing') {
       this.playAnim(`jump_land_${this.jumpDir}`);
@@ -144,11 +151,15 @@ export class VoidJumpComponent implements Component {
     }
   }
 
-  private playAnim(key: string): void {
+  /** Returns true if the animation exists and was played */
+  private playAnim(key: string): boolean {
     const anim = this.entity.get(AnimationComponent);
-    if (anim && anim.animationSystem.getCurrentKey() !== key) {
+    if (!anim) return false;
+    if (!anim.animationSystem.hasAnimation(key)) return false;
+    if (anim.animationSystem.getCurrentKey() !== key) {
       anim.animationSystem.play(key);
     }
+    return true;
   }
 
   private finishJump(): void {
