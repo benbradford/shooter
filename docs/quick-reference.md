@@ -363,6 +363,8 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Player jumps over exactly 1 void cell (cardinal only) if landing cell is same layer, walkable, unblocked
 - Jump phases: takeoff (180ms, stationary) → flight (300ms, sine arc + movement) → landing (180ms, stationary)
 - Player invulnerable during jump
+- Pet also has `VoidJumpComponent` — skips takeoff/landing phases (no jump anim), just does the flight arc
+- Pathfinder treats void as jumpable (cost 2, skips void cell, adds landing cell as neighbor)
 - Key file: `src/ecs/components/movement/VoidJumpComponent.ts`
 
 ## Touch Joystick

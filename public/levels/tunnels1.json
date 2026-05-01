@@ -89,9 +89,12 @@
     {
       "col": 10,
       "row": 0,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "wall"
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
       ]
     },
     {
@@ -249,9 +252,12 @@
     {
       "col": 10,
       "row": 1,
-      "layer": 1,
+      "layer": 0,
       "properties": [
-        "wall"
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
       ]
     },
     {
@@ -350,7 +356,7 @@
         "void"
       ],
       "backgroundTexture": [
-        "chasm"
+        "blank"
       ]
     },
     {
@@ -552,6 +558,50 @@
       "layer": 1,
       "properties": [
         "platform"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
       ]
     },
     {
@@ -627,6 +677,28 @@
       ]
     },
     {
+      "col": 14,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
+      ]
+    },
+    {
       "col": 18,
       "row": 7,
       "layer": 1,
@@ -656,6 +728,61 @@
       "layer": 1,
       "properties": [
         "wall"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "chasm"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "void"
+      ],
+      "backgroundTexture": [
+        "blank"
       ]
     },
     {

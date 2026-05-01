@@ -56,6 +56,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - **Teleport:** If >800px away, teleports to player
 - **Layer sync:** Pet syncs `GridPositionComponent.currentLayer` with player each frame — walls/platforms only block on higher layers
 - **Water:** Pet rides on player's back when swimming, matches player direction, resumes follow on exit
+- **Void:** Pet has `VoidJumpComponent` — hops over single void cells with sine arc (skips takeoff/landing phases since no jump animation)
 
 ## ⚠️ Pathfinding Pitfalls (Critical)
 
