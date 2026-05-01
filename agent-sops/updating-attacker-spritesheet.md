@@ -68,7 +68,30 @@ Frames 56-111: falling-back-death
 Frames 408-439: walking-5
 ```
 
-## Step 3: Update Animation Indices in Code
+## Step 3: Verify Frame Counts Per Direction
+
+**⚠️ MANDATORY — Do NOT skip this step.**
+
+Some animations have uneven frame counts across directions (e.g., breaststroke has 7 frames for south but 6 for east). Assuming uniform counts causes later directions to bleed into the next animation.
+
+```bash
+# Check frame counts for every animation
+for d in public/assets/attacker/animations/*/; do
+  name=$(basename "$d")
+  for dir in south south-east east north-east north north-west west south-west; do
+    if [ -d "$d$dir" ]; then
+      count=$(ls "$d$dir"/*.png 2>/dev/null | wc -l | tr -d ' ')
+      echo "  $name/$dir: $count"
+    fi
+  done
+done
+```
+
+Cross-reference with `frame_list.txt` — use `grep -n "swimming" frame_list.txt` (subtract 1 for 0-indexed frame numbers) to get exact frame ranges for any animation with uneven counts.
+
+**When updating PlayerEntity.ts frame indices, always use the actual ranges from frame_list.txt, not calculated offsets.**
+
+## Step 4: Update Animation Indices in Code
 
 ### Find Affected Animations
 
@@ -111,7 +134,7 @@ animMap.set(`walk_${Direction.Down}`, new Animation(['408', '409', '410', '411']
 - **Walk (walking-5):** Check console output for new range
 - **Slide (running-slide):** Check console output for new range
 
-## Step 4: Verify
+## Step 5: Verify
 
 ```bash
 npm run build
@@ -124,7 +147,7 @@ Test each animation in-game:
 - Punch (Space)
 - Slide (H)
 
-## Step 5: Update Documentation
+## Step 6: Update Documentation
 
 If adding new animations that are used in gameplay, update:
 - `docs/attacker-spritesheet.md` - Frame layout reference

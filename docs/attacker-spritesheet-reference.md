@@ -2,8 +2,8 @@
 
 **File:** `public/assets/attacker/attacker-spritesheet.png`
 **Frame Size:** 56x56 pixels
-**Sheet Dimensions:** 12 columns × 56 rows = 672 slots (671 used)
-**Total Frames:** 671
+**Sheet Dimensions:** 12 columns × 62 rows = 744 slots (735 used)
+**Total Frames:** 735
 
 ## Frame Layout
 
@@ -14,18 +14,21 @@ All multi-direction animations use 8 directions in order: South, South-East, Eas
 | 0-7 | Idle rotations | 1 | `idle` |
 | 8-55 | Cross punch | 6 | `punch` |
 | 56-111 | Falling back death | 7 | `death` |
-| 112-118 | Landing (south only) | 7 | `fall` |
-| 119-158 | Picking up | 5 | `pickup` |
-| 159-230 | Power up (raising arms) | 9 | `powerup` |
-| 231-278 | Pushing | 6 | `push` |
-| 279-326 | Running | 6 | `run` |
-| 327-374 | Sliding | 6 | `slide` |
-| 375-430 | Surprise uppercut | 7 | `uppercut` |
-| 431-462 | Walking | 4 | `walk` |
-| 463-518 | Throw object | 7 | `throw` |
-| 519-574 | Breaststroke (raw) | 7 | — |
-| 575-630 | Swimming (blue tint) | 7 | `swim` |
-| 631-670 | Walking punch | 5 | `walking_punch` |
+| 112-183 | Jumping | 9 | `jump` |
+| 184-190 | Landing (south only) | 7 | `fall` |
+| 191-230 | Picking up | 5 | `pickup` |
+| 231-302 | Power up (raising arms) | 9 | `powerup` |
+| 303-350 | Pushing | 6 | `push` |
+| 351-398 | Running | 6 | `run` |
+| 399-446 | Sliding | 6 | `slide` |
+| 447-502 | Surprise uppercut | 7 | `uppercut` |
+| 503-534 | Walking | 4 | `walk` |
+| 535-590 | Throw object | 7 | `throw` |
+| 591-642 | Breaststroke (raw) | 6-7 | — |
+| 643-694 | Swimming (blue tint) | 6-7 | `swim` |
+
+**⚠️ Breaststroke/Swimming have uneven frame counts:** south, south-east, north, south-west have 7 frames; east, north-east, north-west, west have 6. Always verify actual ranges from `frame_list.txt` when updating indices.
+| 695-734 | Walking punch | 5 | `walking_punch` |
 
 ## Idle Rotations (Frames 0-7)
 
