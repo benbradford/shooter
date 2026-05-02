@@ -4,6 +4,7 @@ import type { GridReader } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { InputComponent } from '../input/InputComponent';
+import { AttackButtonComponent } from '../input/AttackButtonComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
@@ -13,6 +14,7 @@ import { GridCellBlocker } from '../movement/GridCellBlocker';
 import { HealthComponent } from '../core/HealthComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import type HudScene from '../../../scenes/HudScene';
 
 const TAKEOFF_DURATION_MS = 180;
 const FLIGHT_DURATION_MS = 300;
@@ -24,13 +26,24 @@ const FALL_DAMAGE = 10;
 
 type JumpPhase = 'idle' | 'takeoff' | 'flight' | 'landing' | 'falling';
 
+type PendingJump = {
+  landCol: number;
+  landRow: number;
+  dx: number;
+  dy: number;
+  isFallJump: boolean;
+  isPlatformJump: boolean;
+};
+
 export type VoidJumpComponentProps = {
   readonly grid: GridReader;
+  readonly scene?: Phaser.Scene;
 };
 
 export class VoidJumpComponent implements Component {
   entity!: Entity;
   private readonly grid: GridReader;
+  private readonly scene: Phaser.Scene | undefined;
   private phase: JumpPhase = 'idle';
   private phaseTimer = 0;
   private startX = 0;
@@ -43,13 +56,22 @@ export class VoidJumpComponent implements Component {
   private safeX = 0;
   private safeY = 0;
   private originalScale = 1;
+  private pendingJump: PendingJump | null = null;
+  private isShowingJumpIcon = false;
 
   constructor(props: VoidJumpComponentProps) {
     this.grid = props.grid;
+    this.scene = props.scene;
   }
 
   isJumping(): boolean {
     return this.phase !== 'idle';
+  }
+
+  private getAttackButton(): AttackButtonComponent | undefined {
+    if (!this.scene) return undefined;
+    const hudScene = this.scene.scene.get('HudScene') as HudScene | undefined;
+    return hudScene?.getJoystickEntity()?.get(AttackButtonComponent);
   }
 
   update(delta: number): void {
@@ -64,18 +86,54 @@ export class VoidJumpComponent implements Component {
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (!gridCollision) return;
 
+    // Determine if a jump is available
+    let newPending: PendingJump | null = null;
+
     if (gridCollision.blockedByVoid) {
-      this.handleVoidJump(gridCollision.blockedByVoid);
+      newPending = this.resolveVoidJump(gridCollision.blockedByVoid);
     } else if (gridCollision.blockedByPlatformEdge) {
-      this.handlePlatformJump(gridCollision.blockedByPlatformEdge);
+      newPending = this.resolvePlatformJump(gridCollision.blockedByPlatformEdge);
+    }
+
+    // Update icon state
+    const attackButton = this.getAttackButton();
+    if (newPending) {
+      this.pendingJump = newPending;
+
+      if (!this.scene) {
+        // No scene = pet/NPC — auto-jump immediately
+        this.isFallJump = newPending.isFallJump;
+        this.isPlatformJump = newPending.isPlatformJump;
+        this.startJump(newPending.landCol, newPending.landRow, newPending.dx, newPending.dy);
+        this.pendingJump = null;
+        return;
+      }
+
+      if (!this.isShowingJumpIcon) {
+        attackButton?.setIconOverride('jump');
+        this.isShowingJumpIcon = true;
+      }
+      // Execute jump on button press
+      if (attackButton?.isAttackPressed()) {
+        this.isFallJump = this.pendingJump.isFallJump;
+        this.isPlatformJump = this.pendingJump.isPlatformJump;
+        this.startJump(this.pendingJump.landCol, this.pendingJump.landRow, this.pendingJump.dx, this.pendingJump.dy);
+        this.pendingJump = null;
+        attackButton.setIconOverride(null);
+        this.isShowingJumpIcon = false;
+      }
+    } else {
+      this.pendingJump = null;
+      if (this.isShowingJumpIcon) {
+        attackButton?.setIconOverride(null);
+        this.isShowingJumpIcon = false;
+      }
     }
   }
 
-  private handleVoidJump(blocked: { fromCol: number; fromRow: number; toCol: number; toRow: number }): void {
+  private resolveVoidJump(blocked: { fromCol: number; fromRow: number; toCol: number; toRow: number }): PendingJump | null {
     const { fromCol, fromRow, toCol, toRow } = blocked;
-
-    // Cardinal only
-    if (fromCol !== toCol && fromRow !== toRow) return;
+    if (fromCol !== toCol && fromRow !== toRow) return null;
 
     const dx = toCol - fromCol;
     const dy = toRow - fromRow;
@@ -83,86 +141,64 @@ export class VoidJumpComponent implements Component {
     const landRow = toRow + dy;
 
     const fromCell = this.grid.getCell(fromCol, fromRow);
-    if (!fromCell) return;
+    if (!fromCell) return null;
 
     const landCell = this.grid.getCell(landCol, landRow);
     if (this.isLandingSafe(landCell, fromCell)) {
-      this.isFallJump = false;
-      this.isPlatformJump = false;
-      this.startJump(landCol, landRow, dx, dy);
-    } else {
-      // Jump into the void cell itself — will fall
-      this.isFallJump = true;
-      this.isPlatformJump = false;
-      this.startJump(toCol, toRow, dx, dy);
+      return { landCol, landRow, dx, dy, isFallJump: false, isPlatformJump: false };
     }
+    // Jump into the void cell itself — will fall
+    return { landCol: toCol, landRow: toRow, dx, dy, isFallJump: true, isPlatformJump: false };
   }
 
-  private handlePlatformJump(blocked: { fromCol: number; fromRow: number; toCol: number; toRow: number }): void {
+  private resolvePlatformJump(blocked: { fromCol: number; fromRow: number; toCol: number; toRow: number }): PendingJump | null {
     const { fromCol, fromRow, toCol, toRow } = blocked;
-
-    // Cardinal only
-    if (fromCol !== toCol && fromRow !== toRow) return;
+    if (fromCol !== toCol && fromRow !== toRow) return null;
 
     const dx = toCol - fromCol;
     const dy = toRow - fromRow;
 
     const fromCell = this.grid.getCell(fromCol, fromRow);
     const toCell = this.grid.getCell(toCol, toRow);
-    if (!fromCell || !toCell) return;
+    if (!fromCell || !toCell) return null;
 
-    // Don't jump if destination is stairs (preserve normal stair behavior)
-    if (this.grid.isTransition(toCell)) return;
+    if (this.grid.isTransition(toCell)) return null;
 
-    // Determine landing cell
     let landCol: number;
     let landRow: number;
     if (this.grid.isWall(toCell)) {
-      // Wall below platform (perspective) — skip over it
       landCol = toCol + dx;
       landRow = toRow + dy;
     } else {
-      // Adjacent cell is lower layer — check if we can jump over the gap
       const farCol = toCol + dx;
       const farRow = toRow + dy;
       const farCell = this.grid.getCell(farCol, farRow);
       if (farCell && farCell.properties.has('platform') && farCell.layer <= fromCell.layer
         && !this.grid.isWall(farCell) && !this.grid.isTransition(farCell)) {
-        // Far cell is same or higher layer — jump over the gap (e.g., 1-0-1)
         landCol = farCol;
         landRow = farRow;
       } else {
-        // Far cell is lower or invalid — just drop to adjacent cell (e.g., 1-0-2)
         landCol = toCol;
         landRow = toRow;
       }
     }
 
     const landCell = this.grid.getCell(landCol, landRow);
-    if (!landCell) return;
+    if (!landCell) return null;
+    if (this.grid.isTransition(landCell)) return null;
 
-    // Don't jump to stairs
-    if (this.grid.isTransition(landCell)) return;
-
-    // Check for GridCellBlocker occupants
     for (const occupant of landCell.occupants) {
-      if (occupant.get(GridCellBlocker)) return;
+      if (occupant.get(GridCellBlocker)) return null;
     }
 
     if (landCell.properties.has('void')) {
-      // Jump to void cell — will trigger fall sequence
-      this.isFallJump = true;
-      this.isPlatformJump = true;
-      this.startJump(landCol, landRow, dx, dy);
+      return { landCol, landRow, dx, dy, isFallJump: true, isPlatformJump: true };
     } else if (this.isValidPlatformLanding(landCell, fromCell)) {
-      // Valid ground/water landing
-      this.isFallJump = false;
-      this.isPlatformJump = true;
-      this.startJump(landCol, landRow, dx, dy);
+      return { landCol, landRow, dx, dy, isFallJump: false, isPlatformJump: true };
     }
+    return null;
   }
 
-  /** Check if a cell is a valid landing for a void jump (same layer, no obstacles) */
   private isLandingSafe(landCell: ReturnType<GridReader['getCell']>, fromCell: NonNullable<ReturnType<GridReader['getCell']>>): boolean {
     return !!landCell
       && landCell.layer === fromCell.layer
@@ -173,13 +209,8 @@ export class VoidJumpComponent implements Component {
       && ![...landCell.occupants].some(o => o.get(GridCellBlocker));
   }
 
-  /** Check if a cell is a valid landing for a platform jump-down */
   private isValidPlatformLanding(landCell: NonNullable<ReturnType<GridReader['getCell']>>, _fromCell: NonNullable<ReturnType<GridReader['getCell']>>): boolean {
-    // Valid destinations: lower layer ground (no properties), water, lower platform
     if (landCell.properties.has('wall') || landCell.properties.has('blocked')) return false;
-    // Water is valid (WaterEffectComponent will handle entry)
-    if (landCell.properties.has('water')) return true;
-    // Ground or lower platform
     return true;
   }
 
@@ -205,26 +236,21 @@ export class VoidJumpComponent implements Component {
     this.originalScale = transform.scale;
 
     const landWorld = this.grid.cellToWorld(landCol, landRow);
-    // Snap to cell center on the jump axis, keep player's current position on perpendicular axis
     this.targetX = dx !== 0 ? landWorld.x + this.grid.cellSize / 2 : transform.x;
     this.targetY = dy !== 0 ? landWorld.y + this.grid.cellSize / 2 : transform.y;
 
-    // Perspective offset for platform jumps (only when dropping to lower ground)
     if (this.isPlatformJump) {
       const PLATFORM_JUMP_OFFSET_PX = 20;
       const landCell = this.grid.getCell(landCol, landRow);
       const gridPos = this.entity.get(GridPositionComponent);
       const isDropping = landCell && gridPos && landCell.layer < gridPos.currentLayer;
       if (dx !== 0 && dy === 0 && isDropping) {
-        // Jumping left or right to lower ground: land 40px further south
         this.targetY += PLATFORM_JUMP_OFFSET_PX * 2;
       } else if (dy !== 0) {
-        // Jumping north or south: land 20px further north
         this.targetY -= PLATFORM_JUMP_OFFSET_PX;
       }
     }
 
-    // Disable input, movement, collision
     this.entity.get(InputComponent)?.setEnabled(false);
     const walk = this.entity.get(WalkComponent);
     if (walk) { walk.setEnabled(false); walk.resetVelocity(true, true); }
@@ -233,7 +259,6 @@ export class VoidJumpComponent implements Component {
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) gridCollision.enabled = false;
 
-    // Play takeoff animation (skip phase if no animation exists)
     const hasJumpAnim = this.playAnim(`jump_takeoff_${this.jumpDir}`);
     if (!hasJumpAnim) {
       this.phase = 'flight';
@@ -355,7 +380,6 @@ export class VoidJumpComponent implements Component {
     const gridPos = this.entity.get(GridPositionComponent);
     if (gridPos) {
       gridPos.currentCell = this.grid.worldToCell(transform.x, transform.y);
-      // Update layer to match landing cell
       const landCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
       if (landCell) {
         gridPos.currentLayer = landCell.layer;
@@ -378,7 +402,6 @@ export class VoidJumpComponent implements Component {
     }
   }
 
-  /** Returns true if the animation exists and was played */
   private playAnim(key: string): boolean {
     const anim = this.entity.get(AnimationComponent);
     if (!anim) return false;

@@ -125,11 +125,12 @@ export class AttackButtonComponent implements Component {
   }
 
   private updateIcon(): void {
-    // Override takes priority (push state)
-    if (this.iconOverride === 'push') {
-      if (this.currentIcon !== 'punch' || this.sprite.texture.key !== 'push_icon') {
+    // Override takes priority (push/jump state)
+    if (this.iconOverride === 'push' || this.iconOverride === 'jump') {
+      const overrideTexture = this.iconOverride === 'push' ? 'push_icon' : 'jump_icon';
+      if (this.currentIcon !== 'punch' || this.sprite.texture.key !== overrideTexture) {
         this.currentIcon = 'punch';
-        this.sprite.setTexture('push_icon');
+        this.sprite.setTexture(overrideTexture);
         this.sprite.setScale(UNPRESSED_SCALE * 0.9);
         if (this.bounceTween) { this.bounceTween.destroy(); this.bounceTween = null; }
       }

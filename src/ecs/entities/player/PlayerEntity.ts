@@ -276,7 +276,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_GRID_COLLISION_BOX));
 
   entity.add(new GridCollisionComponent(grid));
-  entity.add(new VoidJumpComponent({ grid }));
+  entity.add(new VoidJumpComponent({ grid, scene }));
 
   if (blockedAreaManager) {
     entity.add(new BlockedAreaCollisionComponent({ blockedAreaManager }));
