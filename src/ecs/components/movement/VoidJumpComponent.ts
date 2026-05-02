@@ -10,14 +10,19 @@ import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { CollisionComponent } from '../combat/CollisionComponent';
 import { GridCellBlocker } from '../movement/GridCellBlocker';
+import { HealthComponent } from '../core/HealthComponent';
+import { ShadowComponent } from '../visual/ShadowComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 const TAKEOFF_DURATION_MS = 180;
 const FLIGHT_DURATION_MS = 300;
 const LAND_DURATION_MS = 180;
 const JUMP_HEIGHT_PX = 30;
+const FALL_DURATION_MS = 600;
+const FALL_DRIFT_PX = 20;
+const FALL_DAMAGE = 10;
 
-type JumpPhase = 'idle' | 'takeoff' | 'flight' | 'landing';
+type JumpPhase = 'idle' | 'takeoff' | 'flight' | 'landing' | 'falling';
 
 export type VoidJumpComponentProps = {
   readonly grid: GridReader;
@@ -33,6 +38,10 @@ export class VoidJumpComponent implements Component {
   private targetX = 0;
   private targetY = 0;
   private jumpDir: Direction = Direction.Down;
+  private isFallJump = false;
+  private safeX = 0;
+  private safeY = 0;
+  private originalScale = 1;
 
   constructor(props: VoidJumpComponentProps) {
     this.grid = props.grid;
@@ -48,6 +57,9 @@ export class VoidJumpComponent implements Component {
       return;
     }
 
+    // Track last safe position (non-void cell)
+    this.updateSafePosition();
+
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (!gridCollision?.blockedByVoid) return;
 
@@ -60,20 +72,39 @@ export class VoidJumpComponent implements Component {
     const dy = toRow - fromRow;
     const landCol = toCol + dx;
     const landRow = toRow + dy;
-    const landCell = this.grid.getCell(landCol, landRow);
-    if (!landCell) return;
 
     const fromCell = this.grid.getCell(fromCol, fromRow);
     if (!fromCell) return;
-    if (landCell.layer !== fromCell.layer) return;
-    if (landCell.properties.has('void') || landCell.properties.has('wall') || landCell.properties.has('blocked')) return;
-    if (landCell.properties.has('platform') && landCell.layer > fromCell.layer) return;
 
-    for (const occupant of landCell.occupants) {
-      if (occupant.get(GridCellBlocker)) return;
+    // Check if landing cell is valid for a safe jump
+    const landCell = this.grid.getCell(landCol, landRow);
+    const isLandingSafe = landCell
+      && landCell.layer === fromCell.layer
+      && !landCell.properties.has('void')
+      && !landCell.properties.has('wall')
+      && !landCell.properties.has('blocked')
+      && !(landCell.properties.has('platform') && landCell.layer > fromCell.layer)
+      && ![...landCell.occupants].some(o => o.get(GridCellBlocker));
+
+    if (isLandingSafe) {
+      this.isFallJump = false;
+      this.startJump(landCol, landRow, dx, dy);
+    } else {
+      // Jump into the void cell itself — will fall
+      this.isFallJump = true;
+      this.startJump(toCol, toRow, dx, dy);
     }
+  }
 
-    this.startJump(landCol, landRow, dx, dy);
+  private updateSafePosition(): void {
+    const transform = this.entity.get(TransformComponent);
+    const gridPos = this.entity.get(GridPositionComponent);
+    if (!transform || !gridPos) return;
+    const cell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+    if (cell && !cell.properties.has('void')) {
+      this.safeX = transform.x;
+      this.safeY = transform.y;
+    }
   }
 
   private startJump(landCol: number, landRow: number, dx: number, dy: number): void {
@@ -84,6 +115,7 @@ export class VoidJumpComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     this.startX = transform.x;
     this.startY = transform.y;
+    this.originalScale = transform.scale;
 
     const landWorld = this.grid.cellToWorld(landCol, landRow);
     // Snap to cell center on the jump axis, keep player's current position on perpendicular axis
@@ -133,13 +165,26 @@ export class VoidJumpComponent implements Component {
       this.playAnim(`jump_flight_${this.jumpDir}`);
 
       if (progress >= 1) {
+        if (this.isFallJump) {
+          // Landed on void — start falling
+          this.phase = 'falling';
+          this.phaseTimer = 0;
+          if (sprite) sprite.visualOffsetYPx = 0;
+          this.startX = transform.x;
+          this.startY = transform.y;
+          // Hide shadow during fall
+          const shadow = this.entity.get(ShadowComponent);
+          if (shadow) shadow.shadow.setVisible(false);
+          this.playAnim(`fall_${Direction.Down}`);
+          return;
+        }
+
         const hasLandAnim = this.playAnim(`jump_land_${this.jumpDir}`);
         if (hasLandAnim) {
           this.phase = 'landing';
           this.phaseTimer = 0;
           if (sprite) sprite.visualOffsetYPx = 0;
         } else {
-          // No landing animation — finish immediately
           if (sprite) sprite.visualOffsetYPx = 0;
           this.finishJump();
         }
@@ -149,7 +194,68 @@ export class VoidJumpComponent implements Component {
       if (this.phaseTimer >= LAND_DURATION_MS) {
         this.finishJump();
       }
+    } else if (this.phase === 'falling') {
+      this.updateFalling(delta);
     }
+  }
+
+  private updateFalling(_delta: number): void {
+    const progress = Math.min(1, this.phaseTimer / FALL_DURATION_MS);
+
+    const transform = this.entity.require(TransformComponent);
+    // Drift down slightly
+    transform.y = this.startY + progress * FALL_DRIFT_PX;
+    // Shrink sprite to simulate falling into void
+    transform.scale = this.originalScale * (1 - progress);
+
+    if (progress >= 1) {
+      this.finishFall();
+    }
+  }
+
+  private finishFall(): void {
+    const transform = this.entity.require(TransformComponent);
+
+    // Restore scale
+    transform.scale = this.originalScale;
+
+    // Teleport to last safe position
+    transform.x = this.safeX;
+    transform.y = this.safeY;
+
+    // Show shadow again
+    const shadow = this.entity.get(ShadowComponent);
+    if (shadow) shadow.shadow.setVisible(true);
+
+    // Deduct health
+    const health = this.entity.get(HealthComponent);
+    if (health) health.takeDamage(FALL_DAMAGE);
+
+    // Reset sprite visual offset
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) sprite.visualOffsetYPx = 0;
+
+    this.phase = 'idle';
+
+    // Update grid position
+    const gridPos = this.entity.get(GridPositionComponent);
+    if (gridPos) {
+      gridPos.currentCell = this.grid.worldToCell(transform.x, transform.y);
+    }
+
+    // Re-enable systems
+    this.entity.get(InputComponent)?.setEnabled(true);
+    this.entity.get(WalkComponent)?.setEnabled(true);
+    const collision = this.entity.get(CollisionComponent);
+    if (collision) collision.enabled = true;
+    const gridCollision = this.entity.get(GridCollisionComponent);
+    if (gridCollision) {
+      gridCollision.enabled = true;
+      gridCollision.syncPreviousPosition(transform.x, transform.y);
+    }
+
+    // Return to idle
+    this.playAnim(`idle_${this.jumpDir}`);
   }
 
   /** Returns true if the animation exists and was played */
