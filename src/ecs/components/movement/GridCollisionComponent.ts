@@ -21,6 +21,7 @@ export class GridCollisionComponent implements Component {
   enabled = true;
   blockedByPushable: Entity | null = null;
   blockedByVoid: { fromCol: number; fromRow: number; toCol: number; toRow: number } | null = null;
+  blockedByPlatformEdge: { fromCol: number; fromRow: number; toCol: number; toRow: number } | null = null;
 
   constructor(private readonly grid: Grid) {}
 
@@ -79,6 +80,9 @@ export class GridCollisionComponent implements Component {
 
     // Block movement into walls specifically
     if (this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
+      if (fromCell.properties.has('platform') && this.entity.get(VoidJumpComponent)) {
+        this.blockedByPlatformEdge = { fromCol, fromRow, toCol, toRow };
+      }
       return false;
     }
 
@@ -132,7 +136,12 @@ export class GridCollisionComponent implements Component {
     }
 
     // Normal cell to normal cell: must be same layer (no layer changes except via transition)
-    if (toLayer !== fromLayer) return false;
+    if (toLayer !== fromLayer) {
+      if (fromCell.properties.has('platform') && toLayer < fromLayer && this.entity.get(VoidJumpComponent)) {
+        this.blockedByPlatformEdge = { fromCol, fromRow, toCol, toRow };
+      }
+      return false;
+    }
 
     // Block diagonal movement through corners
     if (fromCol !== toCol && fromRow !== toRow) {
@@ -247,6 +256,7 @@ export class GridCollisionComponent implements Component {
     if (!this.enabled) return;
     this.blockedByPushable = null;
     this.blockedByVoid = null;
+    this.blockedByPlatformEdge = null;
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
@@ -345,6 +355,16 @@ export class GridCollisionComponent implements Component {
         if (!this.blockedByVoid && probeCellData.properties.has('void') && this.entity.get(VoidJumpComponent)) {
           const fromCell = this.grid.worldToCell(centerX, centerY);
           this.blockedByVoid = { fromCol: fromCell.col, fromRow: fromCell.row, toCol: probeCell.col, toRow: probeCell.row };
+        }
+        if (!this.blockedByPlatformEdge && this.entity.get(VoidJumpComponent)) {
+          const fromCellCoord = this.grid.worldToCell(centerX, centerY);
+          const fromCellData = this.grid.getCell(fromCellCoord.col, fromCellCoord.row);
+          if (fromCellData?.properties.has('platform')) {
+            const isWallOrLower = this.grid.isWall(probeCellData) || this.grid.getLayer(probeCellData) < this.grid.getLayer(fromCellData);
+            if (isWallOrLower && !this.grid.isTransition(probeCellData)) {
+              this.blockedByPlatformEdge = { fromCol: fromCellCoord.col, fromRow: fromCellCoord.row, toCol: probeCell.col, toRow: probeCell.row };
+            }
+          }
         }
       }
     }
