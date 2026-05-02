@@ -58,6 +58,8 @@ export class VoidJumpComponent implements Component {
   private originalScale = 1;
   private pendingJump: PendingJump | null = null;
   private isShowingJumpIcon = false;
+  private prevTransformX = 0;
+  private prevTransformY = 0;
 
   constructor(props: VoidJumpComponentProps) {
     this.grid = props.grid;
@@ -120,16 +122,36 @@ export class VoidJumpComponent implements Component {
         this.isShowingJumpIcon = false;
       }
     }
+
+    // Track position for pet movement direction detection
+    const t = this.entity.get(TransformComponent);
+    if (t) {
+      this.prevTransformX = t.x;
+      this.prevTransformY = t.y;
+    }
   }
 
   private detectJumpFromInput(): PendingJump | null {
-    const walk = this.entity.get(WalkComponent);
     const transform = this.entity.get(TransformComponent);
-    const input = this.entity.get(InputComponent);
-    if (!walk || !transform || !input?.hasInput()) return null;
+    if (!transform) return null;
 
-    const moveX = walk.lastMoveX;
-    const moveY = walk.lastMoveY;
+    // Determine movement direction
+    let moveX = 0;
+    let moveY = 0;
+    const walk = this.entity.get(WalkComponent);
+    if (walk) {
+      // Player: use input direction
+      if (this.scene) {
+        const input = this.entity.get(InputComponent);
+        if (!input?.hasInput()) return null;
+      }
+      moveX = walk.lastMoveX;
+      moveY = walk.lastMoveY;
+    } else {
+      // Pet: derive direction from transform delta
+      moveX = transform.x - this.prevTransformX;
+      moveY = transform.y - this.prevTransformY;
+    }
     if (moveX === 0 && moveY === 0) return null;
 
     // Use collision box center (accounts for offsetY on the collision box)
@@ -200,7 +222,8 @@ export class VoidJumpComponent implements Component {
     if (this.isLandingSafe(landCell, fromCell)) {
       return { landCol, landRow, dx, dy, isFallJump: false, isPlatformJump: false };
     }
-    // Jump into the void cell itself — will fall
+    // Jump into the void cell itself — will fall (player only, not pets)
+    if (!this.scene) return null;
     return { landCol: toCol, landRow: toRow, dx, dy, isFallJump: true, isPlatformJump: false };
   }
 
@@ -245,6 +268,7 @@ export class VoidJumpComponent implements Component {
     }
 
     if (landCell.properties.has('void')) {
+      if (!this.scene) return null; // Pets never jump into void
       return { landCol, landRow, dx, dy, isFallJump: true, isPlatformJump: true };
     } else if (this.isValidPlatformLanding(landCell, fromCell)) {
       return { landCol, landRow, dx, dy, isFallJump: false, isPlatformJump: true };

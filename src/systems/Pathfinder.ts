@@ -218,20 +218,25 @@ export class Pathfinder {
 
     // Block movement into walls
     if (this.grid.isWall(targetCell)) {
-      // Always block horizontal movement into walls
-      if (dir.col !== 0 && dir.row === 0) {
-        return null;
+      // Platform jump-down: if on a platform and moving cardinal into a wall, skip over it
+      if (!isDiagonal && currentCell.properties.has('platform')) {
+        const beyondCol = newCol + dir.col;
+        const beyondRow = newRow + dir.row;
+        const beyondCell = this.grid.getCell(beyondCol, beyondRow);
+        if (beyondCell && !this.grid.isWall(beyondCell) && !beyondCell.properties.has('blocked')
+          && !this.grid.isTransition(beyondCell)) {
+          return { col: beyondCol, row: beyondRow, layer: this.grid.getLayer(beyondCell), cost: 2 };
+        }
       }
-      // Block vertical movement into walls at same or higher layer
-      if (targetLayer >= currentLayer) {
-        return null;
-      }
-      // Block vertical movement into lower walls unless jumping over them
-      // (bugs should path around walls, not land on them)
       return null;
     }
 
+    // Platform jump-down to lower layer (cardinal only)
     if (currentCellLayer !== targetLayer && !allowLayerChanges) {
+      if (!isDiagonal && currentCell.properties.has('platform') && targetLayer < currentCellLayer
+        && !targetCell.properties.has('blocked') && !this.grid.isTransition(targetCell)) {
+        return { col: newCol, row: newRow, layer: targetLayer, cost: 2 };
+      }
       return null;
     }
 
