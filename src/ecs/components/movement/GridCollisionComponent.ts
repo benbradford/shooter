@@ -17,11 +17,21 @@ export class GridCollisionComponent implements Component {
   entity!: Entity;
   private previousX: number = 0;
   private previousY: number = 0;
-  private occupiedCells: Set<string> = new Set();
+  private occupiedCells: Set<number> = new Set();
+  private swapOccupiedCells: Set<number> = new Set();
+  private readonly allowedLayersSet: Set<number> = new Set();
   enabled = true;
   blockedByPushable: Entity | null = null;
 
   constructor(private readonly grid: Grid) {}
+
+  private static encodeCellKey(col: number, row: number): number {
+    return col * 10000 + row;
+  }
+
+  private static decodeCellKey(key: number): { col: number; row: number } {
+    return { col: Math.floor(key / 10000), row: key % 10000 };
+  }
 
   getGrid(): Grid {
     return this.grid;
@@ -204,7 +214,8 @@ export class GridCollisionComponent implements Component {
     }
 
     // When in or near a transition, allow all layers from min-1 to max+1
-    const allowedLayers = new Set<number>();
+    const allowedLayers = this.allowedLayersSet;
+    allowedLayers.clear();
     if (wasInTransition) {
       for (let layer = minTransitionLayer - 1; layer <= maxTransitionLayer + 1; layer++) {
         allowedLayers.add(layer);
@@ -345,30 +356,34 @@ export class GridCollisionComponent implements Component {
     const topLeftCell = this.grid.worldToCell(boxLeft, boxTop);
     const bottomRightCell = this.grid.worldToCell(boxRight - 1, boxBottom - 1);
 
-    const newOccupiedCells = new Set<string>();
+    const newOccupiedCells = this.swapOccupiedCells;
+    newOccupiedCells.clear();
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
-        newOccupiedCells.add(`${col},${row}`);
+        newOccupiedCells.add(GridCollisionComponent.encodeCellKey(col, row));
       }
     }
 
     this.occupiedCells.forEach(key => {
       if (!newOccupiedCells.has(key)) {
-        const [col, row] = key.split(',').map(Number);
+        const { col, row } = GridCollisionComponent.decodeCellKey(key);
         this.grid.removeOccupant(col, row, this.entity);
       }
     });
 
     newOccupiedCells.forEach(key => {
       if (!this.occupiedCells.has(key)) {
-        const [col, row] = key.split(',').map(Number);
+        const { col, row } = GridCollisionComponent.decodeCellKey(key);
         this.grid.addOccupant(col, row, this.entity);
       }
     });
 
+    // Swap sets: swapOccupiedCells becomes occupiedCells, old occupiedCells becomes swap buffer
+    this.swapOccupiedCells = this.occupiedCells;
     this.occupiedCells = newOccupiedCells;
 
-    gridPos.previousCell = { ...gridPos.currentCell };
+    gridPos.previousCell.col = gridPos.currentCell.col;
+    gridPos.previousCell.row = gridPos.currentCell.row;
     gridPos.currentCell = topLeftCell;
 
     // Update layer based on center of collision box
@@ -390,7 +405,7 @@ export class GridCollisionComponent implements Component {
 
   onDestroy(): void {
     this.occupiedCells.forEach(key => {
-      const [col, row] = key.split(',').map(Number);
+      const { col, row } = GridCollisionComponent.decodeCellKey(key);
       this.grid.removeOccupant(col, row, this.entity);
     });
     this.occupiedCells.clear();

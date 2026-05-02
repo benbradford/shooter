@@ -44,7 +44,9 @@ export class BugSpawnerComponent implements Component {
   update(delta: number): void {
     if (!this.fullySpawned) return;
     
-    this.activeBugs = new Set([...this.activeBugs].filter(bug => !bug.isDestroyed));
+    this.activeBugs.forEach(bug => {
+      if (bug.isDestroyed) this.activeBugs.delete(bug);
+    });
 
     // Don't spawn if base is dead
     const health = this.entity.get(HealthComponent);
