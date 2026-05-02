@@ -114,16 +114,28 @@ export class VoidJumpComponent implements Component {
     // Don't jump if destination is stairs (preserve normal stair behavior)
     if (this.grid.isTransition(toCell)) return;
 
-    // Determine landing cell: if blocked cell is a wall, skip over it (perspective wall)
+    // Determine landing cell
     let landCol: number;
     let landRow: number;
     if (this.grid.isWall(toCell)) {
+      // Wall below platform (perspective) — skip over it
       landCol = toCol + dx;
       landRow = toRow + dy;
     } else {
-      // Lower layer cell — land directly on it
-      landCol = toCol;
-      landRow = toRow;
+      // Adjacent cell is lower layer — check if we can jump over the gap
+      const farCol = toCol + dx;
+      const farRow = toRow + dy;
+      const farCell = this.grid.getCell(farCol, farRow);
+      if (farCell && farCell.properties.has('platform') && farCell.layer <= fromCell.layer
+        && !this.grid.isWall(farCell) && !this.grid.isTransition(farCell)) {
+        // Far cell is same or higher layer — jump over the gap (e.g., 1-0-1)
+        landCol = farCol;
+        landRow = farRow;
+      } else {
+        // Far cell is lower or invalid — just drop to adjacent cell (e.g., 1-0-2)
+        landCol = toCol;
+        landRow = toRow;
+      }
     }
 
     const landCell = this.grid.getCell(landCol, landRow);
@@ -197,13 +209,16 @@ export class VoidJumpComponent implements Component {
     this.targetX = dx !== 0 ? landWorld.x + this.grid.cellSize / 2 : transform.x;
     this.targetY = dy !== 0 ? landWorld.y + this.grid.cellSize / 2 : transform.y;
 
-    // Perspective offset for platform jumps
+    // Perspective offset for platform jumps (only when dropping to lower ground)
     if (this.isPlatformJump) {
       const PLATFORM_JUMP_OFFSET_PX = 20;
-      if (dx !== 0 && dy === 0) {
-        // Jumping left or right: land 40px further south
+      const landCell = this.grid.getCell(landCol, landRow);
+      const gridPos = this.entity.get(GridPositionComponent);
+      const isDropping = landCell && gridPos && landCell.layer < gridPos.currentLayer;
+      if (dx !== 0 && dy === 0 && isDropping) {
+        // Jumping left or right to lower ground: land 40px further south
         this.targetY += PLATFORM_JUMP_OFFSET_PX * 2;
-      } else {
+      } else if (dy !== 0) {
         // Jumping north or south: land 20px further north
         this.targetY -= PLATFORM_JUMP_OFFSET_PX;
       }
