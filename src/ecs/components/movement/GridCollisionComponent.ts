@@ -9,7 +9,7 @@ import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
-import { VoidJumpComponent } from './VoidJumpComponent';
+import { JumpComponent } from './JumpComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 
@@ -98,7 +98,7 @@ export class GridCollisionComponent implements Component {
 
     // Block movement into void cells
     if (toCell.properties.has('void')) {
-      if (this.entity.get(VoidJumpComponent)) {
+      if (this.entity.get(JumpComponent)) {
         return false;
       }
       return true; // Non-VoidJump entities pass through (pathfinding handles routing)

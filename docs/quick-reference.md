@@ -365,10 +365,12 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - If landing cell is also void/invalid, player jumps into the void cell and **falls**: sprite shrinks to 0 over 600ms, drifts down 20px, shadow hidden, then respawns at last safe position with 10 HP penalty
 - Jump phases: takeoff (180ms, stationary) → flight (300ms, sine arc + movement) → landing (180ms, stationary)
 - Player invulnerable during jump
-- Pet has `VoidJumpComponent` without scene — auto-jumps immediately (no button press), skips takeoff/landing phases
+- Pet has `JumpComponent` without scene — auto-jumps immediately (no button press), skips takeoff/landing phases
+- Pet never performs fall jumps (into void or off platforms into void) — only safe jumps with valid landings
+- Pet derives movement direction from transform delta (no WalkComponent)
 - Pathfinder treats void as jumpable (cost 2, skips void cell, adds landing cell as neighbor)
 - Punch is suppressed while jump icon is showing (`InputComponent.isAttackPressed()` returns false when icon override is `'jump'`)
-- Key file: `src/ecs/components/movement/VoidJumpComponent.ts`
+- Key file: `src/ecs/components/movement/JumpComponent.ts`
 
 ## Platform Jump-Down
 
@@ -381,7 +383,7 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Landing on void triggers the fall sequence (shrink + respawn + 10 HP)
 - Landing on water: `WaterEffectComponent` handles water entry automatically on next frame
 - Stairs are never jumped to (preserves normal stair transition behavior)
-- Detection: `GridCollisionComponent.blockedByPlatformEdge` signal + input-based fallback in `VoidJumpComponent.detectJumpFromInput()`
+- Detection: `JumpComponent.detectJumpFromInput()` — uses player input direction, collision box center, and edge proximity check
 
 ## Touch Joystick
 

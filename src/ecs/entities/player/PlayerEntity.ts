@@ -27,7 +27,7 @@ import { AttackComboComponent } from '../../components/combat/AttackComboCompone
 import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { BlockedAreaCollisionComponent } from '../../components/movement/BlockedAreaCollisionComponent';
-import { VoidJumpComponent } from '../../components/movement/VoidJumpComponent';
+import { JumpComponent } from '../../components/movement/JumpComponent';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Animation } from '../../../systems/animation/Animation';
 import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
@@ -276,7 +276,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PLAYER_GRID_COLLISION_BOX));
 
   entity.add(new GridCollisionComponent(grid));
-  entity.add(new VoidJumpComponent({ grid, scene }));
+  entity.add(new JumpComponent({ grid, scene }));
 
   if (blockedAreaManager) {
     entity.add(new BlockedAreaCollisionComponent({ blockedAreaManager }));
@@ -371,7 +371,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     AnimationComponent,
     WaterRippleComponent,
     WaterEffectComponent,
-    VoidJumpComponent,
+    JumpComponent,
   ]);
 
   grid.addOccupant(startCell.col, startCell.row, entity);

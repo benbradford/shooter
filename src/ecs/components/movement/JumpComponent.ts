@@ -35,12 +35,12 @@ type PendingJump = {
   isPlatformJump: boolean;
 };
 
-export type VoidJumpComponentProps = {
+export type JumpComponentProps = {
   readonly grid: GridReader;
   readonly scene?: Phaser.Scene;
 };
 
-export class VoidJumpComponent implements Component {
+export class JumpComponent implements Component {
   entity!: Entity;
   private readonly grid: GridReader;
   private readonly scene: Phaser.Scene | undefined;
@@ -61,7 +61,7 @@ export class VoidJumpComponent implements Component {
   private prevTransformX = 0;
   private prevTransformY = 0;
 
-  constructor(props: VoidJumpComponentProps) {
+  constructor(props: JumpComponentProps) {
     this.grid = props.grid;
     this.scene = props.scene;
   }
