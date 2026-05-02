@@ -310,10 +310,10 @@ export class GridCollisionComponent implements Component {
       }
     }
 
-    // Proactive pushable detection: if player tried to move but blockedByPushable
+    // Proactive detection: if player tried to move but blockedByPushable/blockedByVoid
     // wasn't set (e.g., already adjacent and movement too small to enter new cell),
     // check the cell just beyond the collision box edge in the movement direction.
-    if (!this.blockedByPushable && (newX !== this.previousX || newY !== this.previousY)) {
+    if ((!this.blockedByPushable || !this.blockedByVoid) && (newX !== this.previousX || newY !== this.previousY)) {
       const dx = newX - this.previousX;
       const dy = newY - this.previousY;
       const boxLeft = transform.x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
@@ -334,11 +334,17 @@ export class GridCollisionComponent implements Component {
       const probeCell = this.grid.worldToCell(probeX, probeY);
       const probeCellData = this.grid.getCell(probeCell.col, probeCell.row);
       if (probeCellData) {
-        for (const occupant of probeCellData.occupants) {
-          if (occupant.get(GridCellBlocker)) {
-            this.blockedByPushable = occupant;
-            break;
+        if (!this.blockedByPushable) {
+          for (const occupant of probeCellData.occupants) {
+            if (occupant.get(GridCellBlocker)) {
+              this.blockedByPushable = occupant;
+              break;
+            }
           }
+        }
+        if (!this.blockedByVoid && probeCellData.properties.has('void') && this.entity.get(VoidJumpComponent)) {
+          const fromCell = this.grid.worldToCell(centerX, centerY);
+          this.blockedByVoid = { fromCol: fromCell.col, fromRow: fromCell.row, toCol: probeCell.col, toRow: probeCell.row };
         }
       }
     }

@@ -86,8 +86,9 @@ export class VoidJumpComponent implements Component {
     this.startY = transform.y;
 
     const landWorld = this.grid.cellToWorld(landCol, landRow);
-    this.targetX = landWorld.x + this.grid.cellSize / 2;
-    this.targetY = landWorld.y + this.grid.cellSize / 2;
+    // Snap to cell center on the jump axis, keep player's current position on perpendicular axis
+    this.targetX = dx !== 0 ? landWorld.x + this.grid.cellSize / 2 : transform.x;
+    this.targetY = dy !== 0 ? landWorld.y + this.grid.cellSize / 2 : transform.y;
 
     // Disable input, movement, collision
     this.entity.get(InputComponent)?.setEnabled(false);
