@@ -131,7 +131,7 @@ export class AttackButtonComponent implements Component {
       if (this.currentIcon !== 'punch' || this.sprite.texture.key !== overrideTexture) {
         this.currentIcon = 'punch';
         this.sprite.setTexture(overrideTexture);
-        const overrideScale = this.iconOverride === 'jump' ? 0.8 : 0.9;
+        const overrideScale = this.iconOverride === 'jump' ? 0.7 : 0.9;
         this.sprite.setScale(UNPRESSED_SCALE * overrideScale);
         if (this.bounceTween) { this.bounceTween.destroy(); this.bounceTween = null; }
       }

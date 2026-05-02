@@ -360,12 +360,28 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 ## Void Cells
 
 - Blocks player and enemy movement but not projectiles
-- Player jumps over exactly 1 void cell (cardinal only) if landing cell is same layer, walkable, unblocked
+- When player walks into a void cell, they are blocked and the HUD attack button changes to a **jump icon** (`jump_icon.png`)
+- Player presses the jump button to jump over exactly 1 void cell (cardinal only) if landing cell is same layer, walkable, unblocked
+- If landing cell is also void/invalid, player jumps into the void cell and **falls**: sprite shrinks to 0 over 600ms, drifts down 20px, shadow hidden, then respawns at last safe position with 10 HP penalty
 - Jump phases: takeoff (180ms, stationary) → flight (300ms, sine arc + movement) → landing (180ms, stationary)
 - Player invulnerable during jump
-- Pet also has `VoidJumpComponent` — skips takeoff/landing phases (no jump anim), just does the flight arc
+- Pet has `VoidJumpComponent` without scene — auto-jumps immediately (no button press), skips takeoff/landing phases
 - Pathfinder treats void as jumpable (cost 2, skips void cell, adds landing cell as neighbor)
+- Punch is suppressed while jump icon is showing (`InputComponent.isAttackPressed()` returns false when icon override is `'jump'`)
 - Key file: `src/ecs/components/movement/VoidJumpComponent.ts`
+
+## Platform Jump-Down
+
+- When player is on a platform cell and walks toward a wall or lower-layer cell, they are blocked and the **jump icon** appears
+- Player presses the jump button to jump off the platform
+- **South**: If adjacent cell is a wall (perspective), jumps over it to the cell beyond. Landing position offset 20px north
+- **North**: Jumps to adjacent lower cell. Landing position offset 20px north
+- **Left/Right**: Jumps to adjacent lower cell. Landing position offset 40px south (only when dropping to lower ground, not same-layer platform-to-platform)
+- **Gap jumping** (e.g., `1-0-1`): If adjacent cell is lower layer but the cell beyond is a platform at same or lower layer, jumps over the gap to land on the far platform
+- Landing on void triggers the fall sequence (shrink + respawn + 10 HP)
+- Landing on water: `WaterEffectComponent` handles water entry automatically on next frame
+- Stairs are never jumped to (preserves normal stair transition behavior)
+- Detection: `GridCollisionComponent.blockedByPlatformEdge` signal + input-based fallback in `VoidJumpComponent.detectJumpFromInput()`
 
 ## Touch Joystick
 

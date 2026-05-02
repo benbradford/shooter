@@ -18,7 +18,7 @@ The HUD (Heads-Up Display) is rendered in a separate Phaser scene (`HudScene`) t
 
 ### Attack Button (Punch/Crosshair)
 
-- **Visual**: Stone ring frame + dark bg plate + fist/lips icon
+- **Visual**: Stone ring frame + dark bg plate + fist/lips/push/jump icon
 - **Position**: Bottom-right (89%, 79%)
 - **Component**: `AttackButtonComponent`
 - **Alpha States**:
@@ -26,6 +26,7 @@ The HUD (Heads-Up Display) is rendered in a separate Phaser scene (`HudScene`) t
   - Pressed: 1.0 (full)
 - **Keyboard**: Space bar
 - **Layers** (bottom to top): shadow → stone ring → dark plate → icon
+- **Icon overrides**: `setIconOverride('push')` for pushable contact, `setIconOverride('jump')` for void/platform edges. Override suppresses punch via `InputComponent.isAttackPressed()` returning false when override is `'jump'`.
 
 ### Slide Button (Dash)
 

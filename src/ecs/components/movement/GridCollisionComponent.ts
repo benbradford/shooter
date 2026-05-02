@@ -20,8 +20,6 @@ export class GridCollisionComponent implements Component {
   private occupiedCells: Set<string> = new Set();
   enabled = true;
   blockedByPushable: Entity | null = null;
-  blockedByVoid: { fromCol: number; fromRow: number; toCol: number; toRow: number } | null = null;
-  blockedByPlatformEdge: { fromCol: number; fromRow: number; toCol: number; toRow: number } | null = null;
 
   constructor(private readonly grid: Grid) {}
 
@@ -80,9 +78,6 @@ export class GridCollisionComponent implements Component {
 
     // Block movement into walls specifically
     if (this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
-      if (fromCell.properties.has('platform') && this.entity.get(VoidJumpComponent)) {
-        this.blockedByPlatformEdge = { fromCol, fromRow, toCol, toRow };
-      }
       return false;
     }
 
@@ -104,7 +99,6 @@ export class GridCollisionComponent implements Component {
     // Block movement into void cells
     if (toCell.properties.has('void')) {
       if (this.entity.get(VoidJumpComponent)) {
-        this.blockedByVoid = { fromCol, fromRow, toCol, toRow };
         return false;
       }
       return true; // Non-VoidJump entities pass through (pathfinding handles routing)
@@ -136,12 +130,7 @@ export class GridCollisionComponent implements Component {
     }
 
     // Normal cell to normal cell: must be same layer (no layer changes except via transition)
-    if (toLayer !== fromLayer) {
-      if (fromCell.properties.has('platform') && toLayer < fromLayer && this.entity.get(VoidJumpComponent)) {
-        this.blockedByPlatformEdge = { fromCol, fromRow, toCol, toRow };
-      }
-      return false;
-    }
+    if (toLayer !== fromLayer) return false;
 
     // Block diagonal movement through corners
     if (fromCol !== toCol && fromRow !== toRow) {
@@ -255,8 +244,6 @@ export class GridCollisionComponent implements Component {
   update(_delta: number): void {
     if (!this.enabled) return;
     this.blockedByPushable = null;
-    this.blockedByVoid = null;
-    this.blockedByPlatformEdge = null;
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
@@ -345,41 +332,6 @@ export class GridCollisionComponent implements Component {
           if (occupant.get(GridCellBlocker)) {
             this.blockedByPushable = occupant;
             break;
-          }
-        }
-      }
-    }
-
-    // Input-based void/platform edge detection using player input direction.
-    // Separate from probe-based detection because velocity may be zero after collision revert.
-    const walk = this.entity.get(WalkComponent);
-    if (walk && this.entity.get(VoidJumpComponent)) {
-      const moveX = walk.lastMoveX;
-      const moveY = walk.lastMoveY;
-      if (moveX !== 0 || moveY !== 0) {
-        const cx = transform.x + gridPos.collisionBox.offsetX;
-        const cy = transform.y + gridPos.collisionBox.offsetY;
-        const fromCoord = this.grid.worldToCell(cx, cy);
-        let adjCol = fromCoord.col;
-        let adjRow = fromCoord.row;
-        if (Math.abs(moveX) > Math.abs(moveY)) {
-          adjCol += moveX > 0 ? 1 : -1;
-        } else {
-          adjRow += moveY > 0 ? 1 : -1;
-        }
-        const adjCell = this.grid.getCell(adjCol, adjRow);
-        if (adjCell) {
-          if (!this.blockedByVoid && adjCell.properties.has('void')) {
-            this.blockedByVoid = { fromCol: fromCoord.col, fromRow: fromCoord.row, toCol: adjCol, toRow: adjRow };
-          }
-          if (!this.blockedByPlatformEdge) {
-            const fromCellData = this.grid.getCell(fromCoord.col, fromCoord.row);
-            if (fromCellData?.properties.has('platform')) {
-              const isWallOrLower = this.grid.isWall(adjCell) || this.grid.getLayer(adjCell) < this.grid.getLayer(fromCellData);
-              if (isWallOrLower && !this.grid.isTransition(adjCell)) {
-                this.blockedByPlatformEdge = { fromCol: fromCoord.col, fromRow: fromCoord.row, toCol: adjCol, toRow: adjRow };
-              }
-            }
           }
         }
       }
