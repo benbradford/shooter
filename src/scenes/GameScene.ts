@@ -23,10 +23,6 @@ import { GridPositionComponent } from "../ecs/components/movement/GridPositionCo
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { InputComponent } from "../ecs/components/input/InputComponent";
-import { AnimationComponent } from "../ecs/components/core/AnimationComponent";
-import { WalkComponent } from "../ecs/components/movement/WalkComponent";
-import { GridCollisionComponent } from "../ecs/components/movement/GridCollisionComponent";
-import { Direction } from "../constants/Direction";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
@@ -34,11 +30,11 @@ import { TunnelsSceneRenderer } from "./theme/TunnelsSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
-import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
-import type { EscortState } from '../ecs/components/escort/EscortComponent';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 import { BlockedAreaManager } from "../systems/BlockedAreaManager";
 import { createThemeRenderer } from "./theme/ThemeRendererFactory";
+import { HoleDropInAnimator } from "../systems/animations/HoleDropInAnimator";
+import { EscortSpawnManager } from "../systems/escort/EscortSpawnManager";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -599,128 +595,16 @@ export default class GameScene extends Phaser.Scene {
 
     // Spawn cross-level escorts
     if (!this.isEditorMode) {
-      this.spawnCrossLevelEscort(player);
-      this.spawnCompletedEscorts(player);
+      const escortManager = new EscortSpawnManager(this, this.grid, this.entityManager, this.eventManager);
+      escortManager.spawnCrossLevelEscort(player, this.currentLevelName, this.levelData.playerStart.x, this.levelData.playerStart.y);
+      escortManager.spawnCompletedEscorts(player, this.currentLevelName);
     }
 
     // Hole drop-in sequence
     const worldState2 = WorldStateManager.getInstance();
     if (worldState2.getFlag('_enteredViaHole') === 'true') {
-      this.playHoleDropIn(player, startX, startY);
+      new HoleDropInAnimator(this, this.entityManager).play(player, startX, startY);
     }
-  }
-
-  private playHoleDropIn(player: Entity, _targetX: number, targetY: number): void {
-    const DROP_DURATION_MS = 600;
-    const DROP_HEIGHT_PX = 300;
-    const PET_OFFSET_X_PX = 30;
-    const PET_OFFSET_Y_PX = 20;
-
-    const transform = player.require(TransformComponent);
-    const sprite = player.require(SpriteComponent);
-    const input = player.get(InputComponent);
-    const walk = player.get(WalkComponent);
-    const anim = player.require(AnimationComponent);
-    const gridCollision = player.get(GridCollisionComponent);
-
-    // Disable movement and collision during drop
-    input?.setEnabled(false);
-    if (walk) {
-      walk.setEnabled(false);
-      walk.resetVelocity(true, true);
-      walk.lastDir = Direction.Down;
-    }
-    if (gridCollision) gridCollision.enabled = false;
-
-    // Start above target
-    const startY = targetY - DROP_HEIGHT_PX;
-    transform.y = startY;
-    sprite.sprite.y = startY;
-
-    // Play powerup south frames 4-5 on loop during fall
-    anim.animationSystem.playFrameRange(`powerup_${Direction.Down}`, 4, 5, 'repeat', 0.08);
-
-    const petTargetX = transform.x + PET_OFFSET_X_PX;
-    const petStartY = startY + PET_OFFSET_Y_PX;
-    const petTargetY = targetY + PET_OFFSET_Y_PX;
-    let petLocked = false;
-
-    let elapsed = 0;
-    const dropUpdate = (_time: number, delta: number) => {
-      elapsed += delta;
-      const progress = Math.min(1, elapsed / DROP_DURATION_MS);
-
-      // Ease in (accelerate like gravity)
-      const eased = progress * progress;
-      transform.y = startY + (targetY - startY) * eased;
-
-      // Override pet position after its update runs
-      const petEntity = this.entityManager.getFirst('pet');
-      if (petEntity) {
-        const petSpriteComp = petEntity.get(SpriteComponent);
-        const petTransform = petEntity.get(TransformComponent);
-        if (petSpriteComp && petTransform) {
-          if (!petLocked) {
-            const petGC = petEntity.get(GridCollisionComponent);
-            if (petGC) petGC.enabled = false;
-          }
-          petLocked = true;
-          const petY = petStartY + (petTargetY - petStartY) * eased;
-          petTransform.x = petTargetX;
-          petTransform.y = petY;
-          petSpriteComp.sprite.setPosition(petTargetX, petY);
-        }
-      }
-
-      if (progress >= 1) {
-        this.events.off('update', dropUpdate);
-        transform.y = targetY;
-
-        // Play landing animation once
-        anim.animationSystem.play(`fall_${Direction.Down}`);
-
-        // Wait for landing anim to finish (7 frames × 0.1s = 700ms)
-        this.time.delayedCall(700, () => {
-          if (gridCollision) {
-            gridCollision.syncPreviousPosition(transform.x, transform.y);
-            gridCollision.enabled = true;
-          }
-          input?.setEnabled(true);
-          if (walk) walk.setEnabled(true);
-          anim.animationSystem.play(`idle_${Direction.Down}`);
-        });
-
-        // Keep overriding pet position during landing anim, then release
-        if (petLocked) {
-          const petHoldUpdate = () => {
-            const pe = this.entityManager.getFirst('pet');
-            if (pe) {
-              const ps = pe.get(SpriteComponent);
-              const pt = pe.get(TransformComponent);
-              if (ps && pt) {
-                pt.x = petTargetX;
-                pt.y = petTargetY;
-                ps.sprite.setPosition(petTargetX, petTargetY);
-              }
-            }
-          };
-          this.events.on('update', petHoldUpdate);
-          this.time.delayedCall(700, () => {
-            this.events.off('update', petHoldUpdate);
-            const pe = this.entityManager.getFirst('pet');
-            if (pe) {
-              const petGC = pe.get(GridCollisionComponent);
-              if (petGC) {
-                petGC.syncPreviousPosition(petTargetX, petTargetY);
-                petGC.enabled = true;
-              }
-            }
-          });
-        }
-      }
-    };
-
-    this.events.on('update', dropUpdate);
   }
 
   private async initializePetManager(player: Entity): Promise<void> {
@@ -823,7 +707,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // (V6 fix): Explicit escort death reset before level reload
-    this.handleEscortDeathReset();
+    new EscortSpawnManager(this, this.grid, this.entityManager, this.eventManager).handleDeathReset(this.currentLevelName);
 
     // Restore world state to when we entered the level
     if (this.levelEntrySnapshot) {
@@ -947,124 +831,6 @@ export default class GameScene extends Phaser.Scene {
 
 
   // --- Escort Cross-Level Spawning ---
-
-  private spawnCrossLevelEscort(player: Entity): void {
-    const crossPersistence = new EscortPersistence();
-    const escortId = crossPersistence.getCurrentEscortId();
-    if (!escortId) return;
-
-    // Skip if escort already exists (origin level has it in JSON)
-    if (this.entityManager.getAll().find(e => e.id === escortId)) return;
-
-    const allowedLevels = crossPersistence.getFollowToLevels(escortId);
-    if (allowedLevels.length === 0 || !allowedLevels.includes(this.currentLevelName)) return;
-
-    // Check if escort was left behind in a level
-    const leftInLevel = crossPersistence.getLeftInLevel(escortId);
-    if (leftInLevel && leftInLevel !== this.currentLevelName) return; // Left in another level, don't spawn
-
-    let spawnCol: number;
-    let spawnRow: number;
-    let initialState: EscortState;
-
-    if (leftInLevel === this.currentLevelName) {
-      // Escort was left in this level — spawn at saved position, following
-      const ws = WorldStateManager.getInstance();
-      const levelState = ws.getLevelState(this.currentLevelName);
-      const moved = levelState.movedEntities?.find(e => e.id === escortId);
-      spawnCol = moved?.col ?? this.levelData.playerStart.x;
-      spawnRow = moved?.row ?? this.levelData.playerStart.y;
-      initialState = 'following' as EscortState;
-    } else {
-      // Escort is following player — spawn at player's spawn cell, hidden
-      const ws = WorldStateManager.getInstance();
-      const spawnPos = ws.getPlayerSpawnPosition();
-      spawnCol = spawnPos.col ?? this.levelData.playerStart.x;
-      spawnRow = spawnPos.row ?? this.levelData.playerStart.y;
-      initialState = 'waiting_for_player_move' as EscortState;
-    }
-
-    const escort = createEscortEntity({
-      scene: this,
-      grid: this.grid,
-      entityId: escortId,
-      col: spawnCol,
-      row: spawnRow,
-      playerEntity: player,
-      entityManager: this.entityManager,
-      eventManager: this.eventManager,
-      escortType: crossPersistence.getType(escortId),
-      awakeOnEvent: '',
-      destinationLevel: crossPersistence.getDestinationLevel(escortId),
-      destinationCol: crossPersistence.getDestinationCol(escortId),
-      destinationRow: crossPersistence.getDestinationRow(escortId),
-      reachDistance: crossPersistence.getReachDistance(escortId),
-      followSpeed: crossPersistence.getFollowSpeed(escortId),
-      followToLevels: allowedLevels,
-      enemyDetectDistancePx: crossPersistence.getEnemyDetectDistancePx(escortId),
-      initialState,
-      currentLevelName: this.currentLevelName,
-      scale: crossPersistence.getScale(escortId),
-      shadowScale: crossPersistence.getShadowScale(escortId),
-      shadowOffsetX: crossPersistence.getShadowOffsetX(escortId),
-      shadowOffsetY: crossPersistence.getShadowOffsetY(escortId),
-    });
-    this.entityManager.add(escort);
-  }
-
-  // (V7 fix): Spawn completed escorts on non-origin levels
-  private spawnCompletedEscorts(player: Entity): void {
-    const completedPersistence = new EscortPersistence();
-
-    for (const id of completedPersistence.getCompletedEscortIds()) {
-      if (completedPersistence.getCompletedLevel(id) !== this.currentLevelName) continue;
-      if (this.entityManager.getAll().find(e => e.id === id)) continue;
-
-      const col = completedPersistence.getCompletedCol(id);
-      const row = completedPersistence.getCompletedRow(id);
-
-      const escort = createEscortEntity({
-        scene: this,
-        grid: this.grid,
-        entityId: id,
-        col,
-        row,
-        playerEntity: player,
-        entityManager: this.entityManager,
-        eventManager: this.eventManager,
-        escortType: completedPersistence.getType(id),
-        awakeOnEvent: '',
-        destinationLevel: '',
-        destinationCol: col,
-        destinationRow: row,
-        reachDistance: 0,
-        followSpeed: 0,
-        followToLevels: [],
-        enemyDetectDistancePx: 0,
-        initialState: 'completed' as EscortState,
-        currentLevelName: this.currentLevelName,
-        scale: completedPersistence.getScale(id),
-        shadowScale: completedPersistence.getShadowScale(id),
-        shadowOffsetX: completedPersistence.getShadowOffsetX(id),
-        shadowOffsetY: completedPersistence.getShadowOffsetY(id),
-      });
-      escort.require(TransformComponent).y -= 16;
-      this.entityManager.add(escort);
-    }
-  }
-
-  // (V6 fix): Explicit escort death reset
-  private handleEscortDeathReset(): void {
-    const deathPersistence = new EscortPersistence();
-    const escortId = deathPersistence.getCurrentEscortId();
-    if (!escortId) return;
-
-    if (deathPersistence.getOriginLevel(escortId) === this.currentLevelName) {
-      deathPersistence.clearCurrentEscort();
-      deathPersistence.clearDefinitionFlags(escortId);
-    }
-    // Died on non-origin level: current_escort stays set, cross-level spawn handles it
-  }
 
   getCurrentLevelName(): string {
     return this.currentLevelName;

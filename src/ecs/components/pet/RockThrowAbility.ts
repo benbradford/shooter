@@ -17,6 +17,7 @@ import type { GridReader } from '../../../systems/grid/Grid';
 import type { EntityManager } from '../../EntityManager';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
+import { ThrowArrowIndicator } from './ThrowArrowIndicator';
 
 type ThrowState = 'idle' | 'charging' | 'aiming' | 'throwing' | 'landed' | 'returning';
 
@@ -27,10 +28,6 @@ const THROW_ARC_HEIGHT_PX = 20;
 const ROCK_RETURN_SPEED_PX_PER_SEC = 600;
 const ROCK_CHARGE_TWEEN_DURATION_MS = 300;
 const ROCK_DROP_DISTANCE_PX = 20;
-const ARROW_LENGTH_PX = 36;
-const ARROW_COLOR_START = 0x66ccff;
-const ARROW_COLOR_END = 0x2266aa;
-const ARROW_LINE_WIDTH_PX = 2.5;
 const HOLD_FRAME_INDEX = 2;
 const RETURN_ARRIVE_THRESHOLD_PX = 5;
 const LANDED_IDLE_DURATION_MS = 600;
@@ -40,14 +37,6 @@ const THROW_LOCK_DURATION_MS = 200;
 const DEFAULT_THROW_DIR_Y = 1;
 const DEFAULT_HEALTH = 100;
 const DEFAULT_LAYER = 0;
-
-// Arrow indicator
-const ARROW_DEPTH = 2000;
-const ARROW_OFFSET_FROM_PLAYER_PX = 30;
-const ARROW_HEAD_LENGTH_PX = 8;
-const ARROW_HEAD_ANGLE_RAD = Math.PI / 6;
-const ARROW_LINE_ALPHA = 0.8;
-const ARROW_HEAD_ALPHA = 0.9;
 
 // Splash particles
 const SPLASH_SPEED_MIN_PX_PER_SEC = 50;
@@ -89,7 +78,7 @@ export class RockThrowAbility implements Component {
   private chargeTween: Phaser.Tweens.Tween | null = null;
   private chargeComplete = false;
   private activeProjectile: Entity | null = null;
-  private arrowGraphics: Phaser.GameObjects.Graphics | null = null;
+  private readonly arrowIndicator: ThrowArrowIndicator;
   private lastKnownHealth = -1;
   private throwDirX = 0;
   private throwDirY = DEFAULT_THROW_DIR_Y;
@@ -101,6 +90,7 @@ export class RockThrowAbility implements Component {
     this.scene = scene;
     this.grid = grid;
     this.playerEntity = playerEntity;
+    this.arrowIndicator = new ThrowArrowIndicator(scene);
   }
 
   isActive(): boolean {
@@ -240,8 +230,7 @@ export class RockThrowAbility implements Component {
 
     if (isHeld) {
       this.state = 'aiming';
-      this.arrowGraphics = this.scene.add.graphics();
-      this.arrowGraphics.setDepth(ARROW_DEPTH);
+      this.arrowIndicator.show();
       return;
     }
 
@@ -288,11 +277,12 @@ export class RockThrowAbility implements Component {
     }
 
     // Draw arrow
-    this.drawArrow();
+    const arrowPlayerTransform = this.playerEntity.require(TransformComponent);
+    this.arrowIndicator.draw(arrowPlayerTransform.x, arrowPlayerTransform.y, this.throwDirX, this.throwDirY);
 
     // Check for release
     if (!this.isButtonHeld()) {
-      this.destroyArrow();
+      this.arrowIndicator.destroy();
       this.startThrow();
     }
   }
@@ -432,7 +422,7 @@ export class RockThrowAbility implements Component {
   private cancelThrow(): void {
     this.chargeTween?.stop();
     this.chargeTween = null;
-    this.destroyArrow();
+    this.arrowIndicator.destroy();
 
     // Drop rock 20px
     const rockTransform = this.entity.require(TransformComponent);
@@ -487,52 +477,11 @@ export class RockThrowAbility implements Component {
     sprite.sprite.setDepth(Depth.player + z);
   }
 
-  private drawArrow(): void {
-    if (!this.arrowGraphics) return;
-    this.arrowGraphics.clear();
-
-    const playerTransform = this.playerEntity.require(TransformComponent);
-    const startX = playerTransform.x + this.throwDirX * ARROW_OFFSET_FROM_PLAYER_PX;
-    const startY = playerTransform.y + this.throwDirY * ARROW_OFFSET_FROM_PLAYER_PX;
-    const endX = startX + this.throwDirX * ARROW_LENGTH_PX;
-    const endY = startY + this.throwDirY * ARROW_LENGTH_PX;
-
-    // Main line
-    this.arrowGraphics.lineStyle(ARROW_LINE_WIDTH_PX, ARROW_COLOR_START, ARROW_LINE_ALPHA);
-    this.arrowGraphics.beginPath();
-    this.arrowGraphics.moveTo(startX, startY);
-    this.arrowGraphics.lineTo(endX, endY);
-    this.arrowGraphics.strokePath();
-
-    // Arrowhead
-    const angle = Math.atan2(this.throwDirY, this.throwDirX);
-    this.arrowGraphics.lineStyle(ARROW_LINE_WIDTH_PX, ARROW_COLOR_END, ARROW_HEAD_ALPHA);
-    this.arrowGraphics.beginPath();
-    this.arrowGraphics.moveTo(endX, endY);
-    this.arrowGraphics.lineTo(
-      endX - ARROW_HEAD_LENGTH_PX * Math.cos(angle - ARROW_HEAD_ANGLE_RAD),
-      endY - ARROW_HEAD_LENGTH_PX * Math.sin(angle - ARROW_HEAD_ANGLE_RAD)
-    );
-    this.arrowGraphics.moveTo(endX, endY);
-    this.arrowGraphics.lineTo(
-      endX - ARROW_HEAD_LENGTH_PX * Math.cos(angle + ARROW_HEAD_ANGLE_RAD),
-      endY - ARROW_HEAD_LENGTH_PX * Math.sin(angle + ARROW_HEAD_ANGLE_RAD)
-    );
-    this.arrowGraphics.strokePath();
-  }
-
-  private destroyArrow(): void {
-    if (this.arrowGraphics) {
-      this.arrowGraphics.destroy();
-      this.arrowGraphics = null;
-    }
-  }
-
   onDestroy(): void {
     // Clean up everything
     this.chargeTween?.stop();
     this.chargeTween = null;
-    this.destroyArrow();
+    this.arrowIndicator.destroy();
 
     if (this.activeProjectile && !this.activeProjectile.isDestroyed) {
       this.activeProjectile.destroy();
