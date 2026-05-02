@@ -142,6 +142,8 @@ export class InputComponent implements Component {
     }
 
     if (this.attackButton?.isAttackPressed()) {
+      // Don't trigger punch when jump icon is showing (jump consumes the press)
+      if (this.attackButton.getIconOverride() === 'jump') return false;
       return true;
     }
     

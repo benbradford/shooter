@@ -131,7 +131,8 @@ export class AttackButtonComponent implements Component {
       if (this.currentIcon !== 'punch' || this.sprite.texture.key !== overrideTexture) {
         this.currentIcon = 'punch';
         this.sprite.setTexture(overrideTexture);
-        this.sprite.setScale(UNPRESSED_SCALE * 0.9);
+        const overrideScale = this.iconOverride === 'jump' ? 0.8 : 0.9;
+        this.sprite.setScale(UNPRESSED_SCALE * overrideScale);
         if (this.bounceTween) { this.bounceTween.destroy(); this.bounceTween = null; }
       }
       return;
@@ -184,11 +185,14 @@ export class AttackButtonComponent implements Component {
     const wasOverridden = this.iconOverride !== null;
     this.iconOverride = icon;
     if (icon === null && wasOverridden) {
-      // Force re-apply by setting texture to punch (override may have changed it)
       this.sprite.setTexture(PUNCH_TEXTURE);
       this.sprite.setScale(UNPRESSED_SCALE);
       this.currentIcon = 'punch';
     }
+  }
+
+  getIconOverride(): string | null {
+    return this.iconOverride;
   }
 
   setVisible(visible: boolean): void {

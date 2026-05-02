@@ -86,13 +86,19 @@ export class VoidJumpComponent implements Component {
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (!gridCollision) return;
 
-    // Determine if a jump is available
+    // Determine if a jump is available using player input direction
     let newPending: PendingJump | null = null;
 
+    // First check GridCollisionComponent signals (fires when entering new cells)
     if (gridCollision.blockedByVoid) {
       newPending = this.resolveVoidJump(gridCollision.blockedByVoid);
     } else if (gridCollision.blockedByPlatformEdge) {
       newPending = this.resolvePlatformJump(gridCollision.blockedByPlatformEdge);
+    }
+
+    // Also check using input direction (catches grid-line edge cases where signals don't fire)
+    if (!newPending) {
+      newPending = this.detectJumpFromInput();
     }
 
     // Update icon state
@@ -129,6 +135,53 @@ export class VoidJumpComponent implements Component {
         this.isShowingJumpIcon = false;
       }
     }
+  }
+
+  private detectJumpFromInput(): PendingJump | null {
+    const walk = this.entity.get(WalkComponent);
+    const gridPos = this.entity.get(GridPositionComponent);
+    if (!walk || !gridPos) return null;
+
+    const moveX = walk.lastMoveX;
+    const moveY = walk.lastMoveY;
+    if (moveX === 0 && moveY === 0) return null;
+
+    // Only check if player is actively pressing input
+    const input = this.entity.get(InputComponent);
+    if (!input?.hasInput()) return null;
+
+    const fromCol = gridPos.currentCell.col;
+    const fromRow = gridPos.currentCell.row;
+    const fromCell = this.grid.getCell(fromCol, fromRow);
+    if (!fromCell) return null;
+
+    let dx = 0;
+    let dy = 0;
+    if (Math.abs(moveX) > Math.abs(moveY)) {
+      dx = moveX > 0 ? 1 : -1;
+    } else {
+      dy = moveY > 0 ? 1 : -1;
+    }
+
+    const toCol = fromCol + dx;
+    const toRow = fromRow + dy;
+    const toCell = this.grid.getCell(toCol, toRow);
+    if (!toCell) return null;
+
+    // Void cell adjacent
+    if (toCell.properties.has('void')) {
+      return this.resolveVoidJump({ fromCol, fromRow, toCol, toRow });
+    }
+
+    // Platform edge
+    if (fromCell.properties.has('platform') && !this.grid.isTransition(toCell)) {
+      const isWallOrLower = this.grid.isWall(toCell) || this.grid.getLayer(toCell) < this.grid.getLayer(fromCell);
+      if (isWallOrLower) {
+        return this.resolvePlatformJump({ fromCol, fromRow, toCol, toRow });
+      }
+    }
+
+    return null;
   }
 
   private resolveVoidJump(blocked: { fromCol: number; fromRow: number; toCol: number; toRow: number }): PendingJump | null {

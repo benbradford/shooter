@@ -320,10 +320,8 @@ export class GridCollisionComponent implements Component {
       }
     }
 
-    // Proactive detection: if player tried to move but blockedByPushable/blockedByVoid
-    // wasn't set (e.g., already adjacent and movement too small to enter new cell),
-    // check the cell just beyond the collision box edge in the movement direction.
-    if ((!this.blockedByPushable || !this.blockedByVoid) && (newX !== this.previousX || newY !== this.previousY)) {
+    // Proactive pushable detection: probe 1px beyond collision box edge
+    if (!this.blockedByPushable && (newX !== this.previousX || newY !== this.previousY)) {
       const dx = newX - this.previousX;
       const dy = newY - this.previousY;
       const boxLeft = transform.x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
@@ -333,7 +331,6 @@ export class GridCollisionComponent implements Component {
       const centerX = (boxLeft + boxRight) / 2;
       const centerY = (boxTop + boxBottom) / 2;
 
-      // Check one pixel beyond the edge in the dominant movement direction
       let probeX = centerX;
       let probeY = centerY;
       if (Math.abs(dx) > Math.abs(dy)) {
@@ -344,25 +341,44 @@ export class GridCollisionComponent implements Component {
       const probeCell = this.grid.worldToCell(probeX, probeY);
       const probeCellData = this.grid.getCell(probeCell.col, probeCell.row);
       if (probeCellData) {
-        if (!this.blockedByPushable) {
-          for (const occupant of probeCellData.occupants) {
-            if (occupant.get(GridCellBlocker)) {
-              this.blockedByPushable = occupant;
-              break;
-            }
+        for (const occupant of probeCellData.occupants) {
+          if (occupant.get(GridCellBlocker)) {
+            this.blockedByPushable = occupant;
+            break;
           }
         }
-        if (!this.blockedByVoid && probeCellData.properties.has('void') && this.entity.get(VoidJumpComponent)) {
-          const fromCell = this.grid.worldToCell(centerX, centerY);
-          this.blockedByVoid = { fromCol: fromCell.col, fromRow: fromCell.row, toCol: probeCell.col, toRow: probeCell.row };
+      }
+    }
+
+    // Input-based void/platform edge detection using player input direction.
+    // Separate from probe-based detection because velocity may be zero after collision revert.
+    const walk = this.entity.get(WalkComponent);
+    if (walk && this.entity.get(VoidJumpComponent)) {
+      const moveX = walk.lastMoveX;
+      const moveY = walk.lastMoveY;
+      if (moveX !== 0 || moveY !== 0) {
+        const cx = transform.x + gridPos.collisionBox.offsetX;
+        const cy = transform.y + gridPos.collisionBox.offsetY;
+        const fromCoord = this.grid.worldToCell(cx, cy);
+        let adjCol = fromCoord.col;
+        let adjRow = fromCoord.row;
+        if (Math.abs(moveX) > Math.abs(moveY)) {
+          adjCol += moveX > 0 ? 1 : -1;
+        } else {
+          adjRow += moveY > 0 ? 1 : -1;
         }
-        if (!this.blockedByPlatformEdge && this.entity.get(VoidJumpComponent)) {
-          const fromCellCoord = this.grid.worldToCell(centerX, centerY);
-          const fromCellData = this.grid.getCell(fromCellCoord.col, fromCellCoord.row);
-          if (fromCellData?.properties.has('platform')) {
-            const isWallOrLower = this.grid.isWall(probeCellData) || this.grid.getLayer(probeCellData) < this.grid.getLayer(fromCellData);
-            if (isWallOrLower && !this.grid.isTransition(probeCellData)) {
-              this.blockedByPlatformEdge = { fromCol: fromCellCoord.col, fromRow: fromCellCoord.row, toCol: probeCell.col, toRow: probeCell.row };
+        const adjCell = this.grid.getCell(adjCol, adjRow);
+        if (adjCell) {
+          if (!this.blockedByVoid && adjCell.properties.has('void')) {
+            this.blockedByVoid = { fromCol: fromCoord.col, fromRow: fromCoord.row, toCol: adjCol, toRow: adjRow };
+          }
+          if (!this.blockedByPlatformEdge) {
+            const fromCellData = this.grid.getCell(fromCoord.col, fromCoord.row);
+            if (fromCellData?.properties.has('platform')) {
+              const isWallOrLower = this.grid.isWall(adjCell) || this.grid.getLayer(adjCell) < this.grid.getLayer(fromCellData);
+              if (isWallOrLower && !this.grid.isTransition(adjCell)) {
+                this.blockedByPlatformEdge = { fromCol: fromCoord.col, fromRow: fromCoord.row, toCol: adjCol, toRow: adjRow };
+              }
             }
           }
         }
