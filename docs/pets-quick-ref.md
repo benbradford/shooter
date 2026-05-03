@@ -57,6 +57,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - **Layer sync:** Pet syncs `GridPositionComponent.currentLayer` with player each frame — walls/platforms only block on higher layers
 - **Water:** Pet rides on player's back when swimming, matches player direction, resumes follow on exit
 - **Void/Jump sync:** Pet does NOT have its own JumpComponent. When the player jumps (void or platform), the pet tweens to the landing cell center with a sine arc, matching the player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to the player's respawn position. Pathfinding treats void as impassable for the pet.
+- **Void blocking:** Pet is blocked by void cells in GridCollisionComponent (via `pet` tag check). Wander targets on void cells are rejected.
 
 ## ⚠️ Pathfinding Pitfalls (Critical)
 
@@ -121,6 +122,8 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 **Layer-independent damage:** Rock has `ignores_layers` tag — damages enemies regardless of layer differences.
 
 **Water landing:** Splash particle effect + sound, rock hidden until return.
+
+**Void landing:** Rock shrinks to 0 over 600ms with downward drift (matching player void fall), then returns to player.
 
 **Cancel on damage:** If player takes damage during charge/aim, rock drops 20px and returns.
 
