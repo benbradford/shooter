@@ -346,7 +346,7 @@ export class PetFollowComponent implements Component {
     const path = pathfinder.findPath(
       startCell.col, startCell.row,
       goalCell.col, goalCell.row,
-      layer, false, true, false, false
+      layer, false, true
     );
     this.pathFollower.setPath(path);
   }

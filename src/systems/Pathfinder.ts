@@ -28,9 +28,7 @@ export class Pathfinder {
     goalRow: number,
     currentLayer: number,
     allowLayerChanges: boolean = false,
-    allowDiagonals: boolean = false,
-    allowPlatformJumps: boolean = false,
-    allowVoidJumps: boolean = true
+    allowDiagonals: boolean = false
   ): Array<{ col: number; row: number }> | null {
     const openSet: PathNode[] = [];
     const closedSet = new Set<string>();
@@ -64,7 +62,7 @@ export class Pathfinder {
       openSet.splice(currentIndex, 1);
       closedSet.add(`${current.col},${current.row},${current.layer}`);
 
-      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals, allowPlatformJumps, allowVoidJumps);
+      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals);
       for (const neighbor of neighbors) {
         const key = `${neighbor.col},${neighbor.row},${neighbor.layer}`;
         if (closedSet.has(key)) continue;
@@ -103,7 +101,7 @@ export class Pathfinder {
     return Math.max(dx, dy);
   }
 
-  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean, allowPlatformJumps: boolean, allowVoidJumps: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
+  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
     const neighbors: Array<{ col: number; row: number; layer: number; cost: number }> = [];
     const currentCell = this.grid.getCell(col, row);
     if (!currentCell) return neighbors;
@@ -130,7 +128,7 @@ export class Pathfinder {
       const targetCell = this.grid.getCell(newCol, newRow);
       if (!targetCell) continue;
 
-      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges, allowPlatformJumps, allowVoidJumps);
+      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges);
       if (neighbor) {
         neighbors.push(neighbor);
       }
@@ -139,7 +137,6 @@ export class Pathfinder {
     return neighbors;
   }
 
-  // eslint-disable-next-line complexity
   private getValidNeighbor(
     currentCell: CellData,
     targetCell: CellData,
@@ -147,9 +144,7 @@ export class Pathfinder {
     currentLayer: number,
     newCol: number,
     newRow: number,
-    allowLayerChanges: boolean,
-    allowPlatformJumps: boolean,
-    allowVoidJumps: boolean
+    allowLayerChanges: boolean
   ): { col: number; row: number; layer: number; cost: number } | null {
     if (this.blockedAreaCells?.has(`${newCol},${newRow}`)) {
       return null;
@@ -204,43 +199,18 @@ export class Pathfinder {
       if (!this.allowWater) return null;
     }
 
-    // Void cells: jump over (cardinal only) if landing cell is valid
+    // Void cells block movement
     if (targetCell.properties.has('void')) {
-      if (!allowVoidJumps || isDiagonal) return null;
-      const landCol = newCol + dir.col;
-      const landRow = newRow + dir.row;
-      const landCell = this.grid.getCell(landCol, landRow);
-      if (!landCell) return null;
-      if (landCell.properties.has('void') || landCell.properties.has('wall') || landCell.properties.has('blocked')) return null;
-      if (this.grid.getLayer(landCell) !== currentLayer) return null;
-      for (const occupant of landCell.occupants) {
-        const entity = occupant as { get?: (type: typeof GridCellBlocker) => unknown };
-        if (entity.get?.(GridCellBlocker)) return null;
-      }
-      return { col: landCol, row: landRow, layer: currentLayer, cost: 2 };
+      return null;
     }
 
     // Block movement into walls
     if (this.grid.isWall(targetCell)) {
-      // Platform jump-down: if on a platform and moving cardinal into a wall, skip over it
-      if (allowPlatformJumps && !isDiagonal && currentCell.properties.has('platform')) {
-        const beyondCol = newCol + dir.col;
-        const beyondRow = newRow + dir.row;
-        const beyondCell = this.grid.getCell(beyondCol, beyondRow);
-        if (beyondCell && !this.grid.isWall(beyondCell) && !beyondCell.properties.has('blocked')
-          && !this.grid.isTransition(beyondCell)) {
-          return { col: beyondCol, row: beyondRow, layer: this.grid.getLayer(beyondCell), cost: 2 };
-        }
-      }
       return null;
     }
 
-    // Platform jump-down to lower layer (cardinal only)
+    // Block movement to different layer (unless layer changes allowed)
     if (currentCellLayer !== targetLayer && !allowLayerChanges) {
-      if (allowPlatformJumps && !isDiagonal && currentCell.properties.has('platform') && targetLayer < currentCellLayer
-        && !targetCell.properties.has('blocked') && !this.grid.isTransition(targetCell)) {
-        return { col: newCol, row: newRow, layer: targetLayer, cost: 2 };
-      }
       return null;
     }
 
