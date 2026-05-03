@@ -66,6 +66,7 @@ Patrol states should use pathfinding to navigate to waypoints, not direct moveme
 **Platform Jump-Down:**
 - When on a platform cell moving cardinal into a wall, pathfinder skips over the wall to the cell beyond (cost 2)
 - When on a platform cell moving cardinal to a lower-layer cell, pathfinder allows the drop (cost 2)
+- Both require `allowPlatformJumps: true` parameter (only pet uses this, not enemies)
 - Both only apply to cardinal directions from platform cells
 - Stairs are excluded (normal transition behavior preserved)
 

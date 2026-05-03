@@ -688,17 +688,6 @@
       ]
     },
     {
-      "col": 15,
-      "row": 7,
-      "layer": 0,
-      "properties": [
-        "void"
-      ],
-      "backgroundTexture": [
-        "blank"
-      ]
-    },
-    {
       "col": 18,
       "row": 7,
       "layer": 1,
@@ -782,7 +771,7 @@
         "void"
       ],
       "backgroundTexture": [
-        "blank"
+        "chasm"
       ]
     },
     {

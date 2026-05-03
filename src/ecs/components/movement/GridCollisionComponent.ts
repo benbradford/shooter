@@ -106,12 +106,12 @@ export class GridCollisionComponent implements Component {
       return false;
     }
 
-    // Block movement into void cells
+    // Block movement into void cells (entities with JumpComponent get blocked so jump icon shows)
     if (toCell.properties.has('void')) {
       if (this.entity.get(JumpComponent)) {
         return false;
       }
-      return true; // Non-VoidJump entities pass through (pathfinding handles routing)
+      return true;
     }
 
     // Block swimming from bridge+water onto dry land

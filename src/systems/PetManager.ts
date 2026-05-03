@@ -7,6 +7,7 @@ import { WorldStateManager } from './WorldStateManager';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { PetFollowComponent } from '../ecs/components/pet/PetFollowComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { JumpComponent } from '../ecs/components/movement/JumpComponent';
 
 export class PetManager {
   private static instance: PetManager | null = null;
@@ -77,6 +78,9 @@ export class PetManager {
         entityManager.add(this.activePetEntity);
       }
     }
+
+    // Wire player jump to pet sync jump
+    this.wireJumpSync();
     
     this.selectedPetId = petId;
     WorldStateManager.getInstance().setFlag('pet_selected', petId);
@@ -87,6 +91,17 @@ export class PetManager {
       this.activePetEntity.destroy();
       this.activePetEntity = null;
     }
+    this.playerEntity?.get(JumpComponent)?.setOnJumpStart(undefined);
+  }
+
+  private wireJumpSync(): void {
+    if (!this.playerEntity || !this.activePetEntity) return;
+    const playerJump = this.playerEntity.get(JumpComponent);
+    const petFollow = this.activePetEntity.get(PetFollowComponent);
+    if (!playerJump || !petFollow) return;
+    playerJump.setOnJumpStart((info) => {
+      petFollow.syncJump(info.landCol, info.landRow, info.totalDurationMs, info.isFallJump, info.flightDurationMs);
+    });
   }
   
   private async loadMetadata(petId: string): Promise<PetSpritesheetMetadata | null> {

@@ -29,7 +29,8 @@ export class Pathfinder {
     currentLayer: number,
     allowLayerChanges: boolean = false,
     allowDiagonals: boolean = false,
-    allowPlatformJumps: boolean = false
+    allowPlatformJumps: boolean = false,
+    allowVoidJumps: boolean = true
   ): Array<{ col: number; row: number }> | null {
     const openSet: PathNode[] = [];
     const closedSet = new Set<string>();
@@ -63,7 +64,7 @@ export class Pathfinder {
       openSet.splice(currentIndex, 1);
       closedSet.add(`${current.col},${current.row},${current.layer}`);
 
-      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals, allowPlatformJumps);
+      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals, allowPlatformJumps, allowVoidJumps);
       for (const neighbor of neighbors) {
         const key = `${neighbor.col},${neighbor.row},${neighbor.layer}`;
         if (closedSet.has(key)) continue;
@@ -102,7 +103,7 @@ export class Pathfinder {
     return Math.max(dx, dy);
   }
 
-  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean, allowPlatformJumps: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
+  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean, allowPlatformJumps: boolean, allowVoidJumps: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
     const neighbors: Array<{ col: number; row: number; layer: number; cost: number }> = [];
     const currentCell = this.grid.getCell(col, row);
     if (!currentCell) return neighbors;
@@ -129,7 +130,7 @@ export class Pathfinder {
       const targetCell = this.grid.getCell(newCol, newRow);
       if (!targetCell) continue;
 
-      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges, allowPlatformJumps);
+      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges, allowPlatformJumps, allowVoidJumps);
       if (neighbor) {
         neighbors.push(neighbor);
       }
@@ -147,7 +148,8 @@ export class Pathfinder {
     newCol: number,
     newRow: number,
     allowLayerChanges: boolean,
-    allowPlatformJumps: boolean
+    allowPlatformJumps: boolean,
+    allowVoidJumps: boolean
   ): { col: number; row: number; layer: number; cost: number } | null {
     if (this.blockedAreaCells?.has(`${newCol},${newRow}`)) {
       return null;
@@ -204,7 +206,7 @@ export class Pathfinder {
 
     // Void cells: jump over (cardinal only) if landing cell is valid
     if (targetCell.properties.has('void')) {
-      if (isDiagonal) return null;
+      if (!allowVoidJumps || isDiagonal) return null;
       const landCol = newCol + dir.col;
       const landRow = newRow + dir.row;
       const landCell = this.grid.getCell(landCol, landRow);

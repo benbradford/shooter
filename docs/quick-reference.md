@@ -383,6 +383,7 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - **Gap jumping** (e.g., `1-0-1`): If adjacent cell is lower layer but the cell beyond is a platform at same or lower layer, jumps over the gap to land on the far platform
 - Landing on void triggers the fall sequence (shrink + respawn + 10 HP)
 - Landing on water: `WaterEffectComponent` handles water entry automatically on next frame
+- Landing position auto-nudged away from adjacent higher-layer cells to prevent collision box overlap
 - Stairs are never jumped to (preserves normal stair transition behavior)
 - Detection: `JumpComponent.detectJumpFromInput()` — uses player input direction, collision box center, and edge proximity check
 

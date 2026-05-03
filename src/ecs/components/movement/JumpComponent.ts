@@ -15,6 +15,7 @@ import { HealthComponent } from '../core/HealthComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import type HudScene from '../../../scenes/HudScene';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const TAKEOFF_DURATION_MS = 180;
 const FLIGHT_DURATION_MS = 300;
@@ -35,9 +36,20 @@ type PendingJump = {
   isPlatformJump: boolean;
 };
 
+export type JumpStartInfo = {
+  readonly targetX: number;
+  readonly targetY: number;
+  readonly landCol: number;
+  readonly landRow: number;
+  readonly totalDurationMs: number;
+  readonly flightDurationMs: number;
+  readonly isFallJump: boolean;
+};
+
 export type JumpComponentProps = {
   readonly grid: GridReader;
   readonly scene?: Phaser.Scene;
+  readonly onJumpStart?: (info: JumpStartInfo) => void;
 };
 
 export class JumpComponent implements Component {
@@ -61,13 +73,20 @@ export class JumpComponent implements Component {
   private prevTransformX = 0;
   private prevTransformY = 0;
 
+  private onJumpStart?: (info: JumpStartInfo) => void;
+
   constructor(props: JumpComponentProps) {
     this.grid = props.grid;
     this.scene = props.scene;
+    this.onJumpStart = props.onJumpStart;
   }
 
   isJumping(): boolean {
     return this.phase !== 'idle';
+  }
+
+  setOnJumpStart(callback: ((info: JumpStartInfo) => void) | undefined): void {
+    this.onJumpStart = callback;
   }
 
   private getAttackButton(): AttackButtonComponent | undefined {
@@ -86,7 +105,8 @@ export class JumpComponent implements Component {
     this.updateSafePosition();
 
     // Single detection mechanism: check adjacent cell using active input + proximity
-    const newPending = this.detectJumpFromInput();
+    const canJump = !this.scene || WorldStateManager.getInstance().getFlag('canJump') === 'true';
+    const newPending = canJump ? this.detectJumpFromInput() : null;
 
     // Update icon state
     const attackButton = this.getAttackButton();
@@ -335,6 +355,10 @@ export class JumpComponent implements Component {
     if (collision) collision.enabled = false;
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) gridCollision.enabled = false;
+
+    const totalDurationMs = (this.isFallJump ? FALL_DURATION_MS : LAND_DURATION_MS) + TAKEOFF_DURATION_MS + FLIGHT_DURATION_MS;
+    const flightDurationMs = TAKEOFF_DURATION_MS + FLIGHT_DURATION_MS;
+    this.onJumpStart?.({ targetX: this.targetX, targetY: this.targetY, landCol, landRow, totalDurationMs, flightDurationMs, isFallJump: this.isFallJump });
 
     const hasJumpAnim = this.playAnim(`jump_takeoff_${this.jumpDir}`);
     if (!hasJumpAnim) {

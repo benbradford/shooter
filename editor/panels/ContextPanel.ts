@@ -169,7 +169,7 @@ export class ContextPanel {
     });
 
     this.container.querySelector('#st-reset-flags')?.addEventListener('click', () => {
-      const resetFlags: Record<string, string> = { canPunch: 'true', canSwim: 'true', hasSuperPunch: 'true', hasCompanion: 'false', pet_rock_collected: 'true', pet_dog_collected: 'true', pet_selected: 'rock' };
+      const resetFlags: Record<string, string> = { canPunch: 'true', canSwim: 'true', canJump: 'true', hasSuperPunch: 'true', hasCompanion: 'false', pet_rock_collected: 'true', pet_dog_collected: 'true', pet_selected: 'rock' };
       const flagsDiv = this.container.querySelector('#st-flags')!;
       flagsDiv.innerHTML = '';
       for (const [key, val] of Object.entries(resetFlags)) {
