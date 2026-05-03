@@ -59,6 +59,8 @@ export function createSpecialItemEntity(props: CreateSpecialItemProps): EntityCl
   const transform = entity.add(new TransformComponent(x, y, 0, baseScale));
   const sprite = entity.add(new SpriteComponent(scene, itemType, transform));
   sprite.sprite.setDepth(Depth.pickup);
+  sprite.sprite.setAlpha(0);
+  scene.tweens.add({ targets: sprite.sprite, alpha: 1, duration: 1000 });
 
   entity.add(new PulsingScaleComponent({
     baseScale,

@@ -51,6 +51,7 @@ export function createRootChestEntity(props: CreateRootChestProps): Entity {
   const CHEST_SCALE_FACTOR = 1.2;
   const scale = (grid.cellSize / CHEST_CLOSED_MAX_DIM) * CHEST_SCALE_FACTOR;
   transform.scale = scale;
+  sprite.sprite.setScale(scale);
 
   const COLLISION_SIZE = grid.cellSize;
   const GRID_BOX = { offsetX: 0, offsetY: 0, width: COLLISION_SIZE, height: COLLISION_SIZE };

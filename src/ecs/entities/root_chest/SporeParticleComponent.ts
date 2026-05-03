@@ -3,9 +3,9 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 
-const SPAWN_INTERVAL_MS = 333; // ~3 particles/sec
+const SPAWN_INTERVAL_MS = 50; // ~3 particles/sec
 const PARTICLE_LIFETIME_MS = 2000;
-const MAX_PARTICLES = 8;
+const MAX_PARTICLES = 64;
 const DRIFT_SPEED_PX_PER_SEC = 8;
 const SWAY_AMPLITUDE_PX = 6;
 const SWAY_FREQUENCY_HZ = 0.5;

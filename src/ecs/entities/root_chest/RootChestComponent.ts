@@ -15,9 +15,9 @@ const SHAKE_DURATION_MS = 100;
 
 // Death sequence timings
 const CRACKING_DURATION_MS = 400;
-const BREAKING_DURATION_MS = 400;
-const OPEN_GLOW_DURATION_MS = 500;
-const OPEN_PARTICLES_DURATION_MS = 500;
+const BREAKING_DURATION_MS = 200;
+const OPEN_GLOW_DURATION_MS = 200;
+const OPEN_PARTICLES_DURATION_MS = 200;
 
 // Debris shard constants
 const SHARD_FADE_DURATION_MS = 800;
@@ -125,7 +125,6 @@ export class RootChestComponent implements Component {
     if (this.state === 'death_open_particles' && this.stateTimerMs >= OPEN_PARTICLES_DURATION_MS) {
       this.setFrame('chest_empty');
       this.state = 'dead';
-      this.spawnSpecialItem();
       this.eventManager.raiseEvent(`${this.entity.id}_destroyed`);
       return;
     }
@@ -138,6 +137,7 @@ export class RootChestComponent implements Component {
     // Remove blocker so player can walk in to collect item
     const blocker = this.entity.get(GridCellBlocker);
     if (blocker) this.entity.remove(GridCellBlocker);
+    this.spawnSpecialItem();
   }
 
   private spawnSpecialItem(): void {
@@ -171,7 +171,7 @@ export class RootChestComponent implements Component {
       sprite.sprite.setFrame(`rc_${frameName}`);
       // chest_empty is much shorter — shift down to align with ground
       if (frameName === 'chest_empty') {
-        const EMPTY_OFFSET_Y_PX = 8;
+        const EMPTY_OFFSET_Y_PX = 13;
         sprite.visualOffsetYPx = EMPTY_OFFSET_Y_PX;
       } else {
         sprite.visualOffsetYPx = 0;

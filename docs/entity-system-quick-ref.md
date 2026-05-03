@@ -19,6 +19,7 @@
 - **eventchainer** - Raises multiple events with delays (has eventsToRaise array)
 - **cellmodifier** - Modifies grid cells when event fires (has cellsToModify array)
 - **lever** - Punchable toggle switch (has eventToRaise, startState, oneShot)
+- **root_chest** - Punchable root chest (has specialItem), spawns item pickup on death
 
 ## Event Flow Example
 
