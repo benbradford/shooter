@@ -456,15 +456,63 @@ export class JumpComponent implements Component {
 
     const gridPos = this.entity.get(GridPositionComponent);
     if (gridPos) {
-      gridPos.currentCell = this.grid.worldToCell(transform.x, transform.y);
+      // Use collision box center (not transform) to match GridCollisionComponent's layer detection
+      const cx = transform.x + gridPos.collisionBox.offsetX;
+      const cy = transform.y + gridPos.collisionBox.offsetY;
+      gridPos.currentCell = this.grid.worldToCell(cx, cy);
       const landCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
       if (landCell) {
         gridPos.currentLayer = landCell.layer;
+
+        // Nudge away from adjacent higher-layer cells to prevent collision box overlap
+        this.nudgeAwayFromHigherLayers(transform, gridPos, landCell.layer);
       }
     }
 
     this.reEnableSystems(transform);
     this.playAnim(`idle_${this.jumpDir}`);
+  }
+
+  private nudgeAwayFromHigherLayers(transform: TransformComponent, gridPos: GridPositionComponent, landLayer: number): void {
+    const box = gridPos.collisionBox;
+    const halfW = box.width / 2;
+    const halfH = box.height / 2;
+    const cx = transform.x + box.offsetX;
+    const cy = transform.y + box.offsetY;
+
+    // Check cells at each edge of the collision box
+    const leftCell = this.grid.worldToCell(cx - halfW, cy);
+    const rightCell = this.grid.worldToCell(cx + halfW, cy);
+    const topCell = this.grid.worldToCell(cx, cy - halfH);
+    const bottomCell = this.grid.worldToCell(cx, cy + halfH);
+
+    const leftData = this.grid.getCell(leftCell.col, leftCell.row);
+    const rightData = this.grid.getCell(rightCell.col, rightCell.row);
+    const topData = this.grid.getCell(topCell.col, topCell.row);
+    const bottomData = this.grid.getCell(bottomCell.col, bottomCell.row);
+
+    const NUDGE_PX = 2;
+
+    // Nudge right if left edge overlaps higher layer
+    if (leftData && this.grid.getLayer(leftData) > landLayer && !this.grid.isTransition(leftData)) {
+      const cellRight = (leftCell.col + 1) * this.grid.cellSize;
+      transform.x = cellRight - box.offsetX + halfW + NUDGE_PX;
+    }
+    // Nudge left if right edge overlaps higher layer
+    if (rightData && this.grid.getLayer(rightData) > landLayer && !this.grid.isTransition(rightData)) {
+      const cellLeft = rightCell.col * this.grid.cellSize;
+      transform.x = cellLeft - box.offsetX - halfW - NUDGE_PX;
+    }
+    // Nudge down if top edge overlaps higher layer
+    if (topData && this.grid.getLayer(topData) > landLayer && !this.grid.isTransition(topData)) {
+      const cellBottom = (topCell.row + 1) * this.grid.cellSize;
+      transform.y = cellBottom - box.offsetY + halfH + NUDGE_PX;
+    }
+    // Nudge up if bottom edge overlaps higher layer
+    if (bottomData && this.grid.getLayer(bottomData) > landLayer && !this.grid.isTransition(bottomData)) {
+      const cellTop = bottomCell.row * this.grid.cellSize;
+      transform.y = cellTop - box.offsetY - halfH - NUDGE_PX;
+    }
   }
 
   private reEnableSystems(transform: TransformComponent): void {

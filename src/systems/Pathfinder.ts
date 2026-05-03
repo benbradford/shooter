@@ -28,7 +28,8 @@ export class Pathfinder {
     goalRow: number,
     currentLayer: number,
     allowLayerChanges: boolean = false,
-    allowDiagonals: boolean = false
+    allowDiagonals: boolean = false,
+    allowPlatformJumps: boolean = false
   ): Array<{ col: number; row: number }> | null {
     const openSet: PathNode[] = [];
     const closedSet = new Set<string>();
@@ -62,7 +63,7 @@ export class Pathfinder {
       openSet.splice(currentIndex, 1);
       closedSet.add(`${current.col},${current.row},${current.layer}`);
 
-      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals);
+      const neighbors = this.getNeighbors(current.col, current.row, current.layer, allowLayerChanges, allowDiagonals, allowPlatformJumps);
       for (const neighbor of neighbors) {
         const key = `${neighbor.col},${neighbor.row},${neighbor.layer}`;
         if (closedSet.has(key)) continue;
@@ -101,7 +102,7 @@ export class Pathfinder {
     return Math.max(dx, dy);
   }
 
-  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
+  private getNeighbors(col: number, row: number, currentLayer: number, allowLayerChanges: boolean, allowDiagonals: boolean, allowPlatformJumps: boolean): Array<{ col: number; row: number; layer: number; cost: number }> {
     const neighbors: Array<{ col: number; row: number; layer: number; cost: number }> = [];
     const currentCell = this.grid.getCell(col, row);
     if (!currentCell) return neighbors;
@@ -128,7 +129,7 @@ export class Pathfinder {
       const targetCell = this.grid.getCell(newCol, newRow);
       if (!targetCell) continue;
 
-      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges);
+      const neighbor = this.getValidNeighbor(currentCell, targetCell, dir, currentLayer, newCol, newRow, allowLayerChanges, allowPlatformJumps);
       if (neighbor) {
         neighbors.push(neighbor);
       }
@@ -145,7 +146,8 @@ export class Pathfinder {
     currentLayer: number,
     newCol: number,
     newRow: number,
-    allowLayerChanges: boolean
+    allowLayerChanges: boolean,
+    allowPlatformJumps: boolean
   ): { col: number; row: number; layer: number; cost: number } | null {
     if (this.blockedAreaCells?.has(`${newCol},${newRow}`)) {
       return null;
@@ -219,7 +221,7 @@ export class Pathfinder {
     // Block movement into walls
     if (this.grid.isWall(targetCell)) {
       // Platform jump-down: if on a platform and moving cardinal into a wall, skip over it
-      if (!isDiagonal && currentCell.properties.has('platform')) {
+      if (allowPlatformJumps && !isDiagonal && currentCell.properties.has('platform')) {
         const beyondCol = newCol + dir.col;
         const beyondRow = newRow + dir.row;
         const beyondCell = this.grid.getCell(beyondCol, beyondRow);
@@ -233,7 +235,7 @@ export class Pathfinder {
 
     // Platform jump-down to lower layer (cardinal only)
     if (currentCellLayer !== targetLayer && !allowLayerChanges) {
-      if (!isDiagonal && currentCell.properties.has('platform') && targetLayer < currentCellLayer
+      if (allowPlatformJumps && !isDiagonal && currentCell.properties.has('platform') && targetLayer < currentCellLayer
         && !targetCell.properties.has('blocked') && !this.grid.isTransition(targetCell)) {
         return { col: newCol, row: newRow, layer: targetLayer, cost: 2 };
       }

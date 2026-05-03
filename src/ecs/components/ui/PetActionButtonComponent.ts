@@ -9,6 +9,7 @@ import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 const BUTTON_ALPHA_UNPRESSED = 0.9;
 const BUTTON_ALPHA_PRESSED = 1;
 const BUTTON_ALPHA_DISABLED = 0.3;
+const RING_BG_ALPHA = 0.5;
 const ICON_SIZE = 150;
 const SIZE_MULTIPLIER = 1.3;
 const RING_SCALE = (120 * 2 * TOUCH_CONTROLS_SCALE * SIZE_MULTIPLIER) / 128;
@@ -44,13 +45,13 @@ export class PetActionButtonComponent implements Component {
     this.ring.setScale(RING_SCALE);
     this.ring.setScrollFactor(0);
     this.ring.setDepth(Depth.hudRing);
-    this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
+    this.ring.setAlpha(RING_BG_ALPHA);
 
     this.bg = scene.add.sprite(0, 0, 'stone_bg');
     this.bg.setScale(RING_SCALE * 0.85);
     this.bg.setScrollFactor(0);
     this.bg.setDepth(Depth.hudButtonBg);
-    this.bg.setAlpha(BUTTON_ALPHA_UNPRESSED);
+    this.bg.setAlpha(RING_BG_ALPHA);
 
     this.shadow = scene.add.graphics();
     this.shadow.setScrollFactor(0);
@@ -114,12 +115,12 @@ export class PetActionButtonComponent implements Component {
       this.bg.setAlpha(BUTTON_ALPHA_DISABLED);
     } else if (this.isPressed) {
       this.sprite.setAlpha(BUTTON_ALPHA_PRESSED);
-      this.ring.setAlpha(BUTTON_ALPHA_PRESSED);
-      this.bg.setAlpha(BUTTON_ALPHA_PRESSED);
+      this.ring.setAlpha(RING_BG_ALPHA);
+      this.bg.setAlpha(RING_BG_ALPHA);
     } else {
       this.sprite.setAlpha(BUTTON_ALPHA_UNPRESSED);
-      this.ring.setAlpha(BUTTON_ALPHA_UNPRESSED);
-      this.bg.setAlpha(BUTTON_ALPHA_UNPRESSED);
+      this.ring.setAlpha(RING_BG_ALPHA);
+      this.bg.setAlpha(RING_BG_ALPHA);
     }
   }
 

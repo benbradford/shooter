@@ -14,6 +14,7 @@ const POS_X = 0.89;
 const POS_Y = 0.787;
 const ALPHA_UNPRESSED = 0.9;
 const ALPHA_PRESSED = 1;
+const RING_BG_ALPHA = 0.5;
 
 const BASE_CIRCLE_RADIUS_PX = 180;
 const RING_SCALE = 1.6 * (BASE_CIRCLE_RADIUS_PX * 2 * TOUCH_CONTROLS_SCALE) / 128;
@@ -49,13 +50,13 @@ export class AttackButtonComponent implements Component {
     this.ring.setScale(RING_SCALE);
     this.ring.setScrollFactor(0);
     this.ring.setDepth(Depth.hudRing);
-    this.ring.setAlpha(ALPHA_UNPRESSED);
+    this.ring.setAlpha(RING_BG_ALPHA);
 
     this.bg = scene.add.sprite(0, 0, 'stone_bg');
     this.bg.setScale(RING_SCALE * 0.85);
     this.bg.setScrollFactor(0);
     this.bg.setDepth(Depth.hudButtonBg);
-    this.bg.setAlpha(ALPHA_UNPRESSED);
+    this.bg.setAlpha(RING_BG_ALPHA);
 
     this.shadow = scene.add.graphics();
     this.shadow.setScrollFactor(0);
@@ -86,8 +87,8 @@ export class AttackButtonComponent implements Component {
       this.sprite.setScale(PRESSED_SCALE * factor);
       this.sprite.setAlpha(ALPHA_PRESSED);
       this.sprite.setTint(0xff6666);
-      this.ring.setAlpha(ALPHA_PRESSED);
-      this.bg.setAlpha(ALPHA_PRESSED);
+      this.ring.setAlpha(RING_BG_ALPHA);
+      this.bg.setAlpha(RING_BG_ALPHA);
     }
   };
 
@@ -97,8 +98,8 @@ export class AttackButtonComponent implements Component {
     this.sprite.setScale(UNPRESSED_SCALE * factor);
     this.sprite.setAlpha(ALPHA_UNPRESSED);
     this.sprite.clearTint();
-    this.ring.setAlpha(ALPHA_UNPRESSED);
-    this.bg.setAlpha(ALPHA_UNPRESSED);
+    this.ring.setAlpha(RING_BG_ALPHA);
+    this.bg.setAlpha(RING_BG_ALPHA);
   };
 
   update(): void {
