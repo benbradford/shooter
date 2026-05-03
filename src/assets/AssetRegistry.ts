@@ -391,6 +391,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/pickups/mushroom.png',
     type: 'image' as const,
   },
+  boots: {
+    key: 'boots',
+    path: 'assets/pickups/boots.png',
+    type: 'image' as const,
+  },
   vignette: {
     key: 'vignette',
     path: 'assets/generic/vin.png',
@@ -996,7 +1001,7 @@ export const ASSET_GROUPS = {
   collectibles: ['mist_orb'] as const,
 
   // Root chest
-  root_chest: ['roots_chest', 'mushroom'] as const,
+  root_chest: ['roots_chest', 'mushroom', 'boots'] as const,
 
   // Lever
   lever: ['lever', 'lever_dead'] as const,

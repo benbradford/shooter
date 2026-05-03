@@ -8,7 +8,7 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { PulsingScaleComponent } from '../../components/visual/PulsingScaleComponent';
 import { Depth } from '../../../constants/DepthConstants';
 
-const PICKUP_DISTANCE_PX = 48;
+const PICKUP_DISTANCE_PX = 24;
 const SPRITE_SIZE_RATIO = 0.5;
 const PULSE_AMPLITUDE = 0.06;
 const PULSE_FREQUENCY_HZ = 1;
@@ -47,7 +47,7 @@ export type CreateSpecialItemProps = {
 
 export function createSpecialItemEntity(props: CreateSpecialItemProps): EntityClass {
   const { scene, x, y, grid, itemType, parentEntityId, playerEntity, eventManager } = props;
-  const entity = new EntityClass(`${parentEntityId}_item`);
+  const entity = new EntityClass(`pickup_${parentEntityId}_${itemType}`);
   entity.tags.add('special_item');
 
   const targetSize = grid.cellSize * SPRITE_SIZE_RATIO;

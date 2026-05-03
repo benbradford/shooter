@@ -358,9 +358,9 @@ export class RockThrowAbility implements Component {
       blockedAreaManager: (this.scene as unknown as { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
       startLayer,
       startedOnStairs,
-      onLand: (x: number, y: number) => {
+      onLand: (x: number, y: number, landOffsetY: number) => {
         if (this.entity.isDestroyed) return;
-        this.onProjectileLand(x, y);
+        this.onProjectileLand(x, y, landOffsetY);
       },
       onHit: (x: number, y: number) => {
         if (this.entity.isDestroyed) return;
@@ -372,7 +372,7 @@ export class RockThrowAbility implements Component {
     entityManager.add(projectile);
   }
 
-  private onProjectileLand(x: number, y: number): void {
+  private onProjectileLand(x: number, y: number, landOffsetY: number = ROCK_LANDED_OFFSET_Y_PX): void {
     if (this.state !== 'throwing') return; // Guard against double notification
 
     if (this.activeProjectile && !this.activeProjectile.isDestroyed) {
@@ -388,9 +388,19 @@ export class RockThrowAbility implements Component {
     const cell = this.grid.worldToCell(x, y);
     const cellData = this.grid.getCell(cell.col, cell.row);
     const landedInWater = cellData?.properties.has('water') ?? false;
+    const landedInVoid = cellData?.properties.has('void') ?? false;
 
     const rockSprite = this.entity.get(SpriteComponent);
-    if (landedInWater) {
+    if (landedInVoid) {
+      if (rockSprite) {
+        rockSprite.sprite.setVisible(true);
+        rockSprite.visualOffsetYPx = landOffsetY;
+      }
+      this.state = 'landed';
+      this.landedTimerMs = 0;
+      this.startVoidFall(rockTransform, rockSprite);
+      return;
+    } else if (landedInWater) {
       // Splash effect + sound, hide rock
       SoundManager.getInstance().play('splash1');
       const emitter = this.scene.add.particles(x, y, 'water_splash', {
@@ -411,12 +421,40 @@ export class RockThrowAbility implements Component {
     } else {
       if (rockSprite) {
         rockSprite.sprite.setVisible(true);
-        rockSprite.visualOffsetYPx = ROCK_LANDED_OFFSET_Y_PX;
+        rockSprite.visualOffsetYPx = landOffsetY;
       }
     }
 
     this.landedTimerMs = 0;
     this.state = 'landed';
+  }
+
+  private startVoidFall(rockTransform: TransformComponent, rockSprite: SpriteComponent | undefined): void {
+    const VOID_FALL_DURATION_MS = 600;
+    const VOID_FALL_DRIFT_PX = 20;
+    const startY = rockTransform.y;
+    const originalScale = rockTransform.scale;
+    const startTime = this.scene.time.now;
+
+    const updateFall = (): void => {
+      const elapsed = this.scene.time.now - startTime;
+      const progress = Math.min(1, elapsed / VOID_FALL_DURATION_MS);
+      rockTransform.y = startY + progress * VOID_FALL_DRIFT_PX;
+      rockTransform.scale = originalScale * (1 - progress);
+      if (rockSprite) rockSprite.sprite.setAlpha(1 - progress);
+
+      if (progress >= 1) {
+        this.scene.events.off('update', updateFall);
+        rockTransform.scale = originalScale;
+        if (rockSprite) {
+          rockSprite.sprite.setAlpha(1);
+          rockSprite.sprite.setVisible(false);
+        }
+        this.state = 'returning';
+      }
+    };
+
+    this.scene.events.on('update', updateFall);
   }
 
   private cancelThrow(): void {

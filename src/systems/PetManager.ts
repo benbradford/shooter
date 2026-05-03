@@ -7,6 +7,7 @@ import { WorldStateManager } from './WorldStateManager';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { PetFollowComponent } from '../ecs/components/pet/PetFollowComponent';
 import { SpriteComponent } from '../ecs/components/core/SpriteComponent';
+import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { JumpComponent } from '../ecs/components/movement/JumpComponent';
 
 export class PetManager {
@@ -60,6 +61,8 @@ export class PetManager {
     if (!metadata) return;
     
     const playerTransform = this.playerEntity.require(TransformComponent);
+    const playerGridPos = this.playerEntity.get(GridPositionComponent);
+    const feetOffsetY = playerGridPos ? playerGridPos.collisionBox.offsetY : 0;
     
     this.activePetEntity = createPetEntity({
       scene: this.scene,
@@ -68,7 +71,7 @@ export class PetManager {
       config,
       metadata,
       startX: playerTransform.x,
-      startY: playerTransform.y,
+      startY: playerTransform.y + feetOffsetY,
     });
     
     // Add to EntityManager

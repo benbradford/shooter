@@ -26,7 +26,7 @@ export type CreateRockProjectileProps = {
   blockedAreaManager?: BlockedAreaManager;
   startLayer: number;
   startedOnStairs: boolean;
-  onLand: (x: number, y: number) => void;
+  onLand: (x: number, y: number, landOffsetY: number) => void;
   onHit: (x: number, y: number) => void;
 };
 
@@ -65,7 +65,7 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
   }));
 
   entity.add(new RockArcComponent({
-    dirX, dirY, speed, maxDistance, arcHeight, grid, blockedAreaManager: props.blockedAreaManager, startLayer: props.startLayer, startedOnStairs: props.startedOnStairs, onLand,
+    dirX, dirY, speed, maxDistance, arcHeight, grid, blockedAreaManager: props.blockedAreaManager, startLayer: props.startLayer, startedOnStairs: props.startedOnStairs, startX: x, startY: y, onLand,
   }));
 
   entity.setUpdateOrder([
