@@ -143,6 +143,7 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 - **PetAbilityComponent** — Routes ability activation to pet-specific component
 - **DogBarkAbility** — Bark state machine (idle → approaching → barking), fear application
 - **RockThrowAbility** — Throw state machine (idle → charging → aiming → throwing → landed → returning)
+- **ThrowArrowIndicator** — Aim direction arrow rendering (extracted from RockThrowAbility)
 - **RockArcComponent** — Projectile arc motion + wall collision
 - **FearComponent** — Dynamic component added/removed from enemies, manages tint + particles
 - **EnemyFearState** — Shared IState for all enemy types, zig-zag flee movement

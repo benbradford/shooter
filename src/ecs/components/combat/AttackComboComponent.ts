@@ -43,7 +43,7 @@ export function getMustFaceEnemy(): boolean {
   return mustFaceEnemy;
 }
 
-type ComboPhase = 'idle' | 'punch';
+type ComboPhase = 'idle' | 'punching' | 'holding' | 'super_punching';
 
 export type AttackComboComponentProps = {
   scene: Phaser.Scene;
@@ -58,9 +58,8 @@ export class AttackComboComponent implements Component {
   private wasAttackPressed: boolean = false;
   private hitboxCreated: boolean = false;
   private isHoldingAttack: boolean = false;
-  private isHoldingPunch: boolean = false;
+  private wasReleasedDuringPunch: boolean = false;
   private holdDurationMs: number = 0;
-  private isSuperPunching: boolean = false;
   private punchDir: Direction = 1; // Direction.Down
   private lastAnimDir: Direction = 1;
   private punchDirX: number = 0;
@@ -87,7 +86,7 @@ export class AttackComboComponent implements Component {
   }
 
   update(delta: number): void {
-    if (!this.isHoldingPunch && !this.isSuperPunching) {
+    if (this.currentPhase !== 'holding' && this.currentPhase !== 'super_punching') {
       this.updatePunchDirection();
     }
 
@@ -96,13 +95,12 @@ export class AttackComboComponent implements Component {
     const punchDuration = hasOverheal ? PUNCH_DURATION_MS / 2 : PUNCH_DURATION_MS;
     const animSpeed = hasOverheal ? 2 : 1;
 
-    if (this.currentPhase !== 'punch') return;
+    if (this.currentPhase === 'idle') return;
 
     // Cancel punch if player starts hopping into/out of water
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) {
       this.currentPhase = 'idle';
-      this.isHoldingPunch = false;
       this.isHoldingAttack = false;
       this.destroyChargeCircle();
       const anim = this.entity.get(AnimationComponent);
@@ -114,7 +112,7 @@ export class AttackComboComponent implements Component {
     const walk = this.entity.get(WalkComponent);
 
     // Update punch animation when direction changes
-    if (anim && !this.isHoldingPunch && !this.isSuperPunching && this.punchDir !== this.lastAnimDir) {
+    if (anim && this.currentPhase === 'punching' && this.punchDir !== this.lastAnimDir) {
       this.lastAnimDir = this.punchDir;
       const currentAnim = anim.animationSystem.getCurrentAnimation();
       const idx = currentAnim?.getIndex() ?? 0;
@@ -124,7 +122,7 @@ export class AttackComboComponent implements Component {
     }
 
     // Hold phase
-    if (this.isHoldingPunch) {
+    if (this.currentPhase === 'holding') {
       if (this.isHoldingAttack) {
         this.holdDurationMs += delta;
         const sprite = this.entity.get(SpriteComponent);
@@ -169,12 +167,11 @@ export class AttackComboComponent implements Component {
       // Released — check for super punch
       const isSuperPunch = this.holdDurationMs >= SUPER_PUNCH_HOLD_THRESHOLD_MS &&
         WorldStateManager.getInstance().getFlag('hasSuperPunch') === 'true';
-      this.isHoldingPunch = false;
       this.hitboxCreated = true;
       this.phaseTimer = 0;
 
       if (isSuperPunch) {
-        this.isSuperPunching = true;
+        this.currentPhase = 'super_punching';
         this.createPunchHitbox(true);
         if (anim) {
           anim.animationSystem.play(`uppercut_${this.punchDir}`, animSpeed * 0.5);
@@ -182,6 +179,7 @@ export class AttackComboComponent implements Component {
         // Extend duration for uppercut animation at half speed (7 frames × 60ms × 2 = 840ms)
         this.phaseTimer = -(SUPER_PUNCH_DURATION_MS - punchDuration);
       } else {
+        this.currentPhase = 'punching';
         this.createPunchHitbox();
         anim?.animationSystem.setTimeScale(animSpeed);
       }
@@ -193,8 +191,8 @@ export class AttackComboComponent implements Component {
     // Enter hold phase (only if super punch is available)
     const currentAnim = anim?.animationSystem.getCurrentAnimation();
     const hasSuperPunch = WorldStateManager.getInstance().getFlag('hasSuperPunch') === 'true';
-    if (hasSuperPunch && this.isHoldingAttack && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
-      this.isHoldingPunch = true;
+    if (hasSuperPunch && this.isHoldingAttack && !this.wasReleasedDuringPunch && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
+      this.currentPhase = 'holding';
       this.holdDurationMs = 0;
       currentAnim.setIndex(HOLD_FRAME_INDEX);
       anim!.animationSystem.setTimeScale(0);
@@ -208,7 +206,7 @@ export class AttackComboComponent implements Component {
     }
 
     // Super punch rise effect (visual only — no transform/camera/shadow change)
-    if (this.isSuperPunching) {
+    if (this.currentPhase === 'super_punching') {
       const elapsed = this.phaseTimer + (SUPER_PUNCH_DURATION_MS - punchDuration);
       const progress = Math.max(0, Math.min(elapsed / SUPER_PUNCH_DURATION_MS, 1));
       const riseOffset = Math.sin(progress * Math.PI) * SUPER_PUNCH_RISE_PX;
@@ -225,8 +223,6 @@ export class AttackComboComponent implements Component {
       this.currentPhase = 'idle';
       this.phaseTimer = 0;
       this.hitboxCreated = false;
-      this.isHoldingPunch = false;
-      this.isSuperPunching = false;
 
       if (walk && anim) {
         const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
@@ -343,33 +339,36 @@ export class AttackComboComponent implements Component {
     anim?.animationSystem.play(`punch_${this.punchDir}`, animSpeed);
     this.lastAnimDir = this.punchDir;
 
-    this.currentPhase = 'punch';
+    this.currentPhase = 'punching';
     this.phaseTimer = 0;
     this.hitboxCreated = false;
-    this.isHoldingPunch = false;
+    this.wasReleasedDuringPunch = false;
   }
 
   checkAttackReleased(isPressed: boolean): void {
     this.isHoldingAttack = isPressed;
-    if (!isPressed) this.wasAttackPressed = false;
+    if (!isPressed) {
+      this.wasAttackPressed = false;
+      if (this.currentPhase === 'punching') this.wasReleasedDuringPunch = true;
+    }
   }
 
   isPunching(): boolean {
-    return this.currentPhase === 'punch';
+    return this.currentPhase !== 'idle';
   }
 
   isMovementLocked(): boolean {
-    return this.isSuperPunching;
+    return this.currentPhase === 'super_punching';
   }
 
   getChargeSpeedMultiplier(): number {
-    if (this.isSuperPunching) return 0;
-    if (this.isHoldingPunch) return 0.25;
+    if (this.currentPhase === 'super_punching') return 0;
+    if (this.currentPhase === 'holding') return 0.25;
     return 1;
   }
 
   isFacingLocked(): boolean {
-    return this.currentPhase === 'punch';
+    return this.currentPhase !== 'idle';
   }
 
   onDestroy(): void {

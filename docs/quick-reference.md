@@ -58,6 +58,7 @@ Level transitions work automatically via exit triggers. The system:
 - Tap: Single punch, can move
 - Hold (without `hasSuperPunch`): Single punch only, must release and press again for another
 - Hold (with `hasSuperPunch`): Freezes on frame 5 with shake effect, charge bar appears above player
+- Charge only enters if button was held continuously (releasing and re-pressing won't trigger charge)
 - During charge: Player can move at 25% speed, facing direction locked, plays `walking_punch` anim if moving
 - Charge bar: Horizontal line (64px) grows from center, yellow→red color, pulses when full
 - Release (< 1s): Normal punch

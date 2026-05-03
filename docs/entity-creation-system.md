@@ -332,6 +332,7 @@ Click **Log** button to save level JSON with all entities in the new format.
 - `src/ecs/entities/escort/EscortEntity.ts` - Escort entity factory
 - `src/ecs/components/escort/EscortComponent.ts` - Escort state machine, following, crouching, completion, cross-level persistence
 - `src/ecs/components/escort/EscortPersistence.ts` - Typed escort WorldState flag accessors
+- `src/systems/escort/EscortSpawnManager.ts` - Cross-level escort spawning, completed escorts, death reset
 - `src/ecs/systems/movement/PathFollower.ts` - Shared path-following utility (used by escort, pet, thrower, robot)
 - `editor/CanvasInteraction.ts` - Entity placement and selection
 - `src/ecs/entities/tvmonk/TvMonkEntity.ts` - TV Monk entity factory
