@@ -58,17 +58,10 @@ Patrol states should use pathfinding to navigate to waypoints, not direct moveme
 - Render as elevated with no visual pattern
 
 **Void Cells:**
-- Pathfinder treats void as jumpable: skips the void cell and adds the landing cell (2 cells away, cardinal only) as a neighbor with cost 2
-- Landing cell must be same layer, not void/wall/blocked, no GridCellBlocker occupants
-- Entities with `JumpComponent` (player, pet) get blocked by void in GridCollisionComponent, which triggers the jump mechanic
+- Pathfinder treats void as impassable — returns null for void cells
+- Entities with `JumpComponent` (player) get blocked by void in GridCollisionComponent, which triggers the jump mechanic
 - Entities without `JumpComponent` pass through void freely (enemies rely on pathfinding to avoid it)
-
-**Platform Jump-Down:**
-- When on a platform cell moving cardinal into a wall, pathfinder skips over the wall to the cell beyond (cost 2)
-- When on a platform cell moving cardinal to a lower-layer cell, pathfinder allows the drop (cost 2)
-- Both require `allowPlatformJumps: true` parameter (only pet uses this, not enemies)
-- Both only apply to cardinal directions from platform cells
-- Stairs are excluded (normal transition behavior preserved)
+- Pet does not have JumpComponent — it sync-jumps with the player via `PetFollowComponent.syncJump()`
 
 **Critical: Collision Box Size**
 - The pathfinder finds valid paths, but `GridCollisionComponent` validates actual movement

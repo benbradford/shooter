@@ -381,6 +381,16 @@ export const ASSET_REGISTRY = {
     path: 'assets/pickups/medi_pack.png',
     type: 'image' as const,
   },
+  roots_chest: {
+    key: 'roots_chest',
+    path: 'assets/pickups/roots_chest.png',
+    type: 'image' as const,
+  },
+  mushroom: {
+    key: 'mushroom',
+    path: 'assets/pickups/mushroom.png',
+    type: 'image' as const,
+  },
   vignette: {
     key: 'vignette',
     path: 'assets/generic/vin.png',
@@ -985,6 +995,9 @@ export const ASSET_GROUPS = {
   // Collectibles
   collectibles: ['mist_orb'] as const,
 
+  // Root chest
+  root_chest: ['roots_chest', 'mushroom'] as const,
+
   // Lever
   lever: ['lever', 'lever_dead'] as const,
 
@@ -995,7 +1008,7 @@ export const ASSET_GROUPS = {
   escort: ['knight_spritesheet'] as const,
 
   // Editor - all textures that can be used in editor
-  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'roots_spritesheet', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'chasm', 'blank'] as const,
+  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'roots_spritesheet', 'roots_chest', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'chasm', 'blank'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

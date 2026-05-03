@@ -655,6 +655,11 @@ export class ContextPanel {
         <div class="form-group"><label>Destroy on Event</label>
         <input id="ef-laser-destroy" value="${data.onDestroyEvent ?? ''}" placeholder="(optional)" /></div>`;
     }
+    if (entityDef.type === 'root_chest') {
+      const rcData = data as { specialItem?: string };
+      typeFields += `<div class="form-group"><label>Special Item</label>
+        <select id="ef-rc-item">${['mushroom'].map(i => `<option ${rcData.specialItem === i ? 'selected' : ''}>${i}</option>`).join('')}</select></div>`;
+    }
     if (entityDef.type === 'escort') {
       const eData = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; awakeOnEvent?: string; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number; scale?: number; shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number };
       typeFields += `<div class="form-group"><label>Escort Type</label><input id="ef-etype" value="${eData.escortType ?? 'knight'}" /></div>
@@ -898,6 +903,10 @@ export class ContextPanel {
     this.container.querySelector('#ef-laser-destroy')?.addEventListener('change', (e) => {
       const val = (e.target as HTMLInputElement).value.trim();
       this.bridge.updateEntityData(entityId, { onDestroyEvent: val || undefined });
+    });
+    // Root chest fields
+    this.container.querySelector('#ef-rc-item')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { specialItem: (e.target as HTMLSelectElement).value });
     });
     // Escort fields
     this.container.querySelector('#ef-etype')?.addEventListener('change', (e) => {

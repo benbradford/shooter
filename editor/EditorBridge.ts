@@ -400,6 +400,7 @@ export class EditorBridge {
         collectible: { col, row, preset: 'mist_orb' },
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
         laser: { col, row, angle: 0, flagName: `${newId}_laser_on` },
+        root_chest: { col, row, specialItem: 'mushroom' },
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
         escort: { col, row, escortType: 'knight', destinationLevel: '', destinationCol: 0, destinationRow: 0, awakeOnEvent: '', reachDistance: 15, followSpeed: 200, followToLevels: [], enemyDetectDistancePx: 128 },
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
@@ -980,6 +981,11 @@ export class EditorBridge {
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         const existingData = existing?.data as { angle?: number; flagName?: string; onDestroyEvent?: string } | undefined;
         data = { col: cell.col, row: cell.row, angle: existingData?.angle ?? 0, flagName: existingData?.flagName ?? `${entity.id}_laser_on`, ...(existingData?.onDestroyEvent ? { onDestroyEvent: existingData.onDestroyEvent } : {}) };
+      } else if (entity.id.startsWith('root_chest')) {
+        type = 'root_chest';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const existingData = existing?.data as { specialItem?: string } | undefined;
+        data = { col: cell.col, row: cell.row, specialItem: existingData?.specialItem ?? 'mushroom' };
       } else if (entity.id.startsWith('eventchainer')) {
         type = 'eventchainer';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

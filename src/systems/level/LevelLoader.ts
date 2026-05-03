@@ -23,7 +23,8 @@ export type EntityType =
   | 'pushable'
   | 'hole'
   | 'laser'
-  | 'escort';
+  | 'escort'
+  | 'root_chest';
 
 export type LevelEntity = {
   id: string;

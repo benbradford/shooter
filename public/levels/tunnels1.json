@@ -1195,6 +1195,15 @@
         "health": 1,
         "rarity": "epic"
       }
+    },
+    {
+      "id": "root_chest0",
+      "type": "root_chest",
+      "data": {
+        "col": 7,
+        "row": 3,
+        "specialItem": "mushroom"
+      }
     }
   ],
   "levelTheme": "tunnels",

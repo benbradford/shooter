@@ -5493,6 +5493,15 @@
       }
     },
     {
+      "id": "root_chest0",
+      "type": "root_chest",
+      "data": {
+        "col": 16,
+        "row": 7,
+        "specialItem": "mushroom"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

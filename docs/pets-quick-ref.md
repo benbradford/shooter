@@ -56,9 +56,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - **Teleport:** If >800px away, teleports to player
 - **Layer sync:** Pet syncs `GridPositionComponent.currentLayer` with player each frame — walls/platforms only block on higher layers
 - **Water:** Pet rides on player's back when swimming, matches player direction, resumes follow on exit
-- **Void:** Pet has `JumpComponent` — hops over single void cells with sine arc (skips takeoff/landing phases since no jump animation)
-- Pet never performs fall jumps (into void or off platforms into void) — only safe jumps with valid landings
-- Pet derives movement direction from transform delta (no WalkComponent)
+- **Void/Jump sync:** Pet does NOT have its own JumpComponent. When the player jumps (void or platform), the pet tweens to the landing cell center with a sine arc, matching the player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to the player's respawn position. Pathfinding treats void as impassable for the pet.
 
 ## ⚠️ Pathfinding Pitfalls (Critical)
 

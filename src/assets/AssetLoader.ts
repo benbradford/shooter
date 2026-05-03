@@ -73,6 +73,9 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     if (entityTypes.has('collectible')) {
       groups.push('collectibles');
     }
+    if (entityTypes.has('root_chest')) {
+      groups.push('root_chest');
+    }
     if (entityTypes.has('lever')) {
       groups.push('lever');
     }

@@ -78,4 +78,15 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
       { name: 'root_small_knot', sourceRect: { x: 1344, y: 814, width: 145, height: 89 } },
     ],
   },
+  {
+    textureKey: 'roots_chest',
+    sprites: [
+      { name: 'chest_closed', sourceRect: { x: 182, y: 175, width: 384, height: 264 } },
+      { name: 'chest_cracking', sourceRect: { x: 570, y: 172, width: 387, height: 268 } },
+      { name: 'chest_breaking', sourceRect: { x: 1011, y: 172, width: 434, height: 271 } },
+      { name: 'chest_open_glow', sourceRect: { x: 169, y: 607, width: 420, height: 248 } },
+      { name: 'chest_open_particles', sourceRect: { x: 587, y: 604, width: 386, height: 252 } },
+      { name: 'chest_empty', sourceRect: { x: 1031, y: 716, width: 410, height: 140 } },
+    ],
+  },
 ] as const;

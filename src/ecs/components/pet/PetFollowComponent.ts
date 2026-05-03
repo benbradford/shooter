@@ -414,8 +414,15 @@ export class PetFollowComponent implements Component {
     this.wanderTimerMs = 0;
     this.wanderDurationMs = WANDER_MOVE_MIN_MS + Math.random() * (WANDER_MOVE_MAX_MS - WANDER_MOVE_MIN_MS);
     const angle = Math.random() * Math.PI * 2;
-    this.wanderTargetX = playerTransform.x + Math.cos(angle) * WANDER_RADIUS_PX;
-    this.wanderTargetY = playerTransform.y + Math.sin(angle) * WANDER_RADIUS_PX;
+    const targetX = playerTransform.x + Math.cos(angle) * WANDER_RADIUS_PX;
+    const targetY = playerTransform.y + Math.sin(angle) * WANDER_RADIUS_PX;
+    const targetCell = this.grid.getCell(this.grid.worldToCell(targetX, targetY).col, this.grid.worldToCell(targetX, targetY).row);
+    if (targetCell?.properties.has('void')) {
+      this.startWanderPause(anim, playerTransform);
+      return;
+    }
+    this.wanderTargetX = targetX;
+    this.wanderTargetY = targetY;
     const transform = this.entity.require(TransformComponent);
     const newDir = dirFromDelta(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
     if (newDir !== Direction.None) this.currentDirection = newDir;

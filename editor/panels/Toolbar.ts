@@ -14,7 +14,7 @@ const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'block
 
 const ENTITY_TYPES = [
   'skeleton', 'red_skeleton', 'thrower', 'stalking_robot', 'bug_base', 'bullet_dude', 'puma', 'tv_monk',
-  'npc', 'escort', 'breakable', 'pushable', 'hole', 'collectible', 'lever', 'laser', 'trigger', 'exit', 'eventchainer', 'cellmodifier', 'interaction'
+  'npc', 'escort', 'breakable', 'pushable', 'hole', 'collectible', 'lever', 'laser', 'root_chest', 'trigger', 'exit', 'eventchainer', 'cellmodifier', 'interaction'
 ];
 
 const THEMES = ['dungeon', 'swamp', 'grass', 'wilds', 'tunnels', 'default'];

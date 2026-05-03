@@ -108,7 +108,7 @@ export class GridCollisionComponent implements Component {
 
     // Block movement into void cells (entities with JumpComponent get blocked so jump icon shows)
     if (toCell.properties.has('void')) {
-      if (this.entity.get(JumpComponent)) {
+      if (this.entity.get(JumpComponent) || this.entity.tags.has('pet')) {
         return false;
       }
       return true;

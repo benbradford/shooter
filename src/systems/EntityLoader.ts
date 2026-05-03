@@ -33,6 +33,7 @@ import { createPushableEntity } from '../ecs/entities/pushable/PushableEntity';
 import { createHoleEntity } from '../ecs/entities/hole/HoleEntity';
 import { createLaserEntity } from '../ecs/entities/laser/LaserEntity';
 import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
+import { createRootChestEntity } from '../ecs/entities/root_chest/RootChestEntity';
 import type { EscortState } from '../ecs/components/escort/EscortComponent';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 import type GameScene from '../scenes/GameScene';
@@ -364,6 +365,22 @@ export class EntityLoader {
             grid: this.grid,
             entityId: entityDef.id,
             preset: (collectibleData.preset ?? 'mist_orb') as 'mist_orb',
+            playerEntity: player,
+          });
+        };
+
+      case 'root_chest':
+        return () => {
+          const chestData = data as { col: number; row: number; specialItem: string };
+          return createRootChestEntity({
+            scene: this.scene,
+            col: chestData.col,
+            row: chestData.row,
+            grid: this.grid,
+            entityId: entityDef.id,
+            specialItem: chestData.specialItem ?? 'mushroom',
+            entityManager: this.entityManager,
+            eventManager: this.eventManager,
             playerEntity: player,
           });
         };

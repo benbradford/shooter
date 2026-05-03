@@ -303,7 +303,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 ## Cheat Profile
 
 The profile select screen has a 4th "Cheat" slot that starts with all abilities unlocked:
-- `canPunch`, `canSwim`, `hasSuperPunch`, `hasCompanion` = `"true"`
+- `canPunch`, `canSwim`, `hasSuperPunch`, `hasCompanion`, `canJump` = `"true"`
 - `pet_rock_collected`, `pet_dog_collected` = `"true"`, `pet_selected` = `"dog"`
 - Starts in `house3_interior`
 
@@ -361,15 +361,14 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 ## Void Cells
 
 - Blocks player and enemy movement but not projectiles
+- Requires `canJump` WorldState flag to be `"true"` for jump ability
 - When player walks into a void cell, they are blocked and the HUD attack button changes to a **jump icon** (`jump_icon.png`)
 - Player presses the jump button to jump over exactly 1 void cell (cardinal only) if landing cell is same layer, walkable, unblocked
 - If landing cell is also void/invalid, player jumps into the void cell and **falls**: sprite shrinks to 0 over 600ms, drifts down 20px, shadow hidden, then respawns at last safe position with 10 HP penalty
 - Jump phases: takeoff (180ms, stationary) → flight (300ms, sine arc + movement) → landing (180ms, stationary)
 - Player invulnerable during jump
-- Pet has `JumpComponent` without scene — auto-jumps immediately (no button press), skips takeoff/landing phases
-- Pet never performs fall jumps (into void or off platforms into void) — only safe jumps with valid landings
-- Pet derives movement direction from transform delta (no WalkComponent)
-- Pathfinder treats void as jumpable (cost 2, skips void cell, adds landing cell as neighbor)
+- Pet sync-jumps with player: tweens to landing cell center with sine arc, matching player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to player's respawn cell
+- Pathfinder treats void as impassable (no jump-over routing)
 - Punch is suppressed while jump icon is showing (`InputComponent.isAttackPressed()` returns false when icon override is `'jump'`)
 - Key file: `src/ecs/components/movement/JumpComponent.ts`
 
