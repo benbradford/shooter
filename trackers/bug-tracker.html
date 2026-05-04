@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dodging Bullets — Bug Tracker</title>
+<style>
+  :root { --bg: #1a1a2e; --surface: #16213e; --surface2: #0f3460; --text: #e0e0e0; --muted: #888; --border: #333; --critical: #ff4444; --high: #ff8c00; --medium: #ffd700; --low: #4fc3f7; --fixed: #66bb6a; --wontfix: #9e9e9e; --investigating: #ab47bc; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
+  h1 { font-size: 1.8rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+  .back { color: var(--muted); text-decoration: none; font-size: 0.85rem; display: inline-block; margin-bottom: 16px; }
+  .back:hover { color: var(--text); }
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { background: var(--surface); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
+  .stat-value { font-size: 1.6rem; font-weight: bold; }
+  .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+  .filter-btn:hover { border-color: var(--text); }
+  .filter-btn.active { background: var(--surface2); border-color: #5599ff; color: #fff; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 8px; overflow: hidden; }
+  thead { background: var(--surface2); }
+  th { text-align: left; padding: 10px 14px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 0.85rem; vertical-align: top; }
+  tr.fixed td { opacity: 0.5; text-decoration: line-through; }
+  tr.wontfix td { opacity: 0.45; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-critical { background: var(--critical); color: #fff; }
+  .badge-high { background: var(--high); color: #000; }
+  .badge-medium { background: var(--medium); color: #000; }
+  .badge-low { background: var(--low); color: #000; }
+  .badge-fixed { background: var(--fixed); color: #000; }
+  .badge-wontfix { background: var(--wontfix); color: #000; }
+  .badge-investigating { background: var(--investigating); color: #fff; }
+  .badge-open { background: transparent; border: 1px solid var(--muted); color: var(--muted); }
+  details { margin-top: 4px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; }
+  details p { margin-top: 4px; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+  .empty { text-align: center; padding: 48px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<a class="back" href="main.html">← Back to Trackers</a>
+<h1>🐛 Bug Tracker</h1>
+<p class="subtitle">Dodging Bullets — Known Bugs &amp; Issues</p>
+
+<div class="stats" id="stats"></div>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="open">Open</button>
+  <button class="filter-btn" data-filter="investigating">Investigating</button>
+  <button class="filter-btn" data-filter="fixed">Fixed</button>
+  <button class="filter-btn" data-filter="wontfix">Won't Fix</button>
+  <button class="filter-btn" data-filter="critical">Critical</button>
+  <button class="filter-btn" data-filter="high">High</button>
+  <button class="filter-btn" data-filter="medium">Medium</button>
+  <button class="filter-btn" data-filter="low">Low</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:30px">#</th>
+      <th style="width:80px">Severity</th>
+      <th style="width:100px">Status</th>
+      <th>Bug</th>
+      <th style="width:100px">Area</th>
+      <th style="width:80px">Added</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<script>
+// ── STATUS: open | investigating | fixed | wontfix ──
+// ── SEVERITY: critical | high | medium | low ──
+const BUGS = [
+  // { id: 1, severity: 'high', status: 'open', title: 'Example bug', detail: 'Steps to reproduce. Expected vs actual behavior.', area: 'combat', added: '2026-05-04' },
+];
+
+function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }
+function statusOrder(s) { return { open: 0, investigating: 1, fixed: 2, wontfix: 3 }[s] ?? 4; }
+
+function renderStats() {
+  const el = document.getElementById('stats');
+  const open = BUGS.filter(b => b.status === 'open').length;
+  const investigating = BUGS.filter(b => b.status === 'investigating').length;
+  const fixed = BUGS.filter(b => b.status === 'fixed').length;
+  const critical = BUGS.filter(b => b.severity === 'critical' && b.status !== 'fixed').length;
+  el.innerHTML = `
+    <div class="stat"><div class="stat-value">${BUGS.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--critical)">${critical}</div><div class="stat-label">Critical Open</div></div>
+    <div class="stat"><div class="stat-value" style="color:#fff">${open}</div><div class="stat-label">Open</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--investigating)">${investigating}</div><div class="stat-label">Investigating</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--fixed)">${fixed}</div><div class="stat-label">Fixed</div></div>
+  `;
+}
+
+function renderTable(filter) {
+  const tbody = document.getElementById('tbody');
+  let items = [...BUGS];
+  if (['open','investigating','fixed','wontfix'].includes(filter)) items = items.filter(b => b.status === filter);
+  else if (['critical','high','medium','low'].includes(filter)) items = items.filter(b => b.severity === filter);
+  items.sort((a, b) => statusOrder(a.status) - statusOrder(b.status) || severityOrder(a.severity) - severityOrder(b.severity));
+
+  if (items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No bugs logged yet. Say "log a bug" to add one.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(b => `
+    <tr class="${b.status}">
+      <td>${b.id}</td>
+      <td><span class="badge badge-${b.severity}">${b.severity}</span></td>
+      <td><span class="badge badge-${b.status}">${b.status === 'wontfix' ? "won't fix" : b.status}</span></td>
+      <td><strong>${b.title}</strong>${b.detail ? '<details><summary>Details</summary><p>' + b.detail + '</p></details>' : ''}</td>
+      <td>${b.area || '—'}</td>
+      <td>${b.added}</td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderTable(e.target.dataset.filter);
+});
+
+renderStats();
+renderTable('all');
+</script>
+</body>
+</html>

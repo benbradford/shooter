@@ -94,6 +94,8 @@ Level transitions work automatically via exit triggers. The system:
 **Lips Icon:** Appears when player is in range of interactable NPC, replaces punch icon
 
 **Lua Helpers:**
+- `say(name, text, speed, timeout?)` - Show speech box (timeout defaults to 10000ms if omitted)
+- `wait(ms)` - Pause between lines
 - `faceEachOther()` - NPCs and player face each other (auto-waits 16ms for velocity to stop)
 - `restoreDirections()` - Restore original facing directions
 - `celebrate()` - Player power-up animation with directional spin
@@ -148,7 +150,7 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 
 ## Pushable System
 
-**Push engagement:** Player walks into pushable → `GridCollisionComponent.blockedByPushable` detects the blocking entity → walk/idle state checks perpendicular alignment (`PUSH_ALIGNMENT_DIVISOR`) → enters push state
+**Push engagement:** Player walks into pushable → `GridCollisionComponent.blockedByPushable` detects the blocking entity → walk/idle state checks perpendicular alignment (`PUSH_ALIGNMENT_DIVISOR`) → enters push state. Requires `canPush` WorldState flag = `"true"`.
 
 **Push mechanics:**
 - Cardinal directions only (up/down/left/right)
@@ -316,6 +318,7 @@ Useful for testing combat, pets, companion, and super punch without progression.
 
 - **G** - Toggle grid debug (layers, transitions, triggers)
 - **C** - Toggle collision boxes
+- **M** - Set player health to max
 - **P** - Toggle punch targeting mode
 - **V** - Toggle HUD visibility
 - **Y** - Save world state
@@ -444,7 +447,7 @@ Divide sprite into 3×3 grid, use physics-based motion with randomness. Use abso
 
 ### Coin and Medipack Pickups
 - Coins: Physics-based, fly to HUD, 15s lifetime
-- Medipacks: Gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
+- Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
 - Overheal: 1.5× movement speed, 2× punch speed, decays at 5 HP/sec
 
 ### Particle Effects

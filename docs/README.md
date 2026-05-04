@@ -300,3 +300,30 @@ npm run dev                  # Start dev server
 - New debug control → Update Quick Reference
 - New coding rule → Update Coding Standards
 - Project structure change → Update Quick Reference
+- Fix a tech debt issue → Mark as done in `trackers/architecture-issues.html`
+- Architecture review completed → Update `trackers/architecture-issues.html` (mark done, add new issues)
+
+## 🔧 Tech Debt Tracker
+
+**[architecture-issues.html](../trackers/architecture-issues.html)** — Open in browser to view all architecture issues by severity/status.
+
+**Statuses:** Open, Done, Deferred, Won't Fix
+
+**Workflow:**
+- When fixing a tech debt issue → update the `ISSUES` array in `trackers/architecture-issues.html`: set `status: 'done'`
+- When running `db-architect` review → cross off completed issues, add new ones, update `Last audit` date
+- Issues can be marked `'deferred'` (acknowledged, postponed) or `'wontfix'` (deliberately accepted, add `resolution` field)
+
+## 📋 Project Trackers
+
+**[trackers/main.html](../trackers/main.html)** — Dashboard linking to all trackers. Open in browser.
+
+| Tracker | File | Trigger phrase |
+|---------|------|----------------|
+| Architecture Issues | `trackers/architecture-issues.html` | Auto-updated by `db-architect` reviews |
+| Feature Tracker | `trackers/feature-tracker.html` | "log a feature: {description}" |
+| Bug Tracker | `trackers/bug-tracker.html` | "log a bug: {description}" |
+
+**When asked to "log a feature":** Add entry to `FEATURES` array in `trackers/feature-tracker.html`
+**When asked to "log a bug":** Add entry to `BUGS` array in `trackers/bug-tracker.html`
+**When fixing a bug:** Update its status to `'fixed'` in `trackers/bug-tracker.html`

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dodging Bullets — Tech Debt Tracker</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface2: #0f3460;
+    --text: #e0e0e0;
+    --muted: #888;
+    --critical: #ff4444;
+    --high: #ff8c00;
+    --medium: #ffd700;
+    --low: #4fc3f7;
+    --done: #66bb6a;
+    --wontfix: #9e9e9e;
+    --deferred: #ab47bc;
+    --border: #333;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
+  h1 { font-size: 1.8rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { background: var(--surface); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
+  .stat-value { font-size: 1.6rem; font-weight: bold; }
+  .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+  .filter-btn:hover { border-color: var(--text); }
+  .filter-btn.active { background: var(--surface2); border-color: #5599ff; color: #fff; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 8px; overflow: hidden; }
+  thead { background: var(--surface2); }
+  th { text-align: left; padding: 10px 14px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 0.85rem; vertical-align: top; }
+  tr.done td { opacity: 0.5; text-decoration: line-through; }
+  tr.wontfix td { opacity: 0.45; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-critical { background: var(--critical); color: #fff; }
+  .badge-high { background: var(--high); color: #000; }
+  .badge-medium { background: var(--medium); color: #000; }
+  .badge-low { background: var(--low); color: #000; }
+  .badge-done { background: var(--done); color: #000; }
+  .badge-wontfix { background: var(--wontfix); color: #000; }
+  .badge-deferred { background: var(--deferred); color: #fff; }
+  .badge-open { background: transparent; border: 1px solid var(--muted); color: var(--muted); }
+  .file { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; color: #7ec8e3; }
+  .effort { white-space: nowrap; }
+  .section-title { font-size: 1.1rem; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  details { margin-top: 4px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; }
+  details p { margin-top: 4px; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.75rem; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .updated { color: var(--muted); font-size: 0.75rem; margin-top: 24px; text-align: right; }
+</style>
+</head>
+<body>
+
+<h1>🔧 Tech Debt Tracker</h1>
+<p class="subtitle">Dodging Bullets — Architecture Issues &amp; Improvements</p>
+
+<div class="stats" id="stats"></div>
+
+<div class="legend">
+  <span class="legend-item"><span class="badge badge-critical">critical</span> Runtime perf / data loss risk</span>
+  <span class="legend-item"><span class="badge badge-high">high</span> Significant maintainability impact</span>
+  <span class="legend-item"><span class="badge badge-medium">medium</span> Code quality / friction</span>
+  <span class="legend-item"><span class="badge badge-low">low</span> Nice to have</span>
+</div>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="open">Open</button>
+  <button class="filter-btn" data-filter="done">Done</button>
+  <button class="filter-btn" data-filter="wontfix">Won't Fix</button>
+  <button class="filter-btn" data-filter="deferred">Deferred</button>
+  <button class="filter-btn" data-filter="critical">Critical</button>
+  <button class="filter-btn" data-filter="high">High</button>
+  <button class="filter-btn" data-filter="medium">Medium</button>
+  <button class="filter-btn" data-filter="low">Low</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:30px">#</th>
+      <th style="width:80px">Severity</th>
+      <th style="width:80px">Status</th>
+      <th>Issue</th>
+      <th style="width:200px">File(s)</th>
+      <th style="width:70px">Effort</th>
+      <th style="width:50px">Risk</th>
+      <th style="width:50px">Fan-in</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+
+<p class="updated">Last audit: 2026-05-04 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
+
+<script>
+const ISSUES = [
+  // ── CRITICAL ──
+  {
+    id: 1, severity: 'critical', status: 'open',
+    title: 'Grid.worldToCell() allocates objects in hot path',
+    detail: 'Returns { col, row } on every call. GridCollisionComponent calls it ~10× per entity per frame → ~190+ allocations/frame. Add worldToCellInto(x, y, out) zero-alloc variant.',
+    files: ['src/systems/grid/Grid.ts'],
+    effort: '2h', risk: 'Low', fanIn: 84, category: 'performance',
+    added: '2026-05-04',
+  },
+  {
+    id: 2, severity: 'critical', status: 'open',
+    title: 'GameScene.create() is 285 LOC mixing editor and game setup',
+    detail: 'Central coordinator with 16 singleton accesses, 36 imports. Extract EditorSceneSetup and GameSceneSetup to separate concerns.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '4h', risk: 'Med', fanIn: 9, category: 'architecture',
+    added: '2026-05-04',
+  },
+  {
+    id: 3, severity: 'critical', status: 'open',
+    title: 'GameSceneRenderer.renderAllCells() is 291 LOC monolith',
+    detail: 'Deeply nested conditionals per cell type. Extract renderPathCell(), renderWaterCell(), renderWallCell(), renderStairsCell(). Init-only code so no perf concern.',
+    files: ['src/scenes/theme/GameSceneRenderer.ts'],
+    effort: '3h', risk: 'Low', fanIn: 8, category: 'maintainability',
+    added: '2026-05-04',
+  },
+
+  // ── HIGH ──
+  {
+    id: 4, severity: 'high', status: 'open',
+    title: 'EntityLoader 500-line switch / 51 imports (OCP violation)',
+    detail: 'Every new entity type requires modifying this file. Migrate to EntityRegistry pattern where factories self-register. Incremental migration possible.',
+    files: ['src/systems/EntityLoader.ts'],
+    effort: '8h', risk: 'Med', fanIn: 1, category: 'architecture',
+    added: '2026-05-04',
+  },
+  {
+    id: 5, severity: 'high', status: 'open',
+    title: 'Singleton proliferation — 128 getInstance() calls across 67 files',
+    detail: 'WorldStateManager: 39 calls in 27 files. SoundManager scattered across combat/pickup/ability. Hides dependencies, prevents testing. Incremental props-ification over 4 sessions.',
+    files: ['src/systems/WorldStateManager.ts', 'src/systems/SoundManager.ts'],
+    effort: '10h', risk: 'Low', fanIn: 37, category: 'architecture',
+    added: '2026-05-04',
+  },
+  {
+    id: 6, severity: 'high', status: 'open',
+    title: 'RockThrowAbility is a 540 LOC behavior system disguised as component',
+    detail: '6-state machine via string type, directly manipulates player entity. Extract into state classes or shared AbilityStateMachine.',
+    files: ['src/ecs/components/pet/RockThrowAbility.ts'],
+    effort: '4h', risk: 'Low', fanIn: 6, category: 'architecture',
+    added: '2026-05-04',
+  },
+
+  // ── MEDIUM ──
+  {
+    id: 7, severity: 'medium', status: 'open',
+    title: 'LuaRuntime.executeScript is 231 LOC — extract API registration helpers',
+    detail: 'Single method registers ~20 Lua API bindings. Extract registerPlayerAPI(), registerNpcAPI(), registerWorldAPI(), registerUIAPI().',
+    files: ['src/systems/LuaRuntime.ts'],
+    effort: '2h', risk: 'Low', fanIn: 1, category: 'maintainability',
+    added: '2026-05-04',
+  },
+  {
+    id: 8, severity: 'medium', status: 'open',
+    title: 'Inline state machines repeated across 4+ components',
+    detail: 'RockThrowAbility (6 states), DogBarkAbility (implicit), PetFollowComponent (7 states), EscortComponent (7 states), JumpComponent (implicit). Missing lightweight ComponentStateMachine<T> abstraction.',
+    files: ['src/ecs/components/pet/RockThrowAbility.ts', 'src/ecs/components/pet/DogBarkAbility.ts', 'src/ecs/components/escort/EscortComponent.ts'],
+    effort: '2h', risk: 'Low', fanIn: null, category: 'pattern',
+    added: '2026-05-04',
+  },
+  {
+    id: 9, severity: 'medium', status: 'open',
+    title: 'Grid debug rendering (~200 LOC) coupled to data model',
+    detail: 'Grid.ts mixes cell data storage, occupant tracking, and Phaser debug rendering. Extract GridDebugRenderer. Lower priority than worldToCell fix.',
+    files: ['src/systems/grid/Grid.ts'],
+    effort: '4h', risk: 'Med', fanIn: 84, category: 'maintainability',
+    added: '2026-05-04',
+  },
+  {
+    id: 10, severity: 'medium', status: 'open',
+    title: 'WorldStateManager flag namespace is untyped — collision risk at scale',
+    detail: 'Flags are untyped strings with no namespace. As content grows, flag name collisions become likely. No per-level or per-entity scoping.',
+    files: ['src/systems/WorldStateManager.ts'],
+    effort: '4h', risk: 'Med', fanIn: 37, category: 'scaling',
+    added: '2026-05-04',
+  },
+
+  // ── LOW ──
+  {
+    id: 11, severity: 'low', status: 'open',
+    title: 'RockThrowAbility has 16 remaining inline magic numbers',
+    detail: 'Most constants already extracted at top of file. 16 remain inline.',
+    files: ['src/ecs/components/pet/RockThrowAbility.ts'],
+    effort: '30m', risk: 'None', fanIn: 6, category: 'code-quality',
+    added: '2026-05-04',
+  },
+  {
+    id: 12, severity: 'low', status: 'open',
+    title: 'GameSceneRenderer.renderAllCells uses O(n²) cell lookup during init',
+    detail: 'levelData.cells.find(c => c.col === col && c.row === row) is O(n) per cell. Init-only, acceptable at current level sizes. Would need Map if levels grow significantly.',
+    files: ['src/scenes/theme/GameSceneRenderer.ts'],
+    effort: '1h', risk: 'Low', fanIn: 8, category: 'performance',
+    added: '2026-05-04',
+  },
+
+  // ── ACCEPTABLE / WON'T FIX ──
+  {
+    id: 13, severity: 'low', status: 'wontfix',
+    title: 'Architecture is component-based OOP, not true ECS',
+    detail: 'Components contain behavior (update methods with full game logic). No systems iterate over component sets. This is fine for 20-50 entities per level. Pure ECS would be over-engineering.',
+    files: [],
+    effort: 'Rewrite', risk: 'High', fanIn: null, category: 'architecture',
+    added: '2026-05-04', resolution: 'Appropriate for game scale. Would only matter at 1000+ entities.',
+  },
+  {
+    id: 14, severity: 'low', status: 'wontfix',
+    title: 'Cross-entity component reaching (entity.get on other entities)',
+    detail: 'RockThrowAbility, PetFollowComponent, EscortComponent reach into playerEntity for components. Standard ECS interaction pattern — explicit and traceable.',
+    files: [],
+    effort: 'N/A', risk: 'N/A', fanIn: null, category: 'pattern',
+    added: '2026-05-04', resolution: 'Standard pattern. Event/message alternative would add complexity.',
+  },
+  {
+    id: 15, severity: 'medium', status: 'wontfix',
+    title: 'AssetRegistry.ts is 1040 LOC',
+    detail: 'Pure data file — sprite dimensions, paths, asset groups. Size is inherent to content volume. No logic to refactor.',
+    files: ['src/assets/AssetRegistry.ts'],
+    effort: 'N/A', risk: 'N/A', fanIn: 4, category: 'code-quality',
+    added: '2026-05-04', resolution: 'Data file. Size proportional to asset count.',
+  },
+  {
+    id: 16, severity: 'medium', status: 'wontfix',
+    title: 'PlayerEntity.ts has 42 imports',
+    detail: 'Factory function that wires up all player components. High imports are inherent — it imports every component the player needs. This IS the composition point.',
+    files: ['src/ecs/entities/player/PlayerEntity.ts'],
+    effort: 'N/A', risk: 'N/A', fanIn: 2, category: 'code-quality',
+    added: '2026-05-04', resolution: 'Composition root. Imports are inherent.',
+  },
+];
+
+// ── Rendering ──
+
+function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }
+function statusOrder(s) { return { open: 0, deferred: 1, done: 2, wontfix: 3 }[s] ?? 4; }
+
+function renderStats() {
+  const el = document.getElementById('stats');
+  const open = ISSUES.filter(i => i.status === 'open').length;
+  const done = ISSUES.filter(i => i.status === 'done').length;
+  const wontfix = ISSUES.filter(i => i.status === 'wontfix').length;
+  const deferred = ISSUES.filter(i => i.status === 'deferred').length;
+  const critical = ISSUES.filter(i => i.severity === 'critical' && i.status === 'open').length;
+  el.innerHTML = `
+    <div class="stat"><div class="stat-value">${ISSUES.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--critical)">${critical}</div><div class="stat-label">Critical Open</div></div>
+    <div class="stat"><div class="stat-value" style="color:#fff">${open}</div><div class="stat-label">Open</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--done)">${done}</div><div class="stat-label">Done</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--deferred)">${deferred}</div><div class="stat-label">Deferred</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--wontfix)">${wontfix}</div><div class="stat-label">Won't Fix</div></div>
+  `;
+}
+
+function renderTable(filter) {
+  const tbody = document.getElementById('tbody');
+  let items = [...ISSUES];
+  if (filter === 'open' || filter === 'done' || filter === 'wontfix' || filter === 'deferred') {
+    items = items.filter(i => i.status === filter);
+  } else if (['critical','high','medium','low'].includes(filter)) {
+    items = items.filter(i => i.severity === filter);
+  }
+  items.sort((a, b) => statusOrder(a.status) - statusOrder(b.status) || severityOrder(a.severity) - severityOrder(b.severity));
+
+  tbody.innerHTML = items.map(i => `
+    <tr class="${i.status}">
+      <td>${i.id}</td>
+      <td><span class="badge badge-${i.severity}">${i.severity}</span></td>
+      <td><span class="badge badge-${i.status}">${i.status}</span></td>
+      <td>
+        <strong>${i.title}</strong>
+        <details><summary>Details</summary><p>${i.detail}${i.resolution ? '<br><br><strong>Resolution:</strong> ' + i.resolution : ''}</p></details>
+      </td>
+      <td>${i.files.map(f => '<span class="file">' + f.replace('src/','') + '</span>').join('<br>')}</td>
+      <td class="effort">${i.effort}</td>
+      <td>${i.risk ?? '—'}</td>
+      <td>${i.fanIn ?? '—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ── Filters ──
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderTable(e.target.dataset.filter);
+});
+
+renderStats();
+renderTable('all');
+</script>
+</body>
+</html>

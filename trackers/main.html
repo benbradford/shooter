@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dodging Bullets — Project Trackers</title>
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --surface: #16213e;
+    --surface2: #0f3460;
+    --text: #e0e0e0;
+    --muted: #888;
+    --border: #333;
+    --accent-red: #ff4444;
+    --accent-blue: #4fc3f7;
+    --accent-green: #66bb6a;
+    --accent-orange: #ff8c00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  h1 { font-size: 2rem; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); margin-bottom: 48px; font-size: 0.95rem; }
+  .cards { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px 28px; width: 260px; text-decoration: none; color: var(--text); transition: 0.2s; cursor: pointer; }
+  .card:hover { border-color: #5599ff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .card-icon { font-size: 2.4rem; margin-bottom: 12px; }
+  .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+  .card-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+  .card-count { margin-top: 16px; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .card-count span { font-size: 1.4rem; font-weight: bold; display: block; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<h1>🎮 Dodging Bullets</h1>
+<p class="subtitle">Project Trackers</p>
+
+<div class="cards">
+  <a class="card" href="architecture-issues.html">
+    <div class="card-icon">🔧</div>
+    <div class="card-title">Architecture Issues</div>
+    <div class="card-desc">Tech debt, code quality, performance issues from architecture reviews.</div>
+  </a>
+
+  <a class="card" href="feature-tracker.html">
+    <div class="card-icon">✨</div>
+    <div class="card-title">Feature Tracker</div>
+    <div class="card-desc">Planned features, enhancements, and ideas for future development.</div>
+  </a>
+
+  <a class="card" href="bug-tracker.html">
+    <div class="card-icon">🐛</div>
+    <div class="card-title">Bug Tracker</div>
+    <div class="card-desc">Known bugs, reproduction steps, and fix status.</div>
+  </a>
+</div>
+
+</body>
+</html>

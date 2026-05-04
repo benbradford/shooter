@@ -58,6 +58,8 @@ const CROUCH_COOLDOWN_MS = 2000;
 const STOP_DISTANCE_PX = 64;
 const ARRIVAL_THRESHOLD_PX = 8;
 const DESTINATION_OFFSET_Y_PX = 16;
+const SHIVER_AMPLITUDE_PX = 1.5;
+const SHIVER_INTERVAL_MS = 40;
 
 export class EscortComponent implements Component, EventListener {
   entity!: Entity;
@@ -85,6 +87,7 @@ export class EscortComponent implements Component, EventListener {
   private state: EscortState;
   private crouchPhase: CrouchPhase = 'holding';
   private crouchCooldownMs = 0;
+  private shiverTimerMs = 0;
   private previousActiveState: 'following' | 'walking_to_destination' = 'following';
 
   private readonly pathFollower: PathFollower;
@@ -295,6 +298,14 @@ export class EscortComponent implements Component, EventListener {
     }
 
     if (this.crouchPhase === 'holding') {
+      // Shiver effect
+      this.shiverTimerMs += delta;
+      if (this.shiverTimerMs >= SHIVER_INTERVAL_MS) {
+        this.shiverTimerMs = 0;
+        const sprite = this.entity.require(SpriteComponent);
+        sprite.sprite.x += (Math.random() - 0.5) * SHIVER_AMPLITUDE_PX * 2;
+      }
+
       if (this.areEnemiesNearby()) {
         this.crouchCooldownMs = 0;
       } else {

@@ -118,7 +118,7 @@ Plus one interaction entity per script:
 **Interaction priority:** First match wins. Put most-specific conditions first in the array, fallback (no condition) last.
 
 **Lua helpers for interactions:**
-- `say(name, text, speed, timeout)` — Show speech box
+- `say(name, text, speed, timeout?)` — Show speech box (timeout defaults to 10000ms if omitted)
 - `wait(ms)` — Pause between lines
 - `faceEachOther()` / `restoreDirections()` — NPC and player face each other
 - `celebrate()` — Player power-up animation with directional spin
@@ -244,7 +244,7 @@ Plus one interaction entity per script:
 - Walk-through (no collision with player), invulnerable
 - Cross-level: follows player if within 200px on level exit, otherwise stays at current position (persisted via `movedEntities`)
 - Completion: plays arms_stretched animation, fires `{entityId}_reached_destination` event, persists via world state flags
-- Knight-specific: crouches when enemies or active lasers within detect distance, plays crouch animation forward/reverse. 2-second cooldown before standing back up after threats leave (prevents bobbing when enemies are near detection edge)
+- Knight-specific: crouches when enemies or active lasers within detect distance, plays crouch animation forward/reverse. Shivers (subtle horizontal shake) while crouched. 2-second cooldown before standing back up after threats leave (prevents bobbing when enemies are near detection edge)
 - Destroyed lasers (via `onDestroyEvent`) no longer scare the knight
 
 ## How It Works

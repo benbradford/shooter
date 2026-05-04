@@ -419,6 +419,12 @@ tmp/architecture-review-YYYY-MM-DD-HHmm.md
 
 Use the current date and time (24-hour format). Example: `tmp/architecture-review-2026-04-24-1453.md`. This allows multiple reports per day to be distinguished.
 
+**ALWAYS update `trackers/architecture-issues.html` after generating the report:**
+1. Mark completed issues as `status: 'done'` (verify the fix exists in code)
+2. Add new issues not already tracked
+3. Update the `Last audit` date at the bottom
+4. Do NOT remove issues — keep history
+
 ## Hard Rules
 
 **DO:**

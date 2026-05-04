@@ -137,7 +137,7 @@ graph TB
 - Common development tasks
 - Project structure overview
 - Adding assets, entities, components
-- Debug controls (G, C, E, P, V, Y keys)
+- Debug controls (G, C, E, M, P, V, Y, R keys)
 - Troubleshooting guide
 
 **ecs-architecture.md** (12KB)
@@ -245,7 +245,7 @@ graph TB
 
 **screen-scaling-and-hud.md** (8KB)
 - Camera zoom must be 1
-- FIT mode with 1280x720 resolution (16:9 landscape)
+- EXPAND mode with 1280x720 resolution (16:9 landscape)
 - HUD positioning (displaySize vs game size)
 - Android compatibility quirks
 - Landscape orientation lock in AndroidManifest.xml

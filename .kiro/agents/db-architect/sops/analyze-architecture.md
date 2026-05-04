@@ -222,6 +222,28 @@ Use `get_document_symbols` for accurate method/property counts.
 4. Write JSON report to `tmp/architect-report.json`
 5. Print human-readable summary
 
+## Phase 5: Update Tech Debt Tracker
+
+After generating the report, update `trackers/architecture-issues.html`:
+
+1. **Read the existing `ISSUES` array** in the HTML file
+2. **Mark completed issues as done**: For any issue where the code has been fixed (verify by checking the file), set `status: 'done'`
+3. **Add new issues**: For any new issue found in this review that isn't already tracked, add a new entry to the `ISSUES` array with the next available `id`
+4. **Update the `Last audit` date** at the bottom of the HTML to today's date
+5. **Do NOT remove issues** — keep done/wontfix/deferred items for history
+
+New issue entry format:
+```javascript
+{
+  id: N, severity: 'critical|high|medium|low', status: 'open',
+  title: 'Short description',
+  detail: 'Detailed explanation with evidence and suggested fix.',
+  files: ['src/path/to/file.ts'],
+  effort: '2h', risk: 'Low|Med|High', fanIn: N, category: 'performance|architecture|maintainability|pattern|scaling|code-quality',
+  added: 'YYYY-MM-DD',
+}
+```
+
 ## Confidence Scoring
 
 Rate each finding:
