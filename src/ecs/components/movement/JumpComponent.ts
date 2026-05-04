@@ -85,6 +85,17 @@ export class JumpComponent implements Component {
     return this.phase !== 'idle';
   }
 
+  private isWaterEntry = false;
+
+  /** Programmatically trigger a jump for water entry/exit (no input detection or jump icon). */
+  triggerWaterJump(landCol: number, landRow: number, dx: number, dy: number, enteringWater: boolean): void {
+    if (this.phase !== 'idle') return;
+    this.isFallJump = false;
+    this.isPlatformJump = false;
+    this.isWaterEntry = enteringWater;
+    this.startJump(landCol, landRow, dx, dy);
+  }
+
   setOnJumpStart(callback: ((info: JumpStartInfo) => void) | undefined): void {
     this.onJumpStart = callback;
   }
@@ -404,7 +415,7 @@ export class JumpComponent implements Component {
           return;
         }
 
-        const hasLandAnim = this.playAnim(`jump_land_${this.jumpDir}`);
+        const hasLandAnim = !this.isWaterEntry && this.playAnim(`jump_land_${this.jumpDir}`);
         if (hasLandAnim) {
           this.phase = 'landing';
           this.phaseTimer = 0;
@@ -494,7 +505,9 @@ export class JumpComponent implements Component {
     }
 
     this.reEnableSystems(transform);
-    this.playAnim(`idle_${this.jumpDir}`);
+    const landAnimPrefix = this.isWaterEntry ? 'swim' : 'idle';
+    this.isWaterEntry = false;
+    this.playAnim(`${landAnimPrefix}_${this.jumpDir}`);
   }
 
   private nudgeAwayFromHigherLayers(transform: TransformComponent, gridPos: GridPositionComponent, landLayer: number): void {

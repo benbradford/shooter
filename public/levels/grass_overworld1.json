@@ -1751,33 +1751,6 @@
       ]
     },
     {
-      "col": 5,
-      "row": 9,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 8,
-      "row": 9,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 9,
-      "row": 9,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
       "col": 20,
       "row": 9,
       "layer": 0,
@@ -1842,23 +1815,12 @@
       ]
     },
     {
-      "col": 4,
-      "row": 10,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
       "col": 5,
       "row": 10,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 6,
@@ -1881,19 +1843,8 @@
       "row": 10,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
-    },
-    {
-      "col": 9,
-      "row": 10,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "water"
+      ]
     },
     {
       "col": 20,
@@ -1960,23 +1911,12 @@
       ]
     },
     {
-      "col": 4,
-      "row": 11,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
       "col": 5,
       "row": 11,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 6,
@@ -1999,38 +1939,8 @@
       "row": 11,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
-    },
-    {
-      "col": 9,
-      "row": 11,
-      "layer": 0,
-      "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
-    },
-    {
-      "col": 10,
-      "row": 11,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
-    },
-    {
-      "col": 11,
-      "row": 11,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": "bush1"
+        "water"
+      ]
     },
     {
       "col": 20,
@@ -2101,20 +2011,16 @@
       "row": 12,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 5,
       "row": 12,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 6,
@@ -2137,40 +2043,32 @@
       "row": 12,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 9,
       "row": 12,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 10,
       "row": 12,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 11,
       "row": 12,
       "layer": 0,
       "properties": [
-        "water",
-        "blocked"
-      ],
-      "backgroundTexture": "submerged_rock1"
+        "water"
+      ]
     },
     {
       "col": 12,

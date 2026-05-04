@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dodging Bullets — Feature Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='6' width='32' height='32' fill='%23143'/><path d='M8 10l3 3 6-6M8 20l3 3 6-6' stroke='%2366bb6a' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<title>DB - Tracker</title>
 <style>
   :root { --bg: #1a1a2e; --surface: #16213e; --surface2: #0f3460; --text: #e0e0e0; --muted: #888; --border: #333; --high: #ff8c00; --medium: #ffd700; --low: #4fc3f7; --done: #66bb6a; --cancelled: #9e9e9e; --in-progress: #ab47bc; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -150,6 +151,7 @@ function renderTable(filter) {
         ${f.status === 'planned' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
         ${f.status !== 'cancelled' && f.status !== 'done' ? `<button class="act-btn" title="Cancel this feature" onclick="setStatus(${f.id},'cancelled')">✗</button>` : ''}
         ${f.status !== 'done' ? `<button class="act-btn fix" title="Invoke kiro-cli to implement this feature" onclick="fixEntry(${f.id})">🤖 Impl</button>` : ''}
+        ${f.status !== 'done' ? `<button class="act-btn" title="Diagnose: explain the feature and approach without changing code" onclick="diagnoseEntry(${f.id})">🔍</button>` : ''}
       </td>
     </tr>
   `).join('');
@@ -196,6 +198,13 @@ async function fixEntry(id) {
   if (!f || !confirm(`Invoke kiro-cli to implement: "${f.title}"?`)) return;
   await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, title: f.title, detail: f.detail || '' }) });
   showToast(`🤖 kiro-cli started for feature #${id}`);
+}
+
+async function diagnoseEntry(id) {
+  const f = FEATURES.find(f => f.id === id);
+  if (!f) return;
+  await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, title: f.title, detail: f.detail || '', diagnoseOnly: true }) });
+  showToast(`🔍 Diagnosing feature #${id}...`);
 }
 </script>
 </body>

@@ -8,29 +8,27 @@ import { ShadowComponent } from './ShadowComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
+import { JumpComponent } from '../movement/JumpComponent';
 import type { GridReader } from '../../../systems/grid/Grid';
 
 export class WaterEffectComponent implements Component {
   entity!: Entity;
   private isInWater: boolean = false;
-  private hopProgress: number = 1;
-  private targetX: number = 0;
-  private targetY: number = 0;
-  private startX: number = 0;
-  private startY: number = 0;
   private shadowMask?: Phaser.Display.Masks.GeometryMask;
   private shadowMaskGraphics?: Phaser.GameObjects.Graphics;
   private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
   private swimmingSplashTimerMs: number = 0;
+  private pendingEntrySplash = false;
 
   constructor(private readonly scene: Phaser.Scene, private readonly splashTextureKey: string = 'water_splash') {}
 
   getIsInWater(): boolean {
-    return this.isInWater && this.hopProgress >= 1;
+    return this.isInWater && !this.isHopping();
   }
 
   isHopping(): boolean {
-    return this.hopProgress < 1;
+    const jump = this.entity.get(JumpComponent);
+    return jump?.isJumping() ?? false;
   }
 
   update(delta: number): void {
@@ -40,9 +38,23 @@ export class WaterEffectComponent implements Component {
     const gridPos = this.entity.get(GridPositionComponent);
     const gridCollision = this.entity.get(GridCollisionComponent);
     const walk = this.entity.get(WalkComponent);
+    const jump = this.entity.get(JumpComponent);
 
-    if (!sprite || !transform || !gridPos || !gridCollision) return;
+    if (!sprite || !transform || !gridPos) return;
 
+    // During a jump, skip water detection — just handle the entry splash on landing
+    if (jump?.isJumping()) {
+      return;
+    }
+
+    // If we just finished a water-entry jump, play the splash
+    if (this.pendingEntrySplash) {
+      this.pendingEntrySplash = false;
+      this.createSplashEffect(transform.x, transform.y, false);
+      SoundManager.getInstance().play('splash2');
+    }
+
+    if (!gridCollision) return;
     const grid = gridCollision.getGrid();
     const currentCell = grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
     const isCurrentCellWater = currentCell?.properties.has('water') ?? false;
@@ -103,10 +115,9 @@ export class WaterEffectComponent implements Component {
     }
 
     if (shadow) {
-      const shouldBeVisible = !nowInWater && this.hopProgress >= 1;
       const baseOffsetY = shadow.props.offsetY;
 
-      if (nowInWater && this.hopProgress >= 1) {
+      if (nowInWater) {
         // Shadow visible but faded and below player when swimming
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(0.3);
@@ -115,124 +126,140 @@ export class WaterEffectComponent implements Component {
 
         // Update shadow mask if player moved to different cell
         if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
-          this.updateShadowMask(shadow, gridPos, gridCollision.getGrid());
+          this.updateShadowMask(shadow, gridPos, grid);
           this.lastMaskCell = { col: gridPos.currentCell.col, row: gridPos.currentCell.row };
         }
-      } else if (shouldBeVisible) {
+      } else {
         // Normal shadow when not in water
         shadow.shadow.setVisible(true);
         shadow.shadow.setAlpha(1);
         shadow.shadow.setDepth(Depth.shadow);
         shadow.shadow.setY(transform.y + baseOffsetY);
         shadow.shadow.clearMask();
-      } else {
-        // Hidden during hop
-        shadow.shadow.setVisible(false);
-        shadow.shadow.clearMask();
       }
     }
 
     // Adjust sprite depth based on swimming state
-    if (nowInWater && this.hopProgress >= 1) {
-      // Swimming - render above water (-10) but below bridge textures (-5)
+    if (nowInWater) {
       if (sprite.sprite.depth !== Depth.playerSwimming) {
         sprite.sprite.setDepth(Depth.playerSwimming);
       }
     } else if (sprite.sprite.depth !== Depth.player) {
-      // Walking - render at normal depth
       sprite.sprite.setDepth(Depth.player);
     }
 
-    // Detect water entry/exit (only when not already hopping)
-    if (nowInWater !== this.isInWater && this.hopProgress >= 1) {
+    // Detect water entry/exit — trigger JumpComponent instead of custom hop
+    if (nowInWater !== this.isInWater) {
       const wasInWater = this.isInWater;
       this.isInWater = nowInWater;
-      this.hopProgress = 0;
-      this.startX = transform.x;
-      this.startY = transform.y;
-
-      if (!nowInWater) {
-        SoundManager.getInstance().play('splash1');
-      }
 
       if (!nowInWater && wasInWater) {
+        // Exiting water — splash immediately, sound on exit
+        SoundManager.getInstance().play('splash1');
         this.createSplashEffect(transform.x, transform.y, false);
       }
 
-      // Find the target cell to hop to
-      let targetCol = gridPos.currentCell.col;
-      let targetRow = gridPos.currentCell.row;
-
-      if (nowInWater) {
-        // Entering water - hop to current cell center
-        targetCol = gridPos.currentCell.col;
-        targetRow = gridPos.currentCell.row;
-       } else if (walk) {
-        // Exiting water - hop to the adjacent dry cell in movement direction
-        const moveX = walk.lastMoveX;
-        const moveY = walk.lastMoveY;
-
-        // If already in dry cell, stay there; otherwise move to next cell
-        if (isCurrentCellWater) {
-          targetCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
-          targetRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
-        } else {
-          targetCol = gridPos.currentCell.col;
-          targetRow = gridPos.currentCell.row;
-        }
+      if (nowInWater && !wasInWater) {
+        // Entering water — splash plays after jump lands
+        this.pendingEntrySplash = true;
       }
 
-      const cellWorld = grid.cellToWorld(targetCol, targetRow);
-      const spriteHeight = sprite.sprite.displayHeight;
-      this.targetX = cellWorld.x + grid.cellSize / 2;
-      this.targetY = cellWorld.y + grid.cellSize / 2 - spriteHeight / 4;
+      // Calculate target cell and trigger jump
+      const jumpTarget = this.calculateJumpTarget(nowInWater, isCurrentCellWater, gridPos, walk, grid);
+      if (jump && jumpTarget) {
+        jump.triggerWaterJump(jumpTarget.col, jumpTarget.row, jumpTarget.dx, jumpTarget.dy, nowInWater);
+      }
     }
 
-    // Animate hop - lerp to target
-    if (this.hopProgress < 1) {
-      this.hopProgress = Math.min(1, this.hopProgress + delta / 300);
-
-      transform.x = this.startX + (this.targetX - this.startX) * this.hopProgress;
-      transform.y = this.startY + (this.targetY - this.startY) * this.hopProgress;
-
-      const hopHeight = Math.sin(this.hopProgress * Math.PI) * -20;
-      sprite.sprite.y = transform.y + hopHeight;
-
-      if (this.hopProgress >= 1 && this.isInWater) {
-        this.createSplashEffect(transform.x, transform.y, false);
-        SoundManager.getInstance().play('splash2');
-      }
-    } else {
-      sprite.sprite.y = transform.y + sprite.visualOffsetYPx;
-
-      if (this.isInWater && walk) {
-        const isMoving = walk.isMoving();
-        if (isMoving) {
-          this.swimmingSplashTimerMs += delta;
-          if (this.swimmingSplashTimerMs >= 500) {
-            this.swimmingSplashTimerMs = 0;
-            this.createSplashEffect(transform.x, transform.y, true);
-          }
-        } else {
+    // Swimming splash effects
+    if (this.isInWater && walk) {
+      const isMoving = walk.isMoving();
+      if (isMoving) {
+        this.swimmingSplashTimerMs += delta;
+        if (this.swimmingSplashTimerMs >= 500) {
           this.swimmingSplashTimerMs = 0;
+          this.createSplashEffect(transform.x, transform.y, true);
         }
+      } else {
+        this.swimmingSplashTimerMs = 0;
       }
     }
+
+    // Normal sprite Y when not jumping
+    sprite.sprite.y = transform.y + sprite.visualOffsetYPx;
+  }
+
+  private calculateJumpTarget(
+    nowInWater: boolean,
+    isCurrentCellWater: boolean,
+    gridPos: GridPositionComponent,
+    walk: WalkComponent | undefined,
+    grid: GridReader
+  ): { col: number; row: number; dx: number; dy: number } | null {
+    const dir = this.getJoystickDirection(walk);
+
+    if (nowInWater) {
+      // Entering water — jump to current cell center, joystick direction for animation
+      return { col: gridPos.currentCell.col, row: gridPos.currentCell.row, ...dir };
+    }
+
+    // Exiting water — find a dry cell in the joystick direction with fallbacks
+    if (!walk) return null;
+
+    if (isCurrentCellWater) {
+      const target = this.findValidExitCell(gridPos.currentCell.col, gridPos.currentCell.row, dir, grid);
+      if (target) return target;
+    }
+
+    // Already on dry cell
+    return { col: gridPos.currentCell.col, row: gridPos.currentCell.row, ...dir };
+  }
+
+  /** Find a non-water cell adjacent to (col,row), trying preferred direction then cardinal fallbacks. */
+  private findValidExitCell(
+    col: number, row: number, dir: { dx: number; dy: number }, grid: GridReader
+  ): { col: number; row: number; dx: number; dy: number } | null {
+    const candidates: { dx: number; dy: number }[] = [dir];
+    if (dir.dx !== 0 && dir.dy !== 0) {
+      candidates.push({ dx: dir.dx, dy: 0 });
+      candidates.push({ dx: 0, dy: dir.dy });
+    }
+
+    for (const c of candidates) {
+      const cell = grid.getCell(col + c.dx, row + c.dy);
+      if (cell && !cell.properties.has('water')) {
+        return { col: col + c.dx, row: row + c.dy, ...c };
+      }
+    }
+    return null;
+  }
+
+  /** Get 8-direction from joystick input. */
+  private getJoystickDirection(walk: WalkComponent | undefined): { dx: number; dy: number } {
+    if (!walk) return { dx: 0, dy: 1 };
+    const mx = walk.lastMoveX;
+    const my = walk.lastMoveY;
+    if (mx === 0 && my === 0) return { dx: 0, dy: 1 };
+    const absMx = Math.abs(mx);
+    const absMy = Math.abs(my);
+    const DIAG_THRESHOLD = 0.3;
+    const maxAbs = Math.max(absMx, absMy);
+    const dx = absMx > DIAG_THRESHOLD * maxAbs ? (mx > 0 ? 1 : -1) : 0;
+    const dy = absMy > DIAG_THRESHOLD * maxAbs ? (my > 0 ? 1 : -1) : 0;
+    return { dx: dx || 0, dy: dy || (dx === 0 ? 1 : 0) };
   }
 
   private updateShadowMask(shadow: ShadowComponent, gridPos: GridPositionComponent, grid: GridReader): void {
-    // Destroy old mask
     if (this.shadowMaskGraphics) {
       this.shadowMaskGraphics.destroy();
     }
 
-    // Create new mask for nearby water cells
     this.shadowMaskGraphics = shadow.shadow.scene.add.graphics();
     this.shadowMaskGraphics.fillStyle(0xffffff);
     this.shadowMaskGraphics.setVisible(false);
 
     const centerCell = gridPos.currentCell;
-    const cellRadius = 2; // Check 2 cells around player
+    const cellRadius = 2;
     const inset = 8;
 
     for (let row = centerCell.row - cellRadius; row <= centerCell.row + cellRadius; row++) {
@@ -241,13 +268,11 @@ export class WaterEffectComponent implements Component {
         if (cell?.properties.has('water')) {
           const world = grid.cellToWorld(col, row);
 
-          // Check neighbors to determine which edges border land
           const hasWaterLeft = grid.getCell(col - 1, row)?.properties.has('water') ?? false;
           const hasWaterRight = grid.getCell(col + 1, row)?.properties.has('water') ?? false;
           const hasWaterUp = grid.getCell(col, row - 1)?.properties.has('water') ?? false;
           const hasWaterDown = grid.getCell(col, row + 1)?.properties.has('water') ?? false;
 
-          // Inset edges that border land
           const left = world.x + (hasWaterLeft ? 0 : inset);
           const top = world.y + (hasWaterUp ? 0 : inset);
           const right = world.x + grid.cellSize - (hasWaterRight ? 0 : inset);
@@ -286,4 +311,3 @@ export class WaterEffectComponent implements Component {
     }
   }
 }
-

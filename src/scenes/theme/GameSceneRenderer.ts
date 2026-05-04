@@ -1,5 +1,5 @@
 import type { GridReader } from '../../systems/grid/Grid';
-import type { LevelData } from '../../systems/level/LevelLoader';
+import type { LevelCell, LevelData } from '../../systems/level/LevelLoader';
 import { normalizeBgTextures } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
@@ -565,6 +565,13 @@ export abstract class GameSceneRenderer {
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
 
+    const cellMap = new Map<string, LevelCell>();
+    if (levelData?.cells) {
+      for (const c of levelData.cells) {
+        cellMap.set(`${c.col},${c.row}`, c);
+      }
+    }
+
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
@@ -580,7 +587,7 @@ export abstract class GameSceneRenderer {
         const isStairs = cell?.properties.has('stairs');
         const isElevated = cell && grid.getLayer(cell) >= 1;
         if (isElevated || isStairs) {
-          const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
+          const levelCell = cellMap.get(`${col},${row}`);
           const hasTexture = !!levelCell?.backgroundTexture;
           const isWall = cell?.properties.has('wall');
           const isPlatform = cell?.properties.has('platform');

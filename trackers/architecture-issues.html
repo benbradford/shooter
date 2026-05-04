@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dodging Bullets — Tech Debt Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='6' width='32' height='32' fill='%23143'/><path d='M8 10l3 3 6-6M8 20l3 3 6-6' stroke='%2366bb6a' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<title>DB - Tracker</title>
 <style>
   :root {
     --bg: #1a1a2e;
@@ -229,9 +230,9 @@ const ISSUES = [
     added: '2026-05-04',
   },
   {
-    id: 12, severity: 'low', status: 'open',
+    id: 12, severity: 'low', status: 'done',
     title: 'GameSceneRenderer.renderAllCells uses O(n²) cell lookup during init',
-    detail: 'levelData.cells.find(c => c.col === col && c.row === row) is O(n) per cell. Init-only, acceptable at current level sizes. Would need Map if levels grow significantly.',
+    detail: 'Built a Map<string, LevelCell> keyed by "col,row" before the nested loop, replacing the O(n) .find() with O(1) Map.get(). Reduces init from O(width×height×cells) to O(width×height + cells).',
     files: ['src/scenes/theme/GameSceneRenderer.ts'],
     effort: '1h', risk: 'Low', fanIn: 8, category: 'performance',
     added: '2026-05-04',
@@ -322,6 +323,7 @@ function renderTable(filter) {
         ${i.status === 'open' ? `<button class="act-btn" title="Defer for later" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this issue" onclick="fixEntry(${i.id})">🤖 Fix</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn" title="Diagnose: explain the issue and approach without changing code" onclick="diagnoseEntry(${i.id})">🔍</button>` : ''}
       </td>
     </tr>
   `).join('');
@@ -369,6 +371,13 @@ async function fixEntry(id) {
   if (!i || !confirm(`Invoke kiro-cli to fix: "${i.title}"?`)) return;
   await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '' }) });
   showToast(`🤖 kiro-cli started for issue #${id}`);
+}
+
+async function diagnoseEntry(id) {
+  const i = ISSUES.find(i => i.id === id);
+  if (!i) return;
+  await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '', diagnoseOnly: true }) });
+  showToast(`🔍 Diagnosing issue #${id}...`);
 }
 </script>
 </body>

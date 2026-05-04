@@ -214,20 +214,29 @@ function saveLevelPlugin(): Plugin {
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
-          const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string };
+          const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string; diagnoseOnly?: boolean };
           const type = body.tracker === 'bugs' ? 'bug' : body.tracker === 'issues' ? 'architecture issue' : 'feature';
-          const message = `fix ${type}: ${body.title}. Details: ${body.detail}`;
-          const escapedMessage = message.replace(/"/g, '\\"').replace(/'/g, "'\\''");
+          const prefix = body.diagnoseOnly
+            ? `Diagnose this ${type} WITHOUT making any code changes. Explain what you understand about the issue, which files are likely involved, and how you would approach fixing it. Do NOT edit any files.\n\n`
+            : `fix ${type}: `;
+          const message = `${prefix}${body.title}. Details: ${body.detail}`;
           const cwd = process.cwd();
+          const action = body.diagnoseOnly ? 'Diagnosing' : 'Fixing';
 
-          console.log(`🔧 Opening kiro-cli to fix ${type} #${body.id}...`);
-          spawn('osascript', ['-e', `tell application "Terminal" to do script "cd '${cwd}' && kiro-cli chat --agent dodging-bullets '${escapedMessage}'"`], {
+          // Write message to temp file to avoid shell escaping issues
+          const tmpFile = path.resolve('tmp', `fix-${body.id}-${Date.now()}.txt`);
+          fs.mkdirSync(path.resolve('tmp'), { recursive: true });
+          fs.writeFileSync(tmpFile, message, 'utf-8');
+
+          console.log(`🔧 ${action} ${type} #${body.id}...`);
+          const script = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
             stdio: 'ignore',
             detached: true,
           }).unref();
 
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, message: `kiro-cli opened in new Terminal for ${type} #${body.id}` }));
+          res.end(JSON.stringify({ ok: true, message: `kiro-cli opened for ${type} #${body.id}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
     }

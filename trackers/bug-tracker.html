@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dodging Bullets — Bug Tracker</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='6' width='32' height='32' fill='%23143'/><path d='M8 10l3 3 6-6M8 20l3 3 6-6' stroke='%2366bb6a' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<title>DB - Tracker</title>
 <style>
   :root { --bg: #1a1a2e; --surface: #16213e; --surface2: #0f3460; --text: #e0e0e0; --muted: #888; --border: #333; --critical: #ff4444; --high: #ff8c00; --medium: #ffd700; --low: #4fc3f7; --fixed: #66bb6a; --wontfix: #9e9e9e; --investigating: #ab47bc; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -112,6 +113,8 @@ const BUGS = [
   { id: 2, severity: 'high', status: 'fixed', title: 'Pet stuck at level start in dungeon3right', detail: 'Pet spawned at player feet Y position, but collision box (offsetY:8, height:14) overlapped into platform cell below. Fixed by adding PET_SPAWN_OFFSET_Y_PX = -10 to shift pet spawn 10px upward, keeping collision box clear of adjacent platforms.', area: 'pet', added: '2026-05-04' },
   { id: 3, severity: 'medium', status: 'fixed', title: 'Special item pickup distance inconsistent by approach direction', detail: 'Distance measured from player grid collision box center (32px below sprite origin due to offsetY:24 + height/2:8) to item transform (cell center). The 24px pickup radius was too small to cover the asymmetry — approaching from south required getting much closer. Increased PICKUP_DISTANCE_PX from 24 to 48.', area: 'pickup', added: '2026-05-04' },
   { id: 4, severity: 'medium', status: 'fixed', title: 'Health bar shows empty during interactions', detail: 'During NPC interactions the health bar sometimes displayed as empty despite having health. Fixed by hiding the health bar entirely during interactions — HudBarComponent checks isInInteraction and sets all bar elements to alpha 0.', area: 'hud', added: '2026-05-04' },
+  { severity: 'low', status: 'open', title: 'duplicate fav icons', detail: 'the editor, game and tracker all use the same favicon, this makes it difficult to distinguish what each tab is for. It would also help if the tracker was just called \'DB - Tracker\' and the editor was just called \'DB - Editor\' so i can easily see the name in the tabs', area: 'meta', id: 5, added: '2026-05-04' },
+  { severity: 'low', status: 'open', title: 'Editor switching views when clearing textures', detail: 'When i select a cell and clear the texture in it, there are some drastic changes to the view, for instance, the water textures all disappear and just display debug graphics. shadows start rendering on platforms even when the level theme doesn\'t have shadows.', area: 'editor', id: 6, added: '2026-05-04' },
 ];
 
 function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }
@@ -156,6 +159,7 @@ function renderTable(filter) {
         ${b.status === 'open' ? `<button class="act-btn" title="Mark as investigating" onclick="setStatus(${b.id},'investigating')">🔍</button>` : ''}
         ${b.status !== 'wontfix' && b.status !== 'fixed' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${b.id},'wontfix')">✗</button>` : ''}
         ${b.status !== 'fixed' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this bug" onclick="fixEntry(${b.id})">🤖 Fix</button>` : ''}
+        ${b.status !== 'fixed' ? `<button class="act-btn" title="Diagnose: explain the issue and approach without changing code" onclick="diagnoseEntry(${b.id})">🔍</button>` : ''}
       </td>
     </tr>
   `).join('');
@@ -233,6 +237,17 @@ async function fixEntry(id) {
     body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '' })
   });
   showToast(`🤖 kiro-cli started for bug #${id}`);
+}
+
+async function diagnoseEntry(id) {
+  const bug = BUGS.find(b => b.id === id);
+  if (!bug) return;
+  await fetch('/api/tracker/fix', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '', diagnoseOnly: true })
+  });
+  showToast(`🔍 Diagnosing bug #${id}...`);
 }
 </script>
 </body>
