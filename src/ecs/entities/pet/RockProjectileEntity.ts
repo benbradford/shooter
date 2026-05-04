@@ -51,8 +51,9 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
   entity.add(new DamageComponent(damage));
 
   const halfSize = ROCK_PROJECTILE_COLLISION_SIZE_PX / 2;
-  entity.add(new CollisionComponent({
-    box: { offsetX: -halfSize, offsetY: -halfSize, width: ROCK_PROJECTILE_COLLISION_SIZE_PX, height: ROCK_PROJECTILE_COLLISION_SIZE_PX },
+  const collisionOffsetY = -halfSize + (props.playerFeetY - y);
+  const collision = entity.add(new CollisionComponent({
+    box: { offsetX: -halfSize, offsetY: collisionOffsetY, width: ROCK_PROJECTILE_COLLISION_SIZE_PX, height: ROCK_PROJECTILE_COLLISION_SIZE_PX },
     collidesWith: ['enemy', 'breakable'],
     onHit: (_other) => {
       const t = entity.get(TransformComponent);
@@ -64,6 +65,7 @@ export function createRockProjectileEntity(props: CreateRockProjectileProps): En
       });
     },
   }));
+  collision.enabled = true;
 
   entity.add(new RockArcComponent({
     dirX, dirY, speed, maxDistance, arcHeight, grid, blockedAreaManager: props.blockedAreaManager, startLayer: props.startLayer, startedOnStairs: props.startedOnStairs, playerFeetY: props.playerFeetY, onLand,

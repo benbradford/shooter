@@ -119,6 +119,10 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 **Wall collision:** Rock stops moving forward but completes its arc, landing at the wall boundary. Blocked areas and platforms also stop the rock. Only walls/platforms on a higher layer than the player block the rock. If the rock passes through stairs at any point (or the player is standing on stairs when throwing), it ignores all walls and platforms for the rest of the flight.
 
+**Ground-projected collision:** The rock spawns at the player's hand height, which is ~30px above their feet. To prevent false blocking against walls/entities directly above the player, two corrections are applied:
+- **Grid checks** (walls, platforms): Use a ground-projected Y (`playerFeetY + dirY × distance`) instead of the rock's visual Y
+- **Entity checks** (breakables, chests): Collision box is offset downward by the hand-to-feet difference so AABB checks happen at ground level
+
 **Layer-independent damage:** Rock has `ignores_layers` tag — damages enemies regardless of layer differences.
 
 **Water landing:** Splash particle effect + sound, rock hidden until return.

@@ -40,7 +40,7 @@ export function createPushableEntity(props: CreatePushableProps): Entity {
   const transform = entity.add(new TransformComponent(x, y, 0, scale));
   const sprite = entity.add(new SpriteComponent(scene, texture, transform));
   sprite.sprite.setOrigin(0.5, 0.5);
-  sprite.sprite.setDepth(Depth.breakable);
+  sprite.sprite.setDepth(Depth.pushable);
   sprite.sprite.texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 0 }));

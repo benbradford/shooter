@@ -20,6 +20,7 @@ export const Depth = {
   wall: -50,
   cellTexture: -40,
   edgeGraphics: -2,
+  pushable: -1,
   shadow: -10,
   rendererGraphics: -10,
   waterTileEdge: -9,

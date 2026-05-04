@@ -157,6 +157,7 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 - Player moves exactly `cellSize` pixels in push direction at same speed as box
 - **Sounds**: Plays random `drag1` or `drag2` sound once per cell push. Plays `click1` on push_lock.
 - **push_lock cells**: If a pushable lands on a cell with the `push_lock` property, it becomes permanently immovable, persists across level transitions, and the player immediately disengages
+- **Platform pushing**: Pushables can be pushed onto same-layer platform cells. Pushing down off a platform into a wall triggers a gravity fall to the nearest lower-layer cell. Player disengages on fall. Crate's layer updates on landing so it can be pushed again.
 
 **Key patterns from implementation:**
 - `GridCollisionComponent.blockedByPushable` — set when movement blocked by GridCellBlocker entity, cleared each frame

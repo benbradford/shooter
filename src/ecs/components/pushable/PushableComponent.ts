@@ -2,8 +2,10 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { Grid } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
+import { SpriteComponent } from '../core/SpriteComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
+import { ShadowComponent } from '../visual/ShadowComponent';
 import { SoundManager } from '../../../systems/SoundManager';
 
 export type PushableProps = {
@@ -17,6 +19,9 @@ export type PushableProps = {
 };
 
 const MOVE_SPEED_PX_PER_SEC = 100;
+const FALL_GRAVITY_PX_PER_SEC_SQ = 800;
+const FALL_LAND_BOUNCE_PX = 4;
+const FALL_LAND_BOUNCE_DURATION_MS = 150;
 
 const DRAG_SOUNDS = ['drag1', 'drag2'] as const;
 
@@ -30,7 +35,7 @@ export class PushableComponent implements Component {
   private readonly grid: Grid;
   readonly spawnCol: number;
   readonly spawnRow: number;
-  readonly layer: number;
+  layer: number;
   private isLocked = false;
 
   private isMoving = false;
@@ -42,6 +47,13 @@ export class PushableComponent implements Component {
   private moveTotalDistPx = 0;
   private currentCol = 0;
   private currentRow = 0;
+
+  private isFalling = false;
+  private fallVelocityPxPerSec = 0;
+  private fallTargetY = 0;
+  private fallLandCol = 0;
+  private fallLandRow = 0;
+  private fallLandLayer = 0;
 
   constructor(props: PushableProps) {
     this.grid = props.grid;
@@ -72,6 +84,49 @@ export class PushableComponent implements Component {
 
   getCurrentRow(): number {
     return this.currentRow;
+  }
+
+  getIsFalling(): boolean {
+    return this.isFalling;
+  }
+
+  /** Find the landing row below the current position. Returns -1 if no valid landing. */
+  findLandingRow(fromCol: number, fromRow: number, fromLayer: number): number {
+    for (let row = fromRow + 1; row < 100; row++) {
+      const cell = this.grid.getCell(fromCol, row);
+      if (!cell) return -1;
+      const cellLayer = cell.layer;
+      // Skip wall cells (same layer as platform)
+      if (cellLayer >= fromLayer && (this.grid.isWall(cell) || cell.properties.has('platform'))) continue;
+      // Found a lower-layer cell — land here
+      if (cellLayer < fromLayer) return row;
+      // Same layer, not wall/platform — land here
+      return row;
+    }
+    return -1;
+  }
+
+  startFall(landingRow: number): void {
+    // Free current cell
+    this.grid.removeOccupant(this.currentCol, this.currentRow, this.entity);
+
+    // Disable collision during fall
+    const gridCollision = this.entity.get(GridCollisionComponent);
+    if (gridCollision) gridCollision.enabled = false;
+
+    // Calculate landing position
+    const landWorld = this.grid.cellToWorld(this.currentCol, landingRow);
+    this.fallTargetY = landWorld.y + this.grid.cellSize / 2;
+    this.fallLandCol = this.currentCol;
+    this.fallLandRow = landingRow;
+    const landCell = this.grid.getCell(this.currentCol, landingRow);
+    this.fallLandLayer = landCell?.layer ?? 0;
+    this.fallVelocityPxPerSec = 0;
+    this.isFalling = true;
+
+    // Hide shadow during fall
+    const shadow = this.entity.get(ShadowComponent);
+    if (shadow) shadow.shadow.setVisible(false);
   }
 
   startMove(targetCol: number, targetRow: number, grid: Grid): void {
@@ -105,6 +160,10 @@ export class PushableComponent implements Component {
   }
 
   update(delta: number): void {
+    if (this.isFalling) {
+      this.updateFall(delta);
+      return;
+    }
     if (!this.isMoving) return;
 
     const transform = this.entity.require(TransformComponent);
@@ -136,5 +195,56 @@ export class PushableComponent implements Component {
 
     transform.x = this.moveStartX + (this.moveTargetX - this.moveStartX) * this.moveProgress;
     transform.y = this.moveStartY + (this.moveTargetY - this.moveStartY) * this.moveProgress;
+  }
+
+  private updateFall(delta: number): void {
+    const transform = this.entity.require(TransformComponent);
+    const deltaSec = delta / 1000;
+
+    this.fallVelocityPxPerSec += FALL_GRAVITY_PX_PER_SEC_SQ * deltaSec;
+    transform.y += this.fallVelocityPxPerSec * deltaSec;
+
+    if (transform.y >= this.fallTargetY) {
+      transform.y = this.fallTargetY;
+      this.isFalling = false;
+
+      // Update grid state
+      this.currentCol = this.fallLandCol;
+      this.currentRow = this.fallLandRow;
+      this.layer = this.fallLandLayer;
+      this.grid.addOccupant(this.currentCol, this.currentRow, this.entity);
+
+      const gridPos = this.entity.get(GridPositionComponent);
+      if (gridPos) {
+        gridPos.currentCell = { col: this.currentCol, row: this.currentRow };
+        gridPos.currentLayer = this.fallLandLayer;
+      }
+
+      // Re-enable collision
+      const gridCollision = this.entity.get(GridCollisionComponent);
+      if (gridCollision) {
+        gridCollision.syncPreviousPosition(transform.x, transform.y);
+        gridCollision.enabled = true;
+      }
+
+      // Show shadow
+      const shadow = this.entity.get(ShadowComponent);
+      if (shadow) shadow.shadow.setVisible(true);
+
+      // Landing bounce
+      const sprite = this.entity.get(SpriteComponent);
+      if (sprite) {
+        sprite.visualOffsetYPx = -FALL_LAND_BOUNCE_PX;
+        const scene = sprite.sprite.scene;
+        scene.tweens.add({
+          targets: sprite,
+          visualOffsetYPx: 0,
+          duration: FALL_LAND_BOUNCE_DURATION_MS,
+          ease: 'Bounce.Out',
+        });
+      }
+
+      SoundManager.getInstance().play('click1');
+    }
   }
 }

@@ -49,7 +49,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
 - `escort` - NPC that follows the player across levels to a destination cell, with subtype-specific behavior (e.g., knight)
 - `tv_monk` - Boss with dynamic TV screen face. Pre-combat: mood set via `monk_{state}` events. Combat: mood follows health. Faces player. Sound: `tv_static` on face transitions.
-- `root_chest` - Punchable root-covered chest (60 HP) with living spore particles. Death sequence animates through 5 sprites, then spawns a configurable special item pickup (mushroom, boots, max_health_increase, bandage, autoheal, push_strength). Fires `{entityId}_destroyed` on open and `special_pickup_{itemType}` on collection.
+- `root_chest` - Punchable root-covered chest (60 HP) with living spore particles. Death sequence animates through 5 sprites, then spawns a configurable special item pickup (mushroom, boots, max_health_increase, bandage, autoheal, push_strength). Fires `{entityId}_destroyed` on open and `special_pickup_{itemType}` on collection. Persistence: destroyed chest shows `chest_empty` sprite on re-entry (via `{id}_opened` in liveEntities), uncollected pickup respawns until `{id}_collected` flag is set.
 
 ### Event-Driven Creation
 - Entities have optional `createOnAnyEvent` or `createOnAllEvents` fields

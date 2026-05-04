@@ -57,7 +57,8 @@ function isPushBlocked(
 ): boolean {
   const cell = grid.getCell(targetCol, targetRow);
   if (!cell) return true;
-  if (grid.isWall(cell) || cell.properties.has('platform')) return true;
+  if (grid.isWall(cell)) return true;
+  if (cell.properties.has('platform') && grid.getLayer(cell) !== pushableLayer) return true;
   if (cell.properties.has('water') && !cell.properties.has('bridge')) return true;
   if (grid.isTransition(cell)) return true;
   if (grid.getLayer(cell) !== pushableLayer) return true;
@@ -69,6 +70,19 @@ function isPushBlocked(
     if (occupant.get(GridCellBlocker)) return true;
   }
   return false;
+}
+
+/** Check if pushing down off a platform into a wall — crate should fall. */
+function canPushOffPlatform(
+  direction: Direction,
+  targetCol: number, targetRow: number,
+  pushableLayer: number,
+  grid: Grid
+): boolean {
+  if (direction !== Direction.Down || pushableLayer < 1) return false;
+  const cell = grid.getCell(targetCol, targetRow);
+  if (!cell) return false;
+  return grid.isWall(cell);
 }
 
 export class PlayerPushState implements IState {
@@ -86,6 +100,7 @@ export class PlayerPushState implements IState {
   private playerMoveTotalDistPx = 0;
   private damagePending = false;
   private lastKnownHealth = 0;
+  private pendingFall = false;
 
   constructor(
     private readonly entity: Entity,
@@ -103,6 +118,7 @@ export class PlayerPushState implements IState {
     this.levelName = data.levelName;
     this.phase = 'contact';
     this.damagePending = false;
+    this.pendingFall = false;
 
     const health = this.entity.require(HealthComponent);
     this.lastKnownHealth = health.getHealth();
@@ -194,7 +210,10 @@ export class PlayerPushState implements IState {
     const targetCol = pushable.getCurrentCol() + offset.dc;
     const targetRow = pushable.getCurrentRow() + offset.dr;
 
-    if (isPushBlocked(targetCol, targetRow, pushable.layer, this.grid, this.blockedAreaManager)) {
+    // Allow pushing down off a platform into a wall (crate will fall after push)
+    const pushOff = canPushOffPlatform(this.direction, targetCol, targetRow, pushable.layer, this.grid);
+
+    if (!pushOff && isPushBlocked(targetCol, targetRow, pushable.layer, this.grid, this.blockedAreaManager)) {
       // Play strain animation but don't move
       const anim = this.entity.require(AnimationComponent);
       anim.animationSystem.play(`push_${this.direction}`);
@@ -203,6 +222,7 @@ export class PlayerPushState implements IState {
 
     // Valid push
     this.phase = 'pushing';
+    this.pendingFall = pushOff;
     const anim = this.entity.require(AnimationComponent);
     anim.animationSystem.play(`push_${this.direction}`);
     anim.animationSystem.setTimeScale(1);
@@ -254,6 +274,25 @@ export class PlayerPushState implements IState {
         return;
       }
 
+      // If pushable started falling off platform, disengage
+      if (pushable.getIsFalling()) {
+        const sm = this.entity.require(StateMachineComponent);
+        sm.stateMachine.enter('idle');
+        return;
+      }
+
+      // If this was a push-off-platform, start the fall now
+      if (this.pendingFall) {
+        this.pendingFall = false;
+        const landingRow = pushable.findLandingRow(pushable.getCurrentCol(), pushable.getCurrentRow(), pushable.layer);
+        if (landingRow >= 0) {
+          pushable.startFall(landingRow);
+          const sm = this.entity.require(StateMachineComponent);
+          sm.stateMachine.enter('idle');
+          return;
+        }
+      }
+
       if (this.damagePending) {
         this.disengage();
         return;
@@ -280,7 +319,7 @@ export class PlayerPushState implements IState {
   }
 
   private disengage(): void {
-    if (this.phase === 'pushing') {
+    if (this.phase === 'pushing' && !this.damagePending) {
       this.damagePending = true;
       return;
     }
