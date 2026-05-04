@@ -56,6 +56,7 @@ const SPECIAL_ITEM_PULSE_AMPLITUDE = 0.07;
 const SPECIAL_ITEM_PULSE_FREQUENCY_HZ = 1.3;
 const SPECIAL_ITEM_TWEEN_IN_DURATION_MS = 400;
 const SPECIAL_ITEM_TWEEN_OUT_DURATION_MS = 300;
+const SPECIAL_ITEM_AUTO_HIDE_DURATION_MS = 300;
 const SPECIAL_ITEM_SPARKLE_FREQUENCY_MS = 80;
 const SPECIAL_ITEM_SPARKLE_LIFESPAN_MS = 600;
 const SPECIAL_ITEM_SPARKLE_RADIUS_PX = 40;
@@ -305,7 +306,7 @@ export class LuaRuntime {
       }
 
       // Auto-cleanup special item display when interaction ends
-      this.destroySpecialItemDisplay();
+      await this.scaleDownSpecialItemDisplay();
 
     } finally {
       lua.global.close();
@@ -343,6 +344,24 @@ export class LuaRuntime {
     sprite.destroy();
     sparkles.forEach(s => s.destroy());
     this.specialItemDisplay = null;
+  }
+
+  private scaleDownSpecialItemDisplay(): Promise<void> {
+    if (!this.specialItemDisplay) return Promise.resolve();
+    const { sprite, sparkleTimer, pulseTween, sparkles } = this.specialItemDisplay;
+    sparkleTimer.destroy();
+    pulseTween.stop();
+    sparkles.forEach(s => s.destroy());
+    this.specialItemDisplay = null;
+    return new Promise<void>(resolve => {
+      this.scene.tweens.add({
+        targets: sprite,
+        scale: 0,
+        duration: SPECIAL_ITEM_AUTO_HIDE_DURATION_MS,
+        ease: 'Power2',
+        onComplete: () => { sprite.destroy(); resolve(); }
+      });
+    });
   }
 
   private async executeCommand(cmd: Command): Promise<void> {

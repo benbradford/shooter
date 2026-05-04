@@ -10,13 +10,15 @@ import { PulsingScaleComponent } from '../../components/visual/PulsingScaleCompo
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
-const PICKUP_DISTANCE_PX = 24;
+const PICKUP_DISTANCE_PX = 48;
+const PICKUP_DELAY_MS = 1000;
 const SPRITE_SIZE_RATIO = 0.75;
 const PULSE_AMPLITUDE = 0.07;
 const PULSE_FREQUENCY_HZ = 1.3;
 
 class SpecialItemPickupComponent implements Component {
   entity!: Entity;
+  private elapsedMs = 0;
 
   constructor(
     private readonly playerEntity: Entity,
@@ -25,13 +27,16 @@ class SpecialItemPickupComponent implements Component {
     private readonly eventManager: EventManagerSystem
   ) {}
 
-  update(): void {
+  update(delta: number): void {
+    this.elapsedMs += delta;
+    if (this.elapsedMs < PICKUP_DELAY_MS) return;
+
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
     const gridPos = this.playerEntity.get(GridPositionComponent);
     const box = gridPos?.collisionBox;
     const feetX = playerTransform.x + (box ? box.offsetX + box.width / 2 : 0);
-    const feetY = playerTransform.y + (box ? box.offsetY + box.height / 2 : 0);
+    const feetY = playerTransform.y + (box ? box.offsetY + box.height : 0);
     const distance = Math.hypot(feetX - transform.x, feetY - transform.y);
 
     if (distance < PICKUP_DISTANCE_PX) {

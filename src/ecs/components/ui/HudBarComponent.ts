@@ -127,6 +127,17 @@ export class HudBarComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const health = this.entity.require(HealthComponent);
     const healer = this.entity.get(MedipackHealerComponent);
+
+    const scene = this.scene as { isInInteraction?: boolean };
+    if (scene.isInInteraction) {
+      for (const bar of this.bars) {
+        bar.background.setAlpha(0);
+        bar.fill.setAlpha(0);
+        bar.outline.setAlpha(0);
+        if (bar.overhealFill) bar.overhealFill.setAlpha(0);
+      }
+      return;
+    }
     
     for (const bar of this.bars) {
       const ratio = bar.dataSource.getRatio();

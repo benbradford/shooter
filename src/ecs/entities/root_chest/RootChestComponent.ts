@@ -6,7 +6,6 @@ import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
-import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { createSpecialItemEntity } from './SpecialItemEntity';
 import { createOpenedRootChestEntity } from './OpenedRootChestEntity';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
@@ -139,9 +138,6 @@ export class RootChestComponent implements Component {
     this.setFrame('chest_cracking');
     this.state = 'death_cracking';
     this.stateTimerMs = 0;
-    // Remove blocker so player can walk in to collect item
-    const blocker = this.entity.get(GridCellBlocker);
-    if (blocker) this.entity.remove(GridCellBlocker);
     this.spawnSpecialItem();
   }
 
