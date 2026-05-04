@@ -71,143 +71,121 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create(data?: { editorMode?: boolean; levelName?: string; levelData?: LevelData }) {
-    // Stop title music when game starts
     this.sound.stopByKey('btr_music');
 
-    // --- EDITOR MODE ---
     if (data?.editorMode) {
-      this.isEditorMode = true;
-      this.currentLevelName = data.levelName ?? this.currentLevelName;
+      await this.createEditorScene(data);
+    } else {
+      await this.createGameScene();
+    }
+  }
 
-      // Outer try/catch ensures notifySceneReady() always fires (Fixed: N1)
+  // ── Editor Mode ──────────────────────────────────────────────
+
+  private async createEditorScene(data: { levelName?: string; levelData?: LevelData }): Promise<void> {
+    this.isEditorMode = true;
+    this.currentLevelName = data.levelName ?? this.currentLevelName;
+
+    // Outer try/catch ensures notifySceneReady() always fires (Fixed: N1)
+    try {
+      // Inner try/catch for level load failure (Fixed: failure #1)
       try {
-        // Inner try/catch for level load failure (Fixed: failure #1)
-        try {
-          if (data.levelData) {
-            this.levelData = data.levelData;
-            this.levelData.name = this.currentLevelName;
-          } else {
-            this.levelData = await LevelLoader.load(this.currentLevelName);
-          }
-        } catch (e) {
-          console.error('[Editor] Failed to load level:', e);
-          this.levelData = {
-            name: this.currentLevelName,
-            width: 10, height: 10,
-            playerStart: { x: 1, y: 3 },
-            cells: [], entities: [],
-            levelTheme: 'dungeon' as LevelTheme,
-          };
+        if (data.levelData) {
+          this.levelData = data.levelData;
+          this.levelData.name = this.currentLevelName;
+        } else {
+          this.levelData = await LevelLoader.load(this.currentLevelName);
         }
-
-        // Initialize managers
-        this.entityManager = new EntityManager();
-        this.eventManager = new EventManagerSystem();
-        this.entityManager.setEventManager(this.eventManager);
-        this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
-
-        // Load ALL assets upfront for editor (including all background textures and enemy sprites)
-        preloadAssets(this);
-        preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables']);
-        preloadLevelAssets(this, this.levelData);
-        this.load.start();
-        await new Promise<void>(resolve => {
-          if (this.load.isLoading()) {
-            this.load.once('complete', resolve);
-          } else { resolve(); }
-        });
-
-        // Setup theme renderer
-        const theme = this.levelData.levelTheme ?? 'dungeon';
-        this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
-
-        if (this.isEditorMode && this.sceneRenderer instanceof TunnelsSceneRenderer) {
-          this.sceneRenderer.setEditorMode(true);
-        }
-
-        await this.sceneRenderer.loadAllAssets(this.levelData);
-
-        const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
-        this.background = rendered.background;
-        this.vignette = rendered.vignette;
-        if (this.background) this.background.setAlpha(1);
-        if (this.vignette) {
-          const targetAlpha = theme === 'grass' ? 0.25 : theme === 'swamp' ? 0.3 : theme === 'wilds' ? 0.3 : 0.2;
-          this.vignette.setAlpha(targetAlpha);
-        }
-
-        // Initialize grid
-        this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize);
-        for (const cell of this.levelData.cells) {
-          const textures = normalizeBgTextures(cell.backgroundTexture);
-          const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
-          this.grid.setCell(cell.col, cell.row, {
-            layer: cell.layer ?? 0,
-            properties: new Set(cell.properties ?? []),
-            backgroundTexture: bgTexture
-          });
-        }
-
-        this.sceneRenderer.initializeSprites(this.grid, this.levelData);
-        this.grid.render();
-        this.grid.setGridDebugEnabled(true);
-        this.sceneRenderer.updateGraphics(this.grid, this.levelData);
-
-        // Free camera for editor
-        this.cameras.main.setBounds(-10000, -10000, 20000, 20000);
-        this.cameras.main.setZoom(1);
-
-        // Create minimal editor player first (needed by EntityLoader)
-        const editorPlayer = this.createEditorPlayer();
-
-        // Spawn entities in editor mode (all immediately, no events, no player input)
-        const noopTransition = (_level: string, _col: number, _row: number): void => { /* editor: no transitions */ };
-        this.entityLoader = new EntityLoader(
-          this, this.grid, this.entityManager, this.eventManager,
-          this.entityCreatorManager,
-          noopTransition
-        );
-
-        this.entityLoader.loadEntities(this.levelData, editorPlayer, true);
-
-        // Force all sprites visible in editor (spawn animations leave alpha/scale at 0)
-        for (const entity of this.entityManager.getAll()) {
-          const sprite = entity.get(SpriteComponent);
-          if (sprite) {
-            sprite.sprite.setAlpha(1);
-            if (sprite.sprite.scaleX === 0 || sprite.sprite.scaleY === 0) {
-              const fitScale = this.cellSize / Math.max(sprite.sprite.width, sprite.sprite.height);
-              sprite.sprite.setScale(fitScale);
-            }
-          }
-          // Initialize NPC idle components in editor (update() doesn't run)
-          const idle = entity.get(NPCIdleComponent);
-          if (idle) {
-            idle.update(0);
-          }
-        }
-
       } catch (e) {
-        console.error('[Editor] Scene init failed:', e);
-        // Minimal fallback so bridge accessors don't crash
-        if (!this.entityManager) this.entityManager = new EntityManager();
-        if (!this.eventManager) this.eventManager = new EventManagerSystem();
-        if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize);
-        if (!this.sceneRenderer) this.sceneRenderer = createThemeRenderer(this, this.cellSize, 'dungeon');
+        console.error('[Editor] Failed to load level:', e);
+        this.levelData = {
+          name: this.currentLevelName,
+          width: 10, height: 10,
+          playerStart: { x: 1, y: 3 },
+          cells: [], entities: [],
+          levelTheme: 'dungeon' as LevelTheme,
+        };
       }
 
-      // ALWAYS notify bridge (Fixed: runtime violation #2, N1)
-      // Only in dev mode — editor is excluded from production builds
-      if (import.meta.env.DEV) {
-        const { EditorBridge } = await import('../../editor/EditorBridge');
-        const bridge = EditorBridge.getInstance();
-        bridge.setScene(this);
-        bridge.notifySceneReady();
+      this.initializeManagers();
+
+      // Load ALL assets upfront for editor (including all background textures and enemy sprites)
+      preloadAssets(this);
+      preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables']);
+      preloadLevelAssets(this, this.levelData);
+      await this.waitForLoad();
+
+      await this.setupThemeRenderer();
+
+      // Initialize grid
+      this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize);
+      for (const cell of this.levelData.cells) {
+        const textures = normalizeBgTextures(cell.backgroundTexture);
+        const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
+        this.grid.setCell(cell.col, cell.row, {
+          layer: cell.layer ?? 0,
+          properties: new Set(cell.properties ?? []),
+          backgroundTexture: bgTexture
+        });
       }
-      return;
+
+      this.sceneRenderer.initializeSprites(this.grid, this.levelData);
+      this.grid.render();
+      this.grid.setGridDebugEnabled(true);
+      this.sceneRenderer.updateGraphics(this.grid, this.levelData);
+
+      // Free camera for editor
+      this.cameras.main.setBounds(-10000, -10000, 20000, 20000);
+      this.cameras.main.setZoom(1);
+
+      // Spawn entities in editor mode (all immediately, no events, no player input)
+      const editorPlayer = this.createEditorPlayer();
+      const noopTransition = (_level: string, _col: number, _row: number): void => { /* editor: no transitions */ };
+      this.entityLoader = new EntityLoader(
+        this, this.grid, this.entityManager, this.eventManager,
+        this.entityCreatorManager,
+        noopTransition
+      );
+      this.entityLoader.loadEntities(this.levelData, editorPlayer, true);
+
+      this.forceEditorSpritesVisible();
+
+    } catch (e) {
+      console.error('[Editor] Scene init failed:', e);
+      if (!this.entityManager) this.entityManager = new EntityManager();
+      if (!this.eventManager) this.eventManager = new EventManagerSystem();
+      if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize);
+      if (!this.sceneRenderer) this.sceneRenderer = createThemeRenderer(this, this.cellSize, 'dungeon');
     }
 
-    // --- NORMAL GAME MODE ---
+    // ALWAYS notify bridge (Fixed: runtime violation #2, N1)
+    if (import.meta.env.DEV) {
+      const { EditorBridge } = await import('../../editor/EditorBridge');
+      const bridge = EditorBridge.getInstance();
+      bridge.setScene(this);
+      bridge.notifySceneReady();
+    }
+  }
+
+  /** Force all sprites visible in editor (spawn animations leave alpha/scale at 0) */
+  private forceEditorSpritesVisible(): void {
+    for (const entity of this.entityManager.getAll()) {
+      const sprite = entity.get(SpriteComponent);
+      if (sprite) {
+        sprite.sprite.setAlpha(1);
+        if (sprite.sprite.scaleX === 0 || sprite.sprite.scaleY === 0) {
+          const fitScale = this.cellSize / Math.max(sprite.sprite.width, sprite.sprite.height);
+          sprite.sprite.setScale(fitScale);
+        }
+      }
+      const idle = entity.get(NPCIdleComponent);
+      if (idle) idle.update(0);
+    }
+  }
+
+  // ── Game Mode ────────────────────────────────────────────────
+
+  private async createGameScene(): Promise<void> {
     // Destroy entities from previous scene instance
     if (GameScene.previousEntityManager) {
       console.log('[DBGAME] Destroying', GameScene.previousEntityManager.count, 'entities from previous scene');
@@ -218,7 +196,6 @@ export default class GameScene extends Phaser.Scene {
       GameScene.previousEntityManager = undefined;
     }
 
-    // Start with camera faded out (prevents green flash)
     this.cameras.main.fadeFrom(0, 0, 0, 0, true);
 
     // Load world state only on first load
@@ -229,13 +206,7 @@ export default class GameScene extends Phaser.Scene {
       GameScene.hasLoadedWorldState = true;
     }
 
-    // Initialize event manager first (needed by HudScene)
-    this.entityManager = new EntityManager();
-    this.eventManager = new EventManagerSystem();
-    this.entityManager.setEventManager(this.eventManager);
-    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
-
-    // Initialize NPC manager
+    this.initializeManagers();
     NPCManager.getInstance(this);
 
     // Wait for HudScene to be ready
@@ -246,62 +217,28 @@ export default class GameScene extends Phaser.Scene {
       });
     }
 
-    const params = new URLSearchParams(globalThis.location.search);
-    const levelParam = params.get('level');
-
-    // Only use URL parameter on first load, not on transitions
-    if (levelParam && !GameScene.hasLoadedFromURL) {
-      this.currentLevelName = levelParam;
-      worldState.setCurrentLevel(levelParam);
-      worldState.clearPlayerSpawnPosition();
-      GameScene.hasLoadedFromURL = true;
-    } else {
-      this.currentLevelName = worldState.getCurrentLevelName();
-    }
+    this.resolveCurrentLevel(worldState);
 
     this.levelData = await LevelLoader.load(this.currentLevelName);
-
     worldState.setFlag(`level_entered_${this.currentLevelName}`, 'true');
 
     const theme = this.levelData.levelTheme ?? 'dungeon';
     this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
 
     preloadLevelAssets(this, this.levelData);
-    this.load.start();
-
-    await new Promise<void>(resolve => {
-      if (this.load.isLoading()) {
-        this.load.once('complete', () => {
-          console.log('[GameScene] Asset loading complete in create()');
-          resolve();
-        });
-      } else {
-        resolve();
-      }
-    });
-
+    await this.waitForLoad();
     await this.sceneRenderer.loadAllAssets(this.levelData);
 
-    const rippleKey = this.levelData.background?.water?.rippleSpritesheet ?? 'water_ripple';
-    if (!this.anims.exists(`${rippleKey}_anim`)) {
-      this.anims.create({
-        key: `${rippleKey}_anim`,
-        frames: this.anims.generateFrameNumbers(rippleKey, { start: 0, end: 3 }),
-        frameRate: 12,
-        repeat: 0
-      });
-    }
+    this.createRippleAnimation();
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;
     this.vignette = rendered.vignette;
 
     await this.initializeScene();
-
     this.sceneRenderer.initializeSprites(this.grid, this.levelData);
 
     this.collisionSystem = new CollisionSystem(this, this.grid);
-
     this.stateMachine = new StateMachine({
       inGame: new InGameState(
         () => this.entityManager,
@@ -318,6 +255,73 @@ export default class GameScene extends Phaser.Scene {
       ) as IState<void | InteractionStateData>
     }, 'inGame');
 
+    this.createDebugText();
+    this.registerDebugKeys();
+  }
+
+  // ── Shared Helpers ───────────────────────────────────────────
+
+  private initializeManagers(): void {
+    this.entityManager = new EntityManager();
+    this.eventManager = new EventManagerSystem();
+    this.entityManager.setEventManager(this.eventManager);
+    this.entityCreatorManager = new EntityCreatorManager(this.entityManager, this.eventManager);
+  }
+
+  private async waitForLoad(): Promise<void> {
+    this.load.start();
+    if (this.load.isLoading()) {
+      await new Promise<void>(resolve => { this.load.once('complete', resolve); });
+    }
+  }
+
+  private async setupThemeRenderer(): Promise<void> {
+    const theme = this.levelData.levelTheme ?? 'dungeon';
+    this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
+
+    if (this.isEditorMode && this.sceneRenderer instanceof TunnelsSceneRenderer) {
+      this.sceneRenderer.setEditorMode(true);
+    }
+
+    await this.sceneRenderer.loadAllAssets(this.levelData);
+
+    const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
+    this.background = rendered.background;
+    this.vignette = rendered.vignette;
+    if (this.background) this.background.setAlpha(1);
+    if (this.vignette) {
+      const targetAlpha = theme === 'grass' ? 0.25 : theme === 'swamp' ? 0.3 : theme === 'wilds' ? 0.3 : 0.2;
+      this.vignette.setAlpha(targetAlpha);
+    }
+  }
+
+  private resolveCurrentLevel(worldState: WorldStateManager): void {
+    const params = new URLSearchParams(globalThis.location.search);
+    const levelParam = params.get('level');
+
+    if (levelParam && !GameScene.hasLoadedFromURL) {
+      this.currentLevelName = levelParam;
+      worldState.setCurrentLevel(levelParam);
+      worldState.clearPlayerSpawnPosition();
+      GameScene.hasLoadedFromURL = true;
+    } else {
+      this.currentLevelName = worldState.getCurrentLevelName();
+    }
+  }
+
+  private createRippleAnimation(): void {
+    const rippleKey = this.levelData.background?.water?.rippleSpritesheet ?? 'water_ripple';
+    if (!this.anims.exists(`${rippleKey}_anim`)) {
+      this.anims.create({
+        key: `${rippleKey}_anim`,
+        frames: this.anims.generateFrameNumbers(rippleKey, { start: 0, end: 3 }),
+        frameRate: 12,
+        repeat: 0
+      });
+    }
+  }
+
+  private createDebugText(): void {
     this.layerDebugText = this.add.text(10, 10, '', {
       fontSize: '24px',
       color: '#ffffff',
@@ -327,33 +331,32 @@ export default class GameScene extends Phaser.Scene {
     this.layerDebugText.setScrollFactor(0);
     this.layerDebugText.setDepth(Depth.debugText);
     this.layerDebugText.setVisible(false);
+  }
 
+  private registerDebugKeys(): void {
     const keyboard = this.input.keyboard;
-    if (keyboard) {
-      const worldStateKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Y);
-      worldStateKey.on('down', () => {
-        this.saveWorldState();
-      });
+    if (!keyboard) return;
 
-      const reloadStateKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
-      reloadStateKey.on('down', () => {
-        const wsm = WorldStateManager.getInstance();
-        void wsm.loadFromFile(wsm.getProfileName()).then(() => {
-          console.log('[DBGAME] State reloaded from file');
-          void this.resetScene();
-        });
-      });
+    keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Y).on('down', () => {
+      this.saveWorldState();
+    });
 
-      const maxHealthKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
-      maxHealthKey.on('down', () => {
-        const player = this.entityManager.getFirst('player');
-        const health = player?.get(HealthComponent);
-        if (health) {
-          health.setHealth(health.getMaxHealth());
-          console.log('[DBGAME] Player health set to max');
-        }
+    keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R).on('down', () => {
+      const wsm = WorldStateManager.getInstance();
+      void wsm.loadFromFile(wsm.getProfileName()).then(() => {
+        console.log('[DBGAME] State reloaded from file');
+        void this.resetScene();
       });
-    }
+    });
+
+    keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => {
+      const player = this.entityManager.getFirst('player');
+      const health = player?.get(HealthComponent);
+      if (health) {
+        health.setHealth(health.getMaxHealth());
+        console.log('[DBGAME] Player health set to max');
+      }
+    });
   }
 
   renderGrid(grid: Grid, levelData?: LevelData): void {

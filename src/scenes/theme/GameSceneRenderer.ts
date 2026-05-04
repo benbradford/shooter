@@ -564,229 +564,27 @@ export abstract class GameSceneRenderer {
   private renderAllCells(grid: GridReader, levelData?: LevelData): void {
     const edgeColor = this.getEdgeColor();
     const hasBackgroundConfig = !!levelData?.background;
-    const pathTexture = levelData?.background?.path_texture;
-    const radius = this.cellSize * PATH_RADIUS_FACTOR;
 
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
         const cell = grid.getCell(col, row);
-
-        const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
-        const hasTexture = !!levelCell?.backgroundTexture;
-
-        const isStairs = cell?.properties.has('stairs');
-        const isElevated = cell && grid.getLayer(cell) >= 1;
-        const isWall = cell?.properties.has('wall');
-        const isPlatform = cell?.properties.has('platform');
         const isPath = cell?.properties.has('path');
         const isWater = cell?.properties.has('water');
-
         const x = col * this.cellSize;
         const y = row * this.cellSize;
 
         if (isPath || isWater) {
-          let pathTextures: string[] | null = null;
-          let pathTexture: string | undefined;
-
-          if (isWater && levelData?.background?.water) {
-            pathTextures = this.waterAnimator?.getTilesetKeys() ?? null;
-            pathTexture = pathTextures?.length ? pathTextures[0] : undefined;
-          } else if (isWater && Array.isArray(levelData?.background?.water_texture)) {
-            pathTextures = levelData.background.water_texture;
-            pathTexture = pathTextures[0];
-          } else if (isWater && levelData?.background?.water_texture) {
-            pathTexture = levelData.background.water_texture as string;
-          } else if (isPath && levelData?.background?.path_texture) {
-            pathTexture = `${levelData.background.path_texture}_generated_tileset`;
-          }
-
-          const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
-
-          if (pathTexture && this.scene.textures.exists(pathTexture)) {
-          const cellX = col * this.cellSize;
-          const cellY = row * this.cellSize;
-          const centerX = cellX + this.cellSize / 2;
-          const centerY = cellY + this.cellSize / 2;
-
-          const propertyType = isWater ? 'water' : 'path';
-
-          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has(propertyType);
-          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has(propertyType);
-          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has(propertyType);
-          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has(propertyType);
-
-          // Check diagonals for interior detection
-          const hasUpLeft = col > 0 && row > 0 && grid.getCell(col - 1, row - 1)?.properties.has(propertyType);
-          const hasUpRight = col < grid.width - 1 && row > 0 && grid.getCell(col + 1, row - 1)?.properties.has(propertyType);
-          const hasDownLeft = col > 0 && row < grid.height - 1 && grid.getCell(col - 1, row + 1)?.properties.has(propertyType);
-          const hasDownRight = col < grid.width - 1 && row < grid.height - 1 && grid.getCell(col + 1, row + 1)?.properties.has(propertyType);
-
-          const hasAllNeighbors = hasLeft && hasRight && hasUp && hasDown &&
-                                   hasUpLeft && hasUpRight && hasDownLeft && hasDownRight;
-
-          const adjacentCount = [hasUp, hasRight, hasDown, hasLeft].filter(Boolean).length;
-
-          let frame = 0;
-
-          if (!hasAllNeighbors) {
-            const count = adjacentCount;
-
-            if (count === 1) {
-              if (hasUp) frame = TILE_SINGLE_NEIGHBOR_FRAME.up;
-              else if (hasRight) frame = TILE_SINGLE_NEIGHBOR_FRAME.right;
-              else if (hasDown) frame = TILE_SINGLE_NEIGHBOR_FRAME.down;
-              else if (hasLeft) frame = TILE_SINGLE_NEIGHBOR_FRAME.left;
-            } else if (count === 2) {
-              if (hasUp && hasDown) frame = TILE_FRAME_VERTICAL;
-              else if (hasLeft && hasRight) frame = TILE_FRAME_HORIZONTAL;
-              else if (hasUp && hasRight) frame = hasUpRight ? TILE_CORNER_UP_RIGHT_DIAG : TILE_CORNER_UP_RIGHT;
-              else if (hasUp && hasLeft) frame = hasUpLeft ? TILE_CORNER_UP_LEFT_DIAG : TILE_CORNER_UP_LEFT;
-              else if (hasDown && hasRight) frame = hasDownRight ? TILE_CORNER_DOWN_RIGHT_DIAG : TILE_CORNER_DOWN_RIGHT;
-              else if (hasDown && hasLeft) frame = hasDownLeft ? TILE_CORNER_DOWN_LEFT_DIAG : TILE_CORNER_DOWN_LEFT;
-            } else if (count === 3) {
-              if (hasUp && hasRight && hasDown) {
-                const idx = (hasUpRight ? 1 : 0) | (hasDownRight ? 2 : 0);
-                frame = TILE_THREE_NEIGHBOR_BASE_NO_LEFT + idx;
-              } else if (hasUp && hasRight && hasLeft) {
-                const idx = (hasUpRight ? 1 : 0) | (hasUpLeft ? 2 : 0);
-                frame = TILE_THREE_NEIGHBOR_BASE_NO_DOWN + idx;
-              } else if (hasUp && hasDown && hasLeft) {
-                const idx = (hasUpLeft ? 1 : 0) | (hasDownLeft ? 2 : 0);
-                frame = TILE_THREE_NEIGHBOR_BASE_NO_RIGHT + idx;
-              } else if (hasRight && hasDown && hasLeft) {
-                const idx = (hasDownRight ? 1 : 0) | (hasDownLeft ? 2 : 0);
-                frame = TILE_THREE_NEIGHBOR_BASE_NO_UP + idx;
-              }
-            } else if (count === 4) {
-              const idx = (hasUpLeft ? 1 : 0) | (hasUpRight ? 2 : 0) | (hasDownLeft ? 4 : 0) | (hasDownRight ? 8 : 0);
-              frame = TILE_FOUR_NEIGHBOR_BASE + idx;
-            }
-          }
-
-          if (isWater && edgesTexture && this.scene.textures.exists(edgesTexture)) {
-            if (pathTextures && pathTextures.length > 1) {
-              for (let i = 0; i < pathTextures.length; i++) {
-                const tex = pathTextures[i];
-                if (this.scene.textures.exists(tex)) {
-                  const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, tex, frame);
-                  tileSprite.setDepth(Depth.waterTile);
-                  tileSprite.setVisible(i === 0);
-                  this.waterSprites.push(tileSprite);
-                }
-              }
-            } else {
-              const tileSprite = this.scene.add.tileSprite(centerX, centerY, this.cellSize, this.cellSize, pathTexture, frame);
-              tileSprite.setDepth(Depth.waterTile);
-              this.cellSprites.push(tileSprite);
-            }
-
-            const edgeSprite = this.scene.add.sprite(centerX, centerY, edgesTexture, frame);
-            edgeSprite.setDisplaySize(this.cellSize, this.cellSize);
-            edgeSprite.setDepth(Depth.waterTileEdge);
-            this.cellSprites.push(edgeSprite);
-          } else if (pathTextures && pathTextures.length > 1) {
-            for (let i = 0; i < pathTextures.length; i++) {
-              const tex = pathTextures[i];
-              if (this.scene.textures.exists(tex)) {
-                const sprite = this.scene.add.sprite(centerX, centerY, tex, frame);
-                sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(Depth.waterTile);
-                sprite.setVisible(i === 0);
-                this.waterSprites.push(sprite);
-              }
-            }
-          } else {
-            const sprite = this.scene.add.sprite(centerX, centerY, pathTexture, frame);
-            sprite.setDisplaySize(this.cellSize, this.cellSize);
-            sprite.setDepth(Depth.waterTile);
-            this.cellSprites.push(sprite);
-          }
-        }
+          this.renderWaterOrPathTile(grid, levelData, col, row, !!isWater);
         }
 
+        const isStairs = cell?.properties.has('stairs');
+        const isElevated = cell && grid.getLayer(cell) >= 1;
         if (isElevated || isStairs) {
-          if (hasBackgroundConfig && levelData.background) {
-            if (isStairs && levelData.background?.stairs_texture) {
-              if (this.scene.textures.exists(levelData.background.stairs_texture)) {
-                const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.stairs_texture);
-                sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(Depth.stairs);
-                this.cellSprites.push(sprite);
-              }
-            } else if (isWall && levelData.background?.wall_texture) {
-              if (this.scene.textures.exists(levelData.background.wall_texture)) {
-                const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.wall_texture);
-                sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(Depth.stairs);
-                this.cellSprites.push(sprite);
-              }
-            }
-          }
-
-          if (isPlatform) {
-            if (hasBackgroundConfig && levelData.background?.platform_texture && !levelData.background.platform_tile) {
-              if (this.scene.textures.exists(levelData.background.platform_texture)) {
-                const sprite = this.addImage(x + this.cellSize / 2, y + this.cellSize / 2, levelData.background.platform_texture);
-                sprite.setDisplaySize(this.cellSize, this.cellSize);
-                sprite.setDepth(Depth.stairs);
-                this.cellSprites.push(sprite);
-              }
-            } else if (!levelData?.background?.platform_tile) {
-              this.graphics.fillStyle(0x000000, PLATFORM_FALLBACK_ALPHA);
-              this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-            }
-          }
-
-          // Fallback: render stairs with lines if no texture
-          if (isStairs && (!hasBackgroundConfig || !levelData?.background?.stairs_texture) && !hasTexture) {
-            this.graphics.lineStyle(STAIRS_LINE_WIDTH_PX, edgeColor, 1);
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
-
-            const numSteps = STAIRS_STEP_COUNT;
-            const stepHeight = this.cellSize / numSteps;
-
-            for (let step = 0; step < numSteps; step++) {
-              const stepY = y + step * stepHeight;
-
-              const brightness = 1 - (step / (numSteps - 1)) * STAIRS_BRIGHTNESS_RANGE;
-              const shadedColor = STAIRS_BASE_COLOR - STAIRS_COLOR_OFFSET + Math.floor(STAIRS_COLOR_OFFSET * brightness);
-
-              this.graphics.fillStyle(shadedColor, 1);
-              this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
-
-              this.graphics.lineStyle(STAIRS_STEP_LINE_WIDTH_PX, edgeColor, 1);
-              this.graphics.strokeLineShape(new Phaser.Geom.Line(x, stepY, x + this.cellSize, stepY));
-            }
-          }
-
-          // Fallback: render walls with pattern if no texture
-          if (isWall && (!hasBackgroundConfig || !levelData?.background?.wall_texture) && !hasTexture) {
-            const brickHeight = WALL_BRICK_HEIGHT_PX;
-            const brickWidth = this.cellSize / WALL_BRICKS_PER_ROW;
-            let currentY = y;
-            let rowIndex = 0;
-
-            while (currentY < y + this.cellSize) {
-              const offset = (rowIndex % 2) * (brickWidth / 2);
-              const actualHeight = Math.min(brickHeight, y + this.cellSize - currentY);
-
-              for (let brickX = x - offset; brickX < x + this.cellSize + brickWidth; brickX += brickWidth) {
-                const startX = Math.max(x, brickX);
-                const endX = Math.min(x + this.cellSize, brickX + brickWidth - WALL_MORTAR_GAP_PX);
-
-                if (startX < endX) {
-                  this.graphics.fillStyle(WALL_BRICK_COLOR, 1);
-                  this.graphics.fillRect(startX, currentY, endX - startX, actualHeight);
-
-                  this.graphics.lineStyle(WALL_MORTAR_GAP_PX, edgeColor, 1);
-                  this.graphics.strokeRect(startX, currentY, endX - startX, actualHeight);
-                }
-              }
-
-              currentY += brickHeight;
-              rowIndex++;
-            }
-          }
+          const levelCell = levelData?.cells.find(c => c.col === col && c.row === row);
+          const hasTexture = !!levelCell?.backgroundTexture;
+          const isWall = cell?.properties.has('wall');
+          const isPlatform = cell?.properties.has('platform');
+          this.renderElevatedCell(x, y, levelData, hasBackgroundConfig, isStairs, isWall, isPlatform, hasTexture, edgeColor);
         }
 
         if (cell?.properties.has('push_lock') && this.scene.textures.exists('push_lock_depression')) {
@@ -798,57 +596,239 @@ export abstract class GameSceneRenderer {
       }
     }
 
+    this.renderUntexturedPaths(grid, levelData?.background?.path_texture);
+  }
+
+  private renderWaterOrPathTile(grid: GridReader, levelData: LevelData | undefined, col: number, row: number, isWater: boolean): void {
+    let pathTextures: string[] | null = null;
+    let texKey: string | undefined;
+
+    if (isWater && levelData?.background?.water) {
+      pathTextures = this.waterAnimator?.getTilesetKeys() ?? null;
+      texKey = pathTextures?.length ? pathTextures[0] : undefined;
+    } else if (isWater && Array.isArray(levelData?.background?.water_texture)) {
+      pathTextures = levelData.background.water_texture;
+      texKey = pathTextures[0];
+    } else if (isWater && levelData?.background?.water_texture) {
+      texKey = levelData.background.water_texture as string;
+    } else if (!isWater && levelData?.background?.path_texture) {
+      texKey = `${levelData.background.path_texture}_generated_tileset`;
+    }
+
+    if (!texKey || !this.scene.textures.exists(texKey)) return;
+
+    const frame = this.computeAutotileFrame(grid, col, row, isWater ? 'water' : 'path');
+    const centerX = col * this.cellSize + this.cellSize / 2;
+    const centerY = row * this.cellSize + this.cellSize / 2;
+    const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
+
+    if (isWater && edgesTexture && this.scene.textures.exists(edgesTexture)) {
+      this.createWaterTileSprites(pathTextures, texKey, centerX, centerY, frame);
+      const edgeSprite = this.scene.add.sprite(centerX, centerY, edgesTexture, frame);
+      edgeSprite.setDisplaySize(this.cellSize, this.cellSize);
+      edgeSprite.setDepth(Depth.waterTileEdge);
+      this.cellSprites.push(edgeSprite);
+    } else if (pathTextures && pathTextures.length > 1) {
+      for (let i = 0; i < pathTextures.length; i++) {
+        const tex = pathTextures[i];
+        if (this.scene.textures.exists(tex)) {
+          const sprite = this.scene.add.sprite(centerX, centerY, tex, frame);
+          sprite.setDisplaySize(this.cellSize, this.cellSize);
+          sprite.setDepth(Depth.waterTile);
+          sprite.setVisible(i === 0);
+          this.waterSprites.push(sprite);
+        }
+      }
+    } else {
+      const sprite = this.scene.add.sprite(centerX, centerY, texKey, frame);
+      sprite.setDisplaySize(this.cellSize, this.cellSize);
+      sprite.setDepth(Depth.waterTile);
+      this.cellSprites.push(sprite);
+    }
+  }
+
+  private createWaterTileSprites(pathTextures: string[] | null, fallbackKey: string, cx: number, cy: number, frame: number): void {
+    if (pathTextures && pathTextures.length > 1) {
+      for (let i = 0; i < pathTextures.length; i++) {
+        const tex = pathTextures[i];
+        if (this.scene.textures.exists(tex)) {
+          const tileSprite = this.scene.add.tileSprite(cx, cy, this.cellSize, this.cellSize, tex, frame);
+          tileSprite.setDepth(Depth.waterTile);
+          tileSprite.setVisible(i === 0);
+          this.waterSprites.push(tileSprite);
+        }
+      }
+    } else {
+      const tileSprite = this.scene.add.tileSprite(cx, cy, this.cellSize, this.cellSize, fallbackKey, frame);
+      tileSprite.setDepth(Depth.waterTile);
+      this.cellSprites.push(tileSprite);
+    }
+  }
+
+  private computeAutotileFrame(grid: GridReader, col: number, row: number, propertyType: CellProperty): number {
+    const has = (c: number, r: number) =>
+      c >= 0 && c < grid.width && r >= 0 && r < grid.height && !!grid.getCell(c, r)?.properties.has(propertyType);
+
+    const hasLeft = has(col - 1, row);
+    const hasRight = has(col + 1, row);
+    const hasUp = has(col, row - 1);
+    const hasDown = has(col, row + 1);
+    const hasUpLeft = has(col - 1, row - 1);
+    const hasUpRight = has(col + 1, row - 1);
+    const hasDownLeft = has(col - 1, row + 1);
+    const hasDownRight = has(col + 1, row + 1);
+
+    if (hasLeft && hasRight && hasUp && hasDown && hasUpLeft && hasUpRight && hasDownLeft && hasDownRight) return 0;
+
+    const count = [hasUp, hasRight, hasDown, hasLeft].filter(Boolean).length;
+
+    if (count === 1) {
+      if (hasUp) return TILE_SINGLE_NEIGHBOR_FRAME.up;
+      if (hasRight) return TILE_SINGLE_NEIGHBOR_FRAME.right;
+      if (hasDown) return TILE_SINGLE_NEIGHBOR_FRAME.down;
+      return TILE_SINGLE_NEIGHBOR_FRAME.left;
+    }
+    if (count === 2) {
+      if (hasUp && hasDown) return TILE_FRAME_VERTICAL;
+      if (hasLeft && hasRight) return TILE_FRAME_HORIZONTAL;
+      if (hasUp && hasRight) return hasUpRight ? TILE_CORNER_UP_RIGHT_DIAG : TILE_CORNER_UP_RIGHT;
+      if (hasUp && hasLeft) return hasUpLeft ? TILE_CORNER_UP_LEFT_DIAG : TILE_CORNER_UP_LEFT;
+      if (hasDown && hasRight) return hasDownRight ? TILE_CORNER_DOWN_RIGHT_DIAG : TILE_CORNER_DOWN_RIGHT;
+      if (hasDown && hasLeft) return hasDownLeft ? TILE_CORNER_DOWN_LEFT_DIAG : TILE_CORNER_DOWN_LEFT;
+    }
+    if (count === 3) {
+      if (hasUp && hasRight && hasDown) return TILE_THREE_NEIGHBOR_BASE_NO_LEFT + ((hasUpRight ? 1 : 0) | (hasDownRight ? 2 : 0));
+      if (hasUp && hasRight && hasLeft) return TILE_THREE_NEIGHBOR_BASE_NO_DOWN + ((hasUpRight ? 1 : 0) | (hasUpLeft ? 2 : 0));
+      if (hasUp && hasDown && hasLeft) return TILE_THREE_NEIGHBOR_BASE_NO_RIGHT + ((hasUpLeft ? 1 : 0) | (hasDownLeft ? 2 : 0));
+      if (hasRight && hasDown && hasLeft) return TILE_THREE_NEIGHBOR_BASE_NO_UP + ((hasDownRight ? 1 : 0) | (hasDownLeft ? 2 : 0));
+    }
+    if (count === 4) {
+      return TILE_FOUR_NEIGHBOR_BASE + ((hasUpLeft ? 1 : 0) | (hasUpRight ? 2 : 0) | (hasDownLeft ? 4 : 0) | (hasDownRight ? 8 : 0));
+    }
+    return 0;
+  }
+
+  private renderElevatedCell(
+    x: number, y: number, levelData: LevelData | undefined,
+    hasBackgroundConfig: boolean, isStairs: boolean | undefined, isWall: boolean | undefined,
+    isPlatform: boolean | undefined, hasTexture: boolean, edgeColor: number
+  ): void {
+    const bg = levelData?.background;
+    const cx = x + this.cellSize / 2;
+    const cy = y + this.cellSize / 2;
+
+    // Textured stairs/walls
+    if (hasBackgroundConfig && bg) {
+      if (isStairs && bg.stairs_texture && this.scene.textures.exists(bg.stairs_texture)) {
+        const sprite = this.addImage(cx, cy, bg.stairs_texture);
+        sprite.setDisplaySize(this.cellSize, this.cellSize);
+        sprite.setDepth(Depth.stairs);
+        this.cellSprites.push(sprite);
+      } else if (isWall && bg.wall_texture && this.scene.textures.exists(bg.wall_texture)) {
+        const sprite = this.addImage(cx, cy, bg.wall_texture);
+        sprite.setDisplaySize(this.cellSize, this.cellSize);
+        sprite.setDepth(Depth.stairs);
+        this.cellSprites.push(sprite);
+      }
+    }
+
+    // Platform texture or fallback
+    if (isPlatform) {
+      if (hasBackgroundConfig && bg?.platform_texture && !bg.platform_tile && this.scene.textures.exists(bg.platform_texture)) {
+        const sprite = this.addImage(cx, cy, bg.platform_texture);
+        sprite.setDisplaySize(this.cellSize, this.cellSize);
+        sprite.setDepth(Depth.stairs);
+        this.cellSprites.push(sprite);
+      } else if (!bg?.platform_tile) {
+        this.graphics.fillStyle(0x000000, PLATFORM_FALLBACK_ALPHA);
+        this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
+      }
+    }
+
+    // Fallback stairs (no texture)
+    if (isStairs && (!hasBackgroundConfig || !bg?.stairs_texture) && !hasTexture) {
+      this.renderFallbackStairs(x, y, edgeColor);
+    }
+
+    // Fallback walls (no texture)
+    if (isWall && (!hasBackgroundConfig || !bg?.wall_texture) && !hasTexture) {
+      this.renderFallbackWallBricks(x, y, edgeColor);
+    }
+  }
+
+  private renderFallbackStairs(x: number, y: number, edgeColor: number): void {
+    this.graphics.lineStyle(STAIRS_LINE_WIDTH_PX, edgeColor, 1);
+    this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
+
+    const stepHeight = this.cellSize / STAIRS_STEP_COUNT;
+    for (let step = 0; step < STAIRS_STEP_COUNT; step++) {
+      const stepY = y + step * stepHeight;
+      const brightness = 1 - (step / (STAIRS_STEP_COUNT - 1)) * STAIRS_BRIGHTNESS_RANGE;
+      const shadedColor = STAIRS_BASE_COLOR - STAIRS_COLOR_OFFSET + Math.floor(STAIRS_COLOR_OFFSET * brightness);
+
+      this.graphics.fillStyle(shadedColor, 1);
+      this.graphics.fillRect(x, stepY, this.cellSize, stepHeight);
+      this.graphics.lineStyle(STAIRS_STEP_LINE_WIDTH_PX, edgeColor, 1);
+      this.graphics.strokeLineShape(new Phaser.Geom.Line(x, stepY, x + this.cellSize, stepY));
+    }
+  }
+
+  private renderFallbackWallBricks(x: number, y: number, edgeColor: number): void {
+    const brickHeight = WALL_BRICK_HEIGHT_PX;
+    const brickWidth = this.cellSize / WALL_BRICKS_PER_ROW;
+    let currentY = y;
+    let rowIndex = 0;
+
+    while (currentY < y + this.cellSize) {
+      const offset = (rowIndex % 2) * (brickWidth / 2);
+      const actualHeight = Math.min(brickHeight, y + this.cellSize - currentY);
+
+      for (let brickX = x - offset; brickX < x + this.cellSize + brickWidth; brickX += brickWidth) {
+        const startX = Math.max(x, brickX);
+        const endX = Math.min(x + this.cellSize, brickX + brickWidth - WALL_MORTAR_GAP_PX);
+        if (startX < endX) {
+          this.graphics.fillStyle(WALL_BRICK_COLOR, 1);
+          this.graphics.fillRect(startX, currentY, endX - startX, actualHeight);
+          this.graphics.lineStyle(WALL_MORTAR_GAP_PX, edgeColor, 1);
+          this.graphics.strokeRect(startX, currentY, endX - startX, actualHeight);
+        }
+      }
+      currentY += brickHeight;
+      rowIndex++;
+    }
+  }
+
+  private renderUntexturedPaths(grid: GridReader, pathTexture: string | undefined): void {
+    if (pathTexture) return;
+    const radius = this.cellSize * PATH_RADIUS_FACTOR;
+
     for (let row = 0; row < grid.height; row++) {
       for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        const isPath = cell?.properties.has('path');
+        if (!grid.getCell(col, row)?.properties.has('path')) continue;
 
-        if (isPath && !pathTexture) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const centerX = x + this.cellSize / 2;
-          const centerY = y + this.cellSize / 2;
-          const pathColor = PATH_FILL_COLOR;
-          const outlineColor = PATH_OUTLINE_COLOR;
+        const centerX = col * this.cellSize + this.cellSize / 2;
+        const centerY = row * this.cellSize + this.cellSize / 2;
 
-          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
-          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
-          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
-          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
+        const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
+        const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
+        const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
+        const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
 
-          this.graphics.fillStyle(pathColor, 1);
+        this.graphics.fillStyle(PATH_FILL_COLOR, 1);
 
-          if (hasLeft) {
-            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-          }
-          if (hasRight) {
-            this.graphics.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-          }
-          if (hasUp) {
-            this.graphics.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
-          }
-          if (hasDown) {
-            this.graphics.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
-          }
+        if (hasLeft) this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+        if (hasRight) this.graphics.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
+        if (hasUp) this.graphics.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
+        if (hasDown) this.graphics.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
 
-          if (hasLeft && hasUp) {
-            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasRight && hasUp) {
-            this.graphics.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasLeft && hasDown) {
-            this.graphics.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasRight && hasDown) {
-            this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
+        if (hasLeft && hasUp) this.graphics.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+        if (hasRight && hasUp) this.graphics.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+        if (hasLeft && hasDown) this.graphics.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
+        if (hasRight && hasDown) this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
 
-          this.graphics.fillCircle(centerX, centerY, radius);
-
-          this.graphics.lineStyle(PATH_OUTLINE_WIDTH_PX, outlineColor, 1);
-          this.graphics.strokeCircle(centerX, centerY, radius);
-        }
+        this.graphics.fillCircle(centerX, centerY, radius);
+        this.graphics.lineStyle(PATH_OUTLINE_WIDTH_PX, PATH_OUTLINE_COLOR, 1);
+        this.graphics.strokeCircle(centerX, centerY, radius);
       }
     }
   }
