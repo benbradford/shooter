@@ -38,7 +38,19 @@
   details { margin-top: 4px; }
   details summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; }
   details p { margin-top: 4px; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
-  .empty { text-align: center; padding: 48px; color: var(--muted); }
+  .actions { display: flex; gap: 4px; flex-wrap: wrap; }
+  .act-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 2px 8px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; transition: 0.2s; white-space: nowrap; }
+  .act-btn:hover { border-color: var(--text); }
+  .act-btn.fix { background: #1a4a1a; border-color: var(--fixed); color: var(--fixed); }
+  .act-btn.fix:hover { background: #2a6a2a; }
+  .add-form { background: var(--surface); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: none; }
+  .add-form.visible { display: block; }
+  .add-form input, .add-form select, .add-form textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; width: 100%; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
+  .add-form textarea { min-height: 60px; resize: vertical; }
+  .add-form label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+  .add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--fixed); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -59,7 +71,23 @@
   <button class="filter-btn" data-filter="high">High</button>
   <button class="filter-btn" data-filter="medium">Medium</button>
   <button class="filter-btn" data-filter="low">Low</button>
+  <button class="filter-btn" style="margin-left:auto;background:var(--surface2);border-color:var(--fixed);color:var(--fixed)" onclick="toggleAddForm()">+ Add Bug</button>
 </div>
+
+<div class="add-form" id="addForm">
+  <div class="add-row">
+    <div><label>Title</label><input id="add-title" placeholder="Bug title" /></div>
+    <div><label>Area</label><input id="add-area" placeholder="e.g. combat, pet, hud" /></div>
+  </div>
+  <div class="add-row">
+    <div><label>Severity</label><select id="add-severity"><option>medium</option><option>low</option><option>high</option><option>critical</option></select></div>
+    <div><label>Status</label><select id="add-status"><option>open</option><option>investigating</option></select></div>
+  </div>
+  <label>Detail</label><textarea id="add-detail" placeholder="Steps to reproduce, expected vs actual..."></textarea>
+  <button class="act-btn" style="padding:6px 16px;font-size:0.85rem" onclick="addEntry()">Add Bug</button>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <table>
   <thead>
@@ -70,6 +98,7 @@
       <th>Bug</th>
       <th style="width:100px">Area</th>
       <th style="width:80px">Added</th>
+      <th style="width:140px">Actions</th>
     </tr>
   </thead>
   <tbody id="tbody"></tbody>
@@ -111,7 +140,7 @@ function renderTable(filter) {
   items.sort((a, b) => statusOrder(a.status) - statusOrder(b.status) || severityOrder(a.severity) - severityOrder(b.severity));
 
   if (items.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">No bugs logged yet. Say "log a bug" to add one.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No bugs logged yet.</td></tr>';
     return;
   }
   tbody.innerHTML = items.map(b => `
@@ -122,6 +151,12 @@ function renderTable(filter) {
       <td><strong>${b.title}</strong>${b.detail ? '<details><summary>Details</summary><p>' + b.detail + '</p></details>' : ''}</td>
       <td>${b.area || '—'}</td>
       <td>${b.added}</td>
+      <td class="actions">
+        ${b.status !== 'fixed' ? `<button class="act-btn" onclick="setStatus(${b.id},'fixed')">✓ Fixed</button>` : ''}
+        ${b.status === 'open' ? `<button class="act-btn" onclick="setStatus(${b.id},'investigating')">🔍</button>` : ''}
+        ${b.status !== 'wontfix' && b.status !== 'fixed' ? `<button class="act-btn" onclick="setStatus(${b.id},'wontfix')">✗</button>` : ''}
+        ${b.status !== 'fixed' ? `<button class="act-btn fix" onclick="fixEntry(${b.id})">🤖 Fix</button>` : ''}
+      </td>
     </tr>
   `).join('');
 }
@@ -135,6 +170,70 @@ document.getElementById('filters').addEventListener('click', e => {
 
 renderStats();
 renderTable('all');
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function toggleAddForm() {
+  document.getElementById('addForm').classList.toggle('visible');
+}
+
+async function setStatus(id, status) {
+  await fetch('/api/tracker/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tracker: 'bugs', id, fields: { status } })
+  });
+  const bug = BUGS.find(b => b.id === id);
+  if (bug) bug.status = status;
+  renderStats();
+  renderTable(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+  showToast(`Bug #${id} → ${status}`);
+}
+
+async function addEntry() {
+  const title = document.getElementById('add-title').value.trim();
+  if (!title) return;
+  const entry = {
+    severity: document.getElementById('add-severity').value,
+    status: document.getElementById('add-status').value,
+    title,
+    detail: document.getElementById('add-detail').value.trim(),
+    area: document.getElementById('add-area').value.trim(),
+  };
+  const res = await fetch('/api/tracker/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tracker: 'bugs', entry })
+  });
+  const result = await res.json();
+  entry.id = result.id;
+  entry.added = new Date().toISOString().slice(0, 10);
+  BUGS.push(entry);
+  renderStats();
+  renderTable('all');
+  document.getElementById('addForm').classList.remove('visible');
+  document.getElementById('add-title').value = '';
+  document.getElementById('add-detail').value = '';
+  document.getElementById('add-area').value = '';
+  showToast(`Bug #${result.id} added`);
+}
+
+async function fixEntry(id) {
+  const bug = BUGS.find(b => b.id === id);
+  if (!bug) return;
+  if (!confirm(`Invoke kiro-cli to fix: "${bug.title}"?`)) return;
+  await fetch('/api/tracker/fix', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '' })
+  });
+  showToast(`🤖 kiro-cli started for bug #${id}`);
+}
 </script>
 </body>
 </html>

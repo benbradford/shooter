@@ -56,6 +56,19 @@
   .legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; font-size: 0.75rem; color: var(--muted); }
   .legend-item { display: flex; align-items: center; gap: 4px; }
   .updated { color: var(--muted); font-size: 0.75rem; margin-top: 24px; text-align: right; }
+  .actions { display: flex; gap: 4px; flex-wrap: wrap; }
+  .act-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 2px 8px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; transition: 0.2s; white-space: nowrap; }
+  .act-btn:hover { border-color: var(--text); }
+  .act-btn.fix { background: #1a4a1a; border-color: var(--done); color: var(--done); }
+  .act-btn.fix:hover { background: #2a6a2a; }
+  .add-form { background: var(--surface); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: none; }
+  .add-form.visible { display: block; }
+  .add-form input, .add-form select, .add-form textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; width: 100%; margin-bottom: 8px; box-sizing: border-box; font-family: inherit; }
+  .add-form textarea { min-height: 60px; resize: vertical; }
+  .add-form label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+  .add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--done); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
@@ -82,7 +95,23 @@
   <button class="filter-btn" data-filter="high">High</button>
   <button class="filter-btn" data-filter="medium">Medium</button>
   <button class="filter-btn" data-filter="low">Low</button>
+  <button class="filter-btn" style="margin-left:auto;background:var(--surface2);border-color:var(--done);color:var(--done)" onclick="toggleAddForm()">+ Add Issue</button>
 </div>
+
+<div class="add-form" id="addForm">
+  <div class="add-row">
+    <div><label>Title</label><input id="add-title" placeholder="Issue title" /></div>
+    <div><label>Files</label><input id="add-files" placeholder="src/path/File.ts (comma-sep)" /></div>
+  </div>
+  <div class="add-row">
+    <div><label>Severity</label><select id="add-severity"><option>medium</option><option>low</option><option>high</option><option>critical</option></select></div>
+    <div><label>Effort</label><input id="add-effort" placeholder="e.g. 2h, 30m" /></div>
+  </div>
+  <label>Detail</label><textarea id="add-detail" placeholder="Description of the issue..."></textarea>
+  <button class="act-btn" style="padding:6px 16px;font-size:0.85rem" onclick="addEntry()">Add Issue</button>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <table>
   <thead>
@@ -95,7 +124,7 @@
       <th style="width:70px">Effort</th>
       <th style="width:50px">Risk</th>
       <th style="width:50px">Fan-in</th>
-    </tr>
+      <th style="width:130px">Actions</th>
   </thead>
   <tbody id="tbody"></tbody>
 </table>
@@ -288,6 +317,12 @@ function renderTable(filter) {
       <td class="effort">${i.effort}</td>
       <td>${i.risk ?? '—'}</td>
       <td>${i.fanIn ?? '—'}</td>
+      <td class="actions">
+        ${i.status === 'open' ? `<button class="act-btn" onclick="setStatus(${i.id},'done')">✓ Done</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn fix" onclick="fixEntry(${i.id})">🤖 Fix</button>` : ''}
+      </td>
     </tr>
   `).join('');
 }
@@ -302,6 +337,39 @@ document.getElementById('filters').addEventListener('click', e => {
 
 renderStats();
 renderTable('all');
+
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
+function toggleAddForm() { document.getElementById('addForm').classList.toggle('visible'); }
+
+async function setStatus(id, status) {
+  await fetch('/api/tracker/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, fields: { status } }) });
+  const i = ISSUES.find(i => i.id === id);
+  if (i) i.status = status;
+  renderStats();
+  renderTable(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+  showToast(`Issue #${id} → ${status}`);
+}
+
+async function addEntry() {
+  const title = document.getElementById('add-title').value.trim();
+  if (!title) return;
+  const entry = { severity: document.getElementById('add-severity').value, status: 'open', title, detail: document.getElementById('add-detail').value.trim(), files: document.getElementById('add-files').value.split(',').map(f => f.trim()).filter(Boolean), effort: document.getElementById('add-effort').value.trim() || '?', risk: 'Med', fanIn: null, category: 'architecture' };
+  const res = await fetch('/api/tracker/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', entry }) });
+  const result = await res.json();
+  entry.id = result.id; entry.added = new Date().toISOString().slice(0, 10);
+  ISSUES.push(entry);
+  renderStats(); renderTable('all');
+  document.getElementById('addForm').classList.remove('visible');
+  ['add-title','add-detail','add-files','add-effort'].forEach(id => document.getElementById(id).value = '');
+  showToast(`Issue #${result.id} added`);
+}
+
+async function fixEntry(id) {
+  const i = ISSUES.find(i => i.id === id);
+  if (!i || !confirm(`Invoke kiro-cli to fix: "${i.title}"?`)) return;
+  await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '' }) });
+  showToast(`🤖 kiro-cli started for issue #${id}`);
+}
 </script>
 </body>
 </html>

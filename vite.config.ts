@@ -2,6 +2,15 @@ import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawn } from 'node:child_process';
+
+function readBody(req: import('http').IncomingMessage): Promise<string> {
+  return new Promise(resolve => {
+    let body = '';
+    req.on('data', (chunk: string) => { body += chunk; });
+    req.on('end', () => resolve(body));
+  });
+}
 
 function saveLevelPlugin(): Plugin {
   return {
@@ -120,6 +129,105 @@ function saveLevelPlugin(): Plugin {
           res.statusCode = 500;
           res.end(String(error));
         }
+      });
+
+      // ── Tracker API ──────────────────────────────────────────
+
+      const TRACKER_FILES: Record<string, { file: string; arrayName: string }> = {
+        bugs: { file: 'trackers/bug-tracker.html', arrayName: 'BUGS' },
+        features: { file: 'trackers/feature-tracker.html', arrayName: 'FEATURES' },
+        issues: { file: 'trackers/architecture-issues.html', arrayName: 'ISSUES' },
+      };
+
+      // Update an entry's status (and optionally detail)
+      server.middlewares.use('/api/tracker/update', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; fields: Record<string, string> };
+          const tracker = TRACKER_FILES[body.tracker];
+          if (!tracker) { res.statusCode = 400; res.end('Unknown tracker'); return; }
+
+          const filePath = path.resolve(tracker.file);
+          let content = fs.readFileSync(filePath, 'utf-8');
+
+          for (const [key, value] of Object.entries(body.fields)) {
+            // Match: key: 'value' or key: "value" for the given id
+            const escaped = value.replace(/'/g, "\\'");
+            const idPattern = `id: ${body.id},`;
+            const idx = content.indexOf(idPattern);
+            if (idx === -1) { res.statusCode = 404; res.end('Entry not found'); return; }
+
+            // Find the entry block (from id to next }, or }])
+            const entryEnd = content.indexOf('},', idx);
+            if (entryEnd === -1) { res.statusCode = 500; res.end('Parse error'); return; }
+            const entryBlock = content.substring(idx, entryEnd);
+
+            const fieldRegex = new RegExp(`${key}:\\s*'[^']*'`);
+            if (fieldRegex.test(entryBlock)) {
+              const updated = entryBlock.replace(fieldRegex, `${key}: '${escaped}'`);
+              content = content.substring(0, idx) + updated + content.substring(idx + entryBlock.length);
+            }
+          }
+
+          fs.writeFileSync(filePath, content, 'utf-8');
+          console.log(`✓ Updated ${tracker.file} entry #${body.id}`);
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Add a new entry
+      server.middlewares.use('/api/tracker/add', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { tracker: string; entry: Record<string, unknown> };
+          const tracker = TRACKER_FILES[body.tracker];
+          if (!tracker) { res.statusCode = 400; res.end('Unknown tracker'); return; }
+
+          const filePath = path.resolve(tracker.file);
+          let content = fs.readFileSync(filePath, 'utf-8');
+
+          // Find the max id
+          const idMatches = [...content.matchAll(/id:\s*(\d+)/g)];
+          const maxId = idMatches.reduce((max, m) => Math.max(max, Number.parseInt(m[1])), 0);
+          body.entry.id = maxId + 1;
+          body.entry.added = new Date().toISOString().slice(0, 10);
+
+          // Build the entry string
+          const pairs = Object.entries(body.entry).map(([k, v]) =>
+            typeof v === 'string' ? `${k}: '${v.replace(/'/g, "\\'")}'` : `${k}: ${JSON.stringify(v)}`
+          ).join(', ');
+          const entryStr = `  { ${pairs} },`;
+
+          // Insert before the closing ];
+          const arrayEnd = content.indexOf('];', content.indexOf(`const ${tracker.arrayName}`));
+          content = content.substring(0, arrayEnd) + entryStr + '\n' + content.substring(arrayEnd);
+
+          fs.writeFileSync(filePath, content, 'utf-8');
+          console.log(`✓ Added entry #${body.entry.id} to ${tracker.file}`);
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, id: body.entry.id }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Fix button — invoke kiro-cli
+      server.middlewares.use('/api/tracker/fix', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string };
+          const type = body.tracker === 'bugs' ? 'bug' : body.tracker === 'issues' ? 'architecture issue' : 'feature';
+          const message = `fix ${type}: ${body.title}. Details: ${body.detail}`;
+
+          console.log(`🔧 Invoking kiro-cli to fix ${type} #${body.id}...`);
+          const child = spawn('kiro-cli', ['chat', '--agent', 'dodging-bullets', '--message', message], {
+            stdio: 'inherit',
+            detached: true,
+          });
+          child.unref();
+
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, message: `kiro-cli started for ${type} #${body.id}` }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
     }
   };
