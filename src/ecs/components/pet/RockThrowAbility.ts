@@ -56,6 +56,18 @@ const SPLASH_CLEANUP_DELAY_MS = 800;
 
 // Rock visual
 const ROCK_LANDED_OFFSET_Y_PX = 25;
+const PLAYER_FEET_OFFSET_Y_PX = 30;
+
+// Void fall
+const VOID_FALL_DURATION_MS = 600;
+const VOID_FALL_DRIFT_PX = 20;
+
+// Animation time scale
+const ANIM_TIMESCALE_NORMAL = 1;
+const ANIM_TIMESCALE_PAUSED = 0;
+
+// Sentinel
+const HEALTH_UNTRACKED = -1;
 
 const PLAYER_THROW_OFFSETS: Record<Direction, { x: number; y: number; z: number }> = {
   [Direction.None]: { x: 0, y: 0, z: 1 },
@@ -79,7 +91,7 @@ export class RockThrowAbility implements Component {
   private chargeComplete = false;
   private activeProjectile: Entity | null = null;
   private readonly arrowIndicator: ThrowArrowIndicator;
-  private lastKnownHealth = -1;
+  private lastKnownHealth = HEALTH_UNTRACKED;
   private throwDirX = 0;
   private throwDirY = DEFAULT_THROW_DIR_Y;
   private throwDir: Direction = Direction.Down;
@@ -153,7 +165,7 @@ export class RockThrowAbility implements Component {
     const playerAnim = this.playerEntity.get(AnimationComponent);
     if (playerAnim) {
       playerAnim.animationSystem.play(`throw_${this.throwDir}`);
-      playerAnim.animationSystem.setTimeScale(1);
+      playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_NORMAL);
     }
 
     // Tween rock to player offset position
@@ -219,7 +231,7 @@ export class RockThrowAbility implements Component {
       const currentAnim = playerAnim.animationSystem.getCurrentAnimation();
       if (currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
         currentAnim.setIndex(HOLD_FRAME_INDEX);
-        playerAnim.animationSystem.setTimeScale(0);
+        playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_PAUSED);
       }
     }
 
@@ -272,7 +284,7 @@ export class RockThrowAbility implements Component {
       const currentAnim = playerAnim.animationSystem.getCurrentAnimation();
       if (currentAnim) {
         currentAnim.setIndex(HOLD_FRAME_INDEX);
-        playerAnim.animationSystem.setTimeScale(0);
+        playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_PAUSED);
       }
     }
 
@@ -319,7 +331,7 @@ export class RockThrowAbility implements Component {
     // Continue throw animation
     const playerAnim = this.playerEntity.get(AnimationComponent);
     if (playerAnim) {
-      playerAnim.animationSystem.setTimeScale(1);
+      playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_NORMAL);
     }
 
     // Hide pet rock sprite
@@ -345,7 +357,6 @@ export class RockThrowAbility implements Component {
 
     // Create projectile
     const playerTransform = this.playerEntity.require(TransformComponent);
-    const PLAYER_FEET_OFFSET_Y_PX = 30;
     const playerFeetY = playerTransform.y + PLAYER_FEET_OFFSET_Y_PX;
     const projectile = createRockProjectileEntity({
       scene: this.scene,
@@ -434,8 +445,6 @@ export class RockThrowAbility implements Component {
   }
 
   private startVoidFall(rockTransform: TransformComponent, rockSprite: SpriteComponent | undefined): void {
-    const VOID_FALL_DURATION_MS = 600;
-    const VOID_FALL_DRIFT_PX = 20;
     const startY = rockTransform.y;
     const originalScale = rockTransform.scale;
     const startTime = this.scene.time.now;
@@ -473,7 +482,7 @@ export class RockThrowAbility implements Component {
     // Restore player animation
     const playerAnim = this.playerEntity.get(AnimationComponent);
     if (playerAnim) {
-      playerAnim.animationSystem.setTimeScale(1);
+      playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_NORMAL);
     }
 
     this.state = 'returning';
@@ -499,7 +508,7 @@ export class RockThrowAbility implements Component {
     // Restore player animation
     const playerAnim = this.playerEntity.get(AnimationComponent);
     if (playerAnim) {
-      playerAnim.animationSystem.setTimeScale(1);
+      playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_NORMAL);
     }
 
     // Start cooldown now that throw is complete
@@ -533,7 +542,7 @@ export class RockThrowAbility implements Component {
     // Unlock player (defensive)
     const playerAnim = this.playerEntity.get(AnimationComponent);
     if (playerAnim) {
-      playerAnim.animationSystem.setTimeScale(1);
+      playerAnim.animationSystem.setTimeScale(ANIM_TIMESCALE_NORMAL);
     }
   }
 }

@@ -210,23 +210,24 @@ function saveLevelPlugin(): Plugin {
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
-      // Fix button — invoke kiro-cli
+      // Fix button — invoke kiro-cli in a new terminal
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
           const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string };
           const type = body.tracker === 'bugs' ? 'bug' : body.tracker === 'issues' ? 'architecture issue' : 'feature';
           const message = `fix ${type}: ${body.title}. Details: ${body.detail}`;
+          const escapedMessage = message.replace(/"/g, '\\"').replace(/'/g, "'\\''");
+          const cwd = process.cwd();
 
-          console.log(`🔧 Invoking kiro-cli to fix ${type} #${body.id}...`);
-          const child = spawn('kiro-cli', ['chat', '--agent', 'dodging-bullets', '--message', message], {
-            stdio: 'inherit',
+          console.log(`🔧 Opening kiro-cli to fix ${type} #${body.id}...`);
+          spawn('osascript', ['-e', `tell application "Terminal" to do script "cd '${cwd}' && kiro-cli chat --agent dodging-bullets '${escapedMessage}'"`], {
+            stdio: 'ignore',
             detached: true,
-          });
-          child.unref();
+          }).unref();
 
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, message: `kiro-cli started for ${type} #${body.id}` }));
+          res.end(JSON.stringify({ ok: true, message: `kiro-cli opened in new Terminal for ${type} #${body.id}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
     }

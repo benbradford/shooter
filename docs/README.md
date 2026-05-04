@@ -349,12 +349,29 @@ npm run dev                  # Start dev server
 
 **[trackers/main.html](../trackers/main.html)** — Dashboard linking to all trackers. Open in browser.
 
-| Tracker | File | Trigger phrase |
-|---------|------|----------------|
-| Architecture Issues | `trackers/architecture-issues.html` | Auto-updated by `db-architect` reviews |
-| Feature Tracker | `trackers/feature-tracker.html` | "log a feature: {description}" |
-| Bug Tracker | `trackers/bug-tracker.html` | "log a bug: {description}" |
+| Tracker | File | URL (dev server) |
+|---------|------|-------------------|
+| Architecture Issues | `trackers/architecture-issues.html` | `http://localhost:5173/trackers/architecture-issues.html` |
+| Feature Tracker | `trackers/feature-tracker.html` | `http://localhost:5173/trackers/feature-tracker.html` |
+| Bug Tracker | `trackers/bug-tracker.html` | `http://localhost:5173/trackers/bug-tracker.html` |
 
-**When asked to "log a feature":** Add entry to `FEATURES` array in `trackers/feature-tracker.html`
-**When asked to "log a bug":** Add entry to `BUGS` array in `trackers/bug-tracker.html`
+### Interactive Tracker UI
+
+All trackers are interactive when the dev server is running (`npm run dev`):
+
+- **Status buttons** on each row — click to mark Done/Fixed, Investigating, Deferred, Won't Fix, etc.
+- **+ Add button** (top-right) — opens a form to add new entries directly in the browser
+- **🤖 Fix / Impl button** — invokes `kiro-cli chat --agent dodging-bullets` to automatically fix the bug/issue
+- Changes persist to disk via Vite dev server API (same pattern as level editor save)
+- Toast notifications confirm each action
+
+**API endpoints** (in `vite.config.ts`):
+- `POST /api/tracker/update` — update fields on an entry (`{ tracker, id, fields }`)
+- `POST /api/tracker/add` — add a new entry (`{ tracker, entry }`)
+- `POST /api/tracker/fix` — spawn kiro-cli to fix (`{ tracker, id, title, detail }`)
+
+**Kiro agent phrases** (still work in chat):
+- "log a feature: {description}" → adds to feature tracker
+- "log a bug: {description}" → adds to bug tracker
+
 **When fixing a bug:** Update its status to `'fixed'` in `trackers/bug-tracker.html`

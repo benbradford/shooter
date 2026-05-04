@@ -152,10 +152,10 @@ function renderTable(filter) {
       <td>${b.area || '—'}</td>
       <td>${b.added}</td>
       <td class="actions">
-        ${b.status !== 'fixed' ? `<button class="act-btn" onclick="setStatus(${b.id},'fixed')">✓ Fixed</button>` : ''}
-        ${b.status === 'open' ? `<button class="act-btn" onclick="setStatus(${b.id},'investigating')">🔍</button>` : ''}
-        ${b.status !== 'wontfix' && b.status !== 'fixed' ? `<button class="act-btn" onclick="setStatus(${b.id},'wontfix')">✗</button>` : ''}
-        ${b.status !== 'fixed' ? `<button class="act-btn fix" onclick="fixEntry(${b.id})">🤖 Fix</button>` : ''}
+        ${b.status !== 'fixed' ? `<button class="act-btn" title="Mark as fixed" onclick="setStatus(${b.id},'fixed')">✓ Fixed</button>` : ''}
+        ${b.status === 'open' ? `<button class="act-btn" title="Mark as investigating" onclick="setStatus(${b.id},'investigating')">🔍</button>` : ''}
+        ${b.status !== 'wontfix' && b.status !== 'fixed' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${b.id},'wontfix')">✗</button>` : ''}
+        ${b.status !== 'fixed' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this bug" onclick="fixEntry(${b.id})">🤖 Fix</button>` : ''}
       </td>
     </tr>
   `).join('');

@@ -221,9 +221,9 @@ const ISSUES = [
 
   // ── LOW ──
   {
-    id: 11, severity: 'low', status: 'open',
+    id: 11, severity: 'low', status: 'done',
     title: 'RockThrowAbility has 16 remaining inline magic numbers',
-    detail: 'Most constants already extracted at top of file. 16 remain inline.',
+    detail: 'Extracted 6 named constants to file level: PLAYER_FEET_OFFSET_Y_PX, VOID_FALL_DURATION_MS, VOID_FALL_DRIFT_PX, ANIM_TIMESCALE_NORMAL, ANIM_TIMESCALE_PAUSED, HEALTH_UNTRACKED. Replaced 8 inline usages (5x setTimeScale(1), 2x setTimeScale(0), 1x sentinel). Moved 3 local consts to file scope.',
     files: ['src/ecs/components/pet/RockThrowAbility.ts'],
     effort: '30m', risk: 'None', fanIn: 6, category: 'code-quality',
     added: '2026-05-04',
@@ -318,10 +318,10 @@ function renderTable(filter) {
       <td>${i.risk ?? '—'}</td>
       <td>${i.fanIn ?? '—'}</td>
       <td class="actions">
-        ${i.status === 'open' ? `<button class="act-btn" onclick="setStatus(${i.id},'done')">✓ Done</button>` : ''}
-        ${i.status === 'open' ? `<button class="act-btn" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
-        ${i.status === 'open' ? `<button class="act-btn" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
-        ${i.status === 'open' ? `<button class="act-btn fix" onclick="fixEntry(${i.id})">🤖 Fix</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${i.id},'done')">✓ Done</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn" title="Defer for later" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this issue" onclick="fixEntry(${i.id})">🤖 Fix</button>` : ''}
       </td>
     </tr>
   `).join('');

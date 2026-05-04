@@ -145,11 +145,11 @@ function renderTable(filter) {
       <td>${f.category || '—'}</td>
       <td>${f.added}</td>
       <td class="actions">
-        ${f.status === 'planned' ? `<button class="act-btn" onclick="setStatus(${f.id},'in-progress')">▶ Start</button>` : ''}
-        ${f.status === 'in-progress' ? `<button class="act-btn" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
-        ${f.status === 'planned' ? `<button class="act-btn" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
-        ${f.status !== 'cancelled' && f.status !== 'done' ? `<button class="act-btn" onclick="setStatus(${f.id},'cancelled')">✗</button>` : ''}
-        ${f.status !== 'done' ? `<button class="act-btn fix" onclick="fixEntry(${f.id})">🤖 Impl</button>` : ''}
+        ${f.status === 'planned' ? `<button class="act-btn" title="Mark as in progress" onclick="setStatus(${f.id},'in-progress')">▶ Start</button>` : ''}
+        ${f.status === 'in-progress' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
+        ${f.status === 'planned' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
+        ${f.status !== 'cancelled' && f.status !== 'done' ? `<button class="act-btn" title="Cancel this feature" onclick="setStatus(${f.id},'cancelled')">✗</button>` : ''}
+        ${f.status !== 'done' ? `<button class="act-btn fix" title="Invoke kiro-cli to implement this feature" onclick="fixEntry(${f.id})">🤖 Impl</button>` : ''}
       </td>
     </tr>
   `).join('');
