@@ -279,7 +279,7 @@ export class Grid implements GridReader {
     this.graphics.clear();
 
     const gameScene = this.scene as GameScene;
-    gameScene.renderGrid(this, levelData);
+    gameScene.renderGrid(this, levelData ?? gameScene.getLevelData());
 
     if (!this.isGridDebugEnabled) {
       if (this.isSceneDebugEnabled) {

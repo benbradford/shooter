@@ -203,6 +203,10 @@ The editor uses a split architecture:
 **Cause:** `GameSceneRenderer` reads from `levelData.cells`, not grid internal state.
 **Fix:** `setCellTexture` syncs both grid and `levelData.cells`, then calls `refreshSprites()`.
 
+### View corruption after clearing cells/textures
+**Cause:** `grid.render()` called without `levelData` passes `undefined` to `updateGraphics()`, which then renders shadows unconditionally and skips water/path textures.
+**Fix:** `Grid.render()` falls back to `gameScene.getLevelData()` when `levelData` is not explicitly passed.
+
 ### Player Spawning at Wrong Position
 **Cause:** GridCollisionComponent initializes previous position to (0,0).
 **Fix:** Initialize to actual starting position on first frame.
