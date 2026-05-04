@@ -157,15 +157,16 @@ function saveLevelPlugin(): Plugin {
             const idx = content.indexOf(idPattern);
             if (idx === -1) { res.statusCode = 404; res.end('Entry not found'); return; }
 
-            // Find the entry block (from id to next }, or }])
-            const entryEnd = content.indexOf('},', idx);
-            if (entryEnd === -1) { res.statusCode = 500; res.end('Parse error'); return; }
-            const entryBlock = content.substring(idx, entryEnd);
+            // Find the full entry block by searching backwards for { and forwards for }
+            const entryStart = content.lastIndexOf('{', idx);
+            const entryEnd = content.indexOf('}', idx);
+            if (entryStart === -1 || entryEnd === -1) { res.statusCode = 500; res.end('Parse error'); return; }
+            const entryBlock = content.substring(entryStart, entryEnd + 1);
 
             const fieldRegex = new RegExp(`${key}:\\s*'[^']*'`);
             if (fieldRegex.test(entryBlock)) {
               const updated = entryBlock.replace(fieldRegex, `${key}: '${escaped}'`);
-              content = content.substring(0, idx) + updated + content.substring(idx + entryBlock.length);
+              content = content.substring(0, entryStart) + updated + content.substring(entryStart + entryBlock.length);
             }
           }
 
@@ -245,5 +246,10 @@ function saveLevelPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [saveLevelPlugin()],
+  server: {
+    watch: {
+      ignored: ['**/trackers/**'],
+    },
+  },
   // Editor excluded from production builds — only index.html is built
 });

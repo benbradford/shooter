@@ -148,7 +148,7 @@ export class WaterEffectComponent implements Component {
       sprite.sprite.setDepth(Depth.player);
     }
 
-    // Detect water entry/exit — trigger JumpComponent instead of custom hop
+    // Detect water entry/exit — trigger JumpComponent jump
     if (nowInWater !== this.isInWater) {
       const wasInWater = this.isInWater;
       this.isInWater = nowInWater;

@@ -88,14 +88,14 @@ export class PetFollowComponent implements Component {
   }
 
   update(delta: number): void {
-    // Check if player is in water or hopping
+    // Check if player is in water or jumping in/out
     const water = this.playerEntity.get(WaterEffectComponent);
 
     if (water) {
       const isInWater = water.getIsInWater();
       const isHopping = water.isHopping();
 
-      // Player just entered water or is hopping in → start riding
+      // Player just entered water or is jumping in → start riding
       if ((isInWater || isHopping) && this.state !== 'riding') {
         this.state = 'riding';
         this.wasInWater = true;
@@ -106,7 +106,7 @@ export class PetFollowComponent implements Component {
         if (gridCollision) gridCollision.enabled = false;
       }
 
-      // Player exited water and hop is complete → resume following
+      // Player exited water and jump is complete → resume following
       if (this.state === 'riding' && !isInWater && !isHopping && this.wasInWater) {
         this.wasInWater = false;
         this.state = 'idle';

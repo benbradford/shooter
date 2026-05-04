@@ -46,7 +46,7 @@ Each grid cell tracks layer, properties (platform/wall/stairs/path/water/blocked
   - Swimming under bridge+water: Player continues swimming at reduced speed
   - Ripples only appear when swimming under bridge, not when walking over
   - Player renders at depth -7 when swimming (below bridge textures at -5, above water at -10)
-  - Cannot hop out through bridge cells (blocked in all directions)
+  - Cannot jump out through bridge cells (blocked in all directions)
   - **Workaround**: Use 'blocked' property on water cells at corners to prevent swimming into land
 - **'push_lock'**: Locks pushable entities in place — any pushable that lands on this cell becomes permanently immovable and persists across level transitions. Renders a depression texture automatically.
 - **'void'**: Impassable chasm — blocks player and enemy movement but not projectiles. Requires `canJump` WorldState flag for jump ability. When player walks into a void cell, they are blocked and the HUD attack button changes to a **jump icon** (`jump_icon.png`). Player presses the jump button to jump over exactly 1 void cell (cardinal only) if the landing cell is same layer, walkable, and unblocked. If landing is invalid, player jumps into the void and falls (sprite shrinks, respawns at last safe position, 10 HP penalty). Jump has three phases: takeoff (180ms, stationary), flight (300ms, sine arc), landing (180ms, stationary). Player is invulnerable during the jump. Pet sync-jumps with player (see pets-quick-ref.md).

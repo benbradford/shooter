@@ -60,6 +60,7 @@ export class AttackComboComponent implements Component {
   private isHoldingAttack: boolean = false;
   private wasReleasedDuringPunch: boolean = false;
   private holdDurationMs: number = 0;
+  private releasedFromCharge: boolean = false;
   private punchDir: Direction = 1; // Direction.Down
   private lastAnimDir: Direction = 1;
   private punchDirX: number = 0;
@@ -97,7 +98,7 @@ export class AttackComboComponent implements Component {
 
     if (this.currentPhase === 'idle') return;
 
-    // Cancel punch if player starts hopping into/out of water
+    // Cancel punch if player starts jumping into/out of water
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) {
       this.currentPhase = 'idle';
@@ -180,8 +181,11 @@ export class AttackComboComponent implements Component {
         this.phaseTimer = -(SUPER_PUNCH_DURATION_MS - punchDuration);
       } else {
         this.currentPhase = 'punching';
+        this.releasedFromCharge = true;
         this.createPunchHitbox();
-        anim?.animationSystem.setTimeScale(animSpeed);
+        if (anim) {
+          anim.animationSystem.play(`punch_${this.punchDir}`, animSpeed);
+        }
       }
       return;
     }
@@ -223,6 +227,7 @@ export class AttackComboComponent implements Component {
       this.currentPhase = 'idle';
       this.phaseTimer = 0;
       this.hitboxCreated = false;
+      this.releasedFromCharge = false;
 
       if (walk && anim) {
         const animKey = walk.isMoving() ? `walk_${walk.lastDir}` : `idle_${walk.lastDir}`;
@@ -358,7 +363,7 @@ export class AttackComboComponent implements Component {
   }
 
   isMovementLocked(): boolean {
-    return this.currentPhase === 'super_punching';
+    return this.currentPhase === 'super_punching' || this.releasedFromCharge;
   }
 
   getChargeSpeedMultiplier(): number {

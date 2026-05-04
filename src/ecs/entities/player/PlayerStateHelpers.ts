@@ -9,7 +9,7 @@ export function handlePunchInput(
   attackCombo: AttackComboComponent,
   waterEffect?: WaterEffectComponent
 ): boolean {
-  // Can't punch while swimming or hopping
+  // Can't punch while swimming or jumping into water
   if (waterEffect && (waterEffect.getIsInWater() || waterEffect.isHopping())) {
     return false;
   }
@@ -41,7 +41,7 @@ export function handlePetAbilityInput(
   attackCombo: AttackComboComponent,
   waterEffect?: WaterEffectComponent
 ): boolean {
-  // Can't use pet ability while swimming or hopping
+  // Can't use pet ability while swimming or jumping into water
   if (waterEffect && (waterEffect.getIsInWater() || waterEffect.isHopping())) {
     return false;
   }

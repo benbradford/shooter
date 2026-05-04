@@ -268,21 +268,20 @@ graph TB
 ✅ **Consistent:** Grid system terminology
 ✅ **Consistent:** Build/lint workflow mentioned consistently
 ⚠️ **Minor inconsistency:** Some docs mention old 16-tile path system, now 47 tiles
-⚠️ **Minor inconsistency:** Water system recently added, not fully documented
+⚠️ **Minor inconsistency:** Water system now documented in quick-reference.md
 
 ## Completeness Check Results
 
 ✅ **Complete:** Core architecture well documented
 ✅ **Complete:** Development workflows clear
 ✅ **Complete:** Testing infrastructure documented
-⚠️ **Gap:** Water gameplay mechanics (recently added, minimal docs)
+✅ **Complete:** Water gameplay mechanics documented in quick-reference.md
 ⚠️ **Gap:** New animations (pushing, picking-up, falling-back-death) not documented
 ⚠️ **Gap:** Pagination in texture editor not documented
 
 ## Recommendations
 
 1. Update level-editor.md to reflect 47-tile path system throughout
-2. Add water gameplay section to quick-reference.md
 3. Update attacker-spritesheet.md with new animations
 4. Document texture editor pagination
 

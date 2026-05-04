@@ -52,7 +52,7 @@ Level transitions work automatically via exit triggers. The system:
 - Finds nearest enemy, player faces them
 - Direction normalized to unit length (consistent reach on all input devices)
 - Respects layer boundaries (can't hit different layers unless on stairs)
-- Cancelled if player starts water hop mid-punch; blocked during hop
+- Cancelled if player starts water jump mid-punch; blocked during water jump
 
 **Hold-to-Charge:**
 - Tap: Single punch, can move
@@ -61,7 +61,7 @@ Level transitions work automatically via exit triggers. The system:
 - Charge only enters if button was held continuously (releasing and re-pressing won't trigger charge)
 - During charge: Player can move at 25% speed, facing direction locked, plays `walking_punch` anim if moving
 - Charge bar: Horizontal line (64px) grows from center, yellow→red color, pulses when full
-- Release (< 1s): Normal punch
+- Release (< 1s): Normal punch, movement locked for punch duration, plays `punch` anim
 - Release (≥ 1s + `hasSuperPunch` flag): Super punch — `uppercut` anim at half speed, 3× damage (60), 72×72 hitbox, extravagant particles (35 directional + 12 radial burst), movement fully locked during animation
 
 **Super Punch:**
@@ -359,6 +359,9 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 
 - Water blocks movement unless `canSwim` flag is `"true"` in world state
 - Player swims at 70% speed when canSwim enabled
+- Entry/exit uses JumpComponent (same jump animation as void/platform jumps, single cell, all 8 directions)
+- Entry: jump lands on water cell, plays swim animation immediately (no landing phase)
+- Exit: validates target cell is dry land, falls back to cardinal if diagonal target is water
 - Uses larger collision box (64×64) to prevent sprite overlap
 - Ripples every 150ms, shadow fades to 30% alpha
 - River current applies force, stops near blockers
