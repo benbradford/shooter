@@ -14,6 +14,7 @@ import { AttackComboComponent } from '../ecs/components/combat/AttackComboCompon
 import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
 import { NPCInteractionComponent } from '../ecs/entities/npc/NPCInteractionComponent';
 import { Direction, dirFromDelta } from '../constants/Direction';
+import { Depth } from '../constants/DepthConstants';
 
 const DIRECTION_MAP: Record<string, Direction> = {
   'down': Direction.Down,
@@ -30,7 +31,7 @@ const DIRECTION_TO_STRING: Record<Direction, string> = Object.fromEntries(
   Object.entries(DIRECTION_MAP).map(([k, v]) => [v, k])
 ) as Record<Direction, string>;
 
-type Command = 
+type Command =
   | { type: 'wait'; ms: number }
   | { type: 'say'; name: string; text: string; speed: number; timeout: number; backgroundColor: string; textColor: string }
   | { type: 'moveTo'; col: number; row: number; speed: number }
@@ -44,50 +45,72 @@ type Command =
   | { type: 'teleportTo'; col: number; row: number }
   | { type: 'punch'; direction: Direction }
   | { type: 'playerPlayAnim'; animKey: string; repeatType: string; startFrame?: number; endFrame?: number }
-  | { type: 'raiseEvent'; eventName: string };
+  | { type: 'raiseEvent'; eventName: string }
+  | { type: 'showSpecialItem'; itemType: string }
+  | { type: 'hideSpecialItem' };
+
+const SPECIAL_ITEM_SCALE = 2;
+const SPECIAL_ITEM_Y_PERCENT = 0.18;
+const SPECIAL_ITEM_Y_OFFSET_PX = 100;
+const SPECIAL_ITEM_PULSE_AMPLITUDE = 0.07;
+const SPECIAL_ITEM_PULSE_FREQUENCY_HZ = 1.3;
+const SPECIAL_ITEM_TWEEN_IN_DURATION_MS = 400;
+const SPECIAL_ITEM_TWEEN_OUT_DURATION_MS = 300;
+const SPECIAL_ITEM_SPARKLE_FREQUENCY_MS = 80;
+const SPECIAL_ITEM_SPARKLE_LIFESPAN_MS = 600;
+const SPECIAL_ITEM_SPARKLE_RADIUS_PX = 40;
+const SPECIAL_ITEM_SPARKLE_COUNT = 3;
+
+type SpecialItemDisplay = {
+  sprite: Phaser.GameObjects.Sprite;
+  sparkleTimer: Phaser.Time.TimerEvent;
+  pulseTween: Phaser.Tweens.Tween;
+  sparkles: Phaser.GameObjects.Arc[];
+};
 
 export class LuaRuntime {
   private commandQueue: Command[] = [];
   private speechBackgroundColor: string = 'purple';
   private speechTextColor: string = 'white';
   private fadeRectangle: Phaser.GameObjects.Rectangle | null = null;
-  
+  private specialItemDisplay: SpecialItemDisplay | null = null;
+
   constructor(
     private readonly scene: GameScene,
     private readonly playerEntity: Entity
   ) {}
-  
+
   async executeScript(scriptContent: string, npcId?: string): Promise<void> {
     const factory = new LuaFactory();
     const lua = await factory.createEngine();
-    
+
     try {
       this.commandQueue = [];
       this.speechBackgroundColor = 'purple';
       this.speechTextColor = 'white';
-      
+
       lua.global.set('wait', (ms: number) => {
         this.commandQueue.push({ type: 'wait', ms });
       });
-      
-      lua.global.set('say', (name: string, text: string, speed: number, timeout: number) => {
+
+      lua.global.set('say', (name: string, text: string, speed: number, timeout?: number) => {
         this.commandQueue.push({
           type: 'say',
           name,
           text,
           speed,
-          timeout,
+          timeout: timeout ?? 10000,
           backgroundColor: this.speechBackgroundColor,
           textColor: this.speechTextColor
         });
       });
-      
+
       const playerEntity = this.scene.entityManager.getFirst('player');
       const playerGridPos = playerEntity?.get(GridPositionComponent);
       const playerTransform = playerEntity?.get(TransformComponent);
       const playerWalk = playerEntity?.get(WalkComponent);
       const playerDirection = playerWalk ? DIRECTION_TO_STRING[playerWalk.lastDir] : 'down';
-      
+
       const player = {
         col: playerGridPos?.currentCell.col ?? 0,
         row: playerGridPos?.currentCell.row ?? 0,
@@ -121,13 +144,13 @@ export class LuaRuntime {
         }
       };
       lua.global.set('player', player);
-      
+
       lua.global.set('calculateDirection', (fromX: number, fromY: number, toX: number, toY: number): string => {
         const dx = toX - fromX;
         const dy = toY - fromY;
         return DIRECTION_TO_STRING[dirFromDelta(dx, dy)] ?? 'down';
       });
-      
+
       if (npcId) {
         const npcEntity = this.scene.entityManager.getByType('npc').find(e => e.id === npcId);
         const npcIdleComp = npcEntity?.get(NPCIdleComponent);
@@ -135,10 +158,10 @@ export class LuaRuntime {
         const npcTransform = npcEntity?.get(TransformComponent);
         const currentDirection = npcIdleComp ? DIRECTION_TO_STRING[npcIdleComp.getDirection()] : 'down';
         const activeInteraction = npcInteractionComp?.getActiveInteraction();
-        
+
         let storedNpcDirection: string | null = null;
         let storedPlayerDirection: string | null = null;
-        
+
         const npc = {
           col: activeInteraction?.col ?? 0,
           row: activeInteraction?.row ?? 0,
@@ -158,28 +181,28 @@ export class LuaRuntime {
           }
         };
         lua.global.set('npc', npc);
-        
+
         lua.global.set('faceEachOther', () => {
           // Wait one frame for velocity to fully stop
           this.commandQueue.push({ type: 'wait', ms: 16 });
-          
+
           storedNpcDirection = currentDirection;
           storedPlayerDirection = playerDirection;
-          
+
           const npcToPlayerDir = DIRECTION_TO_STRING[dirFromDelta(
             (playerTransform?.x ?? 0) - (npcTransform?.x ?? 0),
             (playerTransform?.y ?? 0) - (npcTransform?.y ?? 0)
           )] ?? 'down';
-          
+
           const playerToNpcDir = DIRECTION_TO_STRING[dirFromDelta(
             (npcTransform?.x ?? 0) - (playerTransform?.x ?? 0),
             (npcTransform?.y ?? 0) - (playerTransform?.y ?? 0)
           )] ?? 'down';
-          
+
           this.commandQueue.push({ type: 'look', direction: playerToNpcDir });
           this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[npcToPlayerDir]! });
         });
-        
+
         lua.global.set('restoreDirections', () => {
           if (storedPlayerDirection) {
             this.commandQueue.push({ type: 'look', direction: storedPlayerDirection });
@@ -189,15 +212,15 @@ export class LuaRuntime {
           }
         });
       }
-      
+
       const hudScene = this.scene.scene.get('HudScene');
       const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
       const coinCounter = joystickEntity?.get(CoinCounterComponent);
-      
+
       if (!coinCounter) {
         throw new Error('[LuaRuntime] CoinCounterComponent not found in HUD');
       }
-      
+
       const coins = {
         get: () => coinCounter.getCount(),
         spend: (amount: number) => {
@@ -208,7 +231,7 @@ export class LuaRuntime {
         }
       };
       lua.global.set('coins', coins);
-      
+
       const speech = {
         backgroundColor: (color: string) => {
           this.speechBackgroundColor = color;
@@ -218,15 +241,15 @@ export class LuaRuntime {
         }
       };
       lua.global.set('speech', speech);
-      
+
       lua.global.set('fadeOut', (durationMs: number) => {
         this.commandQueue.push({ type: 'fadeOut', durationMs });
       });
-      
+
       lua.global.set('fadeIn', (durationMs: number) => {
         this.commandQueue.push({ type: 'fadeIn', durationMs });
       });
-      
+
       lua.global.set('setFlag', (name: string, value: string | number) => {
         const worldState = WorldStateManager.getInstance();
         worldState.setFlag(name, value);
@@ -256,7 +279,7 @@ export class LuaRuntime {
       lua.global.set('saveState', () => {
         void WorldStateManager.getInstance().saveToFile();
       });
-      
+
       lua.global.set('isFlagCondition', (name: string, condition: string, value: string | number): boolean => {
         const worldState = WorldStateManager.getInstance();
         const validConditions = ['eq', 'neq', 'gt', 'lt', 'gte', 'lte'];
@@ -266,41 +289,85 @@ export class LuaRuntime {
         }
         return worldState.isFlagCondition(name, condition as 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value);
       });
-      
+
+      lua.global.set('showSpecialItem', (itemType: string) => {
+        this.commandQueue.push({ type: 'showSpecialItem', itemType });
+      });
+
+      lua.global.set('hideSpecialItem', () => {
+        this.commandQueue.push({ type: 'hideSpecialItem' });
+      });
+
       await lua.doString(scriptContent);
-      
+
       for (const cmd of this.commandQueue) {
         await this.executeCommand(cmd);
       }
-      
+
+      // Auto-cleanup special item display when interaction ends
+      this.destroySpecialItemDisplay();
+
     } finally {
       lua.global.close();
     }
   }
-  
+
+  private async hideSpecialItemDisplay(): Promise<void> {
+    if (!this.specialItemDisplay) return;
+
+    const { sprite, sparkleTimer, pulseTween, sparkles } = this.specialItemDisplay;
+    sparkleTimer.destroy();
+    pulseTween.stop();
+
+    await new Promise<void>(resolve => {
+      this.scene.tweens.add({
+        targets: sprite,
+        scale: 0,
+        alpha: 0,
+        duration: SPECIAL_ITEM_TWEEN_OUT_DURATION_MS,
+        ease: 'Back.easeIn',
+        onComplete: () => resolve()
+      });
+    });
+
+    sprite.destroy();
+    sparkles.forEach(s => s.destroy());
+    this.specialItemDisplay = null;
+  }
+
+  private destroySpecialItemDisplay(): void {
+    if (!this.specialItemDisplay) return;
+    const { sprite, sparkleTimer, pulseTween, sparkles } = this.specialItemDisplay;
+    sparkleTimer.destroy();
+    pulseTween.stop();
+    sprite.destroy();
+    sparkles.forEach(s => s.destroy());
+    this.specialItemDisplay = null;
+  }
+
   private async executeCommand(cmd: Command): Promise<void> {
     // Tag player for all commands (keeps state machine from interfering)
     this.playerEntity.tags.add('interaction_active');
-    
+
     try {
       if (cmd.type === 'wait') {
         await new Promise(resolve => setTimeout(resolve, cmd.ms));
       } else if (cmd.type === 'say') {
         const speechEntity = new Entity('speech_box');
         speechEntity.tags.add('interaction_active');
-        
+
         speechEntity.add(new TransformComponent(0, 0, 0, 1));
-        
+
         const speechBox = speechEntity.add(new SpeechBoxComponent(
           this.scene,
           cmd.backgroundColor,
           cmd.textColor
         ));
-        
+
         this.scene.entityManager.add(speechEntity);
-        
+
         await speechBox.show(cmd.name, cmd.text, cmd.speed, cmd.timeout);
-        
+
         speechEntity.destroy();
       } else if (cmd.type === 'moveTo') {
         const interactionComp = this.playerEntity.get(InteractionComponent);
@@ -343,7 +410,7 @@ export class LuaRuntime {
           this.fadeRectangle.setDepth(100000);
           this.fadeRectangle.setAlpha(0);
         }
-        
+
         await new Promise<void>(resolve => {
           this.scene.tweens.add({
             targets: this.fadeRectangle,
@@ -426,6 +493,73 @@ export class LuaRuntime {
         }
       } else if (cmd.type === 'raiseEvent') {
         this.scene.eventManager.raiseEvent(cmd.eventName);
+      } else if (cmd.type === 'showSpecialItem') {
+        this.destroySpecialItemDisplay();
+
+        const camera = this.scene.cameras.main;
+        const x = camera.width / 2;
+        const y = camera.height * SPECIAL_ITEM_Y_PERCENT + SPECIAL_ITEM_Y_OFFSET_PX;
+
+        const sprite = this.scene.add.sprite(x, y, cmd.itemType);
+        sprite.setScrollFactor(0);
+        sprite.setDepth(Depth.fade + 1);
+        sprite.setScale(0);
+
+        // Tween in with bounce
+        await new Promise<void>(resolve => {
+          this.scene.tweens.add({
+            targets: sprite,
+            scale: SPECIAL_ITEM_SCALE,
+            duration: SPECIAL_ITEM_TWEEN_IN_DURATION_MS,
+            ease: 'Back.easeOut',
+            onComplete: () => resolve()
+          });
+        });
+
+        // Pulsing tween
+        const pulseTween = this.scene.tweens.add({
+          targets: sprite,
+          scale: { from: SPECIAL_ITEM_SCALE * (1 - SPECIAL_ITEM_PULSE_AMPLITUDE), to: SPECIAL_ITEM_SCALE * (1 + SPECIAL_ITEM_PULSE_AMPLITUDE) },
+          duration: 1000 / SPECIAL_ITEM_PULSE_FREQUENCY_HZ / 2,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut'
+        });
+
+        // Sparkle particles
+        const sparkles: Phaser.GameObjects.Arc[] = [];
+        const sparkleTimer = this.scene.time.addEvent({
+          delay: SPECIAL_ITEM_SPARKLE_FREQUENCY_MS,
+          loop: true,
+          callback: () => {
+            for (let i = 0; i < SPECIAL_ITEM_SPARKLE_COUNT; i++) {
+              const angle = Math.random() * Math.PI * 2;
+              const dist = Math.random() * SPECIAL_ITEM_SPARKLE_RADIUS_PX;
+              const sx = sprite.x + Math.cos(angle) * dist;
+              const sy = sprite.y + Math.sin(angle) * dist;
+              const size = 1 + Math.random() * 2;
+              const sparkle = this.scene.add.circle(sx, sy, size, 0xffffff);
+              sparkle.setScrollFactor(0);
+              sparkle.setDepth(Depth.fade + 2);
+              sparkles.push(sparkle);
+              this.scene.tweens.add({
+                targets: sparkle,
+                alpha: 0,
+                scale: 0,
+                duration: SPECIAL_ITEM_SPARKLE_LIFESPAN_MS,
+                onComplete: () => {
+                  sparkle.destroy();
+                  const idx = sparkles.indexOf(sparkle);
+                  if (idx !== -1) sparkles.splice(idx, 1);
+                }
+              });
+            }
+          }
+        });
+
+        this.specialItemDisplay = { sprite, sparkleTimer, pulseTween, sparkles };
+      } else if (cmd.type === 'hideSpecialItem') {
+        await this.hideSpecialItemDisplay();
       }
     } finally {
       // Remove tag after command completes (before next command starts)

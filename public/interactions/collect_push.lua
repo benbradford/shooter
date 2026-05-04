@@ -1,0 +1,5 @@
+celebrate()
+showSpecialItem("push_strength")
+setFlag("canPush", "true")
+say("","You aquired the <hint>Stone Gauntlet Charm!!!</hint><newline/>With this ability you gain special strength and are now able to push certain objects")
+say("","Try it now on that crate! Maybe we can block that <warning>laser's</warning> path")

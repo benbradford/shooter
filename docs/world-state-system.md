@@ -91,6 +91,7 @@ end
 | `canPunch` | `"true"` | Enables punch ability |
 | `canSwim` | `"true"` | Enables swimming (70% speed in water) |
 | `canJump` | `"true"` | Enables void/platform jump ability |
+| `canPush` | `"true"` | Enables pushing pushable entities |
 | `hasSuperPunch` | `"true"` | Enables super punch on 1s+ charge hold |
 | `hasAutoHeal` | `"true"` | Enables health regeneration |
 | `hasCompanion` | `"true"` | Spawns companion (Narry) |

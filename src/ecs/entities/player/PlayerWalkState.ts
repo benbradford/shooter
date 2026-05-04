@@ -16,6 +16,7 @@ import { InteractionComponent } from '../../components/interaction/InteractionCo
 import { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
 import { Direction } from '../../../constants/Direction';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const CARDINAL_DOMINANCE_RATIO = 3;
 
@@ -105,7 +106,7 @@ export class PlayerWalkState implements IState {
     // Check if player was blocked by a pushable this frame
     const gridCollision = this.entity.require(GridCollisionComponent);
     const blockedEntity = gridCollision.blockedByPushable;
-    if (blockedEntity) {
+    if (blockedEntity && WorldStateManager.getInstance().getFlag('canPush') === 'true') {
       const pushable = blockedEntity.get(PushableComponent);
       if (pushable?.pushEnabled) {
         const pushDir = getCardinalPushDirection(dx, dy);

@@ -10,7 +10,7 @@ export type CreateMedipackProps = {
   playerEntity: Entity;
 }
 
-const MEDIPACK_SCALE = 0.08;
+const MEDIPACK_SCALE = 0.5;
 
 export function createMedipackEntity(props: CreateMedipackProps): Entity {
   const { scene, x, y, playerEntity } = props;
@@ -19,7 +19,7 @@ export function createMedipackEntity(props: CreateMedipackProps): Entity {
   entity.tags.add('medipack');
 
   const transform = entity.add(new TransformComponent(x, y, 0, MEDIPACK_SCALE));
-  entity.add(new SpriteComponent(scene, 'medi_pack', transform));
+  entity.add(new SpriteComponent(scene, 'mushroom', transform));
   entity.add(new MedipackComponent(playerEntity));
 
   entity.setUpdateOrder([

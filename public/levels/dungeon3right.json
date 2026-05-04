@@ -2399,6 +2399,18 @@
       "createOnAnyEvent": [
         "event_trigger0"
       ]
+    },
+    {
+      "id": "interaction1",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "collect_push"
+      },
+      "createOnAnyEvent": [
+        "special_pickup_push_strength"
+      ]
     }
   ],
   "levelTheme": "dungeon",

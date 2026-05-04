@@ -135,6 +135,8 @@ Plus one interaction entity per script:
 - `player.punch(direction)` — Force punch in direction, waits for completion
 - `player.playAnim(name, repeatType, direction, startFrame?, endFrame?)` — Play player animation
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` — Coin management
+- `showSpecialItem(itemType)` — Display special item graphic at top-center of screen (scale 2, pulsing, sparkles). Auto-hides when interaction ends. Item types: `mushroom`, `boots`, `max_health_increase`, `bandage`, `autoheal`, `push_strength`
+- `hideSpecialItem()` — Manually hide the special item display (with tween-out animation)
 - Inline colors: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 

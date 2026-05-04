@@ -15,6 +15,7 @@
   "flags": {
     "canPunch": "true",
     "canSwim": "true",
+    "canPush": "true",
     "pet_rock_collected": "true",
     "pet_selected": "dog",
     "pet_dog_collected": "true",

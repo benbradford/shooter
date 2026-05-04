@@ -112,6 +112,8 @@ Level transitions work automatically via exit triggers. The system:
 - `saveState()` - Save world state to profile file
 - `raiseEvent(eventName)` - Raise a game event (queued — executes in sequence with other commands, triggers createOnAnyEvent entities)
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
+- `showSpecialItem(itemType)` — Display special item graphic at top-center of screen (scale 2, pulsing, sparkles). Auto-hides when interaction ends. Item types: `mushroom`, `boots`, `max_health_increase`, `bandage`, `autoheal`, `push_strength`
+- `hideSpecialItem()` — Manually hide the special item display (with tween-out animation)
 - Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 

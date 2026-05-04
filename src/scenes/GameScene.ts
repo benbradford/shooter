@@ -343,6 +343,16 @@ export default class GameScene extends Phaser.Scene {
           void this.resetScene();
         });
       });
+
+      const maxHealthKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
+      maxHealthKey.on('down', () => {
+        const player = this.entityManager.getFirst('player');
+        const health = player?.get(HealthComponent);
+        if (health) {
+          health.setHealth(health.getMaxHealth());
+          console.log('[DBGAME] Player health set to max');
+        }
+      });
     }
   }
 

@@ -262,6 +262,7 @@ export default class ProfileSelectScene extends Phaser.Scene {
         canPunch: 'true',
         canSwim: 'true',
         canJump: 'true',
+        canPush: 'true',
         pet_rock_collected: 'true',
         pet_selected: 'dog',
         pet_dog_collected: 'true',
