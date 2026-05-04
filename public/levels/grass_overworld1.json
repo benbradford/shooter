@@ -5498,7 +5498,7 @@
       "data": {
         "col": 16,
         "row": 7,
-        "specialItem": "mushroom"
+        "specialItem": "boots"
       }
     },
     {
@@ -5544,6 +5544,15 @@
         "col": 11,
         "row": 7,
         "specialItem": "max_health_increase"
+      }
+    },
+    {
+      "id": "root_chest6",
+      "type": "root_chest",
+      "data": {
+        "col": 15,
+        "row": 7,
+        "specialItem": "push_strength"
       }
     },
     {

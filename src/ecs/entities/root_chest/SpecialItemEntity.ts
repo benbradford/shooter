@@ -5,13 +5,15 @@ import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { Entity as EntityClass } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { PulsingScaleComponent } from '../../components/visual/PulsingScaleComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
 const PICKUP_DISTANCE_PX = 24;
-const SPRITE_SIZE_RATIO = 0.5;
-const PULSE_AMPLITUDE = 0.06;
-const PULSE_FREQUENCY_HZ = 1;
+const SPRITE_SIZE_RATIO = 0.75;
+const PULSE_AMPLITUDE = 0.07;
+const PULSE_FREQUENCY_HZ = 1.3;
 
 class SpecialItemPickupComponent implements Component {
   entity!: Entity;
@@ -19,16 +21,22 @@ class SpecialItemPickupComponent implements Component {
   constructor(
     private readonly playerEntity: Entity,
     private readonly itemType: string,
+    private readonly parentEntityId: string,
     private readonly eventManager: EventManagerSystem
   ) {}
 
   update(): void {
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
-    const distance = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+    const gridPos = this.playerEntity.get(GridPositionComponent);
+    const box = gridPos?.collisionBox;
+    const feetX = playerTransform.x + (box ? box.offsetX + box.width / 2 : 0);
+    const feetY = playerTransform.y + (box ? box.offsetY + box.height / 2 : 0);
+    const distance = Math.hypot(feetX - transform.x, feetY - transform.y);
 
     if (distance < PICKUP_DISTANCE_PX) {
       this.eventManager.raiseEvent(`special_pickup_${this.itemType}`);
+      WorldStateManager.getInstance().setFlag(`${this.parentEntityId}_collected`, 'true');
       this.entity.destroy();
     }
   }
@@ -58,7 +66,7 @@ export function createSpecialItemEntity(props: CreateSpecialItemProps): EntityCl
 
   const transform = entity.add(new TransformComponent(x, y, 0, baseScale));
   const sprite = entity.add(new SpriteComponent(scene, itemType, transform));
-  sprite.sprite.setDepth(Depth.pickup);
+  sprite.sprite.setDepth(Depth.specialItem);
   sprite.sprite.setAlpha(0);
   scene.tweens.add({ targets: sprite.sprite, alpha: 1, duration: 1000 });
 
@@ -68,7 +76,7 @@ export function createSpecialItemEntity(props: CreateSpecialItemProps): EntityCl
     frequency: PULSE_FREQUENCY_HZ,
   }));
 
-  entity.add(new SpecialItemPickupComponent(playerEntity, itemType, eventManager));
+  entity.add(new SpecialItemPickupComponent(playerEntity, itemType, parentEntityId, eventManager));
 
   entity.setUpdateOrder([
     PulsingScaleComponent,

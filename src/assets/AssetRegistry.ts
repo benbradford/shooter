@@ -411,6 +411,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/pickups/autoheal.png',
     type: 'image' as const,
   },
+  push_strength: {
+    key: 'push_strength',
+    path: 'assets/pickups/push_strength.png',
+    type: 'image' as const,
+  },
   vignette: {
     key: 'vignette',
     path: 'assets/generic/vin.png',
@@ -1016,7 +1021,7 @@ export const ASSET_GROUPS = {
   collectibles: ['mist_orb'] as const,
 
   // Root chest
-  root_chest: ['roots_chest', 'mushroom', 'boots', 'max_health_increase', 'bandage', 'autoheal'] as const,
+  root_chest: ['roots_chest', 'mushroom', 'boots', 'max_health_increase', 'bandage', 'autoheal', 'push_strength'] as const,
 
   // Lever
   lever: ['lever', 'lever_dead'] as const,

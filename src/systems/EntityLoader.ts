@@ -34,6 +34,8 @@ import { createHoleEntity } from '../ecs/entities/hole/HoleEntity';
 import { createLaserEntity } from '../ecs/entities/laser/LaserEntity';
 import { createEscortEntity } from '../ecs/entities/escort/EscortEntity';
 import { createRootChestEntity } from '../ecs/entities/root_chest/RootChestEntity';
+import { createOpenedRootChestEntity } from '../ecs/entities/root_chest/OpenedRootChestEntity';
+import { createSpecialItemEntity } from '../ecs/entities/root_chest/SpecialItemEntity';
 import type { EscortState } from '../ecs/components/escort/EscortComponent';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 import type GameScene from '../scenes/GameScene';
@@ -92,6 +94,41 @@ export class EntityLoader {
             });
             exhaustedEntity.levelName = levelData.name;
             this.entityManager.add(exhaustedEntity);
+          }
+        }
+
+        // Spawn opened root chests + uncollected pickups
+        if (liveEntityId.endsWith('_opened')) {
+          const baseId = liveEntityId.replace('_opened', '');
+          const baseEntity = levelData.entities?.find(e => e.id === baseId && e.type === 'root_chest');
+          if (baseEntity) {
+            const chestData = baseEntity.data as { col: number; row: number; specialItem: string };
+            const openedEntity = createOpenedRootChestEntity({
+              scene: this.scene,
+              col: chestData.col,
+              row: chestData.row,
+              grid: this.grid,
+              entityId: liveEntityId,
+            });
+            openedEntity.levelName = levelData.name;
+            this.entityManager.add(openedEntity);
+
+            // Spawn pickup if not yet collected
+            const worldState = WorldStateManager.getInstance();
+            if (worldState.getFlag(`${baseId}_collected`) !== 'true') {
+              const worldPos = this.grid.cellToWorld(chestData.col, chestData.row);
+              const pickup = createSpecialItemEntity({
+                scene: this.scene,
+                x: worldPos.x + this.grid.cellSize / 2,
+                y: worldPos.y + this.grid.cellSize / 2,
+                grid: this.grid,
+                itemType: chestData.specialItem ?? 'mushroom',
+                parentEntityId: baseId,
+                playerEntity: player,
+                eventManager: this.eventManager,
+              });
+              this.entityManager.add(pickup);
+            }
           }
         }
       }

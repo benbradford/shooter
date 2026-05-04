@@ -5,8 +5,11 @@ import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { createSpecialItemEntity } from './SpecialItemEntity';
+import { createOpenedRootChestEntity } from './OpenedRootChestEntity';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const CHEST_HEALTH = 60;
 const HIT_FLASH_DURATION_MS = 300;
@@ -126,6 +129,8 @@ export class RootChestComponent implements Component {
       this.setFrame('chest_empty');
       this.state = 'dead';
       this.eventManager.raiseEvent(`${this.entity.id}_destroyed`);
+      this.spawnOpenedChest();
+      this.entity.destroy();
       return;
     }
   }
@@ -153,6 +158,25 @@ export class RootChestComponent implements Component {
       eventManager: this.eventManager,
     });
     this.entityManager.add(item);
+  }
+
+  private spawnOpenedChest(): void {
+    const gridPos = this.entity.require(GridPositionComponent);
+    const openedId = `${this.entity.id}_opened`;
+    const openedEntity = createOpenedRootChestEntity({
+      scene: this.scene,
+      col: gridPos.currentCell.col,
+      row: gridPos.currentCell.row,
+      grid: this.grid,
+      entityId: openedId,
+    });
+    openedEntity.levelName = this.entity.levelName;
+    this.entityManager.add(openedEntity);
+
+    if (this.entity.levelName) {
+      const worldState = WorldStateManager.getInstance();
+      worldState.addLiveEntity(this.entity.levelName, openedId);
+    }
   }
 
   private ensureFrames(): void {

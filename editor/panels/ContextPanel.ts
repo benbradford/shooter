@@ -658,7 +658,7 @@ export class ContextPanel {
     if (entityDef.type === 'root_chest') {
       const rcData = data as { specialItem?: string };
       typeFields += `<div class="form-group"><label>Special Item</label>
-        <select id="ef-rc-item">${['mushroom', 'boots', 'max_health_increase', 'bandage', 'autoheal'].map(i => `<option ${rcData.specialItem === i ? 'selected' : ''}>${i}</option>`).join('')}</select></div>`;
+        <select id="ef-rc-item">${['mushroom', 'boots', 'max_health_increase', 'bandage', 'autoheal', 'push_strength'].map(i => `<option ${rcData.specialItem === i ? 'selected' : ''}>${i}</option>`).join('')}</select></div>`;
     }
     if (entityDef.type === 'escort') {
       const eData = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; awakeOnEvent?: string; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number; scale?: number; shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number };

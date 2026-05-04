@@ -27,6 +27,7 @@ export const Depth = {
   cellTextureModified: -8,
 
   // Entities
+  specialItem: -1,
   pet: -1,
   player: 0,
   enemy: 0,

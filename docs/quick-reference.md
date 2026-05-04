@@ -303,7 +303,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 ## Cheat Profile
 
 The profile select screen has a 4th "Cheat" slot that starts with all abilities unlocked:
-- `canPunch`, `canSwim`, `hasSuperPunch`, `hasCompanion`, `canJump` = `"true"`
+- `canPunch`, `canSwim`, `hasSuperPunch`, `hasCompanion`, `canJump`, `hasAutoHeal` = `"true"`
 - `pet_rock_collected`, `pet_dog_collected` = `"true"`, `pet_selected` = `"dog"`
 - Starts in `house3_interior`
 
@@ -340,6 +340,8 @@ Use `canPlayerHitEnemy()` for player attacks across layers:
 ## Health Regeneration
 
 Player only: After 3 seconds without damage, regens at 20 HP/sec. Regen timer accumulates at 0.3× speed while moving, 1× while still.
+
+**Requires:** WorldState flag `hasAutoHeal` = `"true"`
 
 ## Hit Flash Effect
 

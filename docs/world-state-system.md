@@ -92,6 +92,7 @@ end
 | `canSwim` | `"true"` | Enables swimming (70% speed in water) |
 | `canJump` | `"true"` | Enables void/platform jump ability |
 | `hasSuperPunch` | `"true"` | Enables super punch on 1s+ charge hold |
+| `hasAutoHeal` | `"true"` | Enables health regeneration |
 | `hasCompanion` | `"true"` | Spawns companion (Narry) |
 | `pet_rock_collected` | `"true"` | Rock pet available |
 | `pet_dog_collected` | `"true"` | Dog pet available |
