@@ -169,7 +169,7 @@ export class ContextPanel {
     });
 
     this.container.querySelector('#st-reset-flags')?.addEventListener('click', () => {
-      const resetFlags: Record<string, string> = { canPunch: 'true', canSwim: 'true', canJump: 'true', hasSuperPunch: 'true', hasCompanion: 'false', pet_rock_collected: 'true', pet_dog_collected: 'true', pet_selected: 'rock' };
+      const resetFlags: Record<string, string> = { canPunch: 'true', canSwim: 'true', canJump: 'true', hasSuperPunch: 'true', hasAutoHeal: 'true', hasCompanion: 'false', pet_rock_collected: 'true', pet_dog_collected: 'true', pet_selected: 'rock' };
       const flagsDiv = this.container.querySelector('#st-flags')!;
       flagsDiv.innerHTML = '';
       for (const [key, val] of Object.entries(resetFlags)) {
@@ -658,7 +658,7 @@ export class ContextPanel {
     if (entityDef.type === 'root_chest') {
       const rcData = data as { specialItem?: string };
       typeFields += `<div class="form-group"><label>Special Item</label>
-        <select id="ef-rc-item">${['mushroom', 'boots'].map(i => `<option ${rcData.specialItem === i ? 'selected' : ''}>${i}</option>`).join('')}</select></div>`;
+        <select id="ef-rc-item">${['mushroom', 'boots', 'max_health_increase', 'bandage', 'autoheal'].map(i => `<option ${rcData.specialItem === i ? 'selected' : ''}>${i}</option>`).join('')}</select></div>`;
     }
     if (entityDef.type === 'escort') {
       const eData = data as { escortType?: string; destinationLevel?: string; destinationCol?: number; destinationRow?: number; awakeOnEvent?: string; reachDistance?: number; followSpeed?: number; followToLevels?: string[]; enemyDetectDistancePx?: number; scale?: number; shadowScale?: number; shadowOffsetX?: number; shadowOffsetY?: number };

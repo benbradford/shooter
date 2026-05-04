@@ -15,8 +15,7 @@ export type RockArcProps = {
   blockedAreaManager?: BlockedAreaManager;
   startLayer: number;
   startedOnStairs: boolean;
-  startX: number;
-  startY: number;
+  playerFeetY: number;
   onLand: (x: number, y: number, landOffsetY: number) => void;
 };
 
@@ -37,6 +36,7 @@ export class RockArcComponent implements Component {
   private passedThroughStairs = false;
   private readonly skipDistance: number;
   private maxDropPx = 25;
+  private readonly playerFeetY: number;
 
   constructor(props: RockArcProps) {
     this.dirX = props.dirX;
@@ -49,24 +49,16 @@ export class RockArcComponent implements Component {
     this.startLayer = props.startLayer;
     this.onLand = props.onLand;
     this.passedThroughStairs = props.startedOnStairs;
+    this.playerFeetY = props.playerFeetY;
 
-    // Default 40px skip. If throwing non-upward and starting inside a higher-layer cell, extend to clear it
     const SKIP_DEFAULT_PX = 40;
-    const SKIP_EXTENDED_PX = 80;
-    if (props.dirY >= 0) {
-      const startCell = this.grid.worldToCell(props.startX, props.startY);
-      const startCellData = this.grid.getCell(startCell.col, startCell.row);
-      const startCellLayer = startCellData?.layer ?? 0;
-      this.skipDistance = startCellLayer > this.startLayer ? SKIP_EXTENDED_PX : SKIP_DEFAULT_PX;
-    } else {
-      this.skipDistance = SKIP_DEFAULT_PX;
-    }
+    this.skipDistance = SKIP_DEFAULT_PX;
   }
 
-  private computeMaxDrop(transform: TransformComponent): void {
+  private computeMaxDrop(groundY: number, transform: TransformComponent): void {
     const LAND_DROP_PX = 25;
-    const currentCell = this.grid.worldToCell(transform.x, transform.y);
-    const cellBelow = this.grid.worldToCell(transform.x, transform.y + LAND_DROP_PX);
+    const currentCell = this.grid.worldToCell(transform.x, groundY);
+    const cellBelow = this.grid.worldToCell(transform.x, groundY + LAND_DROP_PX);
     if (cellBelow.row !== currentCell.row) {
       const cellBelowData = this.grid.getCell(cellBelow.col, cellBelow.row);
       const cellBelowLayer = cellBelowData?.layer ?? 0;
@@ -77,7 +69,7 @@ export class RockArcComponent implements Component {
       );
       if (wouldEnterBlocker) {
         const cellTopY = cellBelow.row * this.grid.cellSize;
-        this.maxDropPx = Math.max(0, cellTopY - transform.y - 2);
+        this.maxDropPx = Math.max(0, cellTopY - groundY - 2);
       }
     }
   }
@@ -93,18 +85,23 @@ export class RockArcComponent implements Component {
       const nextX = transform.x + this.dirX * movePx;
       const nextY = transform.y + this.dirY * movePx;
 
+      // Ground-projected Y: starts at player's feet and moves with throw direction.
+      // This prevents false blocking when the rock's hand-offset position is inside
+      // a wall cell above the player, while still correctly blocking on platforms
+      // the rock is genuinely moving toward.
+      const groundY = this.playerFeetY + this.dirY * (this.distanceTraveled + movePx);
+
       // Skip wall checks initially to escape player's cell
-      // If rock starts inside a higher-layer cell (hand offset into wall above), extend skip
       const shouldCheckWalls = this.distanceTraveled > this.skipDistance;
 
       if (shouldCheckWalls) {
-        if (this.blockedAreaManager?.isPointInside(nextX, nextY, 0)) {
+        if (this.blockedAreaManager?.isPointInside(nextX, groundY, 0)) {
           this.isStopped = true;
-          this.computeMaxDrop(transform);
+          this.computeMaxDrop(groundY, transform);
         }
 
         if (!this.isStopped && !this.passedThroughStairs) {
-          const cell = this.grid.worldToCell(nextX, nextY);
+          const cell = this.grid.worldToCell(nextX, groundY);
           const cellData = this.grid.getCell(cell.col, cell.row);
           if (cellData && this.grid.isTransition(cellData)) {
             this.passedThroughStairs = true;
@@ -117,7 +114,7 @@ export class RockArcComponent implements Component {
             );
             if (isBlocked) {
               this.isStopped = true;
-              this.computeMaxDrop(transform);
+              this.computeMaxDrop(groundY, transform);
             }
           }
         }

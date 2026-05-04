@@ -344,6 +344,9 @@ export class RockThrowAbility implements Component {
     }
 
     // Create projectile
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const PLAYER_FEET_OFFSET_Y_PX = 30;
+    const playerFeetY = playerTransform.y + PLAYER_FEET_OFFSET_Y_PX;
     const projectile = createRockProjectileEntity({
       scene: this.scene,
       x: rockTransform.x,
@@ -358,6 +361,7 @@ export class RockThrowAbility implements Component {
       blockedAreaManager: (this.scene as unknown as { blockedAreaManager?: import('../../../systems/BlockedAreaManager').BlockedAreaManager }).blockedAreaManager,
       startLayer,
       startedOnStairs,
+      playerFeetY,
       onLand: (x: number, y: number, landOffsetY: number) => {
         if (this.entity.isDestroyed) return;
         this.onProjectileLand(x, y, landOffsetY);

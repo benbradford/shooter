@@ -5502,6 +5502,51 @@
       }
     },
     {
+      "id": "root_chest1",
+      "type": "root_chest",
+      "data": {
+        "col": 14,
+        "row": 7,
+        "specialItem": "mushroom"
+      }
+    },
+    {
+      "id": "root_chest2",
+      "type": "root_chest",
+      "data": {
+        "col": 14,
+        "row": 7,
+        "specialItem": "mushroom"
+      }
+    },
+    {
+      "id": "root_chest3",
+      "type": "root_chest",
+      "data": {
+        "col": 13,
+        "row": 7,
+        "specialItem": "autoheal"
+      }
+    },
+    {
+      "id": "root_chest4",
+      "type": "root_chest",
+      "data": {
+        "col": 12,
+        "row": 7,
+        "specialItem": "bandage"
+      }
+    },
+    {
+      "id": "root_chest5",
+      "type": "root_chest",
+      "data": {
+        "col": 11,
+        "row": 7,
+        "specialItem": "max_health_increase"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
