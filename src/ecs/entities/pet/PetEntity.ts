@@ -17,6 +17,7 @@ import type { PetConfig, PetSpritesheetMetadata } from './PetConfig';
 import { createPetAnimationMap } from './PetAnimations';
 
 const PET_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 8, width: 24, height: 14 };
+const PET_SPAWN_OFFSET_Y_PX = -10;
 
 export type CreatePetEntityProps = {
   scene: Phaser.Scene;
@@ -30,10 +31,11 @@ export type CreatePetEntityProps = {
 
 export function createPetEntity(props: CreatePetEntityProps): Entity {
   const { scene, grid, playerEntity, config, metadata, startX, startY } = props;
+  const spawnY = startY + PET_SPAWN_OFFSET_Y_PX;
 
   const entity = new Entity(`pet_${config.id}`);
 
-  const transform = new TransformComponent(startX, startY);
+  const transform = new TransformComponent(startX, spawnY);
   transform.scale = config.scale;
   entity.add(transform);
 
@@ -52,7 +54,7 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   }
   entity.add(followComp);
 
-  const startCell = grid.worldToCell(startX, startY);
+  const startCell = grid.worldToCell(startX, spawnY);
   entity.add(new GridPositionComponent(startCell.col, startCell.row, PET_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
 

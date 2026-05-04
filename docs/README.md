@@ -165,7 +165,12 @@ When asked to "update the docs":
    - HUD positioning
    - Android compatibility
 
-11. **[Pet System](./pets-quick-ref.md)** - Companion pets
+11. **[HUD System](./hud-system.md)** - HUD components and input
+   - Joystick, attack button, slide button, health bar
+   - Button alpha states and touch handling
+   - Adding new HUD elements
+
+12. **[Pet System](./pets-quick-ref.md)** - Companion pets
    - Enabling pets via WorldState
    - Pet following behavior
    - Dog bark ability and fear system
@@ -174,12 +179,17 @@ When asked to "update the docs":
 
 ## Testing
 
-12. **[Testing](./testing.md)** - Automated browser testing
+13. **[Testing](./testing.md)** - Automated browser testing
    - Running tests with Puppeteer
    - RemoteInputComponent for test control
    - Writing new tests
    - Test principles (don't confound tests)
    - Getting feedback from game state
+
+14. **[Debugging Guide](./debugging-guide.md)** - Systematic debugging workflow
+   - Instrumentation, round-trip testing, warning handling
+   - Console log capture in tests
+   - Debug utilities and memory monitoring
 
 ## Level Design
 
@@ -190,12 +200,30 @@ When asked to "update the docs":
    - State machine architecture
    - Common issues and solutions
 
-11. **[Entity Creation System](./entity-creation-system.md)** - Unified entity system
+14. **[Entity Creation System](./entity-creation-system.md)** - Unified entity system
    - Entity IDs and types
    - Event-driven spawning
    - EventChainers for sequential spawning
    - Triggers and exits
    - Editor integration
+
+15. **[Level Themes](./level-themes.md)** - Visual theming system
+   - Theme renderers (dungeon, swamp, grass, wilds, tunnels)
+   - Background textures, overlays, spritesheets
+   - Adding new themes
+
+16. **[Level Loading](./level-loading.md)** - Dynamic asset management
+   - Asset registry and groups
+   - Level-specific loading and unloading
+   - Scene cleanup
+
+17. **[Level Transitions](./level-transitions.md)** - Moving between levels
+   - Exit triggers and bidirectional travel
+   - WorldState persistence across transitions
+
+18. **[Animated Cell Textures](./animated-cell-textures.md)** - Animated sprites on cells
+   - Spritesheet setup and registration
+   - Transform overrides
 
 ## Adding Content
 
@@ -309,8 +337,11 @@ npm run dev                  # Start dev server
 
 **Statuses:** Open, Done, Deferred, Won't Fix
 
+**⚠️ CRITICAL: When you fix an architecture issue, IMMEDIATELY update its status to `'done'` and update the `detail` field with what was done. Do not wait until later — this is part of completing the fix.**
+
 **Workflow:**
-- When fixing a tech debt issue → update the `ISSUES` array in `trackers/architecture-issues.html`: set `status: 'done'`
+- When fixing a tech debt issue → update the `ISSUES` array in `trackers/architecture-issues.html`: set `status: 'done'`, update `detail` with summary of changes
+- When fixing a bug → update its status to `'fixed'` in `trackers/bug-tracker.html`
 - When running `db-architect` review → cross off completed issues, add new ones, update `Last audit` date
 - Issues can be marked `'deferred'` (acknowledged, postponed) or `'wontfix'` (deliberately accepted, add `resolution` field)
 

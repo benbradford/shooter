@@ -81,7 +81,7 @@ The `transformOverride` field is optional:
 }
 ```
 
-If not specified, falls back to `ANIMATED_TEXTURE_TRANSFORM_OVERRIDES` constant in `GameSceneRenderer.ts`.
+If not specified, the sprite defaults to fitting the cell size.
 
 ## Example: Sconce with Flame
 

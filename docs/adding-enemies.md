@@ -26,11 +26,11 @@ Use both pathfinding distance (cells) and pixel distance with hysteresis:
 
 ## Editor Integration
 
-1. Create editor state with `hitTestPointer()` check before grid clicks
-2. Add button to DefaultEditorState
-3. Add state to editor tool system
-4. Modify GameScene's level data directly via `getLevelData()`
-5. Preserve changes in `EditorBridge.getCurrentLevelData()`
+1. Add entity type to `ENTITY_TYPES` in `editor/panels/Toolbar.ts`
+2. Add default data in `EditorBridge.addEntity()`
+3. Add label in `CanvasInteraction.ts` labelMap
+4. Add extraction logic in `EditorBridge.extractEntities()`
+5. Add form fields in `editor/panels/ContextPanel.ts`
 
 ## Common Pitfalls
 
@@ -46,8 +46,8 @@ Use both pathfinding distance (cells) and pixel distance with hysteresis:
 ### ❌ Level Data Not Persisting
 **Solution:** Modify GameScene's level data directly via `getLevelData()`.
 
-### ❌ Editor Button Clicks Trigger Grid Selection
-**Solution:** Check `hitTestPointer()` with depth check before processing grid clicks.
+### ❌ Entity Vanishes on Save
+**Solution:** Add extraction logic in `EditorBridge.extractEntities()` — most commonly forgotten step.
 
 ## Testing Checklist
 
