@@ -106,9 +106,9 @@
 const ISSUES = [
   // ── CRITICAL ──
   {
-    id: 1, severity: 'critical', status: 'open',
+    id: 1, severity: 'critical', status: 'done',
     title: 'Grid.worldToCell() allocates objects in hot path',
-    detail: 'Returns { col, row } on every call. GridCollisionComponent calls it ~10× per entity per frame → ~190+ allocations/frame. Add worldToCellInto(x, y, out) zero-alloc variant.',
+    detail: 'Returns { col, row } on every call. GridCollisionComponent calls it ~10× per entity per frame → ~190+ allocations/frame. Added worldToCellInto(x, y, out) zero-alloc variant. Updated GridCollisionComponent with 6 pre-allocated CellCoord objects.',
     files: ['src/systems/grid/Grid.ts'],
     effort: '2h', risk: 'Low', fanIn: 84, category: 'performance',
     added: '2026-05-04',

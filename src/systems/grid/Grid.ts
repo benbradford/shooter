@@ -12,6 +12,8 @@ import { Depth } from '../../constants/DepthConstants';
 import type { BlockedAreaManager } from '../BlockedAreaManager';
 export type { CellProperty, CellData } from './CellData';
 
+export type CellCoord = { col: number; row: number };
+
 export type GridReader = {
   readonly cellSize: number;
   readonly width: number;
@@ -20,6 +22,7 @@ export type GridReader = {
   readonly cols: number;
   readonly cells: ReadonlyArray<ReadonlyArray<CellData>>;
   worldToCell(x: number, y: number): { col: number; row: number };
+  worldToCellInto(x: number, y: number, out: CellCoord): CellCoord;
   cellToWorld(col: number, row: number): { x: number; y: number };
   getCell(col: number, row: number): CellData | null;
   getLayer(cell: CellData): number;
@@ -158,6 +161,16 @@ export class Grid implements GridReader {
     const col = Math.floor(x / this.cellSize);
     const row = Math.floor(y / this.cellSize);
     return { col, row };
+  }
+
+  /**
+   * Zero-allocation variant — writes result into `out` and returns it.
+   * Use in hot paths (update loops) to avoid per-frame object creation.
+   */
+  worldToCellInto(x: number, y: number, out: CellCoord): CellCoord {
+    out.col = Math.floor(x / this.cellSize);
+    out.row = Math.floor(y / this.cellSize);
+    return out;
   }
 
   /**

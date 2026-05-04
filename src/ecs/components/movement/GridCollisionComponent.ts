@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { Grid } from '../../../systems/grid/Grid';
+import type { Grid, CellCoord } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
@@ -22,6 +22,14 @@ export class GridCollisionComponent implements Component {
   private readonly allowedLayersSet: Set<number> = new Set();
   enabled = true;
   blockedByPushable: Entity | null = null;
+
+  // Pre-allocated temp objects for zero-alloc worldToCell calls in hot paths
+  private readonly _tmpCell0: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpCell1: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpCell2: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpCell3: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpCell4: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpCell5: CellCoord = { col: 0, row: 0 };
 
   constructor(private readonly grid: Grid) {}
 
@@ -170,17 +178,17 @@ export class GridCollisionComponent implements Component {
     const prevBoxBottom = prevBoxTop + gridPos.collisionBox.height;
 
     // Get all cells the collision box overlaps at new position
-    const topLeftCell = this.grid.worldToCell(boxLeft, boxTop);
-    const bottomRightCell = this.grid.worldToCell(boxRight - 1, boxBottom - 1);
+    const topLeftCell = this.grid.worldToCellInto(boxLeft, boxTop, this._tmpCell0);
+    const bottomRightCell = this.grid.worldToCellInto(boxRight - 1, boxBottom - 1, this._tmpCell1);
 
     // Get all cells the collision box overlapped at previous position
-    const prevTopLeftCell = this.grid.worldToCell(prevBoxLeft, prevBoxTop);
-    const prevBottomRightCell = this.grid.worldToCell(prevBoxRight - 1, prevBoxBottom - 1);
+    const prevTopLeftCell = this.grid.worldToCellInto(prevBoxLeft, prevBoxTop, this._tmpCell2);
+    const prevBottomRightCell = this.grid.worldToCellInto(prevBoxRight - 1, prevBoxBottom - 1, this._tmpCell3);
 
     // Get the layer of the center of the collision box from previous position
     const prevCenterX = this.previousX + gridPos.collisionBox.offsetX;
     const prevCenterY = this.previousY + gridPos.collisionBox.offsetY;
-    const prevCenterCell = this.grid.worldToCell(prevCenterX, prevCenterY);
+    const prevCenterCell = this.grid.worldToCellInto(prevCenterX, prevCenterY, this._tmpCell4);
     const prevCenterCellData = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
 
     // Check if ANY previously occupied cell was a transition
@@ -239,7 +247,7 @@ export class GridCollisionComponent implements Component {
 
         // If entering a new cell, check if movement is allowed
         if (!wasOccupied) {
-          const fromCell = this.grid.worldToCell(prevCenterX, prevCenterY);
+          const fromCell = this.grid.worldToCellInto(prevCenterX, prevCenterY, this._tmpCell5);
 
           if (!this.canMoveTo(fromCell.col, fromCell.row, col, row, gridPos.currentLayer)) {
             return true; // blocked
@@ -336,7 +344,7 @@ export class GridCollisionComponent implements Component {
       } else {
         probeY = dy > 0 ? boxBottom + 1 : boxTop - 1;
       }
-      const probeCell = this.grid.worldToCell(probeX, probeY);
+      const probeCell = this.grid.worldToCellInto(probeX, probeY, this._tmpCell0);
       const probeCellData = this.grid.getCell(probeCell.col, probeCell.row);
       if (probeCellData) {
         for (const occupant of probeCellData.occupants) {
@@ -353,8 +361,8 @@ export class GridCollisionComponent implements Component {
     const boxRight = boxLeft + gridPos.collisionBox.width;
     const boxBottom = boxTop + gridPos.collisionBox.height;
 
-    const topLeftCell = this.grid.worldToCell(boxLeft, boxTop);
-    const bottomRightCell = this.grid.worldToCell(boxRight - 1, boxBottom - 1);
+    const topLeftCell = this.grid.worldToCellInto(boxLeft, boxTop, this._tmpCell1);
+    const bottomRightCell = this.grid.worldToCellInto(boxRight - 1, boxBottom - 1, this._tmpCell2);
 
     const newOccupiedCells = this.swapOccupiedCells;
     newOccupiedCells.clear();
@@ -384,12 +392,13 @@ export class GridCollisionComponent implements Component {
 
     gridPos.previousCell.col = gridPos.currentCell.col;
     gridPos.previousCell.row = gridPos.currentCell.row;
-    gridPos.currentCell = topLeftCell;
+    gridPos.currentCell.col = topLeftCell.col;
+    gridPos.currentCell.row = topLeftCell.row;
 
     // Update layer based on center of collision box
     const centerX = transform.x + gridPos.collisionBox.offsetX;
     const centerY = transform.y + gridPos.collisionBox.offsetY;
-    const centerCell = this.grid.worldToCell(centerX, centerY);
+    const centerCell = this.grid.worldToCellInto(centerX, centerY, this._tmpCell3);
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
 
     if (centerCellData) {

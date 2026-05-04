@@ -79,7 +79,9 @@
 // ── STATUS: open | investigating | fixed | wontfix ──
 // ── SEVERITY: critical | high | medium | low ──
 const BUGS = [
-  // { id: 1, severity: 'high', status: 'open', title: 'Example bug', detail: 'Steps to reproduce. Expected vs actual behavior.', area: 'combat', added: '2026-05-04' },
+  { id: 1, severity: 'medium', status: 'open', title: 'Push icon appears without canPush flag', detail: 'Walking into a pushable entity shows the push icon on the HUD attack button even when canPush WorldState flag is not set to "true". The player correctly cannot enter push state, but the icon override still triggers visually.', area: 'pushable', added: '2026-05-04' },
+  { id: 2, severity: 'high', status: 'open', title: 'Pet stuck at level start in dungeon3right', detail: 'On entering dungeon3right, the pet (rock or dog) is stuck at a fixed position and does not follow the player. Rock pet: after throwing, the rock teleports back to the level start position and stays stuck. If the player moves upward and throws, the rock reappears on the left side of the map on a platform at the same row as the player — suggests pathfinding or layer issue causing the pet to anchor to wrong coordinates.', area: 'pet', added: '2026-05-04' },
+  { id: 3, severity: 'medium', status: 'open', title: 'Special item pickup distance inconsistent by approach direction', detail: 'When approaching a special item (from root chest) from the south moving north, the player has to get very close to pick it up. Approaching from the north or sides triggers pickup much earlier. Likely the distance calculation is using the player sprite center or transform position rather than feet position, causing asymmetry due to the top-down perspective offset.', area: 'pickup', added: '2026-05-04' },
 ];
 
 function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }
