@@ -56,13 +56,16 @@ This checks:
 10. **Don't automatically change** - present findings and wait for approval
 
 When asked to "update the docs":
-1. Update existing sections to reflect code changes
-2. Remove obsolete information about deleted features
-3. Add new information for new features
-4. Keep docs accurate and minimal
-5. Update multiple doc files as needed
-6. **Update `.agents/summary` to keep it in sync with doc changes**
-7. **Ask clarifying questions if there's conflicting information or unclear behavior**
+1. **Run `node scripts/extract-sessions.mjs --dry-run`** to see what's been worked on since last update
+2. Update existing sections to reflect code changes
+3. Remove obsolete information about deleted features
+4. Add new information for new features
+5. Keep docs accurate and minimal
+6. Update multiple doc files as needed
+7. **Update `.agents/summary` to keep it in sync with doc changes**
+8. **Ask clarifying questions if there's conflicting information or unclear behavior**
+9. **Audit** — Run the audit script, fact-check file paths/symbols/code references, review files >300 lines, remove stale info
+10. **Run `node scripts/extract-sessions.mjs`** (without --dry-run) to write the timestamp
 
 ## 🎯 Designing New Features
 

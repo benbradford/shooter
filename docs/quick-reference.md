@@ -362,7 +362,9 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Entry/exit uses JumpComponent (same jump animation as void/platform jumps, single cell, all 8 directions)
 - Entry: jump lands on water cell, plays swim animation immediately (no landing phase)
 - Exit: validates target cell is dry land, falls back to cardinal if diagonal target is water
+- Exit jump always lands at cell center (prevents collision box offset shift from pushing `currentCell` into adjacent water)
 - Pushes a centered swimming collision box (`offsetX: 0, offsetY: 0, width: 48, height: 32`) on water entry, pops on exit (uses `GridPositionComponent.pushCollisionBox/popCollisionBox` stack)
+- **Collision box offset pitfall:** Swimming box has `offsetY: 0`, normal box has `offsetY: 24`. On exit, the 24px shift can push `currentCell` into the row below if the player isn't centered. The cell-center landing fix addresses this.
 - Ripples every 150ms, shadow fades to 30% alpha
 - River current applies force, stops near blockers
 - Water + blocked = impassable obstacles

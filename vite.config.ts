@@ -273,6 +273,28 @@ IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow th
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
+      // Update Docs — invoke kiro-cli to update and audit docs
+      server.middlewares.use('/api/tracker/update-docs', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const cwd = process.cwd();
+          const message = 'update the docs';
+          const tmpFile = path.resolve('tmp', `update-docs-${Date.now()}.txt`);
+          fs.mkdirSync(path.resolve('tmp'), { recursive: true });
+          fs.writeFileSync(tmpFile, message, 'utf-8');
+
+          console.log('📝 Launching kiro agent to update docs...');
+          const script = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
+            stdio: 'ignore',
+            detached: true,
+          }).unref();
+
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, message: 'kiro agent launched to update docs' }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
       // Fix button — invoke kiro-cli in a new terminal
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }

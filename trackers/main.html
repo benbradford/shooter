@@ -30,6 +30,10 @@
   .card-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
   .card-count { margin-top: 16px; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
   .card-count span { font-size: 1.4rem; font-weight: bold; display: block; margin-top: 2px; }
+  .actions { margin-top: 48px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .action-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-decoration: none; }
+  .action-btn:hover { border-color: var(--accent-green); transform: translateY(-2px); }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface2); border: 1px solid var(--accent-green); border-radius: 8px; padding: 12px 24px; color: var(--accent-green); font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
 </style>
 </head>
 <body>
@@ -56,6 +60,28 @@
     <div class="card-desc">Known bugs, reproduction steps, and fix status.</div>
   </a>
 </div>
+
+<div class="actions">
+  <button class="action-btn" onclick="updateDocs()" title="Launches a kiro agent to analyze recent sessions, update docs, and run an audit">📝 Update Docs</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+async function updateDocs() {
+  try {
+    const res = await fetch('/api/tracker/update-docs', { method: 'POST' });
+    const data = await res.json();
+    showToast(data.message || 'Launched!');
+  } catch (e) { showToast('Failed: ' + e.message); }
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 3000);
+}
+</script>
 
 </body>
 </html>
