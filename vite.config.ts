@@ -211,6 +211,43 @@ function saveLevelPlugin(): Plugin {
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
+      // Refresh issues — invoke db-architect agent to scan codebase and update tracker
+      server.middlewares.use('/api/tracker/refresh', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { issues: string };
+          const cwd = process.cwd();
+
+          const message = `Run a full architecture review of the codebase. Use node scripts/arch-scan.mjs --top=20 to get metrics, then analyze the results.
+
+Here are the currently tracked open issues in trackers/architecture-issues.html:
+
+${body.issues}
+
+Your task:
+1. Verify which of the above issues have been FIXED (check the actual code). For any fixed issues, call the /api/tracker/update endpoint or directly update the ISSUES array in trackers/architecture-issues.html to set status to 'done' and update the detail field with what was done.
+2. For issues that are still open, update their detail field if you have new information (e.g. the LOC count changed, the problem got worse or better).
+3. Add any NEW architecture issues you discover that are not already tracked. Add them directly to the ISSUES array in trackers/architecture-issues.html following the existing format.
+4. Update the "Last audit" date at the bottom of the file to today's date.
+
+IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow the existing ISSUES array format exactly.`;
+
+          const tmpFile = path.resolve('tmp', `refresh-${Date.now()}.txt`);
+          fs.mkdirSync(path.resolve('tmp'), { recursive: true });
+          fs.writeFileSync(tmpFile, message, 'utf-8');
+
+          console.log('🔄 Launching db-architect agent to refresh issues...');
+          const script = `cd '${cwd}' && kiro-cli chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
+            stdio: 'ignore',
+            detached: true,
+          }).unref();
+
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, message: 'db-architect agent launched to refresh issues' }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
       // Fix button — invoke kiro-cli in a new terminal
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }

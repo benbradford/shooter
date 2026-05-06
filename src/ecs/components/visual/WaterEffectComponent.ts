@@ -76,9 +76,10 @@ export class WaterEffectComponent implements Component {
         const moveY = walk.lastMoveY;
 
         if (moveX !== 0 || moveY !== 0) {
-          // Check cell in movement direction
-          const checkCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
-          const checkRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
+          // Check cell in movement direction (use quantized direction to match exit cell logic)
+          const exitDir = this.getJoystickDirection(walk);
+          const checkCol = gridPos.currentCell.col + exitDir.dx;
+          const checkRow = gridPos.currentCell.row + exitDir.dy;
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextCellDry = !nextCell?.properties.has('water');
           const isNextCellBridge = nextCell?.properties.has('bridge') ?? false;
@@ -91,13 +92,13 @@ export class WaterEffectComponent implements Component {
             const halfCell = grid.cellSize / 2;
 
             let distToEdge = Infinity;
-            if (moveX < 0) {
+            if (exitDir.dx < 0) {
               distToEdge = transform.x - (cellCenterX - halfCell);
-            } else if (moveX > 0) {
+            } else if (exitDir.dx > 0) {
               distToEdge = (cellCenterX + halfCell) - transform.x;
-            } else if (moveY < 0) {
+            } else if (exitDir.dy < 0) {
               distToEdge = transform.y - (cellCenterY - halfCell);
-            } else if (moveY > 0) {
+            } else if (exitDir.dy > 0) {
               distToEdge = (cellCenterY + halfCell) - transform.y;
             }
 
@@ -154,8 +155,40 @@ export class WaterEffectComponent implements Component {
       sprite.sprite.setDepth(Depth.player);
     }
 
+    // Block water exit if no valid dry landing cell exists or player is too close to water
+    if (!nowInWater && this.isInWater) {
+      if (isCurrentCellWater) {
+        const dir = this.getJoystickDirection(walk);
+        const exitCell = this.findValidExitCell(gridPos.currentCell.col, gridPos.currentCell.row, dir, grid);
+        if (!exitCell) {
+          nowInWater = true;
+        }
+      } else {
+        // Player's currentCell is dry — only allow exit if not near an adjacent water cell
+        const col = gridPos.currentCell.col;
+        const row = gridPos.currentCell.row;
+        const cellWorld = grid.cellToWorld(col, row);
+        const halfCell = grid.cellSize / 2;
+        const MIN_DIST_FROM_WATER_PX = 16;
+        const px = transform.x - (cellWorld.x + halfCell);
+        const py = transform.y - (cellWorld.y + halfCell);
+
+        if (px > halfCell - MIN_DIST_FROM_WATER_PX && grid.getCell(col + 1, row)?.properties.has('water')) {
+          nowInWater = true;
+        } else if (px < -(halfCell - MIN_DIST_FROM_WATER_PX) && grid.getCell(col - 1, row)?.properties.has('water')) {
+          nowInWater = true;
+        } else if (py > halfCell - MIN_DIST_FROM_WATER_PX && grid.getCell(col, row + 1)?.properties.has('water')) {
+          nowInWater = true;
+        } else if (py < -(halfCell - MIN_DIST_FROM_WATER_PX) && grid.getCell(col, row - 1)?.properties.has('water')) {
+          nowInWater = true;
+        }
+      }
+    }
+
     // Detect water entry/exit — trigger JumpComponent jump
     if (nowInWater !== this.isInWater) {
+      const dbgDir = this.getJoystickDirection(walk);
+      console.log(`[WATER] state change: nowInWater=${nowInWater} wasInWater=${this.isInWater} cell=(${gridPos.currentCell.col},${gridPos.currentCell.row}) isCurrentCellWater=${isCurrentCellWater} dir=(${dbgDir.dx},${dbgDir.dy}) moveX=${walk?.lastMoveX?.toFixed(2)} moveY=${walk?.lastMoveY?.toFixed(2)}`);
       const wasInWater = this.isInWater;
       this.isInWater = nowInWater;
 
@@ -216,7 +249,7 @@ export class WaterEffectComponent implements Component {
 
     if (isCurrentCellWater) {
       const target = this.findValidExitCell(gridPos.currentCell.col, gridPos.currentCell.row, dir, grid);
-      if (target) return target;
+      return target;
     }
 
     // Already on dry cell

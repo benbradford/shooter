@@ -362,6 +362,8 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - **Status buttons** on each row — click to mark Done/Fixed, Investigating, Deferred, Won't Fix, etc.
 - **+ Add button** (top-right) — opens a form to add new entries directly in the browser
 - **🤖 Fix / Impl button** — invokes `kiro-cli chat --agent dodging-bullets` to automatically fix the bug/issue
+- **🔄 Refresh Issues button** (architecture tracker) — invokes `kiro-cli chat --agent db-architect` to scan the codebase, verify/update existing issues, and add new ones
+- **← Back to Trackers** link at top of each tracker page for navigation
 - Changes persist to disk via Vite dev server API (same pattern as level editor save)
 - Toast notifications confirm each action
 
@@ -369,6 +371,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - `POST /api/tracker/update` — update fields on an entry (`{ tracker, id, fields }`)
 - `POST /api/tracker/add` — add a new entry (`{ tracker, entry }`)
 - `POST /api/tracker/fix` — spawn kiro-cli to fix (`{ tracker, id, title, detail }`)
+- `POST /api/tracker/refresh` — spawn db-architect agent to scan codebase and refresh all issues
 
 **Kiro agent phrases** (still work in chat):
 - "log a feature: {description}" → adds to feature tracker

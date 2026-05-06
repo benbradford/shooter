@@ -74,6 +74,7 @@
 </head>
 <body>
 
+<a href="main.html" style="display:inline-block;margin-bottom:12px;color:#4fc3f7;text-decoration:none;font-size:0.85rem">← Back to Trackers</a>
 <h1>🔧 Tech Debt Tracker</h1>
 <p class="subtitle">Dodging Bullets — Architecture Issues &amp; Improvements</p>
 
@@ -96,7 +97,8 @@
   <button class="filter-btn" data-filter="high">High</button>
   <button class="filter-btn" data-filter="medium">Medium</button>
   <button class="filter-btn" data-filter="low">Low</button>
-  <button class="filter-btn" style="margin-left:auto;background:var(--surface2);border-color:var(--done);color:var(--done)" onclick="toggleAddForm()">+ Add Issue</button>
+  <button class="filter-btn" style="margin-left:auto;background:#1a3a4a;border-color:#4fc3f7;color:#4fc3f7" onclick="refreshIssues()">🔄 Refresh Issues</button>
+  <button class="filter-btn" style="background:var(--surface2);border-color:var(--done);color:var(--done)" onclick="toggleAddForm()">+ Add Issue</button>
 </div>
 
 <div class="add-form" id="addForm">
@@ -130,7 +132,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-04 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
+<p class="updated">Last audit: 2026-05-06 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
 
 <script>
 const ISSUES = [
@@ -163,24 +165,24 @@ const ISSUES = [
   // ── HIGH ──
   {
     id: 4, severity: 'high', status: 'open',
-    title: 'EntityLoader 500-line switch / 51 imports (OCP violation)',
-    detail: 'Every new entity type requires modifying this file. Migrate to EntityRegistry pattern where factories self-register. Incremental migration possible.',
+    title: 'EntityLoader 798 LOC switch / 51 imports (OCP violation)',
+    detail: 'Now 798 LOC with 22-case switch and 51 imports. Every new entity type requires modifying this file. loadEntities() is 174 LOC. Migrate to EntityRegistry pattern where factories self-register. Incremental migration possible.',
     files: ['src/systems/EntityLoader.ts'],
     effort: '8h', risk: 'Med', fanIn: 1, category: 'architecture',
     added: '2026-05-04',
   },
   {
     id: 5, severity: 'high', status: 'open',
-    title: 'Singleton proliferation — 128 getInstance() calls across 67 files',
-    detail: 'WorldStateManager: 39 calls in 27 files. SoundManager scattered across combat/pickup/ability. Hides dependencies, prevents testing. Incremental props-ification over 4 sessions.',
+    title: 'Singleton proliferation — 127 getInstance() calls across 66 files',
+    detail: 'Slightly reduced from 128/67 (May 4). GameScene alone has 16 singleton accesses. WorldStateManager: 37 fan-in. SoundManager scattered across combat/pickup/ability. Hides dependencies, prevents testing. Incremental props-ification over 4 sessions.',
     files: ['src/systems/WorldStateManager.ts', 'src/systems/SoundManager.ts'],
     effort: '10h', risk: 'Low', fanIn: 37, category: 'architecture',
     added: '2026-05-04',
   },
   {
     id: 6, severity: 'high', status: 'open',
-    title: 'RockThrowAbility is a 540 LOC behavior system disguised as component',
-    detail: '6-state machine via string type, directly manipulates player entity. Extract into state classes or shared AbilityStateMachine.',
+    title: 'RockThrowAbility is a 549 LOC behavior system disguised as component',
+    detail: '549 LOC, 18 methods, 6-state ThrowState machine via string type, 20 imports. Directly manipulates player entity. activate() 68 LOC, startThrow() 64 LOC, onProjectileLand() 56 LOC. Extract into state classes or shared AbilityStateMachine.',
     files: ['src/ecs/components/pet/RockThrowAbility.ts'],
     effort: '4h', risk: 'Low', fanIn: 6, category: 'architecture',
     added: '2026-05-04',
@@ -189,24 +191,24 @@ const ISSUES = [
   // ── MEDIUM ──
   {
     id: 7, severity: 'medium', status: 'open',
-    title: 'LuaRuntime.executeScript is 231 LOC — extract API registration helpers',
-    detail: 'Single method registers ~20 Lua API bindings. Extract registerPlayerAPI(), registerNpcAPI(), registerWorldAPI(), registerUIAPI().',
+    title: 'LuaRuntime.executeScript is 283 LOC — extract API registration helpers',
+    detail: 'File is 588 LOC total. executeScript is 283 lines (up from 231 at last audit — grew with new API bindings). executeCommand is 100 LOC. 17 imports, 4 singleton accesses. Extract registerPlayerAPI(), registerNpcAPI(), registerWorldAPI(), registerUIAPI().',
     files: ['src/systems/LuaRuntime.ts'],
     effort: '2h', risk: 'Low', fanIn: 1, category: 'maintainability',
     added: '2026-05-04',
   },
   {
     id: 8, severity: 'medium', status: 'open',
-    title: 'Inline state machines repeated across 4+ components',
-    detail: 'RockThrowAbility (6 states), DogBarkAbility (implicit), PetFollowComponent (7 states), EscortComponent (7 states), JumpComponent (implicit). Missing lightweight ComponentStateMachine<T> abstraction.',
-    files: ['src/ecs/components/pet/RockThrowAbility.ts', 'src/ecs/components/pet/DogBarkAbility.ts', 'src/ecs/components/escort/EscortComponent.ts'],
+    title: 'Inline state machines repeated across 5+ components',
+    detail: 'RockThrowAbility (6 states), DogBarkAbility (3 states), PetFollowComponent (7 states), EscortComponent (7 states via switch), JumpComponent (5 phases). EscortPersistence helper was extracted (partial progress). Missing lightweight ComponentStateMachine<T> abstraction.',
+    files: ['src/ecs/components/pet/RockThrowAbility.ts', 'src/ecs/components/pet/DogBarkAbility.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/components/movement/JumpComponent.ts'],
     effort: '2h', risk: 'Low', fanIn: null, category: 'pattern',
     added: '2026-05-04',
   },
   {
     id: 9, severity: 'medium', status: 'open',
-    title: 'Grid debug rendering (~200 LOC) coupled to data model',
-    detail: 'Grid.ts mixes cell data storage, occupant tracking, and Phaser debug rendering. Extract GridDebugRenderer. Lower priority than worldToCell fix.',
+    title: 'Grid debug rendering (~94 LOC) coupled to data model',
+    detail: 'Grid.ts render() is 94 LOC of Phaser graphics calls mixed into the data model class (551 LOC total, 40 methods, 84 fan-in). Also has renderSceneDebug and renderPunchFOV. Extract GridDebugRenderer. Lower priority than worldToCell fix.',
     files: ['src/systems/grid/Grid.ts'],
     effort: '4h', risk: 'Med', fanIn: 84, category: 'maintainability',
     added: '2026-05-04',
@@ -270,6 +272,48 @@ const ISSUES = [
     files: ['src/ecs/entities/player/PlayerEntity.ts'],
     effort: 'N/A', risk: 'N/A', fanIn: 2, category: 'code-quality',
     added: '2026-05-04', resolution: 'Composition root. Imports are inherent.',
+  },
+
+  // ── NEW ISSUES (2026-05-06 audit) ──
+  {
+    id: 17, severity: 'high', status: 'open',
+    title: 'GameSceneRenderer still 1219 LOC — renderPathType (156 LOC) and createBackgroundTextureSprites (140 LOC)',
+    detail: 'Issue #3 fixed renderAllCells monolith but file grew with new rendering methods. renderPathType 156 LOC, createBackgroundTextureSprites 140 LOC, computeAutotileFrame 90 LOC, renderShadows 86 LOC, renderEdges 81 LOC. 31 methods total. Extract rendering strategies into focused helpers (PathRenderer, EdgeRenderer, ShadowRenderer).',
+    files: ['src/scenes/theme/GameSceneRenderer.ts'],
+    effort: '6h', risk: 'Low', fanIn: 8, category: 'maintainability',
+    added: '2026-05-06',
+  },
+  {
+    id: 18, severity: 'high', status: 'open',
+    title: 'JumpComponent is 577 LOC / 20 methods — behavior system with 5-phase state machine',
+    detail: 'Manages void jumps, platform jump-downs, gap jumps, fall sequences, and pet sync. 5-phase state machine (idle/takeoff/flight/landing/falling). detectJumpFromInput() 74 LOC, update() 55 LOC, updateJump() 56 LOC. Extract JumpDetector (input→decision) and JumpAnimator (phase execution).',
+    files: ['src/ecs/components/movement/JumpComponent.ts'],
+    effort: '4h', risk: 'Med', fanIn: 4, category: 'architecture',
+    added: '2026-05-06',
+  },
+  {
+    id: 19, severity: 'high', status: 'open',
+    title: 'GridCollisionComponent 423 LOC / 27 fan-in — update() 151 LOC, high change risk',
+    detail: 'Scanner score 63. update() 151 LOC, canMoveTo() 96 LOC, checkCollision() 95 LOC. 27 files depend on this + 13 imports. Any change has wide blast radius. Extract canMoveTo/checkCollision into GridMovementValidator helper to reduce method sizes and isolate collision logic from position tracking.',
+    files: ['src/ecs/components/movement/GridCollisionComponent.ts'],
+    effort: '4h', risk: 'Med', fanIn: 27, category: 'architecture',
+    added: '2026-05-06',
+  },
+  {
+    id: 20, severity: 'medium', status: 'open',
+    title: 'PetFollowComponent 491 LOC / 20 methods / 7-state machine',
+    detail: 'Behavior system with 7 states (idle/following/wandering_move/wandering_pause/riding/sync_jumping/sync_falling). update() 139 LOC. Mixes pathfinding, state transitions, water detection, and jump sync. Extract PetMovementStates or split into PetPathFollower + PetStateManager.',
+    files: ['src/ecs/components/pet/PetFollowComponent.ts'],
+    effort: '4h', risk: 'Low', fanIn: 3, category: 'architecture',
+    added: '2026-05-06',
+  },
+  {
+    id: 21, severity: 'medium', status: 'open',
+    title: 'GameScene.initializeScene() 160 LOC / 16 singleton accesses',
+    detail: 'Despite issue #2 extraction, initializeScene() grew to 160 LOC. 16 singleton accesses in the file (highest in codebase). Method mixes entity spawning, camera setup, HUD creation, and manager initialization. Extract initializeCamera(), initializeHUD(), initializeManagers() sub-methods.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '3h', risk: 'Med', fanIn: 9, category: 'maintainability',
+    added: '2026-05-06',
   },
 ];
 
@@ -371,6 +415,13 @@ async function fixEntry(id) {
   if (!i || !confirm(`Invoke kiro-cli to fix: "${i.title}"?`)) return;
   await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '' }) });
   showToast(`🤖 kiro-cli started for issue #${id}`);
+}
+
+async function refreshIssues() {
+  if (!confirm('Launch db-architect agent to scan codebase and refresh all issues?')) return;
+  const issuesSummary = ISSUES.filter(i => i.status === 'open').map(i => `#${i.id}: ${i.title} [${i.severity}] (files: ${i.files.join(', ')})`).join('\n');
+  await fetch('/api/tracker/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ issues: issuesSummary }) });
+  showToast('🔄 db-architect agent launched — will update tracker');
 }
 
 async function diagnoseEntry(id) {
