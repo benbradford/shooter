@@ -51,6 +51,9 @@ to run architectural analysis. Also available standalone: `node scripts/arch-sca
 # Install Node.js
 brew install node
 
+# Install ttyd (browser-based terminal for tracker Fix buttons)
+brew install ttyd
+
 # Verify installation
 node --version  # Should be 18+
 npm --version

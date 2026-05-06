@@ -237,14 +237,15 @@ IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow th
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           console.log('🔄 Launching db-architect agent to refresh issues...');
-          const script = `cd '${cwd}' && kiro-cli chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
-            stdio: 'ignore',
-            detached: true,
-          }).unref();
+          const port = 7681 + Math.floor(Math.random() * 100);
+          const ttydPath = '/opt/homebrew/bin/ttyd';
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
+          ttyd.unref();
 
+          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, message: 'db-architect agent launched to refresh issues' }));
+          res.end(JSON.stringify({ ok: true, url, message: 'db-architect agent launched to refresh issues' }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
@@ -262,14 +263,15 @@ IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow th
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           console.log('🧠 Launching kiro agent to recommend next issue...');
-          const script = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
-            stdio: 'ignore',
-            detached: true,
-          }).unref();
+          const port = 7681 + Math.floor(Math.random() * 100);
+          const ttydPath = '/opt/homebrew/bin/ttyd';
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
+          ttyd.unref();
 
+          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, message: 'kiro agent launched to recommend next issue' }));
+          res.end(JSON.stringify({ ok: true, url, message: 'kiro agent launched to recommend next issue' }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
@@ -284,18 +286,35 @@ IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow th
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           console.log('📝 Launching kiro agent to update docs...');
-          const script = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
-            stdio: 'ignore',
-            detached: true,
-          }).unref();
+          const port = 7681 + Math.floor(Math.random() * 100);
+          const ttydPath = '/opt/homebrew/bin/ttyd';
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
+          ttyd.unref();
 
+          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, message: 'kiro agent launched to update docs' }));
+          res.end(JSON.stringify({ ok: true, url, message: 'kiro agent launched to update docs' }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
-      // Fix button — invoke kiro-cli in a new terminal
+      // New Session — open a blank kiro-cli session in ttyd
+      server.middlewares.use('/api/tracker/session', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const cwd = process.cwd();
+          const port = 7681 + Math.floor(Math.random() * 100);
+          const ttydPath = '/opt/homebrew/bin/ttyd';
+          console.log(`🚀 New kiro session on port ${port}...`);
+          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`], { stdio: 'ignore', detached: true, cwd });
+          ttyd.unref();
+          const url = `http://localhost:${port}`;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, url }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Fix button — invoke kiro-cli via ttyd (browser-based terminal)
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
@@ -313,15 +332,29 @@ IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow th
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          console.log(`🔧 ${action} ${type} #${body.id}...`);
-          const script = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
+          // Find an available port for ttyd (7681+)
+          const port = 7681 + Math.floor(Math.random() * 100);
+          const ttydPath = '/opt/homebrew/bin/ttyd';
+
+          console.log(`🔧 ${action} ${type} #${body.id} on port ${port}...`);
+
+          // Launch ttyd with kiro-cli — once-mode so it exits when session ends
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const ttyd = spawn(ttydPath, [
+            '--port', String(port),
+            '--once',  // Exit ttyd after client disconnects
+            '--writable',  // Allow typing in the terminal
+            'bash', '-c', shellCmd,
+          ], {
             stdio: 'ignore',
             detached: true,
-          }).unref();
+            cwd,
+          });
+          ttyd.unref();
 
+          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, message: `kiro-cli opened for ${type} #${body.id}` }));
+          res.end(JSON.stringify({ ok: true, url, message: `kiro-cli opened for ${type} #${body.id}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
     }

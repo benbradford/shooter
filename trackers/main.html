@@ -62,16 +62,26 @@
 </div>
 
 <div class="actions">
+  <button class="action-btn" onclick="newSession()">🚀 New Session</button>
   <button class="action-btn" onclick="updateDocs()" title="Launches a kiro agent to analyze recent sessions, update docs, and run an audit">📝 Update Docs</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
+async function newSession() {
+  try {
+    const res = await fetch('/api/tracker/session', { method: 'POST' });
+    const data = await res.json();
+    if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+    showToast('🚀 New kiro session starting...');
+  } catch (e) { showToast('Failed: ' + e.message); }
+}
 async function updateDocs() {
   try {
     const res = await fetch('/api/tracker/update-docs', { method: 'POST' });
     const data = await res.json();
+    if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
     showToast(data.message || 'Launched!');
   } catch (e) { showToast('Failed: ' + e.message); }
 }

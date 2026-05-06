@@ -247,22 +247,26 @@ async function fixEntry(id) {
   const bug = BUGS.find(b => b.id === id);
   if (!bug) return;
   if (!confirm(`Invoke kiro-cli to fix: "${bug.title}"?`)) return;
-  await fetch('/api/tracker/fix', {
+  const resp = await fetch('/api/tracker/fix', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '' })
   });
+  const data = await resp.json();
+  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
   showToast(`🤖 kiro-cli started for bug #${id}`);
 }
 
 async function diagnoseEntry(id) {
   const bug = BUGS.find(b => b.id === id);
   if (!bug) return;
-  await fetch('/api/tracker/fix', {
+  const resp = await fetch('/api/tracker/fix', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '', diagnoseOnly: true })
   });
+  const data = await resp.json();
+  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
   showToast(`🔍 Diagnosing bug #${id}...`);
 }
 </script>
