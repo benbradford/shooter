@@ -248,6 +248,31 @@ IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow th
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
+      // Help Me Decide — invoke kiro-cli to recommend what to tackle next
+      server.middlewares.use('/api/tracker/decide', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { issues: string };
+          const cwd = process.cwd();
+
+          const message = `Here are all open architecture issues in the project:\n\n${body.issues}\n\nAnalyze these issues and recommend which ONE I should tackle next. Consider:\n- Severity and risk\n- Fan-in (how many files depend on it)\n- Effort vs impact ratio\n- Whether fixing it unblocks other issues\n\nGive a clear recommendation with reasoning, and a suggested approach.`;
+
+          const tmpFile = path.resolve('tmp', `decide-${Date.now()}.txt`);
+          fs.mkdirSync(path.resolve('tmp'), { recursive: true });
+          fs.writeFileSync(tmpFile, message, 'utf-8');
+
+          console.log('🧠 Launching kiro agent to recommend next issue...');
+          const script = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          spawn('osascript', ['-e', `tell application "Terminal" to do script "${script.replace(/"/g, '\\"')}"`], {
+            stdio: 'ignore',
+            detached: true,
+          }).unref();
+
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, message: 'kiro agent launched to recommend next issue' }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
       // Fix button — invoke kiro-cli in a new terminal
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }

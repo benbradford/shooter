@@ -86,6 +86,7 @@ export class JumpComponent implements Component {
   }
 
   private isWaterEntry = false;
+  private isWaterJump = false;
 
   /** Programmatically trigger a jump for water entry/exit (no input detection or jump icon). */
   triggerWaterJump(landCol: number, landRow: number, dx: number, dy: number, enteringWater: boolean): void {
@@ -93,6 +94,7 @@ export class JumpComponent implements Component {
     this.isFallJump = false;
     this.isPlatformJump = false;
     this.isWaterEntry = enteringWater;
+    this.isWaterJump = true;
     this.startJump(landCol, landRow, dx, dy);
   }
 
@@ -128,6 +130,7 @@ export class JumpComponent implements Component {
         // No scene = pet/NPC — auto-jump immediately
         this.isFallJump = newPending.isFallJump;
         this.isPlatformJump = newPending.isPlatformJump;
+        this.isWaterJump = false;
         this.startJump(newPending.landCol, newPending.landRow, newPending.dx, newPending.dy);
         this.pendingJump = null;
         return;
@@ -141,6 +144,7 @@ export class JumpComponent implements Component {
       if (attackButton?.isAttackPressed()) {
         this.isFallJump = this.pendingJump.isFallJump;
         this.isPlatformJump = this.pendingJump.isPlatformJump;
+        this.isWaterJump = false;
         this.startJump(this.pendingJump.landCol, this.pendingJump.landRow, this.pendingJump.dx, this.pendingJump.dy);
         this.pendingJump = null;
         attackButton.setIconOverride(null);
@@ -346,6 +350,14 @@ export class JumpComponent implements Component {
     const landWorld = this.grid.cellToWorld(landCol, landRow);
     this.targetX = dx !== 0 ? landWorld.x + this.grid.cellSize / 2 : transform.x;
     this.targetY = dy !== 0 ? landWorld.y + this.grid.cellSize / 2 : transform.y;
+
+    // Water exit jumps: always land at cell center to prevent collision box offset shift
+    // (swimming box offsetY=0, normal box offsetY=24 — without centering, the 24px shift
+    // can push currentCell into an adjacent water cell after the box pops)
+    if (this.isWaterJump && !this.isWaterEntry) {
+      this.targetX = landWorld.x + this.grid.cellSize / 2;
+      this.targetY = landWorld.y + this.grid.cellSize / 2;
+    }
 
     if (this.isPlatformJump) {
       const PLATFORM_JUMP_OFFSET_PX = 20;
