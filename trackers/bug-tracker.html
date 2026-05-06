@@ -119,7 +119,7 @@ const BUGS = [
   { severity: 'medium', status: 'fixed', title: 'Cannot mark bug as fixed', detail: 'Entry block detection in vite.config.ts searched forward from id field, missing status field when id was near end of object. Also added watch exclusion for trackers/ to prevent Vite page reloads on file write.', area: 'tracker', id: 8, added: '2026-05-04' },
   { severity: 'low', status: 'fixed', title: 'Zdepth of player alters when jumping into water', detail: 'For some reason, when i jump into the water, if there is a background texture above me, it appears in front of me. I don\'t know if background textures are always at a higher depth than the player or not but I don\'t think so. Why does the player Z depth change during the jump into the water?', area: 'game', id: 9, added: '2026-05-04' },
   { severity: 'medium', status: 'fixed', title: 'Change collision box when swimming', detail: 'When swimming, the player still uses the grid collision box, which is set to be at the \'feet\' of the player. this no longer makes sense when playing as the player is laying flat and swimming. Use a stack for grid collision boxes and push a new one on top when jumping in to  swim that is just a box around the player\'s center. pop the collision box when jumping out the water', area: 'game', id: 10, added: '2026-05-06' },
-  { severity: 'medium', status: 'investigating', title: 'Swimming corners are buggy', detail: 'There is an issue in that if a player is swimming and approaches a corner like
+  { severity: 'medium', status: 'investigating', title: 'Swimming corners are buggy', detail: `There is an issue in that if a player is swimming and approaches a corner like
 this whilst swimming right:
 
     |
@@ -130,7 +130,7 @@ this whilst swimming right:
 They will attempt to jump out of the water, but because their momentum is right,
 they jump right and land in water again. I think the easiest fix is to check if
 the landing location would be in a water cell, and if it would be, just block
-the player from exiting, unless you have any other bright ideas.', area: '', id: 11, added: '2026-05-06' },
+the player from exiting, unless you have any other bright ideas.`, area: '', id: 11, added: '2026-05-06' },
 ];
 
 function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }
