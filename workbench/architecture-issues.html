@@ -74,7 +74,7 @@
 </head>
 <body>
 
-<a href="main.html" style="display:inline-block;margin-bottom:12px;color:#4fc3f7;text-decoration:none;font-size:0.85rem">← Back to Trackers</a>
+<a href="main.html" style="display:inline-block;margin-bottom:12px;color:#4fc3f7;text-decoration:none;font-size:0.85rem">← Back to Main</a> · <a href="bug-tracker.html" style="display:inline-block;margin-bottom:12px;color:#4fc3f7;text-decoration:none;font-size:0.85rem">Bugs</a> · <a href="feature-tracker.html" style="display:inline-block;margin-bottom:12px;color:#4fc3f7;text-decoration:none;font-size:0.85rem">Features</a>
 <h1>🔧 Tech Debt Tracker</h1>
 <p class="subtitle">Dodging Bullets — Architecture Issues &amp; Improvements</p>
 
@@ -128,7 +128,7 @@
       <th style="width:70px">Effort</th>
       <th style="width:50px">Risk</th>
       <th style="width:50px">Fan-in</th>
-      <th style="width:130px">Actions</th>
+      <th style="width:140px">Actions</th>
   </thead>
   <tbody id="tbody"></tbody>
 </table>
@@ -367,6 +367,7 @@ function renderTable(filter) {
         ${i.status === 'open' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${i.id},'done')">✓ Done</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Defer for later" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
+        ${i.status !== 'open' ? `<button class="act-btn" title="Reopen this issue" onclick="setStatus(${i.id},'open')">↺ Reopen</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this issue" onclick="fixEntry(${i.id})">🤖 Fix</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Diagnose: explain the issue and approach without changing code" onclick="diagnoseEntry(${i.id})">🔍</button>` : ''}
       </td>

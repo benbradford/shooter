@@ -134,9 +134,9 @@ function saveLevelPlugin(): Plugin {
       // ── Tracker API ──────────────────────────────────────────
 
       const TRACKER_FILES: Record<string, { file: string; arrayName: string }> = {
-        bugs: { file: 'trackers/bug-tracker.html', arrayName: 'BUGS' },
-        features: { file: 'trackers/feature-tracker.html', arrayName: 'FEATURES' },
-        issues: { file: 'trackers/architecture-issues.html', arrayName: 'ISSUES' },
+        bugs: { file: 'workbench/bug-tracker.html', arrayName: 'BUGS' },
+        features: { file: 'workbench/feature-tracker.html', arrayName: 'FEATURES' },
+        issues: { file: 'workbench/architecture-issues.html', arrayName: 'ISSUES' },
       };
 
       // Update an entry's status (and optionally detail)
@@ -220,17 +220,17 @@ function saveLevelPlugin(): Plugin {
 
           const message = `Run a full architecture review of the codebase. Use node scripts/arch-scan.mjs --top=20 to get metrics, then analyze the results.
 
-Here are the currently tracked open issues in trackers/architecture-issues.html:
+Here are the currently tracked open issues in workbench/architecture-issues.html:
 
 ${body.issues}
 
 Your task:
-1. Verify which of the above issues have been FIXED (check the actual code). For any fixed issues, call the /api/tracker/update endpoint or directly update the ISSUES array in trackers/architecture-issues.html to set status to 'done' and update the detail field with what was done.
+1. Verify which of the above issues have been FIXED (check the actual code). For any fixed issues, call the /api/tracker/update endpoint or directly update the ISSUES array in workbench/architecture-issues.html to set status to 'done' and update the detail field with what was done.
 2. For issues that are still open, update their detail field if you have new information (e.g. the LOC count changed, the problem got worse or better).
-3. Add any NEW architecture issues you discover that are not already tracked. Add them directly to the ISSUES array in trackers/architecture-issues.html following the existing format.
+3. Add any NEW architecture issues you discover that are not already tracked. Add them directly to the ISSUES array in workbench/architecture-issues.html following the existing format.
 4. Update the "Last audit" date at the bottom of the file to today's date.
 
-IMPORTANT: Make changes directly to trackers/architecture-issues.html. Follow the existing ISSUES array format exactly.`;
+IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow the existing ISSUES array format exactly.`;
 
           const tmpFile = path.resolve('tmp', `refresh-${Date.now()}.txt`);
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
@@ -365,7 +365,7 @@ export default defineConfig({
   plugins: [saveLevelPlugin()],
   server: {
     watch: {
-      ignored: ['**/trackers/**'],
+      ignored: ['**/workbench/**'],
     },
   },
   // Editor excluded from production builds — only index.html is built

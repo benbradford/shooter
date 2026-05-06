@@ -55,7 +55,7 @@
 </head>
 <body>
 
-<a class="back" href="main.html">← Back to Trackers</a>
+<a class="back" href="main.html">← Back to Main</a> · <a class="back" href="bug-tracker.html">Bugs</a> · <a class="back" href="architecture-issues.html">Issues</a>
 <h1>✨ Feature Tracker</h1>
 <p class="subtitle">Dodging Bullets — Planned Features &amp; Enhancements</p>
 
@@ -97,7 +97,7 @@
       <th>Feature</th>
       <th style="width:100px">Category</th>
       <th style="width:80px">Added</th>
-      <th style="width:160px">Actions</th>
+      <th style="width:140px">Actions</th>
   <tbody id="tbody"></tbody>
 </table>
 
@@ -154,6 +154,7 @@ function renderTable(filter) {
         ${f.status === 'in-progress' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
         ${f.status === 'planned' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
         ${f.status !== 'cancelled' && f.status !== 'done' ? `<button class="act-btn" title="Cancel this feature" onclick="setStatus(${f.id},'cancelled')">✗</button>` : ''}
+        ${f.status === 'done' || f.status === 'cancelled' ? `<button class="act-btn" title="Reopen this feature" onclick="setStatus(${f.id},'planned')">↺ Reopen</button>` : ''}
         ${f.status !== 'done' ? `<button class="act-btn fix" title="Invoke kiro-cli to implement this feature" onclick="fixEntry(${f.id})">🤖 Impl</button>` : ''}
         ${f.status !== 'done' ? `<button class="act-btn" title="Diagnose: explain the feature and approach without changing code" onclick="diagnoseEntry(${f.id})">🔍</button>` : ''}
       </td>

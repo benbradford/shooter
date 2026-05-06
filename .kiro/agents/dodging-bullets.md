@@ -610,8 +610,8 @@ npm run build && npx eslint src --ext .ts
 Both must pass with zero errors before considering any change complete.
 
 **After fixing an architecture issue or bug, IMMEDIATELY update the tracker:**
-- Architecture issue → set `status: 'done'` and update `detail` in `trackers/architecture-issues.html`
-- Bug → set `status: 'fixed'` in `trackers/bug-tracker.html`
+- Architecture issue → set `status: 'done'` and update `detail` in `workbench/architecture-issues.html`
+- Bug → set `status: 'fixed'` in `workbench/bug-tracker.html`
 Do not wait until later — updating the tracker is part of completing the fix.
 
 ## Coding Standards

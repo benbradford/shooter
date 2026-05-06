@@ -224,7 +224,7 @@ Use `get_document_symbols` for accurate method/property counts.
 
 ## Phase 5: Update Tech Debt Tracker
 
-After generating the report, update `trackers/architecture-issues.html`:
+After generating the report, update `workbench/architecture-issues.html`:
 
 1. **Read the existing `ISSUES` array** in the HTML file
 2. **Mark completed issues as done**: For any issue where the code has been fixed (verify by checking the file), set `status: 'done'`

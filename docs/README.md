@@ -331,32 +331,32 @@ npm run dev                  # Start dev server
 - New debug control → Update Quick Reference
 - New coding rule → Update Coding Standards
 - Project structure change → Update Quick Reference
-- Fix a tech debt issue → Mark as done in `trackers/architecture-issues.html`
-- Architecture review completed → Update `trackers/architecture-issues.html` (mark done, add new issues)
+- Fix a tech debt issue → Mark as done in `workbench/architecture-issues.html`
+- Architecture review completed → Update `workbench/architecture-issues.html` (mark done, add new issues)
 
 ## 🔧 Tech Debt Tracker
 
-**[architecture-issues.html](../trackers/architecture-issues.html)** — Open in browser to view all architecture issues by severity/status.
+**[architecture-issues.html](../workbench/architecture-issues.html)** — Open in browser to view all architecture issues by severity/status.
 
 **Statuses:** Open, Done, Deferred, Won't Fix
 
 **⚠️ CRITICAL: When you fix an architecture issue, IMMEDIATELY update its status to `'done'` and update the `detail` field with what was done. Do not wait until later — this is part of completing the fix.**
 
 **Workflow:**
-- When fixing a tech debt issue → update the `ISSUES` array in `trackers/architecture-issues.html`: set `status: 'done'`, update `detail` with summary of changes
-- When fixing a bug → update its status to `'fixed'` in `trackers/bug-tracker.html`
+- When fixing a tech debt issue → update the `ISSUES` array in `workbench/architecture-issues.html`: set `status: 'done'`, update `detail` with summary of changes
+- When fixing a bug → update its status to `'fixed'` in `workbench/bug-tracker.html`
 - When running `db-architect` review → cross off completed issues, add new ones, update `Last audit` date
 - Issues can be marked `'deferred'` (acknowledged, postponed) or `'wontfix'` (deliberately accepted, add `resolution` field)
 
 ## 📋 Project Trackers
 
-**[trackers/main.html](../trackers/main.html)** — Dashboard linking to all trackers. Open in browser.
+**[workbench/main.html](../workbench/main.html)** — Dashboard linking to all trackers. Open in browser.
 
 | Tracker | File | URL (dev server) |
 |---------|------|-------------------|
-| Architecture Issues | `trackers/architecture-issues.html` | `http://localhost:5173/trackers/architecture-issues.html` |
-| Feature Tracker | `trackers/feature-tracker.html` | `http://localhost:5173/trackers/feature-tracker.html` |
-| Bug Tracker | `trackers/bug-tracker.html` | `http://localhost:5173/trackers/bug-tracker.html` |
+| Architecture Issues | `workbench/architecture-issues.html` | `http://localhost:5173/workbench/architecture-issues.html` |
+| Feature Tracker | `workbench/feature-tracker.html` | `http://localhost:5173/workbench/feature-tracker.html` |
+| Bug Tracker | `workbench/bug-tracker.html` | `http://localhost:5173/workbench/bug-tracker.html` |
 
 ### Interactive Tracker UI
 
@@ -382,4 +382,4 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - "log a feature: {description}" → adds to feature tracker
 - "log a bug: {description}" → adds to bug tracker
 
-**When fixing a bug:** Update its status to `'fixed'` in `trackers/bug-tracker.html`
+**When fixing a bug:** Update its status to `'fixed'` in `workbench/bug-tracker.html`
