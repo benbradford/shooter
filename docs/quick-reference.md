@@ -116,6 +116,10 @@ Level transitions work automatically via exit triggers. The system:
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` - Coin management
 - `showSpecialItem(itemType)` — Display special item graphic at top-center of screen (scale 2, pulsing, sparkles). Auto-hides when interaction ends. Item types: `mushroom`, `boots`, `max_health_increase`, `bandage`, `autoheal`, `push_strength`
 - `hideSpecialItem()` — Manually hide the special item display (with tween-out animation)
+- `fadeOut(durationMs)` — Camera fade to black (queued)
+- `fadeIn(durationMs)` — Camera fade from black (queued)
+- `calculateDirection(fromX, fromY, toX, toY)` — Returns direction string between two points (e.g., `"down_left"`)
+- `speech.backgroundColor(color)` / `speech.textColor(color)` — Customize speech box colors for subsequent `say()` calls
 - Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 

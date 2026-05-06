@@ -62,6 +62,12 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - If neither set: Entity spawns immediately on level load
 - EntityCreatorManager handles registration and creation
 
+### Conditional Suppression
+- `suppressOnAnyFlag`: Array of flag conditions — entity is skipped entirely at load time if ANY condition is true
+- Each condition: `{ name, condition, value }` (same format as NPC `whenFlagSet`)
+- Use case: Hide entities after quest completion (e.g., remove blocking NPC after player gets an ability)
+- Interaction entities auto-add a suppress flag for `{filename}_live` to prevent duplicate script execution
+
 ## Entity Data Fields
 
 ### Common Fields (all entities)
@@ -140,6 +146,10 @@ Plus one interaction entity per script:
 - `coins.get()` / `coins.spend(n)` / `coins.obtain(n)` — Coin management
 - `showSpecialItem(itemType)` — Display special item graphic at top-center of screen (scale 2, pulsing, sparkles). Auto-hides when interaction ends. Item types: `mushroom`, `boots`, `max_health_increase`, `bandage`, `autoheal`, `push_strength`
 - `hideSpecialItem()` — Manually hide the special item display (with tween-out animation)
+- `fadeOut(durationMs)` — Camera fade to black (queued)
+- `fadeIn(durationMs)` — Camera fade from black (queued)
+- `calculateDirection(fromX, fromY, toX, toY)` — Returns direction string between two points (e.g., `"down_left"`)
+- `speech.backgroundColor(color)` / `speech.textColor(color)` — Customize speech box colors for subsequent `say()` calls
 - Inline colors: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 
