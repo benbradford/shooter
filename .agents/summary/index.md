@@ -87,6 +87,8 @@ This index provides a comprehensive map of the Dodging Bullets codebase document
 - **event-system.md** - Event-driven gameplay
 - **world-state-system.md** - Save/load game progress
 - **NPC system** - NPCs with interactions (see quick-reference.md and entity-creation-system.md)
+- **pets-quick-ref.md** - Pet system (rock throw, dog bark, following, fear)
+- **feature-design-process.md** - SOP for designing new features (10 phases)
 
 ### Level Design
 - **level-editor.md** - In-game level editor, data structure
@@ -189,8 +191,8 @@ graph TB
 - Multiple path types (path, water)
 
 **level-themes.md** (12KB)
-- Theme renderers (dungeon, swamp, grass, wilds)
-- Background rendering
+- Theme renderers (dungeon, swamp, grass, wilds, tunnels)
+- Background rendering, overlays, spritesheets
 - Wall/platform patterns
 - Vignette effects
 
@@ -267,8 +269,8 @@ graph TB
 ✅ **Consistent:** ECS patterns across all component docs
 ✅ **Consistent:** Grid system terminology
 ✅ **Consistent:** Build/lint workflow mentioned consistently
-⚠️ **Minor inconsistency:** Some docs mention old 16-tile path system, now 47 tiles
-⚠️ **Minor inconsistency:** Water system now documented in quick-reference.md
+✅ **Consistent:** All file paths verified to exist (May 2026 audit)
+✅ **Consistent:** workbench/ references correct (renamed from trackers/)
 
 ## Completeness Check Results
 
@@ -276,15 +278,17 @@ graph TB
 ✅ **Complete:** Development workflows clear
 ✅ **Complete:** Testing infrastructure documented
 ✅ **Complete:** Water gameplay mechanics documented in quick-reference.md
-⚠️ **Gap:** New animations (pushing, picking-up, falling-back-death) not documented
-⚠️ **Gap:** Pagination in texture editor not documented
+✅ **Complete:** Pet system (rock throw, dog bark) documented in pets-quick-ref.md
+✅ **Complete:** Companion system documented in quick-reference.md
+✅ **Complete:** Punch charge/release animation fix documented
+✅ **Complete:** Workbench dashboard (new session, commit all, update docs) documented
 
-## Recommendations
+## Project Trackers
 
-1. Update level-editor.md to reflect 47-tile path system throughout
-3. Update attacker-spritesheet.md with new animations
-4. Document texture editor pagination
+All trackers live in `workbench/` folder:
+- `workbench/main.html` — Dashboard with New Session, Commit All, Update Docs buttons
+- `workbench/architecture-issues.html` — Tech debt tracker
+- `workbench/bug-tracker.html` — Bug tracker
+- `workbench/feature-tracker.html` — Feature tracker
 
----
-
-**Next:** Creating consolidated AGENTS.md...
+Interactive when dev server running. API endpoints in `vite.config.ts`.

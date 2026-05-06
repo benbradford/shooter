@@ -70,6 +70,17 @@
   .add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .toast { position: fixed; bottom: 20px; right: 20px; background: var(--done); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
   .toast.show { opacity: 1; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; }
+  .modal-overlay.visible { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 500px; max-width: 90vw; max-height: 80vh; overflow-y: auto; }
+  .modal h2 { font-size: 1.1rem; margin-bottom: 16px; }
+  .modal label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; margin-top: 10px; }
+  .modal input, .modal select, .modal textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; width: 100%; box-sizing: border-box; font-family: inherit; }
+  .modal textarea { min-height: 80px; resize: vertical; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  .modal-actions button { padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; border: 1px solid var(--border); }
+  .modal-actions .save-btn { background: var(--done); color: #000; border-color: var(--done); font-weight: 600; }
+  .modal-actions .cancel-btn { background: var(--surface2); color: var(--text); }
 </style>
 </head>
 <body>
@@ -116,6 +127,24 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2>Edit Issue</h2>
+    <input type="hidden" id="edit-id" />
+    <label>Title</label><input id="edit-title" />
+    <div class="add-row">
+      <div><label>Severity</label><select id="edit-severity"><option>low</option><option>medium</option><option>high</option><option>critical</option></select></div>
+      <div><label>Effort</label><input id="edit-effort" /></div>
+    </div>
+    <label>Files (comma-separated)</label><input id="edit-files" />
+    <label>Detail</label><textarea id="edit-detail"></textarea>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+      <button class="save-btn" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
 
 <table>
   <thead>
@@ -364,6 +393,7 @@ function renderTable(filter) {
       <td>${i.risk ?? '—'}</td>
       <td>${i.fanIn ?? '—'}</td>
       <td class="actions">
+        <button class="act-btn" title="Edit this issue" onclick="editEntry(${i.id})">✏️</button>
         ${i.status === 'open' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${i.id},'done')">✓ Done</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Defer for later" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
@@ -445,6 +475,39 @@ async function diagnoseEntry(id) {
   const data = await resp.json();
   if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
   showToast(`🔍 Diagnosing issue #${id}...`);
+}
+
+function editEntry(id) {
+  const i = ISSUES.find(i => i.id === id);
+  if (!i) return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-title').value = i.title || '';
+  document.getElementById('edit-severity').value = i.severity || 'medium';
+  document.getElementById('edit-effort').value = i.effort || '';
+  document.getElementById('edit-files').value = (i.files || []).join(', ');
+  document.getElementById('edit-detail').value = i.detail || '';
+  document.getElementById('editModal').classList.add('visible');
+}
+
+function closeEditModal() { document.getElementById('editModal').classList.remove('visible'); }
+
+async function saveEdit() {
+  const id = Number(document.getElementById('edit-id').value);
+  const fields = {
+    title: document.getElementById('edit-title').value.trim(),
+    severity: document.getElementById('edit-severity').value,
+    effort: document.getElementById('edit-effort').value.trim(),
+    detail: document.getElementById('edit-detail').value.trim(),
+  };
+  await fetch('/api/tracker/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, fields }) });
+  const i = ISSUES.find(i => i.id === id);
+  if (i) {
+    Object.assign(i, fields);
+    i.files = document.getElementById('edit-files').value.split(',').map(f => f.trim()).filter(Boolean);
+  }
+  closeEditModal();
+  renderTable(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+  showToast(`Issue #${id} updated`);
 }
 </script>
 </body>

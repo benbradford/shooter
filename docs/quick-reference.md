@@ -63,6 +63,7 @@ Level transitions work automatically via exit triggers. The system:
 - Charge bar: Horizontal line (64px) grows from center, yellow→red color, pulses when full
 - Release (< 1s): Normal punch, movement locked for punch duration, plays `punch` anim
 - Release (≥ 1s + `hasSuperPunch` flag): Super punch — `uppercut` anim at half speed, 3× damage (60), 72×72 hitbox, extravagant particles (35 directional + 12 radial burst), movement fully locked during animation
+- After release: PlayerIdleState/PlayerWalkState force-replay idle/walk animation (via `wasPunching` flag) to prevent getting stuck on punch frame
 
 **Super Punch:**
 - Requires: Hold punch ≥ 1 second AND WorldState flag `hasSuperPunch` = `"true"`

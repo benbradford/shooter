@@ -368,6 +368,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - **🔄 Refresh Issues button** (architecture tracker) — launches `db-architect` agent to scan the codebase, verify/update existing issues, and add new ones
 - **🧠 Help Me Decide button** (architecture tracker) — launches kiro agent to analyze all open issues and recommend what to tackle next based on severity, effort, fan-in, and dependencies
 - **🚀 New Session button** (main dashboard) — opens a blank `kiro-cli chat --agent dodging-bullets` session in a new browser tab
+- **🔀 Commit All button** (main dashboard) — launches kiro agent to generate a commit message, commit all changes, and optionally push
 - **📝 Update Docs button** (main dashboard) — launches kiro agent to analyze recent sessions and update documentation
 - **← Back to Trackers** link at top of each tracker page for navigation
 - Agent sessions open in browser tabs via [ttyd](https://github.com/tsl0922/ttyd) (requires `brew install ttyd`)
@@ -381,6 +382,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - `POST /api/tracker/refresh` — spawn db-architect agent to scan codebase and refresh all issues, returns `{ ok, url }`
 - `POST /api/tracker/decide` — spawn kiro agent to recommend next priority (`{ issues }`), returns `{ ok, url }`
 - `POST /api/tracker/session` — spawn a blank kiro-cli session in ttyd, returns `{ ok, url }`
+- `POST /api/tracker/commit` — spawn kiro agent to commit all changes and optionally push, returns `{ ok, url }`
 - `POST /api/tracker/update-docs` — spawn kiro agent to update documentation, returns `{ ok, url }`
 
 **Kiro agent phrases** (still work in chat):

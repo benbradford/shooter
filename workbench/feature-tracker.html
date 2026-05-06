@@ -51,6 +51,17 @@
   .add-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .toast { position: fixed; bottom: 20px; right: 20px; background: var(--done); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
   .toast.show { opacity: 1; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 1000; }
+  .modal-overlay.visible { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; width: 500px; max-width: 90vw; max-height: 80vh; overflow-y: auto; }
+  .modal h2 { font-size: 1.1rem; margin-bottom: 16px; }
+  .modal label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; margin-top: 10px; }
+  .modal input, .modal select, .modal textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; width: 100%; box-sizing: border-box; font-family: inherit; }
+  .modal textarea { min-height: 80px; resize: vertical; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  .modal-actions button { padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; border: 1px solid var(--border); }
+  .modal-actions .save-btn { background: var(--done); color: #000; border-color: var(--done); font-weight: 600; }
+  .modal-actions .cancel-btn { background: var(--surface2); color: var(--text); }
 </style>
 </head>
 <body>
@@ -88,6 +99,23 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2>Edit Feature</h2>
+    <input type="hidden" id="edit-id" />
+    <label>Title</label><input id="edit-title" />
+    <div class="add-row">
+      <div><label>Priority</label><select id="edit-priority"><option>low</option><option>medium</option><option>high</option></select></div>
+      <div><label>Category</label><input id="edit-category" /></div>
+    </div>
+    <label>Detail</label><textarea id="edit-detail"></textarea>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+      <button class="save-btn" onclick="saveEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
 <table>
   <thead>
     <tr>
@@ -111,7 +139,8 @@ const FEATURES = [
   { id: 4, priority: 'high', status: 'done', title: 'Session-aware doc updates from kiro conversation history', detail: 'When user says "update the docs", analyze recent kiro sessions (not git diffs) to understand what was hard, what context was missing, and what patterns emerged — then use that to improve docs and agent context. Implementation: (1) Create a script (scripts/extract-sessions.mjs) that reads ~/.kiro/sessions/cli/*.json, filters by cwd containing "dodging-bullets", filters by updated_at since a stored timestamp in tmp/last-doc-update-timestamp.txt, and extracts conversation content from matching .jsonl files. (2) The script outputs a summary of: user requests, problems encountered, fixes applied, context that was missing, patterns that repeated. (3) The agent reads this summary and uses it to update docs, agent instructions, and context entries. (4) After updating, writes the current ISO timestamp to tmp/last-doc-update-timestamp.txt as the new breakpoint. Session JSON structure: { session_id, cwd, created_at, updated_at, title, session_state }. JSONL files contain the full conversation transcript (one JSON object per line with role and content). There are ~125 sessions for this project. The script should be invokable as: node scripts/extract-sessions.mjs [--since ISO_TIMESTAMP] [--limit N]. Output should be concise enough to fit in agent context (summarize, dont dump raw transcripts).', category: 'tooling', added: '2026-05-06' },
   { priority: 'low', status: 'done', title: 'refresh issue tracker', detail: 'i want to add a new button to the issue tracker page called \'refresh issues\' that will launch kiro agent (the same way as when we click fix on an issue) and will run the db-archtect agent to get a full picture of outstanding issues. It should then, verify if any of the outstanding issues have been fixed, or add any new informatino it has found to existing issues, or add any new found issues directly to the tracker', category: 'tracker, archtecture', id: 4, added: '2026-05-06' },
   { priority: 'low', status: 'done', title: 'Help me Device feature on issues', detail: 'On the issue tracker, add a \'help me decide\' button which launches a kiro agent which looks at all issues and gives a summary of what it recommends tackling next', category: 'tracker', id: 5, added: '2026-05-06' },
-  { priority: 'medium', status: 'planned', title: 'Track git changes', detail: 'Just like we have a way of tracking history of kiro sessions so we can update the docs, i want to be able to update all work done since the last git commit. Then when i want to commit changes, there should be a button called \'commit all\' that opens up a new terminal tab and runs a script that is able to do a git add . alond with a git commit -m"<message summarising all changes since last commit>" and then updates some marker so we know we have no new changes. and the next time we want to do a git commit, it will add a message based on changes since the last commit', category: 'tracker', id: 6, added: '2026-05-06' },
+  { priority: 'medium', status: 'done', title: 'Track git changes', detail: 'Just like we have a way of tracking history of kiro sessions so we can update the docs, i want to be able to update all work done since the last git commit. Then when i want to commit changes, there should be a button called \'commit all\' that opens up a new terminal tab and runs a script that is able to do a git add . alond with a git commit -m"<message summarising all changes since last commit>" and then updates some marker so we know we have no new changes. and the next time we want to do a git commit, it will add a message based on changes since the last commit', category: 'tracker', id: 6, added: '2026-05-06' },
+  { priority: 'medium', status: 'planned', title: 'Browser-based session manager with multi-session support', detail: 'Instead of opening a new browser tab for each kiro session, have a single persistent page (sessions.html) that manages all active sessions. Left sidebar shows all open sessions — clicking one shows its terminal in the main panel (iframe to ttyd). Features: (1) Auto-naming — AI generates a brief title summarising what the session is doing, with fallback names like Session 1, Session 2. (2) Rename — click session name to edit it manually. (3) Archive — move a session to an archived section at the bottom-left, collapsible, can be recalled/reopened later. (4) All tracker Fix/Diagnose/Refresh/Decide buttons route to this page instead of opening new tabs. (5) New Session button creates a blank dodging-bullets agent session. Backend needs: session registry (track port, label, status, archived), cleanup of dead ttyd processes, session list endpoint. Drop --once flag, manage lifecycle ourselves.', category: 'tooling', id: 7, added: '2026-05-06' },
 ];
 
 function priorityOrder(p) { return { high: 0, medium: 1, low: 2 }[p] ?? 3; }
@@ -150,6 +179,7 @@ function renderTable(filter) {
       <td>${f.category || '—'}</td>
       <td>${f.added}</td>
       <td class="actions">
+        <button class="act-btn" title="Edit this feature" onclick="editEntry(${f.id})">✏️</button>
         ${f.status === 'planned' ? `<button class="act-btn" title="Mark as in progress" onclick="setStatus(${f.id},'in-progress')">▶ Start</button>` : ''}
         ${f.status === 'in-progress' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
         ${f.status === 'planned' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
@@ -214,6 +244,35 @@ async function diagnoseEntry(id) {
   const data = await resp.json();
   if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
   showToast(`🔍 Diagnosing feature #${id}...`);
+}
+
+function editEntry(id) {
+  const f = FEATURES.find(f => f.id === id);
+  if (!f) return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-title').value = f.title || '';
+  document.getElementById('edit-priority').value = f.priority || 'medium';
+  document.getElementById('edit-category').value = f.category || '';
+  document.getElementById('edit-detail').value = f.detail || '';
+  document.getElementById('editModal').classList.add('visible');
+}
+
+function closeEditModal() { document.getElementById('editModal').classList.remove('visible'); }
+
+async function saveEdit() {
+  const id = Number(document.getElementById('edit-id').value);
+  const fields = {
+    title: document.getElementById('edit-title').value.trim(),
+    priority: document.getElementById('edit-priority').value,
+    category: document.getElementById('edit-category').value.trim(),
+    detail: document.getElementById('edit-detail').value.trim(),
+  };
+  await fetch('/api/tracker/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, fields }) });
+  const f = FEATURES.find(f => f.id === id);
+  if (f) Object.assign(f, fields);
+  closeEditModal();
+  renderTable(document.querySelector('.filter-btn.active')?.dataset.filter || 'all');
+  showToast(`Feature #${id} updated`);
 }
 </script>
 </body>

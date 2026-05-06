@@ -151,7 +151,6 @@ function saveLevelPlugin(): Plugin {
           let content = fs.readFileSync(filePath, 'utf-8');
 
           for (const [key, value] of Object.entries(body.fields)) {
-            // Match: key: 'value' or key: "value" for the given id
             const escaped = value.replace(/'/g, "\\'");
             const idPattern = `id: ${body.id},`;
             const idx = content.indexOf(idPattern);
@@ -163,11 +162,18 @@ function saveLevelPlugin(): Plugin {
             if (entryStart === -1 || entryEnd === -1) { res.statusCode = 500; res.end('Parse error'); return; }
             const entryBlock = content.substring(entryStart, entryEnd + 1);
 
-            const fieldRegex = new RegExp(`${key}:\\s*'[^']*'`);
-            if (fieldRegex.test(entryBlock)) {
-              const updated = entryBlock.replace(fieldRegex, `${key}: '${escaped}'`);
-              content = content.substring(0, entryStart) + updated + content.substring(entryStart + entryBlock.length);
+            // Try single-quoted field first, then backtick-quoted
+            const singleQuoteRegex = new RegExp(`${key}:\\s*'[^']*'`);
+            const backtickRegex = new RegExp(`${key}:\\s*\`[\\s\\S]*?\``);
+            let updated: string;
+            if (singleQuoteRegex.test(entryBlock)) {
+              updated = entryBlock.replace(singleQuoteRegex, `${key}: '${escaped}'`);
+            } else if (backtickRegex.test(entryBlock)) {
+              updated = entryBlock.replace(backtickRegex, `${key}: '${escaped}'`);
+            } else {
+              continue; // Field not found in entry, skip
             }
+            content = content.substring(0, entryStart) + updated + content.substring(entryStart + entryBlock.length);
           }
 
           fs.writeFileSync(filePath, content, 'utf-8');
@@ -304,12 +310,15 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
         try {
           const cwd = process.cwd();
           const message = `Run \`git status\` and \`git diff --stat\` to see all uncommitted changes. Then:
-1. Generate a concise commit message summarizing all the work done (use conventional commit style, e.g. "feat: ...", "fix: ...", or a general summary if mixed)
-2. Run \`git add .\` then \`git commit -m"<your message>"\`
-3. Show the user what was committed (the commit message and files changed)
-4. Ask the user if they want to push (y/n). If yes, run \`git push\`. If no, say done.
+1. Show the user a summary of what changed (files modified/added/deleted and a brief description of the work done)
+2. Generate a concise commit message (conventional commit style, e.g. "feat: ...", "fix: ...", or a general summary if mixed)
+3. Show the proposed commit message and ask: "Commit with this message? (y/n/edit)"
+   - If yes: Run \`git add .\` then \`git commit -m"<message>"\`
+   - If edit: Let the user provide a new message, then commit with that
+   - If no: Stop without committing
+4. After committing, ask if they want to push (y/n). If yes, run \`git push\`. If no, say done.
 
-Do NOT ask any questions before committing — just do it. If there are no changes to commit, say so and stop.`;
+If there are no changes to commit, say so and stop.`;
 
           const tmpFile = path.resolve('tmp', `commit-${Date.now()}.txt`);
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
