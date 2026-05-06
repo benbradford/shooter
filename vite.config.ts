@@ -298,6 +298,36 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
+      // Commit All — invoke kiro-cli to generate commit message, commit, and optionally push
+      server.middlewares.use('/api/tracker/commit', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const cwd = process.cwd();
+          const message = `Run \`git status\` and \`git diff --stat\` to see all uncommitted changes. Then:
+1. Generate a concise commit message summarizing all the work done (use conventional commit style, e.g. "feat: ...", "fix: ...", or a general summary if mixed)
+2. Run \`git add .\` then \`git commit -m"<your message>"\`
+3. Show the user what was committed (the commit message and files changed)
+4. Ask the user if they want to push (y/n). If yes, run \`git push\`. If no, say done.
+
+Do NOT ask any questions before committing — just do it. If there are no changes to commit, say so and stop.`;
+
+          const tmpFile = path.resolve('tmp', `commit-${Date.now()}.txt`);
+          fs.mkdirSync(path.resolve('tmp'), { recursive: true });
+          fs.writeFileSync(tmpFile, message, 'utf-8');
+
+          console.log('🔀 Launching kiro agent to commit changes...');
+          const port = 7681 + Math.floor(Math.random() * 100);
+          const ttydPath = '/opt/homebrew/bin/ttyd';
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
+          ttyd.unref();
+
+          const url = `http://localhost:${port}`;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, url, message: 'kiro agent launched to commit changes' }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
       // New Session — open a blank kiro-cli session in ttyd
       server.middlewares.use('/api/tracker/session', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }

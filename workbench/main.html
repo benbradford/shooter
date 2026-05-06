@@ -64,6 +64,7 @@
 <div class="actions">
   <button class="action-btn" onclick="newSession()">🚀 New Session</button>
   <button class="action-btn" onclick="updateDocs()" title="Launches a kiro agent to analyze recent sessions, update docs, and run an audit">📝 Update Docs</button>
+  <button class="action-btn" onclick="commitAll()" title="Opens a kiro agent to generate a commit message, commit all changes, and optionally push">🔀 Commit All</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -83,6 +84,14 @@ async function updateDocs() {
     const data = await res.json();
     if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
     showToast(data.message || 'Launched!');
+  } catch (e) { showToast('Failed: ' + e.message); }
+}
+async function commitAll() {
+  try {
+    const res = await fetch('/api/tracker/commit', { method: 'POST' });
+    const data = await res.json();
+    if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+    showToast('🔀 Commit session starting...');
   } catch (e) { showToast('Failed: ' + e.message); }
 }
 function showToast(msg) {

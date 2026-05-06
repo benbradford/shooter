@@ -34,6 +34,7 @@ function getCardinalPushDirectionIdle(dx: number, dy: number): Direction | null 
 export class PlayerIdleState implements IState {
   private lastDir: Direction = Direction.Down;
   private wasRockThrowLocked = false;
+  private wasPunching = false;
 
   constructor(private readonly entity: Entity) {}
 
@@ -78,7 +79,15 @@ export class PlayerIdleState implements IState {
     }
     
     if (handlePunchInput(input, attackCombo, water)) {
+      this.wasPunching = true;
       return;
+    }
+
+    // Punch just ended — force re-play idle animation
+    if (this.wasPunching) {
+      this.wasPunching = false;
+      const prefix = water?.getIsInWater() ? 'swim' : 'idle';
+      anim.animationSystem.play(`${prefix}_${this.lastDir}`);
     }
     
     if (walk.lastDir !== this.lastDir) {

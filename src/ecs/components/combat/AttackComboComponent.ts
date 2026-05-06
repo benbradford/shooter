@@ -182,7 +182,7 @@ export class AttackComboComponent implements Component {
       } else {
         this.currentPhase = 'punching';
         this.releasedFromCharge = true;
-        this.createPunchHitbox();
+        this.hitboxCreated = false;
         if (anim) {
           anim.animationSystem.play(`punch_${this.punchDir}`, animSpeed);
         }

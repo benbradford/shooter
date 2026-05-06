@@ -10,8 +10,8 @@ Create a 2D top-down cross-platform game using Phaser, with fixed grid-based mov
 - Raspberry Pi (local web server)
 
 **Controls:**
-- Desktop: WASD to move, Space to punch
-- Mobile: Touch joystick + attack button
+- Desktop: WASD to move, Space to punch, P to use pet ability
+- Mobile: Touch joystick + attack button + pet button
 
 ---
 

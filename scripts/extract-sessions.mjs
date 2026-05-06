@@ -220,12 +220,18 @@ function formatOutput(summary) {
   return lines.join('\n');
 }
 
-function writeTimestamp() {
+function writeTimestamp(sessions) {
   const dir = resolve('tmp');
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
-  writeFileSync(TIMESTAMP_FILE, new Date().toISOString());
+  // Use the latest session's updated_at (not wall clock) to avoid gap where
+  // sessions completing during our execution get skipped on next run
+  const latest = sessions.reduce((max, s) => {
+    const t = new Date(s.updated_at);
+    return t > max ? t : max;
+  }, new Date(0));
+  writeFileSync(TIMESTAMP_FILE, latest.toISOString());
 }
 
 // Main
@@ -246,6 +252,6 @@ console.log(output);
 
 // Write timestamp marker
 if (!process.argv.includes('--dry-run')) {
-  writeTimestamp();
+  writeTimestamp(filtered);
   console.log(`\n---\nTimestamp updated: ${TIMESTAMP_FILE}`);
 }

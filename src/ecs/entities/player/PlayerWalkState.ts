@@ -35,6 +35,7 @@ function getCardinalPushDirection(dx: number, dy: number): Direction | null {
 export class PlayerWalkState implements IState {
   private lastAnimKey = '';
   private wasRockThrowLocked = false;
+  private wasPunching = false;
 
   constructor(private readonly entity: Entity) {}
 
@@ -84,7 +85,14 @@ export class PlayerWalkState implements IState {
     }
 
     if (handlePunchInput(input, attackCombo, water)) {
+      this.wasPunching = true;
       return;
+    }
+
+    // Punch just ended — invalidate lastAnimKey so walk anim gets re-played
+    if (this.wasPunching) {
+      this.wasPunching = false;
+      this.lastAnimKey = '';
     }
 
     const { dx, dy } = input.getInputDelta();
