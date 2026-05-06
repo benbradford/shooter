@@ -155,33 +155,18 @@ export class WaterEffectComponent implements Component {
       sprite.sprite.setDepth(Depth.player);
     }
 
-    // Block water exit if no valid dry landing cell exists or player is too close to water
+    // Block water exit if no valid dry landing cell exists or player slid onto dry cell
     if (!nowInWater && this.isInWater) {
       if (isCurrentCellWater) {
+        // On water cell — only allow exit if there's a valid dry landing
         const dir = this.getJoystickDirection(walk);
         const exitCell = this.findValidExitCell(gridPos.currentCell.col, gridPos.currentCell.row, dir, grid);
         if (!exitCell) {
           nowInWater = true;
         }
       } else {
-        // Player's currentCell is dry — only allow exit if not near an adjacent water cell
-        const col = gridPos.currentCell.col;
-        const row = gridPos.currentCell.row;
-        const cellWorld = grid.cellToWorld(col, row);
-        const halfCell = grid.cellSize / 2;
-        const MIN_DIST_FROM_WATER_PX = 16;
-        const px = transform.x - (cellWorld.x + halfCell);
-        const py = transform.y - (cellWorld.y + halfCell);
-
-        if (px > halfCell - MIN_DIST_FROM_WATER_PX && grid.getCell(col + 1, row)?.properties.has('water')) {
-          nowInWater = true;
-        } else if (px < -(halfCell - MIN_DIST_FROM_WATER_PX) && grid.getCell(col - 1, row)?.properties.has('water')) {
-          nowInWater = true;
-        } else if (py > halfCell - MIN_DIST_FROM_WATER_PX && grid.getCell(col, row + 1)?.properties.has('water')) {
-          nowInWater = true;
-        } else if (py < -(halfCell - MIN_DIST_FROM_WATER_PX) && grid.getCell(col, row - 1)?.properties.has('water')) {
-          nowInWater = true;
-        }
+        // Player's currentCell became dry (sliding/boundary) — stay in water, let normal exit handle it
+        nowInWater = true;
       }
     }
 
@@ -205,9 +190,9 @@ export class WaterEffectComponent implements Component {
         this.pendingEntrySplash = true;
       }
 
-      // Calculate target cell and trigger jump
+      // Calculate target cell and trigger jump (skip if already on dry cell — no jump needed)
       const jumpTarget = this.calculateJumpTarget(nowInWater, isCurrentCellWater, gridPos, walk, grid);
-      if (jump && jumpTarget) {
+      if (jump && jumpTarget && (nowInWater || isCurrentCellWater)) {
         jump.triggerWaterJump(jumpTarget.col, jumpTarget.row, jumpTarget.dx, jumpTarget.dy, nowInWater);
       }
     }

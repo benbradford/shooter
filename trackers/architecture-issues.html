@@ -190,9 +190,9 @@ const ISSUES = [
 
   // ── MEDIUM ──
   {
-    id: 7, severity: 'medium', status: 'open',
+    id: 7, severity: 'medium', status: 'done',
     title: 'LuaRuntime.executeScript is 283 LOC — extract API registration helpers',
-    detail: 'File is 588 LOC total. executeScript is 283 lines (up from 231 at last audit — grew with new API bindings). executeCommand is 100 LOC. 17 imports, 4 singleton accesses. Extract registerPlayerAPI(), registerNpcAPI(), registerWorldAPI(), registerUIAPI().',
+    detail: 'Extracted 4 private helpers: registerPlayerAPI() (player object, calculateDirection, celebrate), registerNpcAPI() (npc object, faceEachOther, restoreDirections), registerWorldAPI() (setFlag, getFlag, saveState, isFlagCondition, raiseEvent), registerUIAPI() (wait, say, coins, speech, fadeOut, fadeIn, showSpecialItem, hideSpecialItem). executeScript is now ~20 LOC.',
     files: ['src/systems/LuaRuntime.ts'],
     effort: '2h', risk: 'Low', fanIn: 1, category: 'maintainability',
     added: '2026-05-04',

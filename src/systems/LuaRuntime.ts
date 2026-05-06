@@ -1,4 +1,4 @@
-import { LuaFactory } from 'wasmoon';
+import { LuaFactory, LuaEngine } from 'wasmoon';
 import { Entity } from '../ecs/Entity';
 import type GameScene from '../scenes/GameScene';
 import { CoinCounterComponent } from '../ecs/components/ui/CoinCounterComponent';
@@ -90,214 +90,10 @@ export class LuaRuntime {
       this.speechBackgroundColor = 'purple';
       this.speechTextColor = 'white';
 
-      lua.global.set('wait', (ms: number) => {
-        this.commandQueue.push({ type: 'wait', ms });
-      });
-
-      lua.global.set('say', (name: string, text: string, speed: number, timeout?: number) => {
-        this.commandQueue.push({
-          type: 'say',
-          name,
-          text,
-          speed,
-          timeout: timeout ?? 10000,
-          backgroundColor: this.speechBackgroundColor,
-          textColor: this.speechTextColor
-        });
-      });
-
-      const playerEntity = this.scene.entityManager.getFirst('player');
-      const playerGridPos = playerEntity?.get(GridPositionComponent);
-      const playerTransform = playerEntity?.get(TransformComponent);
-      const playerWalk = playerEntity?.get(WalkComponent);
-      const playerDirection = playerWalk ? DIRECTION_TO_STRING[playerWalk.lastDir] : 'down';
-
-      const player = {
-        col: playerGridPos?.currentCell.col ?? 0,
-        row: playerGridPos?.currentCell.row ?? 0,
-        x: playerTransform?.x ?? 0,
-        y: playerTransform?.y ?? 0,
-        direction: playerDirection,
-        name: () => 'Player',
-        moveTo: (col: number, row: number, speed: number) => {
-          this.commandQueue.push({ type: 'moveTo', col, row, speed });
-        },
-        look: (direction: string) => {
-          this.commandQueue.push({ type: 'look', direction });
-        },
-        teleportTo: (col: number, row: number) => {
-          this.commandQueue.push({ type: 'teleportTo', col, row });
-        },
-        punch: (direction: string) => {
-          const dir = DIRECTION_MAP[direction];
-          if (dir === undefined) {
-            throw new Error(`[LuaRuntime] Invalid direction for punch: ${direction}`);
-          }
-          this.commandQueue.push({ type: 'punch', direction: dir });
-        },
-        playAnim: (animName: string, repeatType: string, direction?: string, startFrame?: number, endFrame?: number) => {
-          const dir = direction ? DIRECTION_MAP[direction] : Direction.Down;
-          if (dir === undefined) {
-            throw new Error(`[LuaRuntime] Invalid direction for playAnim: ${direction}`);
-          }
-          const animKey = `${animName}_${dir}`;
-          this.commandQueue.push({ type: 'playerPlayAnim', animKey, repeatType: repeatType ?? 'once', startFrame, endFrame });
-        }
-      };
-      lua.global.set('player', player);
-
-      lua.global.set('calculateDirection', (fromX: number, fromY: number, toX: number, toY: number): string => {
-        const dx = toX - fromX;
-        const dy = toY - fromY;
-        return DIRECTION_TO_STRING[dirFromDelta(dx, dy)] ?? 'down';
-      });
-
-      if (npcId) {
-        const npcEntity = this.scene.entityManager.getByType('npc').find(e => e.id === npcId);
-        const npcIdleComp = npcEntity?.get(NPCIdleComponent);
-        const npcInteractionComp = npcEntity?.get(NPCInteractionComponent);
-        const npcTransform = npcEntity?.get(TransformComponent);
-        const currentDirection = npcIdleComp ? DIRECTION_TO_STRING[npcIdleComp.getDirection()] : 'down';
-        const activeInteraction = npcInteractionComp?.getActiveInteraction();
-
-        let storedNpcDirection: string | null = null;
-        let storedPlayerDirection: string | null = null;
-
-        const npc = {
-          col: activeInteraction?.col ?? 0,
-          row: activeInteraction?.row ?? 0,
-          x: npcTransform?.x ?? 0,
-          y: npcTransform?.y ?? 0,
-          direction: currentDirection,
-          name: () => (npcEntity as any)?.npcName ?? 'NPC',
-          look: (direction: string) => {
-            const dir = DIRECTION_MAP[direction];
-            if (dir === undefined) {
-              throw new Error(`[LuaRuntime] Invalid direction: ${direction}`);
-            }
-            this.commandQueue.push({ type: 'npcLook', npcId, direction: dir });
-          },
-          playAnim: (animKey: string, repeatType: string) => {
-            this.commandQueue.push({ type: 'npcPlayAnim', npcId, animKey, repeatType: repeatType ?? 'once' });
-          }
-        };
-        lua.global.set('npc', npc);
-
-        lua.global.set('faceEachOther', () => {
-          // Wait one frame for velocity to fully stop
-          this.commandQueue.push({ type: 'wait', ms: 16 });
-
-          storedNpcDirection = currentDirection;
-          storedPlayerDirection = playerDirection;
-
-          const npcToPlayerDir = DIRECTION_TO_STRING[dirFromDelta(
-            (playerTransform?.x ?? 0) - (npcTransform?.x ?? 0),
-            (playerTransform?.y ?? 0) - (npcTransform?.y ?? 0)
-          )] ?? 'down';
-
-          const playerToNpcDir = DIRECTION_TO_STRING[dirFromDelta(
-            (npcTransform?.x ?? 0) - (playerTransform?.x ?? 0),
-            (npcTransform?.y ?? 0) - (playerTransform?.y ?? 0)
-          )] ?? 'down';
-
-          this.commandQueue.push({ type: 'look', direction: playerToNpcDir });
-          this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[npcToPlayerDir]! });
-        });
-
-        lua.global.set('restoreDirections', () => {
-          if (storedPlayerDirection) {
-            this.commandQueue.push({ type: 'look', direction: storedPlayerDirection });
-          }
-          if (storedNpcDirection) {
-            this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[storedNpcDirection]! });
-          }
-        });
-      }
-
-      const hudScene = this.scene.scene.get('HudScene');
-      const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
-      const coinCounter = joystickEntity?.get(CoinCounterComponent);
-
-      if (!coinCounter) {
-        throw new Error('[LuaRuntime] CoinCounterComponent not found in HUD');
-      }
-
-      const coins = {
-        get: () => coinCounter.getCount(),
-        spend: (amount: number) => {
-          this.commandQueue.push({ type: 'spendCoins', amount });
-        },
-        obtain: (amount: number) => {
-          this.commandQueue.push({ type: 'obtainCoins', amount });
-        }
-      };
-      lua.global.set('coins', coins);
-
-      const speech = {
-        backgroundColor: (color: string) => {
-          this.speechBackgroundColor = color;
-        },
-        textColor: (color: string) => {
-          this.speechTextColor = color;
-        }
-      };
-      lua.global.set('speech', speech);
-
-      lua.global.set('fadeOut', (durationMs: number) => {
-        this.commandQueue.push({ type: 'fadeOut', durationMs });
-      });
-
-      lua.global.set('fadeIn', (durationMs: number) => {
-        this.commandQueue.push({ type: 'fadeIn', durationMs });
-      });
-
-      lua.global.set('setFlag', (name: string, value: string | number) => {
-        const worldState = WorldStateManager.getInstance();
-        worldState.setFlag(name, value);
-      });
-
-      lua.global.set('celebrate', () => {
-        const dirs = ['down', 'down_left', 'left', 'up_left', 'up', 'up_right', 'right', 'down_right', 'down'];
-        const SPIN_DELAY_MS = 30;
-        // Play initial powerup frames 0-5 facing down
-        this.commandQueue.push({ type: 'playerPlayAnim', animKey: `powerup_${DIRECTION_MAP['down']}`, repeatType: 'once', startFrame: 0, endFrame: 5 });
-        // Spin through all directions holding frame 5
-        for (let i = 1; i < dirs.length; i++) {
-          this.commandQueue.push({ type: 'wait', ms: SPIN_DELAY_MS });
-          this.commandQueue.push({ type: 'playerPlayAnim', animKey: `powerup_${DIRECTION_MAP[dirs[i]]}`, repeatType: 'once', startFrame: 5, endFrame: 5 });
-        }
-      });
-
-      lua.global.set('raiseEvent', (eventName: string) => {
-        this.commandQueue.push({ type: 'raiseEvent', eventName });
-      });
-
-      lua.global.set('getFlag', (name: string): string => {
-        const worldState = WorldStateManager.getInstance();
-        return worldState.getFlag(name) ?? '';
-      });
-
-      lua.global.set('saveState', () => {
-        void WorldStateManager.getInstance().saveToFile();
-      });
-
-      lua.global.set('isFlagCondition', (name: string, condition: string, value: string | number): boolean => {
-        const worldState = WorldStateManager.getInstance();
-        const validConditions = ['eq', 'neq', 'gt', 'lt', 'gte', 'lte'];
-        if (!validConditions.includes(condition)) {
-          console.error(`[LuaRuntime] Invalid condition: ${condition}`);
-          return false;
-        }
-        return worldState.isFlagCondition(name, condition as 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value);
-      });
-
-      lua.global.set('showSpecialItem', (itemType: string) => {
-        this.commandQueue.push({ type: 'showSpecialItem', itemType });
-      });
-
-      lua.global.set('hideSpecialItem', () => {
-        this.commandQueue.push({ type: 'hideSpecialItem' });
-      });
+      this.registerPlayerAPI(lua);
+      this.registerNpcAPI(lua, npcId);
+      this.registerWorldAPI(lua);
+      this.registerUIAPI(lua);
 
       await lua.doString(scriptContent);
 
@@ -305,12 +101,226 @@ export class LuaRuntime {
         await this.executeCommand(cmd);
       }
 
-      // Auto-cleanup special item display when interaction ends
       await this.scaleDownSpecialItemDisplay();
-
     } finally {
       lua.global.close();
     }
+  }
+
+  private registerPlayerAPI(lua: LuaEngine): void {
+    const playerEntity = this.scene.entityManager.getFirst('player');
+    const playerGridPos = playerEntity?.get(GridPositionComponent);
+    const playerTransform = playerEntity?.get(TransformComponent);
+    const playerWalk = playerEntity?.get(WalkComponent);
+    const playerDirection = playerWalk ? DIRECTION_TO_STRING[playerWalk.lastDir] : 'down';
+
+    const player = {
+      col: playerGridPos?.currentCell.col ?? 0,
+      row: playerGridPos?.currentCell.row ?? 0,
+      x: playerTransform?.x ?? 0,
+      y: playerTransform?.y ?? 0,
+      direction: playerDirection,
+      name: () => 'Player',
+      moveTo: (col: number, row: number, speed: number) => {
+        this.commandQueue.push({ type: 'moveTo', col, row, speed });
+      },
+      look: (direction: string) => {
+        this.commandQueue.push({ type: 'look', direction });
+      },
+      teleportTo: (col: number, row: number) => {
+        this.commandQueue.push({ type: 'teleportTo', col, row });
+      },
+      punch: (direction: string) => {
+        const dir = DIRECTION_MAP[direction];
+        if (dir === undefined) {
+          throw new Error(`[LuaRuntime] Invalid direction for punch: ${direction}`);
+        }
+        this.commandQueue.push({ type: 'punch', direction: dir });
+      },
+      playAnim: (animName: string, repeatType: string, direction?: string, startFrame?: number, endFrame?: number) => {
+        const dir = direction ? DIRECTION_MAP[direction] : Direction.Down;
+        if (dir === undefined) {
+          throw new Error(`[LuaRuntime] Invalid direction for playAnim: ${direction}`);
+        }
+        const animKey = `${animName}_${dir}`;
+        this.commandQueue.push({ type: 'playerPlayAnim', animKey, repeatType: repeatType ?? 'once', startFrame, endFrame });
+      }
+    };
+    lua.global.set('player', player);
+
+    lua.global.set('calculateDirection', (fromX: number, fromY: number, toX: number, toY: number): string => {
+      const dx = toX - fromX;
+      const dy = toY - fromY;
+      return DIRECTION_TO_STRING[dirFromDelta(dx, dy)] ?? 'down';
+    });
+
+    lua.global.set('celebrate', () => {
+      const dirs = ['down', 'down_left', 'left', 'up_left', 'up', 'up_right', 'right', 'down_right', 'down'];
+      const SPIN_DELAY_MS = 30;
+      this.commandQueue.push({ type: 'playerPlayAnim', animKey: `powerup_${DIRECTION_MAP['down']}`, repeatType: 'once', startFrame: 0, endFrame: 5 });
+      for (let i = 1; i < dirs.length; i++) {
+        this.commandQueue.push({ type: 'wait', ms: SPIN_DELAY_MS });
+        this.commandQueue.push({ type: 'playerPlayAnim', animKey: `powerup_${DIRECTION_MAP[dirs[i]]}`, repeatType: 'once', startFrame: 5, endFrame: 5 });
+      }
+    });
+  }
+
+  private registerNpcAPI(lua: LuaEngine, npcId?: string): void {
+    if (!npcId) return;
+
+    const playerEntity = this.scene.entityManager.getFirst('player');
+    const playerTransform = playerEntity?.get(TransformComponent);
+    const playerWalk = playerEntity?.get(WalkComponent);
+    const playerDirection = playerWalk ? DIRECTION_TO_STRING[playerWalk.lastDir] : 'down';
+
+    const npcEntity = this.scene.entityManager.getByType('npc').find(e => e.id === npcId);
+    const npcIdleComp = npcEntity?.get(NPCIdleComponent);
+    const npcInteractionComp = npcEntity?.get(NPCInteractionComponent);
+    const npcTransform = npcEntity?.get(TransformComponent);
+    const currentDirection = npcIdleComp ? DIRECTION_TO_STRING[npcIdleComp.getDirection()] : 'down';
+    const activeInteraction = npcInteractionComp?.getActiveInteraction();
+
+    let storedNpcDirection: string | null = null;
+    let storedPlayerDirection: string | null = null;
+
+    const npc = {
+      col: activeInteraction?.col ?? 0,
+      row: activeInteraction?.row ?? 0,
+      x: npcTransform?.x ?? 0,
+      y: npcTransform?.y ?? 0,
+      direction: currentDirection,
+      name: () => (npcEntity as any)?.npcName ?? 'NPC',
+      look: (direction: string) => {
+        const dir = DIRECTION_MAP[direction];
+        if (dir === undefined) {
+          throw new Error(`[LuaRuntime] Invalid direction: ${direction}`);
+        }
+        this.commandQueue.push({ type: 'npcLook', npcId, direction: dir });
+      },
+      playAnim: (animKey: string, repeatType: string) => {
+        this.commandQueue.push({ type: 'npcPlayAnim', npcId, animKey, repeatType: repeatType ?? 'once' });
+      }
+    };
+    lua.global.set('npc', npc);
+
+    lua.global.set('faceEachOther', () => {
+      this.commandQueue.push({ type: 'wait', ms: 16 });
+
+      storedNpcDirection = currentDirection;
+      storedPlayerDirection = playerDirection;
+
+      const npcToPlayerDir = DIRECTION_TO_STRING[dirFromDelta(
+        (playerTransform?.x ?? 0) - (npcTransform?.x ?? 0),
+        (playerTransform?.y ?? 0) - (npcTransform?.y ?? 0)
+      )] ?? 'down';
+
+      const playerToNpcDir = DIRECTION_TO_STRING[dirFromDelta(
+        (npcTransform?.x ?? 0) - (playerTransform?.x ?? 0),
+        (npcTransform?.y ?? 0) - (playerTransform?.y ?? 0)
+      )] ?? 'down';
+
+      this.commandQueue.push({ type: 'look', direction: playerToNpcDir });
+      this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[npcToPlayerDir]! });
+    });
+
+    lua.global.set('restoreDirections', () => {
+      if (storedPlayerDirection) {
+        this.commandQueue.push({ type: 'look', direction: storedPlayerDirection });
+      }
+      if (storedNpcDirection) {
+        this.commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[storedNpcDirection]! });
+      }
+    });
+  }
+
+  private registerWorldAPI(lua: LuaEngine): void {
+    lua.global.set('setFlag', (name: string, value: string | number) => {
+      WorldStateManager.getInstance().setFlag(name, value);
+    });
+
+    lua.global.set('getFlag', (name: string): string => {
+      return WorldStateManager.getInstance().getFlag(name) ?? '';
+    });
+
+    lua.global.set('saveState', () => {
+      void WorldStateManager.getInstance().saveToFile();
+    });
+
+    lua.global.set('isFlagCondition', (name: string, condition: string, value: string | number): boolean => {
+      const validConditions = ['eq', 'neq', 'gt', 'lt', 'gte', 'lte'];
+      if (!validConditions.includes(condition)) {
+        console.error(`[LuaRuntime] Invalid condition: ${condition}`);
+        return false;
+      }
+      return WorldStateManager.getInstance().isFlagCondition(name, condition as 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value);
+    });
+
+    lua.global.set('raiseEvent', (eventName: string) => {
+      this.commandQueue.push({ type: 'raiseEvent', eventName });
+    });
+  }
+
+  private registerUIAPI(lua: LuaEngine): void {
+    lua.global.set('wait', (ms: number) => {
+      this.commandQueue.push({ type: 'wait', ms });
+    });
+
+    lua.global.set('say', (name: string, text: string, speed: number, timeout?: number) => {
+      this.commandQueue.push({
+        type: 'say',
+        name,
+        text,
+        speed,
+        timeout: timeout ?? 10000,
+        backgroundColor: this.speechBackgroundColor,
+        textColor: this.speechTextColor
+      });
+    });
+
+    const hudScene = this.scene.scene.get('HudScene');
+    const joystickEntity = (hudScene as { getJoystickEntity?: () => Entity })?.getJoystickEntity?.();
+    const coinCounter = joystickEntity?.get(CoinCounterComponent);
+
+    if (!coinCounter) {
+      throw new Error('[LuaRuntime] CoinCounterComponent not found in HUD');
+    }
+
+    const coins = {
+      get: () => coinCounter.getCount(),
+      spend: (amount: number) => {
+        this.commandQueue.push({ type: 'spendCoins', amount });
+      },
+      obtain: (amount: number) => {
+        this.commandQueue.push({ type: 'obtainCoins', amount });
+      }
+    };
+    lua.global.set('coins', coins);
+
+    const speech = {
+      backgroundColor: (color: string) => {
+        this.speechBackgroundColor = color;
+      },
+      textColor: (color: string) => {
+        this.speechTextColor = color;
+      }
+    };
+    lua.global.set('speech', speech);
+
+    lua.global.set('fadeOut', (durationMs: number) => {
+      this.commandQueue.push({ type: 'fadeOut', durationMs });
+    });
+
+    lua.global.set('fadeIn', (durationMs: number) => {
+      this.commandQueue.push({ type: 'fadeIn', durationMs });
+    });
+
+    lua.global.set('showSpecialItem', (itemType: string) => {
+      this.commandQueue.push({ type: 'showSpecialItem', itemType });
+    });
+
+    lua.global.set('hideSpecialItem', () => {
+      this.commandQueue.push({ type: 'hideSpecialItem' });
+    });
   }
 
   private async hideSpecialItemDisplay(): Promise<void> {
@@ -365,7 +375,6 @@ export class LuaRuntime {
   }
 
   private async executeCommand(cmd: Command): Promise<void> {
-    // Tag player for all commands (keeps state machine from interfering)
     this.playerEntity.tags.add('interaction_active');
 
     try {
@@ -524,7 +533,6 @@ export class LuaRuntime {
         sprite.setDepth(Depth.fade + 1);
         sprite.setScale(0);
 
-        // Tween in with bounce
         await new Promise<void>(resolve => {
           this.scene.tweens.add({
             targets: sprite,
@@ -535,7 +543,6 @@ export class LuaRuntime {
           });
         });
 
-        // Pulsing tween
         const pulseTween = this.scene.tweens.add({
           targets: sprite,
           scale: { from: SPECIAL_ITEM_SCALE * (1 - SPECIAL_ITEM_PULSE_AMPLITUDE), to: SPECIAL_ITEM_SCALE * (1 + SPECIAL_ITEM_PULSE_AMPLITUDE) },
@@ -545,7 +552,6 @@ export class LuaRuntime {
           ease: 'Sine.easeInOut'
         });
 
-        // Sparkle particles
         const sparkles: Phaser.GameObjects.Arc[] = [];
         const sparkleTimer = this.scene.time.addEvent({
           delay: SPECIAL_ITEM_SPARKLE_FREQUENCY_MS,
@@ -581,7 +587,6 @@ export class LuaRuntime {
         await this.hideSpecialItemDisplay();
       }
     } finally {
-      // Remove tag after command completes (before next command starts)
       this.playerEntity.tags.delete('interaction_active');
     }
   }
