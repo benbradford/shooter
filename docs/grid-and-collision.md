@@ -154,6 +154,9 @@ Handles all collision logic including layer-based movement. Features:
 - `offsetY = 0`: Full body collision
 - `offsetX = 0`: Centered horizontally (most common)
 
+**Collision Box Stack (push/pop):**
+`GridPositionComponent` supports a stack of collision boxes via `pushCollisionBox(box)` / `popCollisionBox()`. The active box is always the top of the stack. Use this when an entity's collision shape changes temporarily (e.g., swimming uses a centered body box instead of the feet box). Pattern matches `ShadowComponent.pushOffset/popOffset`.
+
 ---
 
 ## Projectile Collision

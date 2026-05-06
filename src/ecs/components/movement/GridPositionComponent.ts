@@ -9,7 +9,11 @@ export class GridPositionComponent implements Component {
   public previousCell: { col: number; row: number };
   public currentLayer: number = 0;
 
-  public collisionBox: CollisionBox;
+  private readonly collisionBoxStack: CollisionBox[];
+
+  get collisionBox(): CollisionBox {
+    return this.collisionBoxStack[this.collisionBoxStack.length - 1];
+  }
 
   constructor(
     col: number,
@@ -18,7 +22,17 @@ export class GridPositionComponent implements Component {
   ) {
     this.currentCell = { col, row };
     this.previousCell = { col, row };
-    this.collisionBox = collisionBox;
+    this.collisionBoxStack = [collisionBox];
+  }
+
+  pushCollisionBox(box: CollisionBox): void {
+    this.collisionBoxStack.push(box);
+  }
+
+  popCollisionBox(): void {
+    if (this.collisionBoxStack.length > 1) {
+      this.collisionBoxStack.pop();
+    }
   }
 
 }

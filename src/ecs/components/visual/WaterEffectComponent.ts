@@ -9,7 +9,10 @@ import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { JumpComponent } from '../movement/JumpComponent';
+import type { CollisionBox } from '../combat/CollisionComponent';
 import type { GridReader } from '../../../systems/grid/Grid';
+
+const SWIMMING_COLLISION_BOX: CollisionBox = { offsetX: 0, offsetY: 0, width: 48, height: 32 };
 
 export class WaterEffectComponent implements Component {
   entity!: Entity;
@@ -42,8 +45,11 @@ export class WaterEffectComponent implements Component {
 
     if (!sprite || !transform || !gridPos) return;
 
-    // During a jump, skip water detection — just handle the entry splash on landing
+    // During a jump, keep player at normal depth so background textures don't render in front
     if (jump?.isJumping()) {
+      if (sprite.sprite.depth !== Depth.player) {
+        sprite.sprite.setDepth(Depth.player);
+      }
       return;
     }
 
@@ -154,13 +160,15 @@ export class WaterEffectComponent implements Component {
       this.isInWater = nowInWater;
 
       if (!nowInWater && wasInWater) {
-        // Exiting water — splash immediately, sound on exit
+        // Exiting water — pop swimming collision box, splash immediately, sound on exit
+        gridPos.popCollisionBox();
         SoundManager.getInstance().play('splash1');
         this.createSplashEffect(transform.x, transform.y, false);
       }
 
       if (nowInWater && !wasInWater) {
-        // Entering water — splash plays after jump lands
+        // Entering water — push swimming collision box, splash plays after jump lands
+        gridPos.pushCollisionBox(SWIMMING_COLLISION_BOX);
         this.pendingEntrySplash = true;
       }
 
