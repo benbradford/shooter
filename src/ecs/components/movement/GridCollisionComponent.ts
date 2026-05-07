@@ -3,14 +3,12 @@ import type { Entity } from '../../Entity';
 import type { Grid, CellCoord } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from './GridPositionComponent';
-import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { WalkComponent } from './WalkComponent';
 import { GridCellBlocker } from './GridCellBlocker';
 import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
-import { JumpComponent } from './JumpComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { GridMovementValidator } from './GridMovementValidator';
 
 
 export class GridCollisionComponent implements Component {
@@ -19,19 +17,24 @@ export class GridCollisionComponent implements Component {
   private previousY: number = 0;
   private occupiedCells: Set<number> = new Set();
   private swapOccupiedCells: Set<number> = new Set();
-  private readonly allowedLayersSet: Set<number> = new Set();
   enabled = true;
   blockedByPushable: Entity | null = null;
 
-  // Pre-allocated temp objects for zero-alloc worldToCell calls in hot paths
-  private readonly _tmpCell0: CellCoord = { col: 0, row: 0 };
-  private readonly _tmpCell1: CellCoord = { col: 0, row: 0 };
-  private readonly _tmpCell2: CellCoord = { col: 0, row: 0 };
-  private readonly _tmpCell3: CellCoord = { col: 0, row: 0 };
-  private readonly _tmpCell4: CellCoord = { col: 0, row: 0 };
-  private readonly _tmpCell5: CellCoord = { col: 0, row: 0 };
+  private readonly validator: GridMovementValidator;
 
-  constructor(private readonly grid: Grid) {}
+  // Pre-allocated temp objects for zero-alloc worldToCell calls in hot paths
+  private readonly _tmpCells: readonly [CellCoord, CellCoord, CellCoord, CellCoord, CellCoord, CellCoord] = [
+    { col: 0, row: 0 },
+    { col: 0, row: 0 },
+    { col: 0, row: 0 },
+    { col: 0, row: 0 },
+    { col: 0, row: 0 },
+    { col: 0, row: 0 },
+  ];
+
+  constructor(private readonly grid: Grid) {
+    this.validator = new GridMovementValidator(grid);
+  }
 
   private static encodeCellKey(col: number, row: number): number {
     return col * 10000 + row;
@@ -50,219 +53,11 @@ export class GridCollisionComponent implements Component {
     this.previousY = y;
   }
 
-  private wasCellOccupied(
-    col: number,
-    row: number,
-    prevTopLeft: { col: number; row: number },
-    prevBottomRight: { col: number; row: number }
-  ): boolean {
-    for (let prevRow = prevTopLeft.row; prevRow <= prevBottomRight.row; prevRow++) {
-      for (let prevCol = prevTopLeft.col; prevCol <= prevBottomRight.col; prevCol++) {
-        if (prevCol === col && prevRow === row) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // eslint-disable-next-line complexity -- Layer-based movement validation requires many conditions
-  private canMoveTo(fromCol: number, fromRow: number, toCol: number, toRow: number, _currentLayer: number): boolean {
-    const fromCell = this.grid.getCell(fromCol, fromRow);
-    const toCell = this.grid.getCell(toCol, toRow);
-
-    if (!fromCell || !toCell) return false;
-
-    // Check if target cell has any occupants with GridCellBlocker
-    for (const occupant of toCell.occupants) {
-      if (occupant.get(GridCellBlocker)) {
-        this.blockedByPushable = occupant;
-        return false;
-      }
-    }
-
-    // Always allow movement between transition cells
-    if (this.grid.isTransition(fromCell) && this.grid.isTransition(toCell)) {
-      return true;
-    }
-
-    // Block movement into higher layers (unless transition or coming from transition)
-    const toLayer = this.grid.getLayer(toCell);
-    const fromLayer = this.grid.getLayer(fromCell);
-
-    if (toLayer > fromLayer && !this.grid.isTransition(fromCell) && !this.grid.isTransition(toCell)) {
-      return false;
-    }
-
-    // Block movement into walls specifically
-    if (this.grid.isWall(toCell) && !this.grid.isTransition(fromCell)) {
-      return false;
-    }
-
-    // Block movement into water if player can't swim, or if entity is not a swimmer (enemies)
-    const waterEffect = this.entity.get(WaterEffectComponent);
-    const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
-    if (!toCell.properties.has('bridge') && toCell.properties.has('water')) {
-      if (!waterEffect || !canSwim) {
-        return false;
-      }
-    }
-
-    // Block walking from bridge onto water (without bridge) - but allow if swimming
-    const isSwimming = waterEffect?.getIsInWater() ?? false;
-    if (!isSwimming && fromCell.properties.has('bridge') && toCell.properties.has('water') && !toCell.properties.has('bridge')) {
-      return false;
-    }
-
-    // Block movement into void cells (entities with JumpComponent get blocked so jump icon shows)
-    if (toCell.properties.has('void')) {
-      if (this.entity.get(JumpComponent) || this.entity.tags.has('pet')) {
-        return false;
-      }
-      return true;
-    }
-
-    // Block swimming from bridge+water onto dry land
-    if (isSwimming && fromCell.properties.has('bridge') && fromCell.properties.has('water') && !toCell.properties.has('water')) {
-      return false;
-    }
-
-    // If in a transition cell, allow movement to adjacent layers
-    if (this.grid.isTransition(fromCell)) {
-      // Allow movement to transitions
-      if (this.grid.isTransition(toCell)) return true;
-
-      // Block movement into walls at any layer
-      if (this.grid.isWall(toCell)) {
-        return false;
-      }
-
-      // Allow movement to adjacent layers
-      if (toLayer >= fromLayer - 1 && toLayer <= fromLayer + 1) return true;
-      return false;
-    }
-
-    // If moving to a transition cell, allow from any direction
-    if (this.grid.isTransition(toCell)) {
-      return true;
-    }
-
-    // Normal cell to normal cell: must be same layer (no layer changes except via transition)
-    if (toLayer !== fromLayer) return false;
-
-    // Block diagonal movement through corners
-    if (fromCol !== toCol && fromRow !== toRow) {
-      const cellX = this.grid.getCell(toCol, fromRow);
-      const cellY = this.grid.getCell(fromCol, toRow);
-
-      // Block if EITHER intermediate cell is a different layer
-      if (cellX && this.grid.getLayer(cellX) !== fromLayer && !this.grid.isTransition(cellX)) return false;
-      if (cellY && this.grid.getLayer(cellY) !== fromLayer && !this.grid.isTransition(cellY)) return false;
-    }
-
-    return true;
-  }
-
-  // eslint-disable-next-line complexity
-  private checkCollision(x: number, y: number, gridPos: GridPositionComponent): boolean {
-    // Calculate collision box bounds at new position
-    const boxLeft = x + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
-    const boxTop = y + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
-    const boxRight = boxLeft + gridPos.collisionBox.width;
-    const boxBottom = boxTop + gridPos.collisionBox.height;
-
-    // Calculate collision box bounds at previous position
-    const prevBoxLeft = this.previousX + gridPos.collisionBox.offsetX - gridPos.collisionBox.width / 2;
-    const prevBoxTop = this.previousY + gridPos.collisionBox.offsetY - gridPos.collisionBox.height / 2;
-    const prevBoxRight = prevBoxLeft + gridPos.collisionBox.width;
-    const prevBoxBottom = prevBoxTop + gridPos.collisionBox.height;
-
-    // Get all cells the collision box overlaps at new position
-    const topLeftCell = this.grid.worldToCellInto(boxLeft, boxTop, this._tmpCell0);
-    const bottomRightCell = this.grid.worldToCellInto(boxRight - 1, boxBottom - 1, this._tmpCell1);
-
-    // Get all cells the collision box overlapped at previous position
-    const prevTopLeftCell = this.grid.worldToCellInto(prevBoxLeft, prevBoxTop, this._tmpCell2);
-    const prevBottomRightCell = this.grid.worldToCellInto(prevBoxRight - 1, prevBoxBottom - 1, this._tmpCell3);
-
-    // Get the layer of the center of the collision box from previous position
-    const prevCenterX = this.previousX + gridPos.collisionBox.offsetX;
-    const prevCenterY = this.previousY + gridPos.collisionBox.offsetY;
-    const prevCenterCell = this.grid.worldToCellInto(prevCenterX, prevCenterY, this._tmpCell4);
-    const prevCenterCellData = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
-
-    // Check if ANY previously occupied cell was a transition
-    let wasInTransition = prevCenterCellData ? this.grid.isTransition(prevCenterCellData) : false;
-    let minTransitionLayer = prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer;
-    let maxTransitionLayer = prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer;
-
-    for (let row = prevTopLeftCell.row; row <= prevBottomRightCell.row; row++) {
-      for (let col = prevTopLeftCell.col; col <= prevBottomRightCell.col; col++) {
-        const cell = this.grid.getCell(col, row);
-        if (cell && this.grid.isTransition(cell)) {
-          wasInTransition = true;
-          const cellLayer = this.grid.getLayer(cell);
-          minTransitionLayer = Math.min(minTransitionLayer, cellLayer);
-          maxTransitionLayer = Math.max(maxTransitionLayer, cellLayer);
-        }
-      }
-    }
-
-    // Also check if ANY new position cell is a transition
-    for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
-      for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
-        const cell = this.grid.getCell(col, row);
-        if (cell && this.grid.isTransition(cell)) {
-          wasInTransition = true;
-          const cellLayer = this.grid.getLayer(cell);
-          minTransitionLayer = Math.min(minTransitionLayer, cellLayer);
-          maxTransitionLayer = Math.max(maxTransitionLayer, cellLayer);
-        }
-      }
-    }
-
-    // When in or near a transition, allow all layers from min-1 to max+1
-    const allowedLayers = this.allowedLayersSet;
-    allowedLayers.clear();
-    if (wasInTransition) {
-      for (let layer = minTransitionLayer - 1; layer <= maxTransitionLayer + 1; layer++) {
-        allowedLayers.add(layer);
-      }
-    } else {
-      allowedLayers.add(prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer);
-    }
-
-    // Check each cell the new collision box overlaps
-    for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
-      for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
-        const cell = this.grid.getCell(col, row);
-
-        // Block if any overlapping cell is a different layer (unless it's a transition or allowed)
-        if (cell && !this.grid.isTransition(cell) && !allowedLayers.has(this.grid.getLayer(cell))) {
-          return true; // blocked
-        }
-
-        // Check if this cell was already occupied in previous frame
-        const wasOccupied = this.wasCellOccupied(col, row, prevTopLeftCell, prevBottomRightCell);
-
-        // If entering a new cell, check if movement is allowed
-        if (!wasOccupied) {
-          const fromCell = this.grid.worldToCellInto(prevCenterX, prevCenterY, this._tmpCell5);
-
-          if (!this.canMoveTo(fromCell.col, fromCell.row, col, row, gridPos.currentLayer)) {
-            return true; // blocked
-          }
-        }
-      }
-    }
-
-    return false; // not blocked
-  }
-
   // eslint-disable-next-line complexity
   update(_delta: number): void {
     if (!this.enabled) return;
     this.blockedByPushable = null;
+    this.validator.blockedByPushable = null;
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
@@ -300,9 +95,11 @@ export class GridCollisionComponent implements Component {
     const newX = transform.x;
     const newY = transform.y;
 
-    if (this.checkCollision(newX, newY, gridPos)) {
-      const xOnlyBlocked = this.checkCollision(newX, this.previousY, gridPos);
-      const yOnlyBlocked = this.checkCollision(this.previousX, newY, gridPos);
+    if (this.validator.checkCollision(this.entity, newX, newY, this.previousX, this.previousY, gridPos, this._tmpCells)) {
+      this.blockedByPushable = this.validator.blockedByPushable;
+
+      const xOnlyBlocked = this.validator.checkCollision(this.entity, newX, this.previousY, this.previousX, this.previousY, gridPos, this._tmpCells);
+      const yOnlyBlocked = this.validator.checkCollision(this.entity, this.previousX, newY, this.previousX, this.previousY, gridPos, this._tmpCells);
 
       const walk = this.entity.get(WalkComponent);
       const knockback = this.entity.get(KnockbackComponent);
@@ -326,6 +123,9 @@ export class GridCollisionComponent implements Component {
       }
     }
 
+    // Sync blockedByPushable from validator (set during canMoveTo)
+    this.blockedByPushable ??= this.validator.blockedByPushable;
+
     // Proactive pushable detection: probe 1px beyond collision box edge
     if (!this.blockedByPushable && (newX !== this.previousX || newY !== this.previousY)) {
       const dx = newX - this.previousX;
@@ -344,7 +144,7 @@ export class GridCollisionComponent implements Component {
       } else {
         probeY = dy > 0 ? boxBottom + 1 : boxTop - 1;
       }
-      const probeCell = this.grid.worldToCellInto(probeX, probeY, this._tmpCell0);
+      const probeCell = this.grid.worldToCellInto(probeX, probeY, this._tmpCells[0]);
       const probeCellData = this.grid.getCell(probeCell.col, probeCell.row);
       if (probeCellData) {
         for (const occupant of probeCellData.occupants) {
@@ -361,8 +161,8 @@ export class GridCollisionComponent implements Component {
     const boxRight = boxLeft + gridPos.collisionBox.width;
     const boxBottom = boxTop + gridPos.collisionBox.height;
 
-    const topLeftCell = this.grid.worldToCellInto(boxLeft, boxTop, this._tmpCell1);
-    const bottomRightCell = this.grid.worldToCellInto(boxRight - 1, boxBottom - 1, this._tmpCell2);
+    const topLeftCell = this.grid.worldToCellInto(boxLeft, boxTop, this._tmpCells[1]);
+    const bottomRightCell = this.grid.worldToCellInto(boxRight - 1, boxBottom - 1, this._tmpCells[2]);
 
     const newOccupiedCells = this.swapOccupiedCells;
     newOccupiedCells.clear();
@@ -398,11 +198,10 @@ export class GridCollisionComponent implements Component {
     // Update layer based on center of collision box
     const centerX = transform.x + gridPos.collisionBox.offsetX;
     const centerY = transform.y + gridPos.collisionBox.offsetY;
-    const centerCell = this.grid.worldToCellInto(centerX, centerY, this._tmpCell3);
+    const centerCell = this.grid.worldToCellInto(centerX, centerY, this._tmpCells[3]);
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
 
     if (centerCellData) {
-      // Always update to the current cell's layer
       gridPos.currentLayer = this.grid.getLayer(centerCellData);
     }
 

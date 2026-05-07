@@ -194,10 +194,10 @@ const ISSUES = [
 
   // ── HIGH ──
   {
-    id: 4, severity: 'high', status: 'open',
+    id: 4, severity: 'high', status: 'done',
     title: 'EntityLoader 798 LOC switch / 51 imports (OCP violation)',
-    detail: 'Now 798 LOC with 22-case switch and 51 imports. Every new entity type requires modifying this file. loadEntities() is 174 LOC. Migrate to EntityRegistry pattern where factories self-register. Incremental migration possible.',
-    files: ['src/systems/EntityLoader.ts'],
+    detail: 'Refactored to EntityRegistry pattern. EntityLoader reduced from 798 to 220 LOC. 22-case switch replaced by registry lookup. All factory logic moved to entityFactories.ts with self-registration. Adding new entity types no longer requires modifying EntityLoader.',
+    files: ['src/systems/EntityLoader.ts', 'src/systems/EntityRegistry.ts', 'src/systems/entityFactories.ts'],
     effort: '8h', risk: 'Med', fanIn: 1, category: 'architecture',
     added: '2026-05-04',
   },
@@ -322,9 +322,9 @@ const ISSUES = [
     added: '2026-05-06',
   },
   {
-    id: 19, severity: 'high', status: 'open',
+    id: 19, severity: 'high', status: 'done',
     title: 'GridCollisionComponent 423 LOC / 27 fan-in — update() 151 LOC, high change risk',
-    detail: 'Scanner score 63. update() 151 LOC, canMoveTo() 96 LOC, checkCollision() 95 LOC. 27 files depend on this + 13 imports. Any change has wide blast radius. Extract canMoveTo/checkCollision into GridMovementValidator helper to reduce method sizes and isolate collision logic from position tracking.',
+    detail: 'Extracted canMoveTo() and checkCollision() into GridMovementValidator helper class (227 LOC). GridCollisionComponent reduced from 423 LOC to 221 LOC. Validator isolates collision logic from position tracking. Component delegates to validator, syncs blockedByPushable result back.',
     files: ['src/ecs/components/movement/GridCollisionComponent.ts'],
     effort: '4h', risk: 'Med', fanIn: 27, category: 'architecture',
     added: '2026-05-06',
