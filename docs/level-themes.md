@@ -10,7 +10,7 @@ Themes allow different levels to have distinct visual styles without duplicating
 
 ### GameSceneRenderer (Abstract Base Class)
 
-All theme renderers extend this base class. The base class handles ALL rendering logic (edges, shadows, paths, floor tiles, water, sprites). Subclasses only customize the background/vignette and edge color.
+All theme renderers extend this base class. The base class orchestrates rendering by delegating to specialized renderer classes. Subclasses only customize the background/vignette and edge color.
 
 **Abstract methods (subclasses must implement):**
 - `renderTheme(width, height)` — Create background canvas + vignette image, return both
@@ -23,15 +23,21 @@ All theme renderers extend this base class. The base class handles ALL rendering
 - `destroy()` — Cleans up all graphics, sprites, and water animator
 - `invalidateCells(cells, grid, levelData)` — Fades out and recreates sprites for modified cells
 
+**Extracted renderer classes:**
+- `EdgeRenderer` — Wall/platform edge line drawing
+- `ShadowRenderer` — Drop shadows for elevated cells
+- `PathRenderer` — Stone path rendering (grass theme)
+- `BackgroundTextureRenderer` — Per-cell background texture sprites
+
 **Key points:**
 - Two graphics layers: `graphics` (depth -10) for shadows/paths, `edgeGraphics` (depth -9) for edges
-- All edge detection, shadow rendering, and path rendering is in the base class
+- Rendering logic is split across focused classes, orchestrated by the base class
 - Subclasses are very simple — typically just `renderTheme()` and `getEdgeColor()`
 - Tunnels theme is the exception: overrides `update()` for darkness overlay and `updateGraphics()` to disable edges
 
 ### Edge Rendering
 
-The base class `renderEdges()` handles all edge detection:
+`EdgeRenderer.renderEdges()` handles all edge detection:
 - **Left/Right edges**: Only drawn when adjacent cell is layer 0 (not between two layer 1 cells)
 - **Top edges**: Only drawn when cell above is layer 0
 - No vertical lines between adjacent wall cells — prevents double-drawing
@@ -364,7 +370,13 @@ Use dark colors for edges to create depth:
 
 ## Related Files
 
-- `src/scenes/theme/GameSceneRenderer.ts` - Abstract base class
+- `src/scenes/theme/GameSceneRenderer.ts` - Abstract base class (orchestrates rendering)
+- `src/scenes/theme/EdgeRenderer.ts` - Wall/platform edge line drawing
+- `src/scenes/theme/ShadowRenderer.ts` - Drop shadows for elevated cells
+- `src/scenes/theme/PathRenderer.ts` - Stone path rendering (grass theme)
+- `src/scenes/theme/BackgroundTextureRenderer.ts` - Per-cell background texture sprites
+- `src/scenes/theme/WaterAnimator.ts` - Water tile animation
+- `src/scenes/theme/PathTilesetGenerator.ts` - Dynamic path tileset generation
 - `src/scenes/theme/ThemeRendererFactory.ts` - Theme instantiation (add new themes here)
 - `src/scenes/theme/DungeonSceneRenderer.ts` - Dungeon theme implementation
 - `src/scenes/theme/SwampSceneRenderer.ts` - Swamp theme implementation

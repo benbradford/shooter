@@ -55,8 +55,7 @@ When loading a level, the system:
 
 Critical: All texture existence checks must happen before creating sprites to prevent `__MISSING` texture placeholders:
 
-- `GameSceneRenderer.renderGrid()` - Waits for `assetsReady` flag before rendering
-- `Grid.setCell()` - Checks `textures.exists()` before creating background sprites
+- `GameSceneRenderer.initializeSprites()` - Only called after assets are loaded
 - `GameSceneRenderer.renderAllCells()` - Checks texture existence for stairs/walls/platforms
 - Asset loading callback sets `assetsReady` flag after 'complete' event fires
 
@@ -185,8 +184,7 @@ To see what's loaded, check the browser console after switching levels (press L 
 **Cause:** Sprites created before textures finish loading, or textures removed while sprites still reference them.
 
 **Solution:** The system prevents this by:
-- `GameSceneRenderer.renderGrid()` - Waits for `assetsReady` flag before rendering
-- `Grid.setCell()` - Checks `textures.exists()` before creating background sprites
+- `GameSceneRenderer.initializeSprites()` - Only called after assets are loaded
 - `GameSceneRenderer.renderAllCells()` - Checks texture existence for stairs/walls/platforms
 - `GameSceneRenderer.addImage()` - Wrapper that logs if `__MISSING` sprite created
 - Sprites destroyed before textures unloaded during level transitions

@@ -4,6 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, execSync } from 'node:child_process';
 
+// Prevent child process errors from crashing the Vite server
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Uncaught exception (server kept alive):', err.message);
+});
+process.on('SIGPIPE', () => { /* ignore broken pipe from dead ttyd */ });
+
 // ── Session Registry ──────────────────────────────────────────
 interface Session {
   id: string;
@@ -101,7 +107,8 @@ function spawnTtydForTmux(tmuxName: string, port: number): number {
     '--port', String(port),
     '--writable',
     tmuxPath, 'attach-session', '-t', tmuxName,
-  ], { stdio: 'ignore', detached: true });
+  ], { stdio: 'ignore', detached: true, env: { ...process.env, TERM: 'xterm-256color' } });
+  ttyd.on('error', () => { /* prevent unhandled error from crashing vite */ });
   ttyd.unref();
   return ttyd.pid!;
 }
@@ -595,12 +602,16 @@ If there are no changes to commit, say so and stop.`;
         try {
           const body = JSON.parse(await readBody(req)) as { id: string };
           const session = sessions.get(body.id);
-          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
-          if (!session.archived) { res.statusCode = 400; res.end('Can only delete archived sessions'); return; }
-          // Kill if still alive
-          try { process.kill(session.ttydPid); } catch { /* already dead */ }
-          try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
-          sessions.delete(body.id);
+          if (session) {
+            if (!session.archived) { res.statusCode = 400; res.end('Can only delete archived sessions'); return; }
+            // Kill if still alive
+            if (session.ttydPid) try { process.kill(session.ttydPid); } catch { /* already dead */ }
+            if (session.tmuxSession) try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+            sessions.delete(body.id);
+          } else {
+            // Session not in Map (orphaned from previous server instance) — try tmux cleanup
+            try { execSync(`/opt/homebrew/bin/tmux kill-session -t 'db-${body.id}' 2>/dev/null`); } catch { /* already dead */ }
+          }
           persistSessions();
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true }));
@@ -634,7 +645,7 @@ export default defineConfig({
   plugins: [saveLevelPlugin()],
   server: {
     watch: {
-      ignored: ['**/workbench/**'],
+      ignored: ['**/workbench/**', '**/.sessions.json', '**/tmp/**'],
     },
   },
   // Editor excluded from production builds — only index.html is built

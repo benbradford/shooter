@@ -230,8 +230,8 @@ const ISSUES = [
   {
     id: 8, severity: 'medium', status: 'open',
     title: 'Inline state machines repeated across 5+ components',
-    detail: 'DogBarkAbility (3 states), PetFollowComponent (7 states), EscortComponent (7 states via switch), JumpComponent (5 phases). RockThrowAbility refactored into proper state classes (done). EscortPersistence helper was extracted (partial progress). Missing lightweight ComponentStateMachine<T> abstraction.',
-    files: ['src/ecs/components/pet/DogBarkAbility.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/components/movement/JumpComponent.ts'],
+    detail: 'DogBarkAbility (3 states), PetFollowComponent (7 states), EscortComponent (7 states via switch). JumpComponent phases extracted to JumpAnimator (done). RockThrowAbility refactored into proper state classes (done). EscortPersistence helper was extracted (partial progress). Missing lightweight ComponentStateMachine<T> abstraction.',
+    files: ['src/ecs/components/pet/DogBarkAbility.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/PetFollowComponent.ts'],
     effort: '2h', risk: 'Low', fanIn: null, category: 'pattern',
     added: '2026-05-04',
   },
@@ -306,18 +306,18 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-06 audit) ──
   {
-    id: 17, severity: 'high', status: 'open',
+    id: 17, severity: 'high', status: 'done',
     title: 'GameSceneRenderer still 1219 LOC — renderPathType (156 LOC) and createBackgroundTextureSprites (140 LOC)',
-    detail: 'Issue #3 fixed renderAllCells monolith but file grew with new rendering methods. renderPathType 156 LOC, createBackgroundTextureSprites 140 LOC, computeAutotileFrame 90 LOC, renderShadows 86 LOC, renderEdges 81 LOC. 31 methods total. Extract rendering strategies into focused helpers (PathRenderer, EdgeRenderer, ShadowRenderer).',
-    files: ['src/scenes/theme/GameSceneRenderer.ts'],
+    detail: 'Extracted PathRenderer (renderPathType, renderGreyPaths, renderUntexturedPaths), EdgeRenderer (renderEdges, renderEdgeDarkening), ShadowRenderer (renderShadows), and BackgroundTextureRenderer (createBackgroundTextureSprites, computeAutotileFrame). GameSceneRenderer reduced from 1219 to 571 LOC (53% reduction).',
+    files: ['src/scenes/theme/GameSceneRenderer.ts', 'src/scenes/theme/PathRenderer.ts', 'src/scenes/theme/EdgeRenderer.ts', 'src/scenes/theme/ShadowRenderer.ts', 'src/scenes/theme/BackgroundTextureRenderer.ts'],
     effort: '6h', risk: 'Low', fanIn: 8, category: 'maintainability',
     added: '2026-05-06',
   },
   {
-    id: 18, severity: 'high', status: 'open',
+    id: 18, severity: 'high', status: 'done',
     title: 'JumpComponent is 577 LOC / 20 methods — behavior system with 5-phase state machine',
-    detail: 'Manages void jumps, platform jump-downs, gap jumps, fall sequences, and pet sync. 5-phase state machine (idle/takeoff/flight/landing/falling). detectJumpFromInput() 74 LOC, update() 55 LOC, updateJump() 56 LOC. Extract JumpDetector (input→decision) and JumpAnimator (phase execution).',
-    files: ['src/ecs/components/movement/JumpComponent.ts'],
+    detail: 'Extracted JumpDetector (182 LOC, input→decision: detect(), resolveVoidJump, resolvePlatformJump) and JumpAnimator (306 LOC, phase execution: startJump, update, finishJump, finishFall). JumpComponent reduced to 103 LOC thin delegator. Public API unchanged.',
+    files: ['src/ecs/components/movement/JumpComponent.ts', 'src/ecs/components/movement/JumpDetector.ts', 'src/ecs/components/movement/JumpAnimator.ts'],
     effort: '4h', risk: 'Med', fanIn: 4, category: 'architecture',
     added: '2026-05-06',
   },

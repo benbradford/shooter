@@ -244,7 +244,10 @@ async function killSession(id) {
 }
 
 async function deleteSession(id) {
-  await fetch('/api/sessions/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+  try {
+    const res = await fetch('/api/sessions/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    if (!res.ok) { showToast('Delete failed: ' + await res.text()); return; }
+  } catch (e) { showToast('Delete failed: ' + e.message); return; }
   sessions = sessions.filter(x => x.id !== id);
   if (activeSessionId === id) { activeSessionId = null; resetMainPanel(); }
   render();

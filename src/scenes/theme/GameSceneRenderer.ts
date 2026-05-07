@@ -1,32 +1,13 @@
 import type { GridReader } from '../../systems/grid/Grid';
 import type { LevelCell, LevelData } from '../../systems/level/LevelLoader';
-import { normalizeBgTextures } from '../../systems/level/LevelLoader';
-import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
 import { WaterAnimator, type WaterConfig } from './WaterAnimator';
 import { PathTilesetGenerator } from './PathTilesetGenerator';
-import { AssetManager } from '../../systems/AssetManager';
 import { TextureVerifier } from '../../systems/TextureVerifier';
-
-// Edge rendering
-const EDGE_THICKNESS_PX = 4;
-
-// Shadow rendering
-const SHADOW_WIDTH_PX = 64;
-const SHADOW_STEPS = 32;
-const SHADOW_INTENSITY = 0.45;
-
-// Edge darkening
-const DARKENING_STEPS_PER_CELL = 4;
-const DARKENING_MIN_ALPHA = 0.01;
-
-// Path / water rendering
-const PATH_RADIUS_FACTOR = 0.4;
-const PATH_FILL_COLOR = 0x888888;
-const WATER_FILL_COLOR = 0x4488ff;
-const PATH_OUTLINE_COLOR = 0x000000;
-const PATH_OUTLINE_WIDTH_PX = 2;
-const PATH_OUTLINE_STROKE_WIDTH_PX = 3;
+import { PathRenderer } from './PathRenderer';
+import { EdgeRenderer } from './EdgeRenderer';
+import { ShadowRenderer } from './ShadowRenderer';
+import { BackgroundTextureRenderer } from './BackgroundTextureRenderer';
 
 // Floor overlay gradient
 const OVERLAY_GRADIENT_STOP_1 = 0;
@@ -52,26 +33,6 @@ const WALL_BRICK_COLOR = 0x3a3a4e;
 // Platform fallback rendering
 const PLATFORM_FALLBACK_ALPHA = 0.3;
 
-// Tile autotiling frame indices
-const TILE_SINGLE_NEIGHBOR_FRAME: Record<string, number> = {
-  up: 1, right: 2, down: 3, left: 4
-};
-const TILE_FRAME_VERTICAL = 5;
-const TILE_FRAME_HORIZONTAL = 6;
-const TILE_CORNER_UP_RIGHT = 7;
-const TILE_CORNER_UP_RIGHT_DIAG = 8;
-const TILE_CORNER_UP_LEFT = 9;
-const TILE_CORNER_UP_LEFT_DIAG = 10;
-const TILE_CORNER_DOWN_RIGHT = 11;
-const TILE_CORNER_DOWN_RIGHT_DIAG = 12;
-const TILE_CORNER_DOWN_LEFT = 13;
-const TILE_CORNER_DOWN_LEFT_DIAG = 14;
-const TILE_THREE_NEIGHBOR_BASE_NO_LEFT = 15;
-const TILE_THREE_NEIGHBOR_BASE_NO_DOWN = 19;
-const TILE_THREE_NEIGHBOR_BASE_NO_RIGHT = 23;
-const TILE_THREE_NEIGHBOR_BASE_NO_UP = 27;
-const TILE_FOUR_NEIGHBOR_BASE = 31;
-
 export abstract class GameSceneRenderer {
   protected readonly graphics: Phaser.GameObjects.Graphics;
   protected readonly edgeGraphics: Phaser.GameObjects.Graphics;
@@ -82,12 +43,23 @@ export abstract class GameSceneRenderer {
   private spritesInitialized: boolean = false;
   private readonly waterSprites: Array<Phaser.GameObjects.Sprite | Phaser.GameObjects.TileSprite> = [];
   private waterAnimator: WaterAnimator | null = null;
+  private readonly pathRenderer: PathRenderer;
+  private readonly edgeRenderer: EdgeRenderer;
+  private readonly shadowRenderer: ShadowRenderer;
+  private readonly bgTextureRenderer: BackgroundTextureRenderer;
 
   constructor(protected readonly scene: Phaser.Scene, protected readonly cellSize: number) {
     this.graphics = scene.add.graphics();
     this.graphics.setDepth(Depth.rendererGraphics);
     this.edgeGraphics = scene.add.graphics();
     this.edgeGraphics.setDepth(Depth.edgeGraphics);
+    this.pathRenderer = new PathRenderer(this.graphics, cellSize);
+    this.edgeRenderer = new EdgeRenderer(this.edgeGraphics, cellSize);
+    this.shadowRenderer = new ShadowRenderer(this.graphics, cellSize);
+    this.bgTextureRenderer = new BackgroundTextureRenderer(
+      scene, cellSize, this.cellSprites, this.renderedCellTextures,
+      (x, y, texture) => this.addImage(x, y, texture)
+    );
   }
 
   async loadAllAssets(levelData: LevelData): Promise<void> {
@@ -150,12 +122,10 @@ export abstract class GameSceneRenderer {
   }
 
   initializeSprites(grid: GridReader, levelData: LevelData): void {
-    if (this.spritesInitialized) {
-      return;
-    }
+    if (this.spritesInitialized) return;
 
     this.createFloorSprites(grid, levelData);
-    this.createBackgroundTextureSprites(grid, levelData);
+    this.bgTextureRenderer.createBackgroundTextureSprites(grid, levelData);
     this.createWaterAndPathTileSprites(grid, levelData);
     this.createPlatformStairsWallSprites(grid, levelData);
     this.createFloorOverlay(grid, levelData);
@@ -174,24 +144,22 @@ export abstract class GameSceneRenderer {
     this.edgeGraphics.clear();
 
     if (levelData?.background?.hasEdges !== false) {
-      this.renderEdges(grid);
+      this.edgeRenderer.renderEdges(grid, this.getEdgeColor());
     }
 
-    this.renderEdgeDarkening(grid, levelData);
+    this.edgeRenderer.renderEdgeDarkening(grid, levelData);
 
     if (levelData?.background?.hasShadows !== false) {
-      this.renderShadows(grid);
+      this.shadowRenderer.renderShadows(grid);
     }
 
     if (!levelData?.background?.path_texture && !levelData?.background?.water_texture) {
-      this.renderGreyPaths(grid);
+      this.pathRenderer.renderGreyPaths(grid);
     }
   }
 
   private createFloorSprites(grid: GridReader, levelData: LevelData): void {
-    if (!levelData.background?.floor_texture) {
-      return;
-    }
+    if (!levelData.background?.floor_texture) return;
 
     const texture = levelData.background.floor_texture;
     const chunkSize = levelData.background.floor_tile;
@@ -254,153 +222,12 @@ export abstract class GameSceneRenderer {
     }
   }
 
+  refreshBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
+    this.bgTextureRenderer.createBackgroundTextureSprites(grid, levelData);
+  }
+
   private createWaterAndPathTileSprites(grid: GridReader, levelData: LevelData): void {
     this.renderAllCells(grid, levelData);
-  }
-
-  refreshBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
-    this.createBackgroundTextureSprites(grid, levelData);
-  }
-
-  private createBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
-    if (!levelData.cells) {
-      return;
-    }
-
-    for (const cell of levelData.cells) {
-      const key = `${cell.col},${cell.row}`;
-      const animKey = `${key}_anim`;
-
-      // Handle static background texture(s)
-      const textures = normalizeBgTextures(cell.backgroundTexture);
-      if (textures && !this.renderedCellTextures.has(key)) {
-        const cellData = grid.getCell(cell.col, cell.row);
-        const isWater = cellData?.properties.has('water') ?? false;
-        const isBridge = cellData?.properties.has('bridge') ?? false;
-        const baseDepth = isBridge ? Depth.stairs : isWater ? Depth.waterTexture : Depth.cellTextureModified;
-        const cellX = cell.col * this.cellSize;
-        const cellY = cell.row * this.cellSize;
-        const centerX = cellX + this.cellSize / 2;
-        const centerY = cellY + this.cellSize / 2;
-        const sprites: Phaser.GameObjects.Image[] = [];
-
-        for (const tex of textures) {
-          let textureName: string;
-          let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
-          let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
-          let zOffsetOverride: number | undefined;
-
-          if (typeof tex === 'string') {
-            textureName = tex;
-          } else {
-            textureName = tex.image;
-            transform = tex.transformOverride;
-            sourceRect = tex.sourceRect;
-            zOffsetOverride = tex.zOffsetOverride;
-          }
-
-          if (textureName === '') continue;
-
-          const spriteX = transform ? centerX + transform.offsetX : centerX;
-          const spriteY = transform ? centerY + transform.offsetY : centerY;
-
-          let sprite: Phaser.GameObjects.Image;
-          if (sourceRect && this.scene.textures.exists(textureName)) {
-            const frameName = `${textureName}_${sourceRect.x}_${sourceRect.y}_${sourceRect.width}_${sourceRect.height}`;
-            const texture = this.scene.textures.get(textureName);
-            if (!texture.has(frameName)) {
-              texture.add(frameName, 0, sourceRect.x, sourceRect.y, sourceRect.width, sourceRect.height);
-            }
-            sprite = this.scene.add.image(spriteX, spriteY, textureName, frameName);
-          } else {
-            sprite = this.addImage(spriteX, spriteY, textureName);
-          }
-
-          if (transform) {
-            sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
-          } else {
-            sprite.setDisplaySize(this.cellSize, this.cellSize);
-          }
-
-          let depth = baseDepth;
-          if (zOffsetOverride !== undefined) depth += zOffsetOverride;
-          sprite.setDepth(depth);
-
-          this.cellSprites.push(sprite);
-          sprites.push(sprite);
-        }
-
-        if (sprites.length > 0) {
-          this.renderedCellTextures.set(key, sprites);
-        }
-      }
-
-      // Handle animated texture (can coexist with backgroundTexture)
-      if (cell.animatedTexture) {
-        if (this.renderedCellTextures.has(animKey)) {
-          continue;
-        }
-
-        const config = cell.animatedTexture;
-
-        // Check if texture exists and has valid frames
-        if (!this.scene.textures.exists(config.spritesheet)) {
-          continue;
-        }
-
-        const texture = this.scene.textures.get(config.spritesheet);
-        if (texture.frameTotal <= 1) {
-          continue;
-        }
-
-        const firstFrame = texture.get(0);
-        if (!firstFrame?.source?.glTexture) {
-          continue;
-        }
-
-        const transform = config.transformOverride;
-        const x = cell.col * this.cellSize;
-        const y = cell.row * this.cellSize;
-        const centerX = x + this.cellSize / 2;
-        const centerY = y + this.cellSize / 2;
-        const spriteX = transform ? centerX + transform.offsetX : centerX;
-        const spriteY = transform ? centerY + transform.offsetY : centerY;
-
-        const animSprite = this.scene.add.sprite(spriteX, spriteY, config.spritesheet, 0);
-        if (transform) {
-          animSprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
-        } else {
-          animSprite.setDisplaySize(this.cellSize, this.cellSize);
-        }
-        animSprite.setDepth(Depth.cellTextureModified + 1);
-
-        // Create animation if it doesn't exist
-        const animationKey = `${config.spritesheet}_anim`;
-        if (!this.scene.anims.exists(animationKey)) {
-          this.scene.anims.create({
-            key: animationKey,
-            frames: this.scene.anims.generateFrameNumbers(config.spritesheet, {
-              start: 0,
-              end: config.frameCount - 1
-            }),
-            frameRate: config.frameRate,
-            repeat: -1
-          });
-
-          // Register dependency
-          const assetManager = AssetManager.getInstance();
-          assetManager.registerDependency(config.spritesheet, 'animation', animationKey);
-        }
-
-        // Start at random frame and play
-        const randomFrame = Math.floor(Math.random() * config.frameCount);
-        animSprite.setFrame(randomFrame);
-        animSprite.play(animationKey);
-
-        this.cellSprites.push(animSprite);
-        this.renderedCellTextures.set(animKey, [animSprite]);
-      }
-    }
   }
 
   private createPlatformStairsWallSprites(_grid: GridReader, _levelData: LevelData): void {
@@ -408,13 +235,8 @@ export abstract class GameSceneRenderer {
   }
 
   private createFloorOverlay(grid: GridReader, levelData: LevelData): void {
-    if (!levelData.background || this.floorOverlay) {
-      return;
-    }
-    // Skip overlay for default/interior themes
-    if (levelData.levelTheme === 'default' || levelData.levelTheme === 'dungeon') {
-      return;
-    }
+    if (!levelData.background || this.floorOverlay) return;
+    if (levelData.levelTheme === 'default' || levelData.levelTheme === 'dungeon') return;
     this.renderFloorOverlay(grid, levelData);
   }
 
@@ -427,17 +249,11 @@ export abstract class GameSceneRenderer {
       this.floorOverlay.destroy();
       this.floorOverlay = null;
     }
-    for (const sprite of this.floorSprites) {
-      sprite.destroy();
-    }
+    for (const sprite of this.floorSprites) sprite.destroy();
     this.floorSprites.length = 0;
-    for (const sprite of this.cellSprites) {
-      sprite.destroy();
-    }
+    for (const sprite of this.cellSprites) sprite.destroy();
     this.cellSprites.length = 0;
-    for (const sprite of this.waterSprites) {
-      sprite.destroy();
-    }
+    for (const sprite of this.waterSprites) sprite.destroy();
     this.waterSprites.length = 0;
     if (this.waterAnimator) {
       this.waterAnimator.destroy();
@@ -452,9 +268,7 @@ export abstract class GameSceneRenderer {
 
   invalidateCache(): void {
     console.log('[GameSceneRenderer] Invalidating cache - destroying', this.cellSprites.length, 'sprites');
-    for (const sprite of this.cellSprites) {
-      sprite.destroy();
-    }
+    for (const sprite of this.cellSprites) sprite.destroy();
     this.cellSprites.length = 0;
     for (const sprites of this.renderedCellTextures.values()) {
       for (const s of sprites) s.destroy();
@@ -494,15 +308,12 @@ export abstract class GameSceneRenderer {
           targets: sprite,
           alpha: 0,
           duration: FADE_DURATION_MS,
-          onComplete: () => {
-            sprite.destroy();
-          }
+          onComplete: () => { sprite.destroy(); }
         });
         this.cellSprites.splice(index, 1);
       }
     }
 
-    // Destroy floor/platform sprites that overlap modified cells
     for (let i = this.floorSprites.length - 1; i >= 0; i--) {
       const sprite = this.floorSprites[i];
       const sx = sprite.x - sprite.displayWidth / 2;
@@ -591,7 +402,7 @@ export abstract class GameSceneRenderer {
           const hasTexture = !!levelCell?.backgroundTexture;
           const isWall = cell?.properties.has('wall');
           const isPlatform = cell?.properties.has('platform');
-          this.renderElevatedCell(x, y, levelData, hasBackgroundConfig, isStairs, isWall, isPlatform, hasTexture, edgeColor);
+          this.renderElevatedCell({ x, y, levelData, hasBackgroundConfig, isStairs, isWall, isPlatform, hasTexture, edgeColor });
         }
 
         if (cell?.properties.has('push_lock') && this.scene.textures.exists('push_lock_depression')) {
@@ -603,7 +414,7 @@ export abstract class GameSceneRenderer {
       }
     }
 
-    this.renderUntexturedPaths(grid, levelData?.background?.path_texture);
+    this.pathRenderer.renderUntexturedPaths(grid, levelData?.background?.path_texture);
   }
 
   private renderWaterOrPathTile(grid: GridReader, levelData: LevelData | undefined, col: number, row: number, isWater: boolean): void {
@@ -624,7 +435,7 @@ export abstract class GameSceneRenderer {
 
     if (!texKey || !this.scene.textures.exists(texKey)) return;
 
-    const frame = this.computeAutotileFrame(grid, col, row, isWater ? 'water' : 'path');
+    const frame = this.bgTextureRenderer.computeAutotileFrame(grid, col, row, isWater ? 'water' : 'path');
     const centerX = col * this.cellSize + this.cellSize / 2;
     const centerY = row * this.cellSize + this.cellSize / 2;
     const edgesTexture = isWater ? levelData?.background?.water_texture_edges : undefined;
@@ -672,59 +483,16 @@ export abstract class GameSceneRenderer {
     }
   }
 
-  private computeAutotileFrame(grid: GridReader, col: number, row: number, propertyType: CellProperty): number {
-    const has = (c: number, r: number) =>
-      c >= 0 && c < grid.width && r >= 0 && r < grid.height && !!grid.getCell(c, r)?.properties.has(propertyType);
-
-    const hasLeft = has(col - 1, row);
-    const hasRight = has(col + 1, row);
-    const hasUp = has(col, row - 1);
-    const hasDown = has(col, row + 1);
-    const hasUpLeft = has(col - 1, row - 1);
-    const hasUpRight = has(col + 1, row - 1);
-    const hasDownLeft = has(col - 1, row + 1);
-    const hasDownRight = has(col + 1, row + 1);
-
-    if (hasLeft && hasRight && hasUp && hasDown && hasUpLeft && hasUpRight && hasDownLeft && hasDownRight) return 0;
-
-    const count = [hasUp, hasRight, hasDown, hasLeft].filter(Boolean).length;
-
-    if (count === 1) {
-      if (hasUp) return TILE_SINGLE_NEIGHBOR_FRAME.up;
-      if (hasRight) return TILE_SINGLE_NEIGHBOR_FRAME.right;
-      if (hasDown) return TILE_SINGLE_NEIGHBOR_FRAME.down;
-      return TILE_SINGLE_NEIGHBOR_FRAME.left;
-    }
-    if (count === 2) {
-      if (hasUp && hasDown) return TILE_FRAME_VERTICAL;
-      if (hasLeft && hasRight) return TILE_FRAME_HORIZONTAL;
-      if (hasUp && hasRight) return hasUpRight ? TILE_CORNER_UP_RIGHT_DIAG : TILE_CORNER_UP_RIGHT;
-      if (hasUp && hasLeft) return hasUpLeft ? TILE_CORNER_UP_LEFT_DIAG : TILE_CORNER_UP_LEFT;
-      if (hasDown && hasRight) return hasDownRight ? TILE_CORNER_DOWN_RIGHT_DIAG : TILE_CORNER_DOWN_RIGHT;
-      if (hasDown && hasLeft) return hasDownLeft ? TILE_CORNER_DOWN_LEFT_DIAG : TILE_CORNER_DOWN_LEFT;
-    }
-    if (count === 3) {
-      if (hasUp && hasRight && hasDown) return TILE_THREE_NEIGHBOR_BASE_NO_LEFT + ((hasUpRight ? 1 : 0) | (hasDownRight ? 2 : 0));
-      if (hasUp && hasRight && hasLeft) return TILE_THREE_NEIGHBOR_BASE_NO_DOWN + ((hasUpRight ? 1 : 0) | (hasUpLeft ? 2 : 0));
-      if (hasUp && hasDown && hasLeft) return TILE_THREE_NEIGHBOR_BASE_NO_RIGHT + ((hasUpLeft ? 1 : 0) | (hasDownLeft ? 2 : 0));
-      if (hasRight && hasDown && hasLeft) return TILE_THREE_NEIGHBOR_BASE_NO_UP + ((hasDownRight ? 1 : 0) | (hasDownLeft ? 2 : 0));
-    }
-    if (count === 4) {
-      return TILE_FOUR_NEIGHBOR_BASE + ((hasUpLeft ? 1 : 0) | (hasUpRight ? 2 : 0) | (hasDownLeft ? 4 : 0) | (hasDownRight ? 8 : 0));
-    }
-    return 0;
-  }
-
-  private renderElevatedCell(
-    x: number, y: number, levelData: LevelData | undefined,
-    hasBackgroundConfig: boolean, isStairs: boolean | undefined, isWall: boolean | undefined,
-    isPlatform: boolean | undefined, hasTexture: boolean, edgeColor: number
-  ): void {
+  private renderElevatedCell(props: {
+    x: number; y: number; levelData: LevelData | undefined;
+    hasBackgroundConfig: boolean; isStairs: boolean | undefined; isWall: boolean | undefined;
+    isPlatform: boolean | undefined; hasTexture: boolean; edgeColor: number;
+  }): void {
+    const { x, y, levelData, hasBackgroundConfig, isStairs, isWall, isPlatform, hasTexture, edgeColor } = props;
     const bg = levelData?.background;
     const cx = x + this.cellSize / 2;
     const cy = y + this.cellSize / 2;
 
-    // Textured stairs/walls
     if (hasBackgroundConfig && bg) {
       if (isStairs && bg.stairs_texture && this.scene.textures.exists(bg.stairs_texture)) {
         const sprite = this.addImage(cx, cy, bg.stairs_texture);
@@ -739,7 +507,6 @@ export abstract class GameSceneRenderer {
       }
     }
 
-    // Platform texture or fallback
     if (isPlatform) {
       if (hasBackgroundConfig && bg?.platform_texture && !bg.platform_tile && this.scene.textures.exists(bg.platform_texture)) {
         const sprite = this.addImage(cx, cy, bg.platform_texture);
@@ -752,12 +519,10 @@ export abstract class GameSceneRenderer {
       }
     }
 
-    // Fallback stairs (no texture)
     if (isStairs && (!hasBackgroundConfig || !bg?.stairs_texture) && !hasTexture) {
       this.renderFallbackStairs(x, y, edgeColor);
     }
 
-    // Fallback walls (no texture)
     if (isWall && (!hasBackgroundConfig || !bg?.wall_texture) && !hasTexture) {
       this.renderFallbackWallBricks(x, y, edgeColor);
     }
@@ -802,417 +567,6 @@ export abstract class GameSceneRenderer {
       }
       currentY += brickHeight;
       rowIndex++;
-    }
-  }
-
-  private renderUntexturedPaths(grid: GridReader, pathTexture: string | undefined): void {
-    if (pathTexture) return;
-    const radius = this.cellSize * PATH_RADIUS_FACTOR;
-
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        if (!grid.getCell(col, row)?.properties.has('path')) continue;
-
-        const centerX = col * this.cellSize + this.cellSize / 2;
-        const centerY = row * this.cellSize + this.cellSize / 2;
-
-        const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has('path');
-        const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has('path');
-        const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has('path');
-        const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has('path');
-
-        this.graphics.fillStyle(PATH_FILL_COLOR, 1);
-
-        if (hasLeft) this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-        if (hasRight) this.graphics.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-        if (hasUp) this.graphics.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
-        if (hasDown) this.graphics.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
-
-        if (hasLeft && hasUp) this.graphics.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        if (hasRight && hasUp) this.graphics.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        if (hasLeft && hasDown) this.graphics.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-        if (hasRight && hasDown) this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-
-        this.graphics.fillCircle(centerX, centerY, radius);
-        this.graphics.lineStyle(PATH_OUTLINE_WIDTH_PX, PATH_OUTLINE_COLOR, 1);
-        this.graphics.strokeCircle(centerX, centerY, radius);
-      }
-    }
-  }
-
-  private renderGreyPaths(grid: GridReader): void {
-    this.renderPathType(grid, 'path', PATH_FILL_COLOR, PATH_OUTLINE_COLOR);
-    this.renderPathType(grid, 'water', WATER_FILL_COLOR, PATH_OUTLINE_COLOR);
-  }
-
-  private renderPathType(grid: GridReader, propertyType: CellProperty, fillColor: number, outlineColor: number): void {
-    const radius = this.cellSize * PATH_RADIUS_FACTOR;
-
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        const hasProperty = cell?.properties.has(propertyType);
-
-        if (hasProperty) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const centerX = x + this.cellSize / 2;
-          const centerY = y + this.cellSize / 2;
-
-          const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has(propertyType);
-          const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has(propertyType);
-          const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has(propertyType);
-          const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has(propertyType);
-
-          const adjacentCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0) + (hasUp ? 1 : 0) + (hasDown ? 1 : 0);
-          const isDeadEnd = adjacentCount === 1;
-
-          this.graphics.fillStyle(fillColor, 1);
-
-          if (hasLeft) {
-            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-          }
-          if (hasRight) {
-            this.graphics.fillRect(centerX - 1, centerY - radius, this.cellSize / 2 + 1, radius * 2);
-          }
-          if (hasUp) {
-            this.graphics.fillRect(centerX - radius, centerY - this.cellSize / 2, radius * 2, this.cellSize / 2 + 1);
-          }
-          if (hasDown) {
-            this.graphics.fillRect(centerX - radius, centerY - 1, radius * 2, this.cellSize / 2 + 1);
-          }
-
-          if (hasLeft && hasUp) {
-            this.graphics.fillRect(centerX - this.cellSize / 2, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasRight && hasUp) {
-            this.graphics.fillRect(centerX + radius, centerY - this.cellSize / 2, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasLeft && hasDown) {
-            this.graphics.fillRect(centerX - this.cellSize / 2, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-          if (hasRight && hasDown) {
-            this.graphics.fillRect(centerX + radius, centerY + radius, this.cellSize / 2 - radius, this.cellSize / 2 - radius);
-          }
-
-          if (isDeadEnd) {
-            this.graphics.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
-          } else {
-            this.graphics.fillCircle(centerX, centerY, radius);
-          }
-        }
-      }
-    }
-
-    this.graphics.lineStyle(PATH_OUTLINE_STROKE_WIDTH_PX, outlineColor, 1);
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        if (!cell?.properties.has(propertyType)) continue;
-
-        const x = col * this.cellSize + this.cellSize / 2;
-        const y = row * this.cellSize + this.cellSize / 2;
-
-        const hasLeft = col > 0 && grid.getCell(col - 1, row)?.properties.has(propertyType);
-        const hasRight = col < grid.width - 1 && grid.getCell(col + 1, row)?.properties.has(propertyType);
-        const hasUp = row > 0 && grid.getCell(col, row - 1)?.properties.has(propertyType);
-        const hasDown = row < grid.height - 1 && grid.getCell(col, row + 1)?.properties.has(propertyType);
-
-        const adjacentCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0) + (hasUp ? 1 : 0) + (hasDown ? 1 : 0);
-        const isDeadEnd = adjacentCount === 1;
-
-        if (isDeadEnd) {
-          if (hasLeft || hasRight) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));
-          } else if (hasUp) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - this.cellSize / 2, x - radius, y + radius));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - this.cellSize / 2, x + radius, y + radius));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y + radius, x + radius, y + radius));
-          } else if (hasDown) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x - radius, y + this.cellSize / 2));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y - radius, x + radius, y + this.cellSize / 2));
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y - radius, x + radius, y - radius));
-          }
-        } else {
-          if (!hasLeft && !hasUp) {
-            this.graphics.beginPath();
-            this.graphics.arc(x, y, radius, Math.PI, -Math.PI / 2, false);
-            this.graphics.strokePath();
-          } else if (!hasLeft && hasUp) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y - this.cellSize / 2));
-          } else if (hasLeft && !hasUp) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x - this.cellSize / 2, y - radius));
-          }
-
-          if (!hasRight && !hasUp) {
-            this.graphics.beginPath();
-            this.graphics.arc(x, y, radius, -Math.PI / 2, 0, false);
-            this.graphics.strokePath();
-          } else if (!hasRight && hasUp) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y - this.cellSize / 2));
-          } else if (hasRight && !hasUp) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y - radius, x + this.cellSize / 2, y - radius));
-          }
-
-          if (!hasLeft && !hasDown) {
-            this.graphics.beginPath();
-            this.graphics.arc(x, y, radius, Math.PI / 2, Math.PI, false);
-            this.graphics.strokePath();
-          } else if (!hasLeft && hasDown) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x - radius, y, x - radius, y + this.cellSize / 2));
-          } else if (hasLeft && !hasDown) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x - this.cellSize / 2, y + radius));
-          }
-
-          if (!hasRight && !hasDown) {
-            this.graphics.beginPath();
-            this.graphics.arc(x, y, radius, 0, Math.PI / 2, false);
-            this.graphics.strokePath();
-          } else if (!hasRight && hasDown) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x + radius, y, x + radius, y + this.cellSize / 2));
-          } else if (hasRight && !hasDown) {
-            this.graphics.strokeLineShape(new Phaser.Geom.Line(x, y + radius, x + this.cellSize / 2, y + radius));
-          }
-        }
-
-        const innerRadius = this.cellSize / 2 - radius;
-        if (hasLeft && hasUp && !grid.getCell(col - 1, row - 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x - this.cellSize / 2, y - this.cellSize / 2, innerRadius, 0, Math.PI / 2, false);
-          this.graphics.strokePath();
-        }
-        if (hasRight && hasUp && !grid.getCell(col + 1, row - 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x + this.cellSize / 2, y - this.cellSize / 2, innerRadius, Math.PI / 2, Math.PI, false);
-          this.graphics.strokePath();
-        }
-        if (hasLeft && hasDown && !grid.getCell(col - 1, row + 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x - this.cellSize / 2, y + this.cellSize / 2, innerRadius, -Math.PI / 2, 0, false);
-          this.graphics.strokePath();
-        }
-        if (hasRight && hasDown && !grid.getCell(col + 1, row + 1)?.properties.has('path')) {
-          this.graphics.beginPath();
-          this.graphics.arc(x + this.cellSize / 2, y + this.cellSize / 2, innerRadius, Math.PI, -Math.PI / 2, false);
-          this.graphics.strokePath();
-        }
-      }
-    }
-  }
-
-  private renderEdges(grid: GridReader): void {
-    const edgeThickness = EDGE_THICKNESS_PX;
-    const edgeColor = this.getEdgeColor();
-
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        if (!cell) continue;
-
-        const isStairs = cell.properties.has('stairs');
-        const isElevated = grid.getLayer(cell) >= 1;
-        const isWall = cell.properties.has('wall');
-        const isPlatform = cell.properties.has('platform');
-
-        if (isElevated || isStairs) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-
-          this.edgeGraphics.lineStyle(edgeThickness, edgeColor, 1);
-
-          const currentLayer = grid.getLayer(cell);
-
-          if (col < grid.width - 1) {
-            const rightCell = grid.cells[row][col + 1];
-            const rightLayer = grid.getLayer(rightCell);
-            const rightIsLower = rightLayer < currentLayer && !grid.isTransition(rightCell);
-            const rightIsPlatform = rightCell?.properties.has('platform');
-            const rightIsStairs = rightCell && grid.isTransition(rightCell);
-            const rightIsWall = rightCell?.properties.has('wall');
-
-            if (rightIsLower || (isWall && rightIsPlatform && !rightIsStairs) || (isStairs && rightIsWall) || (isWall && rightIsStairs)) {
-              this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(
-                x + this.cellSize, y,
-                x + this.cellSize, y + this.cellSize
-              ));
-            }
-          }
-
-          if (col > 0) {
-            const leftCell = grid.cells[row][col - 1];
-            const leftLayer = grid.getLayer(leftCell);
-            const leftIsLower = leftLayer < currentLayer && !grid.isTransition(leftCell);
-            const leftIsPlatform = leftCell?.properties.has('platform');
-            const leftIsStairs = leftCell && grid.isTransition(leftCell);
-            const leftIsWall = leftCell?.properties.has('wall');
-
-            if (leftIsLower || (isWall && leftIsPlatform && !leftIsStairs) || (isStairs && leftIsWall) || (isWall && leftIsStairs)) {
-              this.edgeGraphics.lineStyle(edgeThickness / 2, edgeColor, 1);
-              this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y, x, y + this.cellSize));
-              this.edgeGraphics.lineStyle(edgeThickness, edgeColor, 1);
-            }
-          }
-
-          if (row > 0) {
-            const topCell = grid.cells[row - 1][col];
-            const topLayer = grid.getLayer(topCell);
-            const topIsLower = topLayer < currentLayer && !grid.isTransition(topCell);
-            const topIsPlatform = topCell?.properties.has('platform');
-            const topIsStairs = topCell && grid.isTransition(topCell);
-            const topIsWall = topCell?.properties.has('wall');
-
-            if (((topIsLower || (isWall && topIsPlatform && !topIsStairs) || (isStairs && topIsWall) || (isWall && topIsStairs)) && !isStairs) || (isPlatform && topIsStairs)) {
-              this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y, x + this.cellSize, y));
-            }
-          }
-
-          if (row < grid.height - 1 && !isStairs) {
-            const bottomCell = grid.cells[row + 1][col];
-            const bottomLayer = grid.getLayer(bottomCell);
-            const bottomIsLower = bottomLayer < currentLayer && !grid.isTransition(bottomCell);
-            const bottomIsPlatform = bottomCell?.properties.has('platform');
-            const bottomIsStairs = bottomCell && grid.isTransition(bottomCell);
-
-            if (bottomIsLower || (isWall && bottomIsPlatform && !bottomIsStairs)) {
-              this.edgeGraphics.strokeLineShape(new Phaser.Geom.Line(x, y + this.cellSize, x + this.cellSize, y + this.cellSize));
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private renderEdgeDarkening(grid: GridReader, levelData?: LevelData): void {
-    const config = levelData?.background?.edgeDarkening;
-    if (!config) return;
-
-    const darkenSteps = config.depth;
-    const maxIntensity = config.intensity;
-    const stepsPerCell = DARKENING_STEPS_PER_CELL;
-
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        if (!cell || grid.getLayer(cell) < 1) continue;
-
-        const distToEdge = Math.min(col, row, grid.width - 1 - col, grid.height - 1 - row);
-
-        if (distToEdge < darkenSteps) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const stepSize = this.cellSize / stepsPerCell;
-
-          for (let sy = 0; sy < stepsPerCell; sy++) {
-            for (let sx = 0; sx < stepsPerCell; sx++) {
-              const subX = x + sx * stepSize;
-              const subY = y + sy * stepSize;
-
-              const subDistToEdge = Math.min(
-                col + sx / stepsPerCell,
-                row + sy / stepsPerCell,
-                grid.width - 1 - col - sx / stepsPerCell,
-                grid.height - 1 - row - sy / stepsPerCell
-              );
-
-              const intensity = Math.max(0, 1 - subDistToEdge / darkenSteps);
-              const alpha = maxIntensity * intensity;
-
-              if (alpha > DARKENING_MIN_ALPHA) {
-                this.edgeGraphics.fillStyle(0x000000, alpha);
-                this.edgeGraphics.fillRect(subX, subY, stepSize, stepSize);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private renderShadows(grid: GridReader): void {
-    const shadowWidth = SHADOW_WIDTH_PX;
-    const shadowSteps = SHADOW_STEPS;
-    const shadowIntensity = SHADOW_INTENSITY;
-
-    for (let row = 0; row < grid.height; row++) {
-      for (let col = 0; col < grid.width; col++) {
-        const cell = grid.getCell(col, row);
-        if (cell && grid.getLayer(cell) >= 1) {
-          const x = col * this.cellSize;
-          const y = row * this.cellSize;
-          const currentLayer = grid.getLayer(cell);
-
-          if (col < grid.width - 1) {
-            const rightCell = grid.cells[row][col + 1];
-            const rightIsLower = grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell);
-
-            if (rightIsLower) {
-              const isTopRightCorner = row > 0 && grid.getLayer(grid.cells[row - 1][col]) < currentLayer && !grid.isTransition(grid.cells[row - 1][col]);
-
-              if (isTopRightCorner) {
-                for (let yOffset = 0; yOffset < shadowSteps; yOffset++) {
-                  for (let xOffset = 0; xOffset <= yOffset; xOffset++) {
-                    const distance = Math.min(xOffset, yOffset);
-                    const alpha = shadowIntensity * (1 - distance / shadowSteps);
-                    const step = shadowWidth / shadowSteps;
-                    this.graphics.fillStyle(0x000000, alpha);
-                    this.graphics.fillRect(x + this.cellSize + xOffset * step, y + yOffset * step, step, step);
-                  }
-                }
-              } else {
-                for (let i = 0; i < shadowSteps; i++) {
-                  const alpha = shadowIntensity * (1 - i / shadowSteps);
-                  const stepWidth = shadowWidth / shadowSteps;
-                  this.graphics.fillStyle(0x000000, alpha);
-                  this.graphics.fillRect(x + this.cellSize + i * stepWidth, y, stepWidth, this.cellSize);
-                }
-              }
-            }
-          }
-
-          if (row < grid.height - 1 && grid.getLayer(grid.cells[row + 1][col]) < currentLayer && !grid.isTransition(grid.cells[row + 1][col])) {
-            const isBottomLeftCorner = col > 0 && grid.getLayer(grid.cells[row][col - 1]) < currentLayer && !grid.isTransition(grid.cells[row][col - 1]);
-
-            if (isBottomLeftCorner) {
-              for (let i = 0; i < shadowSteps; i++) {
-                for (let j = 0; j <= i; j++) {
-                  const alpha = shadowIntensity * (1 - i / shadowSteps);
-                  const step = shadowWidth / shadowSteps;
-                  this.graphics.fillStyle(0x000000, alpha);
-                  this.graphics.fillRect(x + this.cellSize - (j + 1) * step, y + this.cellSize + (i - j) * step, step, step);
-                }
-              }
-            } else {
-              for (let i = 0; i < shadowSteps; i++) {
-                const alpha = shadowIntensity * (1 - i / shadowSteps);
-                const stepHeight = shadowWidth / shadowSteps;
-                this.graphics.fillStyle(0x000000, alpha);
-                this.graphics.fillRect(x, y + this.cellSize + i * stepHeight, this.cellSize, stepHeight);
-              }
-            }
-          }
-
-          // Corner shadow (bottom-right)
-          if (col < grid.width - 1 && row < grid.height - 1) {
-            const rightCell = grid.cells[row][col + 1];
-            const bottomCell = grid.cells[row + 1][col];
-            const rightIsLower = grid.getLayer(rightCell) < currentLayer && !grid.isTransition(rightCell);
-            const bottomIsLower = grid.getLayer(bottomCell) < currentLayer && !grid.isTransition(bottomCell);
-
-            if (rightIsLower && bottomIsLower) {
-              for (let i = 0; i < shadowSteps; i++) {
-                for (let j = 0; j <= i; j++) {
-                  const alpha = shadowIntensity * (1 - i / shadowSteps);
-                  const step = shadowWidth / shadowSteps;
-                  this.graphics.fillStyle(0x000000, alpha);
-                  this.graphics.fillRect(x + this.cellSize + j * step, y + this.cellSize + (i - j) * step, step, step);
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 }
