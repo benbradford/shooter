@@ -159,7 +159,7 @@ Levels can include random decorative overlays (dirt patches, cracked stone, skul
 
 ## Switching Themes in Editor
 
-Press **E** to enter editor, then click **Theme** button to open theme selector. Click a theme name to switch immediately.
+Open the standalone editor (`http://localhost:5173/editor/`), then select a theme from the Level Info panel dropdown.
 
 ## Adding a New Theme
 

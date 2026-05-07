@@ -30,3 +30,4 @@ public/states/default.json
 *.njsproj
 *.sln
 *.sw?
+.sessions.json

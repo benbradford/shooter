@@ -407,18 +407,15 @@ Then rebuild in Android Studio.
 - **[Collision System](./docs/collision-system.md)** - Entity collision detection, tags, collision boxes, damage system
 - **[Grid and Collision](./docs/grid-and-collision.md)** - Grid system, layer-based collision, scene setup
 - **[Input Systems](./docs/input-systems.md)** - Joystick controls, keyboard input, touch firing
-- **[Level System](./docs/level-system.md)** - Loading levels from JSON, level data structure, creating levels
 - **[Level Loading](./docs/level-loading.md)** - Dynamic asset loading, asset registry, scene cleanup
 - **[Level Editor](./docs/level-editor.md)** - Editor mode, scene overlay system, future features
 - **[HUD System](./docs/hud-system.md)** - HUD components, button states, touch input handling
 - **[Adding Enemies](./docs/adding-enemies.md)** - Complete guide for implementing new enemy types with state machines and components
-- **[Particle Effects](./docs/particle-effects.md)** - Creating particle effects, entity ownership, following transforms, common patterns
-- **[Hit Flash System](./docs/hit-flash-system.md)** - Reusable damage feedback component for all entities
+- **[Visual Effects](./docs/visual-effects.md)** - Hit flashes, particles, shadows, rotating projectiles
 - **[Screen Scaling and HUD](./docs/screen-scaling-and-hud.md)** - Critical quirks for screen scaling, coordinate systems, HUD positioning, Android compatibility
 
 ### Quick Reference
 - **[Quick Reference](./docs/quick-reference.md)** - Common tasks, patterns, troubleshooting
-- **[Component Props Pattern](./docs/component-props-pattern.md)** - Props-based component configuration
 
 ---
 

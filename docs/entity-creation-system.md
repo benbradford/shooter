@@ -5,15 +5,15 @@
 **When adding ANY new field to entity data that can be edited:**
 
 1. Modify the entity data in the editor state (e.g., `entityData.myNewField = value`)
-2. **MUST also update `EditorBridge.extractEntities()`** to preserve the field when logging
+2. **MUST also update `EditorBridge.extractEntities()`** to preserve the field when saving
 
-**Common mistake:** Adding a field to level data and updating it in the editor, but forgetting to extract it in `extractEntities()`. Result: Field doesn't appear in logged JSON.
+**Common mistake:** Adding a field to level data and updating it in the editor, but forgetting to extract it in `extractEntities()`. Result: Field doesn't appear in saved JSON.
 
 **Checklist when adding editor features:**
 - [ ] Update level data type (LevelEntity, LevelData, etc.)
 - [ ] Update editor state to modify the field
 - [ ] **Update EditorBridge.extractEntities() to preserve the field** ← Most commonly forgotten!
-- [ ] Test: Edit field → Click Log → Verify field in JSON
+- [ ] Test: Edit field → Click Save → Verify field in JSON
 
 ## Overview
 
@@ -326,7 +326,7 @@ Handles entity loading from level JSON.
 
 ### Saving
 
-Click **Log** button to save level JSON with all entities in the new format.
+Click **Save** button to save level JSON with all entities in the new format.
 
 ## Key Files
 

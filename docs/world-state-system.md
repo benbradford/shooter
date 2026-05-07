@@ -123,7 +123,7 @@ Entities can be marked as `respawnable` in the editor:
 - **Default**: `respawnable = false` (destroyed entities stay destroyed)
 - **When `respawnable = true`**: Entity respawns every time you re-enter the level, even if destroyed
 - **Use cases**: Breakable objects (vases, crates), training dummies, resource nodes
-- **Editor**: Click entity → Check "Respawnable" checkbox → Click Log to save
+- **Editor**: Click entity → Check "Respawnable" checkbox → Click Save to save
 
 **Example in level JSON:**
 ```json

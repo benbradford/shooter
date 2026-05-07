@@ -447,7 +447,10 @@ async function fixEntry(id) {
   if (!i || !confirm(`Invoke kiro-cli to fix: "${i.title}"?`)) return;
   const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '' }) });
   const data = await resp.json();
-  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+  if (data.sessionId) { 
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
   showToast(`🤖 kiro-cli started for issue #${id}`);
 }
 
@@ -456,7 +459,10 @@ async function refreshIssues() {
   const issuesSummary = ISSUES.filter(i => i.status === 'open').map(i => `#${i.id}: ${i.title} [${i.severity}] (files: ${i.files.join(', ')})`).join('\n');
   const resp = await fetch('/api/tracker/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ issues: issuesSummary }) });
   const data = await resp.json();
-  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+  if (data.sessionId) { 
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
   showToast('🔄 db-architect agent launched — will update tracker');
 }
 
@@ -464,7 +470,10 @@ async function helpMeDecide() {
   const openIssues = ISSUES.filter(i => i.status === 'open').map(i => `#${i.id} [${i.severity}] ${i.title} (effort: ${i.effort}, risk: ${i.risk}, fan-in: ${i.fanIn ?? '?'}, files: ${i.files.join(', ')})`).join('\n');
   const resp = await fetch('/api/tracker/decide', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ issues: openIssues }) });
   const data = await resp.json();
-  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+  if (data.sessionId) { 
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
   showToast('🧠 Analyzing issues — kiro agent launched');
 }
 
@@ -473,7 +482,10 @@ async function diagnoseEntry(id) {
   if (!i) return;
   const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '', diagnoseOnly: true }) });
   const data = await resp.json();
-  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+  if (data.sessionId) { 
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
   showToast(`🔍 Diagnosing issue #${id}...`);
 }
 

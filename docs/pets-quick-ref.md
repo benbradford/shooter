@@ -167,6 +167,8 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 - `src/ecs/components/pet/PetFollowComponent.ts` — Following + wander logic
 - `src/ecs/components/pet/PetAbilityComponent.ts` — Ability routing
 - `src/ecs/components/pet/DogBarkAbility.ts` — Bark ability + fear application
+- `src/ecs/components/pet/RockThrowAbility.ts` — Rock throw orchestrator (state pattern)
+- `src/ecs/components/pet/rock-throw/` — State classes (RockChargingState, RockAimingState, RockFlightState, RockReturningState, RockThrowTypes)
 - `src/ecs/components/combat/FearComponent.ts` — Fear visual effects + timer
 - `src/ecs/entities/common/EnemyFearState.ts` — Shared flee state
 - `features/pets/dog/bark/` — Design docs and tasks

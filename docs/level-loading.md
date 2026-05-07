@@ -22,7 +22,7 @@ export const ASSET_REGISTRY = {
 
 ## Asset Groups
 
-Assets are organized into logical groups in `src/assets/AssetLoader.ts`:
+Assets are organized into logical groups in `src/assets/AssetRegistry.ts`:
 
 ```typescript
 export const ASSET_GROUPS = {
@@ -132,7 +132,7 @@ my_new_sprite: {
 }
 ```
 
-2. **Add to appropriate group** in `src/assets/AssetLoader.ts`:
+2. **Add to appropriate group** in `src/assets/AssetRegistry.ts`:
 ```typescript
 my_enemy: ['my_new_sprite', 'my_projectile'] as const
 ```

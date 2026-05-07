@@ -2,7 +2,140 @@ import { defineConfig } from 'vite';
 import type { Plugin } from 'vite';
 import fs from 'node:fs';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
+
+// ── Session Registry ──────────────────────────────────────────
+interface Session {
+  id: string;
+  port: number;
+  label: string;
+  status: 'active' | 'dead';
+  archived: boolean;
+  ttydPid: number;
+  tmuxSession: string;
+  createdAt: string;
+  command: string;
+}
+
+const sessions: Map<string, Session> = new Map();
+let nextSessionId = 1;
+
+const SESSION_FILE = path.resolve('.sessions.json');
+
+function persistSessions(): void {
+  const data = [...sessions.values()].map(({ ttydPid, ...rest }) => rest);
+  fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
+}
+
+function recoverSessions(): void {
+  if (!fs.existsSync(SESSION_FILE)) return;
+  try {
+    const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
+    for (const s of data) {
+      // Check if tmux session is still alive
+      if (isTmuxSessionAlive(s.tmuxSession)) {
+        s.status = 'active';
+        s.ttydPid = 0; // Will be re-spawned on connect
+      } else {
+        s.status = 'dead';
+        s.ttydPid = 0;
+      }
+      sessions.set(s.id, s);
+      // Track highest ID to avoid collisions
+      const num = Number.parseInt(s.id.replace('s', ''), 10);
+      if (num >= nextSessionId) nextSessionId = num + 1;
+    }
+    console.log(`📋 Recovered ${sessions.size} sessions from disk`);
+  } catch { /* corrupted file, start fresh */ }
+}
+
+recoverSessions();
+
+function generateSessionId(): string {
+  let id = `s${nextSessionId++}`;
+  // Avoid collisions with existing tmux sessions
+  while (isTmuxSessionAlive(`db-${id}`) || sessions.has(id)) {
+    id = `s${nextSessionId++}`;
+  }
+  return id;
+}
+
+function isTmuxSessionAlive(tmuxName: string): boolean {
+  try {
+    execSync(`/opt/homebrew/bin/tmux has-session -t '${tmuxName}' 2>/dev/null`);
+    return true;
+  } catch { return false; }
+}
+
+function isProcessAlive(pid: number): boolean {
+  try { process.kill(pid, 0); return true; } catch { return false; }
+}
+
+function isPortInUse(port: number): boolean {
+  try {
+    execSync(`lsof -i :${port} -P -t 2>/dev/null`);
+    return true;
+  } catch { return false; }
+}
+
+function findAvailablePort(): number {
+  let port = 7681;
+  while (isPortInUse(port)) port++;
+  return port;
+}
+
+function cleanupDeadSessions(): void {
+  for (const [, session] of sessions) {
+    if (session.status === 'active' && !isTmuxSessionAlive(session.tmuxSession)) {
+      session.status = 'dead';
+      // Kill orphaned ttyd if still running
+      try { process.kill(session.ttydPid); } catch { /* already dead */ }
+    }
+  }
+}
+
+function spawnTtydForTmux(tmuxName: string, port: number): number {
+  const ttydPath = '/opt/homebrew/bin/ttyd';
+  const tmuxPath = '/opt/homebrew/bin/tmux';
+  const ttyd = spawn(ttydPath, [
+    '--port', String(port),
+    '--writable',
+    tmuxPath, 'attach-session', '-t', tmuxName,
+  ], { stdio: 'ignore', detached: true });
+  ttyd.unref();
+  return ttyd.pid!;
+}
+
+function spawnSession(label: string, shellCmd: string): Session {
+  const cwd = process.cwd();
+  const port = findAvailablePort();
+  const tmuxPath = '/opt/homebrew/bin/tmux';
+  const id = generateSessionId();
+  const tmuxName = `db-${id}`;
+
+  console.log(`🚀 Session "${label}" (tmux: ${tmuxName}) on port ${port}...`);
+
+  // Create a detached tmux session running the command
+  execSync(`${tmuxPath} new-session -d -s '${tmuxName}' -c '${cwd}' '${shellCmd.replace(/'/g, "'\\''")}'`);
+
+  // Spawn ttyd attached to the tmux session
+  const ttydPid = spawnTtydForTmux(tmuxName, port);
+
+  const session: Session = {
+    id, port, label, status: 'active', archived: false,
+    ttydPid, tmuxSession: tmuxName, createdAt: new Date().toISOString(), command: shellCmd,
+  };
+  sessions.set(id, session);
+  persistSessions();
+  return session;
+}
+
+/** Re-spawn ttyd for an existing tmux session (reconnect after tab switch) */
+function ensureTtydRunning(session: Session): void {
+  if (isProcessAlive(session.ttydPid)) return;
+  // tmux is alive but ttyd died (user navigated away) — respawn ttyd
+  session.ttydPid = spawnTtydForTmux(session.tmuxSession, session.port);
+}
 
 function readBody(req: import('http').IncomingMessage): Promise<string> {
   return new Promise(resolve => {
@@ -242,16 +375,11 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          console.log('🔄 Launching db-architect agent to refresh issues...');
-          const port = 7681 + Math.floor(Math.random() * 100);
-          const ttydPath = '/opt/homebrew/bin/ttyd';
           const shellCmd = `cd '${cwd}' && kiro-cli chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
-          ttyd.unref();
+          const session = spawnSession('🔄 Refresh Issues', shellCmd);
 
-          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, url, message: 'db-architect agent launched to refresh issues' }));
+          res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}`, message: 'db-architect agent launched to refresh issues' }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
@@ -268,16 +396,11 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          console.log('🧠 Launching kiro agent to recommend next issue...');
-          const port = 7681 + Math.floor(Math.random() * 100);
-          const ttydPath = '/opt/homebrew/bin/ttyd';
           const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
-          ttyd.unref();
+          const session = spawnSession('🧠 Help Me Decide', shellCmd);
 
-          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, url, message: 'kiro agent launched to recommend next issue' }));
+          res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
@@ -286,21 +409,26 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
           const cwd = process.cwd();
-          const message = 'update the docs';
+          const message = `Update the docs. Follow the "When asked to update the docs" workflow in docs/README.md:
+1. Run \`node scripts/extract-sessions.mjs --dry-run\` to see what's been worked on since last update
+2. Update existing doc sections to reflect code changes
+3. Remove obsolete information about deleted features
+4. Add new information for new features
+5. Keep docs accurate and minimal
+6. Update multiple doc files as needed
+7. Update \`.agents/summary\` to keep it in sync with doc changes
+8. Ask clarifying questions if there's conflicting information or unclear behavior
+9. Audit — Run the audit script, fact-check file paths/symbols/code references, review files >300 lines, remove stale info
+10. Run \`node scripts/extract-sessions.mjs\` (without --dry-run) to write the timestamp`;
           const tmpFile = path.resolve('tmp', `update-docs-${Date.now()}.txt`);
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          console.log('📝 Launching kiro agent to update docs...');
-          const port = 7681 + Math.floor(Math.random() * 100);
-          const ttydPath = '/opt/homebrew/bin/ttyd';
           const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
-          ttyd.unref();
+          const session = spawnSession('📝 Update Docs', shellCmd);
 
-          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, url, message: 'kiro agent launched to update docs' }));
+          res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
@@ -324,32 +452,24 @@ If there are no changes to commit, say so and stop.`;
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          console.log('🔀 Launching kiro agent to commit changes...');
-          const port = 7681 + Math.floor(Math.random() * 100);
-          const ttydPath = '/opt/homebrew/bin/ttyd';
           const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', shellCmd], { stdio: 'ignore', detached: true, cwd });
-          ttyd.unref();
+          const session = spawnSession('🔀 Commit All', shellCmd);
 
-          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, url, message: 'kiro agent launched to commit changes' }));
+          res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
-      // New Session — open a blank kiro-cli session in ttyd
+      // New Session — open a blank kiro-cli session
       server.middlewares.use('/api/tracker/session', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
           const cwd = process.cwd();
-          const port = 7681 + Math.floor(Math.random() * 100);
-          const ttydPath = '/opt/homebrew/bin/ttyd';
-          console.log(`🚀 New kiro session on port ${port}...`);
-          const ttyd = spawn(ttydPath, ['--port', String(port), '--once', '--writable', 'bash', '-c', `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`], { stdio: 'ignore', detached: true, cwd });
-          ttyd.unref();
-          const url = `http://localhost:${port}`;
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
+          const session = spawnSession(`Session ${nextSessionId - 1}`, shellCmd);
+
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, url }));
+          res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
@@ -364,36 +484,146 @@ If there are no changes to commit, say so and stop.`;
             : `fix ${type}: `;
           const message = `${prefix}${body.title}. Details: ${body.detail}`;
           const cwd = process.cwd();
-          const action = body.diagnoseOnly ? 'Diagnosing' : 'Fixing';
+          const action = body.diagnoseOnly ? '🔍' : '🔧';
 
           // Write message to temp file to avoid shell escaping issues
           const tmpFile = path.resolve('tmp', `fix-${body.id}-${Date.now()}.txt`);
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          // Find an available port for ttyd (7681+)
-          const port = 7681 + Math.floor(Math.random() * 100);
-          const ttydPath = '/opt/homebrew/bin/ttyd';
-
-          console.log(`🔧 ${action} ${type} #${body.id} on port ${port}...`);
-
-          // Launch ttyd with kiro-cli — once-mode so it exits when session ends
           const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const ttyd = spawn(ttydPath, [
-            '--port', String(port),
-            '--once',  // Exit ttyd after client disconnects
-            '--writable',  // Allow typing in the terminal
-            'bash', '-c', shellCmd,
-          ], {
-            stdio: 'ignore',
-            detached: true,
-            cwd,
-          });
-          ttyd.unref();
+          const label = `${action} ${type} #${body.id}: ${body.title.slice(0, 40)}`;
+          const session = spawnSession(label, shellCmd);
 
-          const url = `http://localhost:${port}`;
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ ok: true, url, message: `kiro-cli opened for ${type} #${body.id}` }));
+          res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // ── Session Management API ──────────────────────────────────
+
+      server.middlewares.use('/api/sessions', async (req, res, next) => {
+        // Only handle exact /api/sessions path, not sub-paths like /api/sessions/create
+        if (req.url && req.url !== '/' && req.url !== '') { next(); return; }
+        if (req.method === 'GET') {
+          cleanupDeadSessions();
+          const list = [...sessions.values()].map(s => ({
+            id: s.id, port: s.port, label: s.label, status: s.status,
+            archived: s.archived, createdAt: s.createdAt,
+          }));
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(list));
+          return;
+        }
+        res.statusCode = 405; res.end('Method not allowed');
+      });
+
+      server.middlewares.use('/api/sessions/create', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string };
+          const cwd = process.cwd();
+          const shellCmd = body.command ?? `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
+          const label = body.label ?? `Session ${nextSessionId}`;
+          const session = spawnSession(label, shellCmd);
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, session: { id: session.id, port: session.port, label: session.label, status: session.status, archived: session.archived, createdAt: session.createdAt } }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      server.middlewares.use('/api/sessions/rename', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string; label: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          session.label = body.label;
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      server.middlewares.use('/api/sessions/archive', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          session.archived = true;
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      server.middlewares.use('/api/sessions/unarchive', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          session.archived = false;
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      server.middlewares.use('/api/sessions/kill', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          // Kill ttyd
+          try { process.kill(session.ttydPid); } catch { /* already dead */ }
+          // Kill tmux session
+          try {
+            execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`);
+          } catch { /* already dead */ }
+          session.status = 'dead';
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Reconnect — ensure ttyd is running for an existing session
+      server.middlewares.use('/api/sessions/delete', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          if (!session.archived) { res.statusCode = 400; res.end('Can only delete archived sessions'); return; }
+          // Kill if still alive
+          try { process.kill(session.ttydPid); } catch { /* already dead */ }
+          try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+          sessions.delete(body.id);
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Reconnect — ensure ttyd is running for an existing session
+      server.middlewares.use('/api/sessions/reconnect', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          if (!isTmuxSessionAlive(session.tmuxSession)) {
+            session.status = 'dead';
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ ok: false, reason: 'tmux session dead' }));
+            return;
+          }
+          ensureTtydRunning(session);
+          session.status = 'active';
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, port: session.port }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
     }

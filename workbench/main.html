@@ -70,11 +70,19 @@
 <div class="toast" id="toast"></div>
 
 <script>
+function openSessionTab(sessionId) {
+  // Use named window target to reuse existing tab
+  const sessionWindow = window.open(`sessions.html?session=${sessionId}`, 'db-sessions');
+  if (sessionWindow) {
+    sessionWindow.focus();
+  }
+}
+
 async function newSession() {
   try {
     const res = await fetch('/api/tracker/session', { method: 'POST' });
     const data = await res.json();
-    if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+    if (data.sessionId) { setTimeout(() => openSessionTab(data.sessionId), 800); }
     showToast('🚀 New kiro session starting...');
   } catch (e) { showToast('Failed: ' + e.message); }
 }
@@ -82,7 +90,7 @@ async function updateDocs() {
   try {
     const res = await fetch('/api/tracker/update-docs', { method: 'POST' });
     const data = await res.json();
-    if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+    if (data.sessionId) { setTimeout(() => openSessionTab(data.sessionId), 800); }
     showToast(data.message || 'Launched!');
   } catch (e) { showToast('Failed: ' + e.message); }
 }
@@ -90,7 +98,7 @@ async function commitAll() {
   try {
     const res = await fetch('/api/tracker/commit', { method: 'POST' });
     const data = await res.json();
-    if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+    if (data.sessionId) { setTimeout(() => openSessionTab(data.sessionId), 800); }
     showToast('🔀 Commit session starting...');
   } catch (e) { showToast('Failed: ' + e.message); }
 }

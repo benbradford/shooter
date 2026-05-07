@@ -124,6 +124,14 @@ Level transitions work automatically via exit triggers. The system:
 - Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
 
+**Lua Runtime Architecture:**
+- `src/systems/LuaRuntime.ts` — Orchestrator: executes Lua scripts, processes command queue, manages special item display
+- `src/systems/lua-api/types.ts` — Command type union and direction maps
+- `src/systems/lua-api/PlayerAPI.ts` — Registers `player.*`, `calculateDirection`, `celebrate`
+- `src/systems/lua-api/NpcAPI.ts` — Registers `npc.*`, `faceEachOther`, `restoreDirections`
+- `src/systems/lua-api/WorldAPI.ts` — Registers `setFlag`, `getFlag`, `saveState`, `isFlagCondition`, `raiseEvent`
+- `src/systems/lua-api/UIAPI.ts` — Registers `wait`, `say`, `coins.*`, `speech.*`, `fadeOut/In`, `showSpecialItem/hideSpecialItem`
+
 **Player animation names:** `powerup`, `pickup`, `push`, `slide`, `uppercut`, `throw`, `punch`, `walk`, `run`, `death`, `swim`, `fall`, `idle`
 **Directions:** `"down"`, `"up"`, `"left"`, `"right"`, `"up_left"`, `"up_right"`, `"down_left"`, `"down_right"`
 
@@ -227,7 +235,7 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 **Spritesheets (enemies, player, etc.):**
 1. Add sprite sheet to `public/assets/`
 2. Register in `src/assets/AssetRegistry.ts`
-3. Add to appropriate group in `src/assets/AssetLoader.ts`
+3. Add to appropriate group in `src/assets/AssetRegistry.ts`
 
 **Sound effects:**
 1. Place MP3 in `public/assets/sounds/`
@@ -313,7 +321,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 ## Cheat Profile
 
 The profile select screen has a 4th "Cheat" slot that starts with all abilities unlocked:
-- `canPunch`, `canSwim`, `hasSuperPunch`, `hasCompanion`, `canJump`, `hasAutoHeal` = `"true"`
+- `canPunch`, `canSwim`, `canJump`, `canPush`, `hasSuperPunch`, `hasCompanion`, `hasAutoHeal` = `"true"`
 - `pet_rock_collected`, `pet_dog_collected` = `"true"`, `pet_selected` = `"dog"`
 - Starts in `house3_interior`
 

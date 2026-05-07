@@ -36,10 +36,10 @@ Player → Trigger → EventChainer → Entities
 
 ## Editor Workflow
 
-1. **Add Entity**: Click Add → Select type → Click to place → Auto-generates ID
-2. **Edit Entity**: Click entity → Shows ID in top-right → Edit panel appears
-3. **Move Entity**: Click entity in edit mode → Drag to new position
-4. **Save**: Click Log → Copy JSON to level file
+1. **Add Entity**: Entity tool → Select type → Click to place → Auto-generates ID
+2. **Edit Entity**: Select tool → Click entity → Edit panel appears
+3. **Move Entity**: Select tool → Click and drag entity to new position
+4. **Save**: Ctrl+S or Save button → Writes directly to disk
 
 ## Important Rules
 

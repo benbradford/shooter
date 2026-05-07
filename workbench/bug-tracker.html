@@ -284,7 +284,10 @@ async function fixEntry(id) {
     body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '' })
   });
   const data = await resp.json();
-  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+  if (data.sessionId) { 
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
   showToast(`🤖 kiro-cli started for bug #${id}`);
 }
 
@@ -297,7 +300,10 @@ async function diagnoseEntry(id) {
     body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '', diagnoseOnly: true })
   });
   const data = await resp.json();
-  if (data.url) { setTimeout(() => window.open(data.url, '_blank'), 1000); }
+  if (data.sessionId) { 
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
   showToast(`🔍 Diagnosing bug #${id}...`);
 }
 

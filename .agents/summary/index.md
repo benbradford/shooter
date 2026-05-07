@@ -91,7 +91,7 @@ This index provides a comprehensive map of the Dodging Bullets codebase document
 - **feature-design-process.md** - SOP for designing new features (10 phases)
 
 ### Level Design
-- **level-editor.md** - In-game level editor, data structure
+- **level-editor.md** - Standalone level editor, data structure
 - **level-themes.md** - Visual themes (dungeon, swamp, grass)
 - **level-transitions.md** - Moving between levels
 - **entity-creation-system.md** - Unified entity spawning
@@ -106,7 +106,6 @@ This index provides a comprehensive map of the Dodging Bullets codebase document
 - **attacker-spritesheet.md** - Player sprite frame layout
 - **screen-scaling-and-hud.md** - Critical quirks for mobile
 - **hud-system.md** - HUD components and positioning
-- **recent-changes.md** - Latest updates
 
 ## Documentation Relationships
 
@@ -184,11 +183,11 @@ graph TB
 
 **level-editor.md** (31KB)
 - Level data structure (JSON format)
-- Editor modes (default, grid, move, resize, texture, trigger)
+- Editor tools (level, state, select, grid, entity)
 - Entity placement and editing
-- Saving workflow
-- 47-tile path system with diagonal awareness
-- Multiple path types (path, water)
+- Saving workflow (direct to disk via dev server)
+- Split architecture (HTML panels + Phaser canvas)
+- Keyboard shortcuts and navigation
 
 **level-themes.md** (12KB)
 - Theme renderers (dungeon, swamp, grass, wilds, tunnels)
@@ -287,8 +286,22 @@ graph TB
 
 All trackers live in `workbench/` folder:
 - `workbench/main.html` — Dashboard with New Session, Commit All, Update Docs buttons
+- `workbench/sessions.html` — Session manager (live list, connect/archive/kill, embedded terminal)
 - `workbench/architecture-issues.html` — Tech debt tracker
 - `workbench/bug-tracker.html` — Bug tracker
 - `workbench/feature-tracker.html` — Feature tracker
 
 Interactive when dev server running. API endpoints in `vite.config.ts`.
+
+Session management via tmux + ttyd — sessions persist across tab switches, reconnect automatically. Full CRUD: create, rename, archive, unarchive, kill, reconnect, delete. See `docs/README.md` § Session Management.
+
+## Recent Architecture Changes (May 2026)
+
+- **Standalone editor**: Old `src/editor/` state machine removed. Editor is now a separate app at `editor/` (HTML panels + Phaser canvas). Accessed via `http://localhost:5173/editor/`
+- **Lua Runtime split**: `src/systems/LuaRuntime.ts` refactored — API registration moved to `src/systems/lua-api/` (PlayerAPI, NpcAPI, WorldAPI, UIAPI, types)
+- **Rock Throw state pattern**: `RockThrowAbility` delegates to state classes in `src/ecs/components/pet/rock-throw/`
+- **Water entry/exit**: Uses `JumpComponent.triggerWaterJump()` instead of custom hop animation in WaterEffectComponent
+- **Session management**: Multi-session tmux+ttyd system in `vite.config.ts` with full CRUD API
+- **canPush flag**: Pushing requires WorldState flag `canPush` = `"true"` (obtained from root_chest with `push_strength` item)
+- **Platform pushing**: Pushables can be pushed off platforms with gravity fall to lower layer
+- **Punch animation fix**: `wasPunching` flag in PlayerIdleState/PlayerWalkState force-replays idle/walk animation after punch

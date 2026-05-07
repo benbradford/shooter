@@ -74,7 +74,7 @@ The editor is **excluded from production builds** entirely.
 - **Play** — Opens game in new tab at current level
 - **New** — Create new level (name, dimensions, theme)
 - **Tool buttons** — Level, State, Select, Grid, Entity
-- **Grid sub-panel** — Visible when Grid tool active; checkboxes for wall, platform, stairs, water, bridge, blocked, path, push_lock + layer radio (0, 1, 2)
+- **Grid sub-panel** — Visible when Grid tool active; checkboxes for wall, platform, stairs, water, bridge, blocked, path, push_lock, void + layer radio (0, 1, 2)
 - **Entity dropdown** — Visible when Entity tool active; choose type to place
 - **Theme dropdown** — On Level Info panel (not toolbar)
 

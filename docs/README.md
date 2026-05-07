@@ -196,11 +196,11 @@ When asked to "update the docs":
 
 ## Level Design
 
-13. **[Level Editor](./level-editor.md)** - In-game level editor
+13. **[Level Editor](./level-editor.md)** - Standalone level editor
    - Level data structure and loading
-   - Editor modes (default, grid, move, resize, add entity, edit entity)
+   - Editor tools (level, state, select, grid, entity)
    - Saving workflow
-   - State machine architecture
+   - Split architecture (HTML panels + Phaser canvas)
    - Common issues and solutions
 
 14. **[Entity Creation System](./entity-creation-system.md)** - Unified entity system
@@ -263,6 +263,8 @@ When asked to "update the docs":
 - **Bug Base**: Spawns bugs that chase the player
 - **Thrower**: Runs toward player, throws grenades in arc
 - **Skeleton**: Pathfinds to player, stops periodically, throws rotating bone projectiles
+- **Red Skeleton**: Red-tinted skeleton, splits into 4 mini skeletons on death
+- **Bullet Dude**: Shoots bullets at the player
 - **Puma**: Rests until player detected (FOV or proximity), stands up, threatens, chases with momentum, jumps at player (2× distance), recovers with deceleration
 - **TV Monk**: Boss with dynamic TV screen face. Pre-combat mood set via events (`monk_happy`, `monk_angry`, etc.). Combat mood follows health (120 HP). 16 moods with idle animations, B&W static transitions. Faces player. Sound: `tv_static` on face transitions.
 
@@ -284,14 +286,13 @@ When asked to "update the docs":
 2. **Entity Collision** (CollisionComponent + CollisionSystem): Entity vs entity
 
 ### State Machines
-- Used for player states (idle, walk)
+- Used for player states (idle, walk, push)
 - Used for enemy AI (patrol, alert, stalking, attack, hit, death)
-- Used for editor modes (default, grid, move, resize, edit robot)
 
 ### Debug Controls
 - **G**: Toggle grid debug (layers, transitions, occupants)
 - **C**: Toggle collision boxes (entity and grid collision)
-- **E**: Enter level editor
+- **E**: Open standalone level editor (`http://localhost:5173/editor/`)
 
 ## Development Workflow
 
@@ -388,5 +389,28 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 **Kiro agent phrases** (still work in chat):
 - "log a feature: {description}" → adds to feature tracker
 - "log a bug: {description}" → adds to bug tracker
+
+### Session Management
+
+The workbench includes a multi-session system that manages kiro-cli sessions via tmux + ttyd:
+
+- Sessions are spawned as tmux sessions with ttyd providing browser-based terminal access
+- Each session gets a unique port (starting at 7681) and a tmux session named `db-{id}`
+- Sessions persist even when the browser tab is closed — reconnecting re-attaches ttyd to the existing tmux session
+- Dead sessions (tmux exited) are detected automatically on list refresh
+
+**Session API endpoints** (in `vite.config.ts`):
+- `GET /api/sessions` — list all sessions with status
+- `POST /api/sessions/create` — create a new session (`{ label?, command? }`)
+- `POST /api/sessions/rename` — rename a session (`{ id, label }`)
+- `POST /api/sessions/archive` — hide a session from the active list (`{ id }`)
+- `POST /api/sessions/unarchive` — restore an archived session (`{ id }`)
+- `POST /api/sessions/kill` — kill tmux + ttyd for a session (`{ id }`)
+- `POST /api/sessions/reconnect` — re-spawn ttyd if tmux is still alive (`{ id }`)
+- `POST /api/sessions/delete` — permanently remove an archived session (`{ id }`)
+
+**UI:** `workbench/sessions.html` — Session manager page with live session list, connect/archive/kill controls, and embedded ttyd terminal iframe.
+
+**Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`)
 
 **When fixing a bug:** Update its status to `'fixed'` in `workbench/bug-tracker.html`

@@ -4,13 +4,13 @@ Guide for adding new editor modes based on lessons learned from implementing the
 
 ## ⚠️ CRITICAL: Always Update extractEntities() ⚠️
 
-When adding ANY new field to entity data that can be edited, you MUST also update `EditorBridge.extractEntities()` to preserve the field when logging. This is the most commonly forgotten step.
+When adding ANY new field to entity data that can be edited, you MUST also update `EditorBridge.extractEntities()` to preserve the field when saving. This is the most commonly forgotten step.
 
 **Checklist:**
 - [ ] Update level data type (LevelEntity, LevelData, etc.)
 - [ ] Update editor state to modify the field
 - [ ] **Update EditorBridge.extractEntities()** ← Most commonly forgotten!
-- [ ] Test: Edit field → Click Log → Verify field in JSON
+- [ ] Test: Edit field → Click Save → Verify field in JSON
 
 ## Architecture
 
@@ -46,7 +46,7 @@ Always modify `gameScene.getLevelData()` — not `getCurrentLevelData()` which c
 
 - [ ] Button clicks don't select grid cells
 - [ ] Typing in inputs doesn't move camera
-- [ ] Items appear in logged JSON
+- [ ] Items appear in saved JSON
 - [ ] Items load correctly on refresh
 - [ ] Event listeners cleaned up on exit
 - [ ] Visual elements destroyed on exit

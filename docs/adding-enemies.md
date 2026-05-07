@@ -22,7 +22,7 @@ Use both pathfinding distance (cells) and pixel distance with hysteresis:
 3. **Create State Classes** - Patrol, alert, chase, attack, hit, death
 4. **Create Entity Factory** - Assemble components, set update order
 5. **Add to EntityLoader** - Add case in switch statement
-6. **Use Editor** - Press E → Add → Place → Log to save
+6. **Use Editor** - Open editor → Entity tool → Place → Ctrl+S to save
 
 ## Editor Integration
 
