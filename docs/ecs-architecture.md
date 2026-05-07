@@ -192,6 +192,30 @@ if (anim.animationSystem.getCurrentKey() !== targetKey) {
 }
 ```
 
+## ComponentStateMachine
+
+Lightweight state machine for use inside components. Unlike `StateMachineComponent` (which requires full `IState` objects and lives as a component), `ComponentStateMachine` dispatches to simple handler functions — ideal for components that already have `updateXxx()` methods and just need formalized dispatch with optional enter/exit hooks.
+
+**Location:** `src/systems/state/ComponentStateMachine.ts`
+
+**Usage:** Define state handlers inline in the component constructor:
+
+```typescript
+this.sm = new ComponentStateMachine<'idle' | 'following' | 'wandering'>('idle', {
+  idle: { update: (delta) => this.updateIdle(delta), onEnter: () => this.onEnterIdle() },
+  following: { update: (delta) => this.updateFollowing(delta) },
+  wandering: { update: (delta) => this.updateWandering(delta) },
+});
+```
+
+Then in `update()`: `this.sm.update(delta)` and transitions via `this.sm.transition('following')`.
+
+**When to use which:**
+- `StateMachineComponent` — Entity-level states with full `IState` classes (player states, enemy AI)
+- `ComponentStateMachine` — Internal component states that don't warrant separate class files (pet following, escort behavior, bark ability)
+
+**Used by:** `PetFollowComponent`, `DogBarkAbility`, `EscortComponent`
+
 ## Common Patterns
 
 ### Smooth Enemy Pushing

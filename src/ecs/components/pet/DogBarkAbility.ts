@@ -12,6 +12,7 @@ import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { Depth } from '../../../constants/DepthConstants';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import type { GridReader } from '../../../systems/grid/Grid';
+import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
 
 const FEAR_DURATION_MS = 4000;
 
@@ -27,7 +28,7 @@ type BarkState = 'idle' | 'approaching' | 'barking';
 
 export class DogBarkAbility implements Component {
   entity!: Entity;
-  private state: BarkState = 'idle';
+  private readonly sm: ComponentStateMachine<BarkState>;
   private targetEntity: Entity | null = null;
   private barkTimerMs = 0;
   private approachPath: Array<{ col: number; row: number }> | null = null;
@@ -37,10 +38,15 @@ export class DogBarkAbility implements Component {
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly grid: GridReader
-  ) {}
+  ) {
+    this.sm = new ComponentStateMachine<BarkState>('idle', {
+      approaching: { update: (delta) => this.updateApproaching(delta) },
+      barking: { update: (delta) => this.updateBarking(delta) },
+    });
+  }
 
   isActive(): boolean {
-    return this.state !== 'idle';
+    return this.sm.state !== 'idle';
   }
 
   getNearestEnemyInRange(): Entity | null {
@@ -85,7 +91,7 @@ export class DogBarkAbility implements Component {
   activate(target: Entity | null): void {
     this.targetEntity = target;
     if (target) {
-      this.state = 'approaching';
+      this.sm.transition('approaching');
     } else {
       this.startBarkingInPlace();
     }
@@ -94,11 +100,7 @@ export class DogBarkAbility implements Component {
   }
 
   update(delta: number): void {
-    if (this.state === 'approaching') {
-      this.updateApproaching(delta);
-    } else if (this.state === 'barking') {
-      this.updateBarking(delta);
-    }
+    this.sm.update(delta);
   }
 
   private updateApproaching(delta: number): void {
@@ -163,7 +165,7 @@ export class DogBarkAbility implements Component {
   }
 
   private startBarkingInPlace(): void {
-    this.state = 'barking';
+    this.sm.transition('barking');
     this.barkTimerMs = 0;
 
     const follow = this.entity.get(PetFollowComponent);
@@ -179,7 +181,7 @@ export class DogBarkAbility implements Component {
   }
 
   private startBarking(dx: number, dy: number): void {
-    this.state = 'barking';
+    this.sm.transition('barking');
     this.barkTimerMs = 0;
 
     const dir = dirFromDelta(dx, dy);
@@ -201,7 +203,7 @@ export class DogBarkAbility implements Component {
   }
 
   private returnToIdle(): void {
-    this.state = 'idle';
+    this.sm.transition('idle');
     this.targetEntity = null;
     this.barkTimerMs = 0;
     this.approachPath = null;

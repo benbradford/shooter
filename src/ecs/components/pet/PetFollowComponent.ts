@@ -13,6 +13,7 @@ import { PathFollower } from '../../systems/movement/PathFollower';
 import { Depth } from '../../../constants/DepthConstants';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { ShadowComponent } from '../visual/ShadowComponent';
+import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
 
 import { WalkComponent } from '../movement/WalkComponent';
 
@@ -51,7 +52,7 @@ type PetState = 'idle' | 'following' | 'wandering_move' | 'wandering_pause' | 'r
 export class PetFollowComponent implements Component {
   entity!: Entity;
 
-  private state: PetState = 'idle';
+  private readonly sm: ComponentStateMachine<PetState>;
   private isHidden = false;
   private isBarking = false;
   private wasInWater = false;
@@ -85,6 +86,15 @@ export class PetFollowComponent implements Component {
     private readonly directionCount: 4 | 8 = 8
   ) {
     this.pathFollower = new PathFollower(grid.cellSize, 32);
+    this.sm = new ComponentStateMachine<PetState>('idle', {
+      idle: { update: (delta) => this.updateIdle(delta) },
+      following: { update: (delta) => this.updateFollowing(delta) },
+      wandering_move: { update: (delta) => this.updateWanderingMove(delta) },
+      wandering_pause: { update: (delta) => this.updateWanderingPause(delta) },
+      riding: { update: (delta) => this.updateRiding(delta) },
+      sync_jumping: { update: (delta) => this.updateSyncJump(delta) },
+      sync_falling: { update: (delta) => this.updateSyncFall(delta) },
+    });
   }
 
   update(delta: number): void {
@@ -96,8 +106,8 @@ export class PetFollowComponent implements Component {
       const isHopping = water.isHopping();
 
       // Player just entered water or is jumping in → start riding
-      if ((isInWater || isHopping) && this.state !== 'riding') {
-        this.state = 'riding';
+      if ((isInWater || isHopping) && this.sm.state !== 'riding') {
+        this.sm.transition('riding');
         this.wasInWater = true;
         this.pathFollower.clear();
         const sprite = this.entity.get(SpriteComponent);
@@ -107,9 +117,9 @@ export class PetFollowComponent implements Component {
       }
 
       // Player exited water and jump is complete → resume following
-      if (this.state === 'riding' && !isInWater && !isHopping && this.wasInWater) {
+      if (this.sm.state === 'riding' && !isInWater && !isHopping && this.wasInWater) {
         this.wasInWater = false;
-        this.state = 'idle';
+        this.sm.transition('idle');
         const gridCollision = this.entity.get(GridCollisionComponent);
         if (gridCollision) gridCollision.enabled = true;
         const sprite = this.entity.get(SpriteComponent);
@@ -120,111 +130,132 @@ export class PetFollowComponent implements Component {
       }
     }
 
-    if (this.state === 'riding') {
-      this.updateRiding(delta);
-      return;
-    }
+    this.sm.update(delta);
+  }
 
-    if (this.state === 'sync_jumping') {
-      this.updateSyncJump(delta);
-      return;
-    }
-
-    if (this.state === 'sync_falling') {
-      this.updateSyncFall(delta);
-      return;
-    }
-
+  private updateIdle(_delta: number): void {
     if (this.isHidden || this.isBarking) return;
-
-    // Sync pet layer with player so walls/platforms only block when on higher layer
-    const playerGridPos = this.playerEntity.get(GridPositionComponent);
-    const petGridPos = this.entity.get(GridPositionComponent);
-    if (playerGridPos && petGridPos) {
-      petGridPos.currentLayer = playerGridPos.currentLayer;
-    }
+    this.syncPetLayer();
 
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
-    const anim = this.entity.require(AnimationComponent);
-
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const distancePx = Math.hypot(dx, dy);
 
     if (distancePx > TELEPORT_DISTANCE_PX) {
-      transform.x = playerTransform.x;
-      transform.y = playerTransform.y;
-      this.state = 'idle';
-      this.pathFollower.clear();
-      this.playAnim(anim, `idle_${this.currentDirection}`);
+      this.teleportToPlayer(transform, playerTransform);
       return;
     }
 
-    // Too far → follow
-    if (distancePx > START_FOLLOW_DISTANCE_PX && this.state !== 'following') {
-      this.state = 'following';
+    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+      this.sm.transition('following');
       const newDir = dirFromDelta(dx, dy);
       if (newDir !== Direction.None) {
         this.currentDirection = newDir;
-        this.playAnim(anim, `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
+        this.playAnim(this.entity.require(AnimationComponent), `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
       }
-    }
-
-    if (this.state === 'following') {
-      // Close enough → start wandering
-      if (distancePx <= STOP_DISTANCE_PX) {
-        const playerTransformRef = this.playerEntity.require(TransformComponent);
-        this.startWanderMove(anim, playerTransformRef);
-        return;
-      }
-
-      this.pathRecalcTimerMs += delta;
-      if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
-        this.recalculatePath();
-        this.pathRecalcTimerMs = 0;
-      }
-      if (this.pathFollower.hasPath()) {
-        this.followPath(delta, transform, anim);
-      }
-      return;
-    }
-
-    if (this.state === 'wandering_pause') {
-      // Player moved away → follow
-      if (distancePx > START_FOLLOW_DISTANCE_PX) {
-        this.state = 'following';
-        return;
-      }
-      this.wanderTimerMs += delta;
-      if (this.wanderTimerMs >= this.wanderDurationMs) {
-        this.startWanderMove(anim, playerTransform);
-      }
-      return;
-    }
-
-    if (this.state === 'wandering_move') {
-      // Player moved away → follow
-      if (distancePx > START_FOLLOW_DISTANCE_PX) {
-        this.state = 'following';
-        return;
-      }
-      this.wanderTimerMs += delta;
-      const distToTarget = Math.hypot(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
-      if (this.wanderTimerMs >= this.wanderDurationMs || distToTarget < 4) {
-        this.startWanderPause(anim, playerTransform);
-        return;
-      }
-      this.moveToward(transform, this.wanderTargetX, this.wanderTargetY, delta, anim, WANDER_SPEED_PX_PER_SEC);
-      return;
-    }
-
-    // idle state - start wandering if close, follow if far
-    if (distancePx > START_FOLLOW_DISTANCE_PX) {
-      this.state = 'following';
     } else {
-      this.startWanderMove(anim, playerTransform);
+      this.startWanderMove(this.entity.require(AnimationComponent), playerTransform);
     }
+  }
+
+  private updateFollowing(delta: number): void {
+    if (this.isHidden || this.isBarking) return;
+    this.syncPetLayer();
+
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const anim = this.entity.require(AnimationComponent);
+    const dx = playerTransform.x - transform.x;
+    const dy = playerTransform.y - transform.y;
+    const distancePx = Math.hypot(dx, dy);
+
+    if (distancePx > TELEPORT_DISTANCE_PX) {
+      this.teleportToPlayer(transform, playerTransform);
+      return;
+    }
+
+    // Close enough → start wandering
+    if (distancePx <= STOP_DISTANCE_PX) {
+      this.startWanderMove(anim, playerTransform);
+      return;
+    }
+
+    this.pathRecalcTimerMs += delta;
+    if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
+      this.recalculatePath();
+      this.pathRecalcTimerMs = 0;
+    }
+    if (this.pathFollower.hasPath()) {
+      this.followPath(delta, transform, anim);
+    }
+  }
+
+  private updateWanderingPause(delta: number): void {
+    if (this.isHidden || this.isBarking) return;
+    this.syncPetLayer();
+
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const distancePx = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+
+    if (distancePx > TELEPORT_DISTANCE_PX) {
+      this.teleportToPlayer(transform, playerTransform);
+      return;
+    }
+
+    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+      this.sm.transition('following');
+      return;
+    }
+    this.wanderTimerMs += delta;
+    if (this.wanderTimerMs >= this.wanderDurationMs) {
+      this.startWanderMove(this.entity.require(AnimationComponent), playerTransform);
+    }
+  }
+
+  private updateWanderingMove(delta: number): void {
+    if (this.isHidden || this.isBarking) return;
+    this.syncPetLayer();
+
+    const transform = this.entity.require(TransformComponent);
+    const playerTransform = this.playerEntity.require(TransformComponent);
+    const distancePx = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+
+    if (distancePx > TELEPORT_DISTANCE_PX) {
+      this.teleportToPlayer(transform, playerTransform);
+      return;
+    }
+
+    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+      this.sm.transition('following');
+      return;
+    }
+    this.wanderTimerMs += delta;
+    const distToTarget = Math.hypot(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
+    if (this.wanderTimerMs >= this.wanderDurationMs || distToTarget < 4) {
+      this.startWanderPause(this.entity.require(AnimationComponent), playerTransform);
+      return;
+    }
+    this.moveToward(transform, this.wanderTargetX, this.wanderTargetY, delta, this.entity.require(AnimationComponent), WANDER_SPEED_PX_PER_SEC);
+  }
+
+  private syncPetLayer(): void {
+    const playerGridPos = this.playerEntity.get(GridPositionComponent);
+    const petGridPos = this.entity.get(GridPositionComponent);
+    if (playerGridPos && petGridPos) {
+      petGridPos.currentLayer = playerGridPos.currentLayer;
+    }
+  }
+
+  private teleportToPlayer(transform: TransformComponent, playerTransform: TransformComponent): void {
+    transform.x = playerTransform.x;
+    transform.y = playerTransform.y;
+    this.sm.transition('idle');
+    this.pathFollower.clear();
+    const anim = this.entity.require(AnimationComponent);
+    this.playAnim(anim, `idle_${this.currentDirection}`);
   }
 
   private updateRiding(_delta: number): void {
@@ -279,7 +310,7 @@ export class PetFollowComponent implements Component {
     if (progress >= 1) {
       if (sprite) sprite.visualOffsetYPx = 0;
       if (this.isSyncFallJump) {
-        this.state = 'sync_falling';
+        this.sm.transition('sync_falling');
         this.syncFallTimerMs = 0;
         this.syncFallStartY = transform.y;
         this.originalScale = transform.scale;
@@ -329,7 +360,7 @@ export class PetFollowComponent implements Component {
       gridCollision.enabled = true;
       gridCollision.syncPreviousPosition(transform.x, transform.y);
     }
-    this.state = 'idle';
+    this.sm.transition('idle');
   }
 
   private recalculatePath(): void {
@@ -403,14 +434,14 @@ export class PetFollowComponent implements Component {
   }
 
   private startWanderPause(anim: AnimationComponent, _playerTransform: TransformComponent): void {
-    this.state = 'wandering_pause';
+    this.sm.transition('wandering_pause');
     this.wanderTimerMs = 0;
     this.wanderDurationMs = WANDER_PAUSE_MIN_MS + Math.random() * (WANDER_PAUSE_MAX_MS - WANDER_PAUSE_MIN_MS);
     this.playAnim(anim, `idle_${this.currentDirection}`);
   }
 
   private startWanderMove(anim: AnimationComponent, playerTransform: TransformComponent): void {
-    this.state = 'wandering_move';
+    this.sm.transition('wandering_move');
     this.wanderTimerMs = 0;
     this.wanderDurationMs = WANDER_MOVE_MIN_MS + Math.random() * (WANDER_MOVE_MAX_MS - WANDER_MOVE_MIN_MS);
     const angle = Math.random() * Math.PI * 2;
@@ -444,7 +475,7 @@ export class PetFollowComponent implements Component {
   }
 
   private getMoveAnimPrefix(): string {
-    return (this.state === 'following' && this.hasRunAnim) ? 'run' : 'walk';
+    return (this.sm.state === 'following' && this.hasRunAnim) ? 'run' : 'walk';
   }
 
   setHidden(hidden: boolean): void {
@@ -466,7 +497,7 @@ export class PetFollowComponent implements Component {
   syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): void {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
-    this.state = 'sync_jumping';
+    this.sm.transition('sync_jumping');
     this.syncJumpStartX = transform.x;
     this.syncJumpStartY = transform.y;
     const cellWorld = this.grid.cellToWorld(landCol, landRow);

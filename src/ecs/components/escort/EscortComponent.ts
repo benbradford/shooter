@@ -15,6 +15,7 @@ import { Pathfinder } from '../../../systems/Pathfinder';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { PathFollower } from '../../systems/movement/PathFollower';
 import { LaserBeamComponent } from '../laser/LaserBeamComponent';
+import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
 
 export type EscortState =
   | 'dormant'
@@ -84,7 +85,7 @@ export class EscortComponent implements Component, EventListener {
   private readonly escortShadowOffsetY?: number;
 
   private readonly persistence = new EscortPersistence();
-  private state: EscortState;
+  private readonly sm: ComponentStateMachine<EscortState>;
   private crouchPhase: CrouchPhase = 'holding';
   private crouchCooldownMs = 0;
   private shiverTimerMs = 0;
@@ -117,21 +118,28 @@ export class EscortComponent implements Component, EventListener {
     this.followToLevels = props.followToLevels;
     this.enemyDetectDistancePx = props.enemyDetectDistancePx;
     this.currentLevelName = props.currentLevelName;
-    this.state = props.initialState;
     this.escortScale = props.scale;
     this.escortShadowScale = props.shadowScale;
     this.escortShadowOffsetX = props.shadowOffsetX;
     this.escortShadowOffsetY = props.shadowOffsetY;
     this.pathFollower = new PathFollower(this.grid.cellSize, ARRIVAL_THRESHOLD_PX);
+    this.sm = new ComponentStateMachine<EscortState>(props.initialState, {
+      awakening: { update: () => this.updateAwakening() },
+      waiting_for_player_move: { update: () => this.updateWaitingForPlayerMove() },
+      following: { update: (delta) => this.updateFollowingState(delta) },
+      crouching: { update: (delta) => this.updateCrouching(delta) },
+      walking_to_destination: { update: (delta) => this.updateWalkingToDestinationState(delta) },
+      completing: { update: () => this.updateCompleting() },
+    });
 
     // (V2 fix): Only register when dormant
-    if (this.state === 'dormant' && this.awakeOnEvent) {
+    if (props.initialState === 'dormant' && this.awakeOnEvent) {
       this.eventManager.register(this.awakeOnEvent, this);
       this.isEventRegistered = true;
     }
 
     // (V5 fix): Initialize spawn tracking for cross-level
-    if (this.state === 'waiting_for_player_move') {
+    if (props.initialState === 'waiting_for_player_move') {
       this.playerSpawnCol = props.col;
       this.playerSpawnRow = props.row;
     }
@@ -141,7 +149,7 @@ export class EscortComponent implements Component, EventListener {
 
   onEvent(eventName: string): void {
     if (eventName !== this.awakeOnEvent) return;
-    if (this.state !== 'dormant') return;
+    if (this.sm.state !== 'dormant') return;
 
     // (F3 fix): Deactivate any existing active escort
     const previousEscortId = this.persistence.getCurrentEscortId();
@@ -155,7 +163,7 @@ export class EscortComponent implements Component, EventListener {
       }
     }
 
-    this.state = 'awakening';
+    this.sm.transition('awakening');
     this.playAnim('crouch_reverse');
 
     this.persistence.setCurrentEscortId(this.entity.id);
@@ -183,32 +191,7 @@ export class EscortComponent implements Component, EventListener {
   // --- Update ---
 
   update(delta: number): void {
-    switch (this.state) {
-      case 'dormant':
-      case 'completed':
-        return;
-      case 'awakening':
-        this.updateAwakening();
-        return;
-      case 'waiting_for_player_move':
-        this.updateWaitingForPlayerMove();
-        return;
-      case 'following':
-        if (this.checkEnemies()) return;
-        if (this.checkDestinationReachable()) return;
-        this.updateFollowing(delta);
-        return;
-      case 'crouching':
-        this.updateCrouching(delta);
-        return;
-      case 'walking_to_destination':
-        if (this.checkEnemies()) return;
-        this.updateWalkingToDestination(delta);
-        return;
-      case 'completing':
-        this.updateCompleting();
-        return;
-    }
+    this.sm.update(delta);
   }
 
   // --- State: Awakening ---
@@ -216,7 +199,7 @@ export class EscortComponent implements Component, EventListener {
   private updateAwakening(): void {
     const anim = this.entity.require(AnimationComponent);
     if (anim.animationSystem.isOnLastFrame('crouch_reverse')) {
-      this.state = 'following';
+      this.sm.transition('following');
       this.playAnim(`idle_${this.currentDirection}`);
     }
   }
@@ -232,9 +215,24 @@ export class EscortComponent implements Component, EventListener {
       sprite.sprite.setAlpha(1);
       const shadow = this.entity.get(ShadowComponent);
       if (shadow?.shadow) shadow.shadow.setAlpha(1);
-      this.state = 'following';
+      this.sm.transition('following');
       this.playAnim(`idle_${this.currentDirection}`);
     }
+  }
+
+  // --- State: Following (wrapper with enemy/destination checks) ---
+
+  private updateFollowingState(delta: number): void {
+    if (this.checkEnemies()) return;
+    if (this.checkDestinationReachable()) return;
+    this.updateFollowing(delta);
+  }
+
+  // --- State: Walking to Destination (wrapper with enemy check) ---
+
+  private updateWalkingToDestinationState(delta: number): void {
+    if (this.checkEnemies()) return;
+    this.updateWalkingToDestination(delta);
   }
 
   // --- State: Following ---
@@ -274,9 +272,9 @@ export class EscortComponent implements Component, EventListener {
     if (this.escortType !== 'knight') return false;
 
     if (this.areEnemiesNearby()) {
-      if (this.state !== 'crouching') {
-        this.previousActiveState = this.state as 'following' | 'walking_to_destination';
-        this.state = 'crouching';
+      if (this.sm.state !== 'crouching') {
+        this.previousActiveState = this.sm.state as 'following' | 'walking_to_destination';
+        this.sm.transition('crouching');
         this.crouchPhase = 'crouching_down';
         this.crouchCooldownMs = 0;
         this.playAnim('crouch_forward');
@@ -320,7 +318,7 @@ export class EscortComponent implements Component, EventListener {
 
     if (this.crouchPhase === 'standing_up') {
       if (anim.animationSystem.isOnLastFrame('crouch_reverse')) {
-        this.state = this.previousActiveState;
+        this.sm.transition(this.previousActiveState);
         this.playAnim(`idle_${this.currentDirection}`);
       }
     }
@@ -341,7 +339,7 @@ export class EscortComponent implements Component, EventListener {
     );
 
     if (path && path.length <= this.reachDistance) {
-      this.state = 'walking_to_destination';
+      this.sm.transition('walking_to_destination');
       this.previousActiveState = 'walking_to_destination';
       this.pathFollower.setPath(path);
       this.pathRecalcTimerMs = 0;
@@ -418,7 +416,7 @@ export class EscortComponent implements Component, EventListener {
       const destY = this.destinationRow * this.grid.cellSize + this.grid.cellSize / 2;
       const distToDest = Math.hypot(destX - transform.x, destY - transform.y);
       if (distToDest > this.grid.cellSize * 1.5) {
-        this.state = 'following';
+        this.sm.transition('following');
       }
       return;
     }
@@ -429,7 +427,7 @@ export class EscortComponent implements Component, EventListener {
   // --- State: Completing (F1 fix) ---
 
   private enterCompleting(): void {
-    this.state = 'completing';
+    this.sm.transition('completing');
     this.pathFollower.clear();
 
     // (F1 fix): Set completion flags IMMEDIATELY, before animation
@@ -445,7 +443,7 @@ export class EscortComponent implements Component, EventListener {
   private updateCompleting(): void {
     const anim = this.entity.require(AnimationComponent);
     if (anim.animationSystem.isOnLastFrame('arms_stretched')) {
-      this.state = 'completed';
+      this.sm.transition('completed');
     }
   }
 
@@ -532,7 +530,7 @@ export class EscortComponent implements Component, EventListener {
 
   // (F3 fix): Allow external force to completed
   forceCompleted(): void {
-    this.state = 'completed';
+    this.sm.transition('completed');
   }
 
   // --- Cleanup (V2 fix) ---

@@ -228,9 +228,9 @@ const ISSUES = [
     added: '2026-05-04',
   },
   {
-    id: 8, severity: 'medium', status: 'open',
+    id: 8, severity: 'medium', status: 'done',
     title: 'Inline state machines repeated across 5+ components',
-    detail: 'DogBarkAbility (3 states), PetFollowComponent (7 states), EscortComponent (7 states via switch). JumpComponent phases extracted to JumpAnimator (done). RockThrowAbility refactored into proper state classes (done). EscortPersistence helper was extracted (partial progress). Missing lightweight ComponentStateMachine<T> abstraction.',
+    detail: 'Created ComponentStateMachine<T> at src/systems/state/ComponentStateMachine.ts — lightweight dispatch abstraction with optional onEnter/onExit hooks. Refactored DogBarkAbility, PetFollowComponent, and EscortComponent to use it. JumpComponent phases extracted to JumpAnimator (done). RockThrowAbility refactored into proper state classes (done).',
     files: ['src/ecs/components/pet/DogBarkAbility.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/PetFollowComponent.ts'],
     effort: '2h', risk: 'Low', fanIn: null, category: 'pattern',
     added: '2026-05-04',
