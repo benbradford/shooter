@@ -165,6 +165,7 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 - `src/ecs/entities/pet/PetConfig.ts` — Pet registry (rock, dog)
 - `src/ecs/entities/pet/PetAnimations.ts` — Animation map creation (idle, walk, run, bark)
 - `src/ecs/components/pet/PetFollowComponent.ts` — Following + wander logic
+- `src/ecs/components/pet/PetSyncJumpBehavior.ts` — Sync-jump with player (void/platform jumps)
 - `src/ecs/components/pet/PetAbilityComponent.ts` — Ability routing
 - `src/ecs/components/pet/DogBarkAbility.ts` — Bark ability + fear application
 - `src/ecs/components/pet/RockThrowAbility.ts` — Rock throw orchestrator (state pattern)

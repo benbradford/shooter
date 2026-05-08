@@ -219,6 +219,7 @@ When bug bases are destroyed:
 
 ## Files
 
+- `src/constants/WorldFlags.ts` - Known flag name constants (prevents typos)
 - `src/systems/WorldState.ts` - Type definitions
 - `src/systems/WorldStateManager.ts` - Singleton manager
 - `src/systems/EntityLoader.ts` - Check world state before spawning

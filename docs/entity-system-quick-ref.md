@@ -57,7 +57,7 @@ Player → Trigger → EventChainer → Entities
 
 - `src/systems/EntityCreatorManager.ts` - Event-driven creation
 - `src/systems/EntityRegistry.ts` - Factory registry pattern (registerEntityFactory, getEntityFactory)
-- `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import)
+- `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import, delegates to subdirectory)
 - `src/systems/EntityLoader.ts` - Loading orchestrator (delegates to registry)
 - `src/eventchainer/EventChainerEntity.ts` - EventChainer implementation
 - `src/cellmodifier/CellModifierEntity.ts` - CellModifier implementation

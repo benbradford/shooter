@@ -298,11 +298,16 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 
 ## Recent Architecture Changes (May 2026)
 
-- **EntityRegistry pattern**: EntityLoader refactored from 798 LOC with 22-case switch to 220 LOC orchestrator. New `src/systems/EntityRegistry.ts` (factory registry) and `src/systems/entityFactories.ts` (all registrations via side-effect import). Adding new entity types no longer requires modifying EntityLoader — just register a factory
+- **EntityRegistry pattern**: EntityLoader refactored from 798 LOC with 22-case switch to 220 LOC orchestrator. New `src/systems/EntityRegistry.ts` (factory registry) and `src/systems/entityFactories.ts` (all registrations via side-effect import, delegates to `src/systems/entity-factories/`). Adding new entity types no longer requires modifying EntityLoader — just register a factory
+- **Entity factory subdirectory**: `src/systems/entity-factories/enemyFactories.ts`, `gameplayFactories.ts`, `levelFactories.ts` — domain-specific factory registrations
 - **GridMovementValidator**: Extracted from GridCollisionComponent (423→221 LOC). `src/ecs/components/movement/GridMovementValidator.ts` isolates collision logic (canMoveTo, layer checks) from position tracking
 - **ComponentStateMachine**: New lightweight state machine (`src/systems/state/ComponentStateMachine.ts`) for internal component states. Dispatches to handler functions instead of full IState classes. Used by `PetFollowComponent`, `DogBarkAbility`, `EscortComponent` — replacing inline switch/if-else state dispatch
 - **GameSceneRenderer split**: Extracted `EdgeRenderer`, `ShadowRenderer`, `PathRenderer`, `BackgroundTextureRenderer` from base class. GameSceneRenderer now orchestrates these focused classes (~572 LOC down from ~1219)
 - **JumpComponent split**: Extracted `JumpDetector` (detection logic) and `JumpAnimator` (animation phases) from JumpComponent. Orchestrator is now ~103 LOC, total ~604 LOC across 3 files
+- **GridDebugRenderer**: Extracted from `Grid.ts` — all debug visualization logic in `src/systems/grid/GridDebugRenderer.ts`
+- **EscortCrouchBehavior**: Knight crouch/shiver logic extracted from `EscortComponent` into `src/ecs/components/escort/EscortCrouchBehavior.ts`
+- **PetSyncJumpBehavior**: Sync-jump logic extracted from `PetFollowComponent` into `src/ecs/components/pet/PetSyncJumpBehavior.ts`
+- **WorldFlags constants**: `src/constants/WorldFlags.ts` — typed flag name constants to prevent typos
 - **Standalone editor**: Old `src/editor/` state machine removed. Editor is now a separate app at `editor/` (HTML panels + Phaser canvas). Accessed via `http://localhost:5173/editor/`
 - **Lua Runtime split**: `src/systems/LuaRuntime.ts` refactored — API registration moved to `src/systems/lua-api/` (PlayerAPI, NpcAPI, WorldAPI, UIAPI, types)
 - **Rock Throw state pattern**: `RockThrowAbility` delegates to state classes in `src/ecs/components/pet/rock-throw/`

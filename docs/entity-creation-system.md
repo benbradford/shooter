@@ -340,7 +340,10 @@ Click **Save** button to save level JSON with all entities in the new format.
 
 - `src/systems/EntityCreatorManager.ts` - Event-driven entity creation
 - `src/systems/EntityRegistry.ts` - Factory registry pattern (registerEntityFactory, getEntityFactory)
-- `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import)
+- `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import, delegates to subdirectory)
+- `src/systems/entity-factories/enemyFactories.ts` - Enemy entity factories (skeleton, thrower, robot, bug_base, bullet_dude, puma, red_skeleton)
+- `src/systems/entity-factories/gameplayFactories.ts` - Gameplay entity factories (trigger, exit, eventchainer, cellmodifier, lever, pushable, hole, breakable, laser, collectible, escort, root_chest)
+- `src/systems/entity-factories/levelFactories.ts` - Level/NPC entity factories (npc, interaction, tv_monk)
 - `src/systems/EntityLoader.ts` - Entity loading orchestrator (delegates to registry)
 - `src/systems/level/LevelLoader.ts` - LevelEntity and EntityType definitions
 - `src/eventchainer/EventChainerEntity.ts` - EventChainer entity
@@ -357,6 +360,7 @@ Click **Save** button to save level JSON with all entities in the new format.
 - `src/ecs/components/laser/LaserBeamComponent.ts` - Beam raycast, rendering, collision, particles, toggle
 - `src/ecs/entities/escort/EscortEntity.ts` - Escort entity factory
 - `src/ecs/components/escort/EscortComponent.ts` - Escort state machine, following, crouching, completion, cross-level persistence
+- `src/ecs/components/escort/EscortCrouchBehavior.ts` - Knight crouch/shiver logic (extracted from EscortComponent)
 - `src/ecs/components/escort/EscortPersistence.ts` - Typed escort WorldState flag accessors
 - `src/systems/escort/EscortSpawnManager.ts` - Cross-level escort spawning, completed escorts, death reset
 - `src/ecs/systems/movement/PathFollower.ts` - Shared path-following utility (used by escort, pet, thrower, robot)

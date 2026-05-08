@@ -114,7 +114,7 @@ See `src/systems/grid/Grid.ts` for complete API.
 
 ### Debug Visualization
 
-Press **G** key to toggle debug rendering.
+Press **G** key to toggle debug rendering. Rendering logic is in `src/systems/grid/GridDebugRenderer.ts` (extracted from Grid data model).
 
 ---
 

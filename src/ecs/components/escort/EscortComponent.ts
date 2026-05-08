@@ -8,11 +8,10 @@ import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
-import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { EscortPersistence } from './EscortPersistence';
-import { Pathfinder } from '../../../systems/Pathfinder';
-import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { EscortPathfinding } from './EscortPathfinding';
+import { Direction } from '../../../constants/Direction';
 import { PathFollower } from '../../systems/movement/PathFollower';
 import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
 import { EscortCrouchBehavior } from './EscortCrouchBehavior';
@@ -85,6 +84,7 @@ export class EscortComponent implements Component, EventListener {
   private previousActiveState: 'following' | 'walking_to_destination' = 'following';
 
   private readonly pathFollower: PathFollower;
+  private pathfinding!: EscortPathfinding;
   private pathRecalcTimerMs = 0;
   private currentDirection: Direction = Direction.Down;
   private lastAnimKey = '';
@@ -230,11 +230,18 @@ export class EscortComponent implements Component, EventListener {
 
   // --- State: Following ---
 
+  private ensurePathfinding(): EscortPathfinding {
+    if (!this.pathfinding) {
+      this.pathfinding = new EscortPathfinding(this.grid, this.entity, this.playerEntity, this.pathFollower);
+    }
+    return this.pathfinding;
+  }
+
   private updateFollowing(delta: number): void {
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
 
-    this.syncLayerWithPlayer();
+    this.ensurePathfinding().syncLayerWithPlayer();
 
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
@@ -248,7 +255,7 @@ export class EscortComponent implements Component, EventListener {
 
     this.pathRecalcTimerMs += delta;
     if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
-      this.recalculatePathToPlayer();
+      this.ensurePathfinding().recalculatePathToPlayer();
       this.pathRecalcTimerMs = 0;
     }
 
@@ -300,19 +307,9 @@ export class EscortComponent implements Component, EventListener {
   private checkDestinationReachable(): boolean {
     if (this.currentLevelName !== this.destinationLevel) return false;
 
-    const transform = this.entity.require(TransformComponent);
-    const startCell = this.grid.worldToCell(transform.x, transform.y);
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-    const path = pathfinder.findPath(
-      startCell.col, startCell.row,
-      this.destinationCol, this.destinationRow,
-      this.getPlayerLayer(), false, true
-    );
-
-    if (path && path.length <= this.reachDistance) {
+    if (this.ensurePathfinding().checkDestinationReachable(this.destinationCol, this.destinationRow, this.reachDistance)) {
       this.sm.transition('walking_to_destination');
       this.previousActiveState = 'walking_to_destination';
-      this.pathFollower.setPath(path);
       this.pathRecalcTimerMs = 0;
       this.playAnim(`walk_${this.currentDirection}`);
       return true;
@@ -322,39 +319,28 @@ export class EscortComponent implements Component, EventListener {
   }
 
   private updateWalkingToDestination(delta: number): void {
-    this.syncLayerWithPlayer();
-    const transform = this.entity.require(TransformComponent);
-    const destX = this.destinationCol * this.grid.cellSize + this.grid.cellSize / 2;
-    const destY = this.destinationRow * this.grid.cellSize + this.grid.cellSize / 2;
-    const distToDest = Math.hypot(destX - transform.x, destY - transform.y);
+    const pf = this.ensurePathfinding();
+    pf.syncLayerWithPlayer();
 
-    if (distToDest < ARRIVAL_THRESHOLD_PX) {
-      transform.x = destX;
-      transform.y = destY - DESTINATION_OFFSET_Y_PX;
+    const dest = pf.getDestinationWorldPos(this.destinationCol, this.destinationRow);
+    const { result, direction } = pf.moveDirectlyToward(dest.x, dest.y, this.followSpeed, delta, ARRIVAL_THRESHOLD_PX);
+
+    if (result === 'arrived') {
+      const transform = this.entity.require(TransformComponent);
+      transform.y -= DESTINATION_OFFSET_Y_PX;
       this.enterCompleting();
       return;
     }
 
-    // If close enough, skip pathfinding and move directly
-    if (distToDest < this.grid.cellSize * 1.5) {
+    if (result === 'moving') {
       const gridCollision = this.entity.get(GridCollisionComponent);
       if (gridCollision) gridCollision.enabled = false;
-      const dx = destX - transform.x;
-      const dy = destY - transform.y;
-      const moveDist = this.followSpeed * (delta / 1000);
-      if (moveDist >= distToDest) {
-        transform.x = destX;
-        transform.y = destY;
-      } else {
-        transform.x += (dx / distToDest) * moveDist;
-        transform.y += (dy / distToDest) * moveDist;
-      }
-      const newDir = dirFromDelta(dx, dy);
-      if (newDir !== Direction.None) this.currentDirection = newDir;
+      if (direction !== Direction.None) this.currentDirection = direction;
       this.playAnim(`walk_${this.currentDirection}`);
       return;
     }
 
+    // result === 'use_pathfinding'
     this.pathRecalcTimerMs += delta;
     if (!this.pathFollower.hasPath() || this.pathRecalcTimerMs >= PATH_RECALC_MS) {
       this.recalculatePathToDestination();
@@ -362,37 +348,16 @@ export class EscortComponent implements Component, EventListener {
     }
 
     if (this.pathFollower.hasPath()) {
-      this.followPath(delta, transform);
+      this.followPath(delta, this.entity.require(TransformComponent));
     }
   }
 
   // (F2 fix): Fallback when destination unreachable
   private recalculatePathToDestination(): void {
-    const transform = this.entity.require(TransformComponent);
-    const startCell = this.grid.worldToCell(transform.x, transform.y);
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-
-    let path = pathfinder.findPath(
-      startCell.col, startCell.row,
-      this.destinationCol, this.destinationRow,
-      this.getPlayerLayer(), false, true
-    );
-
-    if (!path) {
-      path = this.findPathToAdjacentCell(pathfinder, startCell);
+    const result = this.ensurePathfinding().recalculatePathToDestination(this.destinationCol, this.destinationRow);
+    if (result.fallback) {
+      this.sm.transition('following');
     }
-
-    if (!path) {
-      const destX = this.destinationCol * this.grid.cellSize + this.grid.cellSize / 2;
-      const destY = this.destinationRow * this.grid.cellSize + this.grid.cellSize / 2;
-      const distToDest = Math.hypot(destX - transform.x, destY - transform.y);
-      if (distToDest > this.grid.cellSize * 1.5) {
-        this.sm.transition('following');
-      }
-      return;
-    }
-
-    this.pathFollower.setPath(path);
   }
 
   // --- State: Completing (F1 fix) ---
@@ -418,29 +383,7 @@ export class EscortComponent implements Component, EventListener {
     }
   }
 
-  // --- Pathfinding Helpers ---
-
-  private syncLayerWithPlayer(): void {
-    const playerGridPos = this.playerEntity.get(GridPositionComponent);
-    const escortGridPos = this.entity.get(GridPositionComponent);
-    if (playerGridPos && escortGridPos) {
-      escortGridPos.currentLayer = playerGridPos.currentLayer;
-    }
-  }
-
-  private getPlayerLayer(): number {
-    return this.playerEntity.get(GridPositionComponent)?.currentLayer ?? 0;
-  }
-
-  private recalculatePathToPlayer(): void {
-    const transform = this.entity.require(TransformComponent);
-    const startCell = this.grid.worldToCell(transform.x, transform.y);
-    const playerTransform = this.playerEntity.require(TransformComponent);
-    const goalCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-    const path = pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, this.getPlayerLayer(), false, true);
-    this.pathFollower.setPath(path);
-  }
+  // --- Path Following ---
 
   private followPath(delta: number, transform: TransformComponent): void {
     const result = this.pathFollower.follow(transform, this.followSpeed, delta);
@@ -451,25 +394,6 @@ export class EscortComponent implements Component, EventListener {
       this.currentDirection = newDir;
     }
     this.playAnim(`walk_${this.currentDirection}`);
-  }
-
-  private findPathToAdjacentCell(
-    pathfinder: Pathfinder,
-    startCell: { col: number; row: number }
-  ): Array<{ col: number; row: number }> | null {
-    const offsets = [{ dc: 0, dr: -1 }, { dc: 0, dr: 1 }, { dc: -1, dr: 0 }, { dc: 1, dr: 0 }];
-    let bestPath: Array<{ col: number; row: number }> | null = null;
-    for (const { dc, dr } of offsets) {
-      const path = pathfinder.findPath(
-        startCell.col, startCell.row,
-        this.destinationCol + dc, this.destinationRow + dr,
-        this.getPlayerLayer(), false, true
-      );
-      if (path && (!bestPath || path.length < bestPath.length)) {
-        bestPath = path;
-      }
-    }
-    return bestPath;
   }
 
   // --- Animation Helper ---

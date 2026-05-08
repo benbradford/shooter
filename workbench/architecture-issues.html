@@ -162,7 +162,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-08 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
+<p class="updated">Last audit: 2026-05-08 (session 2) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
 
 <script>
 const ISSUES = [
@@ -398,9 +398,9 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-08 audit) ──
   {
-    id: 28, severity: 'high', status: 'open',
+    id: 28, severity: 'high', status: 'done',
     title: 'EscortComponent still 497 LOC / 23 methods — mixes pathfinding, persistence, events, spawn tracking',
-    detail: 'Despite EscortCrouchBehavior extraction, EscortComponent remains 497 LOC with 8 states. Mixes: state machine dispatch, pathfinding logic (recalculatePathToPlayer, recalculatePathToDestination, findPathToAdjacentCell), cross-level spawn tracking, event listener registration, persistence coordination. Recommend extracting EscortPathfinding helper (~100 LOC).',
+    detail: 'Extracted EscortPathfinding helper (src/ecs/components/escort/EscortPathfinding.ts, 135 LOC) — encapsulates Pathfinder creation, syncLayerWithPlayer, getPlayerLayer, recalculatePathToPlayer, recalculatePathToDestination, checkDestinationReachable, findPathToAdjacentCell, moveDirectlyToward, and getDestinationWorldPos. EscortComponent reduced from 497 to 420 LOC / 21 methods (77 lines removed). Combined with EscortCrouchBehavior (86 LOC) and EscortPersistence, the component now delegates pathfinding, persistence, and crouch logic to focused helpers. Remaining 21 methods are inherent to 8-state machine dispatch.',
     files: ['src/ecs/components/escort/EscortComponent.ts'],
     effort: '3h', risk: 'Low', fanIn: 3, category: 'architecture',
     added: '2026-05-08',
@@ -416,9 +416,35 @@ const ISSUES = [
   {
     id: 30, severity: 'low', status: 'open',
     title: 'Grid.ts constructor uses (scene as any).isEditorMode — type-unsafe cast',
-    detail: 'Line ~100 uses (scene as any).isEditorMode to conditionally register debug keys. Should pass isEditorMode as a constructor parameter or use a type guard.',
+    detail: 'Line 109: `(scene as any).isEditorMode === true`. Used to conditionally register G and C debug keys only in game mode. Should pass isEditorMode as a boolean constructor parameter or use a GridOptions type. Confirmed still present May 8.',
     files: ['src/systems/grid/Grid.ts'],
     effort: '15m', risk: 'None', fanIn: 96, category: 'code-quality',
+    added: '2026-05-08',
+  },
+
+  // ── NEW ISSUES (2026-05-08 audit, session 2) ──
+  {
+    id: 31, severity: 'medium', status: 'open',
+    title: 'GameScene.startLevelTransition() is 68 LOC mixing escort persistence, world state, and scene transition',
+    detail: 'Lines 729-796. Mixes 3 concerns: (1) escort proximity check and persistence (~25 LOC), (2) world state saving (health, cells, time, level, spawn), (3) fade-out and scene.start. The escort logic creates a new EscortPersistence() inline and does distance checks — this should be a method on EscortPersistence or a dedicated LevelTransitionHelper. GameScene grew from 33→41 methods since last audit.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '2h', risk: 'Med', fanIn: 13, category: 'maintainability',
+    added: '2026-05-08',
+  },
+  {
+    id: 32, severity: 'medium', status: 'open',
+    title: 'TvFaceComponent 416 LOC / 19 methods — renderFace 72 LOC with mood-specific branching',
+    detail: 'Boss-specific component with low fan-in (2). renderFace() has 72 LOC with 7 mood-specific branches (glitching, booting, off, stunned, blinking, normal, animated). Each mood renders differently via pixel manipulation. Could extract a MoodRenderer strategy or at minimum move mood-specific rendering into separate methods. Low priority — boss-specific, rarely changed.',
+    files: ['src/ecs/entities/tvmonk/TvFaceComponent.ts'],
+    effort: '3h', risk: 'Low', fanIn: 2, category: 'maintainability',
+    added: '2026-05-08',
+  },
+  {
+    id: 33, severity: 'medium', status: 'open',
+    title: 'LaserBeamComponent.checkPlayerCollision() is 66 LOC — collision + damage + pushback in one method',
+    detail: 'Lines 277-342. Mixes: player lookup, layer check, distance calculation, damage application, hit flash, push state exit, perpendicular pushback with wall/platform/blocker validation. The pushback logic alone (~30 LOC) could be a reusable BeamPushback helper. 19 imports total. Low priority — stable, rarely modified.',
+    files: ['src/ecs/components/laser/LaserBeamComponent.ts'],
+    effort: '2h', risk: 'Low', fanIn: 2, category: 'maintainability',
     added: '2026-05-08',
   },
 ];
