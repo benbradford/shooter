@@ -169,6 +169,11 @@ export class WorldStateManager {
     return this.worldState.flags[name];
   }
 
+  /** Type-safe flag check — returns true if flag equals the expected value. */
+  isFlagTrue(name: string): boolean {
+    return this.worldState.flags[name] === 'true';
+  }
+
   isFlagCondition(name: string, condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value: string | number): boolean {
     const flagValue = this.worldState.flags[name];
 

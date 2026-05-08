@@ -12,8 +12,8 @@ import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { PathFollower } from '../../systems/movement/PathFollower';
 import { Depth } from '../../../constants/DepthConstants';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
-import { ShadowComponent } from '../visual/ShadowComponent';
 import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
+import { PetSyncJumpBehavior } from './PetSyncJumpBehavior';
 
 import { WalkComponent } from '../movement/WalkComponent';
 
@@ -31,10 +31,6 @@ const WANDER_PAUSE_MAX_MS = 2000;
 const WANDER_MOVE_MIN_MS = 600;
 const WANDER_MOVE_MAX_MS = 1500;
 const SPEED_TRANSITION_DURATION_MS = 500;
-const SYNC_JUMP_ARC_HEIGHT_PX = 30;
-const SYNC_FALL_DURATION_MS = 600;
-const SYNC_FALL_FINISH_DELAY_MS = 50;
-const SYNC_FALL_DRIFT_PX = 20;
 const RIDE_OFFSETS: Record<Direction, { x: number; y: number; deg: number }> = {
   [Direction.None]: { x: 0, y: 0, deg: 0 },
   [Direction.Down]: { x: 0, y: -14, deg: 0 },
@@ -69,16 +65,7 @@ export class PetFollowComponent implements Component {
   private wanderDurationMs = 0;
   private currentSpeedPxPerSec = 0;
 
-  private syncJumpStartX = 0;
-  private syncJumpStartY = 0;
-  private syncJumpTargetX = 0;
-  private syncJumpTargetY = 0;
-  private syncJumpDurationMs = 0;
-  private syncJumpTimerMs = 0;
-  private isSyncFallJump = false;
-  private syncFallTimerMs = 0;
-  private syncFallStartY = 0;
-  private originalScale = 1;
+  private syncJumpBehavior!: PetSyncJumpBehavior;
 
   constructor(
     private readonly grid: GridReader,
@@ -295,72 +282,18 @@ export class PetFollowComponent implements Component {
   }
 
   private updateSyncJump(delta: number): void {
-    this.syncJumpTimerMs += delta;
-    const progress = Math.min(1, this.syncJumpTimerMs / this.syncJumpDurationMs);
-
-    const transform = this.entity.require(TransformComponent);
-    transform.x = this.syncJumpStartX + (this.syncJumpTargetX - this.syncJumpStartX) * progress;
-    transform.y = this.syncJumpStartY + (this.syncJumpTargetY - this.syncJumpStartY) * progress;
-
-    const sprite = this.entity.get(SpriteComponent);
-    if (sprite) {
-      sprite.visualOffsetYPx = Math.sin(progress * Math.PI) * -SYNC_JUMP_ARC_HEIGHT_PX;
-    }
-
-    if (progress >= 1) {
-      if (sprite) sprite.visualOffsetYPx = 0;
-      if (this.isSyncFallJump) {
-        this.sm.transition('sync_falling');
-        this.syncFallTimerMs = 0;
-        this.syncFallStartY = transform.y;
-        this.originalScale = transform.scale;
-        const shadow = this.entity.get(ShadowComponent);
-        if (shadow) shadow.shadow.setVisible(false);
-        return;
-      }
-      this.finishSyncJump(transform);
+    const result = this.syncJumpBehavior.updateJump(delta);
+    if (result === 'fall') {
+      this.sm.transition('sync_falling');
+    } else if (result === 'done') {
+      this.sm.transition('idle');
     }
   }
 
   private updateSyncFall(delta: number): void {
-    this.syncFallTimerMs += delta;
-    const shrinkProgress = Math.min(1, this.syncFallTimerMs / SYNC_FALL_DURATION_MS);
-
-    const transform = this.entity.require(TransformComponent);
-
-    if (shrinkProgress < 1) {
-      transform.y = this.syncFallStartY + shrinkProgress * SYNC_FALL_DRIFT_PX;
-      transform.scale = this.originalScale * (1 - shrinkProgress);
-      return;
+    if (this.syncJumpBehavior.updateFall(delta)) {
+      this.sm.transition('idle');
     }
-
-    // Shrink done — hide and wait for player to respawn
-    transform.scale = 0;
-    if (this.syncFallTimerMs >= SYNC_FALL_DURATION_MS + SYNC_FALL_FINISH_DELAY_MS) {
-      transform.scale = this.originalScale;
-      const playerFeetCell = getPlayerFeetCell(this.playerEntity, this.grid);
-      const cellWorld = this.grid.cellToWorld(playerFeetCell.col, playerFeetCell.row);
-      transform.x = cellWorld.x + this.grid.cellSize / 2;
-      transform.y = cellWorld.y + this.grid.cellSize / 2;
-      const shadow = this.entity.get(ShadowComponent);
-      if (shadow) shadow.shadow.setVisible(true);
-      this.finishSyncJump(transform);
-    }
-  }
-
-  private finishSyncJump(transform: TransformComponent): void {
-    const playerGridPos = this.playerEntity.get(GridPositionComponent);
-    const petGridPos = this.entity.get(GridPositionComponent);
-    if (playerGridPos && petGridPos) {
-      petGridPos.currentLayer = playerGridPos.currentLayer;
-      petGridPos.currentCell = this.grid.worldToCell(transform.x, transform.y);
-    }
-    const gridCollision = this.entity.get(GridCollisionComponent);
-    if (gridCollision) {
-      gridCollision.enabled = true;
-      gridCollision.syncPreviousPosition(transform.x, transform.y);
-    }
-    this.sm.transition('idle');
   }
 
   private recalculatePath(): void {
@@ -497,24 +430,13 @@ export class PetFollowComponent implements Component {
   syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): void {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
+    if (!this.syncJumpBehavior) {
+      this.syncJumpBehavior = new PetSyncJumpBehavior(this.entity, this.playerEntity, this.grid);
+    }
     this.sm.transition('sync_jumping');
-    this.syncJumpStartX = transform.x;
-    this.syncJumpStartY = transform.y;
-    const cellWorld = this.grid.cellToWorld(landCol, landRow);
-    this.syncJumpTargetX = cellWorld.x + this.grid.cellSize / 2;
-    this.syncJumpTargetY = cellWorld.y + this.grid.cellSize / 2;
-    this.syncJumpDurationMs = isFallJump ? flightDurationMs : durationMs;
-    this.syncJumpTimerMs = 0;
-    this.isSyncFallJump = isFallJump;
+    const dir = this.syncJumpBehavior.startJump(landCol, landRow, durationMs, isFallJump, flightDurationMs);
+    this.currentDirection = dir;
     this.pathFollower.clear();
-
-    const gridCollision = this.entity.get(GridCollisionComponent);
-    if (gridCollision) gridCollision.enabled = false;
-
-    const dx = this.syncJumpTargetX - transform.x;
-    const dy = this.syncJumpTargetY - transform.y;
-    const dir = dirFromDelta(dx, dy);
-    if (dir !== Direction.None) this.currentDirection = dir;
     const anim = this.entity.get(AnimationComponent);
     if (anim) this.playAnim(anim, `idle_${this.currentDirection}`);
   }

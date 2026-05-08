@@ -373,12 +373,34 @@ export default class GameScene extends Phaser.Scene {
     const worldState = WorldStateManager.getInstance();
     const levelState = worldState.getLevelState(level.name!);
 
+    this.initializeGrid(level, levelState);
+    await this.initializeOverlays();
+    this.initializeBlockedAreas();
+    this.initializeCamera(level);
+    this.initializeEntityLoader();
+
+    // Ensure SoundManager has a game reference (covers ?level= skip-boot path)
+    if (!SoundManager.getInstance().isInitialized) {
+      void SoundManager.getInstance().initialize(this);
+    }
+
+    this.spawnEntities();
+
+    // Snapshot world state at level entry for death/reload reset
+    this.levelEntrySnapshot = WorldStateManager.getInstance().serializeToJSON();
+
+    this.initializeCameraFollow();
+    this.initializeFadeIn();
+
+    this.eventManager.raiseEvent('level_loaded');
+  }
+
+  private initializeGrid(level: typeof this.levelData, levelState: ReturnType<WorldStateManager['getLevelState']>): void {
     this.grid = new Grid(this, level.width, level.height, this.cellSize);
 
     for (const cell of level.cells) {
       const textures = normalizeBgTextures(cell.backgroundTexture);
       const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
-
       this.grid.setCell(cell.col, cell.row, {
         layer: cell.layer ?? 0,
         properties: new Set(cell.properties ?? []),
@@ -394,12 +416,9 @@ export default class GameScene extends Phaser.Scene {
         properties: new Set(modCell.properties as CellProperty[] ?? []),
         backgroundTexture: modCell.backgroundTexture ?? ''
       });
-
-      // Update level data to match
       const levelCell = level.cells.find(c => c.col === modCell.col && c.row === modCell.row);
       if (levelCell) {
         if (modCell.backgroundTexture) {
-          // Only update if level cell doesn't have a transform object
           if (typeof levelCell.backgroundTexture === 'string' || !levelCell.backgroundTexture) {
             levelCell.backgroundTexture = modCell.backgroundTexture;
           }
@@ -407,126 +426,87 @@ export default class GameScene extends Phaser.Scene {
           delete levelCell.backgroundTexture;
         }
       }
-
       cellsToInvalidate.push({ col: modCell.col, row: modCell.row });
     }
 
-    // Invalidate renderer cache for modified cells
     if (cellsToInvalidate.length > 0 && this.sceneRenderer) {
       this.sceneRenderer.invalidateCells(cellsToInvalidate);
     }
+  }
 
+  private async initializeOverlays(): Promise<void> {
     const overlays = new SceneOverlays(this, this.levelData);
     this.sceneOverlays = overlays;
     await overlays.init();
     overlays.applyOverlays(this.grid);
+  }
 
+  private initializeBlockedAreas(): void {
     this.blockedAreaManager = new BlockedAreaManager(
       this.levelData.blockedAreas ?? [], this.grid
     );
     this.grid.setBlockedAreaManager(this.blockedAreaManager);
+  }
 
+  private initializeCamera(level: typeof this.levelData): void {
     const levelWidth = level.width * this.grid.cellSize;
     const levelHeight = level.height * this.grid.cellSize;
     const viewportWidth = this.cameras.main.width;
     const viewportHeight = this.cameras.main.height;
 
-    // Center small levels on screen
     if (levelWidth < viewportWidth || levelHeight < viewportHeight) {
       const offsetX = levelWidth < viewportWidth ? (viewportWidth - levelWidth) / 2 : 0;
       const offsetY = levelHeight < viewportHeight ? (viewportHeight - levelHeight) / 2 : 0;
-
-      this.cameras.main.setBounds(
-        -offsetX,
-        -offsetY,
-        Math.max(levelWidth, viewportWidth),
-        Math.max(levelHeight, viewportHeight)
-      );
+      this.cameras.main.setBounds(-offsetX, -offsetY, Math.max(levelWidth, viewportWidth), Math.max(levelHeight, viewportHeight));
     } else {
-      this.cameras.main.setBounds(
-        CAMERA_BOUNDS_INSET_X_PX,
-        CAMERA_BOUNDS_INSET_Y_PX,
-        levelWidth - CAMERA_BOUNDS_INSET_X_PX,
-        levelHeight - CAMERA_BOUNDS_INSET_Y_PX
-      );
+      this.cameras.main.setBounds(CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y_PX, levelWidth - CAMERA_BOUNDS_INSET_X_PX, levelHeight - CAMERA_BOUNDS_INSET_Y_PX);
     }
-
-    // Set camera zoom - HUD scene is separate so this won't affect touch
     this.cameras.main.setZoom(CAMERA_ZOOM);
+  }
 
+  private initializeEntityLoader(): void {
     this.entityLoader = new EntityLoader(
-      this,
-      this.grid,
-      this.entityManager,
-      this.eventManager,
-      this.entityCreatorManager,
-      (targetLevel, targetCol, targetRow) => {
-        this.startLevelTransition(targetLevel, targetCol, targetRow);
-      }
+      this, this.grid, this.entityManager, this.eventManager, this.entityCreatorManager,
+      (targetLevel, targetCol, targetRow) => { this.startLevelTransition(targetLevel, targetCol, targetRow); }
     );
+  }
 
-    // Ensure SoundManager has a game reference (covers ?level= skip-boot path)
-    if (!SoundManager.getInstance().isInitialized) {
-      void SoundManager.getInstance().initialize(this);
-    }
-
-    this.spawnEntities();
-
-    // Snapshot world state at level entry for death/reload reset
-    this.levelEntrySnapshot = WorldStateManager.getInstance().serializeToJSON();
-
-    // Camera follow player's sprite (unless in editor mode)
+  private initializeCameraFollow(): void {
     const player = this.entityManager.getFirst('player');
     if (player && !this.isEditorMode) {
       const spriteComp = player.get(SpriteComponent);
       if (spriteComp) {
         this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);
         this.cameras.main.startFollow(spriteComp.sprite, true, 0.1, 0.1);
-
         if (this.sceneRenderer instanceof TunnelsSceneRenderer) {
           this.sceneRenderer.setPlayerSprite(spriteComp.sprite);
         }
       }
     }
+  }
 
-    // Fade in after level loads (skip in editor mode - scene is paused)
+  private initializeFadeIn(): void {
     if (!this.isEditorMode) {
       this.cameras.main.fadeIn(500, 0, 0, 0);
-
-      // Fade in background and vignette after camera fade completes
       this.cameras.main.once('camerafadeincomplete', () => {
         if (this.background) {
-          this.tweens.add({
-            targets: this.background,
-            alpha: 1,
-            duration: 300,
-            ease: 'Linear'
-          });
+          this.tweens.add({ targets: this.background, alpha: 1, duration: 300, ease: 'Linear' });
         }
         if (this.vignette) {
-          // Fade to original alpha based on theme
-          const targetAlpha = this.levelData.levelTheme === 'grass' ? 0.25 :
-                             this.levelData.levelTheme === 'swamp' ? 0.3 :
-                             this.levelData.levelTheme === 'wilds' ? 0.3 : 0.2;
-          this.tweens.add({
-            targets: this.vignette,
-            alpha: targetAlpha,
-            duration: 300,
-            ease: 'Linear'
-          });
+          this.tweens.add({ targets: this.vignette, alpha: this.getVignetteAlpha(), duration: 300, ease: 'Linear' });
         }
       });
     } else {
       if (this.background) this.background.setAlpha(1);
-      if (this.vignette) {
-        const targetAlpha = this.levelData.levelTheme === 'grass' ? 0.25 :
-                           this.levelData.levelTheme === 'swamp' ? 0.3 :
-                           this.levelData.levelTheme === 'wilds' ? 0.3 : 0.2;
-        this.vignette.setAlpha(targetAlpha);
-      }
+      if (this.vignette) this.vignette.setAlpha(this.getVignetteAlpha());
     }
+  }
 
-    this.eventManager.raiseEvent('level_loaded');
+  private getVignetteAlpha(): number {
+    const theme = this.levelData.levelTheme;
+    if (theme === 'grass') return 0.25;
+    if (theme === 'swamp' || theme === 'wilds') return 0.3;
+    return 0.2;
   }
 
   async resetScene(): Promise<void> {

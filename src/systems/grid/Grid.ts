@@ -8,6 +8,7 @@ import { WalkComponent } from "../../ecs/components/movement/WalkComponent";
 import { getMustFaceEnemy } from "../../ecs/components/combat/AttackComboComponent";
 import type { CellData } from './CellData';
 import type { LevelData } from '../level/LevelLoader';
+import { GridDebugRenderer } from './GridDebugRenderer';
 import { Depth } from '../../constants/DepthConstants';
 import type { BlockedAreaManager } from '../BlockedAreaManager';
 export type { CellProperty, CellData } from './CellData';
@@ -48,6 +49,7 @@ export class Grid implements GridReader {
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
   private blockedAreaManager?: BlockedAreaManager;
+  private debugRenderer?: GridDebugRenderer;
 
   setBlockedAreaManager(manager: BlockedAreaManager): void {
     this.blockedAreaManager = manager;
@@ -288,86 +290,10 @@ export class Grid implements GridReader {
       return;
     }
 
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        const x = col * this.cellSize;
-        const y = row * this.cellSize;
-        const cell = this.cells[row][col];
-        const layer = this.getLayer(cell);
-
-        let layerAlpha: number;
-        let layerColor: number;
-
-        if (layer < 0) {
-          layerAlpha = 0.25;
-          layerColor = 0xffffff;
-        } else if (layer === 0) {
-          layerAlpha = 0.1;
-          layerColor = 0x808080;
-        } else {
-          // Progressive darkening for higher layers
-          layerAlpha = 0.3 + (layer * 0.1);
-          layerColor = 0x000000;
-        }
-
-        this.graphics.fillStyle(layerColor, layerAlpha);
-        this.graphics.fillRect(x, y, this.cellSize, this.cellSize);
-
-        this.graphics.lineStyle(1, 0xffffff, 0.3);
-        this.graphics.strokeRect(x + 0.5, y + 0.5, this.cellSize, this.cellSize);
-      }
+    if (!this.debugRenderer) {
+      this.debugRenderer = new GridDebugRenderer(this, this.graphics);
     }
-
-    // Draw trigger cells with yellow outline when grid debug is enabled
-    if (levelData?.triggers) {
-      for (const trigger of levelData.triggers) {
-        for (const cell of trigger.triggerCells) {
-          const worldPos = this.cellToWorld(cell.col, cell.row);
-          this.graphics.lineStyle(3, 0xffff00, 1);
-          this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
-        }
-      }
-    }
-
-    // Draw blocked cells with black outline
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        const cell = this.getCell(col, row);
-        if (cell?.properties.has('blocked')) {
-          const worldPos = this.cellToWorld(col, row);
-          this.graphics.lineStyle(3, 0x000000, 1);
-          this.graphics.strokeRect(worldPos.x, worldPos.y, this.cellSize, this.cellSize);
-        }
-      }
-    }
-
-    // Draw blocked area polygons
-    if (this.blockedAreaManager) {
-      const areas = this.blockedAreaManager.getAll();
-      for (const area of areas) {
-        let color = 0x00ff00;
-        if (area.layer === 0) color = 0xff0000;
-        else if (area.layer === 1) color = 0x0000ff;
-
-        this.graphics.fillStyle(color, 0.15);
-        this.graphics.beginPath();
-        this.graphics.moveTo(area.vertices[0].x, area.vertices[0].y);
-        for (let i = 1; i < area.vertices.length; i++) {
-          this.graphics.lineTo(area.vertices[i].x, area.vertices[i].y);
-        }
-        this.graphics.closePath();
-        this.graphics.fillPath();
-
-        this.graphics.lineStyle(2, color, 0.8);
-        this.graphics.beginPath();
-        this.graphics.moveTo(area.vertices[0].x, area.vertices[0].y);
-        for (let i = 1; i < area.vertices.length; i++) {
-          this.graphics.lineTo(area.vertices[i].x, area.vertices[i].y);
-        }
-        this.graphics.closePath();
-        this.graphics.strokePath();
-      }
-    }
+    this.debugRenderer.renderGridDebug(levelData ?? gameScene.getLevelData(), this.blockedAreaManager);
   }
 
   private renderPunchFOV(entityManager?: EntityManager): void {

@@ -14,8 +14,8 @@ import { EscortPersistence } from './EscortPersistence';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 import { PathFollower } from '../../systems/movement/PathFollower';
-import { LaserBeamComponent } from '../laser/LaserBeamComponent';
 import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
+import { EscortCrouchBehavior } from './EscortCrouchBehavior';
 
 export type EscortState =
   | 'dormant'
@@ -26,8 +26,6 @@ export type EscortState =
   | 'completing'
   | 'completed'
   | 'waiting_for_player_move';
-
-type CrouchPhase = 'crouching_down' | 'holding' | 'standing_up';
 
 export type EscortComponentProps = {
   readonly scene: Phaser.Scene;
@@ -55,12 +53,9 @@ export type EscortComponentProps = {
 }
 
 const PATH_RECALC_MS = 500;
-const CROUCH_COOLDOWN_MS = 2000;
 const STOP_DISTANCE_PX = 64;
 const ARRIVAL_THRESHOLD_PX = 8;
 const DESTINATION_OFFSET_Y_PX = 16;
-const SHIVER_AMPLITUDE_PX = 1.5;
-const SHIVER_INTERVAL_MS = 40;
 
 export class EscortComponent implements Component, EventListener {
   entity!: Entity;
@@ -86,9 +81,7 @@ export class EscortComponent implements Component, EventListener {
 
   private readonly persistence = new EscortPersistence();
   private readonly sm: ComponentStateMachine<EscortState>;
-  private crouchPhase: CrouchPhase = 'holding';
-  private crouchCooldownMs = 0;
-  private shiverTimerMs = 0;
+  private crouchBehavior!: EscortCrouchBehavior;
   private previousActiveState: 'following' | 'walking_to_destination' = 'following';
 
   private readonly pathFollower: PathFollower;
@@ -268,16 +261,24 @@ export class EscortComponent implements Component, EventListener {
 
   // --- State: Crouching ---
 
+  private ensureCrouchBehavior(): EscortCrouchBehavior {
+    if (!this.crouchBehavior) {
+      this.crouchBehavior = new EscortCrouchBehavior(
+        this.entity, this.entityManager, this.enemyDetectDistancePx, (key) => this.playAnim(key),
+      );
+    }
+    return this.crouchBehavior;
+  }
+
   private checkEnemies(): boolean {
     if (this.escortType !== 'knight') return false;
+    const crouch = this.ensureCrouchBehavior();
 
-    if (this.areEnemiesNearby()) {
+    if (crouch.areEnemiesNearby()) {
       if (this.sm.state !== 'crouching') {
         this.previousActiveState = this.sm.state as 'following' | 'walking_to_destination';
         this.sm.transition('crouching');
-        this.crouchPhase = 'crouching_down';
-        this.crouchCooldownMs = 0;
-        this.playAnim('crouch_forward');
+        crouch.startCrouch();
         this.pathFollower.clear();
         return true;
       }
@@ -286,41 +287,11 @@ export class EscortComponent implements Component, EventListener {
   }
 
   private updateCrouching(delta: number): void {
-    const anim = this.entity.require(AnimationComponent);
-
-    if (this.crouchPhase === 'crouching_down') {
-      if (anim.animationSystem.isOnLastFrame('crouch_forward')) {
-        this.crouchPhase = 'holding';
-      }
-      return;
-    }
-
-    if (this.crouchPhase === 'holding') {
-      // Shiver effect
-      this.shiverTimerMs += delta;
-      if (this.shiverTimerMs >= SHIVER_INTERVAL_MS) {
-        this.shiverTimerMs = 0;
-        const sprite = this.entity.require(SpriteComponent);
-        sprite.sprite.x += (Math.random() - 0.5) * SHIVER_AMPLITUDE_PX * 2;
-      }
-
-      if (this.areEnemiesNearby()) {
-        this.crouchCooldownMs = 0;
-      } else {
-        this.crouchCooldownMs += delta;
-        if (this.crouchCooldownMs >= CROUCH_COOLDOWN_MS) {
-          this.crouchPhase = 'standing_up';
-          this.playAnim('crouch_reverse');
-        }
-      }
-      return;
-    }
-
-    if (this.crouchPhase === 'standing_up') {
-      if (anim.animationSystem.isOnLastFrame('crouch_reverse')) {
-        this.sm.transition(this.previousActiveState);
-        this.playAnim(`idle_${this.currentDirection}`);
-      }
+    const crouch = this.ensureCrouchBehavior();
+    const result = crouch.update(delta);
+    if (result === 'done') {
+      this.sm.transition(this.previousActiveState);
+      this.playAnim(`idle_${this.currentDirection}`);
     }
   }
 
@@ -499,25 +470,6 @@ export class EscortComponent implements Component, EventListener {
       }
     }
     return bestPath;
-  }
-
-  // --- Enemy Detection ---
-
-  private areEnemiesNearby(): boolean {
-    const transform = this.entity.require(TransformComponent);
-    for (const enemy of this.entityManager.getAll()) {
-      if (enemy.isDestroyed || (!enemy.tags.has('enemy') && !enemy.tags.has('laser'))) continue;
-      if (enemy.tags.has('laser')) {
-        const laser = enemy.get(LaserBeamComponent);
-        if (laser && !laser.isActive()) continue;
-      }
-      const et = enemy.get(TransformComponent);
-      if (!et) continue;
-      if (Math.hypot(et.x - transform.x, et.y - transform.y) <= this.enemyDetectDistancePx) {
-        return true;
-      }
-    }
-    return false;
   }
 
   // --- Animation Helper ---

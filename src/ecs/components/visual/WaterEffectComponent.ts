@@ -36,16 +36,13 @@ export class WaterEffectComponent implements Component {
 
   update(delta: number): void {
     const sprite = this.entity.get(SpriteComponent);
-    const shadow = this.entity.get(ShadowComponent);
     const transform = this.entity.get(TransformComponent);
     const gridPos = this.entity.get(GridPositionComponent);
-    const gridCollision = this.entity.get(GridCollisionComponent);
-    const walk = this.entity.get(WalkComponent);
-    const jump = this.entity.get(JumpComponent);
 
     if (!sprite || !transform || !gridPos) return;
 
     // During a jump, keep player at normal depth so background textures don't render in front
+    const jump = this.entity.get(JumpComponent);
     if (jump?.isJumping()) {
       if (sprite.sprite.depth !== Depth.player) {
         sprite.sprite.setDepth(Depth.player);
@@ -60,141 +57,139 @@ export class WaterEffectComponent implements Component {
       SoundManager.getInstance().play('splash2');
     }
 
+    const gridCollision = this.entity.get(GridCollisionComponent);
     if (!gridCollision) return;
     const grid = gridCollision.getGrid();
     const currentCell = grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
     const isCurrentCellWater = currentCell?.properties.has('water') ?? false;
     const isCurrentCellBridge = currentCell?.properties.has('bridge') ?? false;
+    const walk = this.entity.get(WalkComponent);
 
-    // Determine water state
-    let nowInWater = false;
+    const nowInWater = this.determineWaterState(isCurrentCellWater, isCurrentCellBridge, gridPos, walk, grid);
 
-    if (this.isInWater) {
-      // Already in water - check if should exit
-      if (walk && isCurrentCellWater) {
-        const moveX = walk.lastMoveX;
-        const moveY = walk.lastMoveY;
-
-        if (moveX !== 0 || moveY !== 0) {
-          // Check cell in movement direction
-          const checkCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
-          const checkRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
-          const nextCell = grid.getCell(checkCol, checkRow);
-          const isNextCellDry = !nextCell?.properties.has('water');
-          const isNextCellBridge = nextCell?.properties.has('bridge') ?? false;
-          const isNextCellBlocked = nextCell?.properties.has('blocked') || nextCell?.properties.has('platform') || nextCell?.properties.has('wall') || false;
-
-          if (isNextCellDry && !isNextCellBridge && !isCurrentCellBridge && !isNextCellBlocked) {
-            const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
-            const cellCenterX = cellWorld.x + grid.cellSize / 2;
-            const cellCenterY = cellWorld.y + grid.cellSize / 2;
-            const halfCell = grid.cellSize / 2;
-
-            let distToEdge = Infinity;
-            if (moveX < 0) {
-              distToEdge = transform.x - (cellCenterX - halfCell);
-            } else if (moveX > 0) {
-              distToEdge = (cellCenterX + halfCell) - transform.x;
-            } else if (moveY < 0) {
-              distToEdge = transform.y - (cellCenterY - halfCell);
-            } else if (moveY > 0) {
-              distToEdge = (cellCenterY + halfCell) - transform.y;
-            }
-
-            if (distToEdge <= halfCell / 2) {
-              nowInWater = false;
-            } else {
-              nowInWater = true;
-            }
-          } else {
-            nowInWater = true;
-          }
-        } else {
-          nowInWater = isCurrentCellWater || isCurrentCellBridge;
-        }
-      } else {
-        nowInWater = isCurrentCellWater || isCurrentCellBridge;
-      }
-    } else {
-      // Not in water - check if should enter
-      nowInWater = isCurrentCellWater && !isCurrentCellBridge;
-    }
-
-    if (shadow) {
-      const baseOffsetY = shadow.props.offsetY;
-
-      if (nowInWater) {
-        // Shadow visible but faded and below player when swimming
-        shadow.shadow.setVisible(true);
-        shadow.shadow.setAlpha(0.3);
-        shadow.shadow.setDepth(Depth.shadowSwimming);
-        shadow.shadow.setY(transform.y + baseOffsetY + 32);
-
-        // Update shadow mask if player moved to different cell
-        if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
-          this.updateShadowMask(shadow, gridPos, grid);
-          this.lastMaskCell = { col: gridPos.currentCell.col, row: gridPos.currentCell.row };
-        }
-      } else {
-        // Normal shadow when not in water
-        shadow.shadow.setVisible(true);
-        shadow.shadow.setAlpha(1);
-        shadow.shadow.setDepth(Depth.shadow);
-        shadow.shadow.setY(transform.y + baseOffsetY);
-        shadow.shadow.clearMask();
-      }
-    }
-
-    // Adjust sprite depth based on swimming state
-    if (nowInWater) {
-      if (sprite.sprite.depth !== Depth.playerSwimming) {
-        sprite.sprite.setDepth(Depth.playerSwimming);
-      }
-    } else if (sprite.sprite.depth !== Depth.player) {
-      sprite.sprite.setDepth(Depth.player);
-    }
-
-    // Detect water entry/exit — trigger JumpComponent jump
-    if (nowInWater !== this.isInWater) {
-      const wasInWater = this.isInWater;
-      this.isInWater = nowInWater;
-
-      if (!nowInWater && wasInWater) {
-        // Exiting water — pop swimming collision box, splash immediately, sound on exit
-        gridPos.popCollisionBox();
-        SoundManager.getInstance().play('splash1');
-        this.createSplashEffect(transform.x, transform.y, false);
-      }
-
-      if (nowInWater && !wasInWater) {
-        // Entering water — push swimming collision box, splash plays after jump lands
-        gridPos.pushCollisionBox(SWIMMING_COLLISION_BOX);
-        this.pendingEntrySplash = true;
-      }
-
-      // Calculate target cell and trigger jump
-      const jumpTarget = this.calculateJumpTarget(nowInWater, isCurrentCellWater, gridPos, walk, grid);
-      if (jump && jumpTarget) {
-        jump.triggerWaterJump(jumpTarget.col, jumpTarget.row, jumpTarget.dx, jumpTarget.dy, nowInWater);
-      }
-    }
-
-    // Swimming splash effects
-    if (this.isInWater && walk) {
-      const isMoving = walk.isMoving();
-      if (isMoving) {
-        this.swimmingSplashTimerMs += delta;
-        if (this.swimmingSplashTimerMs >= 500) {
-          this.swimmingSplashTimerMs = 0;
-          this.createSplashEffect(transform.x, transform.y, true);
-        }
-      } else {
-        this.swimmingSplashTimerMs = 0;
-      }
-    }
+    this.updateShadow(nowInWater, transform, gridPos, grid);
+    this.updateSpriteDepth(nowInWater, sprite);
+    this.handleWaterTransition(nowInWater, isCurrentCellWater, transform, gridPos, walk, grid, jump);
+    this.updateSwimmingSplash(delta, transform, walk);
 
     // Normal sprite Y when not jumping
     sprite.sprite.y = transform.y + sprite.visualOffsetYPx;
+  }
+
+  private determineWaterState(
+    isCurrentCellWater: boolean, isCurrentCellBridge: boolean,
+    gridPos: GridPositionComponent, walk: WalkComponent | undefined, grid: GridReader
+  ): boolean {
+    if (!this.isInWater) {
+      return isCurrentCellWater && !isCurrentCellBridge;
+    }
+
+    // Already in water - check if should exit
+    if (!walk || !isCurrentCellWater) {
+      return isCurrentCellWater || isCurrentCellBridge;
+    }
+
+    const moveX = walk.lastMoveX;
+    const moveY = walk.lastMoveY;
+    if (moveX === 0 && moveY === 0) {
+      return isCurrentCellWater || isCurrentCellBridge;
+    }
+
+    const checkCol = moveX > 0 ? gridPos.currentCell.col + 1 : moveX < 0 ? gridPos.currentCell.col - 1 : gridPos.currentCell.col;
+    const checkRow = moveY > 0 ? gridPos.currentCell.row + 1 : moveY < 0 ? gridPos.currentCell.row - 1 : gridPos.currentCell.row;
+    const nextCell = grid.getCell(checkCol, checkRow);
+    const isNextCellDry = !nextCell?.properties.has('water');
+    const isNextCellBridge = nextCell?.properties.has('bridge') ?? false;
+    const isNextCellBlocked = nextCell?.properties.has('blocked') || nextCell?.properties.has('platform') || nextCell?.properties.has('wall') || false;
+
+    if (!isNextCellDry || isNextCellBridge || isCurrentCellBridge || isNextCellBlocked) {
+      return true;
+    }
+
+    const transform = this.entity.require(TransformComponent);
+    const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+    const cellCenterX = cellWorld.x + grid.cellSize / 2;
+    const cellCenterY = cellWorld.y + grid.cellSize / 2;
+    const halfCell = grid.cellSize / 2;
+
+    let distToEdge = Infinity;
+    if (moveX < 0) distToEdge = transform.x - (cellCenterX - halfCell);
+    else if (moveX > 0) distToEdge = (cellCenterX + halfCell) - transform.x;
+    else if (moveY < 0) distToEdge = transform.y - (cellCenterY - halfCell);
+    else if (moveY > 0) distToEdge = (cellCenterY + halfCell) - transform.y;
+
+    return distToEdge > halfCell / 2;
+  }
+
+  private updateShadow(nowInWater: boolean, transform: TransformComponent, gridPos: GridPositionComponent, grid: GridReader): void {
+    const shadow = this.entity.get(ShadowComponent);
+    if (!shadow) return;
+    const baseOffsetY = shadow.props.offsetY;
+
+    if (nowInWater) {
+      shadow.shadow.setVisible(true);
+      shadow.shadow.setAlpha(0.3);
+      shadow.shadow.setDepth(Depth.shadowSwimming);
+      shadow.shadow.setY(transform.y + baseOffsetY + 32);
+
+      if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
+        this.updateShadowMask(shadow, gridPos, grid);
+        this.lastMaskCell = { col: gridPos.currentCell.col, row: gridPos.currentCell.row };
+      }
+    } else {
+      shadow.shadow.setVisible(true);
+      shadow.shadow.setAlpha(1);
+      shadow.shadow.setDepth(Depth.shadow);
+      shadow.shadow.setY(transform.y + baseOffsetY);
+      shadow.shadow.clearMask();
+    }
+  }
+
+  private updateSpriteDepth(nowInWater: boolean, sprite: SpriteComponent): void {
+    if (nowInWater) {
+      if (sprite.sprite.depth !== Depth.playerSwimming) sprite.sprite.setDepth(Depth.playerSwimming);
+    } else if (sprite.sprite.depth !== Depth.player) {
+      sprite.sprite.setDepth(Depth.player);
+    }
+  }
+
+  private handleWaterTransition(
+    nowInWater: boolean, isCurrentCellWater: boolean,
+    transform: TransformComponent, gridPos: GridPositionComponent,
+    walk: WalkComponent | undefined, grid: GridReader, jump: JumpComponent | undefined
+  ): void {
+    if (nowInWater === this.isInWater) return;
+    const wasInWater = this.isInWater;
+    this.isInWater = nowInWater;
+
+    if (!nowInWater && wasInWater) {
+      gridPos.popCollisionBox();
+      SoundManager.getInstance().play('splash1');
+      this.createSplashEffect(transform.x, transform.y, false);
+    }
+
+    if (nowInWater && !wasInWater) {
+      gridPos.pushCollisionBox(SWIMMING_COLLISION_BOX);
+      this.pendingEntrySplash = true;
+    }
+
+    const jumpTarget = this.calculateJumpTarget(nowInWater, isCurrentCellWater, gridPos, walk, grid);
+    if (jump && jumpTarget) {
+      jump.triggerWaterJump(jumpTarget.col, jumpTarget.row, jumpTarget.dx, jumpTarget.dy, nowInWater);
+    }
+  }
+
+  private updateSwimmingSplash(delta: number, transform: TransformComponent, walk: WalkComponent | undefined): void {
+    if (!this.isInWater || !walk) return;
+    if (walk.isMoving()) {
+      this.swimmingSplashTimerMs += delta;
+      if (this.swimmingSplashTimerMs >= 500) {
+        this.swimmingSplashTimerMs = 0;
+        this.createSplashEffect(transform.x, transform.y, true);
+      }
+    } else {
+      this.swimmingSplashTimerMs = 0;
+    }
   }
 
   private calculateJumpTarget(

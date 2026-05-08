@@ -72,27 +72,31 @@ export class LuaRuntime {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private readonly commandHandlers: Record<string, (cmd: any) => void | Promise<void>> = {
+    wait: (cmd) => this.handleWait(cmd.ms),
+    say: (cmd) => this.handleSay(cmd),
+    moveTo: (cmd) => this.handleMoveTo(cmd),
+    look: (cmd) => this.handleLook(cmd.direction),
+    npcLook: (cmd) => this.handleNpcLook(cmd.npcId, cmd.direction),
+    spendCoins: (cmd) => this.handleSpendCoins(cmd.amount),
+    obtainCoins: (cmd) => this.handleObtainCoins(cmd.amount),
+    fadeOut: (cmd) => this.handleFadeOut(cmd.durationMs),
+    fadeIn: (cmd) => this.handleFadeIn(cmd.durationMs),
+    teleportTo: (cmd) => this.handleTeleportTo(cmd.col, cmd.row),
+    punch: (cmd) => this.handlePunch(cmd.direction),
+    playerPlayAnim: (cmd) => this.handlePlayerPlayAnim(cmd),
+    npcPlayAnim: (cmd) => this.handleNpcPlayAnim(cmd),
+    raiseEvent: (cmd) => { this.scene.eventManager.raiseEvent(cmd.eventName); },
+    showSpecialItem: (cmd) => this.handleShowSpecialItem(cmd.itemType),
+    hideSpecialItem: () => this.hideSpecialItemDisplay(),
+  };
+
   private async executeCommand(cmd: Command): Promise<void> {
     this.playerEntity.tags.add('interaction_active');
     try {
-      switch (cmd.type) {
-        case 'wait': await this.handleWait(cmd.ms); break;
-        case 'say': await this.handleSay(cmd); break;
-        case 'moveTo': await this.handleMoveTo(cmd); break;
-        case 'look': this.handleLook(cmd.direction); break;
-        case 'npcLook': this.handleNpcLook(cmd.npcId, cmd.direction); break;
-        case 'spendCoins': await this.handleSpendCoins(cmd.amount); break;
-        case 'obtainCoins': await this.handleObtainCoins(cmd.amount); break;
-        case 'fadeOut': await this.handleFadeOut(cmd.durationMs); break;
-        case 'fadeIn': await this.handleFadeIn(cmd.durationMs); break;
-        case 'teleportTo': this.handleTeleportTo(cmd.col, cmd.row); break;
-        case 'punch': await this.handlePunch(cmd.direction); break;
-        case 'playerPlayAnim': await this.handlePlayerPlayAnim(cmd); break;
-        case 'npcPlayAnim': await this.handleNpcPlayAnim(cmd); break;
-        case 'raiseEvent': this.scene.eventManager.raiseEvent(cmd.eventName); break;
-        case 'showSpecialItem': await this.handleShowSpecialItem(cmd.itemType); break;
-        case 'hideSpecialItem': await this.hideSpecialItemDisplay(); break;
-      }
+      const handler = this.commandHandlers[cmd.type];
+      if (handler) await handler(cmd);
     } finally {
       this.playerEntity.tags.delete('interaction_active');
     }
