@@ -1,4 +1,4 @@
-import { SoundManager } from '../../../systems/SoundManager';
+import type { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
@@ -20,6 +20,7 @@ export type BreakableComponentProps = {
   scene: Phaser.Scene;
   onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
   onSpawnMedipack: (x: number, y: number) => void;
+  soundManager: SoundManager;
 }
 
 const BREAKABLE_SOUNDS: Record<string, string[]> = {
@@ -34,12 +35,14 @@ export class BreakableComponent implements Component {
   private readonly scene: Phaser.Scene;
   private readonly onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
   private readonly onSpawnMedipack: (x: number, y: number) => void;
+  private readonly soundManager: SoundManager;
 
   constructor(props: BreakableComponentProps) {
     this.currentHealth = props.maxHealth;
     this.scene = props.scene;
     this.onSpawnCoin = props.onSpawnCoin;
     this.onSpawnMedipack = props.onSpawnMedipack;
+    this.soundManager = props.soundManager;
   }
 
   takeDamage(amount: number): void {
@@ -48,7 +51,7 @@ export class BreakableComponent implements Component {
       this.currentHealth = 0;
       this.breakApart();
     } else {
-      SoundManager.getInstance().play('thud1');
+      this.soundManager.play('thud1');
       this.spawnSingleShard();
       this.shakeSprite();
     }
@@ -158,7 +161,7 @@ export class BreakableComponent implements Component {
 
     const sounds = BREAKABLE_SOUNDS[sprite.sprite.texture.key];
     if (sounds) {
-      SoundManager.getInstance().play(sounds[Math.floor(Math.random() * sounds.length)]);
+      this.soundManager.play(sounds[Math.floor(Math.random() * sounds.length)]);
     }
 
     this.spawnCoins(transform, sprite);

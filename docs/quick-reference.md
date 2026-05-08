@@ -396,7 +396,7 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Pet sync-jumps with player: tweens to landing cell center with sine arc, matching player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to player's respawn cell
 - Pathfinder treats void as impassable (no jump-over routing)
 - Punch is suppressed while jump icon is showing (`InputComponent.isAttackPressed()` returns false when icon override is `'jump'`)
-- Key file: `src/ecs/components/movement/JumpComponent.ts` (orchestrator), `JumpDetector.ts` (detection logic), `JumpAnimator.ts` (animation phases)
+- Key file: `src/ecs/components/movement/JumpComponent.ts` (orchestrator), `JumpDetector.ts` (detection logic), `JumpAnimator.ts` (animation phases) (orchestrator), `JumpDetector.ts` (detection logic), `JumpAnimator.ts` (animation phases)
 
 ## Platform Jump-Down
 

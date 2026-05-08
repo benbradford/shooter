@@ -11,6 +11,7 @@ import { Depth } from '../../../constants/DepthConstants';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EntityManager } from '../../EntityManager';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type CreateLaserProps = {
   scene: Phaser.Scene;
@@ -91,6 +92,7 @@ export function createLaserEntity(props: CreateLaserProps): Entity {
     baseSprite: sprite.sprite,
     onDestroyEvent: props.onDestroyEvent,
     eventManager: props.eventManager,
+    worldState: WorldStateManager.getInstance(),
   }));
 
   entity.setUpdateOrder([

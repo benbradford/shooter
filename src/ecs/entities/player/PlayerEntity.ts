@@ -39,6 +39,9 @@ import { PlayerDeathState } from './PlayerDeathState';
 import { PlayerPushState } from './PlayerPushState';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
+import { SoundManager } from '../../../systems/SoundManager';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { PetManager } from '../../../systems/PetManager';
 
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
 
@@ -306,7 +309,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new AttackComboComponent({
     scene,
     entityManager,
-    getEnemies
+    getEnemies,
+    worldState: WorldStateManager.getInstance(),
+    soundManager: SoundManager.getInstance(),
+    petManager: PetManager.getInstance(),
   }));
 
   entity.add(new PetAbilityComponent());

@@ -4,109 +4,272 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='6' width='32' height='32' fill='%23143'/><path d='M8 10l3 3 6-6M8 20l3 3 6-6' stroke='%2366bb6a' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
-<title>DB - Tracker</title>
+<title>Workbench - Dodging Bullets</title>
 <style>
   :root {
-    --bg: #1a1a2e;
-    --surface: #16213e;
-    --surface2: #0f3460;
-    --text: #e0e0e0;
-    --muted: #888;
-    --border: #333;
-    --accent-red: #ff4444;
-    --accent-blue: #4fc3f7;
-    --accent-green: #66bb6a;
-    --accent-orange: #ff8c00;
+    --bg: #0f1117;
+    --surface: #1c1f2e;
+    --surface2: #252a3a;
+    --surface-hover: #2d3348;
+    --text: #eaedf3;
+    --muted: #8b92a8;
+    --border: #2e3447;
+    --accent: #6c8cff;
+    --accent-glow: rgba(108, 140, 255, 0.15);
+    --green: #4ade80;
+    --orange: #fb923c;
+    --red: #f87171;
+    --radius: 14px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
-  h1 { font-size: 2rem; margin-bottom: 6px; }
-  .subtitle { color: var(--muted); margin-bottom: 48px; font-size: 0.95rem; }
-  .cards { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 32px 28px; width: 260px; text-decoration: none; color: var(--text); transition: 0.2s; cursor: pointer; }
-  .card:hover { border-color: #5599ff; transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-  .card-icon { font-size: 2.4rem; margin-bottom: 12px; }
-  .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
-  .card-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
-  .card-count { margin-top: 16px; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-  .card-count span { font-size: 1.4rem; font-weight: bold; display: block; margin-top: 2px; }
-  .actions { margin-top: 48px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-  .action-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 20px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: 0.2s; text-decoration: none; }
-  .action-btn:hover { border-color: var(--accent-green); transform: translateY(-2px); }
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface2); border: 1px solid var(--accent-green); border-radius: 8px; padding: 12px 24px; color: var(--accent-green); font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  body {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* Sections */
+  .section {
+    width: 100%;
+    max-width: 820px;
+    margin-bottom: 56px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  /* Tracker Cards */
+  .tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+  .tracker-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tracker-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+  .tracker-card .icon {
+    font-size: 1.8rem;
+  }
+  .tracker-card .title {
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .tracker-card .desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Action Cards */
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .action-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .action-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--green);
+    box-shadow: 0 4px 16px rgba(74, 222, 128, 0.1);
+    transform: translateY(-2px);
+  }
+  .action-card .action-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .action-card .action-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .action-card .action-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .action-card .action-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    padding: 12px 24px;
+    color: var(--green);
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+  }
+  .toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>
 </head>
 <body>
 
-<h1>🎮 Dodging Bullets</h1>
-<p class="subtitle">Project Trackers</p>
-
-<div class="cards">
-  <a class="card" href="architecture-issues.html">
-    <div class="card-icon">🔧</div>
-    <div class="card-title">Architecture Issues</div>
-    <div class="card-desc">Tech debt, code quality, performance issues from architecture reviews.</div>
-  </a>
-
-  <a class="card" href="feature-tracker.html">
-    <div class="card-icon">✨</div>
-    <div class="card-title">Feature Tracker</div>
-    <div class="card-desc">Planned features, enhancements, and ideas for future development.</div>
-  </a>
-
-  <a class="card" href="bug-tracker.html">
-    <div class="card-icon">🐛</div>
-    <div class="card-title">Bug Tracker</div>
-    <div class="card-desc">Known bugs, reproduction steps, and fix status.</div>
-  </a>
+<div class="header">
+  <h1>⚙️ Workbench</h1>
+  <p>Dodging Bullets — development dashboard</p>
 </div>
 
-<div class="actions">
-  <button class="action-btn" onclick="newSession()">🚀 New Session</button>
-  <button class="action-btn" onclick="updateDocs()" title="Launches a kiro agent to analyze recent sessions, update docs, and run an audit">📝 Update Docs</button>
-  <button class="action-btn" onclick="commitAll()" title="Opens a kiro agent to generate a commit message, commit all changes, and optionally push">🔀 Commit All</button>
+<div class="section">
+  <div class="section-header">
+    <h2>Issue Trackers</h2>
+  </div>
+  <div class="tracker-grid">
+    <a class="tracker-card" href="architecture-issues.html">
+      <div class="icon">🔧</div>
+      <div class="title">Architecture Issues</div>
+      <div class="desc">Tech debt, code quality, and performance issues from architecture reviews.</div>
+    </a>
+    <a class="tracker-card" href="feature-tracker.html">
+      <div class="icon">✨</div>
+      <div class="title">Feature Tracker</div>
+      <div class="desc">Planned features, enhancements, and ideas for future development.</div>
+    </a>
+    <a class="tracker-card" href="bug-tracker.html">
+      <div class="icon">🐛</div>
+      <div class="title">Bug Tracker</div>
+      <div class="desc">Known bugs, reproduction steps, and fix status.</div>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2>Actions</h2>
+  </div>
+  <div class="action-grid">
+    <div class="action-card" onclick="newSession()">
+      <div class="action-icon">🚀</div>
+      <div class="action-info">
+        <div class="action-title">New Session</div>
+        <div class="action-desc">Launch a new kiro-cli agent session</div>
+      </div>
+    </div>
+    <div class="action-card" onclick="updateDocs()">
+      <div class="action-icon">📝</div>
+      <div class="action-info">
+        <div class="action-title">Update Docs</div>
+        <div class="action-desc">Analyze recent sessions and refresh documentation</div>
+      </div>
+    </div>
+    <div class="action-card" onclick="commitAll()">
+      <div class="action-icon">🔀</div>
+      <div class="action-info">
+        <div class="action-title">Commit All</div>
+        <div class="action-desc">Generate commit message, commit changes, and push</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 function openSessionTab(sessionId) {
-  // Use named window target to reuse existing tab
-  const sessionWindow = window.open(`sessions.html?session=${sessionId}`, 'db-sessions');
-  if (sessionWindow) {
-    sessionWindow.focus();
-  }
+  const w = window.open(`sessions.html?session=${sessionId}`, 'db-sessions');
+  if (w) w.focus();
 }
 
 async function newSession() {
   try {
     const res = await fetch('/api/tracker/session', { method: 'POST' });
     const data = await res.json();
-    if (data.sessionId) { setTimeout(() => openSessionTab(data.sessionId), 800); }
+    if (data.sessionId) setTimeout(() => openSessionTab(data.sessionId), 800);
     showToast('🚀 New kiro session starting...');
   } catch (e) { showToast('Failed: ' + e.message); }
 }
+
 async function updateDocs() {
   try {
     const res = await fetch('/api/tracker/update-docs', { method: 'POST' });
     const data = await res.json();
-    if (data.sessionId) { setTimeout(() => openSessionTab(data.sessionId), 800); }
-    showToast(data.message || 'Launched!');
+    if (data.sessionId) setTimeout(() => openSessionTab(data.sessionId), 800);
+    showToast(data.message || '📝 Docs update launched!');
   } catch (e) { showToast('Failed: ' + e.message); }
 }
+
 async function commitAll() {
   try {
     const res = await fetch('/api/tracker/commit', { method: 'POST' });
     const data = await res.json();
-    if (data.sessionId) { setTimeout(() => openSessionTab(data.sessionId), 800); }
+    if (data.sessionId) setTimeout(() => openSessionTab(data.sessionId), 800);
     showToast('🔀 Commit session starting...');
   } catch (e) { showToast('Failed: ' + e.message); }
 }
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.opacity = '1';
-  setTimeout(() => t.style.opacity = '0', 3000);
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 3000);
 }
 </script>
 

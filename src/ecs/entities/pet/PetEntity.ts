@@ -13,6 +13,7 @@ import { AnimationSystem } from '../../../systems/animation/AnimationSystem';
 import { Direction } from '../../../constants/Direction';
 import type { Component } from '../../Component';
 import type { Grid } from '../../../systems/grid/Grid';
+import { SoundManager } from '../../../systems/SoundManager';
 import type { PetConfig, PetSpritesheetMetadata } from './PetConfig';
 import { createPetAnimationMap } from './PetAnimations';
 
@@ -59,7 +60,7 @@ export function createPetEntity(props: CreatePetEntityProps): Entity {
   entity.add(new GridCollisionComponent(grid));
 
   if (config.id === 'dog') {
-    entity.add(new DogBarkAbility(scene, grid));
+    entity.add(new DogBarkAbility(scene, grid, SoundManager.getInstance()));
   }
 
   if (config.id === 'rock') {

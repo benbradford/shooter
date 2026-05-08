@@ -6,6 +6,8 @@ import { CollectibleVisualComponent } from '../../components/visual/CollectibleV
 import { PulsingScaleComponent } from '../../components/visual/PulsingScaleComponent';
 import { Depth } from '../../../constants/DepthConstants';
 import type { GridReader } from '../../../systems/grid/Grid';
+import { SoundManager } from '../../../systems/SoundManager';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const SPRITE_SIZE_RATIO = 0.3;
 const PULSE_AMPLITUDE = 0.08;
@@ -62,6 +64,8 @@ export function createCollectibleEntity(props: CreateCollectibleProps): Entity {
   entity.add(new CollectibleComponent({
     playerEntity,
     flagName: config.flagName,
+    worldState: WorldStateManager.getInstance(),
+    soundManager: SoundManager.getInstance(),
   }));
 
   entity.setUpdateOrder([

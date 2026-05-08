@@ -272,12 +272,20 @@ Manages event-driven entity creation. Implements EventListener to receive events
 - Creates entities when event fires and adds to EntityManager
 - Automatically deregisters after creation
 
+### EntityRegistry (Factory Pattern)
+
+Entity creation uses a registry pattern (`src/systems/EntityRegistry.ts`). Each entity type registers a factory function via `registerEntityFactory()`. All factories are registered in `src/systems/entityFactories.ts` (side-effect import).
+
+- **Adding a new entity type**: Register a factory in `entityFactories.ts` — no need to modify EntityLoader
+- **Factory signature**: `(entityDef: LevelEntity, context: EntityCreationContext) => (() => Entity) | null`
+- **Context provides**: scene, grid, entityManager, eventManager, player, levelData, onTransition, blockedAreaManager
+
 ### EntityLoader
 
-Handles entity loading from level JSON.
+Orchestrates entity loading from level JSON. Delegates creation to EntityRegistry.
 
 - Validates unique entity IDs
-- Creates entity creators for each entity definition
+- Looks up factory via `getEntityFactory(type)` — no switch statement
 - **In game mode**: Registers event-driven entities with EntityCreatorManager
 - **In editor mode**: Spawns all entities immediately (ignores createOnEvent)
 - Creates immediate entities and adds to EntityManager
@@ -331,7 +339,9 @@ Click **Save** button to save level JSON with all entities in the new format.
 ## Key Files
 
 - `src/systems/EntityCreatorManager.ts` - Event-driven entity creation
-- `src/systems/EntityLoader.ts` - Entity loading from JSON
+- `src/systems/EntityRegistry.ts` - Factory registry pattern (registerEntityFactory, getEntityFactory)
+- `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import)
+- `src/systems/EntityLoader.ts` - Entity loading orchestrator (delegates to registry)
 - `src/systems/level/LevelLoader.ts` - LevelEntity and EntityType definitions
 - `src/eventchainer/EventChainerEntity.ts` - EventChainer entity
 - `src/cellmodifier/CellModifierEntity.ts` - CellModifier entity
@@ -403,8 +413,8 @@ Add an `if (entityDef.type === 'yourtype')` block that renders form inputs for e
 ### 5. Update Entity Factory to Accept `entityId`
 Entity factories MUST accept `entityId: string` in props and use it in `new Entity(entityId)`. Without this, placing multiple entities of the same type causes "Duplicate entity ID" errors.
 
-### 6. Update EntityLoader to Create the Entity
-Add a `case 'yourtype':` in `EntityLoader` that calls your factory. Pass `entityDef.id` as `entityId`.
+### 6. Register Entity Factory
+Register a factory function in `src/systems/entityFactories.ts` via `registerEntityFactory('yourtype', ...)`. No need to modify EntityLoader.
 
 ### 7. Register Assets
 - Add textures to `AssetRegistry.ts`
@@ -420,7 +430,7 @@ Add a `case 'yourtype':` in `EntityLoader` that calls your factory. Pass `entity
 - [ ] **Added extraction logic in EditorBridge.extractEntities()** ← Most commonly forgotten!
 - [ ] **Updated entity factory to accept entityId parameter** ← Required for unique IDs!
 - [ ] **Entity factory uses entityId in new Entity(entityId)** ← Not hardcoded string!
-- [ ] **Updated EntityLoader to pass entityId** ← Required for unique IDs!
+- [ ] **Registered factory in entityFactories.ts** ← Required for EntityLoader to find it!
 - [ ] Added asset group in AssetRegistry (if new assets needed)
 - [ ] Added to asset loading check in `AssetLoader.getRequiredAssetGroups()`
 - [ ] Tested placing entity in editor

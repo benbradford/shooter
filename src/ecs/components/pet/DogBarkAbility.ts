@@ -1,4 +1,4 @@
-import { SoundManager } from '../../../systems/SoundManager';
+import type { SoundManager } from '../../../systems/SoundManager';
 import type Phaser from 'phaser';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
@@ -34,11 +34,14 @@ export class DogBarkAbility implements Component {
   private approachPath: Array<{ col: number; row: number }> | null = null;
   private approachPathIndex = 0;
   private approachPathTimerMs = 0;
+  private readonly soundManager: SoundManager;
 
   constructor(
     private readonly scene: Phaser.Scene,
-    private readonly grid: GridReader
+    private readonly grid: GridReader,
+    soundManager: SoundManager,
   ) {
+    this.soundManager = soundManager;
     this.sm = new ComponentStateMachine<BarkState>('idle', {
       approaching: { update: (delta) => this.updateApproaching(delta) },
       barking: { update: (delta) => this.updateBarking(delta) },
@@ -175,7 +178,7 @@ export class DogBarkAbility implements Component {
       anim.animationSystem.play(`bark_${dir}`);
     }
 
-    SoundManager.getInstance().play('bark_sfx');
+    this.soundManager.play('bark_sfx');
     this.applyFearToNearbyEnemies();
     this.createBarkWave();
   }
@@ -190,7 +193,7 @@ export class DogBarkAbility implements Component {
       anim.animationSystem.play(`bark_${dir}`);
     }
 
-    SoundManager.getInstance().play('bark_sfx');
+    this.soundManager.play('bark_sfx');
     this.applyFearToNearbyEnemies();
     this.createBarkWave();
   }

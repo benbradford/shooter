@@ -1,9 +1,9 @@
-import { SoundManager } from '../../../systems/SoundManager';
+import type { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import type { WorldStateManager } from '../../../systems/WorldStateManager';
 import type { GridReader } from '../../../systems/grid/Grid';
 
 export type CoinComponentProps = {
@@ -13,6 +13,8 @@ export type CoinComponentProps = {
   grid: GridReader;
   playerEntity: Entity;
   coinSize: number;
+  soundManager: SoundManager;
+  worldState: WorldStateManager;
 }
 
 const GRAVITY_PX_PER_SEC_SQ = 600;
@@ -41,6 +43,8 @@ export class CoinComponent implements Component {
   private readonly grid: GridReader;
   private readonly playerEntity: Entity;
   private readonly coinSize: number;
+  private readonly soundManager: SoundManager;
+  private readonly worldState: WorldStateManager;
   private hasLanded = false;
   private elapsedMs = 0;
   private flyingToHud = false;
@@ -55,6 +59,8 @@ export class CoinComponent implements Component {
     this.grid = props.grid;
     this.playerEntity = props.playerEntity;
     this.coinSize = props.coinSize;
+    this.soundManager = props.soundManager;
+    this.worldState = props.worldState;
   }
 
   update(delta: number): void {
@@ -158,15 +164,14 @@ export class CoinComponent implements Component {
         this.flyingToHud = true;
         sprite.sprite.setAlpha(1);
         const coinSounds = ['coin1_sfx', 'coin2_sfx'];
-        SoundManager.getInstance().play(coinSounds[Math.floor(Math.random() * coinSounds.length)]);
+        this.soundManager.play(coinSounds[Math.floor(Math.random() * coinSounds.length)]);
       }
     }
   }
 
   onDestroy(): void {
     if (this.flyingToHud) {
-      const worldState = WorldStateManager.getInstance();
-      worldState.addCoins(1);
+      this.worldState.addCoins(1);
     }
   }
 }

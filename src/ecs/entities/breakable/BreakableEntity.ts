@@ -78,7 +78,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   entity.add(new GridCellBlocker());
   entity.add(new RarityComponent(rarity));
 
-  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene, onSpawnCoin, onSpawnMedipack }));
+  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene, onSpawnCoin, onSpawnMedipack, soundManager: SoundManager.getInstance() }));
 
   entity.add(new CollisionComponent({
     box: ENTITY_COLLISION_BOX,

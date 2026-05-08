@@ -56,7 +56,9 @@ Player → Trigger → EventChainer → Entities
 ## Files
 
 - `src/systems/EntityCreatorManager.ts` - Event-driven creation
-- `src/systems/EntityLoader.ts` - Loading from JSON
+- `src/systems/EntityRegistry.ts` - Factory registry pattern (registerEntityFactory, getEntityFactory)
+- `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import)
+- `src/systems/EntityLoader.ts` - Loading orchestrator (delegates to registry)
 - `src/eventchainer/EventChainerEntity.ts` - EventChainer implementation
 - `src/cellmodifier/CellModifierEntity.ts` - CellModifier implementation
 - `editor/CanvasInteraction.ts` - Entity placement and selection

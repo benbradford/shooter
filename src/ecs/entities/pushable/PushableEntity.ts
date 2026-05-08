@@ -9,6 +9,7 @@ import { GridCellBlocker } from '../../components/movement/GridCellBlocker';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { PushableComponent } from '../../components/pushable/PushableComponent';
 import type { Grid } from '../../../systems/grid/Grid';
+import { SoundManager } from '../../../systems/SoundManager';
 
 export type CreatePushableProps = {
   scene: Phaser.Scene;
@@ -65,6 +66,7 @@ export function createPushableEntity(props: CreatePushableProps): Entity {
     spawnCol: originalCol,
     spawnRow: originalRow,
     layer,
+    soundManager: SoundManager.getInstance(),
   }));
   pushable.initPosition(col, row);
 

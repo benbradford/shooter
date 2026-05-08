@@ -3,11 +3,10 @@ import { Depth } from '../../../constants/DepthConstants';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { CollisionComponent } from '../../components/combat/CollisionComponent';
-import { LeverComponent } from '../../components/lever/LeverComponent';
+import { LeverComponent, type LeverState } from '../../components/lever/LeverComponent';
 import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
-
-import type { LeverState } from '../../components/lever/LeverComponent';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type CreateLeverProps = {
   scene: Phaser.Scene;
@@ -39,7 +38,7 @@ export function createLeverEntity(props: CreateLeverProps): Entity {
   const sprite = entity.add(new SpriteComponent(scene, 'lever', transform));
   sprite.sprite.setDepth(Depth.breakable);
 
-  const lever = entity.add(new LeverComponent({ entityId, eventToRaise, eventManager, startState, oneShot }));
+  const lever = entity.add(new LeverComponent({ entityId, eventToRaise, eventManager, startState, oneShot, worldState: WorldStateManager.getInstance() }));
   lever.init();
 
   const COLLISION_SIZE = grid.cellSize;

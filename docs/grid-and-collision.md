@@ -135,13 +135,15 @@ When blocked diagonally, entities slide along the unblocked axis.
 ### GridCollisionComponent
 
 Handles all collision logic including layer-based movement. Features:
-- Validates movement against layer rules
+- Validates movement against layer rules via `GridMovementValidator`
 - Enforces transition cell restrictions (vertical only)
 - Implements sliding collision
 - Updates grid occupancy automatically
 - Tracks entity's current layer
 - Handles multi-cell entities
 - Box-in-box collision detection (checks all overlapping cells)
+
+**GridMovementValidator** (`src/ecs/components/movement/GridMovementValidator.ts`): Extracted helper class that isolates collision logic (canMoveTo, layer checks) from position tracking. GridCollisionComponent delegates movement validation to it.
 
 ### Collision Box Sizing Guidelines
 

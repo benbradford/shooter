@@ -204,6 +204,7 @@ graph TB
 **entity-creation-system.md** (17KB)
 - Unified entity array in level JSON
 - Event-driven spawning (createOnAnyEvent, createOnAllEvents)
+- EntityRegistry factory pattern (registerEntityFactory, getEntityFactory)
 - Entity IDs and types
 - EventChainer for sequential spawning
 
@@ -297,6 +298,8 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 
 ## Recent Architecture Changes (May 2026)
 
+- **EntityRegistry pattern**: EntityLoader refactored from 798 LOC with 22-case switch to 220 LOC orchestrator. New `src/systems/EntityRegistry.ts` (factory registry) and `src/systems/entityFactories.ts` (all registrations via side-effect import). Adding new entity types no longer requires modifying EntityLoader — just register a factory
+- **GridMovementValidator**: Extracted from GridCollisionComponent (423→221 LOC). `src/ecs/components/movement/GridMovementValidator.ts` isolates collision logic (canMoveTo, layer checks) from position tracking
 - **ComponentStateMachine**: New lightweight state machine (`src/systems/state/ComponentStateMachine.ts`) for internal component states. Dispatches to handler functions instead of full IState classes. Used by `PetFollowComponent`, `DogBarkAbility`, `EscortComponent` — replacing inline switch/if-else state dispatch
 - **GameSceneRenderer split**: Extracted `EdgeRenderer`, `ShadowRenderer`, `PathRenderer`, `BackgroundTextureRenderer` from base class. GameSceneRenderer now orchestrates these focused classes (~572 LOC down from ~1219)
 - **JumpComponent split**: Extracted `JumpDetector` (detection logic) and `JumpAnimator` (animation phases) from JumpComponent. Orchestrator is now ~103 LOC, total ~604 LOC across 3 files

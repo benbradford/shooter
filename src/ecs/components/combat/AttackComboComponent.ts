@@ -1,4 +1,4 @@
-import { SoundManager } from '../../../systems/SoundManager';
+import type { SoundManager } from '../../../systems/SoundManager';
 import type { Component } from '../../Component';
 import { Entity } from '../../Entity';
 import { EntityManager } from '../../EntityManager';
@@ -13,9 +13,9 @@ import { createPunchProjectileEntity } from '../../entities/projectile/PunchProj
 import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 import { SuperPunchParticlesComponent } from '../visual/SuperPunchParticlesComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import type { WorldStateManager } from '../../../systems/WorldStateManager';
 import { ChargeCircleEffect } from './ChargeCircleEffect';
-import { PetManager } from '../../../systems/PetManager';
+import type { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../pet/RockThrowAbility';
 
 const PUNCH_DAMAGE = 20;
@@ -49,6 +49,9 @@ export type AttackComboComponentProps = {
   scene: Phaser.Scene;
   entityManager: EntityManager;
   getEnemies: () => Entity[];
+  worldState: WorldStateManager;
+  soundManager: SoundManager;
+  petManager: PetManager;
 }
 
 export class AttackComboComponent implements Component {
@@ -68,12 +71,18 @@ export class AttackComboComponent implements Component {
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
   private readonly getEnemies: () => Entity[];
+  private readonly worldState: WorldStateManager;
+  private readonly soundManager: SoundManager;
+  private readonly petManager: PetManager;
   private chargeCircle: ChargeCircleEffect | null = null;
 
   constructor(props: AttackComboComponentProps) {
     this.scene = props.scene;
     this.entityManager = props.entityManager;
     this.getEnemies = props.getEnemies;
+    this.worldState = props.worldState;
+    this.soundManager = props.soundManager;
+    this.petManager = props.petManager;
   }
 
   private updatePunchDirection(): void {
@@ -167,7 +176,7 @@ export class AttackComboComponent implements Component {
       this.destroyChargeCircle();
       // Released — check for super punch
       const isSuperPunch = this.holdDurationMs >= SUPER_PUNCH_HOLD_THRESHOLD_MS &&
-        WorldStateManager.getInstance().getFlag('hasSuperPunch') === 'true';
+        this.worldState.getFlag('hasSuperPunch') === 'true';
       this.hitboxCreated = true;
       this.phaseTimer = 0;
 
@@ -194,7 +203,7 @@ export class AttackComboComponent implements Component {
 
     // Enter hold phase (only if super punch is available)
     const currentAnim = anim?.animationSystem.getCurrentAnimation();
-    const hasSuperPunch = WorldStateManager.getInstance().getFlag('hasSuperPunch') === 'true';
+    const hasSuperPunch = this.worldState.getFlag('hasSuperPunch') === 'true';
     if (hasSuperPunch && this.isHoldingAttack && !this.wasReleasedDuringPunch && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
       this.currentPhase = 'holding';
       this.holdDurationMs = 0;
@@ -238,10 +247,10 @@ export class AttackComboComponent implements Component {
 
   private createPunchHitbox(isSuper = false): void {
     if (isSuper) {
-      SoundManager.getInstance().play('superpunch');
+      this.soundManager.play('superpunch');
     } else {
       const punchSounds = ['punch1', 'punch2', 'punch3'];
-      SoundManager.getInstance().play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
+      this.soundManager.play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
     }
 
     const transform = this.entity.require(TransformComponent);
@@ -314,7 +323,7 @@ export class AttackComboComponent implements Component {
     if (this.currentPhase !== 'idle' || this.wasAttackPressed) return;
     const waterEffect = this.entity.get(WaterEffectComponent);
     if (waterEffect?.isHopping()) return;
-    const rockThrow = PetManager.getInstance().getActivePetEntity()?.get(RockThrowAbility);
+    const rockThrow = this.petManager.getActivePetEntity()?.get(RockThrowAbility);
     if (rockThrow?.isActive()) return;
     this.wasAttackPressed = true;
     this.startPunchInternal();

@@ -162,7 +162,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-06 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
+<p class="updated">Last audit: 2026-05-07 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
 
 <script>
 const ISSUES = [
@@ -203,10 +203,10 @@ const ISSUES = [
   },
   {
     id: 5, severity: 'high', status: 'open',
-    title: 'Singleton proliferation — 127 getInstance() calls across 66 files',
-    detail: 'Slightly reduced from 128/67 (May 4). GameScene alone has 16 singleton accesses. WorldStateManager: 37 fan-in. SoundManager scattered across combat/pickup/ability. Hides dependencies, prevents testing. Incremental props-ification over 4 sessions.',
+    title: 'Singleton proliferation — 117 getInstance() calls across 67 files',
+    detail: 'Session 1 (May 7): Reduced from 135/70 → 117/67. Props-ified AttackComboComponent (5 calls: WorldState, SoundManager, PetManager), LeverComponent (5 calls: WorldState), PushableComponent (3 calls: SoundManager), BreakableComponent (2 calls: SoundManager), DogBarkAbility (2 calls: SoundManager), LaserBeamComponent (2 calls: WorldState), CoinComponent (2 calls: SoundManager + WorldState), CollectibleComponent (2 calls: SoundManager + WorldState). Pattern: components receive deps via props, entity factories call getInstance() at the boundary. Remaining: GameScene (16), CoinCounterComponent (6), PetAbilityComponent (4), SpriteComponent (4), entityFactories (4).',
     files: ['src/systems/WorldStateManager.ts', 'src/systems/SoundManager.ts'],
-    effort: '10h', risk: 'Low', fanIn: 37, category: 'architecture',
+    effort: '8h', risk: 'Low', fanIn: 38, category: 'architecture',
     added: '2026-05-04',
   },
   {
@@ -238,17 +238,17 @@ const ISSUES = [
   {
     id: 9, severity: 'medium', status: 'open',
     title: 'Grid debug rendering (~94 LOC) coupled to data model',
-    detail: 'Grid.ts render() is 94 LOC of Phaser graphics calls mixed into the data model class (551 LOC total, 40 methods, 84 fan-in). Also has renderSceneDebug and renderPunchFOV. Extract GridDebugRenderer. Lower priority than worldToCell fix.',
+    detail: 'Grid.ts render() is 94 LOC of Phaser graphics calls mixed into the data model class (551 LOC total, 40 methods, 94 fan-in). Also has renderSceneDebug and renderPunchFOV. Extract GridDebugRenderer. Lower priority than worldToCell fix.',
     files: ['src/systems/grid/Grid.ts'],
-    effort: '4h', risk: 'Med', fanIn: 84, category: 'maintainability',
+    effort: '4h', risk: 'Med', fanIn: 94, category: 'maintainability',
     added: '2026-05-04',
   },
   {
     id: 10, severity: 'medium', status: 'open',
     title: 'WorldStateManager flag namespace is untyped — collision risk at scale',
-    detail: 'Flags are untyped strings with no namespace. As content grows, flag name collisions become likely. No per-level or per-entity scoping.',
+    detail: 'Flags are untyped strings (getFlag/setFlag accept any string key). 38 fan-in. As content grows, flag name collisions become likely. No per-level or per-entity scoping. No compile-time safety for flag names.',
     files: ['src/systems/WorldStateManager.ts'],
-    effort: '4h', risk: 'Med', fanIn: 37, category: 'scaling',
+    effort: '4h', risk: 'Med', fanIn: 38, category: 'scaling',
     added: '2026-05-04',
   },
 
@@ -331,19 +331,69 @@ const ISSUES = [
   },
   {
     id: 20, severity: 'medium', status: 'open',
-    title: 'PetFollowComponent 491 LOC / 20 methods / 7-state machine',
-    detail: 'Behavior system with 7 states (idle/following/wandering_move/wandering_pause/riding/sync_jumping/sync_falling). update() 139 LOC. Mixes pathfinding, state transitions, water detection, and jump sync. Extract PetMovementStates or split into PetPathFollower + PetStateManager.',
+    title: 'PetFollowComponent 522 LOC / 26 methods / 7-state machine',
+    detail: 'Grew from 491/20 (May 6) → 522/26 (May 7). Behavior system with 7 states (idle/following/wandering_move/wandering_pause/riding/sync_jumping/sync_falling). Uses ComponentStateMachine but still mixes pathfinding, state transitions, water detection, and jump sync in one file. 17 imports, 24 magic numbers. Extract PetMovementStates or split into PetPathFollower + PetStateManager.',
     files: ['src/ecs/components/pet/PetFollowComponent.ts'],
-    effort: '4h', risk: 'Low', fanIn: 3, category: 'architecture',
+    effort: '4h', risk: 'Low', fanIn: 5, category: 'architecture',
     added: '2026-05-06',
   },
   {
     id: 21, severity: 'medium', status: 'open',
     title: 'GameScene.initializeScene() 160 LOC / 16 singleton accesses',
-    detail: 'Despite issue #2 extraction, initializeScene() grew to 160 LOC. 16 singleton accesses in the file (highest in codebase). Method mixes entity spawning, camera setup, HUD creation, and manager initialization. Extract initializeCamera(), initializeHUD(), initializeManagers() sub-methods.',
+    detail: 'Despite issue #2 extraction, initializeScene() remains 160 LOC. GameScene overall is 862 LOC / 33 methods (score 97, #1 hotspot). 16 singleton accesses in the file (highest in codebase). Method mixes entity spawning, camera setup, HUD creation, and manager initialization. Extract initializeCamera(), initializeHUD(), initializeManagers() sub-methods.',
     files: ['src/scenes/GameScene.ts'],
-    effort: '3h', risk: 'Med', fanIn: 9, category: 'maintainability',
+    effort: '3h', risk: 'Med', fanIn: 12, category: 'maintainability',
     added: '2026-05-06',
+  },
+
+  // ── NEW ISSUES (2026-05-07 audit) ──
+  {
+    id: 22, severity: 'high', status: 'open',
+    title: 'AttackComboComponent.update() is 149 LOC monolith with 4 phases',
+    detail: 'Score 29. 390 LOC total, update() is 149 LOC mixing idle/punching/holding/super_punching phases in one method with nested conditionals. 5 singleton accesses, 19 imports. Phase logic should use ComponentStateMachine (like PetFollowComponent). Extract PunchPhaseHandler or split into phase methods dispatched by state machine.',
+    files: ['src/ecs/components/combat/AttackComboComponent.ts'],
+    effort: '4h', risk: 'Med', fanIn: 9, category: 'architecture',
+    added: '2026-05-07',
+  },
+  {
+    id: 23, severity: 'high', status: 'open',
+    title: 'EscortComponent 545 LOC / 23 methods — behavior system with 8 states',
+    detail: 'Score 20. 8 states (dormant/awakening/following/crouching/walking_to_destination/completing/completed/waiting_for_player_move). Uses ComponentStateMachine but all state logic still in one file. 18 imports. Extract state handlers into separate files under src/ecs/entities/escort/ (like RockThrowAbility refactor).',
+    files: ['src/ecs/components/escort/EscortComponent.ts'],
+    effort: '4h', risk: 'Low', fanIn: 3, category: 'architecture',
+    added: '2026-05-07',
+  },
+  {
+    id: 24, severity: 'high', status: 'open',
+    title: 'WaterEffectComponent.update() is 208 LOC — 5 concerns in one method',
+    detail: 'Score 16. Single update() method (208 LOC) mixes: water cell detection, shadow alpha/depth management, sprite depth changes, splash effect creation, and jump triggering. 13 imports. Extract WaterDetector (cell logic), WaterVisuals (shadow+depth), and keep WaterEffectComponent as thin coordinator.',
+    files: ['src/ecs/components/visual/WaterEffectComponent.ts'],
+    effort: '3h', risk: 'Med', fanIn: 10, category: 'architecture',
+    added: '2026-05-07',
+  },
+  {
+    id: 25, severity: 'medium', status: 'open',
+    title: 'entityFactories.ts 575 LOC / 46 imports — growing registration file',
+    detail: 'Score 20. 44 factory registrations with 46 imports. Every new entity type adds to this file. 4 singleton accesses. Consider co-locating factory registrations with entity files (register in entity module, auto-import via barrel) to follow Open/Closed principle.',
+    files: ['src/systems/entityFactories.ts'],
+    effort: '6h', risk: 'Med', fanIn: 0, category: 'architecture',
+    added: '2026-05-07',
+  },
+  {
+    id: 26, severity: 'medium', status: 'open',
+    title: 'LuaRuntime 16-case switch — OCP violation',
+    detail: 'Score 20. executeCommand() has 16-case switch dispatching to handler methods. Each new Lua command requires modifying this switch. Extract command handler registry (Map<CommandType, Handler>) for Open/Closed compliance. Low urgency — command set is stable.',
+    files: ['src/systems/LuaRuntime.ts'],
+    effort: '2h', risk: 'Low', fanIn: 1, category: 'architecture',
+    added: '2026-05-07',
+  },
+  {
+    id: 27, severity: 'medium', status: 'open',
+    title: 'GameScene.ts 862 LOC / 33 methods — still #1 hotspot (score 97)',
+    detail: 'Despite prior refactoring (issue #2), GameScene remains the highest-scoring file. 36 imports, 12 fan-in, 16 singleton accesses. Methods: initializeScene (160 LOC), createEditorScene (85 LOC), createGameScene (75 LOC), startLevelTransition (68 LOC), spawnEntities (58 LOC). Central coordinator role is valid but domain logic (level transitions, entity spawning) should be extracted to dedicated helpers.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '6h', risk: 'High', fanIn: 12, category: 'architecture',
+    added: '2026-05-07',
   },
 ];
 

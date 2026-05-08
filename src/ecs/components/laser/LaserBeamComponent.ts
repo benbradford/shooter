@@ -15,7 +15,7 @@ import { CollisionComponent } from '../combat/CollisionComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { BugBurstComponent } from '../visual/BugBurstComponent';
 import { SoundManager } from '../../../systems/SoundManager';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import type { WorldStateManager } from '../../../systems/WorldStateManager';
 import { Depth } from '../../../constants/DepthConstants';
 
 const BEAM_OUTER_WIDTH_PX = 8;
@@ -45,6 +45,7 @@ export type LaserBeamProps = {
   onDestroyEvent?: string;
   baseSprite: Phaser.GameObjects.Sprite;
   eventManager?: EventManagerSystem;
+  worldState: WorldStateManager;
 };
 
 export class LaserBeamComponent implements Component, EventListener {
@@ -64,6 +65,7 @@ export class LaserBeamComponent implements Component, EventListener {
   private readonly baseSprite: Phaser.GameObjects.Sprite;
   private readonly onDestroyEvent?: string;
   private readonly eventManager?: EventManagerSystem;
+  private readonly worldState: WorldStateManager;
 
   private isOn = true;
   private isDestroyed = false;
@@ -84,6 +86,7 @@ export class LaserBeamComponent implements Component, EventListener {
     this.entityManager = props.entityManager;
     this.baseSprite = props.baseSprite;
     this.onDestroyEvent = props.onDestroyEvent;
+    this.worldState = props.worldState;
 
     const rad = (props.angle - 90) * Math.PI / 180;
     this.dirX = Math.cos(rad);
@@ -140,7 +143,7 @@ export class LaserBeamComponent implements Component, EventListener {
 
     // Track as destroyed so it doesn't respawn on re-entry
     if (this.entity.levelName) {
-      const ws = WorldStateManager.getInstance();
+      const ws = this.worldState;
       ws.addDestroyedEntity(this.entity.levelName, this.entity.id);
     }
 
@@ -154,7 +157,7 @@ export class LaserBeamComponent implements Component, EventListener {
     this.pulseTimeMs += delta;
     if (this.damageCooldownMs > 0) this.damageCooldownMs -= delta;
 
-    const flagValue = WorldStateManager.getInstance().getFlag(this.flagName);
+    const flagValue = this.worldState.getFlag(this.flagName);
     this.isOn = flagValue !== 'false';
 
     if (!this.isOn) {

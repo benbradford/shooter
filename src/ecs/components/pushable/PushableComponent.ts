@@ -6,7 +6,7 @@ import { SpriteComponent } from '../core/SpriteComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
-import { SoundManager } from '../../../systems/SoundManager';
+import type { SoundManager } from '../../../systems/SoundManager';
 
 export type PushableProps = {
   grid: Grid;
@@ -16,6 +16,7 @@ export type PushableProps = {
   spawnCol: number;
   spawnRow: number;
   layer: number;
+  soundManager: SoundManager;
 };
 
 const MOVE_SPEED_PX_PER_SEC = 100;
@@ -33,6 +34,7 @@ export class PushableComponent implements Component {
   readonly doesPersist: boolean;
   private readonly singlePushOnly: boolean;
   private readonly grid: Grid;
+  private readonly soundManager: SoundManager;
   readonly spawnCol: number;
   readonly spawnRow: number;
   layer: number;
@@ -63,6 +65,7 @@ export class PushableComponent implements Component {
     this.spawnCol = props.spawnCol;
     this.spawnRow = props.spawnRow;
     this.layer = props.layer;
+    this.soundManager = props.soundManager;
   }
 
   initPosition(col: number, row: number): void {
@@ -130,7 +133,7 @@ export class PushableComponent implements Component {
   }
 
   startMove(targetCol: number, targetRow: number, grid: Grid): void {
-    SoundManager.getInstance().play(DRAG_SOUNDS[Math.floor(Math.random() * DRAG_SOUNDS.length)]);
+    this.soundManager.play(DRAG_SOUNDS[Math.floor(Math.random() * DRAG_SOUNDS.length)]);
     const transform = this.entity.require(TransformComponent);
     this.moveStartX = transform.x;
     this.moveStartY = transform.y;
@@ -182,7 +185,7 @@ export class PushableComponent implements Component {
       if (cell?.properties.has('push_lock')) {
         this.pushEnabled = false;
         this.isLocked = true;
-        SoundManager.getInstance().play('click1');
+        this.soundManager.play('click1');
       }
 
       // Re-enable GridCollisionComponent and sync its previous position
@@ -244,7 +247,7 @@ export class PushableComponent implements Component {
         });
       }
 
-      SoundManager.getInstance().play('click1');
+      this.soundManager.play('click1');
     }
   }
 }

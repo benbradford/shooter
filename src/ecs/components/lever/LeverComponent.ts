@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { SpriteComponent } from '../core/SpriteComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import type { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type LeverState = 'on' | 'off';
 
@@ -12,6 +12,7 @@ export type LeverComponentProps = {
   eventManager: EventManagerSystem;
   startState: LeverState;
   oneShot: boolean;
+  worldState: WorldStateManager;
 };
 
 export class LeverComponent implements Component {
@@ -20,6 +21,7 @@ export class LeverComponent implements Component {
   private readonly eventToRaise: string;
   private readonly eventManager: EventManagerSystem;
   private readonly oneShot: boolean;
+  private readonly worldState: WorldStateManager;
   private state: LeverState;
 
   constructor(props: LeverComponentProps) {
@@ -27,18 +29,19 @@ export class LeverComponent implements Component {
     this.eventToRaise = props.eventToRaise;
     this.eventManager = props.eventManager;
     this.oneShot = props.oneShot;
+    this.worldState = props.worldState;
 
-    const flagKey = `${WorldStateManager.getInstance().getCurrentLevelName()}_lever_${props.entityId}`;
-    const saved = WorldStateManager.getInstance().getFlag(flagKey);
+    const flagKey = `${this.worldState.getCurrentLevelName()}_lever_${props.entityId}`;
+    const saved = this.worldState.getFlag(flagKey);
     this.state = (saved === 'on' || saved === 'off') ? saved : props.startState;
   }
 
   private get flagPrefix(): string {
-    return `${WorldStateManager.getInstance().getCurrentLevelName()}_lever_${this.entityId}`;
+    return `${this.worldState.getCurrentLevelName()}_lever_${this.entityId}`;
   }
 
   private get isLocked(): boolean {
-    return this.oneShot && WorldStateManager.getInstance().getFlag(`${this.flagPrefix}_locked`) === 'true';
+    return this.oneShot && this.worldState.getFlag(`${this.flagPrefix}_locked`) === 'true';
   }
 
   init(): void {
@@ -59,10 +62,9 @@ export class LeverComponent implements Component {
     const sprite = this.entity.require(SpriteComponent);
     sprite.sprite.setFlipX(this.state === 'on');
 
-    const wsm = WorldStateManager.getInstance();
-    wsm.setFlag(this.flagPrefix, this.state);
+    this.worldState.setFlag(this.flagPrefix, this.state);
     if (this.oneShot) {
-      wsm.setFlag(`${this.flagPrefix}_locked`, 'true');
+      this.worldState.setFlag(`${this.flagPrefix}_locked`, 'true');
       sprite.sprite.setTexture('lever_dead');
     }
     this.eventManager.raiseEvent(`${this.eventToRaise}|${this.state}`);
