@@ -190,15 +190,15 @@ export class GridCollisionComponent implements Component {
     this.swapOccupiedCells = this.occupiedCells;
     this.occupiedCells = newOccupiedCells;
 
-    gridPos.previousCell.col = gridPos.currentCell.col;
-    gridPos.previousCell.row = gridPos.currentCell.row;
-    gridPos.currentCell.col = topLeftCell.col;
-    gridPos.currentCell.row = topLeftCell.row;
-
-    // Update layer based on center of collision box
+    // Update layer and currentCell based on center of collision box
     const centerX = transform.x + gridPos.collisionBox.offsetX;
     const centerY = transform.y + gridPos.collisionBox.offsetY;
     const centerCell = this.grid.worldToCellInto(centerX, centerY, this._tmpCells[3]);
+
+    gridPos.previousCell.col = gridPos.currentCell.col;
+    gridPos.previousCell.row = gridPos.currentCell.row;
+    gridPos.currentCell.col = centerCell.col;
+    gridPos.currentCell.row = centerCell.row;
     const centerCellData = this.grid.getCell(centerCell.col, centerCell.row);
 
     if (centerCellData) {

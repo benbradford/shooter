@@ -4,6 +4,7 @@
 import type { Grid } from './Grid';
 import type { BlockedAreaManager } from '../BlockedAreaManager';
 import type { LevelData } from '../level/LevelLoader';
+import { GridPositionComponent } from '../../ecs/components/movement/GridPositionComponent';
 
 export class GridDebugRenderer {
   constructor(
@@ -67,6 +68,17 @@ export class GridDebugRenderer {
 
     // Blocked area polygons
     this.renderBlockedAreas(blockedAreaManager);
+
+    // Player currentCell highlight (green)
+    const playerEntities = this.grid.getEntitiesWithTag('player');
+    if (playerEntities.length > 0) {
+      const playerGridPos = playerEntities[0].get(GridPositionComponent);
+      if (playerGridPos) {
+        const playerWorldPos = this.grid.cellToWorld(playerGridPos.currentCell.col, playerGridPos.currentCell.row);
+        this.graphics.lineStyle(3, 0x00ff00, 1);
+        this.graphics.strokeRect(playerWorldPos.x, playerWorldPos.y, cellSize, cellSize);
+      }
+    }
   }
 
   private renderBlockedAreas(blockedAreaManager?: BlockedAreaManager): void {

@@ -308,6 +308,7 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **EscortPathfinding**: Path-following and destination movement logic extracted from `EscortComponent` into `src/ecs/components/escort/EscortPathfinding.ts`
 - **PetSyncJumpBehavior**: Sync-jump logic extracted from `PetFollowComponent` into `src/ecs/components/pet/PetSyncJumpBehavior.ts`
 - **WorldFlags constants**: `src/constants/WorldFlags.ts` — typed flag name constants to prevent typos
+- **Rarity constants**: `src/constants/Rarity.ts` — extracted `Rarity` type and drop chance tables (`RARITY_COIN_COUNTS`, `RARITY_MEDIPACK_CHANCE`, `RARITY_SMALL_MUSHROOM_CHANCE`)
 - **Standalone editor**: Old `src/editor/` state machine removed. Editor is now a separate app at `editor/` (HTML panels + Phaser canvas). Accessed via `http://localhost:5173/editor/`
 - **Lua Runtime split**: `src/systems/LuaRuntime.ts` refactored — API registration moved to `src/systems/lua-api/` (PlayerAPI, NpcAPI, WorldAPI, UIAPI, types)
 - **Rock Throw state pattern**: `RockThrowAbility` delegates to state classes in `src/ecs/components/pet/rock-throw/`
@@ -326,6 +327,8 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **Overlay placementStrategy 'random'**: Fixed to use uniform distribution across all eligible cells (no edge bias)
 - **Water texture edges**: `water_texture_edges` field in background config — renders edge overlay above water tiles at depth -9 (used by grass_overworld themes for clean water/land transitions)
 - **Small mushroom drops**: Breakables can now drop small mushrooms (instant 20 HP heal, 40px collection distance, 300ms spawn delay, 15s lifetime with fade). Drop chance scales with rarity. Key files: `src/ecs/entities/pickup/SmallMushroomEntity.ts`, `src/ecs/components/pickup/SmallMushroomComponent.ts`
+- **Enemy health drops**: Enemies drop small mushrooms on death with per-type chances (skeleton 20%, puma 25%, red_skeleton 20%, bug 10%, thrower 5%). Uses `HealthDropOnDeathComponent` added in enemy factories.
+- **grass_overworld1 theme**: Alias for `grass` theme (uses same `GrassSceneRenderer`). Registered in `ThemeRendererFactory.ts` and `LevelTheme` type.
 - **Linter errors tracker**: `workbench/linter-errors.html` — fetches lint results from `GET /api/lint`, categorizes by rule, allows fixing via kiro agent sessions
 - **Session delete**: Sessions can be permanently deleted (removes from disk). Workflows (tagged sessions) have no edit/archive buttons — only delete
 - **Session diff viewer**: Collapsible panel in `workbench/sessions.html` showing `git diff` output per-file. Uses `GET /api/git/diff` endpoint. Explorer tab removed (was redundant with VS Code).

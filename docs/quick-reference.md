@@ -468,6 +468,7 @@ Divide sprite into 3×3 grid, use physics-based motion with randomness. Use abso
 - Coins: Physics-based, fly to HUD, 15s lifetime
 - Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
 - Small mushrooms: Instant 20 HP heal, 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
+- Enemy health drops: Enemies have a chance to drop small mushrooms on death (skeleton 20%, puma 25%, red_skeleton 20%, bug 10%, thrower 5%). Uses `HealthDropOnDeathComponent`.
 - Overheal: 1.5× movement speed, 2× punch speed, decays at 5 HP/sec
 
 ### Particle Effects

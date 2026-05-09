@@ -113,6 +113,13 @@ See `src/systems/grid/Grid.ts` for complete API.
 
 **GridReader interface:** Read-only view of Grid (coordinate conversion, cell queries, occupant checks). Most consumers (~70 files) use `GridReader` — only GameScene, EntityLoader, GridCollisionComponent, CellModifierComponent, and PushableComponent need full `Grid` mutation access.
 
+### Grid Tag Index
+
+The grid maintains a tag-based index for O(1) entity lookup by tag. When entities are added/removed from grid occupancy, their tags are indexed automatically.
+
+- `grid.getEntitiesWithTag(tag)` — Returns all entities currently on the grid with the given tag
+- Used by systems that need to find all entities of a type without scanning every cell (e.g., finding all lasers, all enemies)
+
 ### Debug Visualization
 
 Press **G** key to toggle debug rendering. Rendering logic is in `src/systems/grid/GridDebugRenderer.ts` (extracted from Grid data model).
@@ -144,7 +151,7 @@ Handles all collision logic including layer-based movement. Features:
 - Handles multi-cell entities
 - Box-in-box collision detection (checks all overlapping cells)
 
-**GridMovementValidator** (`src/ecs/components/movement/GridMovementValidator.ts`): Extracted helper class that isolates collision logic (canMoveTo, layer checks) from position tracking. GridCollisionComponent delegates movement validation to it.
+**GridMovementValidator** (`src/ecs/components/movement/GridMovementValidator.ts`): Extracted helper class that isolates movement validation logic (canMoveTo, layer checks, diagonal restrictions) from position tracking and occupancy management. GridCollisionComponent delegates all movement validation to it.
 
 ### Collision Box Sizing Guidelines
 

@@ -49,6 +49,7 @@ export class Grid implements GridReader {
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
   private readonly tagIndex: Map<string, Set<Entity>> = new Map();
+  private readonly entityOccupancyCount: Map<Entity, number> = new Map();
   private blockedAreaManager?: BlockedAreaManager;
   private debugRenderer?: GridDebugRenderer;
 
@@ -248,14 +249,18 @@ export class Grid implements GridReader {
     const cell = this.getCell(col, row);
     if (cell) {
       cell.occupants.add(entity);
-      for (const tag of entity.tags) {
-        let set = this.tagIndex.get(tag);
-        if (!set) {
-          set = new Set();
-          this.tagIndex.set(tag, set);
+      const count = this.entityOccupancyCount.get(entity) ?? 0;
+      if (count === 0) {
+        for (const tag of entity.tags) {
+          let set = this.tagIndex.get(tag);
+          if (!set) {
+            set = new Set();
+            this.tagIndex.set(tag, set);
+          }
+          set.add(entity);
         }
-        set.add(entity);
       }
+      this.entityOccupancyCount.set(entity, count + 1);
     }
   }
 
@@ -263,14 +268,20 @@ export class Grid implements GridReader {
     const cell = this.getCell(col, row);
     if (cell) {
       cell.occupants.delete(entity);
-      for (const tag of entity.tags) {
-        const set = this.tagIndex.get(tag);
-        if (set) {
-          set.delete(entity);
-          if (set.size === 0) {
-            this.tagIndex.delete(tag);
+      const count = (this.entityOccupancyCount.get(entity) ?? 1) - 1;
+      if (count <= 0) {
+        this.entityOccupancyCount.delete(entity);
+        for (const tag of entity.tags) {
+          const set = this.tagIndex.get(tag);
+          if (set) {
+            set.delete(entity);
+            if (set.size === 0) {
+              this.tagIndex.delete(tag);
+            }
           }
         }
+      } else {
+        this.entityOccupancyCount.set(entity, count);
       }
     }
   }
