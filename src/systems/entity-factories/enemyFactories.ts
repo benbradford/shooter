@@ -124,13 +124,17 @@ registerEntityFactory('stalking_robot', (entityDef, ctx) => {
 
 registerEntityFactory('thrower', (entityDef, ctx) => {
   const data = entityDef.data as { col: number; row: number; difficulty: EnemyDifficulty };
-  return () => createThrowerEntity({
-    scene: ctx.scene, col: data.col, row: data.row, grid: ctx.grid,
-    playerEntity: ctx.player, difficulty: data.difficulty, entityId: entityDef.id,
-    onThrow: (x, y, dirX, dirY, maxDistancePx, speedPxPerSec) => {
-      ctx.entityManager.add(createGrenadeEntity({ scene: ctx.scene, x, y, dirX, dirY, maxDistancePx, speedPxPerSec }));
-    }
-  });
+  return () => {
+    const entity = createThrowerEntity({
+      scene: ctx.scene, col: data.col, row: data.row, grid: ctx.grid,
+      playerEntity: ctx.player, difficulty: data.difficulty, entityId: entityDef.id,
+      onThrow: (x, y, dirX, dirY, maxDistancePx, speedPxPerSec) => {
+        ctx.entityManager.add(createGrenadeEntity({ scene: ctx.scene, x, y, dirX, dirY, maxDistancePx, speedPxPerSec }));
+      }
+    });
+    addHealthDrop(entity, 'thrower', ctx);
+    return entity;
+  };
 });
 
 registerEntityFactory('bullet_dude', (entityDef, ctx) => {
@@ -155,10 +159,12 @@ registerEntityFactory('bug_base', (entityDef, ctx) => {
       playerEntity: ctx.player, difficulty: data.difficulty, entityId: entityDef.id,
       entityManager: ctx.entityManager,
       onSpawnBug: (spawnCol, spawnRow) => {
-        ctx.entityManager.add(createBugEntity({
+        const bug = createBugEntity({
           scene: ctx.scene, col: data.col, row: data.row, spawnCol, spawnRow,
           grid: ctx.grid, playerEntity: ctx.player, speed: config.bugSpeed, health: config.bugHealth
-        }));
+        });
+        addHealthDrop(bug, 'bug', ctx);
+        ctx.entityManager.add(bug);
       }
     });
   };
@@ -198,6 +204,7 @@ function spawnMiniSkeletons(x: number, y: number, difficulty: SkeletonDifficulty
       mini.remove(ShadowComponent);
       mini.add(new ShadowComponent(ctx.scene, { scale: MINI_SCALE * 0.5, offsetX: 3, offsetY: 12 })).init();
     }
+    addHealthDrop(mini, 'mini_skeleton', ctx);
     ctx.entityManager.add(mini);
   }
 }

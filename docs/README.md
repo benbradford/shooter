@@ -358,6 +358,7 @@ npm run dev                  # Start dev server
 | Architecture Issues | `workbench/architecture-issues.html` | `http://localhost:5173/workbench/architecture-issues.html` |
 | Feature Tracker | `workbench/feature-tracker.html` | `http://localhost:5173/workbench/feature-tracker.html` |
 | Bug Tracker | `workbench/bug-tracker.html` | `http://localhost:5173/workbench/bug-tracker.html` |
+| Linter Errors | `workbench/linter-errors.html` | `http://localhost:5173/workbench/linter-errors.html` |
 
 ### Interactive Tracker UI
 
@@ -385,6 +386,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - `POST /api/tracker/session` — spawn a blank kiro-cli session in ttyd, returns `{ ok, url }`
 - `POST /api/tracker/commit` — spawn kiro agent to commit all changes and optionally push, returns `{ ok, url }`
 - `POST /api/tracker/update-docs` — spawn kiro agent to update documentation, returns `{ ok, url }`
+- `GET /api/lint` — run eslint and return categorized results (used by linter-errors tracker)
 
 **Kiro agent phrases** (still work in chat):
 - "log a feature: {description}" → adds to feature tracker

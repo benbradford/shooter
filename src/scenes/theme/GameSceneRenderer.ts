@@ -62,8 +62,8 @@ export abstract class GameSceneRenderer {
     );
   }
 
-  async loadAllAssets(levelData: LevelData): Promise<void> {
-    await this.prepareRuntimeTilesets(levelData);
+  loadAllAssets(levelData: LevelData): void {
+    this.prepareRuntimeTilesets(levelData);
   }
 
   update(delta: number): void {
@@ -83,12 +83,12 @@ export abstract class GameSceneRenderer {
   abstract renderTheme(width: number, height: number): { background: Phaser.GameObjects.Image; vignette: Phaser.GameObjects.Image };
   protected abstract getEdgeColor(): number;
 
-  private async initializeWaterAnimation(waterConfig: WaterConfig): Promise<void> {
+  private initializeWaterAnimation(waterConfig: WaterConfig): void {
     this.waterAnimator = new WaterAnimator(this.scene, waterConfig);
-    await this.waterAnimator.generateTextures();
+    this.waterAnimator.generateTextures();
   }
 
-  async prepareRuntimeTilesets(levelData: LevelData): Promise<{ success: boolean; failed: string[] }> {
+  prepareRuntimeTilesets(levelData: LevelData): { success: boolean; failed: string[] } {
     const failed: string[] = [];
 
     if (levelData.background?.water) {
@@ -96,7 +96,7 @@ export abstract class GameSceneRenderer {
       if (!TextureVerifier.verifyTexture(this.scene, sourceKey)) {
         failed.push(`water_source:${sourceKey}`);
       } else {
-        await this.initializeWaterAnimation(levelData.background.water);
+        this.initializeWaterAnimation(levelData.background.water);
       }
     }
 

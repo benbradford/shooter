@@ -222,11 +222,11 @@ Plus one interaction entity per script:
 ### Breakable
 - `texture`: Sprite texture key (e.g., `'dungeon_vase'`, `'wall_cracked'`)
 - `health`: Number — hit points before destruction
-- `rarity`: Drop rarity — `'nothing'`, `'common'`, `'uncommon'`, `'rare'`, `'epic'`, `'legendary'`
+- `rarity`: Drop rarity — `'nothing'`, `'rare'`, `'epic'`, `'mythic'`, `'legendary'`
 - `requiresSuperPunch`: Boolean (optional, default false) — if true, only super punch (≥60 damage) can damage it; normal punches play `thud1` sound
 - `transformOverride`: Optional `{ scaleX, scaleY, offsetX, offsetY }` for scaling/positioning the sprite
 - Reads damage from projectile's `DamageComponent` (normal punch = 20, super punch = 60)
-- On destruction, raises `{entityId}_destroyed` event and spawns rarity-based drops
+- On destruction, raises `{entityId}_destroyed` event and spawns rarity-based drops (coins, medipacks, small mushrooms)
 
 ### Laser
 - `angle`: Number — beam direction in degrees (0=up, 90=right, 180=down, 270=left), supports arbitrary angles

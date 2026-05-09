@@ -79,7 +79,7 @@ export default class LoadingScene extends Phaser.Scene {
       const theme = levelData.levelTheme ?? 'dungeon';
       const renderer = createThemeRenderer(this, CELL_SIZE, theme, levelData.mistConfig);
 
-      const tilesetResult = await renderer.prepareRuntimeTilesets(levelData);
+      const tilesetResult = renderer.prepareRuntimeTilesets(levelData);
       renderer.destroy();
 
       if (!tilesetResult.success) {

@@ -191,8 +191,10 @@ Open the standalone editor (`http://localhost:5173/editor/`), then select a them
 Add your theme name to the union type in `src/systems/level/LevelLoader.ts`:
 
 ```typescript
-export type LevelTheme = 'dungeon' | 'swamp' | 'cave';
+export type LevelTheme = 'dungeon' | 'swamp' | 'grass' | 'grass_overworld1' | 'wilds' | 'tunnels' | 'default';
 ```
+
+Note: `grass_overworld1` is an alias for `grass` (uses the same renderer).
 
 ### 2. Create a Theme Renderer
 

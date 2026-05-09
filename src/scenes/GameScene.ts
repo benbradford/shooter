@@ -115,7 +115,7 @@ export default class GameScene extends Phaser.Scene {
       preloadLevelAssets(this, this.levelData);
       await this.waitForLoad();
 
-      await this.setupThemeRenderer();
+      this.setupThemeRenderer();
 
       // Initialize grid
       this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize, this.isEditorMode);
@@ -227,7 +227,7 @@ export default class GameScene extends Phaser.Scene {
 
     preloadLevelAssets(this, this.levelData);
     await this.waitForLoad();
-    await this.sceneRenderer.loadAllAssets(this.levelData);
+    this.sceneRenderer.loadAllAssets(this.levelData);
 
     this.createRippleAnimation();
 
@@ -275,7 +275,7 @@ export default class GameScene extends Phaser.Scene {
     }
   }
 
-  private async setupThemeRenderer(): Promise<void> {
+  private setupThemeRenderer(): void {
     const theme = this.levelData.levelTheme ?? 'dungeon';
     this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
 
@@ -283,7 +283,7 @@ export default class GameScene extends Phaser.Scene {
       this.sceneRenderer.setEditorMode(true);
     }
 
-    await this.sceneRenderer.loadAllAssets(this.levelData);
+    this.sceneRenderer.loadAllAssets(this.levelData);
 
     const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
     this.background = rendered.background;

@@ -27,12 +27,13 @@ export type CreateBreakableProps = {
   playerEntity: Entity;
   onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
   onSpawnMedipack: (x: number, y: number) => void;
+  onSpawnSmallMushroom?: (x: number, y: number) => void;
 }
 
 const SUPER_PUNCH_DAMAGE_THRESHOLD = 60;
 
 export function createBreakableEntity(props: CreateBreakableProps): Entity {
-  const { scene, col, row, grid, texture, health, entityId, rarity, requiresSuperPunch, transformOverride, onSpawnCoin, onSpawnMedipack } = props;
+  const { scene, col, row, grid, texture, health, entityId, rarity, requiresSuperPunch, transformOverride, onSpawnCoin, onSpawnMedipack, onSpawnSmallMushroom } = props;
   const entity = new Entity(entityId);
   entity.tags.add('breakable');
 
@@ -78,7 +79,7 @@ export function createBreakableEntity(props: CreateBreakableProps): Entity {
   entity.add(new GridCellBlocker());
   entity.add(new RarityComponent(rarity));
 
-  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene, onSpawnCoin, onSpawnMedipack, soundManager: SoundManager.getInstance() }));
+  const breakable = entity.add(new BreakableComponent({ maxHealth: health, scene, onSpawnCoin, onSpawnMedipack, onSpawnSmallMushroom: onSpawnSmallMushroom ?? (() => { /* noop */ }), soundManager: SoundManager.getInstance() }));
 
   entity.add(new CollisionComponent({
     box: ENTITY_COLLISION_BOX,

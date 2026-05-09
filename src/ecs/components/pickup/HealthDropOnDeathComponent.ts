@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { EntityManager } from '../../../systems/EntityManager';
+import type { EntityManager } from '../../EntityManager';
 import { TransformComponent } from '../core/TransformComponent';
 import { createSmallMushroomEntity } from '../../entities/pickup/SmallMushroomEntity';
 

@@ -467,6 +467,7 @@ Divide sprite into 3×3 grid, use physics-based motion with randomness. Use abso
 ### Coin and Medipack Pickups
 - Coins: Physics-based, fly to HUD, 15s lifetime
 - Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
+- Small mushrooms: Instant 20 HP heal, 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
 - Overheal: 1.5× movement speed, 2× punch speed, decays at 5 HP/sec
 
 ### Particle Effects

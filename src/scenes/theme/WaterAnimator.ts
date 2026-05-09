@@ -24,7 +24,7 @@ export class WaterAnimator {
     this.generator = new PathTilesetGenerator(scene);
   }
 
-  async generateTextures(): Promise<string[]> {
+  generateTextures(): string[] {
     const sourceKey = this.config.sourceImage;
     
     if (!this.scene.textures.exists(sourceKey)) {

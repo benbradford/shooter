@@ -527,7 +527,7 @@ If there are no changes to commit, say so and stop.`;
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
           const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string; diagnoseOnly?: boolean };
-          const type = body.tracker === 'bugs' ? 'bug' : body.tracker === 'issues' ? 'architecture issue' : 'feature';
+          const type = body.tracker === 'bugs' ? 'bug' : body.tracker === 'issues' ? 'architecture issue' : body.tracker === 'lint' ? 'lint' : 'feature';
           const prefix = body.diagnoseOnly
             ? `Diagnose this ${type} WITHOUT making any code changes. Explain what you understand about the issue, which files are likely involved, and how you would approach fixing it. Do NOT edit any files.\n\n`
             : `fix ${type}: `;
@@ -712,7 +712,7 @@ export default defineConfig({
   plugins: [saveLevelPlugin()],
   server: {
     watch: {
-      ignored: ['**/workbench/**', '**/.sessions.json', '**/tmp/**'],
+      ignored: ['**/workbench/**', '**/.sessions.json', '**/tmp/**', '**/public/states/**', '**/public/levels/**'],
     },
   },
   // Editor excluded from production builds — only index.html is built
