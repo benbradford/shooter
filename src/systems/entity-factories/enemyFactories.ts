@@ -26,51 +26,82 @@ import { createExhaustedBugBaseEntity } from '../../ecs/entities/bug/ExhaustedBu
 import { createBoneProjectileEntity } from '../../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../../ecs/entities/projectile/GrenadeEntity';
 import { getBugBaseDifficultyConfig } from '../../ecs/entities/bug/BugBaseDifficulty';
+import { HealthDropOnDeathComponent } from '../../ecs/components/pickup/HealthDropOnDeathComponent';
+
+const ENEMY_DROP_CHANCES: Record<string, number> = {
+  skeleton: 0.2,
+  red_skeleton: 0.2,
+  mini_skeleton: 0.1,
+  bug: 0.1,
+  thrower: 0.05,
+  puma: 0.25,
+};
+
+function addHealthDrop(entity: import('../../ecs/Entity').Entity, enemyType: string, ctx: EntityCreationContext): void {
+  const chance = ENEMY_DROP_CHANCES[enemyType];
+  if (chance) {
+    entity.add(new HealthDropOnDeathComponent({
+      dropChance: chance, scene: ctx.scene, playerEntity: ctx.player, entityManager: ctx.entityManager
+    }));
+  }
+}
 
 registerEntityFactory('skeleton', (entityDef, ctx) => {
   const { data } = entityDef;
-  return () => createSkeletonEntity({
-    scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
-    playerEntity: ctx.player, entityManager: ctx.entityManager, eventManager: ctx.eventManager,
-    col: data.col as number, row: data.row as number, difficulty: data.difficulty as EnemyDifficulty,
-    onThrowBone: (x, y, dirX, dirY) => {
-      ctx.entityManager.add(createBoneProjectileEntity({
-        scene: ctx.scene, x, y, dirX, dirY, grid: ctx.grid,
-        layer: ctx.player.require(GridPositionComponent).currentLayer,
-        blockedAreaManager: ctx.blockedAreaManager,
-      }));
-    }
-  });
+  return () => {
+    const entity = createSkeletonEntity({
+      scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
+      playerEntity: ctx.player, entityManager: ctx.entityManager, eventManager: ctx.eventManager,
+      col: data.col as number, row: data.row as number, difficulty: data.difficulty as EnemyDifficulty,
+      onThrowBone: (x, y, dirX, dirY) => {
+        ctx.entityManager.add(createBoneProjectileEntity({
+          scene: ctx.scene, x, y, dirX, dirY, grid: ctx.grid,
+          layer: ctx.player.require(GridPositionComponent).currentLayer,
+          blockedAreaManager: ctx.blockedAreaManager,
+        }));
+      }
+    });
+    addHealthDrop(entity, 'skeleton', ctx);
+    return entity;
+  };
 });
 
 registerEntityFactory('red_skeleton', (entityDef, ctx) => {
   const { data } = entityDef;
-  return () => createRedSkeletonEntity({
-    scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
-    playerEntity: ctx.player, entityManager: ctx.entityManager, eventManager: ctx.eventManager,
-    col: data.col as number, row: data.row as number, difficulty: data.difficulty as EnemyDifficulty,
-    onThrowBone: (x, y, dirX, dirY) => {
-      ctx.entityManager.add(createBoneProjectileEntity({
-        scene: ctx.scene, x, y, dirX, dirY, grid: ctx.grid,
-        layer: ctx.player.require(GridPositionComponent).currentLayer,
-        blockedAreaManager: ctx.blockedAreaManager, tint: 0xff4444,
-      }));
-    },
-    onSpawnMiniSkeletons: (x, y, difficulty, _layer) => {
-      spawnMiniSkeletons(x, y, difficulty, ctx);
-    }
-  });
+  return () => {
+    const entity = createRedSkeletonEntity({
+      scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
+      playerEntity: ctx.player, entityManager: ctx.entityManager, eventManager: ctx.eventManager,
+      col: data.col as number, row: data.row as number, difficulty: data.difficulty as EnemyDifficulty,
+      onThrowBone: (x, y, dirX, dirY) => {
+        ctx.entityManager.add(createBoneProjectileEntity({
+          scene: ctx.scene, x, y, dirX, dirY, grid: ctx.grid,
+          layer: ctx.player.require(GridPositionComponent).currentLayer,
+          blockedAreaManager: ctx.blockedAreaManager, tint: 0xff4444,
+        }));
+      },
+      onSpawnMiniSkeletons: (x, y, difficulty, _layer) => {
+        spawnMiniSkeletons(x, y, difficulty, ctx);
+      }
+    });
+    addHealthDrop(entity, 'red_skeleton', ctx);
+    return entity;
+  };
 });
 
 registerEntityFactory('puma', (entityDef, ctx) => {
   const { data } = entityDef;
-  return () => createPumaEntity({
-    scene: ctx.scene, col: data.col as number, row: data.row as number,
-    grid: ctx.grid, playerEntity: ctx.player,
-    difficulty: (data.difficulty as PumaDifficulty) || 'medium',
-    startDirection: (data.startDirection as Direction) || Direction.Down,
-    entityId: entityDef.id
-  });
+  return () => {
+    const entity = createPumaEntity({
+      scene: ctx.scene, col: data.col as number, row: data.row as number,
+      grid: ctx.grid, playerEntity: ctx.player,
+      difficulty: (data.difficulty as PumaDifficulty) || 'medium',
+      startDirection: (data.startDirection as Direction) || Direction.Down,
+      entityId: entityDef.id
+    });
+    addHealthDrop(entity, 'puma', ctx);
+    return entity;
+  };
 });
 
 registerEntityFactory('tv_monk', (entityDef, ctx) => {

@@ -365,7 +365,7 @@ export class ContextPanel {
           <option value="add" ${bm === 'add' ? 'selected' : ''}>add</option>
         </select></div>
         <div class="form-group"><label>Alpha</label><input type="number" class="tex-alpha" data-tex-idx="${i}" value="${al ?? 1}" step="0.1" min="0" max="1" /></div>
-        <div class="form-group"><label>Tint</label><input type="text" class="tex-tint" data-tex-idx="${i}" value="${ti ?? ''}" placeholder="#rrggbb" /></div>
+        <div class="form-group"><label>Tint</label><input type="color" class="tex-tint" data-tex-idx="${i}" value="${ti || '#ffffff'}" /><button class="ed-btn tex-tint-clear" data-tex-idx="${i}" style="padding:1px 4px;font-size:9px">✕</button></div>
       </div>
       <button class="ed-btn tex-apply" data-tex-idx="${i}" style="width:100%;margin-bottom:6px">Apply Transform</button>`;
       }).join('')}
@@ -465,46 +465,63 @@ export class ContextPanel {
         input.disabled = !cb.checked;
       });
     }
+    for (const btn of this.container.querySelectorAll('.tex-tint-clear')) {
+      btn.addEventListener('click', () => {
+        const idx = Number.parseInt((btn as HTMLElement).dataset.texIdx!, 10);
+        const input = this.container.querySelector(`.tex-tint[data-tex-idx="${idx}"]`) as HTMLInputElement;
+        input.value = '#ffffff';
+        applyTexTransform(idx);
+      });
+    }
+    const applyTexTransform = (idx: number) => {
+      const getVal = (cls: string) => Number.parseFloat((this.container.querySelector(`.${cls}[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
+      const zEnabled = (this.container.querySelector(`.tex-z-enable[data-tex-idx="${idx}"]`) as HTMLInputElement).checked;
+      const zVal = Number.parseFloat((this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
+      const blendVal = (this.container.querySelector(`.tex-blend[data-tex-idx="${idx}"]`) as HTMLSelectElement).value;
+      const alphaVal = Number.parseFloat((this.container.querySelector(`.tex-alpha[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
+      const tintVal = (this.container.querySelector(`.tex-tint[data-tex-idx="${idx}"]`) as HTMLInputElement).value.trim();
+      const tintCleared = tintVal === '#ffffff' || tintVal === '';
+      const levelData = this.bridge.getScene().getLevelData();
+      const levelCell = levelData.cells.find(c => c.col === col && c.row === row);
+      if (!levelCell) return;
+      const texArr = normalizeBgTextures(levelCell.backgroundTexture);
+      if (!texArr || idx >= texArr.length) return;
+      const tex = texArr[idx];
+      const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
+      entry.transformOverride = { scaleX: getVal('tex-sx'), scaleY: getVal('tex-sy'), offsetX: getVal('tex-ox'), offsetY: getVal('tex-oy') };
+      if (zEnabled) {
+        entry.zOffsetOverride = zVal;
+      } else {
+        delete entry.zOffsetOverride;
+      }
+      if (blendVal && blendVal !== 'normal') {
+        entry.blendMode = blendVal as 'multiply' | 'screen' | 'add';
+      } else {
+        delete entry.blendMode;
+      }
+      if (!Number.isNaN(alphaVal) && alphaVal < 1) {
+        entry.alpha = alphaVal;
+      } else {
+        delete entry.alpha;
+      }
+      if (!tintCleared) {
+        entry.tint = tintVal;
+      } else {
+        delete entry.tint;
+      }
+      texArr[idx] = entry;
+      levelCell.backgroundTexture = texArr;
+      this.bridge.getScene().refreshSprites();
+    };
+    // Auto-apply on any texture field change
+    for (const el of this.container.querySelectorAll<HTMLElement>('.tex-sx, .tex-sy, .tex-ox, .tex-oy, .tex-z-val, .tex-z-enable, .tex-blend, .tex-alpha, .tex-tint')) {
+      const idx = Number.parseInt(el.dataset.texIdx!, 10);
+      el.addEventListener('change', () => applyTexTransform(idx));
+    }
     for (const btn of this.container.querySelectorAll('.tex-apply')) {
       btn.addEventListener('click', () => {
         const idx = Number.parseInt((btn as HTMLElement).dataset.texIdx!, 10);
-        const getVal = (cls: string) => Number.parseFloat((this.container.querySelector(`.${cls}[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
-        const zEnabled = (this.container.querySelector(`.tex-z-enable[data-tex-idx="${idx}"]`) as HTMLInputElement).checked;
-        const zVal = Number.parseFloat((this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
-        const blendVal = (this.container.querySelector(`.tex-blend[data-tex-idx="${idx}"]`) as HTMLSelectElement).value;
-        const alphaVal = Number.parseFloat((this.container.querySelector(`.tex-alpha[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
-        const tintVal = (this.container.querySelector(`.tex-tint[data-tex-idx="${idx}"]`) as HTMLInputElement).value.trim();
-        const levelData = this.bridge.getScene().getLevelData();
-        let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
-        if (!levelCell) return;
-        const texArr = normalizeBgTextures(levelCell.backgroundTexture);
-        if (!texArr || idx >= texArr.length) return;
-        const tex = texArr[idx];
-        const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
-        entry.transformOverride = { scaleX: getVal('tex-sx'), scaleY: getVal('tex-sy'), offsetX: getVal('tex-ox'), offsetY: getVal('tex-oy') };
-        if (zEnabled) {
-          entry.zOffsetOverride = zVal;
-        } else {
-          delete entry.zOffsetOverride;
-        }
-        if (blendVal && blendVal !== 'normal') {
-          entry.blendMode = blendVal as 'multiply' | 'screen' | 'add';
-        } else {
-          delete entry.blendMode;
-        }
-        if (!Number.isNaN(alphaVal) && alphaVal < 1) {
-          entry.alpha = alphaVal;
-        } else {
-          delete entry.alpha;
-        }
-        if (tintVal) {
-          entry.tint = tintVal;
-        } else {
-          delete entry.tint;
-        }
-        texArr[idx] = entry;
-        levelCell.backgroundTexture = texArr;
-        this.bridge.getScene().refreshSprites();
+        applyTexTransform(idx);
       });
     }
     // Per-texture Delete buttons

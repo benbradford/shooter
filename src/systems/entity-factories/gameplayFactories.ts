@@ -15,6 +15,7 @@ import { createCollectibleEntity } from '../../ecs/entities/collectible/Collecti
 import { createLeverEntity } from '../../ecs/entities/lever/LeverEntity';
 import { createCoinEntity, COIN_SPRITE_SCALE, COIN_SIZE_PX } from '../../ecs/entities/pickup/CoinEntity';
 import { createMedipackEntity } from '../../ecs/entities/pickup/MedipackEntity';
+import { createSmallMushroomEntity } from '../../ecs/entities/pickup/SmallMushroomEntity';
 import { createNPCEntity, type NPCInteraction } from '../../ecs/entities/npc/NPCEntity';
 import { createPushableEntity } from '../../ecs/entities/pushable/PushableEntity';
 import { createHoleEntity } from '../../ecs/entities/hole/HoleEntity';
@@ -37,6 +38,9 @@ registerEntityFactory('breakable', (entityDef, ctx) => {
     },
     onSpawnMedipack: (x, y) => {
       ctx.entityManager.add(createMedipackEntity({ scene: ctx.scene, x, y, playerEntity: ctx.player }));
+    },
+    onSpawnSmallMushroom: (x, y) => {
+      ctx.entityManager.add(createSmallMushroomEntity({ scene: ctx.scene, x, y, playerEntity: ctx.player }));
     }
   });
 });

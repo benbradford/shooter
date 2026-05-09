@@ -82,7 +82,7 @@ export class Grid implements GridReader {
 
   public cells: CellData[][];
 
-  constructor(scene: Phaser.Scene, width: number, height: number, cellSize: number = 64) {
+  constructor(scene: Phaser.Scene, width: number, height: number, cellSize: number = 64, isEditorMode: boolean = false) {
     this.scene = scene;
     this.width = width;
     this.height = height;
@@ -104,9 +104,7 @@ export class Grid implements GridReader {
     // Graphics for debug rendering
     this.graphics = scene.add.graphics({ lineStyle: { width: 1, color: 0xffffff, alpha: 0.3 } });
 
-    // Toggle grid debug with G
     // Toggle grid debug with G (game only — editor handles this in CanvasInteraction with input focus check)
-    const isEditorMode = (scene as any).isEditorMode === true;
     if (!isEditorMode) {
       const keyG = scene.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.G);
       keyG?.on("down", () => {

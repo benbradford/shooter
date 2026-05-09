@@ -40,8 +40,8 @@ export default class LoadingScene extends Phaser.Scene {
     console.log('[DBGAME] LoadingScene.init(), stopping game scene');
     
     // Get GameScene and destroy its entities before stopping
-    const gameScene = this.scene.get('game') as any;
-    if (gameScene && gameScene.entityManager) {
+    const gameScene = this.scene.get('game') as { entityManager?: { count: number; destroyAll(): void } } | undefined;
+    if (gameScene?.entityManager) {
       console.log('[DBGAME] Destroying', gameScene.entityManager.count, 'entities');
       const worldState = WorldStateManager.getInstance();
       worldState.setTrackDestructions(false);
@@ -67,8 +67,7 @@ export default class LoadingScene extends Phaser.Scene {
 
       const assetResult = await AssetLoadCoordinator.loadLevelAssets(
         this,
-        levelData,
-        () => {} // No progress UI
+        levelData
       );
 
       if (!assetResult.success) {

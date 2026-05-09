@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect rx='6' width='32' height='32' fill='%23143'/><path d='M8 10l3 3 6-6M8 20l3 3 6-6' stroke='%2366bb6a' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+<title>DB - Lint</title>
+<style>
+  :root { --bg: #1a1a2e; --surface: #16213e; --surface2: #0f3460; --text: #e0e0e0; --muted: #888; --border: #333; --error: #ff4444; --warning: #ffd700; --fixed: #66bb6a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 24px; line-height: 1.5; }
+  h1 { font-size: 1.8rem; margin-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 24px; font-size: 0.9rem; }
+  .back { color: var(--muted); text-decoration: none; font-size: 0.85rem; display: inline-block; margin-bottom: 16px; }
+  .back:hover { color: var(--text); }
+  .stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat { background: var(--surface); border-radius: 8px; padding: 12px 20px; min-width: 120px; }
+  .stat-value { font-size: 1.6rem; font-weight: bold; }
+  .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .filter-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; }
+  .filter-btn:hover { border-color: var(--text); }
+  .filter-btn.active { background: var(--surface2); border-color: #5599ff; color: #fff; }
+  .refresh-btn { background: var(--surface2); border: 1px solid var(--fixed); color: var(--fixed); padding: 6px 14px; border-radius: 16px; cursor: pointer; font-size: 0.8rem; margin-left: auto; }
+  .refresh-btn:hover { background: #1a4a1a; }
+  .refresh-btn:disabled { opacity: 0.5; cursor: wait; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 8px; overflow: hidden; }
+  thead { background: var(--surface2); }
+  th { text-align: left; padding: 10px 14px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 0.85rem; vertical-align: top; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+  .badge-error { background: var(--error); color: #fff; }
+  .badge-warning { background: var(--warning); color: #000; }
+  .file-path { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.75rem; color: var(--muted); }
+  .rule-name { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; }
+  details { margin-top: 4px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 0.8rem; }
+  details .file-list { margin-top: 4px; font-size: 0.8rem; color: var(--muted); line-height: 1.6; font-family: 'SF Mono', 'Fira Code', monospace; }
+  .actions { display: flex; gap: 4px; flex-wrap: wrap; }
+  .act-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 2px 8px; border-radius: 6px; cursor: pointer; font-size: 0.7rem; transition: 0.2s; white-space: nowrap; }
+  .act-btn:hover { border-color: var(--text); }
+  .act-btn.fix { background: #1a4a1a; border-color: var(--fixed); color: var(--fixed); }
+  .act-btn.fix:hover { background: #2a6a2a; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--fixed); color: #000; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; z-index: 999; }
+  .toast.show { opacity: 1; }
+  .loading { text-align: center; padding: 40px; color: var(--muted); }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--text); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<a class="back" href="main.html">← Back to Main</a> · <a class="back" href="bug-tracker.html">Bugs</a> · <a class="back" href="architecture-issues.html">Issues</a>
+<h1>⚠️ Linter Errors</h1>
+<p class="subtitle">ESLint warnings and errors — live from codebase</p>
+
+<div class="stats" id="stats"><div class="loading"><span class="spinner"></span>Running eslint...</div></div>
+
+<div class="filters" id="filters">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="error">Errors</button>
+  <button class="filter-btn" data-filter="warning">Warnings</button>
+  <button class="refresh-btn" id="refreshBtn" onclick="refresh()">🔄 Refresh</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:50px">Count</th>
+      <th style="width:80px">Severity</th>
+      <th>Rule</th>
+      <th>Description</th>
+      <th style="width:120px">Actions</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"><tr><td colspan="5" class="loading"><span class="spinner"></span>Loading...</td></tr></tbody>
+</table>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let DATA = [];
+let currentFilter = 'all';
+
+const RULE_DESCRIPTIONS = {
+  'complexity': 'Methods exceed max cyclomatic complexity (15)',
+  'max-depth': 'Blocks nested too deeply (max 4)',
+  '@typescript-eslint/no-non-null-assertion': 'Forbidden ! non-null assertions',
+  'no-nested-ternary': 'Nested ternary expressions',
+  'unicorn/no-negated-condition': 'Negated conditions (if !x with else)',
+  '@typescript-eslint/prefer-nullish-coalescing': 'Should use ?? instead of ||',
+  '@typescript-eslint/prefer-readonly': 'Members that could be readonly',
+  'unicorn/no-zero-fractions': 'Numbers like 1.0 instead of 1',
+  '@typescript-eslint/prefer-optional-chain': 'Should use ?. instead of &&',
+  '@typescript-eslint/require-await': 'Async function with no await',
+  'no-duplicate-imports': 'Duplicate imports from same module',
+  'max-params': 'Too many function parameters (max 7)',
+  '@typescript-eslint/no-explicit-any': 'Forbidden use of any type',
+  '@typescript-eslint/no-empty-function': 'Empty function body',
+  '@typescript-eslint/await-thenable': 'Await on non-Promise value',
+  '@typescript-eslint/no-unnecessary-type-assertion': 'Unnecessary type assertion',
+};
+
+async function loadData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+  try {
+    const res = await fetch('/api/lint');
+    DATA = await res.json();
+    renderStats();
+    renderTable(currentFilter);
+  } catch (e) {
+    document.getElementById('tbody').innerHTML = `<tr><td colspan="5" style="color:var(--error)">Failed to load: ${e.message}</td></tr>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄 Refresh';
+  }
+}
+
+function renderStats() {
+  const el = document.getElementById('stats');
+  const totalIssues = DATA.reduce((sum, d) => sum + d.count, 0);
+  const errors = DATA.filter(d => d.severity === 'error').reduce((sum, d) => sum + d.count, 0);
+  const warnings = DATA.filter(d => d.severity === 'warning').reduce((sum, d) => sum + d.count, 0);
+  const categories = DATA.length;
+  el.innerHTML = `
+    <div class="stat"><div class="stat-value">${totalIssues}</div><div class="stat-label">Total Issues</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--error)">${errors}</div><div class="stat-label">Errors</div></div>
+    <div class="stat"><div class="stat-value" style="color:var(--warning)">${warnings}</div><div class="stat-label">Warnings</div></div>
+    <div class="stat"><div class="stat-value">${categories}</div><div class="stat-label">Categories</div></div>
+  `;
+}
+
+function renderTable(filter) {
+  currentFilter = filter;
+  const tbody = document.getElementById('tbody');
+  let items = [...DATA];
+  if (filter === 'error') items = items.filter(d => d.severity === 'error');
+  else if (filter === 'warning') items = items.filter(d => d.severity === 'warning');
+  items.sort((a, b) => (a.severity === 'error' ? 0 : 1) - (b.severity === 'error' ? 0 : 1) || b.count - a.count);
+
+  if (items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--fixed);text-align:center;padding:40px">✅ No lint issues found!</td></tr>';
+    return;
+  }
+  tbody.innerHTML = items.map(d => `
+    <tr>
+      <td><strong>${d.count}</strong></td>
+      <td><span class="badge badge-${d.severity}">${d.severity}</span></td>
+      <td class="rule-name">${d.rule}</td>
+      <td>
+        ${RULE_DESCRIPTIONS[d.rule] || d.message || ''}
+        <details><summary>${d.files.length} file${d.files.length > 1 ? 's' : ''}</summary>
+          <div class="file-list">${d.files.map(f => `${f.path}:${f.line}`).join('<br>')}</div>
+        </details>
+      </td>
+      <td class="actions">
+        <button class="act-btn fix" title="Fix all instances of this rule" onclick="fixRule('${d.rule}')">🤖 Fix</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('filters').addEventListener('click', e => {
+  if (!e.target.matches('.filter-btn')) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  renderTable(e.target.dataset.filter);
+});
+
+function refresh() { loadData(); }
+
+async function fixRule(rule) {
+  const item = DATA.find(d => d.rule === rule);
+  if (!item) return;
+  const desc = RULE_DESCRIPTIONS[rule] || rule;
+  if (!confirm(`Fix all ${item.count} instances of "${rule}"?\n\n${desc}\n\nFiles: ${item.files.length}`)) return;
+  const fileList = item.files.map(f => f.path).filter((v, i, a) => a.indexOf(v) === i).join(', ');
+  const resp = await fetch('/api/tracker/fix', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      tracker: 'lint',
+      id: 0,
+      title: `Fix all ${item.count} "${rule}" lint ${item.severity}s`,
+      detail: `Rule: ${rule}\nDescription: ${desc}\nFiles: ${fileList}`
+    })
+  });
+  const data = await resp.json();
+  if (data.sessionId) {
+    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+    if (sessionWindow) sessionWindow.focus();
+  }
+  showToast(`🤖 Fixing ${rule}...`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+loadData();
+</script>
+</body>
+</html>

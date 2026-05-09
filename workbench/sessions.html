@@ -53,19 +53,13 @@
   .archive-list .session-item { opacity: 0.6; }
   .archive-list .session-item:hover { opacity: 1; }
 
-  /* Quick Commands */
-  .quick-commands { padding: 0 12px; border-bottom: 1px solid var(--border); }
-  .quick-cmd { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.15s; border: none; background: none; color: var(--text); width: 100%; text-align: left; }
-  .quick-cmd:hover { background: var(--surface2); }
-  .quick-cmd .qc-icon { font-size: 0.9rem; flex-shrink: 0; }
-
   /* Collapsible sections */
   .section-collapse { border-bottom: 1px solid var(--border); }
   .section-collapse:empty { display: none; }
-  .section-collapse summary { padding: 8px 16px; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; list-style: none; }
+  .section-collapse summary { padding: 8px 16px; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; }
   .section-collapse summary::-webkit-details-marker { display: none; }
-  .section-collapse summary::before { content: '▶ '; font-size: 0.6rem; }
-  .section-collapse[open] summary::before { content: '▼ '; font-size: 0.6rem; }
+  .section-collapse summary::before { content: '▶ '; font-size: 0.6rem; margin-right: 4px; }
+  .section-collapse[open] summary::before { content: '▼ '; font-size: 0.6rem; margin-right: 4px; }
 
   /* Main panel */
   .main { flex: 1; display: flex; flex-direction: column; }
@@ -84,13 +78,6 @@
     <a href="main.html">← Trackers</a>
   </div>
   <button class="new-btn" onclick="createSession()">+ New Session</button>
-  <details class="section-collapse quick-commands" open>
-    <summary>Quick Commands</summary>
-    <button class="quick-cmd" onclick="runQuickCommand('update-docs')"><span class="qc-icon">📝</span> Update Docs</button>
-    <button class="quick-cmd" onclick="runQuickCommand('commit-all')"><span class="qc-icon">🔀</span> Commit All</button>
-    <button class="quick-cmd" onclick="runQuickCommand('refresh-issues')"><span class="qc-icon">🔄</span> Refresh Issues</button>
-    <button class="quick-cmd" onclick="runQuickCommand('help-decide')"><span class="qc-icon">🧠</span> Help Me Decide</button>
-  </details>
   <details class="section-collapse" id="taskList" open></details>
   <details class="section-collapse" id="activeList" open></details>
   <details class="section-collapse" id="archiveSection">
@@ -134,13 +121,10 @@ function render() {
   const archived = sessions.filter(s => s.archived);
 
   const taskEl = document.getElementById('taskList');
-  if (tasks.length) {
-    taskEl.style.display = '';
-    taskEl.innerHTML = `<summary>Workflows (${tasks.length})</summary>` + tasks.map(s => sessionHTML(s)).join('');
-    if (!taskEl.hasAttribute('open')) taskEl.setAttribute('open', '');
-  } else {
-    taskEl.style.display = 'none';
-  }
+  taskEl.style.display = '';
+  taskEl.innerHTML = `<summary>Workflows${tasks.length ? ` (${tasks.length})` : ''}</summary>`
+    + tasks.map(s => sessionHTML(s)).join('');
+  if (!taskEl.hasAttribute('open')) taskEl.setAttribute('open', '');
 
   const activeEl = document.getElementById('activeList');
   if (active.length) {
@@ -163,7 +147,8 @@ function sessionHTML(s, isArchived = false) {
 
   let actions = '';
   if (isWorkflow) {
-    actions = '';
+    const cmdId = s.tag.replace('quick:', '');
+    actions = `<button onclick="event.stopPropagation(); runQuickCommand('${cmdId}')" title="Rerun">🔄</button>`;
   } else if (isArchived) {
     actions = `<button onclick="event.stopPropagation(); unarchiveSession('${s.id}')" title="Unarchive">↩</button><button onclick="event.stopPropagation(); deleteSession('${s.id}')" title="Delete">🗑️</button>`;
   } else {

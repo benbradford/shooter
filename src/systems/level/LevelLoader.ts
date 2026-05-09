@@ -1,6 +1,6 @@
 import type { CellProperty } from '../grid/Grid';
 
-export type LevelTheme = 'dungeon' | 'swamp' | 'grass' | 'wilds' | 'tunnels' | 'default';
+export type LevelTheme = 'dungeon' | 'swamp' | 'grass' | 'grass_overworld1' | 'wilds' | 'tunnels' | 'default';
 
 export type EntityType =
   | 'stalking_robot'

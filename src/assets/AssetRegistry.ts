@@ -391,6 +391,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/pickups/medi_pack.png',
     type: 'image' as const,
   },
+  small_mushrooms: {
+    key: 'small_mushrooms',
+    path: 'assets/pickups/small_mushrooms.png',
+    type: 'image' as const,
+  },
   roots_chest: {
     key: 'roots_chest',
     path: 'assets/pickups/roots_chest.png',
@@ -1005,7 +1010,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'jump_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx', 'push_lock_depression', 'click1', 'drag1', 'drag2'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', 'small_mushrooms', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'jump_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx', 'push_lock_depression', 'click1', 'drag1', 'drag2'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

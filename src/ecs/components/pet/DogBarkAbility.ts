@@ -35,6 +35,7 @@ export class DogBarkAbility implements Component {
   private approachPathIndex = 0;
   private approachPathTimerMs = 0;
   private readonly soundManager: SoundManager;
+  private readonly pathfinder: Pathfinder;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -42,6 +43,7 @@ export class DogBarkAbility implements Component {
     soundManager: SoundManager,
   ) {
     this.soundManager = soundManager;
+    this.pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
     this.sm = new ComponentStateMachine<BarkState>('idle', {
       approaching: { update: (delta) => this.updateApproaching(delta) },
       barking: { update: (delta) => this.updateBarking(delta) },
@@ -56,7 +58,6 @@ export class DogBarkAbility implements Component {
     const transform = this.entity.require(TransformComponent);
     const gameScene = this.scene as unknown as { entityManager?: { getAll(): Entity[] } };
     const entities = gameScene.entityManager?.getAll() ?? [];
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
     const dogCell = this.grid.worldToCell(transform.x, transform.y);
 
     let nearest: Entity | null = null;
@@ -79,7 +80,7 @@ export class DogBarkAbility implements Component {
       if (Math.hypot(et.x - transform.x, et.y - transform.y) > ENEMY_DETECT_RANGE_PX) continue;
 
       const enemyCell = this.grid.worldToCell(et.x, et.y);
-      const path = pathfinder.findPath(dogCell.col, dogCell.row, enemyCell.col, enemyCell.row, 0, false, true);
+      const path = this.pathfinder.findPath(dogCell.col, dogCell.row, enemyCell.col, enemyCell.row, 0, false, true);
       if (!path) continue;
 
       if (path.length < nearestPathLen) {
@@ -136,10 +137,9 @@ export class DogBarkAbility implements Component {
     this.approachPathTimerMs += delta;
     if (!this.approachPath || this.approachPathTimerMs >= APPROACH_PATH_RECALC_MS) {
       this.approachPathTimerMs = 0;
-      const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
       const startCell = this.grid.worldToCell(transform.x, transform.y);
       const goalCell = this.grid.worldToCell(targetTransform.x, targetTransform.y);
-      this.approachPath = pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, 0, false, true);
+      this.approachPath = this.pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, 0, false, true);
       this.approachPathIndex = 1;
     }
 
@@ -288,18 +288,18 @@ export class DogBarkAbility implements Component {
     // Main expanding ring
     const ring = this.scene.add.graphics();
     ring.setDepth(Depth.particle);
-    this.animateRing(ring, x, y, RING_START_RADIUS_PX, RING_MAX_RADIUS_PX, RING_LINE_PX, TINT, 0.8, RING_DURATION_MS);
+    this.animateRing(ring, { x, y, startR: RING_START_RADIUS_PX, endR: RING_MAX_RADIUS_PX, lineW: RING_LINE_PX, color: TINT, startAlpha: 0.8, durationMs: RING_DURATION_MS });
 
     // Inner pulse (filled)
     const pulse = this.scene.add.graphics();
     pulse.setDepth(Depth.particle);
-    this.animatePulse(pulse, x, y, 6, PULSE_MAX_RADIUS_PX, TINT, 0.25, PULSE_DURATION_MS);
+    this.animatePulse(pulse, { x, y, startR: 6, endR: PULSE_MAX_RADIUS_PX, color: TINT, startAlpha: 0.25, durationMs: PULSE_DURATION_MS });
 
     // Echo ring (delayed)
     this.scene.time.delayedCall(ECHO_DELAY_MS, () => {
       const echo = this.scene.add.graphics();
       echo.setDepth(Depth.particle);
-      this.animateRing(echo, x, y, RING_START_RADIUS_PX, RING_MAX_RADIUS_PX, RING_LINE_PX, TINT, 0.4, RING_DURATION_MS);
+      this.animateRing(echo, { x, y, startR: RING_START_RADIUS_PX, endR: RING_MAX_RADIUS_PX, lineW: RING_LINE_PX, color: TINT, startAlpha: 0.4, durationMs: RING_DURATION_MS });
     });
 
     // Particle burst
@@ -318,17 +318,17 @@ export class DogBarkAbility implements Component {
     this.scene.time.delayedCall(700, () => emitter.destroy());
   }
 
-  private animateRing(g: Phaser.GameObjects.Graphics, x: number, y: number, startR: number, endR: number, lineW: number, color: number, startAlpha: number, durationMs: number): void {
+  private animateRing(g: Phaser.GameObjects.Graphics, props: { x: number; y: number; startR: number; endR: number; lineW: number; color: number; startAlpha: number; durationMs: number }): void {
     let elapsedMs = 0;
     const tick = (_time: number, delta: number): void => {
       elapsedMs += delta;
-      const t = Math.min(elapsedMs / durationMs, 1);
+      const t = Math.min(elapsedMs / props.durationMs, 1);
       const ease = 1 - Math.pow(1 - t, 3); // Cubic.Out
-      const radius = startR + (endR - startR) * ease;
-      const alpha = startAlpha * (1 - t);
+      const radius = props.startR + (props.endR - props.startR) * ease;
+      const alpha = props.startAlpha * (1 - t);
       g.clear();
-      g.lineStyle(lineW, color, alpha);
-      g.strokeCircle(x, y, radius);
+      g.lineStyle(props.lineW, props.color, alpha);
+      g.strokeCircle(props.x, props.y, radius);
       if (t >= 1) {
         this.scene.events.off('update', tick);
         g.destroy();
@@ -337,17 +337,17 @@ export class DogBarkAbility implements Component {
     this.scene.events.on('update', tick);
   }
 
-  private animatePulse(g: Phaser.GameObjects.Graphics, x: number, y: number, startR: number, endR: number, color: number, startAlpha: number, durationMs: number): void {
+  private animatePulse(g: Phaser.GameObjects.Graphics, props: { x: number; y: number; startR: number; endR: number; color: number; startAlpha: number; durationMs: number }): void {
     let elapsedMs = 0;
     const tick = (_time: number, delta: number): void => {
       elapsedMs += delta;
-      const t = Math.min(elapsedMs / durationMs, 1);
+      const t = Math.min(elapsedMs / props.durationMs, 1);
       const ease = 1 - Math.pow(1 - t, 3);
-      const radius = startR + (endR - startR) * ease;
-      const alpha = startAlpha * (1 - t);
+      const radius = props.startR + (props.endR - props.startR) * ease;
+      const alpha = props.startAlpha * (1 - t);
       g.clear();
-      g.fillStyle(color, alpha);
-      g.fillCircle(x, y, radius);
+      g.fillStyle(props.color, alpha);
+      g.fillCircle(props.x, props.y, radius);
       if (t >= 1) {
         this.scene.events.off('update', tick);
         g.destroy();

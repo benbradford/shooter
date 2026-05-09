@@ -1,8 +1,7 @@
 import type { Component } from '../../Component';
-import type { Entity } from '../../Entity';
+import { Entity } from '../../Entity';
 import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
-import { Entity as EntityClass } from '../../Entity';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
@@ -58,9 +57,9 @@ export type CreateSpecialItemProps = {
   readonly eventManager: EventManagerSystem;
 };
 
-export function createSpecialItemEntity(props: CreateSpecialItemProps): EntityClass {
+export function createSpecialItemEntity(props: CreateSpecialItemProps): Entity {
   const { scene, x, y, grid, itemType, parentEntityId, playerEntity, eventManager } = props;
-  const entity = new EntityClass(`pickup_${parentEntityId}_${itemType}`);
+  const entity = new Entity(`pickup_${parentEntityId}_${itemType}`);
   entity.tags.add('special_item');
 
   const targetSize = grid.cellSize * SPRITE_SIZE_RATIO;

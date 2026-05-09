@@ -43,7 +43,7 @@ export class NPCIdleComponent implements Component {
     sprite.x += this.transformOverride.offsetX;
     sprite.y += this.transformOverride.offsetY;
     
-    const gameScene = sprite.scene.scene.get('game') as any;
+    const gameScene = sprite.scene.scene.get('game') as { entityManager?: { getFirst(type: string): Entity | undefined } } | undefined;
     if (gameScene?.entityManager) {
       const playerEntity = gameScene.entityManager.getFirst('player');
       if (playerEntity) {

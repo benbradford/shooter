@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
 import { ASSET_REGISTRY, ASSET_GROUPS, type AssetKey, type AssetGroupKey } from './AssetRegistry';
-import type { LevelData } from '../systems/level/LevelLoader';
-import { normalizeBgTextures, bgTextureKey, type SingleBackgroundTexture } from '../systems/level/LevelLoader';
+import { normalizeBgTextures, bgTextureKey, type LevelData, type SingleBackgroundTexture } from '../systems/level/LevelLoader';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 
 /**

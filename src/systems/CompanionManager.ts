@@ -11,6 +11,7 @@ export class CompanionManager {
   private static instance: CompanionManager | null = null;
   private companionEntity: Entity | null = null;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
 
   static getInstance(): CompanionManager {

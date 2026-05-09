@@ -488,6 +488,40 @@ If there are no changes to commit, say so and stop.`;
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
+      // Lint — run eslint and return categorized results
+      server.middlewares.use('/api/lint', async (_req, res) => {
+        try {
+          const { execSync } = await import('child_process');
+          const cwd = process.cwd();
+          let output: string;
+          try {
+            output = execSync('npx eslint src --ext .ts --format json', { cwd, encoding: 'utf-8', maxBuffer: 10 * 1024 * 1024 });
+          } catch (e: unknown) {
+            // eslint exits with code 1 when there are warnings/errors but still produces valid JSON
+            output = (e as { stdout?: string }).stdout || '[]';
+          }
+          const files = JSON.parse(output) as Array<{ filePath: string; messages: Array<{ ruleId: string; severity: number; message: string; line: number }> }>;
+          const ruleMap = new Map<string, { rule: string; severity: string; count: number; message: string; files: Array<{ path: string; line: number }> }>();
+          for (const file of files) {
+            const relPath = file.filePath.replace(cwd + '/', '');
+            for (const msg of file.messages) {
+              const rule = msg.ruleId || 'unknown';
+              const severity = msg.severity === 2 ? 'error' : 'warning';
+              if (!ruleMap.has(rule)) {
+                ruleMap.set(rule, { rule, severity, count: 0, message: msg.message, files: [] });
+              }
+              const entry = ruleMap.get(rule)!;
+              entry.count++;
+              if (msg.severity === 2) entry.severity = 'error';
+              entry.files.push({ path: relPath, line: msg.line });
+            }
+          }
+          const result = [...ruleMap.values()].sort((a, b) => (a.severity === 'error' ? 0 : 1) - (b.severity === 'error' ? 0 : 1) || b.count - a.count);
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(result));
+        } catch (error) { res.statusCode = 500; res.end(JSON.stringify({ error: String(error) })); }
+      });
+
       // Fix button — invoke kiro-cli via ttyd (browser-based terminal)
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }

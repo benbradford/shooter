@@ -31,7 +31,7 @@ export function registerNpcAPI(lua: LuaEngine, scene: GameScene, commandQueue: C
     x: npcTransform?.x ?? 0,
     y: npcTransform?.y ?? 0,
     direction: currentDirection,
-    name: () => (npcEntity as any)?.npcName ?? 'NPC',
+    name: () => (npcEntity as unknown as { npcName?: string })?.npcName ?? 'NPC',
     look: (direction: string) => {
       const dir = DIRECTION_MAP[direction];
       if (dir === undefined) {
@@ -62,7 +62,7 @@ export function registerNpcAPI(lua: LuaEngine, scene: GameScene, commandQueue: C
     )] ?? 'down';
 
     commandQueue.push({ type: 'look', direction: playerToNpcDir });
-    commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[npcToPlayerDir]! });
+    commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[npcToPlayerDir] });
   });
 
   lua.global.set('restoreDirections', () => {
@@ -70,7 +70,7 @@ export function registerNpcAPI(lua: LuaEngine, scene: GameScene, commandQueue: C
       commandQueue.push({ type: 'look', direction: storedPlayerDirection });
     }
     if (storedNpcDirection) {
-      commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[storedNpcDirection]! });
+      commandQueue.push({ type: 'npcLook', npcId, direction: DIRECTION_MAP[storedNpcDirection] });
     }
   });
 }

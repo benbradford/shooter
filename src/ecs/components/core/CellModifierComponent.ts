@@ -3,8 +3,7 @@ import type { Component } from '../../Component';
 import type { Grid, CellProperty } from '../../../systems/grid/Grid';
 import { Depth } from '../../../constants/DepthConstants';
 
-import type { SingleBackgroundTexture } from '../../../systems/level/LevelLoader';
-import { bgTextureKey } from '../../../systems/level/LevelLoader';
+import { bgTextureKey, type SingleBackgroundTexture } from '../../../systems/level/LevelLoader';
 
 export type CellModification = {
   col: number;

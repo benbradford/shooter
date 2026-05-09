@@ -160,7 +160,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-08 (session 2) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code></p>
+<p class="updated">Last audit: 2026-05-09 (10:55) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · No new critical issues. Architecture stabilizing.</p>
 
 <script>
 const ISSUES = [
@@ -412,9 +412,9 @@ const ISSUES = [
     added: '2026-05-08',
   },
   {
-    id: 30, severity: 'low', status: 'open',
+    id: 30, severity: 'low', status: 'done',
     title: 'Grid.ts constructor uses (scene as any).isEditorMode — type-unsafe cast',
-    detail: 'Line 109: `(scene as any).isEditorMode === true`. Used to conditionally register G and C debug keys only in game mode. Should pass isEditorMode as a boolean constructor parameter or use a GridOptions type. Confirmed still present May 8.',
+    detail: 'Fixed: Added isEditorMode as a boolean constructor parameter (default false). All 3 Grid instantiations in GameScene now pass this.isEditorMode. No more type-unsafe cast.',
     files: ['src/systems/grid/Grid.ts'],
     effort: '15m', risk: 'None', fanIn: 96, category: 'code-quality',
     added: '2026-05-08',
@@ -444,6 +444,48 @@ const ISSUES = [
     files: ['src/ecs/components/laser/LaserBeamComponent.ts'],
     effort: '2h', risk: 'Low', fanIn: 2, category: 'maintainability',
     added: '2026-05-08',
+  },
+
+  // ── NEW ISSUES (2026-05-09 audit) ──
+  {
+    id: 34, severity: 'medium', status: 'open',
+    title: 'AttackComboComponent.createPunchHitbox() is 73 LOC — mixes sound, targeting, hitbox creation, particles',
+    detail: 'Lines 279-351. Mixes 4 concerns: (1) sound selection and playback, (2) nearest-enemy targeting with FOV check (~20 LOC), (3) projectile entity creation, (4) particle entity creation. The targeting logic could be a reusable EnemyTargeter helper. The method is stable but violates SRP.',
+    files: ['src/ecs/components/combat/AttackComboComponent.ts'],
+    effort: '2h', risk: 'Low', fanIn: 9, category: 'maintainability',
+    added: '2026-05-09',
+  },
+  {
+    id: 35, severity: 'medium', status: 'open',
+    title: 'PlayerPushState.updatePushing() is 72 LOC — mixes interpolation, lock detection, fall detection, chain push',
+    detail: 'Lines 248-319. Mixes 5 concerns: (1) player position interpolation, (2) push_lock detection and persistence, (3) platform fall detection, (4) damage-pending disengage, (5) chain push / contact phase logic. Each concern is ~15 LOC. Could extract a PushCompletionHandler or split into focused methods. Moderate complexity but stable.',
+    files: ['src/ecs/entities/player/PlayerPushState.ts'],
+    effort: '2h', risk: 'Med', fanIn: 2, category: 'maintainability',
+    added: '2026-05-09',
+  },
+  {
+    id: 36, severity: 'low', status: 'done',
+    title: 'DogBarkAbility.updateApproaching() creates new Pathfinder every recalc interval',
+    detail: 'Verified: Pathfinder is already created once in constructor (line 46: `this.pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells())`). The `updateApproaching()` method reuses `this.pathfinder.findPath()` — no per-recalc allocation. Issue was incorrectly reported.',
+    files: ['src/ecs/components/pet/DogBarkAbility.ts'],
+    effort: '0m', risk: 'None', fanIn: 2, category: 'performance',
+    added: '2026-05-09', resolution: 'Already fixed. Pathfinder created once in constructor, reused on every recalc.',
+  },
+  {
+    id: 37, severity: 'medium', status: 'open',
+    title: 'GameSceneRenderer still has 3 methods at 62-63 LOC (createFloorSprites, invalidateCells, createWaterTileSprites)',
+    detail: 'After extracting PathRenderer, EdgeRenderer, ShadowRenderer, BackgroundTextureRenderer, the remaining 573 LOC / 23 methods still has 3 methods above threshold. createFloorSprites (63 LOC) handles floor tiling with chunk logic. invalidateCells (62 LOC) destroys and recreates cell sprites. createWaterTileSprites (62 LOC) handles water tile animation setup. These are inherent rendering complexity — each method does one thing but the thing is complex. Low priority.',
+    files: ['src/scenes/theme/GameSceneRenderer.ts'],
+    effort: '3h', risk: 'Low', fanIn: 8, category: 'maintainability',
+    added: '2026-05-09',
+  },
+  {
+    id: 38, severity: 'low', status: 'wontfix',
+    title: 'WaterEffectComponent.update() still 86 LOC — determineWaterState() is 40 LOC with complex edge detection',
+    detail: 'After #24 extraction, update() is now a coordinator calling 5 methods. But the scanner still reports 86 LOC for update() because it counts the full method body including the delegated calls. determineWaterState() itself is 40 LOC with cell-edge distance calculations for water exit detection. This is inherent complexity — the water/bridge/blocked/layer logic cannot be simplified further without losing correctness.',
+    files: ['src/ecs/components/visual/WaterEffectComponent.ts'],
+    effort: 'N/A', risk: 'N/A', fanIn: 10, category: 'maintainability',
+    added: '2026-05-09', resolution: 'Inherent complexity. determineWaterState is a single-purpose method with complex but correct logic.',
   },
 ];
 

@@ -40,7 +40,7 @@ export function createNPCEntity(props: CreateNPCProps): Entity {
   entity.tags.add('npc');
   
   if (name) {
-    (entity as any).npcName = name;
+    (entity as unknown as { npcName: string }).npcName = name;
   }
 
   const x = col * grid.cellSize + grid.cellSize / 2;

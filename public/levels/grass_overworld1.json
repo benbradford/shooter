@@ -5699,7 +5699,7 @@
       ]
     }
   ],
-  "levelTheme": "grass_overworld1",
+  "levelTheme": "grass",
   "background": {
     "floor_texture": "grass1",
     "floor_tile": 5,

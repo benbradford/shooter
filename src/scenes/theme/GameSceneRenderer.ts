@@ -153,7 +153,7 @@ export abstract class GameSceneRenderer {
       this.shadowRenderer.renderShadows(grid);
     }
 
-    if (!levelData?.background?.path_texture && !levelData?.background?.water_texture) {
+    if (!levelData?.background?.path_texture && !levelData?.background?.water_texture && !levelData?.background?.water) {
       this.pathRenderer.renderGreyPaths(grid);
     }
   }

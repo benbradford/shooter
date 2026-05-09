@@ -118,7 +118,7 @@ export default class GameScene extends Phaser.Scene {
       await this.setupThemeRenderer();
 
       // Initialize grid
-      this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize);
+      this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize, this.isEditorMode);
       for (const cell of this.levelData.cells) {
         const textures = normalizeBgTextures(cell.backgroundTexture);
         const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
@@ -154,7 +154,7 @@ export default class GameScene extends Phaser.Scene {
       console.error('[Editor] Scene init failed:', e);
       if (!this.entityManager) this.entityManager = new EntityManager();
       if (!this.eventManager) this.eventManager = new EventManagerSystem();
-      if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize);
+      if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize, this.isEditorMode);
       if (!this.sceneRenderer) this.sceneRenderer = createThemeRenderer(this, this.cellSize, 'dungeon');
     }
 
@@ -396,7 +396,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initializeGrid(level: typeof this.levelData, levelState: ReturnType<WorldStateManager['getLevelState']>): void {
-    this.grid = new Grid(this, level.width, level.height, this.cellSize);
+    this.grid = new Grid(this, level.width, level.height, this.cellSize, this.isEditorMode);
 
     for (const cell of level.cells) {
       const textures = normalizeBgTextures(cell.backgroundTexture);
@@ -603,7 +603,7 @@ export default class GameScene extends Phaser.Scene {
   private async initializePetManager(player: Entity): Promise<void> {
     const { PetManager } = await import('../systems/PetManager');
     const petManager = PetManager.getInstance();
-    await petManager.initialize(this, this.grid, player);
+    petManager.initialize(this, this.grid, player);
   }
 
   private initializeCompanionManager(player: Entity): void {

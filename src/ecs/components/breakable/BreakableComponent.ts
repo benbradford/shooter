@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { RarityComponent } from '../core/RarityComponent';
-import { RARITY_COIN_COUNTS, RARITY_MEDIPACK_CHANCE } from '../../../constants/Rarity';
+import { RARITY_COIN_COUNTS, RARITY_MEDIPACK_CHANCE, RARITY_SMALL_MUSHROOM_CHANCE } from '../../../constants/Rarity';
 import {
   COIN_SPAWN_ANGLE_RANDOMNESS_RAD,
   COIN_SPAWN_MIN_SPEED_PX_PER_SEC,
@@ -20,6 +20,7 @@ export type BreakableComponentProps = {
   scene: Phaser.Scene;
   onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
   onSpawnMedipack: (x: number, y: number) => void;
+  onSpawnSmallMushroom: (x: number, y: number) => void;
   soundManager: SoundManager;
 }
 
@@ -35,6 +36,7 @@ export class BreakableComponent implements Component {
   private readonly scene: Phaser.Scene;
   private readonly onSpawnCoin: (x: number, y: number, velocityX: number, velocityY: number, targetY: number) => void;
   private readonly onSpawnMedipack: (x: number, y: number) => void;
+  private readonly onSpawnSmallMushroom: (x: number, y: number) => void;
   private readonly soundManager: SoundManager;
 
   constructor(props: BreakableComponentProps) {
@@ -42,6 +44,7 @@ export class BreakableComponent implements Component {
     this.scene = props.scene;
     this.onSpawnCoin = props.onSpawnCoin;
     this.onSpawnMedipack = props.onSpawnMedipack;
+    this.onSpawnSmallMushroom = props.onSpawnSmallMushroom;
     this.soundManager = props.soundManager;
   }
 
@@ -166,6 +169,7 @@ export class BreakableComponent implements Component {
 
     this.spawnCoins(transform, sprite);
     this.spawnMedipack(transform, sprite);
+    this.spawnSmallMushroom(transform, sprite);
 
     const GRID_SIZE = 3;
     const FADE_DURATION_MS = 2000;
@@ -278,6 +282,17 @@ export class BreakableComponent implements Component {
     if (Math.random() < chance) {
       const cellBottom = transform.y + sprite.sprite.displayHeight / 2;
       this.onSpawnMedipack(transform.x, cellBottom - 10);
+    }
+  }
+
+  private spawnSmallMushroom(transform: TransformComponent, sprite: SpriteComponent): void {
+    const rarity = this.entity.get(RarityComponent);
+    if (!rarity) return;
+
+    const chance = RARITY_SMALL_MUSHROOM_CHANCE[rarity.rarity];
+    if (Math.random() < chance) {
+      const cellBottom = transform.y + sprite.sprite.displayHeight / 2;
+      this.onSpawnSmallMushroom(transform.x, cellBottom - 10);
     }
   }
 

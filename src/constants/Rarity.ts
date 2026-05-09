@@ -16,3 +16,11 @@ export const RARITY_MEDIPACK_CHANCE: Record<Rarity, number> = {
   legendary: 0.3
 };
 
+export const RARITY_SMALL_MUSHROOM_CHANCE: Record<Rarity, number> = {
+  nothing: 0,
+  rare: 0.05,
+  epic: 0.15,
+  mythic: 0.3,
+  legendary: 0.5
+};
+

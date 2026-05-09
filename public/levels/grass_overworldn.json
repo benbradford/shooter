@@ -7,7 +7,835 @@
   },
   "cells": [
     {
+      "col": 6,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
       "col": 19,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall",
+        "dungeon_window"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall",
+        "dungeon_window"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall",
+        "dungeon_window"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 1,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "stone_wall",
+          "transformOverride": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": -10
+        },
+        "dungeon_door"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall",
+        "dungeon_window"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall",
+        "dungeon_window"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall",
+        "dungeon_window"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "stone_wall"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water",
+        "bridge"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water",
+        "bridge"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "bridge_v",
+          "transformOverride": {
+            "scaleX": 3,
+            "scaleY": 3,
+            "offsetX": 0,
+            "offsetY": -24
+          }
+        }
+      ]
+    },
+    {
+      "col": 19,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "water"
+      ]
+    },
+    {
+      "col": 17,
       "row": 14,
       "layer": 0,
       "backgroundTexture": [
@@ -18,7 +846,175 @@
             "y": 238,
             "width": 256,
             "height": 151
-          }
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 20,
+      "row": 14,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 17,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 20,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 17,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 20,
+      "row": 16,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 17,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 20,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
         }
       ]
     },
@@ -121,6 +1117,52 @@
             "offsetY": 0
           },
           "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 17,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 20,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
         }
       ]
     },
@@ -417,6 +1459,17 @@
   "background": {
     "floor_texture": "grass_faded",
     "floor_tile": 5,
+    "hasEdges": false,
+    "hasShadows": false,
+    "water": {
+      "sourceImage": "water2",
+      "rippleSpritesheet": "water_ripple",
+      "splashParticle": "water_splash",
+      "flowDirection": "down",
+      "numFrames": 30,
+      "animSpeedMs": 150,
+      "force": 30
+    },
     "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet.png",
       "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet_sprite_list.txt",

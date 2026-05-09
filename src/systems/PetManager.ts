@@ -20,6 +20,7 @@ export class PetManager {
   private selectedPetId: string | null = null;
   private metadataCache: Map<string, PetSpritesheetMetadata> = new Map();
   
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
   
   static getInstance(): PetManager {
@@ -76,7 +77,7 @@ export class PetManager {
     
     // Add to EntityManager
     if (this.scene && 'entityManager' in this.scene) {
-      const entityManager = (this.scene as any).entityManager;
+      const entityManager = (this.scene as unknown as { entityManager: { add(entity: Entity): void } }).entityManager;
       if (entityManager) {
         entityManager.add(this.activePetEntity);
       }

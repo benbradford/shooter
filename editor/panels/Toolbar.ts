@@ -25,6 +25,7 @@ export class Toolbar {
   private readonly dirtySpan: HTMLSpanElement;
   private readonly toolButtons: Map<string, HTMLButtonElement> = new Map();
   private readonly entitySelect: HTMLSelectElement;
+  private playWindow: Window | null = null;
   private newLevelForm: HTMLElement | null = null;
 
   constructor(private readonly bridge: EditorBridge, container: HTMLElement) {
@@ -36,8 +37,15 @@ export class Toolbar {
     row1.appendChild(this.dirtySpan);
     row1.appendChild(this.createButton('Save', 'ed-btn save', () => void bridge.saveLevel()));
     row1.appendChild(this.createButton('Play', 'ed-btn play', () => {
-      if (bridge.isDirty) void bridge.saveLevel();
-      window.open(`/?level=${bridge.currentLevelName}`, '_blank');
+      void bridge.saveLevel().then(() => {
+        const url = `/?level=${bridge.currentLevelName}`;
+        if (this.playWindow && !this.playWindow.closed) {
+          this.playWindow.location.href = url;
+          this.playWindow.focus();
+        } else {
+          this.playWindow = window.open(url, 'db-play');
+        }
+      });
     }));
     row1.appendChild(this.createButton('New', 'ed-btn', () => this.toggleNewLevelForm()));
 
