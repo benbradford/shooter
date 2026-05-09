@@ -126,9 +126,8 @@ function spawnSession(label: string, shellCmd: string): Session {
 
   // Create a detached tmux session running the command
   execSync(`${tmuxPath} new-session -d -s '${tmuxName}' -c '${cwd}' '${shellCmd.replace(/'/g, "'\\''")}'`);
-
-  // Enable mouse mode so scroll gestures scroll tmux scrollback (not shell history)
-  execSync(`${tmuxPath} set-option -t '${tmuxName}' mouse on`);
+  // Enable mouse mode for scroll support
+  execSync(`${tmuxPath} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
   execSync(`${tmuxPath} set-option -t '${tmuxName}' history-limit 10000`);
 
   // Spawn ttyd attached to the tmux session
@@ -725,27 +724,20 @@ If there are no changes to commit, say so and stop.`;
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 
-      // File explorer API
-      server.middlewares.use('/api/files', (req, res) => {
-        if (req.method !== 'GET') { res.statusCode = 405; res.end('Method not allowed'); return; }
-        const url = new URL(req.url!, 'http://localhost');
-        const dir = url.searchParams.get('dir') || '.';
-        const fullPath = path.resolve(process.cwd(), dir);
-        // Security: don't allow escaping project root
-        if (!fullPath.startsWith(process.cwd())) { res.statusCode = 403; res.end('Forbidden'); return; }
+      // Capture terminal content for copy mode
+      server.middlewares.use('/api/sessions/capture', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
-          const entries = fs.readdirSync(fullPath, { withFileTypes: true })
-            .filter(e => !e.name.startsWith('.') && !['node_modules', 'dist', 'build', 'android', 'tmp'].includes(e.name))
-            .sort((a, b) => {
-              if (a.isDirectory() && !b.isDirectory()) return -1;
-              if (!a.isDirectory() && b.isDirectory()) return 1;
-              return a.name.localeCompare(b.name);
-            })
-            .map(e => ({ name: e.name, isDir: e.isDirectory(), path: path.join(dir, e.name) }));
+          const body = JSON.parse(await readBody(req)) as { id: string };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          const tmuxPath = '/opt/homebrew/bin/tmux';
+          const text = execSync(`${tmuxPath} capture-pane -t '${session.tmuxSession}' -p -S -500`, { encoding: 'utf-8' });
           res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify(entries));
+          res.end(JSON.stringify({ text }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
+
     }
   };
 }

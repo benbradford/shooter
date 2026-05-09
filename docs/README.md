@@ -387,6 +387,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - `POST /api/tracker/commit` — spawn kiro agent to commit all changes and optionally push, returns `{ ok, url }`
 - `POST /api/tracker/update-docs` — spawn kiro agent to update documentation, returns `{ ok, url }`
 - `GET /api/lint` — run eslint and return categorized results (used by linter-errors tracker)
+- `GET /api/git/diff` — return `git diff --stat` and per-file diff chunks (used by sessions diff viewer)
 
 **Kiro agent phrases** (still work in chat):
 - "log a feature: {description}" → adds to feature tracker
@@ -411,7 +412,7 @@ The workbench includes a multi-session system that manages kiro-cli sessions via
 - `POST /api/sessions/reconnect` — re-spawn ttyd if tmux is still alive (`{ id }`)
 - `POST /api/sessions/delete` — permanently remove a session (`{ id }`)
 
-**UI:** `workbench/sessions.html` — Session manager page with live session list, connect/rename/archive/delete controls, and embedded ttyd terminal iframe. Workflows (tagged sessions launched via dashboard buttons) have no action buttons.
+**UI:** `workbench/sessions.html` — Session manager page with live session list, connect/rename/archive/delete controls, embedded ttyd terminal iframe, and collapsible diff viewer panel (shows `git diff` output per-file). Workflows (tagged sessions launched via dashboard buttons) have no action buttons.
 
 **Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`)
 

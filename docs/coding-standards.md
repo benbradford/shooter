@@ -27,6 +27,82 @@ If there is ANY ambiguity, multiple valid approaches, or design decisions needed
 ### Use Depth Constants
 Always use constants from `src/constants/DepthConstants.ts` - never hardcode depth values. Keep granularity low (Depth.enemy not Depth.skeleton).
 
+## Complexity and Nesting (Top Linter Violations)
+
+### Keep Methods Short (complexity ≤ 15)
+Methods must not exceed cyclomatic complexity of 15. If a method has many branches:
+- **Extract helper methods** — each `if/else` branch with logic becomes its own method
+- **Use lookup tables** — replace chains of `if/else if` with a `Record<string, handler>`
+- **Use early returns** — flatten logic by returning early for edge cases
+- **Split state handlers** — large `update()` methods should delegate to per-state methods
+
+### Keep Nesting Shallow (max-depth ≤ 4)
+Never nest more than 4 levels deep. Techniques:
+- **Early return / continue** — invert conditions and bail out early
+- **Extract inner logic** — nested blocks become named helper methods
+- **Avoid nesting inside callbacks** — extract the callback body to a method
+
+```typescript
+// ❌ BAD — 5 levels deep
+update(delta: number): void {
+  if (this.isActive) {
+    for (const entity of entities) {
+      if (entity.has(HealthComponent)) {
+        if (entity.get(HealthComponent)!.current > 0) {
+          if (this.isInRange(entity)) {
+            this.attack(entity);
+          }
+        }
+      }
+    }
+  }
+}
+
+// ✅ GOOD — max 2 levels
+update(delta: number): void {
+  if (!this.isActive) return;
+  for (const entity of entities) {
+    this.tryAttack(entity);
+  }
+}
+
+private tryAttack(entity: Entity): void {
+  const health = entity.get(HealthComponent);
+  if (!health || health.current <= 0) return;
+  if (!this.isInRange(entity)) return;
+  this.attack(entity);
+}
+```
+
+### Use Nullish Coalescing and Optional Chaining
+- Use `??` instead of `||` for default values (preserves `0`, `""`, `false`)
+- Use `?.` instead of `&& obj.prop` chains
+
+```typescript
+// ❌ BAD
+const speed = config.speed || DEFAULT_SPEED;  // breaks if speed is 0
+const name = entity && entity.data && entity.data.name;
+
+// ✅ GOOD
+const speed = config.speed ?? DEFAULT_SPEED;
+const name = entity?.data?.name;
+```
+
+### No Nested Ternaries
+Never nest ternary expressions. Use `if/else` or a lookup instead.
+
+```typescript
+// ❌ BAD
+const label = type === 'skeleton' ? 'S' : type === 'thrower' ? 'T' : 'E';
+
+// ✅ GOOD
+const LABEL_MAP: Record<string, string> = { skeleton: 'S', thrower: 'T' };
+const label = LABEL_MAP[type] ?? 'E';
+```
+
+### No Negated Conditions with Else
+If you have `if (!condition) { A } else { B }`, flip it to `if (condition) { B } else { A }`.
+
 ## Code Style
 
 ### No Redundant Comments
@@ -132,4 +208,4 @@ Single source of truth - components should reference owner's values, not duplica
 When multiple systems need to modify the same property (offsets, speeds, tints), use a push/pop stack instead of saving/restoring original values. Stacks compose cleanly and prevent bugs when modifications overlap. See `ShadowComponent.pushOffset()`/`popOffset()` and `GridPositionComponent.pushCollisionBox()`/`popCollisionBox()` for reference implementations.
 
 ## ESLint Rules
-Key enforced rules: no-unused-vars, no-explicit-any, prefer-readonly, no-empty-function, consistent-type-definitions, no-useless-fallback-in-spread, prefer-class-fields, no-nested-ternary.
+Key enforced rules: no-unused-vars, no-explicit-any, prefer-readonly, no-empty-function, consistent-type-definitions, no-useless-fallback-in-spread, prefer-class-fields, no-nested-ternary, complexity, max-depth, no-non-null-assertion, prefer-nullish-coalescing, prefer-optional-chain, no-negated-condition, no-zero-fractions.
