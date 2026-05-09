@@ -161,6 +161,7 @@ the landing location would be in a water cell, and if it would be, just block
 the player from exiting, unless you have any other bright ideas.`, area: '', id: 11, added: '2026-05-06' },
   { severity: 'medium', status: 'fixed', title: 'Charging punch and then releasing causes problems', detail: 'when i hold punch to charge, but release before supercharged, there are 2 problems.. first is that the actual punch happens before the anim is on the correct punch frame. second, if i am walking at the time and holding walk, one the punch finishes, the player keeps moving but their anim is just a single-frame idle anim', area: 'combat', id: 12, added: '2026-05-06' },
   { severity: 'low', status: 'fixed', title: 'Unable to remove archived sessions', detail: 'In the sessions tab, it shows archived sessions on the left, however there are some there that i cannot remove. They might be from a previous incarnation of the sessions handler or it might be a bug. please ensure they are removed and ensure there is no bug', area: 'sessions', id: 13, added: '2026-05-07' },
+  { severity: 'medium', status: 'fixed', title: 'Add scrolling to sessions', detail: 'I should be able to scroll up and down in a session to see the history but there is no scrollbar on the right and if i do a double press and slide up and down, it toggles through previous commands, i would expect it to scroll up / down in the session so i can see history', area: 'sessions', id: 14, added: '2026-05-09' },
 ];
 
 function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }

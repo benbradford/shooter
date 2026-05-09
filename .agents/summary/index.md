@@ -317,3 +317,5 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **canPush flag**: Pushing requires WorldState flag `canPush` = `"true"` (obtained from root_chest with `push_strength` item)
 - **Platform pushing**: Pushables can be pushed off platforms with gravity fall to lower layer
 - **Punch animation fix**: `wasPunching` flag in PlayerIdleState/PlayerWalkState force-replays idle/walk animation after punch
+- **zOffsetOverride**: Background texture `zOffsetOverride` is now an absolute depth value (not offset). Positive values render in front of player. Editor has Z Override checkbox.
+- **alphaBlend 'tiny'**: New overlay opacity level (0.2-0.25) for barely-visible overlays

@@ -340,7 +340,7 @@ row_sums = np.sum(alpha > ALPHA_THRESH, axis=1)
 },
 ```
 
-Optional fields: `scaleX`, `scaleY` (default scaling), `zOffsetOverride` (depth offset).
+Optional fields: `scaleX`, `scaleY` (default scaling), `zOffsetOverride` (absolute depth value, overrides default).
 
 ## Theme Switching
 

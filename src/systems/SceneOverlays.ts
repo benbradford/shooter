@@ -109,11 +109,13 @@ export class SceneOverlays {
           }
           // else 'random' - priority stays 0
 
-          const centerX = grid.width / 2;
-          const centerY = grid.height / 2;
-          const distFromCenter = Math.hypot(col - centerX, row - centerY);
-          const maxDist = Math.hypot(centerX, centerY);
-          priority += Math.floor((distFromCenter / maxDist) * 5);
+          if (placementStrategy !== 'random') {
+            const centerX = grid.width / 2;
+            const centerY = grid.height / 2;
+            const distFromCenter = Math.hypot(col - centerX, row - centerY);
+            const maxDist = Math.hypot(centerX, centerY);
+            priority += Math.floor((distFromCenter / maxDist) * 5);
+          }
 
           eligibleCells.push({ col, row, priority });
         }
@@ -125,7 +127,9 @@ export class SceneOverlays {
     const overlayCount = Math.floor(eligibleCells.length / frequency);
 
     for (let i = 0; i < overlayCount; i++) {
-      const maxIndex = Math.min(eligibleCells.length, Math.floor(eligibleCells.length * 0.3));
+      const maxIndex = placementStrategy === 'random'
+        ? eligibleCells.length
+        : Math.min(eligibleCells.length, Math.floor(eligibleCells.length * 0.3));
       const cellIndex = Math.floor(rng() * maxIndex);
       const cell = eligibleCells[cellIndex];
       eligibleCells.splice(cellIndex, 1);
@@ -146,13 +150,35 @@ export class SceneOverlays {
       );
       image.setOrigin(0.5, 0.5);
       image.setCrop(sprite.x, sprite.y, sprite.width, sprite.height);
-      image.setScale(0.5);
       image.setDepth(Depth.overlay);
 
       const blendMode = this.levelData.background.overlays.blendMode ?? 'normal';
       if (blendMode === 'multiply') {
         image.setBlendMode(Phaser.BlendModes.MULTIPLY);
+      } else if (blendMode === 'screen') {
+        image.setBlendMode(Phaser.BlendModes.SCREEN);
+      } else if (blendMode === 'add') {
+        image.setBlendMode(Phaser.BlendModes.ADD);
       }
+
+      // Tint variation — subtle color shift to match terrain
+      const tint = this.levelData.background.overlays.tint;
+      if (tint) {
+        image.setTint(Number.parseInt(tint.replace('#', ''), 16));
+      } else if (this.levelData.background.overlays.tintVariation) {
+        // Random subtle tint variation per overlay
+        const hueShift = (rng() - 0.5) * 0.1;
+        const r = Math.floor(255 * (1 - Math.abs(hueShift)));
+        const g = Math.floor(255 * (1 - Math.abs(hueShift) * 0.5));
+        const b = Math.floor(255 * (1 - Math.abs(hueShift) * 1.5));
+        image.setTint(Phaser.Display.Color.GetColor(r, g, b));
+      }
+
+      // Scale variation — randomize size slightly for organic feel
+      const scaleVariation = this.levelData.background.overlays.scaleVariation ?? 0;
+      const baseScale = this.levelData.background.overlays.scale ?? 0.5;
+      const scale = baseScale + (rng() - 0.5) * scaleVariation;
+      image.setScale(scale);
 
       const rotationSetting = this.levelData.background.overlays.rotation ?? 'slight';
       let rotationRange = 0;
@@ -166,7 +192,7 @@ export class SceneOverlays {
       const alphaBlend = this.levelData.background.overlays.alphaBlend ?? 'medium';
       let alphaBase = 0.7;
       let alphaRange = 0.15;
-       if (alphaBlend === 'tiny') {
+      if (alphaBlend === 'tiny') {
         alphaBase = 0.2;
         alphaRange = 0.05;
       } else if (alphaBlend === 'low') {

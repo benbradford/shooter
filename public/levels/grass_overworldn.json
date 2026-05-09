@@ -7,9 +7,381 @@
   },
   "cells": [
     {
+      "col": 1,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 7,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 10,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 13,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 16,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 21,
       "row": 18,
       "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 24,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 27,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 0,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 6,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 7,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 8,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 10,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 11,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 12,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 13,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 26,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 27,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 28,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": [
         {
           "image": "dead_tree1",
@@ -32,10 +404,15 @@
     "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet.png",
       "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet_sprite_list.txt",
-      "frequency": 12,
-      "seed": 12346,
-      "rotation": "none",
-      "alphaBlend": "tiny"
+      "frequency": 8,
+      "seed": 12345,
+      "placementStrategy": "random",
+      "rotation": "slight",
+      "blendMode": "normal",
+      "alphaBlend": "low",
+      "scale": 0.4,
+      "scaleVariation": 0.1,
+      "tint": "#8b9446"
     }
   }
 }

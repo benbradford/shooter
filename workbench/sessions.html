@@ -57,6 +57,13 @@
   .archive-list .session-item { opacity: 0.6; }
   .archive-list .session-item:hover { opacity: 1; }
 
+  /* Quick Commands */
+  .quick-commands { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+  .quick-commands-header { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; padding: 0 4px; }
+  .quick-cmd { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.15s; border: none; background: none; color: var(--text); width: 100%; text-align: left; }
+  .quick-cmd:hover { background: var(--surface2); }
+  .quick-cmd .qc-icon { font-size: 0.9rem; flex-shrink: 0; }
+
   /* Main panel */
   .main { flex: 1; display: flex; flex-direction: column; }
   .main-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.1rem; }
@@ -74,6 +81,13 @@
     <a href="main.html">← Trackers</a>
   </div>
   <button class="new-btn" onclick="createSession()">+ New Session</button>
+  <div class="quick-commands">
+    <div class="quick-commands-header">⚡ Quick Commands</div>
+    <button class="quick-cmd" onclick="runQuickCommand('update-docs')"><span class="qc-icon">📝</span> Update Docs</button>
+    <button class="quick-cmd" onclick="runQuickCommand('commit-all')"><span class="qc-icon">🔀</span> Commit All</button>
+    <button class="quick-cmd" onclick="runQuickCommand('refresh-issues')"><span class="qc-icon">🔄</span> Refresh Issues</button>
+    <button class="quick-cmd" onclick="runQuickCommand('help-decide')"><span class="qc-icon">🧠</span> Help Me Decide</button>
+  </div>
   <div class="session-list" id="activeList"></div>
   <div class="archive-header" id="archiveToggle" onclick="toggleArchive()">▶ Archived (<span id="archiveCount">0</span>)</div>
   <div class="archive-list" id="archiveList"></div>
@@ -180,6 +194,47 @@ async function createSession() {
       // Wait a moment for ttyd to start
       setTimeout(() => selectSession(data.session.id), 800);
       showToast('Session created');
+    }
+  } catch (e) { showToast('Failed: ' + e.message); }
+}
+
+const QUICK_COMMANDS = {
+  'update-docs': {
+    label: '📝 Update Docs',
+    agent: 'dodging-bullets',
+    prompt: `Update the docs. Follow the "When asked to update the docs" workflow in docs/README.md:\n1. Run \`node scripts/extract-sessions.mjs --dry-run\` to see what's been worked on since last update\n2. Update existing doc sections to reflect code changes\n3. Remove obsolete information about deleted features\n4. Add new information for new features\n5. Keep docs accurate and minimal\n6. Update multiple doc files as needed\n7. Update \`.agents/summary\` to keep it in sync with doc changes\n8. Ask clarifying questions if there's conflicting information or unclear behavior\n9. Audit — Run the audit script, fact-check file paths/symbols/code references, review files >300 lines, remove stale info\n10. Run \`node scripts/extract-sessions.mjs\` (without --dry-run) to write the timestamp`
+  },
+  'commit-all': {
+    label: '🔀 Commit All',
+    agent: 'dodging-bullets',
+    prompt: `Run \`git status\` and \`git diff --stat\` to see all uncommitted changes. Then:\n1. Show the user a summary of what changed (files modified/added/deleted and a brief description of the work done)\n2. Generate a concise commit message (conventional commit style, e.g. "feat: ...", "fix: ...", or a general summary if mixed)\n3. Show the proposed commit message and ask: "Commit with this message? (y/n/edit)"\n   - If yes: Run \`git add .\` then \`git commit -m"<message>"\`\n   - If edit: Let the user provide a new message, then commit with that\n   - If no: Stop without committing\n4. After committing, ask if they want to push (y/n). If yes, run \`git push\`. If no, say done.\n\nIf there are no changes to commit, say so and stop.`
+  },
+  'refresh-issues': {
+    label: '🔄 Refresh Issues',
+    agent: 'db-architect',
+    prompt: `Run a full architecture review using node scripts/arch-scan.mjs --top=20, then analyze the top priority files. Update workbench/architecture-issues.html with findings.`
+  },
+  'help-decide': {
+    label: '🧠 Help Me Decide',
+    agent: 'dodging-bullets',
+    prompt: `Read workbench/architecture-issues.html and extract all open issues. Then analyze them and recommend which ONE I should tackle next. Consider:\n- Severity and risk\n- Fan-in (how many files depend on it)\n- Effort vs impact ratio\n- Whether fixing it unblocks other issues\n\nGive a clear recommendation with reasoning, and a suggested approach.`
+  }
+};
+
+async function runQuickCommand(id) {
+  const cmd = QUICK_COMMANDS[id];
+  if (!cmd) return;
+  try {
+    const res = await fetch('/api/sessions/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label: cmd.label, prompt: cmd.prompt, agent: cmd.agent, tag: `quick:${id}` })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await loadSessions();
+      setTimeout(() => selectSession(data.session.id), 800);
+      showToast(`${cmd.label} started`);
     }
   } catch (e) { showToast('Failed: ' + e.message); }
 }

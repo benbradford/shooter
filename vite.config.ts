@@ -21,6 +21,7 @@ interface Session {
   tmuxSession: string;
   createdAt: string;
   command: string;
+  tag?: string;
 }
 
 const sessions: Map<string, Session> = new Map();
@@ -106,6 +107,7 @@ function spawnTtydForTmux(tmuxName: string, port: number): number {
   const ttyd = spawn(ttydPath, [
     '--port', String(port),
     '--writable',
+    '-t', 'scrollback=10000',
     tmuxPath, 'attach-session', '-t', tmuxName,
   ], { stdio: 'ignore', detached: true, env: { ...process.env, TERM: 'xterm-256color' } });
   ttyd.on('error', () => { /* prevent unhandled error from crashing vite */ });
@@ -125,6 +127,10 @@ function spawnSession(label: string, shellCmd: string): Session {
   // Create a detached tmux session running the command
   execSync(`${tmuxPath} new-session -d -s '${tmuxName}' -c '${cwd}' '${shellCmd.replace(/'/g, "'\\''")}'`);
 
+  // Enable mouse mode so scroll gestures scroll tmux scrollback (not shell history)
+  execSync(`${tmuxPath} set-option -t '${tmuxName}' mouse on`);
+  execSync(`${tmuxPath} set-option -t '${tmuxName}' history-limit 10000`);
+
   // Spawn ttyd attached to the tmux session
   const ttydPid = spawnTtydForTmux(tmuxName, port);
 
@@ -140,6 +146,8 @@ function spawnSession(label: string, shellCmd: string): Session {
 /** Re-spawn ttyd for an existing tmux session (reconnect after tab switch) */
 function ensureTtydRunning(session: Session): void {
   if (isProcessAlive(session.ttydPid)) return;
+  // Ensure mouse mode is on (may be missing for sessions created before this fix)
+  try { execSync(`/opt/homebrew/bin/tmux set-option -t '${session.tmuxSession}' mouse on`); } catch { /* session may be dead */ }
   // tmux is alive but ttyd died (user navigated away) — respawn ttyd
   session.ttydPid = spawnTtydForTmux(session.tmuxSession, session.port);
 }
@@ -528,11 +536,37 @@ If there are no changes to commit, say so and stop.`;
       server.middlewares.use('/api/sessions/create', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
-          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string };
+          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string; tag?: string; prompt?: string; agent?: string };
           const cwd = process.cwd();
-          const shellCmd = body.command ?? `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
+
+          // Auto-kill existing session with same tag
+          if (body.tag) {
+            for (const [, existing] of sessions) {
+              if (existing.tag === body.tag) {
+                if (existing.ttydPid > 0) { try { process.kill(existing.ttydPid); } catch { /* already dead */ } }
+                try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${existing.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+                sessions.delete(existing.id);
+              }
+            }
+          }
+
+          let shellCmd: string;
+          if (body.prompt) {
+            // Quick command with prompt — write to tmp file to avoid shell escaping issues
+            const agent = body.agent ?? 'dodging-bullets';
+            const tmpFile = path.resolve('tmp', `quick-${Date.now()}.txt`);
+            fs.mkdirSync(path.resolve('tmp'), { recursive: true });
+            fs.writeFileSync(tmpFile, body.prompt, 'utf-8');
+            shellCmd = `cd '${cwd}' && kiro-cli chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          } else {
+            shellCmd = body.command ?? `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
+          }
+
           const label = body.label ?? `Session ${nextSessionId}`;
           const session = spawnSession(label, shellCmd);
+          if (body.tag) session.tag = body.tag;
+          persistSessions();
+
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, session: { id: session.id, port: session.port, label: session.label, status: session.status, archived: session.archived, createdAt: session.createdAt } }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
@@ -584,7 +618,7 @@ If there are no changes to commit, say so and stop.`;
           const session = sessions.get(body.id);
           if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
           // Kill ttyd
-          try { process.kill(session.ttydPid); } catch { /* already dead */ }
+          if (session.ttydPid > 0) { try { process.kill(session.ttydPid); } catch { /* already dead */ } }
           // Kill tmux session
           try {
             execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`);

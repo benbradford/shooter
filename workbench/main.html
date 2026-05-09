@@ -206,25 +206,18 @@
     <h2>Actions</h2>
   </div>
   <div class="action-grid">
-    <div class="action-card" onclick="newSession()">
-      <div class="action-icon">🚀</div>
+    <div class="action-card" onclick="openSessions()">
+      <div class="action-icon">🖥️</div>
       <div class="action-info">
-        <div class="action-title">New Session</div>
-        <div class="action-desc">Launch a new kiro-cli agent session</div>
+        <div class="action-title">Open Sessions</div>
+        <div class="action-desc">Manage kiro-cli sessions and quick commands</div>
       </div>
     </div>
-    <div class="action-card" onclick="updateDocs()">
-      <div class="action-icon">📝</div>
+    <div class="action-card" onclick="openEditor()">
+      <div class="action-icon">🗺️</div>
       <div class="action-info">
-        <div class="action-title">Update Docs</div>
-        <div class="action-desc">Analyze recent sessions and refresh documentation</div>
-      </div>
-    </div>
-    <div class="action-card" onclick="commitAll()">
-      <div class="action-icon">🔀</div>
-      <div class="action-info">
-        <div class="action-title">Commit All</div>
-        <div class="action-desc">Generate commit message, commit changes, and push</div>
+        <div class="action-title">Open Editor</div>
+        <div class="action-desc">Level editor for designing and editing levels</div>
       </div>
     </div>
   </div>
@@ -233,36 +226,14 @@
 <div class="toast" id="toast"></div>
 
 <script>
-function openSessionTab(sessionId) {
-  const w = window.open(`sessions.html?session=${sessionId}`, 'db-sessions');
+function openSessions() {
+  const w = window.open('sessions.html', 'db-sessions');
   if (w) w.focus();
 }
 
-async function newSession() {
-  try {
-    const res = await fetch('/api/tracker/session', { method: 'POST' });
-    const data = await res.json();
-    if (data.sessionId) setTimeout(() => openSessionTab(data.sessionId), 800);
-    showToast('🚀 New kiro session starting...');
-  } catch (e) { showToast('Failed: ' + e.message); }
-}
-
-async function updateDocs() {
-  try {
-    const res = await fetch('/api/tracker/update-docs', { method: 'POST' });
-    const data = await res.json();
-    if (data.sessionId) setTimeout(() => openSessionTab(data.sessionId), 800);
-    showToast(data.message || '📝 Docs update launched!');
-  } catch (e) { showToast('Failed: ' + e.message); }
-}
-
-async function commitAll() {
-  try {
-    const res = await fetch('/api/tracker/commit', { method: 'POST' });
-    const data = await res.json();
-    if (data.sessionId) setTimeout(() => openSessionTab(data.sessionId), 800);
-    showToast('🔀 Commit session starting...');
-  } catch (e) { showToast('Failed: ' + e.message); }
+function openEditor() {
+  const w = window.open(location.origin + '/editor/', 'db-editor');
+  if (w) w.focus();
 }
 
 function showToast(msg) {

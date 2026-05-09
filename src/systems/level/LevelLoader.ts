@@ -66,8 +66,12 @@ export type LevelBackground = {
     seed: number;
     placementStrategy?: 'near_platforms' | 'near_paths_water' | 'random';
     rotation?: 'none' | 'slight' | 'medium' | 'heavy';
-    blendMode?: 'normal' | 'multiply';
+    blendMode?: 'normal' | 'multiply' | 'screen' | 'add';
     alphaBlend?: 'tiny' | 'low' | 'medium' | 'high';
+    tint?: string;
+    tintVariation?: boolean;
+    scale?: number;
+    scaleVariation?: number;
   };
   edgeDarkening?: {
     depth: number;
