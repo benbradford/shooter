@@ -51,11 +51,11 @@
         { "command": "dbSessions.open", "when": "view == dbSessions && viewItem =~ /active/", "group": "1_open" },
         { "command": "dbSessions.restart", "when": "view == dbSessions && viewItem =~ /workflow/", "group": "1_open" },
         { "command": "dbSessions.restart", "when": "view == dbSessions && viewItem == dead_session", "group": "1_open" },
-        { "command": "dbSessions.rename", "when": "view == dbSessions && viewItem =~ /session|workflow/", "group": "2_manage" },
-        { "command": "dbSessions.archive", "when": "view == dbSessions && viewItem =~ /active/", "group": "2_manage" },
+        { "command": "dbSessions.rename", "when": "view == dbSessions && viewItem =~ /session/", "group": "2_manage" },
+        { "command": "dbSessions.archive", "when": "view == dbSessions && viewItem =~ /active_session/", "group": "2_manage" },
         { "command": "dbSessions.unarchive", "when": "view == dbSessions && viewItem == archived_session", "group": "2_manage" },
-        { "command": "dbSessions.kill", "when": "view == dbSessions && viewItem =~ /active/", "group": "3_danger" },
-        { "command": "dbSessions.delete", "when": "view == dbSessions && viewItem =~ /session|workflow/", "group": "3_danger" }
+        { "command": "dbSessions.kill", "when": "view == dbSessions && viewItem =~ /active_session/", "group": "3_danger" },
+        { "command": "dbSessions.delete", "when": "view == dbSessions && viewItem =~ /session/", "group": "3_danger" }
       ]
     }
   },
