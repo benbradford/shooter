@@ -52,7 +52,35 @@ function activate(context) {
         treeDataProvider: trackersProvider,
     });
     context.subscriptions.push(trackersTree);
-    context.subscriptions.push(vscode.commands.registerCommand('dbSessions.refresh', () => provider.refresh()), vscode.commands.registerCommand('dbSessions.create', () => manager.createSession(provider)), vscode.commands.registerCommand('dbSessions.open', (item) => manager.openSession(item.session)), vscode.commands.registerCommand('dbSessions.rename', (item) => manager.renameSession(item.session, provider)), vscode.commands.registerCommand('dbSessions.archive', (item) => manager.archiveSession(item.session, provider)), vscode.commands.registerCommand('dbSessions.unarchive', (item) => manager.unarchiveSession(item.session, provider)), vscode.commands.registerCommand('dbSessions.kill', (item) => manager.killSession(item.session, provider)), vscode.commands.registerCommand('dbSessions.delete', (item) => manager.deleteSession(item.session, provider)), vscode.commands.registerCommand('dbSessions.restart', (item) => manager.restartSession(item.session, provider)), vscode.commands.registerCommand('dbTrackers.open', (item) => (0, trackersProvider_1.openTrackerPanel)(item)));
+    context.subscriptions.push(vscode.commands.registerCommand('dbSessions.refresh', () => provider.refresh()), vscode.commands.registerCommand('dbSessions.create', () => manager.createSession(provider)), vscode.commands.registerCommand('dbSessions.open', (item) => {
+        if (!item?.session)
+            return;
+        manager.openSession(item.session);
+    }), vscode.commands.registerCommand('dbSessions.rename', (item) => {
+        if (!item?.session)
+            return;
+        manager.renameSession(item.session, provider);
+    }), vscode.commands.registerCommand('dbSessions.archive', (item) => {
+        if (!item?.session)
+            return;
+        manager.archiveSession(item.session, provider);
+    }), vscode.commands.registerCommand('dbSessions.unarchive', (item) => {
+        if (!item?.session)
+            return;
+        manager.unarchiveSession(item.session, provider);
+    }), vscode.commands.registerCommand('dbSessions.kill', (item) => {
+        if (!item?.session)
+            return;
+        manager.killSession(item.session, provider);
+    }), vscode.commands.registerCommand('dbSessions.delete', (item) => {
+        if (!item?.session)
+            return;
+        manager.deleteSession(item.session, provider);
+    }), vscode.commands.registerCommand('dbSessions.restart', (item) => {
+        if (!item?.session)
+            return;
+        manager.restartSession(item.session, provider);
+    }), vscode.commands.registerCommand('dbTrackers.open', (item) => (0, trackersProvider_1.openTrackerPanel)(item)));
     // Auto-refresh every 5 seconds
     const interval = setInterval(() => provider.refresh(), 5000);
     context.subscriptions.push({ dispose: () => clearInterval(interval) });

@@ -20,6 +20,9 @@ export class WaterEffectComponent implements Component {
   private shadowMask?: Phaser.Display.Masks.GeometryMask;
   private shadowMaskGraphics?: Phaser.GameObjects.Graphics;
   private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
+  private spriteMask?: Phaser.Display.Masks.GeometryMask;
+  private spriteMaskGraphics?: Phaser.GameObjects.Graphics;
+  private spriteMaskActive = false;
   private swimmingSplashTimerMs: number = 0;
   private pendingEntrySplash = false;
 
@@ -55,6 +58,8 @@ export class WaterEffectComponent implements Component {
       this.pendingEntrySplash = false;
       this.createSplashEffect(transform.x, transform.y, false);
       SoundManager.getInstance().play('splash2');
+      this.spriteMaskActive = true;
+      this.lastMaskCell = { col: -1, row: -1 };
     }
 
     const gridCollision = this.entity.get(GridCollisionComponent);
@@ -134,6 +139,9 @@ export class WaterEffectComponent implements Component {
 
       if (gridPos.currentCell.col !== this.lastMaskCell.col || gridPos.currentCell.row !== this.lastMaskCell.row) {
         this.updateShadowMask(shadow, gridPos, grid);
+        if (this.spriteMaskActive) {
+          this.updateSpriteMask(gridPos, grid);
+        }
         this.lastMaskCell = { col: gridPos.currentCell.col, row: gridPos.currentCell.row };
       }
     } else {
@@ -142,6 +150,9 @@ export class WaterEffectComponent implements Component {
       shadow.shadow.setDepth(Depth.shadow);
       shadow.shadow.setY(transform.y + baseOffsetY);
       shadow.shadow.clearMask();
+      const sprite = this.entity.get(SpriteComponent);
+      if (sprite) sprite.sprite.clearMask();
+      this.spriteMaskActive = false;
     }
   }
 
@@ -290,6 +301,45 @@ export class WaterEffectComponent implements Component {
     shadow.shadow.setMask(this.shadowMask);
   }
 
+  private updateSpriteMask(gridPos: GridPositionComponent, grid: GridReader): void {
+    if (this.spriteMaskGraphics) {
+      this.spriteMaskGraphics.destroy();
+    }
+
+    const sprite = this.entity.get(SpriteComponent);
+    if (!sprite) return;
+
+    this.spriteMaskGraphics = this.scene.add.graphics();
+    this.spriteMaskGraphics.fillStyle(0xffffff);
+    this.spriteMaskGraphics.setVisible(false);
+
+    const centerCell = gridPos.currentCell;
+    const cellRadius = 2;
+    const BOTTOM_INSET_PX = 10;
+
+    // Find the bottom-most Y where water ends (per column near the player)
+    let maxBottomY = 0;
+    for (let col = centerCell.col - cellRadius; col <= centerCell.col + cellRadius; col++) {
+      for (let row = centerCell.row - cellRadius; row <= centerCell.row + cellRadius; row++) {
+        const cell = grid.getCell(col, row);
+        if (!cell?.properties.has('water')) continue;
+        const hasWaterBelow = grid.getCell(col, row + 1)?.properties.has('water') ?? false;
+        const world = grid.cellToWorld(col, row);
+        const bottomY = hasWaterBelow ? world.y + grid.cellSize : world.y + grid.cellSize - BOTTOM_INSET_PX;
+        if (bottomY > maxBottomY) maxBottomY = bottomY;
+      }
+    }
+
+    // Draw a large rect from far above down to the bottom water edge
+    const topY = (centerCell.row - cellRadius) * grid.cellSize - 200;
+    const leftX = (centerCell.col - cellRadius) * grid.cellSize - 200;
+    const width = (cellRadius * 2 + 1) * grid.cellSize + 400;
+    this.spriteMaskGraphics.fillRect(leftX, topY, width, maxBottomY - topY);
+
+    this.spriteMask = this.spriteMaskGraphics.createGeometryMask();
+    sprite.sprite.setMask(this.spriteMask);
+  }
+
   private createSplashEffect(x: number, y: number, isSwimming: boolean): void {
     const emitter = this.scene.add.particles(x, y, this.splashTextureKey, {
       speed: isSwimming ? { min: 30, max: 60 } : { min: 50, max: 100 },
@@ -311,6 +361,9 @@ export class WaterEffectComponent implements Component {
   onDestroy(): void {
     if (this.shadowMaskGraphics) {
       this.shadowMaskGraphics.destroy();
+    }
+    if (this.spriteMaskGraphics) {
+      this.spriteMaskGraphics.destroy();
     }
   }
 }

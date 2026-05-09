@@ -115,7 +115,7 @@ See `src/systems/grid/Grid.ts` for complete API.
 
 ### Grid Tag Index
 
-The grid maintains a tag-based index for O(1) entity lookup by tag. When entities are added/removed from grid occupancy, their tags are indexed automatically.
+The grid maintains a tag-based index for O(1) entity lookup by tag. Uses ref-counting to handle multi-cell entities correctly — an entity occupying 4 cells is only added to the tag index once and only removed when its last cell occupancy is cleared.
 
 - `grid.getEntitiesWithTag(tag)` — Returns all entities currently on the grid with the given tag
 - Used by systems that need to find all entities of a type without scanning every cell (e.g., finding all lasers, all enemies)
@@ -147,9 +147,11 @@ Handles all collision logic including layer-based movement. Features:
 - Enforces transition cell restrictions (vertical only)
 - Implements sliding collision
 - Updates grid occupancy automatically
-- Tracks entity's current layer
+- Tracks entity's current layer and current cell (based on center of collision box)
 - Handles multi-cell entities
 - Box-in-box collision detection (checks all overlapping cells)
+
+**currentCell**: Computed from the center of the entity's collision box (not top-left corner). This ensures exits and triggers fire correctly regardless of collision box offset.
 
 **GridMovementValidator** (`src/ecs/components/movement/GridMovementValidator.ts`): Extracted helper class that isolates movement validation logic (canMoveTo, layer checks, diagonal restrictions) from position tracking and occupancy management. GridCollisionComponent delegates all movement validation to it.
 
