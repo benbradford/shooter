@@ -835,6 +835,14 @@
       ]
     },
     {
+      "col": 14,
+      "row": 6,
+      "layer": 0,
+      "backgroundTexture": [
+        "bush1"
+      ]
+    },
+    {
       "col": 17,
       "row": 14,
       "layer": 0,
@@ -1454,7 +1462,50 @@
       ]
     }
   ],
-  "entities": [],
+  "entities": [
+    {
+      "id": "exit0",
+      "type": "exit",
+      "data": {
+        "targetLevel": "dungeon1",
+        "targetCol": 12,
+        "targetRow": 27,
+        "triggerCells": [
+          {
+            "col": 18,
+            "row": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit1",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworld1",
+        "targetCol": 20,
+        "targetRow": 1,
+        "triggerCells": [
+          {
+            "col": 19,
+            "row": 19
+          },
+          {
+            "col": 18,
+            "row": 19
+          },
+          {
+            "col": 17,
+            "row": 19
+          },
+          {
+            "col": 20,
+            "row": 19
+          }
+        ]
+      }
+    }
+  ],
   "levelTheme": "grass_overworld1",
   "background": {
     "floor_texture": "grass_faded",

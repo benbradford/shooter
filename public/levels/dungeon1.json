@@ -5930,9 +5930,9 @@
       "id": "exit0",
       "type": "exit",
       "data": {
-        "targetLevel": "grass_overworld1",
-        "targetCol": 21,
-        "targetRow": 1,
+        "targetLevel": "grass_overworldn",
+        "targetCol": 18,
+        "targetRow": 2,
         "triggerCells": [
           {
             "col": 12,

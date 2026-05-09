@@ -4,7 +4,7 @@ Level transitions allow players to move between levels by entering designated ex
 
 ## How It Works
 
-1. **Define exit cells** in level JSON with triggers
+1. **Define exit entities** in level JSON `entities` array
 2. **Link exits** to target levels with spawn positions
 3. **Player enters exit cell** → LoadingScene handles transition
 4. **Player spawns** at specified position in new level
@@ -18,94 +18,19 @@ Level transitions allow players to move between levels by entering designated ex
 - Fade uses timeout (500ms) instead of camera callback (more reliable)
 - All loading tests pass including round trips
 
-## Level JSON Configuration
+## Exit Entity Format
 
-### Exit Definition
+Exits are defined as entities in the unified `entities` array. See `entity-creation-system.md` for full entity documentation.
 
-```json
-{
-  "triggers": [
-    {
-      "eventName": "exit_to_dungeon2",
-      "triggerCells": [{ "col": 28, "row": 15 }],
-      "oneShot": false
-    }
-  ],
-  "exits": [
-    {
-      "eventName": "exit_to_dungeon2",
-      "targetLevel": "dungeon2",
-      "targetCol": 2,
-      "targetRow": 15,
-      "description": "Exit to Dungeon Level 2"
-    }
-  ],
-  "cells": [
-    {
-      "col": 28,
-      "row": 15,
-      "layer": 0,
-      "properties": ["exit"],
-      "backgroundTexture": "dungeon_door"
-    }
-  ]
-}
-```
-
-### Fields
-
-**LevelExit:**
-- `eventName` (string) - Event name that triggers this exit (must match trigger)
-- `targetLevel` (string) - Target level filename without `.json`
-- `targetCol` (number) - Spawn column in target level
-- `targetRow` (number) - Spawn row in target level
-- `description` (string, optional) - Human-readable description
-
-**Important:** Exit cells should have `"exit"` property and a `backgroundTexture` (e.g., door sprite) for visual distinction.
+**Key fields:** `targetLevel`, `targetCol`, `targetRow`, `triggerCells`
 
 ## Bidirectional Travel
 
-Each level defines its own exits. To create a two-way connection:
-
-**Level 1:**
-```json
-{
-  "exits": [
-    {
-      "eventName": "exit_east",
-      "targetLevel": "level2",
-      "targetCol": 1,
-      "targetRow": 15
-    }
-  ]
-}
-```
-
-**Level 2:**
-```json
-{
-  "exits": [
-    {
-      "eventName": "exit_west",
-      "targetLevel": "level1",
-      "targetCol": 28,
-      "targetRow": 15
-    }
-  ]
-}
-```
-
-## Testing
-
-Test levels are provided:
-- `test_room1.json` - Dungeon theme, exit on right side
-- `test_room2.json` - Swamp theme, exit on left side
-
-Load with: `http://localhost:5173/?level=test_room1`
+Each level defines its own exits. To create a two-way connection, each level has an exit entity pointing to the other with appropriate spawn positions.
 
 ## Implementation Details
 
-- Uses existing trigger system
+- Uses existing trigger/entity system
 - LoadingScene manages asset loading/unloading
 - Player never spawns on exit cells (spawn positions are separate)
 - Errors logged to console if target level doesn't exist
@@ -119,6 +44,14 @@ Load with: `http://localhost:5173/?level=test_room1`
 - Display list cleaned at start of GameScene.create()
 - Vignette texture key corrected ('vignette' not 'vin')
 - stalking_robot asset group includes floating_robot assets
+
+## Testing
+
+Test levels are provided:
+- `test_room1.json` - Dungeon theme, exit on right side
+- `test_room2.json` - Swamp theme, exit on left side
+
+Load with: `http://localhost:5173/?level=test_room1`
 
 ## Related Files
 

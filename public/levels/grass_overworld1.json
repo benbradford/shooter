@@ -5394,9 +5394,9 @@
       "id": "exit0",
       "type": "exit",
       "data": {
-        "targetLevel": "dungeon1",
-        "targetCol": 13,
-        "targetRow": 26,
+        "targetLevel": "grass_overworldn",
+        "targetCol": 18,
+        "targetRow": 18,
         "triggerCells": [
           {
             "col": 20,

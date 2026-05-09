@@ -97,6 +97,6 @@ function openGamePanel(url: string): void {
 
 function gameWebviewHtml(url: string): string {
   return `<!DOCTYPE html>
-<html><head><meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; frame-src http://localhost:*;"><style>body,html{margin:0;padding:0;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:none}</style></head>
+<html><head><meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; frame-src http://localhost:*;"><style>body,html{margin:0;padding:0;height:100%;overflow:hidden;background:#000}iframe{width:100%;height:70%;border:none;position:absolute;top:15%}</style></head>
 <body><iframe src="${url}"></iframe></body></html>`;
 }

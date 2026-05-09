@@ -195,11 +195,9 @@ graph TB
 - Wall/platform patterns
 - Vignette effects
 
-**level-transitions.md** (8KB)
-- Exit triggers and level switching
+**level-transitions.md** (3KB)
+- Exit triggers and bidirectional travel
 - WorldState persistence across transitions
-- Asset loading/unloading
-- Runtime texture filtering (March 2026 fix)
 
 **entity-creation-system.md** (17KB)
 - Unified entity array in level JSON
