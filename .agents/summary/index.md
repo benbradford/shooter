@@ -287,7 +287,7 @@ graph TB
 
 All trackers live in `workbench/` folder:
 - `workbench/main.html` — Dashboard with New Session, Commit All, Update Docs buttons
-- `workbench/sessions.html` — Session manager (live list, connect/rename/archive/delete, embedded terminal, diff viewer panel)
+- `workbench/sessions.html` — Session manager (live list, connect/rename/archive/delete, embedded terminal, diff viewer panel, copy-mode panel)
 - `workbench/architecture-issues.html` — Tech debt tracker
 - `workbench/bug-tracker.html` — Bug tracker
 - `workbench/feature-tracker.html` — Feature tracker
@@ -331,3 +331,5 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **Linter errors tracker**: `workbench/linter-errors.html` — fetches lint results from `GET /api/lint`, categorizes by rule, allows fixing via kiro agent sessions
 - **Session delete**: Sessions can be permanently deleted (removes from disk). Workflows (tagged sessions) have no edit/archive buttons — only delete
 - **Session diff viewer**: Collapsible panel in `workbench/sessions.html` showing `git diff` output per-file. Uses `GET /api/git/diff` endpoint. Explorer tab removed (was redundant with VS Code).
+- **Copy mode**: Click 📋 button on active sessions to capture terminal content (last 500 lines via tmux `capture-pane`). Text displayed in selectable panel for Cmd+C copying. Uses `POST /api/sessions/capture` endpoint.
+- **Coding standards — complexity/nesting**: New section in `docs/coding-standards.md` covering cyclomatic complexity ≤15, max nesting depth ≤4, nullish coalescing, no nested ternaries, no negated conditions with else.

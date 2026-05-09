@@ -22,6 +22,8 @@ interface Session {
   createdAt: string;
   command: string;
   tag?: string;
+  prompt?: string;
+  agent?: string;
 }
 
 const sessions: Map<string, Session> = new Map();
@@ -598,6 +600,8 @@ If there are no changes to commit, say so and stop.`;
           const label = body.label ?? `Session ${nextSessionId}`;
           const session = spawnSession(label, shellCmd);
           if (body.tag) session.tag = body.tag;
+          if (body.prompt) session.prompt = body.prompt;
+          if (body.agent) session.agent = body.agent;
           persistSessions();
 
           res.setHeader('Content-Type', 'application/json');

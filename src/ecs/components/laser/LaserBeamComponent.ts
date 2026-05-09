@@ -281,7 +281,7 @@ export class LaserBeamComponent implements Component, EventListener {
     if (!player || player.isDestroyed) return;
 
     const gridPos = player.get(GridPositionComponent);
-    if (!gridPos || gridPos.currentLayer !== this.layer) return;
+    if (gridPos?.currentLayer !== this.layer) return;
 
     const playerTransform = player.require(TransformComponent);
     const collision = player.get(CollisionComponent);

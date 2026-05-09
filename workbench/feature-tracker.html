@@ -66,7 +66,7 @@
 </head>
 <body>
 
-<a class="back" href="main.html">← Back to Main</a> · <a class="back" href="bug-tracker.html">Bugs</a> · <a class="back" href="architecture-issues.html">Issues</a>
+<a class="back" href="main.html">← Back to Main</a> · <a class="back" href="bug-tracker.html">Bugs</a> · <a class="back" href="architecture-issues.html">Issues</a> · <a class="back" href="linter-errors.html">Lint</a>
 <h1>✨ Feature Tracker</h1>
 <p class="subtitle">Dodging Bullets — Planned Features &amp; Enhancements</p>
 
@@ -143,18 +143,7 @@ const FEATURES = [
   { priority: 'medium', status: 'done', title: 'Browser-based session manager with multi-session support', detail: 'Instead of opening a new browser tab for each kiro session, have a single persistent page (sessions.html) that manages all active sessions. Left sidebar shows all open sessions — clicking one shows its terminal in the main panel (iframe to ttyd). Features: (1) Auto-naming — AI generates a brief title summarising what the session is doing, with fallback names like Session 1, Session 2. (2) Rename — click session name to edit it manually. (3) Archive — move a session to an archived section at the bottom-left, collapsible, can be recalled/reopened later. (4) All tracker Fix/Diagnose/Refresh/Decide buttons route to this page instead of opening new tabs. (5) New Session button creates a blank dodging-bullets agent session. Backend needs: session registry (track port, label, status, archived), cleanup of dead ttyd processes, session list endpoint. Drop --once flag, manage lifecycle ourselves.', category: 'tooling', id: 7, added: '2026-05-06' },
   { priority: 'medium', status: 'done', title: 'Allow custom z for background textures', detail: 'I want to be able to override the z depth of background textures. we already have transform overrides, can we also add Z transform override. leave it blank to use the default, but if it is set then use that Z when rendering. The editor will probably need a check box as well as a number inut for this, the checkbox to turn override on or off. apply the z change in the edtior gameplay window if applying it', category: 'graphics', id: 8, added: '2026-05-09' },
   { priority: 'medium', status: 'done', title: 'Session pinning', detail: 'I want the ability to pin sessions to a separate section in the bar on the left of the session tracker. This is because i have repeated tasks such as updating docs, refreshing issues, committing files and i want to be able to keep reusing those prompts.', category: 'tooling', id: 9, added: '2026-05-09' },
-  { priority: 'medium', status: 'planned', title: 'auto-heal and collection feature', detail: 'I want to add the ability to gain autoheal feature. there will be a witch with a cauldron that tells you she can give you a special potion if you collect some ingredients:
-
-Ingredient	Purpose
-Glowcap Mushrooms	Regrowth
-Root Parasite	Active healing
-Everroot	Endless regeneration
-Bone Marrow Chunk	Flesh restoration
-Ember Moss	Activation
-
-After collecting all of these, you will gain the autoHeal feature (already implemented, just need to turn autoHeal=true state flag) we still need witch and caludron assets. the cauldron will have to boil. we need assets for all of the ingredients still and we need to decide on where to place them and how this will affect game pacing. items can exist in chests at various secret points in the game.
-
-We cannot implement this feature as-is since we are missing assets and we are missing ideas of where to place them in the game, but adding it here for now to remember', category: 'gameplay', id: 10, added: '2026-05-09' },
+  { priority: 'medium', status: 'planned', title: 'auto-heal and collection feature', detail: 'I want to add the ability to gain autoheal feature. There will be a witch with a cauldron that tells you she can give you a special potion if you collect some ingredients: Glowcap Mushrooms (Regrowth), Root Parasite (Active healing), Everroot (Endless regeneration), Bone Marrow Chunk (Flesh restoration), Ember Moss (Activation). After collecting all of these, you will gain the autoHeal feature (already implemented, just need to turn autoHeal=true state flag). We still need witch and cauldron assets (cauldron must boil). We need assets for all ingredients and need to decide on placement and game pacing. Items can exist in chests at various secret points. Cannot implement as-is since we are missing assets and placement ideas — adding here to remember.', category: 'gameplay', id: 10, added: '2026-05-09' },
 ];
 
 function priorityOrder(p) { return { high: 0, medium: 1, low: 2 }[p] ?? 3; }

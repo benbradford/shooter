@@ -109,7 +109,7 @@ export class PetActionButtonComponent implements Component {
     const player = gameScene.entityManager?.getFirst('player');
     const petAbility = player?.get(PetAbilityComponent);
 
-    if (!petAbility || !petAbility.canUseAbility()) {
+    if (!petAbility?.canUseAbility()) {
       this.sprite.setAlpha(BUTTON_ALPHA_DISABLED);
       this.ring.setAlpha(BUTTON_ALPHA_DISABLED);
       this.bg.setAlpha(BUTTON_ALPHA_DISABLED);

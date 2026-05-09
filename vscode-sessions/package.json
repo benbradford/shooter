@@ -1,0 +1,72 @@
+{
+  "name": "db-sessions",
+  "displayName": "DB Sessions",
+  "description": "Manage Dodging Bullets kiro-cli sessions with native copy/paste support",
+  "version": "0.1.0",
+  "publisher": "bebradfo",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "db-sessions",
+          "title": "DB Sessions",
+          "icon": "$(terminal)"
+        }
+      ]
+    },
+    "views": {
+      "db-sessions": [
+        {
+          "id": "dbSessions",
+          "name": "Sessions"
+        },
+        {
+          "id": "dbTrackers",
+          "name": "Trackers"
+        }
+      ]
+    },
+    "commands": [
+      { "command": "dbSessions.refresh", "title": "Refresh Sessions", "icon": "$(refresh)" },
+      { "command": "dbSessions.create", "title": "New Session", "icon": "$(add)" },
+      { "command": "dbSessions.open", "title": "Open in Terminal" },
+      { "command": "dbSessions.rename", "title": "Rename" },
+      { "command": "dbSessions.archive", "title": "Archive" },
+      { "command": "dbSessions.unarchive", "title": "Unarchive" },
+      { "command": "dbSessions.kill", "title": "Kill" },
+      { "command": "dbSessions.delete", "title": "Delete" },
+      { "command": "dbSessions.restart", "title": "Rerun", "icon": "$(debug-restart)" },
+      { "command": "dbTrackers.open", "title": "Open Tracker" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "dbSessions.refresh", "when": "view == dbSessions", "group": "navigation" },
+        { "command": "dbSessions.create", "when": "view == dbSessions", "group": "navigation" }
+      ],
+      "view/item/context": [
+        { "command": "dbSessions.open", "when": "view == dbSessions && viewItem =~ /active/", "group": "1_open" },
+        { "command": "dbSessions.restart", "when": "view == dbSessions && viewItem =~ /workflow/", "group": "1_open" },
+        { "command": "dbSessions.restart", "when": "view == dbSessions && viewItem == dead_session", "group": "1_open" },
+        { "command": "dbSessions.rename", "when": "view == dbSessions && viewItem =~ /session|workflow/", "group": "2_manage" },
+        { "command": "dbSessions.archive", "when": "view == dbSessions && viewItem =~ /active/", "group": "2_manage" },
+        { "command": "dbSessions.unarchive", "when": "view == dbSessions && viewItem == archived_session", "group": "2_manage" },
+        { "command": "dbSessions.kill", "when": "view == dbSessions && viewItem =~ /active/", "group": "3_danger" },
+        { "command": "dbSessions.delete", "when": "view == dbSessions && viewItem =~ /session|workflow/", "group": "3_danger" }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}

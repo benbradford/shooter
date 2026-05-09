@@ -411,8 +411,11 @@ The workbench includes a multi-session system that manages kiro-cli sessions via
 - `POST /api/sessions/kill` — kill tmux + ttyd for a session (`{ id }`)
 - `POST /api/sessions/reconnect` — re-spawn ttyd if tmux is still alive (`{ id }`)
 - `POST /api/sessions/delete` — permanently remove a session (`{ id }`)
+- `POST /api/sessions/capture` — capture terminal content for copy mode (`{ id }`), returns `{ text }`
 
 **UI:** `workbench/sessions.html` — Session manager page with live session list, connect/rename/archive/delete controls, embedded ttyd terminal iframe, and collapsible diff viewer panel (shows `git diff` output per-file). Workflows (tagged sessions launched via dashboard buttons) have no action buttons.
+
+**Copy mode:** Click the 📋 button on any active session to capture terminal content (last 500 lines via tmux `capture-pane`). Text is displayed in a selectable panel for easy Cmd+C copying.
 
 **Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`)
 

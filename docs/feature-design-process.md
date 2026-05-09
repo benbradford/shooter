@@ -561,52 +561,17 @@ Before starting implementation, verify:
 
 ## Anti-Patterns to Avoid
 
-### ❌ Starting Implementation Too Early
-**Problem**: Design has gaps, implementation gets stuck
-**Solution**: Complete all phases first
-
-### ❌ Assuming Instead of Asking
-**Problem**: Wrong assumptions lead to rework
-**Solution**: Ask ALL questions, even "obvious" ones
-
-### ❌ Skipping Scrutiny
-**Problem**: Hidden ambiguities discovered during implementation
-**Solution**: Take fresh look, find ALL gaps before starting
-
-### ❌ Incomplete Documentation
-**Problem**: Future sessions can't understand design
-**Solution**: Document everything, include code examples
-
-### ❌ No POC for Risky Tech
-**Problem**: Discover limitations mid-implementation
-**Solution**: POC first, validate approach
+- ❌ **Starting implementation too early** — Complete all phases first
+- ❌ **Assuming instead of asking** — Ask ALL questions, even "obvious" ones
+- ❌ **Skipping scrutiny** — Take fresh look, find ALL gaps before starting
+- ❌ **Incomplete documentation** — Document everything, include code examples
+- ❌ **No POC for risky tech** — POC first, validate approach
 
 ---
 
 ## Example: Interaction System
 
-### What We Did Right ✓
-
-1. **Started with POC** - Tested fengari, fengari-web, wasmoon
-2. **Asked clarifying questions** - 12+ rounds of questions
-3. **Validated assumptions** - Tested async behavior, parameter passing
-4. **Scrutinized design** - Found 10 critical gaps
-5. **Resolved all ambiguities** - Every question answered
-6. **Created 4 documents** - Requirements, design, tasks, clarifications
-7. **Organized properly** - All in `features/interactions/` directory
-
-### Timeline
-- Initial request → POC → Requirements → Design → Scrutiny → Clarifications → Ready
-- **Time spent on design**: ~2 hours
-- **Time saved during implementation**: Estimated 10-20 hours (no confusion, no rework)
-
-### Result
-- ✅ Zero ambiguities
-- ✅ Complete specifications
-- ✅ Ready for any Kiro session to implement
-- ✅ Estimated 26-34 hours to implement (clear path)
-- ✅ **Actually implemented in 3 hours** (87% time savings!)
-- ✅ Tasks marked complete in `interaction-system-tasks-COMPLETE.md`
+Design took ~2 hours. Implementation took 3 hours (vs 26-34 hour estimate — 87% time savings). Key: POC validated wasmoon, 12+ rounds of clarifying questions, 10 critical gaps found during scrutiny.
 
 ---
 
@@ -662,18 +627,3 @@ A design is complete when:
 - ✅ Time estimate is realistic
 - ✅ POCs validate risky assumptions
 - ✅ User has approved all decisions
-
----
-
-## Conclusion
-
-**Invest time in design to save time in implementation.**
-
-A complete design takes 1-3 hours but prevents:
-- Confusion during implementation
-- Constant back-and-forth
-- Rework due to wrong assumptions
-- Discovering limitations mid-implementation
-- Incomplete or buggy features
-
-**The interaction system design took ~2 hours and will save an estimated 10-20 hours during implementation.**
