@@ -28,6 +28,12 @@
   .sidebar-header h2 { font-size: 1rem; font-weight: 600; }
   .sidebar-header a { color: var(--muted); text-decoration: none; font-size: 0.8rem; }
   .sidebar-header a:hover { color: var(--text); }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .tab-btn { flex: 1; padding: 8px 0; font-size: 0.75rem; text-align: center; cursor: pointer; border: none; background: none; color: var(--muted); border-bottom: 2px solid transparent; transition: 0.15s; }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+  .tab-content { flex: 1; overflow-y: auto; display: none; flex-direction: column; }
+  .tab-content.active { display: flex; }
   .new-btn { background: var(--accent-green); color: #000; border: none; border-radius: 6px; padding: 8px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin: 12px 16px; }
   .new-btn:hover { opacity: 0.9; }
 
@@ -62,9 +68,37 @@
   .section-collapse[open] summary::before { content: '▼ '; font-size: 0.6rem; margin-right: 4px; }
 
   /* Main panel */
-  .main { flex: 1; display: flex; flex-direction: column; }
-  .main-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.1rem; }
-  .main iframe { flex: 1; border: none; background: #000; }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+  .main-content { flex: 1; overflow: hidden; }
+  .main-empty { height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.1rem; }
+  .main-content iframe { width: 100%; height: 100%; border: none; background: #000; }
+
+  /* Diff panel */
+  .diff-panel { position: absolute; top: 0; left: 0; right: 0; border-bottom: 2px solid var(--border); background: var(--surface); max-height: 30vh; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .diff-panel.collapsed .diff-body { display: none; }
+  .diff-panel.collapsed { box-shadow: none; }
+  .diff-header { padding: 6px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; flex-shrink: 0; }
+  .diff-header .arrow { font-size: 0.6rem; color: var(--muted); }
+  .diff-header h3 { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .diff-header .file-count { font-size: 0.7rem; color: var(--muted); }
+  .diff-header .refresh-btn { margin-left: auto; background: none; border: 1px solid var(--border); color: var(--muted); border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; cursor: pointer; }
+  .diff-header .refresh-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .diff-body { overflow-y: auto; padding: 0 12px 8px; }
+  .diff-file { margin-bottom: 4px; }
+  .diff-file summary { padding: 4px 8px; font-size: 0.8rem; cursor: pointer; border-radius: 4px; font-family: monospace; }
+  .diff-file summary:hover { background: var(--surface2); }
+  .diff-file pre { margin: 0; padding: 6px 8px; font-size: 0.72rem; line-height: 1.4; overflow-x: auto; background: var(--bg); border-radius: 4px; }
+  .diff-line-add { color: #4ade80; }
+  .diff-line-del { color: #f87171; }
+  .diff-line-hunk { color: #4fc3f7; }
+
+  /* Explorer */
+  .explorer { padding: 8px 0; }
+  .file-item { padding: 4px 8px; cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .file-item:hover { background: var(--surface2); }
+  .file-item .icon { flex-shrink: 0; font-size: 0.75rem; }
+  .file-children { display: none; }
+  .file-children.open { display: block; }
 
   /* Toast */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--surface2); border: 1px solid var(--accent-green); border-radius: 8px; padding: 10px 20px; color: var(--accent-green); font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 1000; }
@@ -77,17 +111,37 @@
     <h2>Sessions</h2>
     <a href="main.html">← Trackers</a>
   </div>
-  <button class="new-btn" onclick="createSession()">+ New Session</button>
-  <details class="section-collapse" id="taskList" open></details>
-  <details class="section-collapse" id="activeList" open></details>
-  <details class="section-collapse" id="archiveSection">
-    <summary>Archived (<span id="archiveCount">0</span>)</summary>
-    <div id="archiveList"></div>
-  </details>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('sessions')">Sessions</button>
+    <button class="tab-btn" onclick="switchTab('explorer')">Explorer</button>
+  </div>
+  <div class="tab-content active" id="tabSessions">
+    <button class="new-btn" onclick="createSession()">+ New Session</button>
+    <details class="section-collapse" id="taskList" open></details>
+    <details class="section-collapse" id="activeList" open></details>
+    <details class="section-collapse" id="archiveSection">
+      <summary>Archived (<span id="archiveCount">0</span>)</summary>
+      <div id="archiveList"></div>
+    </details>
+  </div>
+  <div class="tab-content" id="tabExplorer">
+    <div class="explorer" id="explorerTree"></div>
+  </div>
 </div>
 
 <div class="main" id="mainPanel">
-  <div class="main-empty" id="emptyState">Select or create a session</div>
+  <div class="main-content" id="mainContent">
+    <div class="main-empty" id="emptyState">Select or create a session</div>
+  </div>
+  <div class="diff-panel collapsed" id="diffPanel">
+    <div class="diff-header" onclick="toggleDiffPanel()">
+      <span class="arrow" id="diffArrow">▶</span>
+      <h3>Changes</h3>
+      <span class="file-count" id="diffFileCount"></span>
+      <button class="refresh-btn" onclick="event.stopPropagation(); loadDiff()">↻ Refresh</button>
+    </div>
+    <div class="diff-body" id="diffBody"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -166,11 +220,12 @@ function sessionHTML(s, isArchived = false) {
 }
 
 async function selectSession(id) {
+  if (id === activeSessionId && document.querySelector('.main-content iframe')) return;
   activeSessionId = id;
   const s = sessions.find(x => x.id === id);
   if (!s) return;
 
-  const main = document.getElementById('mainPanel');
+  const main = document.getElementById('mainContent');
   const empty = document.getElementById('emptyState');
   if (empty) empty.remove();
 
@@ -320,7 +375,7 @@ async function deleteSession(id) {
 }
 
 function resetMainPanel() {
-  const main = document.getElementById('mainPanel');
+  const main = document.getElementById('mainContent');
   const existing = main.querySelector('iframe');
   if (existing) existing.remove();
   if (!main.querySelector('.main-empty')) {
@@ -358,6 +413,75 @@ window.addEventListener('pageshow', async () => {
 // Poll for session status updates
 loadSessions();
 pollInterval = setInterval(loadSessions, 5000);
+
+// Tabs
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === tab));
+  document.getElementById('tabSessions').classList.toggle('active', tab === 'sessions');
+  document.getElementById('tabExplorer').classList.toggle('active', tab === 'explorer');
+  if (tab === 'explorer' && !document.getElementById('explorerTree').innerHTML) loadExplorer('.');
+}
+
+async function loadExplorer(dir, parentEl) {
+  try {
+    const res = await fetch(`/api/files?dir=${encodeURIComponent(dir)}`);
+    const entries = await res.json();
+    const container = parentEl || document.getElementById('explorerTree');
+    container.innerHTML = entries.map(e => {
+      const indent = (dir.split('/').length - 1) * 12;
+      const icon = e.isDir ? '📁' : '📄';
+      return e.isDir
+        ? `<div><div class="file-item" style="padding-left:${8 + indent}px" onclick="toggleDir(this, '${e.path}')"><span class="icon">${icon}</span>${e.name}</div><div class="file-children"></div></div>`
+        : `<div class="file-item" style="padding-left:${8 + indent}px"><span class="icon">${icon}</span>${e.name}</div>`;
+    }).join('');
+  } catch (e) { console.error('Explorer error:', e); }
+}
+
+async function toggleDir(el, dirPath) {
+  const children = el.nextElementSibling;
+  if (children.classList.contains('open')) {
+    children.classList.remove('open');
+    return;
+  }
+  if (!children.innerHTML) await loadExplorer(dirPath, children);
+  children.classList.add('open');
+}
+
+// Diff panel
+function toggleDiffPanel() {
+  const panel = document.getElementById('diffPanel');
+  const wasCollapsed = panel.classList.contains('collapsed');
+  panel.classList.toggle('collapsed');
+  document.getElementById('diffArrow').textContent = wasCollapsed ? '▼' : '▶';
+  if (wasCollapsed) loadDiff();
+}
+
+async function loadDiff() {
+  try {
+    const res = await fetch('/api/git/diff');
+    const data = await res.json();
+    const count = data.files.length;
+    document.getElementById('diffFileCount').textContent = count ? `${count} file${count > 1 ? 's' : ''}` : 'clean';
+    if (!count) {
+      document.getElementById('diffBody').innerHTML = '<div style="padding:8px;color:var(--muted);font-size:0.8rem">No uncommitted changes</div>';
+      return;
+    }
+    document.getElementById('diffBody').innerHTML = data.files.map(f =>
+      `<details class="diff-file"><summary>${escapeHtml(f.name)}</summary><pre>${colorDiff(f.diff)}</pre></details>`
+    ).join('');
+  } catch (e) {
+    document.getElementById('diffBody').innerHTML = `<div style="padding:8px;color:var(--accent-red);font-size:0.8rem">Error: ${e.message}</div>`;
+  }
+}
+
+function colorDiff(text) {
+  return escapeHtml(text).split('\n').map(line => {
+    if (line.startsWith('+') && !line.startsWith('+++')) return `<span class="diff-line-add">${line}</span>`;
+    if (line.startsWith('-') && !line.startsWith('---')) return `<span class="diff-line-del">${line}</span>`;
+    if (line.startsWith('@@')) return `<span class="diff-line-hunk">${line}</span>`;
+    return line;
+  }).join('\n');
+}
 </script>
 
 </body>

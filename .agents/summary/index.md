@@ -128,7 +128,7 @@ graph TB
 ### Critical Files (Read First)
 
 **coding-standards.md** (43KB)
-- MANDATORY build/lint workflow
+- MANDATORY build after every change (lint only when asked or before committing)
 - Modern JavaScript standards
 - Component design principles (props pattern, no defaults)
 - No magic numbers rule
@@ -326,6 +326,7 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **SoundManager injection**: Components receive SoundManager via props instead of calling `getInstance()` internally. Entity factories call `getInstance()` and pass through
 - **Per-texture visual options**: Background textures support `blendMode`, `alpha`, and `tint` fields (rendered by `BackgroundTextureRenderer`). Editor exposes these in the cell texture form.
 - **Overlay placementStrategy 'random'**: Fixed to use uniform distribution across all eligible cells (no edge bias)
+- **Water texture edges**: `water_texture_edges` field in background config — renders edge overlay above water tiles at depth -9 (used by grass_overworld themes for clean water/land transitions)
 - **Small mushroom drops**: Breakables can now drop small mushrooms (instant 20 HP heal, 40px collection distance, 300ms spawn delay, 15s lifetime with fade). Drop chance scales with rarity. Key files: `src/ecs/entities/pickup/SmallMushroomEntity.ts`, `src/ecs/components/pickup/SmallMushroomComponent.ts`
 - **Linter errors tracker**: `workbench/linter-errors.html` — fetches lint results from `GET /api/lint`, categorizes by rule, allows fixing via kiro agent sessions
 - **Session delete**: Sessions can be permanently deleted (removes from disk). Workflows (tagged sessions) have no edit/archive buttons — only delete

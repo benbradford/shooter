@@ -704,6 +704,48 @@ If there are no changes to commit, say so and stop.`;
           res.end(JSON.stringify({ ok: true, port: session.port }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
+
+      // Git diff API
+      server.middlewares.use('/api/git/diff', (req, res) => {
+        if (req.method !== 'GET') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const stat = execSync('git diff --stat', { encoding: 'utf-8', cwd: process.cwd() });
+          const diff = execSync('git diff', { encoding: 'utf-8', cwd: process.cwd() });
+          // Parse diff into per-file chunks
+          const files: { name: string; diff: string }[] = [];
+          const parts = diff.split(/^diff --git /m);
+          for (let i = 1; i < parts.length; i++) {
+            const lines = parts[i].split('\n');
+            const match = lines[0].match(/a\/(.+?) b\//);
+            const name = match ? match[1] : `file ${i}`;
+            files.push({ name, diff: 'diff --git ' + parts[i] });
+          }
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ stat, files }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // File explorer API
+      server.middlewares.use('/api/files', (req, res) => {
+        if (req.method !== 'GET') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        const url = new URL(req.url!, 'http://localhost');
+        const dir = url.searchParams.get('dir') || '.';
+        const fullPath = path.resolve(process.cwd(), dir);
+        // Security: don't allow escaping project root
+        if (!fullPath.startsWith(process.cwd())) { res.statusCode = 403; res.end('Forbidden'); return; }
+        try {
+          const entries = fs.readdirSync(fullPath, { withFileTypes: true })
+            .filter(e => !e.name.startsWith('.') && !['node_modules', 'dist', 'build', 'android', 'tmp'].includes(e.name))
+            .sort((a, b) => {
+              if (a.isDirectory() && !b.isDirectory()) return -1;
+              if (!a.isDirectory() && b.isDirectory()) return 1;
+              return a.name.localeCompare(b.name);
+            })
+            .map(e => ({ name: e.name, isDir: e.isDirectory(), path: path.join(dir, e.name) }));
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify(entries));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
     }
   };
 }

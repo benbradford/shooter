@@ -124,6 +124,9 @@ The `background` block in level JSON controls floor rendering:
 
 - `floor_texture`: Texture key for floor tiles
 - `floorAlpha`: Opacity of floor tiles (default 1.0) — useful for faded/subtle floors
+- `path_texture`: Texture key for path tile autotiling (replaces default grey circles)
+- `water_texture`: Texture key (string) or array of texture keys for water tile autotiling
+- `water_texture_edges`: Texture key for water edge overlay (rendered above water tiles at depth -9)
 - `hasEdges`: Boolean (default true) — set false to disable wall/platform edge lines
 - `hasShadows`: Boolean (default true) — set false to disable drop shadows on elevated cells
 - `edgeDarkening`: `{ depth, intensity }` — darkens cells near level edges for vignette-like effect

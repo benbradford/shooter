@@ -249,73 +249,80 @@ export class PlayerPushState implements IState {
     const pushable = this.pushableEntity.require(PushableComponent);
     const transform = this.entity.require(TransformComponent);
 
-    // Interpolate player position
-    if (this.playerMoveTotalDistPx > 0) {
-      this.playerProgress += (PUSH_SPEED_PX_PER_SEC * delta / 1000) / this.playerMoveTotalDistPx;
-      if (this.playerProgress > 1) this.playerProgress = 1;
-      transform.x = this.playerMoveStartX + (this.playerMoveTargetX - this.playerMoveStartX) * this.playerProgress;
-      transform.y = this.playerMoveStartY + (this.playerMoveTargetY - this.playerMoveStartY) * this.playerProgress;
-    }
+    this.interpolatePlayerPosition(delta, transform);
 
-    // Check if move complete
     if (!pushable.getIsMoving()) {
-      // Snap player to final position and sync collision
-      transform.x = this.playerMoveTargetX;
-      transform.y = this.playerMoveTargetY;
-      const gridCollision = this.entity.get(GridCollisionComponent);
-      gridCollision?.syncPreviousPosition(transform.x, transform.y);
+      this.onPushComplete(transform, pushable);
+    }
+  }
 
-      // If pushable locked into push_lock cell, persist and disengage
-      if (pushable.getIsLocked()) {
-        const worldState = WorldStateManager.getInstance();
-        worldState.updateMovedEntity(this.levelName, this.pushableEntity.id, pushable.getCurrentCol(), pushable.getCurrentRow());
-        const sm = this.entity.require(StateMachineComponent);
-        sm.stateMachine.enter('idle');
-        return;
-      }
+  private interpolatePlayerPosition(delta: number, transform: TransformComponent): void {
+    if (this.playerMoveTotalDistPx <= 0) return;
+    this.playerProgress += (PUSH_SPEED_PX_PER_SEC * delta / 1000) / this.playerMoveTotalDistPx;
+    if (this.playerProgress > 1) this.playerProgress = 1;
+    transform.x = this.playerMoveStartX + (this.playerMoveTargetX - this.playerMoveStartX) * this.playerProgress;
+    transform.y = this.playerMoveStartY + (this.playerMoveTargetY - this.playerMoveStartY) * this.playerProgress;
+  }
 
-      // If pushable started falling off platform, disengage
-      if (pushable.getIsFalling()) {
-        const sm = this.entity.require(StateMachineComponent);
-        sm.stateMachine.enter('idle');
-        return;
-      }
+  private onPushComplete(transform: TransformComponent, pushable: PushableComponent): void {
+    transform.x = this.playerMoveTargetX;
+    transform.y = this.playerMoveTargetY;
+    const gridCollision = this.entity.get(GridCollisionComponent);
+    gridCollision?.syncPreviousPosition(transform.x, transform.y);
 
-      // If this was a push-off-platform, start the fall now
-      if (this.pendingFall) {
-        this.pendingFall = false;
-        const landingRow = pushable.findLandingRow(pushable.getCurrentCol(), pushable.getCurrentRow(), pushable.layer);
-        if (landingRow >= 0) {
-          pushable.startFall(landingRow);
-          const sm = this.entity.require(StateMachineComponent);
-          sm.stateMachine.enter('idle');
-          return;
-        }
-      }
+    if (this.handlePushLock(pushable)) return;
+    if (this.handleFallDetection(pushable)) return;
 
-      if (this.damagePending) {
-        this.disengage();
-        return;
-      }
+    if (this.damagePending) {
+      this.disengage();
+      return;
+    }
 
-      // Check if attack still held → chain push
-      const input = this.entity.require(InputComponent);
-      if (input.isAttackPressed()) {
-        this.tryPush();
-        if (this.phase === 'contact') {
-          // tryPush didn't start a new push (blocked), freeze anim
-          const anim = this.entity.require(AnimationComponent);
-          anim.animationSystem.play(`push_${this.direction}`);
-          anim.animationSystem.setTimeScale(0);
-        }
-      } else {
-        // Return to contact phase, freeze anim
-        this.phase = 'contact';
-        const anim = this.entity.require(AnimationComponent);
-        anim.animationSystem.play(`push_${this.direction}`);
-        anim.animationSystem.setTimeScale(0);
+    this.handleChainPushOrContact();
+  }
+
+  private handlePushLock(pushable: PushableComponent): boolean {
+    if (!pushable.getIsLocked()) return false;
+    const worldState = WorldStateManager.getInstance();
+    worldState.updateMovedEntity(this.levelName, this.pushableEntity.id, pushable.getCurrentCol(), pushable.getCurrentRow());
+    this.entity.require(StateMachineComponent).stateMachine.enter('idle');
+    return true;
+  }
+
+  private handleFallDetection(pushable: PushableComponent): boolean {
+    if (pushable.getIsFalling()) {
+      this.entity.require(StateMachineComponent).stateMachine.enter('idle');
+      return true;
+    }
+    if (this.pendingFall) {
+      this.pendingFall = false;
+      const landingRow = pushable.findLandingRow(pushable.getCurrentCol(), pushable.getCurrentRow(), pushable.layer);
+      if (landingRow >= 0) {
+        pushable.startFall(landingRow);
+        this.entity.require(StateMachineComponent).stateMachine.enter('idle');
+        return true;
       }
     }
+    return false;
+  }
+
+  private handleChainPushOrContact(): void {
+    const input = this.entity.require(InputComponent);
+    if (input.isAttackPressed()) {
+      this.tryPush();
+      if (this.phase === 'contact') {
+        this.freezePushAnimation();
+      }
+    } else {
+      this.phase = 'contact';
+      this.freezePushAnimation();
+    }
+  }
+
+  private freezePushAnimation(): void {
+    const anim = this.entity.require(AnimationComponent);
+    anim.animationSystem.play(`push_${this.direction}`);
+    anim.animationSystem.setTimeScale(0);
   }
 
   private disengage(): void {

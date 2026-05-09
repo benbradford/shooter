@@ -14,11 +14,12 @@ Do NOT resize, crop, or modify images unless explicitly requested. Adjust sprite
 ### Ask Before Modifying Non-Code Files
 Before running ANY command that modifies files outside `src/`, explain what you want to do and wait for approval.
 
-### Build and Lint After Every Change
+### Build After Every Change
 ```bash
 npm run build                # MUST pass with zero errors
-npx eslint src --ext .ts     # MUST pass with zero errors
 ```
+
+**Only run linter when explicitly asked or before committing code.**
 
 ### Clarify Before Implementing
 If there is ANY ambiguity, multiple valid approaches, or design decisions needed - STOP and ask before writing code.
