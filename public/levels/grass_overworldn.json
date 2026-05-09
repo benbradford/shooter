@@ -7,6 +7,22 @@
   },
   "cells": [
     {
+      "col": 19,
+      "row": 14,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          }
+        }
+      ]
+    },
+    {
       "col": 1,
       "row": 18,
       "layer": 0,
@@ -404,14 +420,14 @@
     "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet.png",
       "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet_sprite_list.txt",
-      "frequency": 8,
+      "frequency": 20,
       "seed": 12345,
       "placementStrategy": "random",
       "rotation": "slight",
       "blendMode": "normal",
-      "alphaBlend": "low",
-      "scale": 0.4,
-      "scaleVariation": 0.1,
+      "alphaBlend": "tiny",
+      "scale": 1,
+      "scaleVariation": 0.3,
       "tint": "#8b9446"
     }
   }

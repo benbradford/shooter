@@ -113,6 +113,9 @@ export type BackgroundTextureConfig = {
     offsetY: number;
   };
   zOffsetOverride?: number;
+  blendMode?: 'normal' | 'multiply' | 'screen' | 'add';
+  alpha?: number;
+  tint?: string;
 }
 
 export type SingleBackgroundTexture = string | BackgroundTextureConfig;

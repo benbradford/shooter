@@ -294,7 +294,7 @@ All trackers live in `workbench/` folder:
 
 Interactive when dev server running. API endpoints in `vite.config.ts`.
 
-Session management via tmux + ttyd — sessions persist across tab switches, reconnect automatically. Full CRUD: create, rename, archive, unarchive, kill, reconnect, delete. See `docs/README.md` § Session Management.
+Session management via tmux + ttyd — sessions persist across tab switches, reconnect automatically. Full CRUD: create, rename, archive, unarchive, kill, reconnect, delete. Workflows (tagged sessions) have no action buttons. See `docs/README.md` § Session Management.
 
 ## Recent Architecture Changes (May 2026)
 
@@ -319,3 +319,9 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **Punch animation fix**: `wasPunching` flag in PlayerIdleState/PlayerWalkState force-replays idle/walk animation after punch
 - **zOffsetOverride**: Background texture `zOffsetOverride` is now an absolute depth value (not offset). Positive values render in front of player. Editor has Z Override checkbox.
 - **alphaBlend 'tiny'**: New overlay opacity level (0.2-0.25) for barely-visible overlays
+- **Overlay tint/scale properties**: `tint` (hex color), `tintVariation` (random hue shift), `scale` (base scale), `scaleVariation` (random size variation)
+- **Overlay blend modes**: Added `'screen'` (lighten) and `'add'` (additive glow) to existing `'normal'`/`'multiply'`
+- **Background rendering options**: `floorAlpha` (floor opacity), `hasEdges` (disable edge lines), `hasShadows` (disable shadows), `edgeDarkening` (vignette-like edge darkening)
+- **SoundManager injection**: Components receive SoundManager via props instead of calling `getInstance()` internally. Entity factories call `getInstance()` and pass through
+- **Per-texture visual options**: Background textures support `blendMode`, `alpha`, and `tint` fields (rendered by `BackgroundTextureRenderer`). Editor exposes these in the cell texture form.
+- **Overlay placementStrategy 'random'**: Fixed to use uniform distribution across all eligible cells (no edge bias)

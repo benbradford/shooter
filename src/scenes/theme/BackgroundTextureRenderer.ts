@@ -57,6 +57,9 @@ export class BackgroundTextureRenderer {
           let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
           let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
           let zOffsetOverride: number | undefined;
+          let blendMode: string | undefined;
+          let alpha: number | undefined;
+          let tint: string | undefined;
 
           if (typeof tex === 'string') {
             textureName = tex;
@@ -65,6 +68,9 @@ export class BackgroundTextureRenderer {
             transform = tex.transformOverride;
             sourceRect = tex.sourceRect;
             zOffsetOverride = tex.zOffsetOverride;
+            blendMode = tex.blendMode;
+            alpha = tex.alpha;
+            tint = tex.tint;
           }
 
           if (textureName === '') continue;
@@ -92,6 +98,14 @@ export class BackgroundTextureRenderer {
 
           const depth: number = zOffsetOverride !== undefined ? zOffsetOverride : baseDepth;
           sprite.setDepth(depth);
+
+          if (blendMode === 'multiply') sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);
+          else if (blendMode === 'screen') sprite.setBlendMode(Phaser.BlendModes.SCREEN);
+          else if (blendMode === 'add') sprite.setBlendMode(Phaser.BlendModes.ADD);
+
+          if (alpha !== undefined) sprite.setAlpha(alpha);
+
+          if (tint) sprite.setTint(Number.parseInt(tint.replace('#', ''), 16));
 
           this.cellSprites.push(sprite);
           sprites.push(sprite);

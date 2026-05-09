@@ -118,6 +118,16 @@ In your level JSON file, specify the theme:
 
 If `levelTheme` is omitted, it defaults to `"dungeon"`.
 
+## Background Rendering Options
+
+The `background` block in level JSON controls floor rendering:
+
+- `floor_texture`: Texture key for floor tiles
+- `floorAlpha`: Opacity of floor tiles (default 1.0) — useful for faded/subtle floors
+- `hasEdges`: Boolean (default true) — set false to disable wall/platform edge lines
+- `hasShadows`: Boolean (default true) — set false to disable drop shadows on elevated cells
+- `edgeDarkening`: `{ depth, intensity }` — darkens cells near level edges for vignette-like effect
+
 ## Level Overlays
 
 Levels can include random decorative overlays (dirt patches, cracked stone, skulls, etc.) placed on empty floor cells:
@@ -156,11 +166,17 @@ Levels can include random decorative overlays (dirt patches, cracked stone, skul
 - `blendMode`: How overlays blend with floor
   - `normal`: Standard blending (default)
   - `multiply`: Darkens floor naturally
+  - `screen`: Lightens floor
+  - `add`: Additive glow effect
 - `alphaBlend`: Opacity level
   - `tiny`: 0.2-0.25 (barely visible)
   - `low`: 0.4-0.5 (subtle)
   - `medium`: 0.7-0.85 (balanced, default)
   - `high`: 0.85-1.0 (prominent)
+- `tint`: Hex color string (e.g., `"#88aa66"`) — applies uniform tint to all overlays
+- `tintVariation`: Boolean — if true, applies random subtle hue shift per overlay (ignored if `tint` is set)
+- `scale`: Base scale for overlays (default 0.5)
+- `scaleVariation`: Random scale variation range (e.g., 0.2 means ±0.1 from base scale)
 - Only places on layer 0 cells with no properties and no existing texture
 - Overlays are applied once during level load via `SceneOverlays` class
 
@@ -267,6 +283,9 @@ Individual cells can have custom background textures that override theme renderi
 - `sourceRect`: Crops a region from the source image (creates a Phaser texture frame). If omitted, uses the full image.
 - `sourceRect` and `transformOverride` can be combined
 - `zOffsetOverride`: Absolute depth value (overrides default depth entirely). Use positive values to render in front of the player (e.g., `10` for tall grass).
+- `blendMode`: `'normal'` | `'multiply'` | `'screen'` | `'add'` — how texture blends with floor
+- `alpha`: Number (0-1) — opacity of the texture
+- `tint`: Hex color string (e.g., `"#88aa66"`) — applies color tint to the texture
 
 **Array format** (multiple textures per cell):
 ```json

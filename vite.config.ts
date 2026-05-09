@@ -524,7 +524,7 @@ If there are no changes to commit, say so and stop.`;
           cleanupDeadSessions();
           const list = [...sessions.values()].map(s => ({
             id: s.id, port: s.port, label: s.label, status: s.status,
-            archived: s.archived, createdAt: s.createdAt,
+            archived: s.archived, createdAt: s.createdAt, tag: s.tag,
           }));
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(list));
@@ -637,9 +637,8 @@ If there are no changes to commit, say so and stop.`;
           const body = JSON.parse(await readBody(req)) as { id: string };
           const session = sessions.get(body.id);
           if (session) {
-            if (!session.archived) { res.statusCode = 400; res.end('Can only delete archived sessions'); return; }
             // Kill if still alive
-            if (session.ttydPid) try { process.kill(session.ttydPid); } catch { /* already dead */ }
+            if (session.ttydPid > 0) try { process.kill(session.ttydPid); } catch { /* already dead */ }
             if (session.tmuxSession) try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
             sessions.delete(body.id);
           } else {

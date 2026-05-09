@@ -241,10 +241,11 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 1. Place MP3 in `public/assets/sounds/`
 2. Register in `AssetRegistry.ts` with `type: 'audio'`
 3. Add key to appropriate asset group (core for universal sounds, enemy group for enemy-specific)
-4. Play with `SoundManager.getInstance().play('key')` (routes to native SoundPool on Android, Phaser on web)
+4. Play via `SoundManager` — entity factories call `getInstance()` and pass to components via props
 
 **SoundManager:**
 - Singleton at `src/systems/SoundManager.ts` — wraps all SFX playback
+- Components receive SoundManager via props (entity factories call `getInstance()` and pass it through)
 - On Android: uses native `SoundPool` via Capacitor plugin (~30ms latency vs ~300ms Web Audio)
 - On web: delegates to `game.sound.play()` (Phaser Web Audio, no change)
 - Music stays on Phaser directly (`this.sound.play('btr_music', ...)`)

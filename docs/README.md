@@ -407,9 +407,9 @@ The workbench includes a multi-session system that manages kiro-cli sessions via
 - `POST /api/sessions/unarchive` — restore an archived session (`{ id }`)
 - `POST /api/sessions/kill` — kill tmux + ttyd for a session (`{ id }`)
 - `POST /api/sessions/reconnect` — re-spawn ttyd if tmux is still alive (`{ id }`)
-- `POST /api/sessions/delete` — permanently remove an archived session (`{ id }`)
+- `POST /api/sessions/delete` — permanently remove a session (`{ id }`)
 
-**UI:** `workbench/sessions.html` — Session manager page with live session list, connect/archive/kill controls, and embedded ttyd terminal iframe.
+**UI:** `workbench/sessions.html` — Session manager page with live session list, connect/rename/archive/delete controls, and embedded ttyd terminal iframe. Workflows (tagged sessions launched via dashboard buttons) have no action buttons.
 
 **Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`)
 

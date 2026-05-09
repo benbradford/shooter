@@ -23,7 +23,7 @@
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; overflow: hidden; }
 
   /* Sidebar */
-  .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar { width: var(--sidebar-w); background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
   .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
   .sidebar-header h2 { font-size: 1rem; font-weight: 600; }
   .sidebar-header a { color: var(--muted); text-decoration: none; font-size: 0.8rem; }
@@ -50,19 +50,22 @@
   .rename-input { background: var(--bg); border: 1px solid var(--accent-blue); color: var(--text); font-size: 0.85rem; padding: 2px 6px; border-radius: 3px; width: 100%; outline: none; }
 
   /* Archive section */
-  .archive-header { padding: 8px 16px; font-size: 0.75rem; color: var(--muted); cursor: pointer; user-select: none; border-top: 1px solid var(--border); margin-top: 8px; }
-  .archive-header:hover { color: var(--text); }
-  .archive-list { display: none; }
-  .archive-list.open { display: block; }
   .archive-list .session-item { opacity: 0.6; }
   .archive-list .session-item:hover { opacity: 1; }
 
   /* Quick Commands */
-  .quick-commands { padding: 8px 12px; border-bottom: 1px solid var(--border); }
-  .quick-commands-header { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; padding: 0 4px; }
+  .quick-commands { padding: 0 12px; border-bottom: 1px solid var(--border); }
   .quick-cmd { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: 0.15s; border: none; background: none; color: var(--text); width: 100%; text-align: left; }
   .quick-cmd:hover { background: var(--surface2); }
   .quick-cmd .qc-icon { font-size: 0.9rem; flex-shrink: 0; }
+
+  /* Collapsible sections */
+  .section-collapse { border-bottom: 1px solid var(--border); }
+  .section-collapse:empty { display: none; }
+  .section-collapse summary { padding: 8px 16px; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; list-style: none; }
+  .section-collapse summary::-webkit-details-marker { display: none; }
+  .section-collapse summary::before { content: '▶ '; font-size: 0.6rem; }
+  .section-collapse[open] summary::before { content: '▼ '; font-size: 0.6rem; }
 
   /* Main panel */
   .main { flex: 1; display: flex; flex-direction: column; }
@@ -81,16 +84,19 @@
     <a href="main.html">← Trackers</a>
   </div>
   <button class="new-btn" onclick="createSession()">+ New Session</button>
-  <div class="quick-commands">
-    <div class="quick-commands-header">⚡ Quick Commands</div>
+  <details class="section-collapse quick-commands" open>
+    <summary>Quick Commands</summary>
     <button class="quick-cmd" onclick="runQuickCommand('update-docs')"><span class="qc-icon">📝</span> Update Docs</button>
     <button class="quick-cmd" onclick="runQuickCommand('commit-all')"><span class="qc-icon">🔀</span> Commit All</button>
     <button class="quick-cmd" onclick="runQuickCommand('refresh-issues')"><span class="qc-icon">🔄</span> Refresh Issues</button>
     <button class="quick-cmd" onclick="runQuickCommand('help-decide')"><span class="qc-icon">🧠</span> Help Me Decide</button>
-  </div>
-  <div class="session-list" id="activeList"></div>
-  <div class="archive-header" id="archiveToggle" onclick="toggleArchive()">▶ Archived (<span id="archiveCount">0</span>)</div>
-  <div class="archive-list" id="archiveList"></div>
+  </details>
+  <details class="section-collapse" id="taskList" open></details>
+  <details class="section-collapse" id="activeList" open></details>
+  <details class="section-collapse" id="archiveSection">
+    <summary>Archived (<span id="archiveCount">0</span>)</summary>
+    <div id="archiveList"></div>
+  </details>
 </div>
 
 <div class="main" id="mainPanel">
@@ -123,10 +129,28 @@ async function loadSessions() {
 }
 
 function render() {
-  const active = sessions.filter(s => !s.archived);
+  const tasks = sessions.filter(s => !s.archived && s.tag);
+  const active = sessions.filter(s => !s.archived && !s.tag);
   const archived = sessions.filter(s => s.archived);
 
-  document.getElementById('activeList').innerHTML = active.map(s => sessionHTML(s)).join('');
+  const taskEl = document.getElementById('taskList');
+  if (tasks.length) {
+    taskEl.style.display = '';
+    taskEl.innerHTML = `<summary>Workflows (${tasks.length})</summary>` + tasks.map(s => sessionHTML(s)).join('');
+    if (!taskEl.hasAttribute('open')) taskEl.setAttribute('open', '');
+  } else {
+    taskEl.style.display = 'none';
+  }
+
+  const activeEl = document.getElementById('activeList');
+  if (active.length) {
+    activeEl.style.display = '';
+    activeEl.innerHTML = `<summary>Sessions (${active.length})</summary>` + active.map(s => sessionHTML(s)).join('');
+    if (!activeEl.hasAttribute('open')) activeEl.setAttribute('open', '');
+  } else {
+    activeEl.style.display = 'none';
+  }
+
   document.getElementById('archiveList').innerHTML = archived.map(s => sessionHTML(s, true)).join('');
   document.getElementById('archiveCount').textContent = archived.length;
 }
@@ -135,21 +159,24 @@ function sessionHTML(s, isArchived = false) {
   const isActive = s.id === activeSessionId;
   const dotClass = s.status === 'active' ? 'alive' : 'dead';
   const time = new Date(s.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const renameBtn = `<button onclick="event.stopPropagation(); startRename('${s.id}')" title="Rename">✏️</button>`;
-  const archiveBtn = isArchived
-    ? `<button onclick="event.stopPropagation(); unarchiveSession('${s.id}')" title="Unarchive">↩</button>`
-    : `<button onclick="event.stopPropagation(); archiveSession('${s.id}')" title="Archive">📦</button>`;
-  const deleteBtn = isArchived
-    ? `<button onclick="event.stopPropagation(); deleteSession('${s.id}')" title="Delete">🗑️</button>`
-    : '';
+  const isWorkflow = !!s.tag;
 
-  return `<div class="session-item ${isActive ? 'active' : ''}" onclick="selectSession('${s.id}')" ondblclick="startRename('${s.id}')">
+  let actions = '';
+  if (isWorkflow) {
+    actions = '';
+  } else if (isArchived) {
+    actions = `<button onclick="event.stopPropagation(); unarchiveSession('${s.id}')" title="Unarchive">↩</button><button onclick="event.stopPropagation(); deleteSession('${s.id}')" title="Delete">🗑️</button>`;
+  } else {
+    actions = `<button onclick="event.stopPropagation(); startRename('${s.id}')" title="Rename">✏️</button><button onclick="event.stopPropagation(); archiveSession('${s.id}')" title="Archive">📦</button><button onclick="event.stopPropagation(); deleteSession('${s.id}')" title="Delete">🗑️</button>`;
+  }
+
+  return `<div class="session-item ${isActive ? 'active' : ''}" onclick="selectSession('${s.id}')" ondblclick="${isWorkflow ? '' : `startRename('${s.id}')`}">
     <div class="dot ${dotClass}"></div>
     <div class="info">
       <div class="label" id="label-${s.id}">${escapeHtml(s.label)}</div>
       <div class="time">${time}</div>
     </div>
-    <div class="actions">${renameBtn}${archiveBtn}${deleteBtn}</div>
+    <div class="actions">${actions}</div>
   </div>`;
 }
 
@@ -170,6 +197,7 @@ async function selectSession(id) {
   if (s.status === 'active') {
     try {
       const res = await fetch('/api/sessions/reconnect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      if (res.status === 404) { sessions = sessions.filter(x => x.id !== id); activeSessionId = null; render(); resetMainPanel(); return; }
       const data = await res.json();
       if (!data.ok) { s.status = 'dead'; render(); return; }
     } catch { /* proceed anyway */ }
@@ -317,13 +345,6 @@ function resetMainPanel() {
     empty.textContent = 'Select or create a session';
     main.appendChild(empty);
   }
-}
-
-function toggleArchive() {
-  const list = document.getElementById('archiveList');
-  const toggle = document.getElementById('archiveToggle');
-  const isOpen = list.classList.toggle('open');
-  toggle.textContent = `${isOpen ? '▼' : '▶'} Archived (${document.getElementById('archiveCount').textContent})`;
 }
 
 function escapeHtml(str) {
