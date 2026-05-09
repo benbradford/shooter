@@ -157,6 +157,7 @@ Levels can include random decorative overlays (dirt patches, cracked stone, skul
   - `normal`: Standard blending (default)
   - `multiply`: Darkens floor naturally
 - `alphaBlend`: Opacity level
+  - `tiny`: 0.2-0.25 (barely visible)
   - `low`: 0.4-0.5 (subtle)
   - `medium`: 0.7-0.85 (balanced, default)
   - `high`: 0.85-1.0 (prominent)
@@ -259,12 +260,13 @@ Individual cells can have custom background textures that override theme renderi
 ```
 
 **How it works:**
-- Cells with `backgroundTexture` are rendered as images at depth -100
+- Cells with `backgroundTexture` are rendered as images at depth -8 (Depth.cellTextureModified)
 - The theme's custom rendering (bricks, stones) is skipped for these cells
 - String format: Texture scaled to fit cell size
 - Object format: Custom scaling and positioning via transformOverride
 - `sourceRect`: Crops a region from the source image (creates a Phaser texture frame). If omitted, uses the full image.
 - `sourceRect` and `transformOverride` can be combined
+- `zOffsetOverride`: Absolute depth value (overrides default depth entirely). Use positive values to render in front of the player (e.g., `10` for tall grass).
 
 **Array format** (multiple textures per cell):
 ```json

@@ -90,8 +90,7 @@ export class BackgroundTextureRenderer {
             sprite.setDisplaySize(this.cellSize, this.cellSize);
           }
 
-          let depth = baseDepth;
-          if (zOffsetOverride !== undefined) depth += zOffsetOverride;
+          const depth: number = zOffsetOverride !== undefined ? zOffsetOverride : baseDepth;
           sprite.setDepth(depth);
 
           this.cellSprites.push(sprite);

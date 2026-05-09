@@ -135,7 +135,7 @@ export class SceneOverlays {
 
       const overlays = this.levelData.background?.overlays;
       if (!overlays) continue;
-      
+
       const overlayKey = overlays.spritesheet.split('/').pop()?.replace('_sprite_sheet.png', '').replace('_spritesheet.png', '').replace('.png', '') ?? 'dungeon_overlays';
 
       const worldPos = grid.cellToWorld(cell.col, cell.row);
@@ -159,21 +159,24 @@ export class SceneOverlays {
       if (rotationSetting === 'slight') rotationRange = 0.52;
       else if (rotationSetting === 'medium') rotationRange = 1.05;
       else if (rotationSetting === 'heavy') rotationRange = 3.14;
-      
+
       const rotation = rotationRange > 0 ? (rng() - 0.5) * rotationRange : 0;
       image.setRotation(rotation);
 
       const alphaBlend = this.levelData.background.overlays.alphaBlend ?? 'medium';
       let alphaBase = 0.7;
       let alphaRange = 0.15;
-      if (alphaBlend === 'low') {
+       if (alphaBlend === 'tiny') {
+        alphaBase = 0.2;
+        alphaRange = 0.05;
+      } else if (alphaBlend === 'low') {
         alphaBase = 0.4;
         alphaRange = 0.1;
       } else if (alphaBlend === 'high') {
         alphaBase = 0.85;
         alphaRange = 0.15;
       }
-      
+
       const alpha = alphaBase + rng() * alphaRange;
       image.setAlpha(alpha);
       image.setMask(mask);

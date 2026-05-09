@@ -1,0 +1,41 @@
+{
+  "width": 30,
+  "height": 20,
+  "playerStart": {
+    "x": 15,
+    "y": 10
+  },
+  "cells": [
+    {
+      "col": 21,
+      "row": 18,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    }
+  ],
+  "entities": [],
+  "levelTheme": "grass_overworld1",
+  "background": {
+    "floor_texture": "grass_faded",
+    "floor_tile": 5,
+    "overlays": {
+      "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet.png",
+      "spriteList": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet_sprite_list.txt",
+      "frequency": 12,
+      "seed": 12346,
+      "rotation": "none",
+      "alphaBlend": "tiny"
+    }
+  }
+}

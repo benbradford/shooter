@@ -2,13 +2,13 @@ import type { CellProperty } from '../grid/Grid';
 
 export type LevelTheme = 'dungeon' | 'swamp' | 'grass' | 'wilds' | 'tunnels' | 'default';
 
-export type EntityType = 
-  | 'stalking_robot' 
-  | 'bug_base' 
-  | 'thrower' 
-  | 'skeleton' 
+export type EntityType =
+  | 'stalking_robot'
+  | 'bug_base'
+  | 'thrower'
+  | 'skeleton'
   | 'red_skeleton'
-  | 'bullet_dude' 
+  | 'bullet_dude'
   | 'puma'
   | 'tv_monk'
   | 'eventchainer'
@@ -67,7 +67,7 @@ export type LevelBackground = {
     placementStrategy?: 'near_platforms' | 'near_paths_water' | 'random';
     rotation?: 'none' | 'slight' | 'medium' | 'heavy';
     blendMode?: 'normal' | 'multiply';
-    alphaBlend?: 'low' | 'medium' | 'high';
+    alphaBlend?: 'tiny' | 'low' | 'medium' | 'high';
   };
   edgeDarkening?: {
     depth: number;
@@ -213,7 +213,7 @@ export type LevelData = {
     scaleRange?: number;
   };
   background?: LevelBackground;
-  
+
   blockedAreas?: BlockedAreaDef[];
 
   // Legacy fields (deprecated)

@@ -214,7 +214,7 @@ Then in `update()`: `this.sm.update(delta)` and transitions via `this.sm.transit
 - `StateMachineComponent` — Entity-level states with full `IState` classes (player states, enemy AI)
 - `ComponentStateMachine` — Internal component states that don't warrant separate class files (pet following, escort behavior, bark ability)
 
-**Used by:** `PetFollowComponent`, `DogBarkAbility`, `EscortComponent`
+**Used by:** `PetFollowComponent`, `DogBarkAbility`, `EscortComponent`, `AttackComboComponent`
 
 ## Common Patterns
 

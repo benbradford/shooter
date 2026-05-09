@@ -338,6 +338,7 @@ export class ContextPanel {
       ${(texArray ?? []).map((tex, i) => {
         const key = bgTextureKey(tex);
         const t = typeof tex === 'object' && 'transformOverride' in tex ? tex.transformOverride : null;
+        const z = typeof tex === 'object' && 'zOffsetOverride' in tex ? tex.zOffsetOverride : undefined;
         return `
       <div class="section-header" style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:11px">${i}: ${key}</span>
@@ -348,6 +349,10 @@ export class ContextPanel {
         <div class="form-group"><label>scaleY</label><input type="number" class="tex-sy" data-tex-idx="${i}" value="${t?.scaleY ?? 1}" step="0.1" /></div>
         <div class="form-group"><label>offsetX</label><input type="number" class="tex-ox" data-tex-idx="${i}" value="${t?.offsetX ?? 0}" /></div>
         <div class="form-group"><label>offsetY</label><input type="number" class="tex-oy" data-tex-idx="${i}" value="${t?.offsetY ?? 0}" /></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin:4px 0">
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px"><input type="checkbox" class="tex-z-enable" data-tex-idx="${i}" ${z !== undefined ? 'checked' : ''} /> Z Override</label>
+        <input type="number" class="tex-z-val" data-tex-idx="${i}" value="${z ?? 0}" style="width:60px" ${z === undefined ? 'disabled' : ''} />
       </div>
       <button class="ed-btn tex-apply" data-tex-idx="${i}" style="width:100%;margin-bottom:6px">Apply Transform</button>`;
       }).join('')}
@@ -422,7 +427,8 @@ export class ContextPanel {
             sourceRect: result.sourceRect,
             ...(result.scaleX !== undefined || result.scaleY !== undefined ? {
               transformOverride: { scaleX: result.scaleX ?? 1, scaleY: result.scaleY ?? 1, offsetX: 0, offsetY: 0 }
-            } : {})
+            } : {}),
+            ...(result.zOffsetOverride !== undefined ? { zOffsetOverride: result.zOffsetOverride } : {})
           };
           const existing = normalizeBgTextures(levelCell.backgroundTexture) ?? [];
           existing.push(newTex);
@@ -438,10 +444,20 @@ export class ContextPanel {
       this.showCellForm(col, row);
     });
     // Per-texture Apply Transform buttons
+    // Z Override checkbox toggles the number input
+    for (const cb of this.container.querySelectorAll<HTMLInputElement>('.tex-z-enable')) {
+      cb.addEventListener('change', () => {
+        const idx = cb.dataset.texIdx!;
+        const input = this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement;
+        input.disabled = !cb.checked;
+      });
+    }
     for (const btn of this.container.querySelectorAll('.tex-apply')) {
       btn.addEventListener('click', () => {
         const idx = Number.parseInt((btn as HTMLElement).dataset.texIdx!, 10);
         const getVal = (cls: string) => Number.parseFloat((this.container.querySelector(`.${cls}[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
+        const zEnabled = (this.container.querySelector(`.tex-z-enable[data-tex-idx="${idx}"]`) as HTMLInputElement).checked;
+        const zVal = Number.parseFloat((this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
         const levelData = this.bridge.getScene().getLevelData();
         let levelCell = levelData.cells.find(c => c.col === col && c.row === row);
         if (!levelCell) return;
@@ -450,6 +466,11 @@ export class ContextPanel {
         const tex = texArr[idx];
         const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
         entry.transformOverride = { scaleX: getVal('tex-sx'), scaleY: getVal('tex-sy'), offsetX: getVal('tex-ox'), offsetY: getVal('tex-oy') };
+        if (zEnabled) {
+          entry.zOffsetOverride = zVal;
+        } else {
+          delete entry.zOffsetOverride;
+        }
         texArr[idx] = entry;
         levelCell.backgroundTexture = texArr;
         this.bridge.getScene().refreshSprites();

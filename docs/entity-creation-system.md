@@ -359,7 +359,8 @@ Click **Save** button to save level JSON with all entities in the new format.
 - `src/ecs/entities/laser/LaserEntity.ts` - Laser entity factory
 - `src/ecs/components/laser/LaserBeamComponent.ts` - Beam raycast, rendering, collision, particles, toggle
 - `src/ecs/entities/escort/EscortEntity.ts` - Escort entity factory
-- `src/ecs/components/escort/EscortComponent.ts` - Escort state machine, following, crouching, completion, cross-level persistence
+- `src/ecs/components/escort/EscortComponent.ts` - Escort state machine, following, completion, cross-level persistence
+- `src/ecs/components/escort/EscortPathfinding.ts` - Path-following and destination movement logic (extracted from EscortComponent)
 - `src/ecs/components/escort/EscortCrouchBehavior.ts` - Knight crouch/shiver logic (extracted from EscortComponent)
 - `src/ecs/components/escort/EscortPersistence.ts` - Typed escort WorldState flag accessors
 - `src/systems/escort/EscortSpawnManager.ts` - Cross-level escort spawning, completed escorts, death reset
