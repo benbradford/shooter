@@ -7,6 +7,7 @@ interface TrackerDef {
 }
 
 const TRACKERS: TrackerDef[] = [
+  { label: 'Level Editor', icon: 'map', file: '../editor/' },
   { label: 'Architecture Issues', icon: 'tools', file: 'architecture-issues.html' },
   { label: 'Features', icon: 'sparkle', file: 'feature-tracker.html' },
   { label: 'Bugs', icon: 'bug', file: 'bug-tracker.html' },
@@ -36,8 +37,20 @@ export class TrackersProvider implements vscode.TreeDataProvider<TrackerItem> {
   }
 }
 
+const trackerPanels = new Map<string, vscode.WebviewPanel>();
+let gamePanel: vscode.WebviewPanel | undefined;
+
 export function openTrackerPanel(item: TrackerItem): void {
-  const url = `http://localhost:5173/workbench/${item.tracker.file}`;
+  const key = item.tracker.file;
+  const existing = trackerPanels.get(key);
+  if (existing) {
+    existing.reveal();
+    return;
+  }
+
+  const url = item.tracker.file.startsWith('../') 
+    ? `http://localhost:5173/${item.tracker.file.slice(3)}`
+    : `http://localhost:5173/workbench/${item.tracker.file}`;
   const panel = vscode.window.createWebviewPanel(
     'dbTracker',
     item.tracker.label,
@@ -45,6 +58,45 @@ export function openTrackerPanel(item: TrackerItem): void {
     { enableScripts: true, retainContextWhenHidden: true }
   );
   panel.webview.html = `<!DOCTYPE html>
-<html><head><style>body,html{margin:0;padding:0;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:none}</style></head>
+<html><head><meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; frame-src http://localhost:*;"><style>body,html{margin:0;padding:0;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:none}</style></head>
+<body><iframe src="${url}"></iframe>
+<script>
+const vscode = acquireVsCodeApi();
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'db-open-url') {
+    vscode.postMessage(e.data);
+  }
+});
+</script></body></html>`;
+
+  panel.webview.onDidReceiveMessage(msg => {
+    if (msg.type === 'db-open-url') {
+      openGamePanel(msg.url);
+    }
+  });
+
+  trackerPanels.set(key, panel);
+  panel.onDidDispose(() => trackerPanels.delete(key));
+}
+
+function openGamePanel(url: string): void {
+  if (gamePanel) {
+    gamePanel.webview.html = gameWebviewHtml(url);
+    gamePanel.reveal(vscode.ViewColumn.Two);
+  } else {
+    gamePanel = vscode.window.createWebviewPanel(
+      'dbGame',
+      'Game',
+      vscode.ViewColumn.Two,
+      { enableScripts: true, retainContextWhenHidden: true }
+    );
+    gamePanel.webview.html = gameWebviewHtml(url);
+    gamePanel.onDidDispose(() => { gamePanel = undefined; });
+  }
+}
+
+function gameWebviewHtml(url: string): string {
+  return `<!DOCTYPE html>
+<html><head><meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval'; frame-src http://localhost:*;"><style>body,html{margin:0;padding:0;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:none}</style></head>
 <body><iframe src="${url}"></iframe></body></html>`;
 }

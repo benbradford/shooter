@@ -48,6 +48,7 @@ export class Grid implements GridReader {
   private isSceneDebugEnabled: boolean = false;
   private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
   private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
+  private readonly tagIndex: Map<string, Set<Entity>> = new Map();
   private blockedAreaManager?: BlockedAreaManager;
   private debugRenderer?: GridDebugRenderer;
 
@@ -247,6 +248,14 @@ export class Grid implements GridReader {
     const cell = this.getCell(col, row);
     if (cell) {
       cell.occupants.add(entity);
+      for (const tag of entity.tags) {
+        let set = this.tagIndex.get(tag);
+        if (!set) {
+          set = new Set();
+          this.tagIndex.set(tag, set);
+        }
+        set.add(entity);
+      }
     }
   }
 
@@ -254,6 +263,15 @@ export class Grid implements GridReader {
     const cell = this.getCell(col, row);
     if (cell) {
       cell.occupants.delete(entity);
+      for (const tag of entity.tags) {
+        const set = this.tagIndex.get(tag);
+        if (set) {
+          set.delete(entity);
+          if (set.size === 0) {
+            this.tagIndex.delete(tag);
+          }
+        }
+      }
     }
   }
 
@@ -443,17 +461,8 @@ export class Grid implements GridReader {
   }
 
   getEntitiesWithTag(tag: string): Entity[] {
-    const entities: Entity[] = [];
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        for (const entity of this.cells[row][col].occupants) {
-          if (entity.tags.has(tag) && !entities.includes(entity)) {
-            entities.push(entity);
-          }
-        }
-      }
-    }
-    return entities;
+    const set = this.tagIndex.get(tag);
+    return set ? [...set] : [];
   }
 
   destroy(): void {
@@ -463,6 +472,7 @@ export class Grid implements GridReader {
         this.cells[row][col].occupants.clear();
       }
     }
+    this.tagIndex.clear();
 
     // Destroy background sprites
     this.backgroundSprites.forEach(sprite => sprite.destroy());

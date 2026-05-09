@@ -160,7 +160,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-09 (10:55) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · No new critical issues. Architecture stabilizing.</p>
+<p class="updated">Last audit: 2026-05-09 (21:29) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 64 issues (4 critical, 18 high, 26 medium, 16 low). No new issues — all open items confirmed still valid. Grid tag scan O(n²) fixed (#40). Architecture stable.</p>
 
 <script>
 const ISSUES = [
@@ -487,6 +487,48 @@ const ISSUES = [
     effort: 'N/A', risk: 'N/A', fanIn: 10, category: 'maintainability',
     added: '2026-05-09', resolution: 'Inherent complexity. determineWaterState is a single-purpose method with complex but correct logic.',
   },
+
+  // ── NEW ISSUES (2026-05-09 audit, session 2) ──
+  {
+    id: 39, severity: 'medium', status: 'open',
+    title: 'DogBarkAbility allocates new Set() per frame inside updateApproaching()',
+    detail: 'Line 248: `const NON_RESUMABLE_STATES = new Set([...])` is inside updateApproaching() which runs every frame when dog is approaching a target. Creates garbage for GC at 60fps. Fix: hoist to module-level constant.',
+    files: ['src/ecs/components/pet/DogBarkAbility.ts'],
+    effort: '5m', risk: 'None', fanIn: 2, category: 'performance',
+    added: '2026-05-09',
+  },
+  {
+    id: 40, severity: 'medium', status: 'done',
+    title: 'Grid.getEntitiesWithTag() is O(rows×cols) full scan with .includes() dedup',
+    detail: 'Fixed: Added Map<string, Set<Entity>> tagIndex maintained on addOccupant/removeOccupant. getEntitiesWithTag() now returns [...tagIndex.get(tag)] for O(1) lookup instead of scanning all cells.',
+    files: ['src/systems/grid/Grid.ts'],
+    effort: '30m', risk: 'Low', fanIn: 97, category: 'performance',
+    added: '2026-05-09',
+  },
+  {
+    id: 41, severity: 'low', status: 'open',
+    title: 'Grid.renderCellCoordinates() creates/destroys Text objects every frame',
+    detail: 'Line 350: Creates scene.add.text() for every cell in the grid, then destroys with delayedCall(0). Editor-only but creates hundreds of Phaser objects per frame when coordinate display is active. Fix: cache text objects, only recreate on grid resize.',
+    files: ['src/systems/grid/Grid.ts'],
+    effort: '30m', risk: 'None', fanIn: 97, category: 'performance',
+    added: '2026-05-09',
+  },
+  {
+    id: 42, severity: 'low', status: 'open',
+    title: 'Grid.getOccupants() allocates new Set() on cache miss',
+    detail: 'Line 252: `return cell ? cell.occupants : new Set()` — allocates a new empty Set on every out-of-bounds query. Minor impact (only on invalid coordinates) but violates zero-alloc principle. Fix: return a shared module-level EMPTY_SET constant.',
+    files: ['src/systems/grid/Grid.ts'],
+    effort: '5m', risk: 'None', fanIn: 97, category: 'performance',
+    added: '2026-05-09',
+  },
+  {
+    id: 43, severity: 'high', status: 'open',
+    title: 'Grid.ts still has debug rendering methods that belong in GridDebugRenderer',
+    detail: 'renderPunchFOV (~35 LOC), renderSceneDebug (~25 LOC), renderCollisionBox, renderEmitterBox, and renderCellCoordinates (~20 LOC) are still in Grid.ts despite GridDebugRenderer existing. renderPunchFOV imports getMustFaceEnemy from AttackComboComponent — a data model importing from a combat component is a boundary violation. Move all to GridDebugRenderer.',
+    files: ['src/systems/grid/Grid.ts', 'src/systems/grid/GridDebugRenderer.ts'],
+    effort: '2h', risk: 'Low', fanIn: 97, category: 'architecture',
+    added: '2026-05-09',
+  },
 ];
 
 // ── Rendering ──
@@ -584,28 +626,35 @@ async function addEntry() {
   showToast(`Issue #${result.id} added`);
 }
 
+let _fixInProgress = false;
 async function fixEntry(id) {
+  if (_fixInProgress) return;
+  _fixInProgress = true;
   const i = ISSUES.find(i => i.id === id);
-  if (!i || !confirm(`Invoke kiro-cli to fix: "${i.title}"?`)) return;
+  if (!i) { _fixInProgress = false; return; }
+  showToast(`🤖 Starting fix for issue #${id}...`);
   const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '' }) });
   const data = await resp.json();
   if (data.sessionId) { 
-    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
-    if (sessionWindow) sessionWindow.focus();
+    try { const w = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions'); if (w) w.focus(); } catch {}
   }
-  showToast(`🤖 kiro-cli started for issue #${id}`);
+  showToast(`🤖 Session launched for issue #${id}`);
+  _fixInProgress = false;
 }
 
 async function diagnoseEntry(id) {
+  if (_fixInProgress) return;
+  _fixInProgress = true;
   const i = ISSUES.find(i => i.id === id);
-  if (!i) return;
+  if (!i) { _fixInProgress = false; return; }
+  showToast(`🔍 Starting diagnosis for issue #${id}...`);
   const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '', diagnoseOnly: true }) });
   const data = await resp.json();
   if (data.sessionId) { 
-    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
-    if (sessionWindow) sessionWindow.focus();
+    try { const w = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions'); if (w) w.focus(); } catch {}
   }
-  showToast(`🔍 Diagnosing issue #${id}...`);
+  showToast(`🔍 Session launched for issue #${id}`);
+  _fixInProgress = false;
 }
 
 function editEntry(id) {

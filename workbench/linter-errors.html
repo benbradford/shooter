@@ -171,28 +171,35 @@ document.getElementById('filters').addEventListener('click', e => {
 
 function refresh() { loadData(); }
 
+let _fixInProgress = false;
 async function fixRule(rule) {
+  if (_fixInProgress) return;
+  _fixInProgress = true;
   const item = DATA.find(d => d.rule === rule);
-  if (!item) return;
+  if (!item) { _fixInProgress = false; return; }
   const desc = RULE_DESCRIPTIONS[rule] || rule;
-  if (!confirm(`Fix all ${item.count} instances of "${rule}"?\n\n${desc}\n\nFiles: ${item.files.length}`)) return;
-  const fileList = item.files.map(f => f.path).filter((v, i, a) => a.indexOf(v) === i).join(', ');
-  const resp = await fetch('/api/tracker/fix', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      tracker: 'lint',
-      id: 0,
-      title: `Fix all ${item.count} "${rule}" lint ${item.severity}s`,
-      detail: `Rule: ${rule}\nDescription: ${desc}\nFiles: ${fileList}`
-    })
-  });
-  const data = await resp.json();
-  if (data.sessionId) {
-    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
-    if (sessionWindow) sessionWindow.focus();
+  showToast(`🤖 Starting fix for ${rule}...`);
+  try {
+    const fileList = item.files.map(f => f.path).filter((v, i, a) => a.indexOf(v) === i).join(', ');
+    const resp = await fetch('/api/tracker/fix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tracker: 'lint',
+        id: 0,
+        title: `Fix all ${item.count} "${rule}" lint ${item.severity}s`,
+        detail: `Rule: ${rule}\nDescription: ${desc}\nFiles: ${fileList}`
+      })
+    });
+    const data = await resp.json();
+    if (data.sessionId) {
+      try { const w = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions'); if (w) w.focus(); } catch {}
+    }
+    showToast(`🤖 Session launched for ${rule}`);
+  } catch (e) {
+    showToast(`❌ Error: ${e.message}`);
   }
-  showToast(`🤖 Fixing ${rule}...`);
+  _fixInProgress = false;
 }
 
 function showToast(msg) {

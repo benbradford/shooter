@@ -282,7 +282,7 @@ const QUICK_COMMANDS = {
   'help-decide': {
     label: '🧠 Help Me Decide',
     agent: 'dodging-bullets',
-    prompt: `Read workbench/architecture-issues.html and extract all open issues. Then analyze them and recommend which ONE I should tackle next. Consider:\n- Severity and risk\n- Fan-in (how many files depend on it)\n- Effort vs impact ratio\n- Whether fixing it unblocks other issues\n\nGive a clear recommendation with reasoning, and a suggested approach.`
+    prompt: `Read workbench/architecture-issues.html and extract all open issues from the ISSUES array. Each issue has an 'id' field — always reference issues by their actual id (e.g. "#5", "#12"). Then analyze them and recommend which ONE I should tackle next. Consider:\n- Severity and risk\n- Fan-in (how many files depend on it)\n- Effort vs impact ratio\n- Whether fixing it unblocks other issues\n\nGive a clear recommendation with reasoning, and a suggested approach. Always use the issue's actual id number, not a sequential count.`
   }
 };
 

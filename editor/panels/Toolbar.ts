@@ -38,12 +38,16 @@ export class Toolbar {
     row1.appendChild(this.createButton('Save', 'ed-btn save', () => void bridge.saveLevel()));
     row1.appendChild(this.createButton('Play', 'ed-btn play', () => {
       void bridge.saveLevel().then(() => {
-        const url = `/?level=${bridge.currentLevelName}`;
+        const url = `${window.location.origin}/?level=${bridge.currentLevelName}&t=${Date.now()}`;
         if (this.playWindow && !this.playWindow.closed) {
           this.playWindow.location.href = url;
           this.playWindow.focus();
         } else {
           this.playWindow = window.open(url, 'db-play');
+          if (!this.playWindow) {
+            // VS Code webview: post message up to parent to open game
+            window.parent.postMessage({ type: 'db-open-url', url }, '*');
+          }
         }
       });
     }));

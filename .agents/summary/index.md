@@ -295,7 +295,7 @@ All trackers live in `workbench/` folder:
 
 Interactive when dev server running. API endpoints in `vite.config.ts`.
 
-Session management via tmux + ttyd — sessions persist across tab switches, reconnect automatically. Full CRUD: create, rename, archive, unarchive, kill, reconnect, delete. Workflows (tagged sessions) have no action buttons. See `docs/README.md` § Session Management.
+Session management via tmux + ttyd — sessions persist across tab switches, reconnect automatically. Full CRUD: create, rename, archive, unarchive, kill, reconnect, delete. Workflows (tagged sessions) have no action buttons. VS Code extension (`vscode-sessions/`) provides alternative access via integrated terminals with native copy/paste. See `docs/README.md` § Session Management.
 
 ## Recent Architecture Changes (May 2026)
 
@@ -333,3 +333,6 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **Session diff viewer**: Collapsible panel in `workbench/sessions.html` showing `git diff` output per-file. Uses `GET /api/git/diff` endpoint. Explorer tab removed (was redundant with VS Code).
 - **Copy mode**: Click 📋 button on active sessions to capture terminal content (last 500 lines via tmux `capture-pane`). Text displayed in selectable panel for Cmd+C copying. Uses `POST /api/sessions/capture` endpoint.
 - **Coding standards — complexity/nesting**: New section in `docs/coding-standards.md` covering cyclomatic complexity ≤15, max nesting depth ≤4, nullish coalescing, no nested ternaries, no negated conditions with else.
+- **VS Code sessions extension**: `vscode-sessions/` — Opens sessions in VS Code integrated terminals (native copy/paste). Shares `.sessions.json` with web UI. Install: `cd vscode-sessions && npx tsc -p ./ && npx @vscode/vsce package --allow-missing-repository && code --install-extension db-sessions-0.1.0.vsix`
+- **Grid.getEntitiesWithTag optimization**: Uses `tagIndex` (Map<string, Set<Entity>>) for O(1) lookup instead of O(rows×cols) full scan. Index maintained automatically on occupant add/remove.
+- **Cross-nav links**: All workbench tracker pages have "← Back to Trackers" link at top for navigation between pages.

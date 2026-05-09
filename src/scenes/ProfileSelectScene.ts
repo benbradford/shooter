@@ -40,7 +40,7 @@ export default class ProfileSelectScene extends Phaser.Scene {
 
     const profiles = await this.getExistingProfiles();
     const existingSet = new Set(profiles);
-    const slotY = [height * 0.28, height * 0.42, height * 0.56, height * 0.70];
+    const slotY = [height * 0.28, height * 0.42, height * 0.56, height * 0.7];
 
     for (let i = 0; i < 3; i++) {
       const profileName = `Profile${i + 1}`;

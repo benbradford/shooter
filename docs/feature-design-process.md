@@ -15,10 +15,6 @@ Initial feature requests are often:
 
 **Result**: Implementation gets stuck, requires constant clarification, wastes time.
 
-## The Solution: Structured Design Process
-
-Follow these phases to create a complete, implementable design.
-
 ---
 
 ## Phase 1: Initial Capture

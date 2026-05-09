@@ -14,8 +14,9 @@ This document focuses on the grid system, collision detection, and scene setup.
 
 ```bash
 npm run build                # MUST pass with zero errors
-npx eslint src --ext .ts     # MUST pass with zero errors
 ```
+
+**Only run linter when explicitly asked or before committing code.**
 
 ---
 

@@ -248,7 +248,7 @@ export class LaserBeamComponent implements Component, EventListener {
     this.graphics.lineBetween(startX, startY, endX, endY);
 
     // Inner core
-    this.graphics.lineStyle(BEAM_INNER_WIDTH_PX, 0xffffcc, 1.0);
+    this.graphics.lineStyle(BEAM_INNER_WIDTH_PX, 0xffffcc, 1);
     this.graphics.lineBetween(startX, startY, endX, endY);
 
     // Pulsing overlay

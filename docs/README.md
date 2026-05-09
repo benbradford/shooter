@@ -299,6 +299,8 @@ When asked to "update the docs":
 ```bash
 # After EVERY code change (mandatory):
 npm run build                # Must pass with zero errors
+
+# Only when explicitly asked or before committing:
 npx eslint src --ext .ts     # Must pass with zero errors
 
 # Optional (if dev server not running):
@@ -416,6 +418,8 @@ The workbench includes a multi-session system that manages kiro-cli sessions via
 **UI:** `workbench/sessions.html` — Session manager page with live session list, connect/rename/archive/delete controls, embedded ttyd terminal iframe, and collapsible diff viewer panel (shows `git diff` output per-file). Workflows (tagged sessions launched via dashboard buttons) have no action buttons.
 
 **Copy mode:** Click the 📋 button on any active session to capture terminal content (last 500 lines via tmux `capture-pane`). Text is displayed in a selectable panel for easy Cmd+C copying.
+
+**VS Code extension:** `vscode-sessions/` — Alternative to the browser-based session manager. Opens sessions in VS Code integrated terminals (native copy/paste support). Shares `.sessions.json` with the web UI — sessions created in either system are visible in both. Install: `cd vscode-sessions && npx tsc -p ./ && npx @vscode/vsce package --allow-missing-repository && code --install-extension db-sessions-0.1.0.vsix`
 
 **Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`)
 
