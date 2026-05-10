@@ -2,16 +2,14 @@ import Phaser from "phaser";
 import type { Entity } from "../../ecs/Entity";
 import type GameScene from "../../scenes/GameScene";
 import type { EntityManager } from "../../ecs/EntityManager";
-import { ProjectileEmitterComponent } from "../../ecs/components/combat/ProjectileEmitterComponent";
-import { TransformComponent } from "../../ecs/components/core/TransformComponent";
-import { WalkComponent } from "../../ecs/components/movement/WalkComponent";
-import { getMustFaceEnemy } from "../../ecs/components/combat/AttackComboComponent";
 import type { CellData } from './CellData';
 import type { LevelData } from '../level/LevelLoader';
 import { GridDebugRenderer } from './GridDebugRenderer';
 import { Depth } from '../../constants/DepthConstants';
 import type { BlockedAreaManager } from '../BlockedAreaManager';
 export type { CellProperty, CellData } from './CellData';
+
+const EMPTY_SET: Set<Entity> = new Set();
 
 export type CellCoord = { col: number; row: number };
 
@@ -46,8 +44,6 @@ export class Grid implements GridReader {
   private isGridDebugEnabled: boolean = false;
   private isShowingOccupants: boolean = false;
   private isSceneDebugEnabled: boolean = false;
-  private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
-  private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
   private readonly tagIndex: Map<string, Set<Entity>> = new Map();
   private readonly entityOccupancyCount: Map<Entity, number> = new Map();
   private blockedAreaManager?: BlockedAreaManager;
@@ -293,7 +289,7 @@ export class Grid implements GridReader {
 
   getOccupants(col: number, row: number): Set<Entity> {
     const cell = this.getCell(col, row);
-    return cell ? cell.occupants : new Set();
+    return cell ? cell.occupants : EMPTY_SET;
   }
 
   clearAllOccupants(): void {
@@ -310,127 +306,41 @@ export class Grid implements GridReader {
     const gameScene = this.scene as GameScene;
     gameScene.renderGrid(this, levelData ?? gameScene.getLevelData());
 
+    if (!this.debugRenderer) {
+      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
+    }
+
     if (!this.isGridDebugEnabled) {
       if (this.isSceneDebugEnabled) {
-        this.renderSceneDebug(entityManager);
+        this.debugRenderer.renderSceneDebug(entityManager);
       }
       return;
     }
 
-    if (!this.debugRenderer) {
-      this.debugRenderer = new GridDebugRenderer(this, this.graphics);
-    }
     this.debugRenderer.renderGridDebug(levelData ?? gameScene.getLevelData(), this.blockedAreaManager);
   }
 
-  private renderPunchFOV(entityManager?: EntityManager): void {
-    if (!entityManager) return;
-    if (!getMustFaceEnemy()) return;
-
-    const player = entityManager.getFirst('player');
-    if (!player) return;
-
-    const transform = player.get(TransformComponent);
-    const walk = player.get(WalkComponent);
-    if (!transform || !walk) return;
-
-    const facingAngle = Math.atan2(walk.lastMoveY, walk.lastMoveX);
-    const fovAngle = Math.PI * 0.6;
-    const range = 128;
-
-    this.graphics.lineStyle(2, 0xffff00, 0.5);
-    this.graphics.beginPath();
-    this.graphics.moveTo(transform.x, transform.y);
-
-    const leftAngle = facingAngle - fovAngle / 2;
-    const rightAngle = facingAngle + fovAngle / 2;
-
-    this.graphics.lineTo(
-      transform.x + Math.cos(leftAngle) * range,
-      transform.y + Math.sin(leftAngle) * range
-    );
-    this.graphics.moveTo(transform.x, transform.y);
-    this.graphics.lineTo(
-      transform.x + Math.cos(rightAngle) * range,
-      transform.y + Math.sin(rightAngle) * range
-    );
-
-    this.graphics.strokePath();
-
-    this.graphics.lineStyle(1, 0xffff00, 0.3);
-    this.graphics.beginPath();
-    this.graphics.arc(transform.x, transform.y, range, leftAngle, rightAngle);
-    this.graphics.strokePath();
-
-    this.graphics.lineStyle(1, 0xffff00, 0.3);
-    this.graphics.beginPath();
-    this.graphics.arc(transform.x, transform.y, range, leftAngle, rightAngle);
-    this.graphics.strokePath();
-  }
-
   renderCellCoordinates(): void {
-    // Only render in editor - add small text labels showing col,row
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        const x = col * this.cellSize + 2;
-        const y = row * this.cellSize + 10;
-
-        this.graphics.fillStyle(0xffffff, 0.5);
-        this.graphics.fillRect(x, y - 8, 30, 10);
-
-        // Draw text using graphics (simple, no Text objects needed)
-        const text = this.scene.add.text(x + 1, y - 7, `${col},${row}`, {
-          fontSize: '8px',
-          color: '#000000'
-        });
-        text.setDepth(Depth.debugText);
-
-        // Destroy after one frame (we redraw each frame)
-        this.scene.time.delayedCall(0, () => text.destroy());
-      }
+    if (!this.debugRenderer) {
+      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
     }
-  }
-
-  private renderSceneDebug(entityManager?: EntityManager): void {
-     this.renderPunchFOV(entityManager);
-    // Draw collision boxes
-    this.collisionBoxes.forEach(box => {
-      this.graphics.lineStyle(2, 0x0000ff, 1);
-      this.graphics.strokeRect(box.x, box.y, box.width, box.height);
-    });
-
-    // Draw emitter boxes
-    this.emitterBoxes.forEach(box => {
-      this.graphics.fillStyle(0xff0000, 0.5);
-      this.graphics.fillRect(box.x - box.size / 2, box.y - box.size / 2, box.size, box.size);
-    });
-
-    // Draw player emitter position if entityManager provided
-    if (entityManager) {
-      const player = entityManager.getFirst('player');
-      if (player) {
-        const emitter = player.get(ProjectileEmitterComponent);
-        if (emitter) {
-          const pos = emitter.getEmitterPosition();
-          this.graphics.fillStyle(0xff0000, 0.5);
-          this.graphics.fillRect(pos.x - 10, pos.y - 10, 20, 20);
-        }
-      }
-    }
-
-    // Clear for next frame
-    this.collisionBoxes = [];
-    this.emitterBoxes = [];
+    this.debugRenderer.renderCellCoordinates();
   }
 
   renderCollisionBox(x: number, y: number, width: number, height: number): void {
     if (!this.isSceneDebugEnabled) return;
-    this.collisionBoxes.push({ x, y, width, height });
+    if (!this.debugRenderer) {
+      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
+    }
+    this.debugRenderer.renderCollisionBox(x, y, width, height);
   }
 
   renderEmitterBox(x: number, y: number, size: number): void {
     if (!this.isSceneDebugEnabled) return;
-    this.emitterBoxes.push({ x, y, size });
+    if (!this.debugRenderer) {
+      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
+    }
+    this.debugRenderer.renderEmitterBox(x, y, size);
   }
 
   addRow(): void {

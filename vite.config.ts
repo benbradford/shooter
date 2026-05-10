@@ -32,7 +32,10 @@ let nextSessionId = 1;
 const SESSION_FILE = path.resolve('.sessions.json');
 
 function persistSessions(): void {
-  const data = [...sessions.values()].map(({ ttydPid, ...rest }) => rest);
+  // Only persist sessions that are still alive or archived — dead sessions can't be reconnected
+  const data = [...sessions.values()]
+    .filter(s => s.status !== 'dead')
+    .map(({ ttydPid, ...rest }) => rest);
   fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
 }
 
@@ -94,11 +97,15 @@ function findAvailablePort(): number {
 }
 
 function cleanupDeadSessions(): void {
-  for (const [, session] of sessions) {
+  for (const [id, session] of sessions) {
     if (session.status === 'active' && !isTmuxSessionAlive(session.tmuxSession)) {
       session.status = 'dead';
       // Kill orphaned ttyd if still running
       try { process.kill(session.ttydPid); } catch { /* already dead */ }
+    }
+    // Remove dead sessions from map — they can't be reconnected
+    if (session.status === 'dead') {
+      sessions.delete(id);
     }
   }
 }

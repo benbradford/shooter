@@ -221,6 +221,11 @@ export type LevelData = {
   };
   background?: LevelBackground;
 
+  fixedCamera?: {
+    centerCol: number;
+    centerRow: number;
+  };
+
   blockedAreas?: BlockedAreaDef[];
 
   // Legacy fields (deprecated)

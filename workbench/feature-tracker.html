@@ -145,6 +145,7 @@ const FEATURES = [
   { priority: 'medium', status: 'done', title: 'Allow custom z for background textures', detail: 'I want to be able to override the z depth of background textures. we already have transform overrides, can we also add Z transform override. leave it blank to use the default, but if it is set then use that Z when rendering. The editor will probably need a check box as well as a number inut for this, the checkbox to turn override on or off. apply the z change in the edtior gameplay window if applying it', category: 'graphics', id: 8, added: '2026-05-09' },
   { priority: 'medium', status: 'done', title: 'Session pinning', detail: 'I want the ability to pin sessions to a separate section in the bar on the left of the session tracker. This is because i have repeated tasks such as updating docs, refreshing issues, committing files and i want to be able to keep reusing those prompts.', category: 'tooling', id: 9, added: '2026-05-09' },
   { priority: 'medium', status: 'planned', title: 'auto-heal and collection feature', detail: 'I want to add the ability to gain autoheal feature. There will be a witch with a cauldron that tells you she can give you a special potion if you collect some ingredients: Glowcap Mushrooms (Regrowth), Root Parasite (Active healing), Everroot (Endless regeneration), Bone Marrow Chunk (Flesh restoration), Ember Moss (Activation). After collecting all of these, you will gain the autoHeal feature (already implemented, just need to turn autoHeal=true state flag). We still need witch and cauldron assets (cauldron must boil). We need assets for all ingredients and need to decide on placement and game pacing. Items can exist in chests at various secret points. Cannot implement as-is since we are missing assets and placement ideas — adding here to remember.', category: 'gameplay', id: 10, added: '2026-05-09' },
+  { priority: 'medium', status: 'in-progress', title: 'Fixed camera levels', detail: 'I want to add the ability to be able to have some levels use a fixed camera that doesn\'t scroll. Instead, for fixed-camera levels, the camera just stays fixed with a specirfied cell being in the center of the view. Sor for example, house3_interior I wnt to have a fixed camera on cell 5,4. Make this an option in the Level tab of the editor, whereby fixed-camera is a checkbox (default to off) and if it is on then you can specify a cell center, which by default is basically the middle of the grid', category: 'gameplay', id: 11, added: '2026-05-10' },
 ];
 
 function priorityOrder(p) { return { high: 0, medium: 1, low: 2 }[p] ?? 3; }
@@ -234,14 +235,17 @@ async function addEntry() {
 
 async function fixEntry(id) {
   const f = FEATURES.find(f => f.id === id);
-  if (!f || !confirm(`Invoke kiro-cli to implement: "${f.title}"?`)) return;
-  const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, title: f.title, detail: f.detail || '' }) });
-  const data = await resp.json();
-  if (data.sessionId) { 
-    const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
-    if (sessionWindow) sessionWindow.focus();
-  }
-  showToast(`🤖 kiro-cli started for feature #${id}`);
+  if (!f) return;
+  try {
+    const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, title: f.title, detail: f.detail || '' }) });
+    if (!resp.ok) { showToast(`❌ Server error: ${resp.status} ${await resp.text()}`); return; }
+    const data = await resp.json();
+    if (data.sessionId) { 
+      const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
+      if (sessionWindow) sessionWindow.focus();
+    }
+    showToast(`🤖 kiro-cli started for feature #${id}`);
+  } catch (err) { showToast(`❌ Failed: ${err.message}`); }
 }
 
 async function diagnoseEntry(id) {

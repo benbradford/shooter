@@ -472,8 +472,18 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initializeCameraFollow(): void {
+    if (this.isEditorMode) return;
+
+    const levelData = this.getLevelData();
+    if (levelData.fixedCamera) {
+      const grid = this.grid;
+      const worldPos = grid.cellToWorld(levelData.fixedCamera.centerCol, levelData.fixedCamera.centerRow);
+      this.cameras.main.centerOn(worldPos.x + grid.cellSize / 2, worldPos.y + grid.cellSize / 2);
+      return;
+    }
+
     const player = this.entityManager.getFirst('player');
-    if (player && !this.isEditorMode) {
+    if (player) {
       const spriteComp = player.get(SpriteComponent);
       if (spriteComp) {
         this.cameras.main.centerOn(spriteComp.sprite.x, spriteComp.sprite.y);

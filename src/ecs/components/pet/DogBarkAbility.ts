@@ -23,6 +23,7 @@ const FEAR_RADIUS_PX = 400;
 const BARK_ANIM_DURATION_MS = 1500;
 const APPROACH_SPEED_PX_PER_SEC = 300;
 const APPROACH_PATH_RECALC_MS = 500;
+const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup', 'threatening']);
 
 type BarkState = 'idle' | 'approaching' | 'barking';
 
@@ -245,7 +246,6 @@ export class DogBarkAbility implements Component {
         existingFear.resetTimer();
       } else {
         const currentState = sm.stateMachine.getCurrentKey() ?? 'idle';
-        const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup', 'threatening']);
         const safeState = NON_RESUMABLE_STATES.has(currentState)
           ? (sm.stateMachine.hasState('chasing') ? 'chasing' : sm.stateMachine.hasState('chase') ? 'chase' : 'idle')
           : currentState;

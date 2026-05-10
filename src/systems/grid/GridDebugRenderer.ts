@@ -5,11 +5,21 @@ import type { Grid } from './Grid';
 import type { BlockedAreaManager } from '../BlockedAreaManager';
 import type { LevelData } from '../level/LevelLoader';
 import { GridPositionComponent } from '../../ecs/components/movement/GridPositionComponent';
+import type { EntityManager } from '../../ecs/EntityManager';
+import { getMustFaceEnemy } from '../../ecs/components/combat/AttackComboComponent';
+import { TransformComponent } from '../../ecs/components/core/TransformComponent';
+import { WalkComponent } from '../../ecs/components/movement/WalkComponent';
+import { ProjectileEmitterComponent } from '../../ecs/components/combat/ProjectileEmitterComponent';
+import { Depth } from '../../constants/DepthConstants';
 
 export class GridDebugRenderer {
+  private collisionBoxes: Array<{ x: number; y: number; width: number; height: number }> = [];
+  private emitterBoxes: Array<{ x: number; y: number; size: number }> = [];
+
   constructor(
     private readonly grid: Grid,
     private readonly graphics: Phaser.GameObjects.Graphics,
+    private readonly scene: Phaser.Scene,
   ) {}
 
   renderGridDebug(levelData?: LevelData, blockedAreaManager?: BlockedAreaManager): void {
@@ -79,6 +89,103 @@ export class GridDebugRenderer {
         this.graphics.strokeRect(playerWorldPos.x, playerWorldPos.y, cellSize, cellSize);
       }
     }
+  }
+
+  renderSceneDebug(entityManager?: EntityManager): void {
+    this.renderPunchFOV(entityManager);
+
+    this.collisionBoxes.forEach(box => {
+      this.graphics.lineStyle(2, 0x0000ff, 1);
+      this.graphics.strokeRect(box.x, box.y, box.width, box.height);
+    });
+
+    this.emitterBoxes.forEach(box => {
+      this.graphics.fillStyle(0xff0000, 0.5);
+      this.graphics.fillRect(box.x - box.size / 2, box.y - box.size / 2, box.size, box.size);
+    });
+
+    if (entityManager) {
+      const player = entityManager.getFirst('player');
+      if (player) {
+        const emitter = player.get(ProjectileEmitterComponent);
+        if (emitter) {
+          const pos = emitter.getEmitterPosition();
+          this.graphics.fillStyle(0xff0000, 0.5);
+          this.graphics.fillRect(pos.x - 10, pos.y - 10, 20, 20);
+        }
+      }
+    }
+
+    this.collisionBoxes = [];
+    this.emitterBoxes = [];
+  }
+
+  renderCollisionBox(x: number, y: number, width: number, height: number): void {
+    this.collisionBoxes.push({ x, y, width, height });
+  }
+
+  renderEmitterBox(x: number, y: number, size: number): void {
+    this.emitterBoxes.push({ x, y, size });
+  }
+
+  renderCellCoordinates(): void {
+    for (let row = 0; row < this.grid.height; row++) {
+      for (let col = 0; col < this.grid.width; col++) {
+        const x = col * this.grid.cellSize + 2;
+        const y = row * this.grid.cellSize + 10;
+
+        this.graphics.fillStyle(0xffffff, 0.5);
+        this.graphics.fillRect(x, y - 8, 30, 10);
+
+        const text = this.scene.add.text(x + 1, y - 7, `${col},${row}`, {
+          fontSize: '8px',
+          color: '#000000'
+        });
+        text.setDepth(Depth.debugText);
+
+        this.scene.time.delayedCall(0, () => text.destroy());
+      }
+    }
+  }
+
+  private renderPunchFOV(entityManager?: EntityManager): void {
+    if (!entityManager) return;
+    if (!getMustFaceEnemy()) return;
+
+    const player = entityManager.getFirst('player');
+    if (!player) return;
+
+    const transform = player.get(TransformComponent);
+    const walk = player.get(WalkComponent);
+    if (!transform || !walk) return;
+
+    const facingAngle = Math.atan2(walk.lastMoveY, walk.lastMoveX);
+    const fovAngle = Math.PI * 0.6;
+    const range = 128;
+
+    this.graphics.lineStyle(2, 0xffff00, 0.5);
+    this.graphics.beginPath();
+    this.graphics.moveTo(transform.x, transform.y);
+
+    const leftAngle = facingAngle - fovAngle / 2;
+    const rightAngle = facingAngle + fovAngle / 2;
+
+    this.graphics.lineTo(
+      transform.x + Math.cos(leftAngle) * range,
+      transform.y + Math.sin(leftAngle) * range
+    );
+    this.graphics.moveTo(transform.x, transform.y);
+    this.graphics.lineTo(
+      transform.x + Math.cos(rightAngle) * range,
+      transform.y + Math.sin(rightAngle) * range
+    );
+
+    this.graphics.strokePath();
+
+    this.graphics.lineStyle(1, 0xffff00, 0.3);
+    this.graphics.beginPath();
+    this.graphics.arc(transform.x, transform.y, range, leftAngle, rightAngle);
+    this.graphics.strokePath();
   }
 
   private renderBlockedAreas(blockedAreaManager?: BlockedAreaManager): void {
