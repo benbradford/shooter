@@ -5,6 +5,10 @@
     "x": 5,
     "y": 7
   },
+  "fixedCamera": {
+    "centerCol": 5,
+    "centerRow": 4
+  },
   "cells": [
     {
       "col": 4,

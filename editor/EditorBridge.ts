@@ -862,6 +862,7 @@ export class EditorBridge {
       entities: entities.length > 0 ? entities : [],
       levelTheme: existingLevelData.levelTheme,
       background: existingLevelData.background,
+      ...(existingLevelData.fixedCamera ? { fixedCamera: existingLevelData.fixedCamera } : {}),
       ...(existingLevelData.blockedAreas?.length ? { blockedAreas: existingLevelData.blockedAreas } : {}),
     };
   }

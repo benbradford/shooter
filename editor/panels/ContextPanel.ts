@@ -256,6 +256,14 @@ export class ContextPanel {
         <span class="label">Entities</span><span>${entityCount}</span>
         <span class="label">Player</span><span style="display:flex;gap:4px"><input type="number" id="li-px" value="${levelData.playerStart.x}" style="width:50px;font-size:11px"> <input type="number" id="li-py" value="${levelData.playerStart.y}" style="width:50px;font-size:11px"></span>
       </div>
+      <div class="form-group" style="margin-top:8px">
+        <label style="display:block"><input type="checkbox" id="li-fixed-cam" ${levelData.fixedCamera ? 'checked' : ''} /> Fixed Camera</label>
+        <div id="li-fixed-cam-fields" style="display:${levelData.fixedCamera ? 'flex' : 'none'};gap:4px;margin-top:4px;align-items:center">
+          <span style="font-size:11px">Center:</span>
+          <input type="number" id="li-fc-col" value="${levelData.fixedCamera?.centerCol ?? Math.floor(levelData.width / 2)}" style="width:50px;font-size:11px">
+          <input type="number" id="li-fc-row" value="${levelData.fixedCamera?.centerRow ?? Math.floor(levelData.height / 2)}" style="width:50px;font-size:11px">
+        </div>
+      </div>
       <div class="section-header" style="margin-top:12px">Resize</div>
       <div class="toolbar-row">
         <button class="ed-btn" id="ri-add-col">+ Col</button>
@@ -289,6 +297,24 @@ export class ContextPanel {
     };
     this.container.querySelector('#li-px')?.addEventListener('change', updatePlayerStart);
     this.container.querySelector('#li-py')?.addEventListener('change', updatePlayerStart);
+
+    const fixedCamCheckbox = this.container.querySelector('#li-fixed-cam') as HTMLInputElement;
+    const fixedCamFields = this.container.querySelector('#li-fixed-cam-fields') as HTMLElement;
+    const updateFixedCamera = () => {
+      if (fixedCamCheckbox.checked) {
+        const col = Number.parseInt((this.container.querySelector('#li-fc-col') as HTMLInputElement).value);
+        const row = Number.parseInt((this.container.querySelector('#li-fc-row') as HTMLInputElement).value);
+        levelData.fixedCamera = { centerCol: Number.isNaN(col) ? Math.floor(levelData.width / 2) : col, centerRow: Number.isNaN(row) ? Math.floor(levelData.height / 2) : row };
+        fixedCamFields.style.display = 'flex';
+      } else {
+        delete levelData.fixedCamera;
+        fixedCamFields.style.display = 'none';
+      }
+    };
+    fixedCamCheckbox?.addEventListener('change', updateFixedCamera);
+    this.container.querySelector('#li-fc-col')?.addEventListener('change', updateFixedCamera);
+    this.container.querySelector('#li-fc-row')?.addEventListener('change', updateFixedCamera);
+
     for (const input of this.container.querySelectorAll('input')) {
       input.addEventListener('keydown', e => e.stopPropagation());
     }
