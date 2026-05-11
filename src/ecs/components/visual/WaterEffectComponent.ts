@@ -105,7 +105,7 @@ export class WaterEffectComponent implements Component {
     const nextCell = grid.getCell(checkCol, checkRow);
     const isNextCellDry = !nextCell?.properties.has('water');
     const isNextCellBridge = nextCell?.properties.has('bridge') ?? false;
-    const isNextCellBlocked = nextCell?.properties.has('blocked') || nextCell?.properties.has('platform') || nextCell?.properties.has('wall') || false;
+    const isNextCellBlocked = (nextCell?.properties.has('blocked') ?? false) || (nextCell?.properties.has('platform') ?? false) || (nextCell?.properties.has('wall') ?? false);
 
     if (!isNextCellDry || isNextCellBridge || isCurrentCellBridge || isNextCellBlocked) {
       return true;

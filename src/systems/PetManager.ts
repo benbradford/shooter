@@ -18,15 +18,13 @@ export class PetManager {
   private playerEntity: Entity | null = null;
   private activePetEntity: Entity | null = null;
   private selectedPetId: string | null = null;
-  private metadataCache: Map<string, PetSpritesheetMetadata> = new Map();
+  private readonly metadataCache: Map<string, PetSpritesheetMetadata> = new Map();
   
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   private constructor() {}
   
   static getInstance(): PetManager {
-    if (!PetManager.instance) {
-      PetManager.instance = new PetManager();
-    }
+    PetManager.instance ??= new PetManager();
     return PetManager.instance;
   }
   

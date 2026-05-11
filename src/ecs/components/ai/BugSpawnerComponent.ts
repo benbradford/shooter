@@ -18,7 +18,7 @@ export class BugSpawnerComponent implements Component {
   private readonly playerEntity: Entity;
   private readonly spawnIntervalMs: number;
   private readonly grid: GridReader;
-  private activeBugs: Set<Entity> = new Set();
+  private readonly activeBugs: Set<Entity> = new Set();
 
   constructor(playerEntity: Entity, onSpawn: (col: number, row: number) => void, spawnIntervalMs: number, grid: GridReader) {
     this.playerEntity = playerEntity;

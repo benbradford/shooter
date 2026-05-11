@@ -15,9 +15,7 @@ export class CompanionManager {
   private constructor() {}
 
   static getInstance(): CompanionManager {
-    if (!CompanionManager.instance) {
-      CompanionManager.instance = new CompanionManager();
-    }
+    CompanionManager.instance ??= new CompanionManager();
     return CompanionManager.instance;
   }
 

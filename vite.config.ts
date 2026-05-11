@@ -32,11 +32,42 @@ let nextSessionId = 1;
 const SESSION_FILE = path.resolve('.sessions.json');
 
 function persistSessions(): void {
-  // Only persist sessions that are still alive or archived — dead sessions can't be reconnected
+  // Read existing disk state to preserve archived flags set by other writers (VS Code extension)
+  const diskArchived = new Map<string, boolean>();
+  try {
+    if (fs.existsSync(SESSION_FILE)) {
+      const existing = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
+      for (const s of existing) {
+        diskArchived.set(s.id, s.archived);
+      }
+    }
+  } catch { /* corrupted file, proceed without disk state */ }
+
   const data = [...sessions.values()]
     .filter(s => s.status !== 'dead')
-    .map(({ ttydPid, ...rest }) => rest);
+    .map(({ ttydPid, ...rest }) => {
+      const diskValue = diskArchived.get(rest.id);
+      if (diskValue !== undefined) {
+        rest.archived = diskValue;
+      }
+      return rest;
+    });
   fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
+}
+
+function updateSessionOnDisk(id: string, fields: Partial<Pick<Session, 'archived'>>): void {
+  let data: Session[] = [];
+  try {
+    if (fs.existsSync(SESSION_FILE)) {
+      data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8'));
+    }
+  } catch { /* start fresh */ }
+
+  const entry = data.find(s => s.id === id);
+  if (entry) {
+    Object.assign(entry, fields);
+    fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
+  }
 }
 
 function recoverSessions(): void {
@@ -640,6 +671,7 @@ If there are no changes to commit, say so and stop.`;
           const session = sessions.get(body.id);
           if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
           session.archived = true;
+          updateSessionOnDisk(body.id, { archived: true });
           persistSessions();
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true }));
@@ -653,6 +685,7 @@ If there are no changes to commit, say so and stop.`;
           const session = sessions.get(body.id);
           if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
           session.archived = false;
+          updateSessionOnDisk(body.id, { archived: false });
           persistSessions();
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true }));

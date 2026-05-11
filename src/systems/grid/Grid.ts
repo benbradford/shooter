@@ -306,9 +306,7 @@ export class Grid implements GridReader {
     const gameScene = this.scene as GameScene;
     gameScene.renderGrid(this, levelData ?? gameScene.getLevelData());
 
-    if (!this.debugRenderer) {
-      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
-    }
+    this.debugRenderer ??= new GridDebugRenderer(this, this.graphics, this.scene);
 
     if (!this.isGridDebugEnabled) {
       if (this.isSceneDebugEnabled) {
@@ -321,25 +319,19 @@ export class Grid implements GridReader {
   }
 
   renderCellCoordinates(): void {
-    if (!this.debugRenderer) {
-      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
-    }
+    this.debugRenderer ??= new GridDebugRenderer(this, this.graphics, this.scene);
     this.debugRenderer.renderCellCoordinates();
   }
 
   renderCollisionBox(x: number, y: number, width: number, height: number): void {
     if (!this.isSceneDebugEnabled) return;
-    if (!this.debugRenderer) {
-      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
-    }
+    this.debugRenderer ??= new GridDebugRenderer(this, this.graphics, this.scene);
     this.debugRenderer.renderCollisionBox(x, y, width, height);
   }
 
   renderEmitterBox(x: number, y: number, size: number): void {
     if (!this.isSceneDebugEnabled) return;
-    if (!this.debugRenderer) {
-      this.debugRenderer = new GridDebugRenderer(this, this.graphics, this.scene);
-    }
+    this.debugRenderer ??= new GridDebugRenderer(this, this.graphics, this.scene);
     this.debugRenderer.renderEmitterBox(x, y, size);
   }
 

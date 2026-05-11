@@ -96,7 +96,7 @@ export class BackgroundTextureRenderer {
             sprite.setDisplaySize(this.cellSize, this.cellSize);
           }
 
-          const depth: number = zOffsetOverride !== undefined ? zOffsetOverride : baseDepth;
+          const depth: number = zOffsetOverride ?? baseDepth;
           sprite.setDepth(depth);
 
           if (blendMode === 'multiply') sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);

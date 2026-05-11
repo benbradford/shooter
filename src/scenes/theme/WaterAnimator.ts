@@ -14,7 +14,7 @@ export class WaterAnimator {
   private readonly generatedTextureKeys: string[] = [];
   private animationTimerMs: number = 0;
   private currentFrameIndex: number = 0;
-  private tilesetKeys: string[] = [];
+  private readonly tilesetKeys: string[] = [];
   private readonly generator: PathTilesetGenerator;
 
   constructor(

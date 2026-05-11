@@ -189,9 +189,7 @@ export class AttackComboComponent implements Component {
       }
 
       const transform = this.entity.require(TransformComponent);
-      if (!this.chargeCircle) {
-        this.chargeCircle = new ChargeCircleEffect(this.scene);
-      }
+      this.chargeCircle ??= new ChargeCircleEffect(this.scene);
       const progress = this.holdDurationMs / SUPER_PUNCH_HOLD_THRESHOLD_MS;
       this.chargeCircle.update(transform.x, transform.y, progress, delta);
 

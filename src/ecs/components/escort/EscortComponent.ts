@@ -90,8 +90,8 @@ export class EscortComponent implements Component, EventListener {
   private lastAnimKey = '';
 
   // (V5 fix): Cross-level spawn tracking
-  private playerSpawnCol = -1;
-  private playerSpawnRow = -1;
+  private readonly playerSpawnCol: number = -1;
+  private readonly playerSpawnRow: number = -1;
 
   // (V2 fix): Track event registration
   private isEventRegistered = false;

@@ -110,6 +110,11 @@ export class WalkComponent implements Component {
       }
     }
 
+    if (isThrowLocked) {
+      this.velocityX = 0;
+      this.velocityY = 0;
+    }
+
     const targetVelocity = this.calculateTargetVelocity(movementInput.dx, movementInput.dy);
     targetVelocity.x *= chargeMultiplier;
     targetVelocity.y *= chargeMultiplier;
