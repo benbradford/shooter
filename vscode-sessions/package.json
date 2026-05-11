@@ -32,7 +32,9 @@
     },
     "commands": [
       { "command": "dbSessions.refresh", "title": "Refresh Sessions", "icon": "$(refresh)" },
-      { "command": "dbSessions.create", "title": "New Session", "icon": "$(add)" },
+      { "command": "dbSessions.create", "title": "New Session (pick engine)", "icon": "$(add)" },
+      { "command": "dbSessions.createKiro", "title": "New Kiro Session", "icon": "$(terminal)" },
+      { "command": "dbSessions.createClaude", "title": "New Claude Session", "icon": "$(comment-discussion)" },
       { "command": "dbSessions.open", "title": "Open in Terminal" },
       { "command": "dbSessions.rename", "title": "Rename" },
       { "command": "dbSessions.archive", "title": "Archive" },
@@ -45,7 +47,8 @@
     "menus": {
       "view/title": [
         { "command": "dbSessions.refresh", "when": "view == dbSessions", "group": "navigation" },
-        { "command": "dbSessions.create", "when": "view == dbSessions", "group": "navigation" }
+        { "command": "dbSessions.createKiro", "when": "view == dbSessions", "group": "navigation" },
+        { "command": "dbSessions.createClaude", "when": "view == dbSessions", "group": "navigation" }
       ],
       "view/item/context": [
         { "command": "dbSessions.open", "when": "view == dbSessions && viewItem =~ /active/", "group": "1_open" },

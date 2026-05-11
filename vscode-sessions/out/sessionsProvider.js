@@ -41,15 +41,18 @@ class SessionItem extends vscode.TreeItem {
         super(session.label, vscode.TreeItemCollapsibleState.None);
         this.session = session;
         const isActive = session.status === 'active';
-        this.description = isActive ? '● active' : '○ dead';
-        this.iconPath = new vscode.ThemeIcon(isActive ? 'terminal' : 'circle-slash');
+        const engine = session.engine ?? 'kiro';
+        const engineTag = engine === 'claude' ? '[C]' : '[K]';
+        this.description = `${engineTag} ${isActive ? '● active' : '○ dead'}`;
+        this.iconPath = new vscode.ThemeIcon(engine === 'claude' ? (isActive ? 'comment-discussion' : 'circle-slash')
+            : (isActive ? 'terminal' : 'circle-slash'));
         const isWorkflow = !!session.tag;
         this.contextValue = session.archived
             ? 'archived_session'
             : isWorkflow
                 ? (isActive ? 'active_workflow' : 'dead_workflow')
                 : (isActive ? 'active_session' : 'dead_session');
-        this.tooltip = `${session.label}\nStatus: ${session.status}\nCreated: ${new Date(session.createdAt).toLocaleString()}\ntmux: ${session.tmuxSession}`;
+        this.tooltip = `${session.label}\nEngine: ${engine}\nStatus: ${session.status}\nCreated: ${new Date(session.createdAt).toLocaleString()}\ntmux: ${session.tmuxSession}`;
         if (isActive) {
             this.command = {
                 command: 'dbSessions.open',

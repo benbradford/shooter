@@ -124,6 +124,10 @@
   "background": {
     "floor_texture": "interior21"
   },
+  "fixedCamera": {
+    "centerCol": 2,
+    "centerRow": 2
+  },
   "blockedAreas": [
     {
       "id": "ba0",

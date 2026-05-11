@@ -190,7 +190,8 @@ function renderTable(filter) {
         ${f.status === 'planned' ? `<button class="act-btn" title="Mark as done" onclick="setStatus(${f.id},'done')">✓ Done</button>` : ''}
         ${f.status !== 'cancelled' && f.status !== 'done' ? `<button class="act-btn" title="Cancel this feature" onclick="setStatus(${f.id},'cancelled')">✗</button>` : ''}
         ${f.status === 'done' || f.status === 'cancelled' ? `<button class="act-btn" title="Reopen this feature" onclick="setStatus(${f.id},'planned')">↺ Reopen</button>` : ''}
-        ${f.status !== 'done' ? `<button class="act-btn fix" title="Invoke kiro-cli to implement this feature" onclick="fixEntry(${f.id})">🤖 Impl</button>` : ''}
+        ${f.status !== 'done' ? `<button class="act-btn fix" title="Impl with Kiro" onclick="fixEntry(${f.id},'kiro')">🤖 Impl</button>` : ''}
+        ${f.status !== 'done' ? `<button class="act-btn fix" title="Impl with Claude" onclick="fixEntry(${f.id},'claude')" style="border-color:#b388ff;color:#b388ff;background:#1a1a3a">🟣 Impl</button>` : ''}
         ${f.status !== 'done' ? `<button class="act-btn" title="Diagnose: explain the feature and approach without changing code" onclick="diagnoseEntry(${f.id})">🔍</button>` : ''}
       </td>
     </tr>
@@ -233,18 +234,19 @@ async function addEntry() {
   showToast(`Feature #${result.id} added`);
 }
 
-async function fixEntry(id) {
+async function fixEntry(id, engine = 'kiro') {
   const f = FEATURES.find(f => f.id === id);
   if (!f) return;
+  const tag = engine === 'claude' ? '🟣' : '🤖';
   try {
-    const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, title: f.title, detail: f.detail || '' }) });
+    const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'features', id, title: f.title, detail: f.detail || '', engine }) });
     if (!resp.ok) { showToast(`❌ Server error: ${resp.status} ${await resp.text()}`); return; }
     const data = await resp.json();
-    if (data.sessionId) { 
+    if (data.sessionId) {
       const sessionWindow = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions');
       if (sessionWindow) sessionWindow.focus();
     }
-    showToast(`🤖 kiro-cli started for feature #${id}`);
+    showToast(`${tag} Session started for feature #${id}`);
   } catch (err) { showToast(`❌ Failed: ${err.message}`); }
 }
 

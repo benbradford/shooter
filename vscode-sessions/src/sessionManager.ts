@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import type { SessionsProvider } from './sessionsProvider';
 
+export type SessionEngine = 'kiro' | 'claude';
+
 export interface Session {
   id: string;
   port: number;
@@ -16,6 +18,7 @@ export interface Session {
   tag?: string;
   prompt?: string;
   agent?: string;
+  engine?: SessionEngine;
 }
 
 const TMUX_PATH = '/opt/homebrew/bin/tmux';
@@ -82,16 +85,28 @@ export class SessionManager {
     this.openTerminals.set(session.id, terminal);
   }
 
-  async createSession(provider: SessionsProvider): Promise<void> {
+  async createSession(provider: SessionsProvider, forceEngine?: SessionEngine): Promise<void> {
+    const engine = forceEngine ?? await vscode.window.showQuickPick(
+      [
+        { label: 'Kiro', description: 'kiro-cli chat --agent dodging-bullets', value: 'kiro' as SessionEngine },
+        { label: 'Claude', description: 'claude (Claude Code CLI)', value: 'claude' as SessionEngine },
+      ],
+      { placeHolder: 'Select AI engine for this session' }
+    ).then(pick => pick?.value);
+    if (!engine) return;
+
+    const defaultLabel = `${engine === 'claude' ? 'Claude' : 'Kiro'} ${Date.now().toString(36)}`;
     const label = await vscode.window.showInputBox({
       prompt: 'Session label',
-      value: `Session ${Date.now().toString(36)}`,
+      value: defaultLabel,
     });
     if (!label) return;
 
     const id = this.generateId();
     const tmuxName = `db-${id}`;
-    const shellCmd = `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
+    const shellCmd = engine === 'claude'
+      ? `cd '${this.projectRoot}' && claude`
+      : `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
 
     try {
       execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`);
@@ -105,6 +120,7 @@ export class SessionManager {
     const session: Session = {
       id, port: 0, label, status: 'active', archived: false,
       tmuxSession: tmuxName, createdAt: new Date().toISOString(), command: shellCmd,
+      engine,
     };
 
     this.persistSession(session);
@@ -189,7 +205,21 @@ export class SessionManager {
     provider.refresh();
   }
 
-  restartSession(session: Session, provider: SessionsProvider): void {
+  async restartSession(session: Session, provider: SessionsProvider): Promise<void> {
+    // For workflow sessions (have a prompt), ask which engine to use
+    let engine: SessionEngine = session.engine ?? 'kiro';
+    if (session.prompt) {
+      const pick = await vscode.window.showQuickPick(
+        [
+          { label: 'Kiro', description: 'kiro-cli chat --agent dodging-bullets', value: 'kiro' as SessionEngine },
+          { label: 'Claude', description: 'claude (Claude Code CLI)', value: 'claude' as SessionEngine },
+        ],
+        { placeHolder: 'Rerun with which engine?' }
+      );
+      if (!pick) return;
+      engine = pick.value;
+    }
+
     const tmuxName = session.tmuxSession;
 
     try {
@@ -199,14 +229,25 @@ export class SessionManager {
     // Rebuild command — if session has a prompt, write a new temp file
     let shellCmd: string;
     if (session.prompt) {
-      const agent = session.agent ?? 'dodging-bullets';
       const tmpFile = path.join(this.projectRoot, 'tmp', `quick-${Date.now()}.txt`);
       const tmpDir = path.join(this.projectRoot, 'tmp');
       if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
       fs.writeFileSync(tmpFile, session.prompt, 'utf-8');
-      shellCmd = `cd '${this.projectRoot}' && kiro-cli chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+      if (engine === 'claude') {
+        shellCmd = `cd '${this.projectRoot}' && claude -p "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+      } else {
+        const agent = session.agent ?? 'dodging-bullets';
+        shellCmd = `cd '${this.projectRoot}' && kiro-cli chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+      }
     } else {
-      shellCmd = session.command;
+      // No prompt — swap the base command if engine changed
+      if (engine === 'claude' && session.command.includes('kiro-cli')) {
+        shellCmd = `cd '${this.projectRoot}' && claude`;
+      } else if (engine === 'kiro' && session.command.includes('claude')) {
+        shellCmd = `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
+      } else {
+        shellCmd = session.command;
+      }
     }
 
     try {
@@ -217,6 +258,11 @@ export class SessionManager {
       vscode.window.showErrorMessage(`Failed to restart session: ${e}`);
       return;
     }
+
+    // Update the stored engine
+    const sessions = this.loadRawSessions();
+    const s = sessions.find(x => x.id === session.id);
+    if (s) { s.engine = engine; s.command = shellCmd; this.saveRawSessions(sessions); }
 
     provider.refresh();
     this.openSession({ ...session, status: 'active' });

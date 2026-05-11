@@ -583,7 +583,8 @@ function renderTable(filter) {
         ${i.status === 'open' ? `<button class="act-btn" title="Defer for later" onclick="setStatus(${i.id},'deferred')">⏸</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${i.id},'wontfix')">✗</button>` : ''}
         ${i.status !== 'open' ? `<button class="act-btn" title="Reopen this issue" onclick="setStatus(${i.id},'open')">↺ Reopen</button>` : ''}
-        ${i.status === 'open' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this issue" onclick="fixEntry(${i.id})">🤖 Fix</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn fix" title="Fix with Kiro" onclick="fixEntry(${i.id},'kiro')">🤖 Fix</button>` : ''}
+        ${i.status === 'open' ? `<button class="act-btn fix" title="Fix with Claude" onclick="fixEntry(${i.id},'claude')" style="border-color:#b388ff;color:#b388ff;background:#1a1a3a">🟣 Fix</button>` : ''}
         ${i.status === 'open' ? `<button class="act-btn" title="Diagnose: explain the issue and approach without changing code" onclick="diagnoseEntry(${i.id})">🔍</button>` : ''}
       </td>
     </tr>
@@ -628,18 +629,19 @@ async function addEntry() {
 }
 
 let _fixInProgress = false;
-async function fixEntry(id) {
+async function fixEntry(id, engine = 'kiro') {
   if (_fixInProgress) return;
   _fixInProgress = true;
   const i = ISSUES.find(i => i.id === id);
   if (!i) { _fixInProgress = false; return; }
-  showToast(`🤖 Starting fix for issue #${id}...`);
-  const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '' }) });
+  const tag = engine === 'claude' ? '🟣' : '🤖';
+  showToast(`${tag} Starting fix for issue #${id}...`);
+  const resp = await fetch('/api/tracker/fix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tracker: 'issues', id, title: i.title, detail: i.detail || '', engine }) });
   const data = await resp.json();
-  if (data.sessionId) { 
+  if (data.sessionId) {
     try { const w = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions'); if (w) w.focus(); } catch {}
   }
-  showToast(`🤖 Session launched for issue #${id}`);
+  showToast(`${tag} Session launched for issue #${id}`);
   _fixInProgress = false;
 }
 

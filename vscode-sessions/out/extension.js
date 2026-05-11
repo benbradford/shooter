@@ -52,7 +52,7 @@ function activate(context) {
         treeDataProvider: trackersProvider,
     });
     context.subscriptions.push(trackersTree);
-    context.subscriptions.push(vscode.commands.registerCommand('dbSessions.refresh', () => provider.refresh()), vscode.commands.registerCommand('dbSessions.create', () => manager.createSession(provider)), vscode.commands.registerCommand('dbSessions.open', (item) => {
+    context.subscriptions.push(vscode.commands.registerCommand('dbSessions.refresh', () => provider.refresh()), vscode.commands.registerCommand('dbSessions.create', () => manager.createSession(provider)), vscode.commands.registerCommand('dbSessions.createKiro', () => manager.createSession(provider, 'kiro')), vscode.commands.registerCommand('dbSessions.createClaude', () => manager.createSession(provider, 'claude')), vscode.commands.registerCommand('dbSessions.open', (item) => {
         if (!item?.session)
             return;
         manager.openSession(item.session);

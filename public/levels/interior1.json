@@ -521,5 +521,9 @@
   "levelTheme": "default",
   "background": {
     "floor_texture": "interior2"
+  },
+  "fixedCamera": {
+    "centerCol": 8,
+    "centerRow": 4
   }
 }

@@ -530,11 +530,12 @@ If there are no changes to commit, say so and stop.`;
         } catch (error) { res.statusCode = 500; res.end(JSON.stringify({ error: String(error) })); }
       });
 
-      // Fix button — invoke kiro-cli via ttyd (browser-based terminal)
+      // Fix button — invoke kiro-cli or claude via ttyd (browser-based terminal)
       server.middlewares.use('/api/tracker/fix', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
-          const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string; diagnoseOnly?: boolean };
+          const body = JSON.parse(await readBody(req)) as { tracker: string; id: number; title: string; detail: string; diagnoseOnly?: boolean; engine?: 'kiro' | 'claude' };
+          const engine = body.engine ?? 'kiro';
           const type = body.tracker === 'bugs' ? 'bug' : body.tracker === 'issues' ? 'architecture issue' : body.tracker === 'lint' ? 'lint' : 'feature';
           const prefix = body.diagnoseOnly
             ? `Diagnose this ${type} WITHOUT making any code changes. Explain what you understand about the issue, which files are likely involved, and how you would approach fixing it. Do NOT edit any files.\n\n`
@@ -548,8 +549,11 @@ If there are no changes to commit, say so and stop.`;
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const label = `${action} ${type} #${body.id}: ${body.title.slice(0, 40)}`;
+          const shellCmd = engine === 'claude'
+            ? `cd '${cwd}' && claude -p "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
+            : `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const engineTag = engine === 'claude' ? '🟣' : '🤖';
+          const label = `${action}${engineTag} ${type} #${body.id}: ${body.title.slice(0, 40)}`;
           const session = spawnSession(label, shellCmd);
 
           res.setHeader('Content-Type', 'application/json');

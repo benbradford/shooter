@@ -164,6 +164,7 @@ the player from exiting, unless you have any other bright ideas.`, area: '', id:
   { severity: 'low', status: 'fixed', title: 'Unable to remove archived sessions', detail: 'In the sessions tab, it shows archived sessions on the left, however there are some there that i cannot remove. They might be from a previous incarnation of the sessions handler or it might be a bug. please ensure they are removed and ensure there is no bug', area: 'sessions', id: 13, added: '2026-05-07' },
   { severity: 'medium', status: 'fixed', title: 'Add scrolling to sessions', detail: 'I should be able to scroll up and down in a session to see the history but there is no scrollbar on the right and if i do a double press and slide up and down, it toggles through previous commands, i would expect it to scroll up / down in the session so i can see history', area: 'sessions', id: 14, added: '2026-05-09' },
   { severity: 'critical', status: 'fixed', title: 'Player currentCell not always updating - exits broken', detail: 'Two bugs: (1) currentCell was set to top-left of collision box instead of center — small 34x16 box could skip cells. Fixed to use centerCell. (2) Tag index refactoring removed entities from tagIndex on removeOccupant even when entity still occupied other cells — getEntitiesWithTag(player) returned empty during cell transitions. Fixed with occupancy reference counting.', area: 'movement', id: 15, added: '2026-05-09' },
+  { severity: 'critical', status: 'open', title: 'cannot throw pet on android', detail: 'in android, clicking on the pet icon with the rock equpped doesnt allow me to throw the rock. the rocks seems to jump towards the player, but the throwing phase doesnt initiate and the rock just goes back to walking around. the player\'s throw anim doesn;t initiate', area: 'gameplay', id: 16, added: '2026-05-10' },
 ];
 
 function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }
@@ -209,7 +210,8 @@ function renderTable(filter) {
         ${b.status === 'open' ? `<button class="act-btn" title="Mark as investigating" onclick="setStatus(${b.id},'investigating')">🔍</button>` : ''}
         ${b.status !== 'wontfix' && b.status !== 'fixed' ? `<button class="act-btn" title="Mark as won't fix" onclick="setStatus(${b.id},'wontfix')">✗</button>` : ''}
         ${b.status === 'fixed' || b.status === 'wontfix' ? `<button class="act-btn" title="Reopen this bug" onclick="setStatus(${b.id},'open')">↺ Reopen</button>` : ''}
-        ${b.status !== 'fixed' ? `<button class="act-btn fix" title="Invoke kiro-cli to auto-fix this bug" onclick="fixEntry(${b.id})">🤖 Fix</button>` : ''}
+        ${b.status !== 'fixed' ? `<button class="act-btn fix" title="Fix with Kiro" onclick="fixEntry(${b.id},'kiro')">🤖 Fix</button>` : ''}
+        ${b.status !== 'fixed' ? `<button class="act-btn fix" title="Fix with Claude" onclick="fixEntry(${b.id},'claude')" style="border-color:#b388ff;color:#b388ff;background:#1a1a3a">🟣 Fix</button>` : ''}
         ${b.status !== 'fixed' ? `<button class="act-btn" title="Diagnose: explain the issue and approach without changing code" onclick="diagnoseEntry(${b.id})">🔍</button>` : ''}
       </td>
     </tr>
@@ -279,23 +281,24 @@ async function addEntry() {
 }
 
 let _fixInProgress = false;
-async function fixEntry(id) {
+async function fixEntry(id, engine = 'kiro') {
   if (_fixInProgress) return;
   _fixInProgress = true;
   const bug = BUGS.find(b => b.id === id);
   if (!bug) { _fixInProgress = false; return; }
-  showToast(`🤖 Starting fix for bug #${id}...`);
+  const tag = engine === 'claude' ? '🟣' : '🤖';
+  showToast(`${tag} Starting fix for bug #${id}...`);
   try {
     const resp = await fetch('/api/tracker/fix', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '' })
+      body: JSON.stringify({ tracker: 'bugs', id, title: bug.title, detail: bug.detail || '', engine })
     });
     const data = await resp.json();
-    if (data.sessionId) { 
+    if (data.sessionId) {
       try { const w = window.open(`sessions.html?session=${data.sessionId}`, 'db-sessions'); if (w) w.focus(); } catch {}
     }
-    showToast(`🤖 Session launched for bug #${id}`);
+    showToast(`${tag} Session launched for bug #${id}`);
   } catch (e) { showToast(`❌ Error: ${e.message}`); }
   _fixInProgress = false;
 }

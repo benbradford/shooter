@@ -413,5 +413,9 @@
   "levelTheme": "default",
   "background": {
     "floor_texture": "interior7"
+  },
+  "fixedCamera": {
+    "centerCol": 7,
+    "centerRow": 4
   }
 }

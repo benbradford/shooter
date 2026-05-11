@@ -243,9 +243,12 @@ export class JumpAnimator {
     const gridPos = entity.get(GridPositionComponent);
     if (gridPos) {
       const cx = transform.x + gridPos.collisionBox.offsetX;
-      const cy = transform.y + gridPos.collisionBox.offsetY;
+      const cy = transform.y;
       gridPos.currentCell = this.grid.worldToCell(cx, cy);
-      const landCell = this.grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
+      // Use collision box center for layer (determines collision rules)
+      const feetY = transform.y + gridPos.collisionBox.offsetY;
+      const layerCell = this.grid.worldToCell(cx, feetY);
+      const landCell = this.grid.getCell(layerCell.col, layerCell.row);
       if (landCell) {
         gridPos.currentLayer = landCell.layer;
         this.nudgeAwayFromHigherLayers(transform, gridPos, landCell.layer);

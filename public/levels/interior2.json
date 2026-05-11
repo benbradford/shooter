@@ -258,5 +258,9 @@
   ],
   "background": {
     "floor_texture": "interior1"
+  },
+  "fixedCamera": {
+    "centerCol": 3,
+    "centerRow": 3
   }
 }

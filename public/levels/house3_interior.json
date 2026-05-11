@@ -1,13 +1,13 @@
 {
   "width": 11,
   "height": 9,
-  "playerStart": {
-    "x": 5,
-    "y": 7
-  },
   "fixedCamera": {
     "centerCol": 5,
     "centerRow": 4
+  },
+  "playerStart": {
+    "x": 5,
+    "y": 7
   },
   "cells": [
     {
@@ -593,6 +593,10 @@
   "levelTheme": "default",
   "background": {
     "floor_texture": "interior7"
+  },
+  "fixedCamera": {
+    "centerCol": 5,
+    "centerRow": 4
   },
   "blockedAreas": [
     {
