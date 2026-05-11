@@ -21,6 +21,10 @@ export class CanvasInteraction {
   private clickCycleIndex = 0;
   private readonly hoverCoords: HTMLElement;
 
+  // Paint tool state
+  private paintPoints: Array<[number, number]> = [];
+  private lastPaintLineEnd: { x: number; y: number } | null = null;
+
   // Blocked area drawing state
   private drawingVertices: Array<{ x: number; y: number }> = [];
   private drawingAutoLayer = 0;
@@ -94,6 +98,16 @@ export class CanvasInteraction {
     if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       void this.bridge.saveLevel();
+      return;
+    }
+    if (e.key === 'z' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+      e.preventDefault();
+      this.bridge.undo();
+      return;
+    }
+    if (e.key === 'z' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+      e.preventDefault();
+      this.bridge.redo();
       return;
     }
     if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
@@ -203,6 +217,8 @@ export class CanvasInteraction {
       if (this.bridge.selectedTexture) {
         this.bridge.setCellTexture(cell.col, cell.row, this.bridge.selectedTexture);
       }
+    } else if (tool === 'paint') {
+      this.handlePaintDown(p, cell);
     } else if (tool === 'blockedarea') {
       this.handleBlockedAreaClick(p);
     } else {
@@ -248,6 +264,22 @@ export class CanvasInteraction {
 
     if (cell.col < 0 || cell.col >= grid.width || cell.row < 0 || cell.row >= grid.height) return;
 
+    if (this.bridge.currentTool === 'paint' && this.isDragging) {
+      const wx = Math.round(p.worldX);
+      const wy = Math.round(p.worldY);
+      const last = this.paintPoints[this.paintPoints.length - 1];
+      const dist = Math.hypot(wx - last[0], wy - last[1]);
+      const step = Math.max(1, this.bridge.paintBrushSize / 4);
+      if (dist >= step) {
+        const interpolated = this.interpolatePoints(last[0], last[1], wx, wy);
+        for (let i = 1; i < interpolated.length; i++) {
+          this.paintPoints.push(interpolated[i]);
+        }
+        this.renderOverlays();
+      }
+      return;
+    }
+
     if (this.dragEntityId) {
       this.bridge.moveEntity(this.dragEntityId, cell.col, cell.row);
       this.renderOverlays();
@@ -266,6 +298,14 @@ export class CanvasInteraction {
   }
 
   private onPointerUp(): void {
+    if (this.bridge.currentTool === 'paint' && this.paintPoints.length > 0) {
+      this.bridge.paintStroke([...this.paintPoints], this.bridge.paintEraser);
+      this.paintPoints = [];
+      this.isDragging = false;
+      this.lastPaintedCell = null;
+      this.renderOverlays();
+      return;
+    }
     if (this.ctrlDragWorldPos && this.dragTextureFrom) {
       this.bridge.finalizeCellTexturePixelDrop(this.dragTextureFrom.col, this.dragTextureFrom.row, this.dragTextureFrom.textureIndex, this.ctrlDragWorldPos.x, this.ctrlDragWorldPos.y);
     }
@@ -277,6 +317,37 @@ export class CanvasInteraction {
       this.isDragging = false;
       this.lastPaintedCell = null;
     }
+  }
+
+  private handlePaintDown(p: Phaser.Input.Pointer, _cell: { col: number; row: number }): void {
+    const wx = Math.round(p.worldX);
+    const wy = Math.round(p.worldY);
+
+    // Shift-click draws a straight line from last paint endpoint
+    if (p.event instanceof MouseEvent && p.event.shiftKey && this.lastPaintLineEnd) {
+      const points = this.interpolatePoints(this.lastPaintLineEnd.x, this.lastPaintLineEnd.y, wx, wy);
+      this.bridge.paintStroke(points, this.bridge.paintEraser);
+      this.lastPaintLineEnd = { x: wx, y: wy };
+      this.renderOverlays();
+      return;
+    }
+
+    this.isDragging = true;
+    this.paintPoints = [[wx, wy]];
+    this.lastPaintLineEnd = { x: wx, y: wy };
+    this.renderOverlays();
+  }
+
+  private interpolatePoints(x0: number, y0: number, x1: number, y1: number): Array<[number, number]> {
+    const points: Array<[number, number]> = [];
+    const dist = Math.hypot(x1 - x0, y1 - y0);
+    const step = Math.max(1, this.bridge.paintBrushSize / 4);
+    const steps = Math.max(1, Math.ceil(dist / step));
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      points.push([Math.round(x0 + (x1 - x0) * t), Math.round(y0 + (y1 - y0) * t)]);
+    }
+    return points;
   }
 
   private handleSelect(p: Phaser.Input.Pointer, grid: import('../src/systems/grid/Grid').Grid, cell: { col: number; row: number }): void {
@@ -434,6 +505,13 @@ export class CanvasInteraction {
     this.renderOverlays();
   }
 
+  private parsePaintColor(hex: string): { rgb: number; alpha: number } {
+    const clean = hex.startsWith('#') ? hex.slice(1) : hex;
+    const rgb = parseInt(clean.substring(0, 6), 16);
+    const alpha = clean.length >= 8 ? parseInt(clean.substring(6, 8), 16) / 255 : 1;
+    return { rgb, alpha };
+  }
+
   // --- Editor overlays ---
   renderOverlays(): void {
     // Clean up old overlays
@@ -543,6 +621,30 @@ export class CanvasInteraction {
       for (let i = 1; i < verts.length; i++) this.graphics.lineTo(verts[i].x, verts[i].y);
       this.graphics.closePath();
       this.graphics.strokePath();
+    }
+
+    // Paint stroke preview
+    if (this.paintPoints.length > 0) {
+      const radius = this.bridge.paintBrushSize / 2;
+      if (this.bridge.paintEraser) {
+        this.graphics.fillStyle(0xffffff, 0.4);
+        this.graphics.lineStyle(this.bridge.paintBrushSize, 0xffffff, 0.4);
+      } else {
+        const color = this.parsePaintColor(this.bridge.paintColor);
+        this.graphics.fillStyle(color.rgb, color.alpha * 0.7);
+        this.graphics.lineStyle(this.bridge.paintBrushSize, color.rgb, color.alpha * 0.7);
+      }
+      for (let i = 0; i < this.paintPoints.length; i++) {
+        const [px, py] = this.paintPoints[i];
+        this.graphics.fillCircle(px, py, radius);
+        if (i > 0) {
+          const [prevX, prevY] = this.paintPoints[i - 1];
+          this.graphics.beginPath();
+          this.graphics.moveTo(prevX, prevY);
+          this.graphics.lineTo(px, py);
+          this.graphics.strokePath();
+        }
+      }
     }
 
     // Drawing preview

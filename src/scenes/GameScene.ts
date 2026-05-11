@@ -28,6 +28,7 @@ import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
 import { TunnelsSceneRenderer } from "./theme/TunnelsSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
+import { PaintRenderer } from "./theme/PaintRenderer";
 
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
@@ -53,6 +54,7 @@ export default class GameScene extends Phaser.Scene {
   private sceneRenderer!: GameSceneRenderer;
   public layerDebugText?: Phaser.GameObjects.Text;
   private sceneOverlays?: SceneOverlays;
+  private paintRenderer?: PaintRenderer;
   private isEditorMode: boolean = false;
   private static hasLoadedFromURL: boolean = false;
   private static hasLoadedWorldState: boolean = false;
@@ -114,6 +116,7 @@ export default class GameScene extends Phaser.Scene {
       preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables']);
       preloadLevelAssets(this, this.levelData);
       await this.waitForLoad();
+      await this.loadPaintAsync();
 
       this.setupThemeRenderer();
 
@@ -130,6 +133,7 @@ export default class GameScene extends Phaser.Scene {
       }
 
       this.sceneRenderer.initializeSprites(this.grid, this.levelData);
+      this.initializePaint();
       this.grid.render();
       this.grid.setGridDebugEnabled(true);
       this.sceneRenderer.updateGraphics(this.grid, this.levelData);
@@ -227,6 +231,7 @@ export default class GameScene extends Phaser.Scene {
 
     preloadLevelAssets(this, this.levelData);
     await this.waitForLoad();
+    await this.loadPaintAsync();
     this.sceneRenderer.loadAllAssets(this.levelData);
 
     this.createRippleAnimation();
@@ -374,6 +379,7 @@ export default class GameScene extends Phaser.Scene {
     const levelState = worldState.getLevelState(level.name!);
 
     this.initializeGrid(level, levelState);
+    this.initializePaint();
     await this.initializeOverlays();
     this.initializeBlockedAreas();
     this.initializeCamera(level);
@@ -432,6 +438,41 @@ export default class GameScene extends Phaser.Scene {
     if (cellsToInvalidate.length > 0 && this.sceneRenderer) {
       this.sceneRenderer.invalidateCells(cellsToInvalidate);
     }
+  }
+
+  private initializePaint(): void {
+    if (this.paintRenderer) this.paintRenderer.destroy();
+    this.paintRenderer = new PaintRenderer(this);
+    const key = PaintRenderer.buildKey(this.currentLevelName);
+    this.paintRenderer.render(key, this.levelData.width, this.levelData.height, this.cellSize);
+  }
+
+  async loadPaintAsync(): Promise<void> {
+    const key = PaintRenderer.buildKey(this.currentLevelName);
+    if (this.textures.exists(key)) {
+      this.textures.remove(key);
+    }
+    const isDev = import.meta.env.DEV;
+    const url = isDev
+      ? `/api/paint?level=${this.currentLevelName}&t=${Date.now()}`
+      : `/levels/${this.currentLevelName}_paint.png`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) return;
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const img = new window.Image();
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          if (this.textures.exists(key)) this.textures.remove(key);
+          this.textures.addImage(key, img);
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = blobUrl;
+      });
+      URL.revokeObjectURL(blobUrl);
+    } catch { /* no paint file */ }
   }
 
   private async initializeOverlays(): Promise<void> {
@@ -531,6 +572,9 @@ export default class GameScene extends Phaser.Scene {
 
     if (this.sceneOverlays) {
       this.sceneOverlays.destroy();
+    }
+    if (this.paintRenderer) {
+      this.paintRenderer.destroy();
     }
 
     this.grid.destroy();
@@ -664,6 +708,16 @@ export default class GameScene extends Phaser.Scene {
 
   getSceneRenderer(): GameSceneRenderer {
     return this.sceneRenderer;
+  }
+
+  refreshPaint(): void {
+    this.initializePaint();
+  }
+
+  destroyPaintImage(): void {
+    if (this.paintRenderer) {
+      this.paintRenderer.destroy();
+    }
   }
 
   public startInteraction(scriptContent: string, filename?: string, npcId?: string): void {

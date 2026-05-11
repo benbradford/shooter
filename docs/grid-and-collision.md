@@ -151,7 +151,9 @@ Handles all collision logic including layer-based movement. Features:
 - Handles multi-cell entities
 - Box-in-box collision detection (checks all overlapping cells)
 
-**currentCell**: Computed from the center of the entity's collision box (not top-left corner). This ensures exits and triggers fire correctly regardless of collision box offset.
+**currentCell**: Computed from the entity's transform position (center X via collision box offsetX, Y via `transform.y`). Using the entity center rather than the collision box center ensures symmetric cell transitions in all directions and matches the player's visual position.
+
+**currentLayer**: Computed from the collision box center (where the feet are). Layer determines collision rules, so it follows the collision box position rather than the visual center.
 
 **GridMovementValidator** (`src/ecs/components/movement/GridMovementValidator.ts`): Extracted helper class that isolates movement validation logic (canMoveTo, layer checks, diagonal restrictions) from position tracking and occupancy management. GridCollisionComponent delegates all movement validation to it.
 

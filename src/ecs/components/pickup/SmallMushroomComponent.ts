@@ -39,7 +39,10 @@ export class SmallMushroomComponent implements Component {
     if (distance < COLLECTION_DISTANCE_PX) {
       const health = this.playerEntity.get(HealthComponent);
       if (health) {
-        health.heal(HEAL_AMOUNT);
+        const cappedAmount = Math.min(HEAL_AMOUNT, health.getMaxHealth() - health.getHealth());
+        if (cappedAmount > 0) {
+          health.heal(cappedAmount);
+        }
       }
       this.entity.destroy();
     }

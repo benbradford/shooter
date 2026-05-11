@@ -4,7 +4,15 @@
       "Bash(npx tsc *)",
       "Bash(npm run *)",
       "Bash(claude -p)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(node *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/levels/house3_interior_paint.png)",
+      "Bash(curl -s -I http://localhost:5173/levels/house3_interior_paint.png)",
+      "Bash(curl -s http://localhost:5173/levels/house3_interior_paint.png)",
+      "Bash(curl -s -I http://localhost:5173/levels/house3_interior.json)",
+      "Bash(curl -s -I http://localhost:5173/icon.png)",
+      "Bash(curl -s -I \"http://localhost:5173/levels/house3_interior_paint.png\")",
+      "Bash(curl *)"
     ]
   }
 }

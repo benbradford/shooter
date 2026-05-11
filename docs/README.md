@@ -368,7 +368,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 
 - **Status buttons** on each row — click to mark Done/Fixed, Investigating, Deferred, Won't Fix, etc.
 - **+ Add button** (top-right) — opens a form to add new entries directly in the browser
-- **🤖 Fix / Impl button** — launches a kiro-cli agent in a new browser tab (via ttyd) to automatically fix the bug/issue
+- **🤖 Fix / Impl button** — launches a kiro-cli or claude agent in a new browser tab (via ttyd) to automatically fix the bug/issue
 - **🔄 Refresh Issues button** (architecture tracker) — launches `db-architect` agent to scan the codebase, verify/update existing issues, and add new ones
 - **🧠 Help Me Decide button** (architecture tracker) — launches kiro agent to analyze all open issues and recommend what to tackle next based on severity, effort, fan-in, and dependencies
 - **🚀 New Session button** (main dashboard) — opens a blank `kiro-cli chat --agent dodging-bullets` session in a new browser tab
@@ -382,7 +382,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 **API endpoints** (in `vite.config.ts`):
 - `POST /api/tracker/update` — update fields on an entry (`{ tracker, id, fields }`)
 - `POST /api/tracker/add` — add a new entry (`{ tracker, entry }`)
-- `POST /api/tracker/fix` — spawn kiro-cli in ttyd to fix (`{ tracker, id, title, detail }`), returns `{ ok, url }`
+- `POST /api/tracker/fix` — spawn kiro-cli or claude in ttyd to fix (`{ tracker, id, title, detail, engine?: 'kiro' | 'claude' }`), returns `{ ok, url }`
 - `POST /api/tracker/refresh` — spawn db-architect agent to scan codebase and refresh all issues, returns `{ ok, url }`
 - `POST /api/tracker/decide` — spawn kiro agent to recommend next priority (`{ issues }`), returns `{ ok, url }`
 - `POST /api/tracker/session` — spawn a blank kiro-cli session in ttyd, returns `{ ok, url }`

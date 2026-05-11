@@ -34,6 +34,11 @@ export class EditorBridge {
   currentLevelName: string | null = null;
   selectedTextureIndex = 0;
 
+  // Paint tool state
+  paintColor = '#ff0000ff';
+  paintBrushSize = 4;
+  paintEraser = false;
+
   // Clipboard
   clipboardEntity: LevelEntity | null = null;
   private clipboardCell: { backgroundTexture?: unknown; animatedTexture?: unknown } | null = null;
@@ -81,6 +86,7 @@ export class EditorBridge {
     if (this.currentLevelName) {
       this.onLevelLoaded?.(this.currentLevelName);
     }
+    void this.loadPaintFromPng();
   }
 
   // --- Mutation wrapper ---
@@ -113,8 +119,46 @@ export class EditorBridge {
     this.isDragBatching = false;
   }
 
-  undo(): void { console.log('[EditorBridge] undo() not yet implemented'); }
-  redo(): void { console.log('[EditorBridge] redo() not yet implemented'); }
+  undo(): void {
+    if (this.historyStack.length === 0) return;
+    const current = JSON.stringify(this.getCurrentLevelData());
+    this.redoStack.push(current);
+    const snapshot = this.historyStack.pop()!;
+    this.restoreSnapshot(snapshot);
+  }
+
+  redo(): void {
+    if (this.redoStack.length === 0) return;
+    const current = JSON.stringify(this.getCurrentLevelData());
+    this.historyStack.push(current);
+    const snapshot = this.redoStack.pop()!;
+    this.restoreSnapshot(snapshot);
+  }
+
+  private restoreSnapshot(snapshot: string): void {
+    const levelData = JSON.parse(snapshot) as LevelData;
+    const camera = this.scene.cameras.main;
+    const camX = camera.scrollX;
+    const camY = camera.scrollY;
+    const camZoom = camera.zoom;
+
+    this.isLoading = true;
+    this.scene.scene.restart({ editorMode: true, levelName: this.currentLevelName, levelData });
+
+    const origOnReady = this.onSceneReady;
+    this.onSceneReady = () => {
+      this.onSceneReady = origOnReady;
+      origOnReady?.();
+      const cam = this.scene.cameras.main;
+      cam.scrollX = camX;
+      cam.scrollY = camY;
+      cam.setZoom(camZoom);
+    };
+    if (!this.isDirty) {
+      this.isDirty = true;
+      this.onDirtyStateChanged?.(true);
+    }
+  }
 
   // --- Tool selection ---
   setTool(tool: string): void {
@@ -710,6 +754,187 @@ export class EditorBridge {
     this.onBlockedAreaSelected?.(areaId);
   }
 
+  // --- Paint ---
+  private paintCanvas: HTMLCanvasElement | null = null;
+  private paintCtx: CanvasRenderingContext2D | null = null;
+  paintDirty = false;
+
+  getPaintCanvas(): HTMLCanvasElement {
+    if (!this.paintCanvas) {
+      const grid = this.getGrid();
+      this.paintCanvas = document.createElement('canvas');
+      this.paintCanvas.width = grid.width * grid.cellSize;
+      this.paintCanvas.height = grid.height * grid.cellSize;
+      this.paintCtx = this.paintCanvas.getContext('2d')!;
+    }
+    return this.paintCanvas;
+  }
+
+  getPaintCtx(): CanvasRenderingContext2D {
+    this.getPaintCanvas();
+    return this.paintCtx!;
+  }
+
+  paintStroke(points: Array<[number, number]>, eraser: boolean): void {
+    if (points.length === 0) return;
+    this._applyMutation(eraser ? `Erase (${points.length} pts)` : `Paint (${points.length} pts)`, () => {
+      this.drawStrokeToCanvas(points, eraser);
+      this.paintDirty = true;
+      this.syncPaintToScene();
+    });
+  }
+
+  private drawStrokeToCanvas(points: Array<[number, number]>, eraser: boolean): void {
+    const ctx = this.getPaintCtx();
+    ctx.save();
+    if (eraser) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+      ctx.fillStyle = 'rgba(0,0,0,1)';
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = this.paintColor.length === 9
+        ? this.hexToRgba(this.paintColor)
+        : this.paintColor;
+      ctx.fillStyle = ctx.strokeStyle;
+    }
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = this.paintBrushSize;
+
+    const radius = this.paintBrushSize / 2;
+    if (points.length === 1) {
+      ctx.beginPath();
+      ctx.arc(points[0][0], points[0][1], radius, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(points[0][0], points[0][1]);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i][0], points[i][1]);
+      }
+      ctx.stroke();
+      // Fill circles at endpoints for round caps
+      ctx.beginPath();
+      ctx.arc(points[0][0], points[0][1], radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(points[points.length - 1][0], points[points.length - 1][1], radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  clearAllPaint(): void {
+    this._applyMutation('Clear all paint', () => {
+      const ctx = this.getPaintCtx();
+      const canvas = this.getPaintCanvas();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.paintDirty = true;
+      this.syncPaintToScene();
+    });
+  }
+
+  async loadPaintFromPng(): Promise<void> {
+    if (!this.currentLevelName) return;
+    const canvas = this.getPaintCanvas();
+    const ctx = this.getPaintCtx();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const url = `/api/paint?level=${this.currentLevelName}&t=${Date.now()}`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) { this.syncPaintToScene(); return; }
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const img = new Image();
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve();
+        };
+        img.onerror = () => resolve();
+        img.src = blobUrl;
+      });
+      URL.revokeObjectURL(blobUrl);
+    } catch { /* no paint file yet */ }
+    this.syncPaintToScene();
+  }
+
+  async savePaint(): Promise<void> {
+    if (!this.currentLevelName || !this.paintDirty) return;
+    const canvas = this.getPaintCanvas();
+    const ctx = this.getPaintCtx();
+
+    // Check if canvas is entirely empty
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    let hasContent = false;
+    for (let i = 3; i < data.length; i += 4) {
+      if (data[i] > 0) { hasContent = true; break; }
+    }
+
+    if (!hasContent) {
+      // Delete the paint file
+      await fetch('/api/save-paint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ levelName: this.currentLevelName, data: null })
+      });
+    } else {
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) return;
+      const reader = new FileReader();
+      const base64 = await new Promise<string>(resolve => {
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.readAsDataURL(blob);
+      });
+      await fetch('/api/save-paint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ levelName: this.currentLevelName, data: base64 })
+      });
+    }
+    this.paintDirty = false;
+  }
+
+  resetPaintCanvas(): void {
+    this.paintCanvas = null;
+    this.paintCtx = null;
+    this.paintDirty = false;
+  }
+
+  private syncPaintToScene(): void {
+    const scene = this.scene;
+    const canvas = this.getPaintCanvas();
+    const levelName = this.currentLevelName ?? 'unknown';
+    const textureKey = `__paint_overlay_${levelName}`;
+
+    if (scene.textures.exists(textureKey)) {
+      const tex = scene.textures.get(textureKey);
+      if (tex && tex.key !== '__MISSING' && 'refresh' in tex) {
+        // Canvas texture already exists — just refresh its source
+        (tex as Phaser.Textures.CanvasTexture).refresh();
+        // Recreate image to pick up new size if needed
+        scene.refreshPaint();
+        return;
+      }
+      // Different texture type (e.g. from loadPaintAsync) — destroy image first, then replace
+      scene.destroyPaintImage();
+      scene.textures.remove(textureKey);
+    }
+
+    scene.textures.addCanvas(textureKey, canvas);
+    scene.refreshPaint();
+  }
+
+
+  private hexToRgba(hex: string): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    const a = parseInt(hex.slice(7, 9), 16) / 255;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
   movePlayer(col: number, row: number): void {
     this._applyMutation(`Move player to ${col},${row}`, () => {
       const player = this.getEntityManager().getFirst('player');
@@ -773,6 +998,7 @@ export class EditorBridge {
     this.redoStack.length = 0;
     this.selectedEntity = null;
     this.selectedCell = null;
+    this.resetPaintCanvas();
     this.scene.scene.restart({ editorMode: true, levelName });
   }
 
@@ -797,6 +1023,7 @@ export class EditorBridge {
         return;
       }
       if (response.ok) {
+        await this.savePaint();
         this.isDirty = false;
         this.onDirtyStateChanged?.(false);
         this.toast?.show(`Saved ${savingName}`, 'success');

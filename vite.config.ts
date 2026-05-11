@@ -231,6 +231,46 @@ function saveLevelPlugin(): Plugin {
         });
       });
 
+      server.middlewares.use('/api/paint', (req, res) => {
+        const url = new URL(req.url ?? '', 'http://localhost');
+        const levelName = url.searchParams.get('level');
+        if (!levelName) { res.statusCode = 400; res.end('Missing level param'); return; }
+        const filePath = path.resolve('public/levels', `${levelName}_paint.png`);
+        if (!filePath.startsWith(path.resolve('public/levels'))) {
+          res.statusCode = 400; res.end('Invalid level name'); return;
+        }
+        if (!fs.existsSync(filePath)) { res.statusCode = 404; res.end('Not found'); return; }
+        const data = fs.readFileSync(filePath);
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.statusCode = 200;
+        res.end(data);
+      });
+
+      server.middlewares.use('/api/save-paint', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        let body = '';
+        req.on('data', (chunk: string) => { body += chunk; });
+        req.on('end', () => {
+          try {
+            const { levelName, data } = JSON.parse(body) as { levelName: string; data: string | null };
+            const filePath = path.resolve('public/levels', `${levelName}_paint.png`);
+            if (!filePath.startsWith(path.resolve('public/levels'))) {
+              res.statusCode = 400; res.end('Invalid level name'); return;
+            }
+            if (data === null) {
+              if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            } else {
+              fs.writeFileSync(filePath, Buffer.from(data, 'base64'));
+            }
+            console.log(`✓ Saved paint: public/levels/${levelName}_paint.png`);
+            res.statusCode = 200; res.end('OK');
+          } catch (error) {
+            res.statusCode = 500; res.end(String(error));
+          }
+        });
+      });
+
       server.middlewares.use('/api/save-state', (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         let body = '';

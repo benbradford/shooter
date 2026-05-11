@@ -8,6 +8,7 @@ const GRID_TOOLS: Array<{ label: string; tool: string }> = [
   { label: 'Grid', tool: 'grid' },
   { label: 'Entity', tool: 'entity' },
   { label: 'Area', tool: 'blockedarea' },
+  { label: 'Paint', tool: 'paint' },
 ];
 
 const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock', 'void'] as const;
@@ -61,6 +62,7 @@ export class Toolbar {
       this.updateActiveToolButton('level');
       this.entitySelect.style.display = 'none';
       gridPanel.style.display = 'none';
+      paintPanel.style.display = 'none';
     });
     this.toolButtons.set('level', levelBtn);
     row2.appendChild(levelBtn);
@@ -70,6 +72,7 @@ export class Toolbar {
       this.updateActiveToolButton('state');
       this.entitySelect.style.display = 'none';
       gridPanel.style.display = 'none';
+      paintPanel.style.display = 'none';
     });
     this.toolButtons.set('state', stateBtn);
     row2.appendChild(stateBtn);
@@ -81,11 +84,18 @@ export class Toolbar {
         this.entitySelect.style.display = t.tool === 'entity' ? '' : 'none';
         if (t.tool === 'entity') bridge.selectedEntityType = this.entitySelect.value as import('../../src/systems/level/LevelLoader').EntityType;
         gridPanel.style.display = t.tool === 'grid' ? '' : 'none';
+        paintPanel.style.display = t.tool === 'paint' ? '' : 'none';
       });
       this.toolButtons.set(t.tool, btn);
       row2.appendChild(btn);
     }
     this.updateActiveToolButton('select');
+
+    // Paint sub-panel
+    const paintPanel = this.createRow(container);
+    paintPanel.style.display = 'none';
+    paintPanel.style.cssText += 'flex-wrap:wrap;gap:4px 8px;font-size:11px;align-items:center';
+    this.buildPaintPanel(paintPanel, bridge);
 
     // Grid sub-panel with property checkboxes + layer radio
     const gridPanel = this.createRow(container);
@@ -202,6 +212,81 @@ export class Toolbar {
     this.levelSelect.parentElement!.after(this.newLevelForm);
   }
 
+  private buildPaintPanel(panel: HTMLElement, bridge: EditorBridge): void {
+    // Color picker
+    const colorLabel = document.createElement('label');
+    colorLabel.style.cssText = 'display:flex;align-items:center;gap:4px';
+    colorLabel.textContent = 'Color:';
+    const colorInput = document.createElement('input');
+    colorInput.type = 'color';
+    colorInput.value = '#ff0000';
+    colorInput.style.cssText = 'width:32px;height:24px;border:none;padding:0;cursor:pointer';
+    colorInput.addEventListener('input', () => {
+      bridge.paintColor = colorInput.value + alphaHex(alphaInput.valueAsNumber);
+    });
+    colorLabel.appendChild(colorInput);
+    panel.appendChild(colorLabel);
+
+    // Alpha slider
+    const alphaLabel = document.createElement('label');
+    alphaLabel.style.cssText = 'display:flex;align-items:center;gap:4px';
+    alphaLabel.textContent = 'Alpha:';
+    const alphaInput = document.createElement('input');
+    alphaInput.type = 'range';
+    alphaInput.min = '0'; alphaInput.max = '255'; alphaInput.value = '255';
+    alphaInput.style.cssText = 'width:60px';
+    alphaInput.addEventListener('input', () => {
+      bridge.paintColor = colorInput.value + alphaHex(alphaInput.valueAsNumber);
+      alphaVal.textContent = Math.round(alphaInput.valueAsNumber / 255 * 100) + '%';
+    });
+    const alphaVal = document.createElement('span');
+    alphaVal.textContent = '100%';
+    alphaVal.style.cssText = 'width:30px;font-size:10px;color:#7f8c8d';
+    alphaLabel.appendChild(alphaInput);
+    alphaLabel.appendChild(alphaVal);
+    panel.appendChild(alphaLabel);
+
+    // Brush size (pixels)
+    const sizeLabel = document.createElement('label');
+    sizeLabel.style.cssText = 'display:flex;align-items:center;gap:4px';
+    sizeLabel.textContent = 'Size:';
+    const sizeInput = document.createElement('input');
+    sizeInput.type = 'range';
+    sizeInput.min = '1'; sizeInput.max = '64'; sizeInput.value = '4';
+    sizeInput.style.cssText = 'width:80px';
+    const sizeVal = document.createElement('span');
+    sizeVal.textContent = '4px';
+    sizeVal.style.cssText = 'width:30px;font-size:10px;color:#7f8c8d';
+    sizeInput.addEventListener('input', () => {
+      bridge.paintBrushSize = sizeInput.valueAsNumber;
+      sizeVal.textContent = sizeInput.value + 'px';
+    });
+    sizeLabel.appendChild(sizeInput);
+    sizeLabel.appendChild(sizeVal);
+    panel.appendChild(sizeLabel);
+
+    // Eraser toggle
+    const eraserBtn = this.createButton('Eraser', 'ed-btn', () => {
+      bridge.paintEraser = !bridge.paintEraser;
+      eraserBtn.classList.toggle('active', bridge.paintEraser);
+    });
+    panel.appendChild(eraserBtn);
+
+    // Delete all button
+    const deleteBtn = this.createButton('Delete All', 'ed-btn danger', () => {
+      if (confirm('Delete all paint from this level?')) {
+        bridge.clearAllPaint();
+      }
+    });
+    panel.appendChild(deleteBtn);
+
+    // Undo/redo buttons
+    const undoBtn = this.createButton('Undo', 'ed-btn', () => bridge.undo());
+    const redoBtn = this.createButton('Redo', 'ed-btn', () => bridge.redo());
+    panel.appendChild(undoBtn);
+    panel.appendChild(redoBtn);
+  }
+
   private createRow(container: HTMLElement): HTMLDivElement {
     const row = document.createElement('div');
     row.className = 'toolbar-row';
@@ -215,4 +300,8 @@ export class Toolbar {
     btn.addEventListener('click', onClick);
     return btn;
   }
+}
+
+function alphaHex(value: number): string {
+  return Math.round(value).toString(16).padStart(2, '0');
 }

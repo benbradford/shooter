@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-09 (23:41) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 64 issues (4 critical, 18 high, 26 medium, 16 low). No new issues — all open items confirmed still valid. Architecture stable. Full report: <code>tmp/architecture-review-2026-05-09-2341.md</code></p>
+<p class="updated">Last audit: 2026-05-11 (20:18) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 62 issues (3 critical, 19 high, 25 medium, 15 low). 3 issues resolved (#39, #42, #43). 3 new issues added (#44, #45, #46). Architecture stable — no critical regressions. Full report: <code>tmp/architect-report.json</code></p>
 
 <script>
 const ISSUES = [
@@ -491,9 +491,9 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-09 audit, session 2) ──
   {
-    id: 39, severity: 'medium', status: 'open',
+    id: 39, severity: 'medium', status: 'done',
     title: 'DogBarkAbility allocates new Set() per frame inside updateApproaching()',
-    detail: 'Line 248: `const NON_RESUMABLE_STATES = new Set([...])` is inside updateApproaching() which runs every frame when dog is approaching a target. Creates garbage for GC at 60fps. Fix: hoist to module-level constant.',
+    detail: 'Fixed: NON_RESUMABLE_STATES hoisted to module-level constant (line 26). No longer allocates per frame.',
     files: ['src/ecs/components/pet/DogBarkAbility.ts'],
     effort: '5m', risk: 'None', fanIn: 2, category: 'performance',
     added: '2026-05-09',
@@ -515,20 +515,46 @@ const ISSUES = [
     added: '2026-05-09',
   },
   {
-    id: 42, severity: 'low', status: 'open',
+    id: 42, severity: 'low', status: 'done',
     title: 'Grid.getOccupants() allocates new Set() on cache miss',
-    detail: 'Line 252: `return cell ? cell.occupants : new Set()` — allocates a new empty Set on every out-of-bounds query. Minor impact (only on invalid coordinates) but violates zero-alloc principle. Fix: return a shared module-level EMPTY_SET constant.',
+    detail: 'Fixed: Now returns shared module-level EMPTY_SET constant instead of allocating new Set() on out-of-bounds queries.',
     files: ['src/systems/grid/Grid.ts'],
     effort: '5m', risk: 'None', fanIn: 97, category: 'performance',
     added: '2026-05-09',
   },
   {
-    id: 43, severity: 'high', status: 'open',
+    id: 43, severity: 'high', status: 'done',
     title: 'Grid.ts still has debug rendering methods that belong in GridDebugRenderer',
-    detail: 'renderPunchFOV (~35 LOC), renderSceneDebug (~25 LOC), renderCollisionBox, renderEmitterBox, and renderCellCoordinates (~20 LOC) are still in Grid.ts despite GridDebugRenderer existing. renderPunchFOV imports getMustFaceEnemy from AttackComboComponent — a data model importing from a combat component is a boundary violation. Move all to GridDebugRenderer.',
+    detail: 'Fixed: renderPunchFOV and renderSceneDebug logic moved to GridDebugRenderer. Grid.ts now has only thin passthrough methods (renderCellCoordinates, renderCollisionBox, renderEmitterBox) that delegate to debugRenderer. Boundary violation resolved — getMustFaceEnemy import is now in GridDebugRenderer (acceptable: debug renderer can reference game components).',
     files: ['src/systems/grid/Grid.ts', 'src/systems/grid/GridDebugRenderer.ts'],
     effort: '2h', risk: 'Low', fanIn: 97, category: 'architecture',
     added: '2026-05-09',
+  },
+
+  // ── NEW ISSUES (2026-05-11 audit) ──
+  {
+    id: 44, severity: 'medium', status: 'open',
+    title: 'LuaRuntime.handleShowSpecialItem() is 63 LOC — mixes sprite creation, tweens, and sparkle particle management',
+    detail: 'Lines 239-301. Creates sprite, manages tween-in animation, pulse tween, and sparkle particle timer all in one method. The sparkle loop (lines 274-298) creates/destroys circle GameObjects on a timer. Could extract a SpecialItemDisplay class that owns the sprite + effects lifecycle. Low priority — called infrequently, stable code.',
+    files: ['src/systems/LuaRuntime.ts'],
+    effort: '2h', risk: 'Low', fanIn: 1, category: 'maintainability',
+    added: '2026-05-11',
+  },
+  {
+    id: 45, severity: 'medium', status: 'open',
+    title: 'GameScene.reloadCurrentLevel() is 47 LOC — mixes escort state preservation, snapshot restore, and transition',
+    detail: 'Lines 703-748. Manages 3 concerns: (1) escort state capture (position, definition flags), (2) death reset and snapshot restore, (3) escort state re-application. This is tightly coupled with EscortPersistence and EscortSpawnManager — the escort cross-level logic is spread across startLevelTransition, reloadCurrentLevel, and spawnEntities. Consider a LevelTransitionManager that owns the full transition flow.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '3h', risk: 'Med', fanIn: 13, category: 'architecture',
+    added: '2026-05-11',
+  },
+  {
+    id: 46, severity: 'low', status: 'open',
+    title: 'GameScene has 17 singleton getInstance() calls — repeated fetches within single methods',
+    detail: 'WorldStateManager.getInstance() called 9x, SoundManager.getInstance() 3x, NPCManager.getInstance() 1x, PetManager.getInstance() 1x, CompanionManager.getInstance() 1x, EditorBridge.getInstance() 1x, EscortPersistence new() 2x. The WorldStateManager calls are the main concern — the same instance is fetched repeatedly within single methods (e.g., startLevelTransition fetches it at top, then escort section creates new EscortPersistence). Hoist to field or method parameter.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '1h', risk: 'Low', fanIn: 13, category: 'code-quality',
+    added: '2026-05-11',
   },
 ];
 
