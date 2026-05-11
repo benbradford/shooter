@@ -550,7 +550,7 @@ If there are no changes to commit, say so and stop.`;
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           const shellCmd = engine === 'claude'
-            ? `cd '${cwd}' && claude -p "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
+            ? `cd '${cwd}' && claude "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
             : `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const engineTag = engine === 'claude' ? '🟣' : '🤖';
           const label = `${action}${engineTag} ${type} #${body.id}: ${body.title.slice(0, 40)}`;

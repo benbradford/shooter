@@ -155,6 +155,11 @@ export class PetActionButtonComponent implements Component {
     if (pointer.id === this.pointerId) {
       this.pointerId = -1;
       this.isPressed = false;
+
+      const gameScene = this.scene.scene.get('game') as unknown as { entityManager?: { getFirst(type: string): Entity | undefined } };
+      const player = gameScene.entityManager?.getFirst('player');
+      const petAbility = player?.get(PetAbilityComponent);
+      petAbility?.setAbilityHeld(false);
     }
   };
 

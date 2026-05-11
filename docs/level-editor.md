@@ -9,6 +9,7 @@ See `src/systems/level/LevelLoader.ts` for complete type definitions.
 - `animatedTexture`: Spritesheet config with frame info and optional transform
 - `entities`: All entities (enemies, triggers, exits, eventchainers) in one array
 - `createOnAnyEvent`/`createOnAllEvents`: Optional event-driven spawning
+- `fixedCamera`: Optional `{ centerCol, centerRow }` — camera stays fixed at this position instead of following the player
 
 ## Entity System
 
@@ -151,7 +152,7 @@ Triggers and exits have an **Edit Cells** button in their property form:
 
 ### Level Management
 
-- **Level tool**: Shows Level Info panel with name, size, theme dropdown, player start (editable), resize buttons, and data entities list (interactions, eventchainers, cellmodifiers with add/click-to-edit)
+- **Level tool**: Shows Level Info panel with name, size, theme dropdown, player start (editable), fixed camera checkbox + center col/row, resize buttons, and data entities list (interactions, eventchainers, cellmodifiers with add/click-to-edit)
 - **State tool**: Shows world state editor — player health, coins, flags (key/value pairs), and per-level state (live/destroyed entities, fired triggers, modified cells, moved entities). Clear/Clear All buttons reset all level state including moved entity positions. Click **Save State** to write to `public/states/default.json`
 - **Switch levels**: Use the dropdown — warns if unsaved changes
 - **New level**: Click New → fill in name/dimensions/theme → Create

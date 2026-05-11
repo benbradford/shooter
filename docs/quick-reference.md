@@ -42,6 +42,16 @@ Level transitions work automatically via exit triggers. The system:
 
 **Testing:** See `test/tests/loading/` for comprehensive tests including round trips
 
+## Fixed Camera Levels
+
+Levels can use a fixed camera that doesn't follow the player. Set `fixedCamera` in level JSON:
+
+```json
+{ "fixedCamera": { "centerCol": 15, "centerRow": 10 } }
+```
+
+Camera centers on the specified cell and stays there. Editor: Level Info panel → Fixed Camera checkbox + center col/row inputs.
+
 ## Player Combat System
 
 **Attack Button:** Fixed at 89% camera width, 79% camera height. Touch/click or Space to punch.
