@@ -17,8 +17,15 @@ export class AssetManifest {
     this.addEntityAssets(assets, levelData);
     this.addBackgroundTextures(assets, levelData);
     this.addAnimatedTextures(assets, levelData);
+    this.addMusic(assets, levelData);
 
     return assets;
+  }
+
+  private static addMusic(assets: Set<AssetKey>, levelData: LevelData): void {
+    if (levelData.music && levelData.music in ASSET_REGISTRY) {
+      assets.add(levelData.music as AssetKey);
+    }
   }
 
   private static addBackgroundTextures(assets: Set<AssetKey>, levelData: LevelData): void {

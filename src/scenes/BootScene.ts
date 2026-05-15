@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { SoundManager } from '../systems/SoundManager';
+import { MusicManager } from '../systems/MusicManager';
+import { loadAsset } from '../assets/AssetLoader';
 
 const MIN_DISPLAY_MS = 1000;
 
@@ -20,14 +22,14 @@ export default class BootScene extends Phaser.Scene {
 
     const startTime = Date.now();
 
-    this.load.audio('btr_music', 'assets/music/btr.mp3');
+    loadAsset(this, 'btr_music');
     this.load.image('title_bg', 'assets/concept/title.png');
     this.load.once('complete', () => {
       const elapsed = Date.now() - startTime;
       const remaining = Math.max(0, MIN_DISPLAY_MS - elapsed);
       this.time.delayedCall(remaining, () => {
         this.scene.start('title');
-        this.sound.play('btr_music', { loop: true, volume: 0.5 });
+        MusicManager.getInstance().play(this, 'btr_music');
       });
     });
     this.load.start();

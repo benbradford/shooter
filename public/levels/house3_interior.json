@@ -587,6 +587,7 @@
     }
   ],
   "levelTheme": "default",
+  "music": "btr_overworld",
   "background": {
     "floor_texture": "interior7"
   },

@@ -26,6 +26,7 @@ import { InputComponent } from "../ecs/components/input/InputComponent";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
+import { MusicManager } from "../systems/MusicManager";
 import { TunnelsSceneRenderer } from "./theme/TunnelsSceneRenderer";
 import { SceneOverlays } from "../systems/SceneOverlays";
 import { PaintRenderer } from "./theme/PaintRenderer";
@@ -73,9 +74,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   async create(data?: { editorMode?: boolean; levelName?: string; levelData?: LevelData }) {
-    this.sound.stopByKey('btr_music');
-
     if (data?.editorMode) {
+      MusicManager.getInstance().stop();
       await this.createEditorScene(data);
     } else {
       await this.createGameScene();
@@ -233,6 +233,8 @@ export default class GameScene extends Phaser.Scene {
     await this.waitForLoad();
     await this.loadPaintAsync();
     this.sceneRenderer.loadAllAssets(this.levelData);
+
+    MusicManager.getInstance().play(this, this.levelData.music ?? null);
 
     this.createRippleAnimation();
 

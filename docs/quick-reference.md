@@ -253,12 +253,27 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 3. Add key to appropriate asset group (core for universal sounds, enemy group for enemy-specific)
 4. Play via `SoundManager` — entity factories call `getInstance()` and pass to components via props
 
+**Music:**
+1. Place MP3 in `public/assets/music/`
+2. Register in `AssetRegistry.ts` with `type: 'audio'` (e.g., `btr_overworld`, `btr_wilds`)
+3. Reference in level JSON: `"music": "btr_overworld"` at the top level
+4. Played automatically by `MusicManager` after the level loads — no per-level wiring needed
+
+**MusicManager:**
+- Singleton at `src/systems/MusicManager.ts` — manages background music playback
+- `play(scene, key | null)` — switches track. Same key as currently playing → no-op (seamless across level transitions). `null` → stops music. Loops at volume 0.5 by default.
+- `stop()` — stops any current music
+- Title music: `BootScene` plays `btr_music` via `MusicManager` after asset load
+- Level music: `GameScene.createGameScene()` calls `MusicManager.play(this, levelData.music ?? null)` after `preloadLevelAssets` + `waitForLoad()`
+- Editor mode: `GameScene.create()` calls `MusicManager.stop()` when entering editor
+- Music asset is loaded per-level via `preloadLevelAssets` (and `AssetManifest.fromLevelData` for `LoadingScene` transitions)
+- Music files in `assets/music/*` are skipped by `SoundManager`'s native SoundPool preload (streamed via Phaser instead)
+
 **SoundManager:**
-- Singleton at `src/systems/SoundManager.ts` — wraps all SFX playback
+- Singleton at `src/systems/SoundManager.ts` — wraps all SFX playback (not music)
 - Components receive SoundManager via props (entity factories call `getInstance()` and pass it through)
-- On Android: uses native `SoundPool` via Capacitor plugin (~30ms latency vs ~300ms Web Audio)
+- On Android: uses native `SoundPool` via Capacitor plugin (~30ms latency vs ~300ms Web Audio) — skips `assets/music/*` paths
 - On web: delegates to `game.sound.play()` (Phaser Web Audio, no change)
-- Music stays on Phaser directly (`this.sound.play('btr_music', ...)`)
 - Initialized in BootScene and GameScene (covers all entry paths)
 - Per-sound cooldown: 50ms — prevents overlapping duplicate sounds
 
@@ -478,7 +493,7 @@ Divide sprite into 3×3 grid, use physics-based motion with randomness. Use abso
 ### Coin and Medipack Pickups
 - Coins: Physics-based, fly to HUD, 15s lifetime
 - Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
-- Small mushrooms: Instant 20 HP heal, 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
+- Small mushrooms: Instant 20 HP heal (capped at max health — no overheal), 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
 - Enemy health drops: Enemies have a chance to drop small mushrooms on death (skeleton 20%, puma 25%, red_skeleton 20%, bug 10%, thrower 5%). Uses `HealthDropOnDeathComponent`.
 - Overheal: 1.5× movement speed, 2× punch speed, decays at 5 HP/sec
 

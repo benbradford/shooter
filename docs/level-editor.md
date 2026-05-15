@@ -10,6 +10,7 @@ See `src/systems/level/LevelLoader.ts` for complete type definitions.
 - `entities`: All entities (enemies, triggers, exits, eventchainers) in one array
 - `createOnAnyEvent`/`createOnAllEvents`: Optional event-driven spawning
 - `fixedCamera`: Optional `{ centerCol, centerRow }` — camera stays fixed at this position instead of following the player
+- `music`: Optional asset key (e.g. `"btr_overworld"`) — see [Level Loading](./level-loading.md#level-music)
 
 ## Entity System
 
@@ -169,6 +170,8 @@ Saves automatically write to `public/levels/{levelName}.json` via the Vite dev s
 | Key | Action |
 |-----|--------|
 | Ctrl+S | Save |
+| Ctrl+Z | Undo |
+| Ctrl+Shift+Z | Redo |
 | Ctrl+C | Copy selected entity |
 | Ctrl+V | Paste entity at selected cell |
 | Ctrl+drag | Pixel-precise texture placement (not grid-snapped) |
@@ -180,7 +183,28 @@ Saves automatically write to `public/levels/{levelName}.json` via the Vite dev s
 
 ### Undo/Redo
 
-The mutation architecture snapshots level state before every edit (max 50 history entries). Undo/redo UI is not yet implemented but the history stack is maintained — it will be wired up in a future version.
+Ctrl+Z / Ctrl+Shift+Z undo and redo edits. The mutation architecture snapshots level state before every edit (max 50 history entries). Undo/redo restores the snapshot and restarts the scene, preserving camera position and zoom. Undo/Redo buttons are also available in the Paint tool panel.
+
+### Paint Tool
+
+The Paint tool allows freehand painting directly on the level canvas. Paint is saved as a separate PNG file (`{levelName}_paint.png`) alongside the level JSON.
+
+**Controls:**
+- Click and drag to paint strokes
+- Shift+click draws a straight line from the last paint endpoint
+- Color picker, alpha slider, and brush size slider in the Paint panel
+- Eraser mode toggles between painting and erasing
+- Delete All clears all paint from the level
+
+**Storage:** Paint data is saved/loaded via dev server API (`/api/paint`, `/api/save-paint`). Paint auto-saves when the level is saved (Ctrl+S). In production builds, paint PNGs are served as static files.
+
+**Rendering:** Paint renders at `Depth.edgeGraphics + 1` (above floor/edges, below entities) via `PaintRenderer`. The paint canvas matches the full grid pixel dimensions.
+
+**Key files:**
+- `src/scenes/theme/PaintRenderer.ts` — Renders paint overlay image in-game
+- `editor/EditorBridge.ts` — Paint canvas management, stroke drawing, save/load
+- `editor/CanvasInteraction.ts` — Paint input handling (drag, interpolation, shift-line)
+- `editor/panels/Toolbar.ts` — Paint panel UI (color, alpha, size, eraser, delete)
 
 ---
 

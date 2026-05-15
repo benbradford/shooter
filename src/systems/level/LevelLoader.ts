@@ -221,6 +221,8 @@ export type LevelData = {
   };
   background?: LevelBackground;
 
+  music?: string;
+
   fixedCamera?: {
     centerCol: number;
     centerRow: number;

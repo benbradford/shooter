@@ -39,6 +39,25 @@ const child_process_1 = require("child_process");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const TMUX_PATH = '/opt/homebrew/bin/tmux';
+/**
+ * Read the user's login-shell PATH so child processes spawned by VS Code
+ * (which may have a stripped-down PATH when launched from Finder/Spotlight)
+ * can find tools installed under ~/.toolbox/bin, /opt/homebrew/bin, etc.
+ *
+ * Resolved once at module load. Falls back to process.env.PATH on failure.
+ */
+function resolveLoginShellPath() {
+    try {
+        const shell = process.env.SHELL ?? '/bin/zsh';
+        const out = (0, child_process_1.execSync)(`${shell} -lic 'echo -n $PATH' 2>/dev/null`, { encoding: 'utf-8' }).trim();
+        if (out)
+            return out;
+    }
+    catch { /* fall through */ }
+    return process.env.PATH ?? '/usr/bin:/bin';
+}
+const LOGIN_PATH = resolveLoginShellPath();
+const TMUX_ENV = { ...process.env, PATH: LOGIN_PATH };
 class SessionManager {
     context;
     openTerminals = new Map();
@@ -75,7 +94,7 @@ class SessionManager {
     }
     isTmuxAlive(tmuxName) {
         try {
-            (0, child_process_1.execSync)(`${TMUX_PATH} has-session -t '${tmuxName}' 2>/dev/null`);
+            (0, child_process_1.execSync)(`${TMUX_PATH} has-session -t '${tmuxName}' 2>/dev/null`, { env: TMUX_ENV });
             return true;
         }
         catch {
@@ -95,6 +114,7 @@ class SessionManager {
             shellPath: TMUX_PATH,
             shellArgs: ['attach-session', '-t', session.tmuxSession],
             cwd: this.projectRoot,
+            env: { PATH: LOGIN_PATH },
         });
         terminal.show();
         this.openTerminals.set(session.id, terminal);
@@ -119,9 +139,9 @@ class SessionManager {
             ? `cd '${this.projectRoot}' && claude`
             : `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
         try {
-            (0, child_process_1.execSync)(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`);
-            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
-            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000`);
+            (0, child_process_1.execSync)(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`, { env: TMUX_ENV });
+            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`, { env: TMUX_ENV });
+            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`, { env: TMUX_ENV });
         }
         catch (e) {
             vscode.window.showErrorMessage(`Failed to create session: ${e}`);
@@ -180,7 +200,7 @@ class SessionManager {
         if (confirm !== 'Kill')
             return;
         try {
-            (0, child_process_1.execSync)(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`);
+            (0, child_process_1.execSync)(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`, { env: TMUX_ENV });
         }
         catch { /* already dead */ }
         // Close VS Code terminal if open
@@ -203,7 +223,7 @@ class SessionManager {
             return;
         // Kill tmux if alive
         try {
-            (0, child_process_1.execSync)(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`);
+            (0, child_process_1.execSync)(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`, { env: TMUX_ENV });
         }
         catch { /* already dead */ }
         // Close VS Code terminal if open
@@ -230,7 +250,7 @@ class SessionManager {
         }
         const tmuxName = session.tmuxSession;
         try {
-            (0, child_process_1.execSync)(`${TMUX_PATH} kill-session -t '${tmuxName}' 2>/dev/null`);
+            (0, child_process_1.execSync)(`${TMUX_PATH} kill-session -t '${tmuxName}' 2>/dev/null`, { env: TMUX_ENV });
         }
         catch { /* already dead */ }
         // Rebuild command — if session has a prompt, write a new temp file
@@ -262,9 +282,9 @@ class SessionManager {
             }
         }
         try {
-            (0, child_process_1.execSync)(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`);
-            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
-            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000`);
+            (0, child_process_1.execSync)(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`, { env: TMUX_ENV });
+            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`, { env: TMUX_ENV });
+            (0, child_process_1.execSync)(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`, { env: TMUX_ENV });
         }
         catch (e) {
             vscode.window.showErrorMessage(`Failed to restart session: ${e}`);

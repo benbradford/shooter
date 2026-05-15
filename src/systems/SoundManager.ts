@@ -32,7 +32,7 @@ export class SoundManager {
         this.nativePlugin = registerPlugin<NativeSoundPluginInterface>('NativeSound');
         const sounds: Array<{ key: string; path: string }> = [];
         for (const asset of Object.values(ASSET_REGISTRY)) {
-          if (asset.type === 'audio') {
+          if (asset.type === 'audio' && !asset.path.startsWith('assets/music/')) {
             sounds.push({ key: asset.key, path: `public/${asset.path}` });
           }
         }

@@ -341,6 +341,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/sounds/drag2.mp3',
     type: 'audio' as const,
   },
+  btr_music: {
+    key: 'btr_music',
+    path: 'assets/music/btr.mp3',
+    type: 'audio' as const,
+  },
+  btr_overworld: {
+    key: 'btr_overworld',
+    path: 'assets/music/btr_overworld.mp3',
+    type: 'audio' as const,
+  },
+  btr_wilds: {
+    key: 'btr_wilds',
+    path: 'assets/music/btr_wilds.mp3',
+    type: 'audio' as const,
+  },
   throw_whoosh1: {
     key: 'throw_whoosh1',
     path: 'assets/sounds/throw_whoosh1.mp3',

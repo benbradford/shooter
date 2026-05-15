@@ -2490,6 +2490,7 @@
     }
   ],
   "levelTheme": "wilds",
+  "music": "btr_wilds",
   "background": {
     "floor_texture": "grass2",
     "floor_tile": 8,

@@ -168,7 +168,7 @@ function spawnSession(label: string, shellCmd: string): Session {
   execSync(`${tmuxPath} new-session -d -s '${tmuxName}' -c '${cwd}' '${shellCmd.replace(/'/g, "'\\''")}'`);
   // Enable mouse mode for scroll support
   execSync(`${tmuxPath} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
-  execSync(`${tmuxPath} set-option -t '${tmuxName}' history-limit 10000`);
+  execSync(`${tmuxPath} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`);
 
   // Spawn ttyd attached to the tmux session
   const ttydPid = spawnTtydForTmux(tmuxName, port);

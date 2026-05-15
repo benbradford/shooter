@@ -5700,6 +5700,7 @@
     }
   ],
   "levelTheme": "grass",
+  "music": "btr_overworld",
   "background": {
     "floor_texture": "grass1",
     "floor_tile": 5,

@@ -233,6 +233,11 @@ export function preloadLevelAssets(scene: Phaser.Scene, levelData: LevelData, on
     loadAsset(scene, key);
   }
 
+  // Load level music if specified
+  if (levelData.music && levelData.music in ASSET_REGISTRY) {
+    loadAsset(scene, levelData.music as AssetKey);
+  }
+
   // Log all loaded textures after load completes
   scene.load.once('complete', () => {
     const loadedTextures = scene.textures.getTextureKeys().filter(key => key !== '__DEFAULT' && key !== '__MISSING');

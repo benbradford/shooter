@@ -166,6 +166,20 @@ Audio assets use `type: 'audio'` in the registry and are loaded via `scene.load.
 
 **Without both checks, level transitions fail with "Failed to load assets".**
 
+## Level Music
+
+Levels can play background music by setting `"music": "<asset_key>"` at the top level of the level JSON.
+
+**How it works:**
+- The music asset key is included in `AssetManifest.fromLevelData()` and loaded by `LoadingScene` (and by `preloadLevelAssets` for the `?level=` skip-boot path).
+- After load, `GameScene.createGameScene()` calls `MusicManager.getInstance().play(this, levelData.music ?? null)`.
+- `MusicManager` is a no-op when the requested key matches the currently playing track, so transitioning between two levels with the same `music` value keeps the track playing seamlessly.
+- Different key → old track stops, new track starts. `null`/omitted → music stops.
+
+**Music files** live in `public/assets/music/`. Register them in `AssetRegistry.ts` with `type: 'audio'`. `SoundManager` skips paths under `assets/music/` when preloading the Android native SoundPool — music is streamed by Phaser instead.
+
+See `MusicManager` (`src/systems/MusicManager.ts`) for implementation.
+
 ## Debugging
 
 Asset loading logs to console:

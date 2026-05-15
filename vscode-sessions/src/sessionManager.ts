@@ -23,6 +23,24 @@ export interface Session {
 
 const TMUX_PATH = '/opt/homebrew/bin/tmux';
 
+/**
+ * Read the user's login-shell PATH so child processes spawned by VS Code
+ * (which may have a stripped-down PATH when launched from Finder/Spotlight)
+ * can find tools installed under ~/.toolbox/bin, /opt/homebrew/bin, etc.
+ *
+ * Resolved once at module load. Falls back to process.env.PATH on failure.
+ */
+function resolveLoginShellPath(): string {
+  try {
+    const shell = process.env.SHELL ?? '/bin/zsh';
+    const out = execSync(`${shell} -lic 'echo -n $PATH' 2>/dev/null`, { encoding: 'utf-8' }).trim();
+    if (out) return out;
+  } catch { /* fall through */ }
+  return process.env.PATH ?? '/usr/bin:/bin';
+}
+const LOGIN_PATH = resolveLoginShellPath();
+const TMUX_ENV: NodeJS.ProcessEnv = { ...process.env, PATH: LOGIN_PATH };
+
 export class SessionManager {
   private openTerminals = new Map<string, vscode.Terminal>();
   private projectRoot: string;
@@ -59,7 +77,7 @@ export class SessionManager {
 
   private isTmuxAlive(tmuxName: string): boolean {
     try {
-      execSync(`${TMUX_PATH} has-session -t '${tmuxName}' 2>/dev/null`);
+      execSync(`${TMUX_PATH} has-session -t '${tmuxName}' 2>/dev/null`, { env: TMUX_ENV });
       return true;
     } catch {
       return false;
@@ -80,6 +98,7 @@ export class SessionManager {
       shellPath: TMUX_PATH,
       shellArgs: ['attach-session', '-t', session.tmuxSession],
       cwd: this.projectRoot,
+      env: { PATH: LOGIN_PATH },
     });
     terminal.show();
     this.openTerminals.set(session.id, terminal);
@@ -109,9 +128,9 @@ export class SessionManager {
       : `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
 
     try {
-      execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`);
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000`);
+      execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`, { env: TMUX_ENV });
+      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`, { env: TMUX_ENV });
+      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`, { env: TMUX_ENV });
     } catch (e) {
       vscode.window.showErrorMessage(`Failed to create session: ${e}`);
       return;
@@ -172,7 +191,7 @@ export class SessionManager {
     if (confirm !== 'Kill') return;
 
     try {
-      execSync(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`);
+      execSync(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`, { env: TMUX_ENV });
     } catch { /* already dead */ }
 
     // Close VS Code terminal if open
@@ -193,7 +212,7 @@ export class SessionManager {
 
     // Kill tmux if alive
     try {
-      execSync(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`);
+      execSync(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`, { env: TMUX_ENV });
     } catch { /* already dead */ }
 
     // Close VS Code terminal if open
@@ -223,7 +242,7 @@ export class SessionManager {
     const tmuxName = session.tmuxSession;
 
     try {
-      execSync(`${TMUX_PATH} kill-session -t '${tmuxName}' 2>/dev/null`);
+      execSync(`${TMUX_PATH} kill-session -t '${tmuxName}' 2>/dev/null`, { env: TMUX_ENV });
     } catch { /* already dead */ }
 
     // Rebuild command — if session has a prompt, write a new temp file
@@ -251,9 +270,9 @@ export class SessionManager {
     }
 
     try {
-      execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`);
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000`);
+      execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`, { env: TMUX_ENV });
+      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`, { env: TMUX_ENV });
+      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`, { env: TMUX_ENV });
     } catch (e) {
       vscode.window.showErrorMessage(`Failed to restart session: ${e}`);
       return;
