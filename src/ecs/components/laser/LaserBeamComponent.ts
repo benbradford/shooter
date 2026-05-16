@@ -147,8 +147,8 @@ export class LaserBeamComponent implements Component, EventListener {
       ws.addDestroyedEntity(this.entity.levelName, this.entity.id);
     }
 
-    if (this.eventManager) {
-      this.eventManager.deregister(this.onDestroyEvent!, this);
+    if (this.eventManager && this.onDestroyEvent) {
+      this.eventManager.deregister(this.onDestroyEvent, this);
     }
   }
 
@@ -189,8 +189,8 @@ export class LaserBeamComponent implements Component, EventListener {
     this.emitter.destroy();
     this.nozzleSprite?.destroy();
     this.loopSound?.destroy();
-    if (this.eventManager) {
-      this.eventManager.deregister(this.onDestroyEvent!, this);
+    if (this.eventManager && this.onDestroyEvent) {
+      this.eventManager.deregister(this.onDestroyEvent, this);
     }
   }
 

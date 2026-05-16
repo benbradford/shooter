@@ -24,7 +24,7 @@ export class EntityLoader {
 
   loadEntities(levelData: LevelData, player: Entity, isEditorMode: boolean = false): void {
     const worldState = WorldStateManager.getInstance();
-    const levelState = worldState.getLevelState(levelData.name!);
+    const levelState = worldState.getLevelState(levelData.name ?? '');
 
     // Validate unique IDs
     const ids = new Set<string>();

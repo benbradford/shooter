@@ -35,7 +35,7 @@ export class EntityCreatorManager implements EventListener {
       this.anyEventCreators.set(createOnEvent, []);
       this.eventManager.register(createOnEvent, this);
     }
-    this.anyEventCreators.get(createOnEvent)!.push({ creator, entityId, suppressOnAnyFlag, isInteraction });
+    this.anyEventCreators.get(createOnEvent)?.push({ creator, entityId, suppressOnAnyFlag, isInteraction });
   }
 
   registerAll(events: string[], creator: EntityCreator, entityId: string, suppressOnAnyFlag?: FlagCondition[]): void {

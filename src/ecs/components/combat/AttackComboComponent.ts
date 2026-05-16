@@ -158,7 +158,7 @@ export class AttackComboComponent implements Component {
       this.sm.transition('holding');
       this.holdDurationMs = 0;
       currentAnim.setIndex(HOLD_FRAME_INDEX);
-      anim!.animationSystem.setTimeScale(0);
+      if (anim) anim.animationSystem.setTimeScale(0);
       return;
     }
 

@@ -39,6 +39,8 @@ this.eventManager.raiseEvent('custom_event');
 3. **Listeners notified** → All registered listeners receive `onEvent('eventName')`
 4. **Cleanup** → One-shot triggers destroy themselves
 
+**⚠️ Blocked cells:** Triggers skip cells occupied by a `GridCellBlocker` (pushables, breakables, root chests). This prevents triggers from firing when the player can't actually stand on the cell — e.g., walking up to a pushable on a trigger cell won't fire the trigger.
+
 ## Key Features
 
 ### Automatic Cleanup

@@ -89,7 +89,7 @@ registerEntityFactory('npc', (entityDef, ctx) => {
 
 registerEntityFactory('pushable', (entityDef, ctx) => {
   const data = entityDef.data as { col: number; row: number; texture: string; pushEnabled?: boolean; doesPersist?: boolean; singlePushOnly?: boolean };
-  const levelState = WorldStateManager.getInstance().getLevelState(ctx.levelData.name!);
+  const levelState = WorldStateManager.getInstance().getLevelState(ctx.levelData.name ?? '');
   const movedEntry = levelState.movedEntities?.find((e: { id: string }) => e.id === entityDef.id);
   const spawnCol = movedEntry?.col ?? data.col;
   const spawnRow = movedEntry?.row ?? data.row;
@@ -134,7 +134,7 @@ registerEntityFactory('escort', (entityDef, ctx) => {
   };
   const ep = new EscortPersistence();
   let initialState: EscortState = 'dormant';
-  const levelState = WorldStateManager.getInstance().getLevelState(ctx.levelData.name!);
+  const levelState = WorldStateManager.getInstance().getLevelState(ctx.levelData.name ?? '');
 
   if (ep.isCompleted(entityDef.id)) {
     const completedLevel = ep.getCompletedLevel(entityDef.id);

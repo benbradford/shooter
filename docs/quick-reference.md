@@ -404,6 +404,7 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Exit jump always lands at cell center (prevents collision box offset shift from pushing `currentCell` into adjacent water)
 - Pushes a centered swimming collision box (`offsetX: 0, offsetY: 0, width: 48, height: 32`) on water entry, pops on exit (uses `GridPositionComponent.pushCollisionBox/popCollisionBox` stack)
 - **Collision box offset pitfall:** Swimming box has `offsetY: 0`, normal box has `offsetY: 24`. On exit, the 24px shift can push `currentCell` into the row below if the player isn't centered. The cell-center landing fix addresses this.
+- **Visual-center water check (north movement):** When walking north without `canSwim`, `GridMovementValidator` blocks if the visual-center cell (above the collision box) is water. Without this check, the player's collision box would sit south of the visual sprite and allow walking onto water from below.
 - Sprite masking: Player sprite is clipped at the water edge boundary so the lower body doesn't render below the water surface. Mask updates when player moves to a new cell.
 - Ripples every 150ms, shadow fades to 30% alpha
 - River current applies force, stops near blockers

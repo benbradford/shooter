@@ -98,7 +98,8 @@ export class TvFaceComponent implements Component {
     this.sourceCanvas = document.createElement('canvas');
     this.sourceCanvas.width = source.width;
     this.sourceCanvas.height = source.height;
-    this.sourceCtx = this.sourceCanvas.getContext('2d')!;
+    this.sourceCtx = this.sourceCanvas.getContext('2d');
+    if (!this.sourceCtx) return;
     this.sourceCtx.drawImage(source, 0, 0);
 
     // Create dynamic canvas texture (same size as one frame)

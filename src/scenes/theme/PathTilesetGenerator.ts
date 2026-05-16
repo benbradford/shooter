@@ -47,8 +47,8 @@ export class PathTilesetGenerator {
     const canvas = document.createElement('canvas');
     canvas.width = image.width;
     canvas.height = image.height;
-    const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(image, 0, 0);
+    const ctx = canvas.getContext('2d');
+    if (ctx) ctx.drawImage(image, 0, 0);
     return canvas;
   }
 
@@ -60,7 +60,8 @@ export class PathTilesetGenerator {
     const canvas = document.createElement('canvas');
     canvas.width = tilesetWidth;
     canvas.height = tilesetHeight;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return canvas;
 
     for (let tileIdx = 0; tileIdx < TILE_CONFIGS.length; tileIdx++) {
       const tileCol = tileIdx % TILESET_COLS;

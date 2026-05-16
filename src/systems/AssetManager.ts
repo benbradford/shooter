@@ -31,8 +31,8 @@ export class AssetManager {
       this.dependencies.set(assetKey, []);
     }
 
-    const deps = this.dependencies.get(assetKey)!;
-    if (deps.some(d => d.key === dependencyKey)) {
+    const deps = this.dependencies.get(assetKey);
+    if (!deps || deps.some(d => d.key === dependencyKey)) {
       return;
     }
 

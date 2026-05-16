@@ -381,7 +381,7 @@ export default class GameScene extends Phaser.Scene {
   private async initializeScene(): Promise<void> {
     const level = this.levelData;
     const worldState = WorldStateManager.getInstance();
-    const levelState = worldState.getLevelState(level.name!);
+    const levelState = worldState.getLevelState(level.name ?? '');
 
     this.initializeGrid(level, levelState);
     this.initializePaint();

@@ -108,7 +108,7 @@ export class PetManager {
   
   private async loadMetadata(petId: string): Promise<PetSpritesheetMetadata | null> {
     if (this.metadataCache.has(petId)) {
-      return this.metadataCache.get(petId)!;
+      return this.metadataCache.get(petId) ?? null;
     }
     
     try {

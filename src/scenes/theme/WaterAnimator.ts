@@ -63,7 +63,8 @@ export class WaterAnimator {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d')!;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return canvas;
 
     const dir = this.config.flowDirection;
     const offsetX = dir === 'left' ? -Math.floor(width * offsetPercent) : dir === 'right' ? Math.floor(width * offsetPercent) : 0;

@@ -148,7 +148,7 @@ registerEntityFactory('bullet_dude', (entityDef, ctx) => {
 
 registerEntityFactory('bug_base', (entityDef, ctx) => {
   const data = entityDef.data as { col: number; row: number; difficulty: EnemyDifficulty };
-  const levelState = WorldStateManager.getInstance().getLevelState(ctx.levelData.name!);
+  const levelState = WorldStateManager.getInstance().getLevelState(ctx.levelData.name ?? '');
   return () => {
     if (levelState.destroyedEntities.includes(entityDef.id)) {
       return createExhaustedBugBaseEntity({ scene: ctx.scene, col: data.col, row: data.row, grid: ctx.grid, entityId: `${entityDef.id}_exhausted` });
