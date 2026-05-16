@@ -18,6 +18,7 @@ import { ChargeCircleEffect } from './ChargeCircleEffect';
 import type { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../pet/RockThrowAbility';
 import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
+import { findNearestEntityInFOV } from '../../../utils/EnemyTargeting';
 
 const PUNCH_DAMAGE = 20;
 const PUNCH_RANGE_PX = 128;
@@ -275,51 +276,10 @@ export class AttackComboComponent implements Component {
   }
 
   private createPunchHitbox(isSuper = false): void {
-    if (isSuper) {
-      this.soundManager.play('superpunch');
-    } else {
-      const punchSounds = ['punch1', 'punch2', 'punch3'];
-      this.soundManager.play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
-    }
+    this.playPunchSound(isSuper);
 
     const transform = this.entity.require(TransformComponent);
-    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
-
-    let dirX = this.punchDirX;
-    let dirY = this.punchDirY;
-
-    let nearestEnemy: Entity | null = null;
-    let nearestDistance = PUNCH_RANGE_PX;
-
-    for (const enemy of this.getEnemies()) {
-      const et = enemy.get(TransformComponent);
-      if (!et) continue;
-      const dx = et.x - transform.x;
-      const dy = et.y - transform.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist >= nearestDistance) continue;
-
-      if (mustFaceEnemy) {
-        let diff = Math.atan2(dy, dx) - facingAngle;
-        while (diff > Math.PI) diff -= 2 * Math.PI;
-        while (diff < -Math.PI) diff += 2 * Math.PI;
-        if (Math.abs(diff) > PUNCH_FOV_RADIANS / 2) continue;
-      }
-      nearestEnemy = enemy;
-      nearestDistance = dist;
-    }
-
-    if (nearestEnemy) {
-      const et = nearestEnemy.require(TransformComponent);
-      const dx = et.x - transform.x;
-      const dy = et.y - transform.y;
-      const len = Math.hypot(dx, dy);
-      dirX = dx / len;
-      dirY = dy / len;
-    } else {
-      const len = Math.hypot(dirX, dirY);
-      if (len > 0) { dirX /= len; dirY /= len; }
-    }
+    const { dirX, dirY } = this.resolveAimDirection(transform);
 
     const startX = transform.x + dirX * 30;
     const startY = transform.y + dirY * 30;
@@ -337,13 +297,51 @@ export class AttackComboComponent implements Component {
       hitboxOverride
     }));
 
+    this.spawnPunchParticles(isSuper, startX, startY, dirX, dirY);
+  }
+
+  private playPunchSound(isSuper: boolean): void {
+    if (isSuper) {
+      this.soundManager.play('superpunch');
+    } else {
+      const punchSounds = ['punch1', 'punch2', 'punch3'];
+      this.soundManager.play(punchSounds[Math.floor(Math.random() * punchSounds.length)]);
+    }
+  }
+
+  private resolveAimDirection(transform: TransformComponent): { dirX: number; dirY: number } {
+    const facingAngle = Math.atan2(this.punchDirY, this.punchDirX);
+    const nearestEnemy = findNearestEntityInFOV({
+      originX: transform.x,
+      originY: transform.y,
+      facingAngleRadians: facingAngle,
+      fovRadians: PUNCH_FOV_RADIANS,
+      rangePx: PUNCH_RANGE_PX,
+      candidates: this.getEnemies(),
+      requireFacing: mustFaceEnemy,
+    });
+
+    if (nearestEnemy) {
+      const et = nearestEnemy.require(TransformComponent);
+      const dx = et.x - transform.x;
+      const dy = et.y - transform.y;
+      const len = Math.hypot(dx, dy);
+      return { dirX: dx / len, dirY: dy / len };
+    }
+
+    const len = Math.hypot(this.punchDirX, this.punchDirY);
+    if (len > 0) return { dirX: this.punchDirX / len, dirY: this.punchDirY / len };
+    return { dirX: this.punchDirX, dirY: this.punchDirY };
+  }
+
+  private spawnPunchParticles(isSuper: boolean, x: number, y: number, dirX: number, dirY: number): void {
     if (isSuper) {
       const particleEntity = new Entity('super_punch_particles');
-      particleEntity.add(new SuperPunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
+      particleEntity.add(new SuperPunchParticlesComponent(this.scene, x, y, dirX, dirY, this.punchDir, this.entity));
       this.entityManager.add(particleEntity);
     } else {
       const particleEntity = new Entity('punch_particles');
-      particleEntity.add(new PunchParticlesComponent(this.scene, startX, startY, dirX, dirY, this.punchDir, this.entity));
+      particleEntity.add(new PunchParticlesComponent(this.scene, x, y, dirX, dirY, this.punchDir, this.entity));
       this.entityManager.add(particleEntity);
     }
   }

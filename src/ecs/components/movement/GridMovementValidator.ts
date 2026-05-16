@@ -206,6 +206,21 @@ export class GridMovementValidator {
       }
     }
 
+    // The collision box may be offset below the visual center. When moving north,
+    // the visual center enters a water cell before the collision box does — check it.
+    const centerCellCol = this.grid.worldToCellInto(x + gridPos.collisionBox.offsetX, y, tmpCells[5]).col;
+    const centerCellRow = tmpCells[5].row;
+    if (centerCellRow < topLeftCell.row) {
+      const centerCell = this.grid.getCell(centerCellCol, centerCellRow);
+      if (centerCell && !centerCell.properties.has('bridge') && centerCell.properties.has('water')) {
+        const waterEffect = entity.get(WaterEffectComponent);
+        const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
+        if (!waterEffect || !canSwim) {
+          return true; // blocked
+        }
+      }
+    }
+
     return false; // not blocked
   }
 

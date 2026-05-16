@@ -163,9 +163,21 @@ export class SessionManager {
   }
 
   async archiveSession(session: Session, provider: SessionsProvider): Promise<void> {
+    // Kill the tmux session — archived sessions are intended to be inactive
+    try {
+      execSync(`${TMUX_PATH} kill-session -t '${session.tmuxSession}' 2>/dev/null`, { env: TMUX_ENV });
+    } catch { /* already dead */ }
+
+    // Close any open VS Code terminal for this session
+    const terminal = this.openTerminals.get(session.id);
+    if (terminal) {
+      terminal.dispose();
+      this.openTerminals.delete(session.id);
+    }
+
     const sessions = this.loadRawSessions();
     const s = sessions.find(x => x.id === session.id);
-    if (s) { s.archived = true; this.saveRawSessions(sessions); }
+    if (s) { s.archived = true; s.status = 'dead'; this.saveRawSessions(sessions); }
     provider.refresh();
   }
 

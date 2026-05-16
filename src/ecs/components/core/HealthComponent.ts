@@ -21,6 +21,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   private maxHealth: number;
   private timeSinceLastDamageMs: number = 0;
   private readonly enableRegen: boolean;
+  private hasAutoHeal: boolean;
   private onDeath?: () => void;
   private isDead = false;
 
@@ -28,6 +29,7 @@ export class HealthComponent implements Component, HudBarDataSource {
     this.maxHealth = props.maxHealth;
     this.currentHealth = this.maxHealth;
     this.enableRegen = props.enableRegen ?? false;
+    this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue('hasAutoHeal');
     this.onDeath = props.onDeath;
   }
 
@@ -74,13 +76,17 @@ export class HealthComponent implements Component, HudBarDataSource {
     this.currentHealth = Math.max(0, value);
   }
 
+  refreshAutoHeal(): void {
+    this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue('hasAutoHeal');
+  }
+
   setOnDeath(callback: () => void): void {
     this.onDeath = callback;
   }
 
   update(delta: number): void {
     if (!this.enableRegen || this.currentHealth >= this.maxHealth) return;
-    if (WorldStateManager.getInstance().getFlag('hasAutoHeal') !== 'true') return;
+    if (!this.hasAutoHeal) return;
 
     if (this.currentHealth > 150) return;
 
