@@ -12,7 +12,8 @@
       "Bash(curl -s -I http://localhost:5173/levels/house3_interior.json)",
       "Bash(curl -s -I http://localhost:5173/icon.png)",
       "Bash(curl -s -I \"http://localhost:5173/levels/house3_interior_paint.png\")",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(python3 *)"
     ]
   }
 }

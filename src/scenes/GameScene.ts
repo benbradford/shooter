@@ -190,6 +190,9 @@ export default class GameScene extends Phaser.Scene {
   // ── Game Mode ────────────────────────────────────────────────
 
   private async createGameScene(): Promise<void> {
+    // Clear display list from previous scene instance
+    this.children.removeAll(true);
+    
     // Destroy entities from previous scene instance
     if (GameScene.previousEntityManager) {
       console.log('[DBGAME] Destroying', GameScene.previousEntityManager.count, 'entities from previous scene');
@@ -463,7 +466,7 @@ export default class GameScene extends Phaser.Scene {
       if (!response.ok) return;
       const blob = await response.blob();
       const blobUrl = URL.createObjectURL(blob);
-      const img = new window.Image();
+      const img = new globalThis.Image();
       await new Promise<void>((resolve) => {
         img.onload = () => {
           if (this.textures.exists(key)) this.textures.remove(key);

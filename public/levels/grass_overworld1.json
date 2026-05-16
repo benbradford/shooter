@@ -5682,6 +5682,7 @@
             "properties": [
               "path"
             ],
+            "backgroundTexture": "",
             "layer": 0
           },
           {
@@ -5690,6 +5691,7 @@
             "properties": [
               "path"
             ],
+            "backgroundTexture": "",
             "layer": 0
           }
         ]

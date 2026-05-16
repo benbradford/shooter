@@ -32,26 +32,30 @@ let nextSessionId = 1;
 const SESSION_FILE = path.resolve('.sessions.json');
 
 function persistSessions(): void {
-  // Read existing disk state to preserve archived flags set by other writers (VS Code extension)
-  const diskArchived = new Map<string, boolean>();
+  // Read current disk state — the file is shared with the VS Code extension,
+  // which writes sessions directly. We must merge rather than overwrite.
+  let onDisk: Session[] = [];
   try {
     if (fs.existsSync(SESSION_FILE)) {
-      const existing = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
-      for (const s of existing) {
-        diskArchived.set(s.id, s.archived);
-      }
+      onDisk = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
     }
   } catch { /* corrupted file, proceed without disk state */ }
 
-  const data = [...sessions.values()]
-    .filter(s => s.status !== 'dead')
-    .map(({ ttydPid, ...rest }) => {
-      const diskValue = diskArchived.get(rest.id);
-      if (diskValue !== undefined) {
-        rest.archived = diskValue;
-      }
-      return rest;
-    });
+  const inMemoryIds = new Set(sessions.keys());
+
+  // Sessions we own (created via the dev server). Keep dead ones too so workflow
+  // entries survive — they can be re-run via the VS Code extension's restart.
+  const fromMemory = [...sessions.values()].map(({ ttydPid, ...rest }) => {
+    const diskEntry = onDisk.find(d => d.id === rest.id);
+    // Preserve archived flag set by the VS Code extension
+    if (diskEntry?.archived !== undefined) rest.archived = diskEntry.archived;
+    return rest;
+  });
+
+  // Sessions on disk we don't own (created by the VS Code extension)
+  const diskOnly = onDisk.filter(s => !inMemoryIds.has(s.id));
+
+  const data = [...fromMemory, ...diskOnly];
   fs.writeFileSync(SESSION_FILE, JSON.stringify(data, null, 2));
 }
 
@@ -128,16 +132,16 @@ function findAvailablePort(): number {
 }
 
 function cleanupDeadSessions(): void {
-  for (const [id, session] of sessions) {
+  for (const [, session] of sessions) {
     if (session.status === 'active' && !isTmuxSessionAlive(session.tmuxSession)) {
       session.status = 'dead';
       // Kill orphaned ttyd if still running
       try { process.kill(session.ttydPid); } catch { /* already dead */ }
     }
-    // Remove dead sessions from map — they can't be reconnected
-    if (session.status === 'dead') {
-      sessions.delete(id);
-    }
+    // Note: Do NOT delete dead sessions from the map. Workflows (with `tag`) and
+    // sessions with saved prompts can be re-run via the VS Code extension's
+    // restartSession. Auto-deleting them here corrupts `.sessions.json` for both
+    // surfaces. Use the explicit /api/sessions/delete endpoint to remove a session.
   }
 }
 
@@ -469,7 +473,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('🔄 Refresh Issues', shellCmd);
 
           res.setHeader('Content-Type', 'application/json');
@@ -490,7 +494,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('🧠 Help Me Decide', shellCmd);
 
           res.setHeader('Content-Type', 'application/json');
@@ -518,7 +522,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('📝 Update Docs', shellCmd);
 
           res.setHeader('Content-Type', 'application/json');
@@ -546,7 +550,7 @@ If there are no changes to commit, say so and stop.`;
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('🔀 Commit All', shellCmd);
 
           res.setHeader('Content-Type', 'application/json');
@@ -621,8 +625,8 @@ If there are no changes to commit, say so and stop.`;
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           const shellCmd = engine === 'claude'
-            ? `cd '${cwd}' && claude "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
-            : `cd '${cwd}' && kiro-cli chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+            ? `cd '${cwd}' && claude --dangerously-skip-permissions "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
+            : `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const engineTag = engine === 'claude' ? '🟣' : '🤖';
           const label = `${action}${engineTag} ${type} #${body.id}: ${body.title.slice(0, 40)}`;
           const session = spawnSession(label, shellCmd);
@@ -674,7 +678,7 @@ If there are no changes to commit, say so and stop.`;
             const tmpFile = path.resolve('tmp', `quick-${Date.now()}.txt`);
             fs.mkdirSync(path.resolve('tmp'), { recursive: true });
             fs.writeFileSync(tmpFile, body.prompt, 'utf-8');
-            shellCmd = `cd '${cwd}' && kiro-cli chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+            shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           } else {
             shellCmd = body.command ?? `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
           }

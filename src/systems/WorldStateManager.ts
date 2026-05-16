@@ -250,10 +250,12 @@ export class WorldStateManager {
         const originalCell = originalLevelData.cells.find(c => c.col === col && c.row === row);
         const originalLayer = originalCell?.layer ?? 0;
         const originalProps = new Set(originalCell?.properties ?? []);
-        const originalTexture = typeof originalCell?.backgroundTexture === 'string'
-          ? originalCell.backgroundTexture
-          : typeof originalCell?.backgroundTexture === 'object' && originalCell?.backgroundTexture !== null
-            ? (originalCell.backgroundTexture as { image: string }).image
+        const rawBgTex = originalCell?.backgroundTexture;
+        const firstBgTex = Array.isArray(rawBgTex) ? rawBgTex[0] : rawBgTex;
+        const originalTexture = typeof firstBgTex === 'string'
+          ? firstBgTex
+          : typeof firstBgTex === 'object' && firstBgTex !== null
+            ? (firstBgTex as { image: string }).image
             : '';
 
         const currentProps = Array.from(currentCell.properties);

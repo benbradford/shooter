@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
+import { GridCellBlocker } from '../movement/GridCellBlocker';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 export type TriggerComponentProps = {
@@ -44,10 +45,12 @@ export class TriggerComponent implements Component {
     
     for (const triggerCell of this.triggerCells) {
       if (playerCell.col === triggerCell.col && playerCell.row === triggerCell.row) {
+        if (this.isCellBlocked(triggerCell.col, triggerCell.row)) continue;
+
         this.triggered = true;
         console.log(`[Trigger] Raising event: ${this.eventName}`);
         this.eventManager.raiseEvent(this.eventName);
-        
+
         if (this.oneShot) {
           const worldState = WorldStateManager.getInstance();
           const currentLevel = worldState.getCurrentLevelName();
@@ -61,6 +64,13 @@ export class TriggerComponent implements Component {
     if (!this.oneShot) {
       this.triggered = false;
     }
+  }
+
+  private isCellBlocked(col: number, row: number): boolean {
+    for (const occupant of this.grid.getOccupants(col, row)) {
+      if (occupant.get(GridCellBlocker)) return true;
+    }
+    return false;
   }
 
   onDestroy(): void {

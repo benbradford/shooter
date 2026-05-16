@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-11 (20:18) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 62 issues (3 critical, 19 high, 25 medium, 15 low). 3 issues resolved (#39, #42, #43). 3 new issues added (#44, #45, #46). Architecture stable — no critical regressions. Full report: <code>tmp/architect-report.json</code></p>
+<p class="updated">Last audit: 2026-05-16 (08:57) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 63 issues (3 critical, 19 high, 26 medium, 15 low). 0 issues resolved. 1 new issue added (#47). Architecture stable — no critical regressions. Full report: <code>tmp/architecture-review-2026-05-16-0857.md</code></p>
 
 <script>
 const ISSUES = [
@@ -555,6 +555,16 @@ const ISSUES = [
     files: ['src/scenes/GameScene.ts'],
     effort: '1h', risk: 'Low', fanIn: 13, category: 'code-quality',
     added: '2026-05-11',
+  },
+
+  // ── NEW ISSUES (2026-05-16 audit) ──
+  {
+    id: 47, severity: 'medium', status: 'open',
+    title: 'HealthComponent.update() calls WorldStateManager.getInstance() every frame',
+    detail: 'Line 83: `WorldStateManager.getInstance().getFlag(\'hasAutoHeal\') !== \'true\'` is called every frame for every entity with HealthComponent (player + any entity with regen). The flag value only changes on world state load or NPC interaction. Fix: cache hasAutoHeal as a boolean field, set on construction and expose a method to invalidate when world state changes. Alternatively, check once per second instead of every frame.',
+    files: ['src/ecs/components/core/HealthComponent.ts'],
+    effort: '15m', risk: 'None', fanIn: 44, category: 'performance',
+    added: '2026-05-16',
   },
 ];
 

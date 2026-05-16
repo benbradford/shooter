@@ -92,12 +92,13 @@ export class SessionManager {
       return;
     }
 
-    // Create a VS Code terminal that attaches to the tmux session
+    // Use `new-session -A` so VS Code's terminal is attached at session start —
+    // critical for TUIs like Claude that render based on initial terminal capabilities.
+    // -A: attach if exists, create otherwise. Idempotent.
     const terminal = vscode.window.createTerminal({
       name: session.label,
       shellPath: TMUX_PATH,
-      shellArgs: ['attach-session', '-t', session.tmuxSession],
-      cwd: this.projectRoot,
+      shellArgs: ['new-session', '-A', '-s', session.tmuxSession, '-c', this.projectRoot, session.command],
       env: { PATH: LOGIN_PATH },
     });
     terminal.show();
@@ -124,17 +125,8 @@ export class SessionManager {
     const id = this.generateId();
     const tmuxName = `db-${id}`;
     const shellCmd = engine === 'claude'
-      ? `cd '${this.projectRoot}' && claude`
+      ? `cd '${this.projectRoot}' && claude --dangerously-skip-permissions`
       : `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
-
-    try {
-      execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`, { env: TMUX_ENV });
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`, { env: TMUX_ENV });
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`, { env: TMUX_ENV });
-    } catch (e) {
-      vscode.window.showErrorMessage(`Failed to create session: ${e}`);
-      return;
-    }
 
     const session: Session = {
       id, port: 0, label, status: 'active', archived: false,
@@ -145,7 +137,7 @@ export class SessionManager {
     this.persistSession(session);
     provider.refresh();
 
-    // Open it immediately
+    // VS Code terminal creates the tmux session on demand via new-session -A
     this.openSession(session);
   }
 
@@ -245,6 +237,14 @@ export class SessionManager {
       execSync(`${TMUX_PATH} kill-session -t '${tmuxName}' 2>/dev/null`, { env: TMUX_ENV });
     } catch { /* already dead */ }
 
+    // Close any existing VS Code terminal for this session — it's attached to the
+    // tmux session we just killed and will show stale content.
+    const existingTerminal = this.openTerminals.get(session.id);
+    if (existingTerminal) {
+      existingTerminal.dispose();
+      this.openTerminals.delete(session.id);
+    }
+
     // Rebuild command — if session has a prompt, write a new temp file
     let shellCmd: string;
     if (session.prompt) {
@@ -253,15 +253,16 @@ export class SessionManager {
       if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
       fs.writeFileSync(tmpFile, session.prompt, 'utf-8');
       if (engine === 'claude') {
-        shellCmd = `cd '${this.projectRoot}' && claude -p "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+        shellCmd = `cd '${this.projectRoot}' && claude --dangerously-skip-permissions -p "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
       } else {
         const agent = session.agent ?? 'dodging-bullets';
-        shellCmd = `cd '${this.projectRoot}' && kiro-cli chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+        // --classic: required for kiro-cli to auto-submit the positional INPUT in the new TUI
+        shellCmd = `cd '${this.projectRoot}' && kiro-cli --classic chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
       }
     } else {
       // No prompt — swap the base command if engine changed
       if (engine === 'claude' && session.command.includes('kiro-cli')) {
-        shellCmd = `cd '${this.projectRoot}' && claude`;
+        shellCmd = `cd '${this.projectRoot}' && claude --dangerously-skip-permissions`;
       } else if (engine === 'kiro' && session.command.includes('claude')) {
         shellCmd = `cd '${this.projectRoot}' && kiro-cli chat --agent dodging-bullets`;
       } else {
@@ -269,22 +270,14 @@ export class SessionManager {
       }
     }
 
-    try {
-      execSync(`${TMUX_PATH} new-session -d -s '${tmuxName}' -c '${this.projectRoot}' '${shellCmd.replace(/'/g, "'\\''")}'`, { env: TMUX_ENV });
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`, { env: TMUX_ENV });
-      execSync(`${TMUX_PATH} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`, { env: TMUX_ENV });
-    } catch (e) {
-      vscode.window.showErrorMessage(`Failed to restart session: ${e}`);
-      return;
-    }
-
-    // Update the stored engine
+    // Persist updated engine + command
     const sessions = this.loadRawSessions();
     const s = sessions.find(x => x.id === session.id);
     if (s) { s.engine = engine; s.command = shellCmd; this.saveRawSessions(sessions); }
 
     provider.refresh();
-    this.openSession({ ...session, status: 'active' });
+    // VS Code terminal recreates the tmux session via new-session -A
+    this.openSession({ ...session, status: 'active', command: shellCmd, engine });
   }
 
   private generateId(): string {
