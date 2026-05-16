@@ -59,7 +59,7 @@ For each task:
 4. Implement code (minimal) + CHECKPOINT
 5. Create test (if task requires verification) + CHECKPOINT
 6. Build + lint: npm run build && npx eslint src --ext .ts + CHECKPOINT
-7. Run test: npm run test:single {test-name} + CHECKPOINT
+7. Run test: npm run test:headless:single {test-name} + CHECKPOINT
 8. Mark complete: node scripts/mark-task-complete.js features/{feature}/tasks.md {taskId} "{time}" + CHECKPOINT
 9. Report with summary + Clear checkpoint
 ```
@@ -147,17 +147,19 @@ npx eslint src --ext .ts
 
 **Both must pass with 0 errors before marking task complete.**
 
-## Deferred Test Handling (Removed)
+## Testing
 
-Testing has been removed from the workflow to prevent connection timeouts. User can test manually after implementation.
+Testing is **mandatory** for every task. Use `npm run test:headless:single {test-name}` which handles its own dev server lifecycle (startup + shutdown) automatically. No need to manage a dev server yourself.
 
-## Test Generation (Removed)
+**Test workflow:**
+1. Create test file in `test/tests/{feature}/test-{feature}-{taskId}.js`
+2. Create test level in `public/levels/test/test-{feature}-{taskId}.json` if needed
+3. Run: `npm run test:headless:single test-{feature}-{taskId}`
+4. Test must pass before marking task complete
 
-Test generation has been removed to prevent connection timeouts. User can create tests manually if needed.
+**If test fails:** Fix and retry (max 3 attempts). If still fails, report to user with failure details.
 
-## Browser Testing (Removed)
-
-Browser testing has been removed to prevent connection timeouts. User can test manually in the browser after implementation.
+**Test is a hard gate** — do NOT mark a task complete unless its test passes.
 
 ## Dependency Handling
 
@@ -172,9 +174,13 @@ If test fails due to missing dependency:
 - Continue with task completion
 - Re-run after dependency completes
 
-## Regression Suite (Removed)
+## Regression Testing
 
-Regression suite generation has been removed. User can add tests manually if needed.
+After implementing all tasks for a feature, run the full test suite:
+```bash
+npm run test:headless
+```
+Report any failures.
 
 ## Reporting Format
 
@@ -190,6 +196,9 @@ Regression suite generation has been removed. User can add tests manually if nee
 **Build & Lint:**
 ✅ Build: 0 errors
 ✅ Lint: 0 warnings
+
+**Test:**
+✅ test-{feature}-{taskId}: PASS
 
 **Time:** {X} minutes
 **Next:** Task {X+1} ready
@@ -246,10 +255,9 @@ Task is complete when:
 - ✅ Code implemented per design.md
 - ✅ Build passes (0 errors)
 - ✅ Lint passes (0 warnings)
+- ✅ Test created and passes (`npm run test:headless:single {test-name}`)
 - ✅ Task marked complete
 - ✅ Report generated
-
-**User should manually test functionality after implementation.**
 
 ## Available Scripts
 

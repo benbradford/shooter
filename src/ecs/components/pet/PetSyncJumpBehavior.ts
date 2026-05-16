@@ -48,7 +48,7 @@ export class PetSyncJumpBehavior {
     const dx = this.syncJumpTargetX - transform.x;
     const dy = this.syncJumpTargetY - transform.y;
     const dir = dirFromDelta(dx, dy);
-    return dir !== Direction.None ? dir : Direction.Down;
+    return dir === Direction.None ? Direction.Down : dir;
   }
 
   /** Returns true when jump is complete (transition to fall or idle). */

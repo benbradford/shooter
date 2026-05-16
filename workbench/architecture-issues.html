@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-16 (08:57) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 63 issues (3 critical, 19 high, 26 medium, 15 low). 0 issues resolved. 1 new issue added (#47). Architecture stable — no critical regressions. Full report: <code>tmp/architecture-review-2026-05-16-0857.md</code></p>
+<p class="updated">Last audit: 2026-05-16 (14:04) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 61 issues (3 critical, 19 high, 24 medium, 15 low). 1 issue resolved (#47 HealthComponent CachedFlag pattern). 6 new issues added (#48-#53). Trend: GameScene grew from 841→911 LOC, +12 methods — extraction pace not keeping up with feature accretion. Highest-leverage next action: extract LevelTransitionManager + propagate CachedFlag pattern. Full report: <code>tmp/architecture-review-2026-05-16-1404.md</code></p>
 
 <script>
 const ISSUES = [
@@ -559,11 +559,61 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-16 audit) ──
   {
-    id: 47, severity: 'medium', status: 'open',
+    id: 47, severity: 'medium', status: 'done',
     title: 'HealthComponent.update() calls WorldStateManager.getInstance() every frame',
-    detail: 'Line 83: `WorldStateManager.getInstance().getFlag(\'hasAutoHeal\') !== \'true\'` is called every frame for every entity with HealthComponent (player + any entity with regen). The flag value only changes on world state load or NPC interaction. Fix: cache hasAutoHeal as a boolean field, set on construction and expose a method to invalidate when world state changes. Alternatively, check once per second instead of every frame.',
+    detail: 'Line 83: `WorldStateManager.getInstance().getFlag(\'hasAutoHeal\') !== \'true\'` is called every frame for every entity with HealthComponent (player + any entity with regen). The flag value only changes on world state load or NPC interaction. Fix: cache hasAutoHeal as a boolean field, set on construction and expose a method to invalidate when world state changes.',
     files: ['src/ecs/components/core/HealthComponent.ts'],
     effort: '15m', risk: 'None', fanIn: 44, category: 'performance',
+    added: '2026-05-16', resolution: 'Fixed: hasAutoHeal cached in constructor (line 32). refreshAutoHeal() lifecycle method exposed for external invalidation. update() reads from this.hasAutoHeal field — no per-frame singleton lookup.',
+  },
+
+  // ── NEW ISSUES (2026-05-16 audit, session 2) ──
+  {
+    id: 48, severity: 'high', status: 'open',
+    title: 'CachedFlag pattern: 7 components poll WorldStateManager.getFlag() every frame',
+    detail: 'Same pattern as resolved #47 but unfixed at 7 hot sites. JumpComponent.update():70 (canJump), GridMovementValidator.canMoveTo():54+217 (canSwim), AttackButtonComponent.update():175 (canPunch), AttackComboComponent.updatePunching (hasSuperPunch), PlayerWalkState/PlayerIdleState/PlayerStateHelpers (canPush, canPunch). Flags rarely change; values should be cached on construction with a refresh hook. Recommended: add CachedFlag primitive at src/systems/state/CachedFlag.ts + WorldStateManager.subscribeFlag(name, cb) lifecycle hook. Then migrate the 7 sites individually. Eliminates ~7 singleton lookups per frame and makes flag dependencies visible at construction.',
+    files: ['src/ecs/components/movement/JumpComponent.ts', 'src/ecs/components/movement/GridMovementValidator.ts', 'src/ecs/components/input/AttackButtonComponent.ts', 'src/ecs/components/combat/AttackComboComponent.ts', 'src/ecs/entities/player/PlayerWalkState.ts', 'src/ecs/entities/player/PlayerIdleState.ts', 'src/ecs/entities/player/PlayerStateHelpers.ts'],
+    effort: '3h', risk: 'Low', fanIn: 44, category: 'performance',
+    added: '2026-05-16',
+  },
+  {
+    id: 49, severity: 'medium', status: 'open',
+    title: 'EscortPathfinding allocates new Pathfinder 3× per recalc cycle',
+    detail: 'Lines 36, 44, 65 of EscortPathfinding.ts each construct `new Pathfinder(this.grid, this.grid.getBlockedAreaCells())` inside recalculatePathToPlayer/recalculatePathToDestination/checkDestinationReachable. DogBarkAbility (line 47) and 9+ other consumers cache the Pathfinder once in their constructor. Fix: cache `this.pathfinder = new Pathfinder(...)` in EscortPathfinding constructor, replace 3 inline allocations.',
+    files: ['src/ecs/components/escort/EscortPathfinding.ts'],
+    effort: '15m', risk: 'None', fanIn: 3, category: 'performance',
+    added: '2026-05-16',
+  },
+  {
+    id: 50, severity: 'low', status: 'open',
+    title: 'PetFollowComponent.recalculatePath() allocates new Pathfinder per recalc',
+    detail: 'Line 305: `const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells())` allocated inside recalculatePath(), called every PATH_RECALC_MS (500ms). Other consumers cache once in constructor. Fix: cache as instance field. Same pattern as #49.',
+    files: ['src/ecs/components/pet/PetFollowComponent.ts'],
+    effort: '15m', risk: 'None', fanIn: 5, category: 'performance',
+    added: '2026-05-16',
+  },
+  {
+    id: 51, severity: 'high', status: 'open',
+    title: 'GameScene regrew: 841→911 LOC, 33→45 methods since last audit (anti-trend)',
+    detail: 'Despite previous extractions (initializeScene, createGameScene, etc.), GameScene grew by 70 LOC and 12 methods. Newly added: initializePetManager, initializeCompanionManager, initializeBlockedAreas, getVignetteAlpha, reloadCurrentLevel, expanded startLevelTransition, createEditorPlayer. Pattern: new gameplay features wire into GameScene rather than self-contained subsystems. Recommended: extract LevelTransitionManager (resolves #31, #45) and SceneInitializer (the 7 initializeX helpers). Effort 4-6h. Without intervention, next audit will report further growth.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '6h', risk: 'Med', fanIn: 13, category: 'architecture',
+    added: '2026-05-16',
+  },
+  {
+    id: 52, severity: 'medium', status: 'open',
+    title: 'Grid.getEntitiesWithTag() returns [...set] — allocated per-frame in Trigger/Hole',
+    detail: 'Grid.getEntitiesWithTag (line 376) returns `[...set]` — allocates new array on every call. Called every frame from TriggerComponent.update():37 and HoleComponent.update():69, both of which only read `players[0]`. With N triggers and M holes per level, that\'s N+M arrays per frame. Fix: add `Grid.getFirstEntityWithTag(tag): Entity | undefined` zero-alloc helper. Existing getEntitiesWithTag can stay for callers that genuinely need the array.',
+    files: ['src/systems/grid/Grid.ts', 'src/ecs/components/core/TriggerComponent.ts', 'src/ecs/components/hole/HoleComponent.ts'],
+    effort: '30m', risk: 'None', fanIn: 97, category: 'performance',
+    added: '2026-05-16',
+  },
+  {
+    id: 53, severity: 'low', status: 'open',
+    title: 'WorldFlags constants exist but are unused at call sites (architectural drift)',
+    detail: 'src/constants/WorldFlags.ts was added in May 4 audit (issue #10) to type the flag namespace. New code and old hot paths still use raw string literals: `getFlag(\'canJump\') === \'true\'` instead of `getFlag(WorldFlags.canJump) === \'true\'`. The constants file has limited adoption. Either (a) migrate the 35+ inline string usages to use WorldFlags constants and add an ESLint rule banning raw flag strings, or (b) delete the unused constants. Half-migration is worse than either choice.',
+    files: ['src/constants/WorldFlags.ts'],
+    effort: '2h', risk: 'Low', fanIn: 1, category: 'scaling',
     added: '2026-05-16',
   },
 ];

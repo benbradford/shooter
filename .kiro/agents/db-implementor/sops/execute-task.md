@@ -120,12 +120,12 @@ echo "[CHECKPOINT] build_passed:{taskId}" >> tmp/logs/checkpoint.log
 
 ```bash
 echo "[STEP 7] Running test" >> tmp/logs/db-implementor.log
-npm run test:single test-{feature}-{taskId}
+npm run test:headless:single test-{feature}-{taskId}
 echo "[STEP 7] Complete" >> tmp/logs/db-implementor.log
 echo "[CHECKPOINT] test_passed:{taskId}" >> tmp/logs/checkpoint.log
 ```
 
-**If fails:** Fix and retry (max 3 attempts)
+**This handles dev server lifecycle automatically.** If fails: fix and retry (max 3 attempts).
 
 ### 8. Mark Complete
 
@@ -143,35 +143,6 @@ echo "[STEP 9] Generating report" >> tmp/logs/db-implementor.log
 echo "=== TASK COMPLETE ===" >> tmp/logs/db-implementor.log
 # Clear checkpoint for this task
 sed -i '' "/{taskId}/d" tmp/logs/checkpoint.log
-```
-echo "[STEP 6] Complete" >> tmp/logs/db-implementor.log
-```
-
-**If fails:** Fix and retry (max 3 attempts)
-
-### 7. Run Test
-
-```bash
-echo "[STEP 7] Running test" >> tmp/logs/db-implementor.log
-npm run test:single test-{feature}-{taskId}
-echo "[STEP 7] Complete" >> tmp/logs/db-implementor.log
-```
-
-**If fails:** Fix and retry (max 3 attempts)
-
-### 8. Mark Complete
-
-```bash
-echo "[STEP 8] Marking complete" >> tmp/logs/db-implementor.log
-node scripts/mark-task-complete.js features/{feature}/tasks.md {taskId} "{time}"
-echo "[STEP 8] Complete" >> tmp/logs/db-implementor.log
-```
-
-### 9. Report
-
-```bash
-echo "[STEP 9] Generating report" >> tmp/logs/db-implementor.log
-echo "=== TASK COMPLETE ===" >> tmp/logs/db-implementor.log
 ```
 
 ## Success Criteria

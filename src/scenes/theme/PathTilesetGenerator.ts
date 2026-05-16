@@ -154,46 +154,46 @@ export class PathTilesetGenerator {
     if (south) ctx.rect(centerX - radius, centerY - 1, radius * 2, TILE_SIZE_PX / 2 + 1);
 
     if (west && north) {
-      if (!hasNW) {
+      if (hasNW) {
+        ctx.rect(x, y, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
+      } else {
         ctx.moveTo(x, y + innerRadius);
         ctx.arc(x, y, innerRadius, Math.PI / 2, 0, true);
         ctx.lineTo(x, y);
         ctx.lineTo(x + innerRadius, y);
         ctx.closePath();
-      } else {
-        ctx.rect(x, y, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
       }
     }
     if (east && north) {
-      if (!hasNE) {
+      if (hasNE) {
+        ctx.rect(centerX + radius, y, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
+      } else {
         ctx.moveTo(x + TILE_SIZE_PX - innerRadius, y);
         ctx.lineTo(x + TILE_SIZE_PX, y);
         ctx.lineTo(x + TILE_SIZE_PX, y + innerRadius);
         ctx.arc(x + TILE_SIZE_PX, y, innerRadius, Math.PI / 2, Math.PI, true);
         ctx.closePath();
-      } else {
-        ctx.rect(centerX + radius, y, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
       }
     }
     if (west && south) {
-      if (!hasSW) {
+      if (hasSW) {
+        ctx.rect(x, centerY + radius, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
+      } else {
         ctx.moveTo(x, y + TILE_SIZE_PX - innerRadius);
         ctx.lineTo(x, y + TILE_SIZE_PX);
         ctx.lineTo(x + innerRadius, y + TILE_SIZE_PX);
         ctx.arc(x, y + TILE_SIZE_PX, innerRadius, 0, Math.PI / 2);
         ctx.closePath();
-      } else {
-        ctx.rect(x, centerY + radius, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
       }
     }
     if (east && south) {
-      if (!hasSE) {
+      if (hasSE) {
+        ctx.rect(centerX + radius, centerY + radius, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
+      } else {
         ctx.moveTo(x + TILE_SIZE_PX - innerRadius, y + TILE_SIZE_PX);
         ctx.arc(x + TILE_SIZE_PX, y + TILE_SIZE_PX, innerRadius, Math.PI, Math.PI / 2, true);
         ctx.lineTo(x + TILE_SIZE_PX, y + TILE_SIZE_PX);
         ctx.closePath();
-      } else {
-        ctx.rect(centerX + radius, centerY + radius, TILE_SIZE_PX / 2 - radius, TILE_SIZE_PX / 2 - radius);
       }
     }
 

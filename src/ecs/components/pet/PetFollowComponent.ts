@@ -66,6 +66,7 @@ export class PetFollowComponent implements Component {
   private currentSpeedPxPerSec = 0;
 
   private syncJumpBehavior!: PetSyncJumpBehavior;
+  private readonly pathfinder: Pathfinder;
 
   constructor(
     private readonly grid: GridReader,
@@ -73,6 +74,7 @@ export class PetFollowComponent implements Component {
     private readonly directionCount: 4 | 8 = 8
   ) {
     this.pathFollower = new PathFollower(grid.cellSize, 32);
+    this.pathfinder = new Pathfinder(grid, grid.getBlockedAreaCells());
     this.sm = new ComponentStateMachine<PetState>('idle', {
       idle: { update: (delta) => this.updateIdle(delta) },
       following: { update: (delta) => this.updateFollowing(delta) },

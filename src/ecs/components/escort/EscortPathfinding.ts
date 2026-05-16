@@ -9,12 +9,16 @@ import type { PathFollower } from '../../systems/movement/PathFollower';
 export type DestinationMoveResult = 'arrived' | 'moving' | 'use_pathfinding';
 
 export class EscortPathfinding {
+  private readonly pathfinder: Pathfinder;
+
   constructor(
     private readonly grid: GridReader,
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
     private readonly pathFollower: PathFollower,
-  ) {}
+  ) {
+    this.pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
+  }
 
   syncLayerWithPlayer(): void {
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
@@ -33,23 +37,21 @@ export class EscortPathfinding {
     const startCell = this.grid.worldToCell(transform.x, transform.y);
     const playerTransform = this.playerEntity.require(TransformComponent);
     const goalCell = this.grid.worldToCell(playerTransform.x, playerTransform.y);
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-    const path = pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, this.getPlayerLayer(), false, true);
+    const path = this.pathfinder.findPath(startCell.col, startCell.row, goalCell.col, goalCell.row, this.getPlayerLayer(), false, true);
     this.pathFollower.setPath(path);
   }
 
   recalculatePathToDestination(destinationCol: number, destinationRow: number): { fallback: boolean } {
     const transform = this.entity.require(TransformComponent);
     const startCell = this.grid.worldToCell(transform.x, transform.y);
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
 
-    let path = pathfinder.findPath(
+    let path = this.pathfinder.findPath(
       startCell.col, startCell.row,
       destinationCol, destinationRow,
       this.getPlayerLayer(), false, true
     );
 
-    path ??= this.findPathToAdjacentCell(pathfinder, startCell, destinationCol, destinationRow);
+    path ??= this.findPathToAdjacentCell(this.pathfinder, startCell, destinationCol, destinationRow);
 
     if (!path) {
       return { fallback: true };
@@ -62,8 +64,7 @@ export class EscortPathfinding {
   checkDestinationReachable(destinationCol: number, destinationRow: number, reachDistance: number): boolean {
     const transform = this.entity.require(TransformComponent);
     const startCell = this.grid.worldToCell(transform.x, transform.y);
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-    const path = pathfinder.findPath(
+    const path = this.pathfinder.findPath(
       startCell.col, startCell.row,
       destinationCol, destinationRow,
       this.getPlayerLayer(), false, true

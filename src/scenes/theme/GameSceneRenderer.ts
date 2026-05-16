@@ -93,18 +93,16 @@ export abstract class GameSceneRenderer {
 
     if (levelData.background?.water) {
       const sourceKey = levelData.background.water.sourceImage;
-      if (!TextureVerifier.verifyTexture(this.scene, sourceKey)) {
-        failed.push(`water_source:${sourceKey}`);
-      } else {
+      if (TextureVerifier.verifyTexture(this.scene, sourceKey)) {
         this.initializeWaterAnimation(levelData.background.water);
+      } else {
+        failed.push(`water_source:${sourceKey}`);
       }
     }
 
     if (levelData.background?.path_texture) {
       const sourceKey = levelData.background.path_texture;
-      if (!TextureVerifier.verifyTexture(this.scene, sourceKey)) {
-        failed.push(`path_source:${sourceKey}`);
-      } else {
+      if (TextureVerifier.verifyTexture(this.scene, sourceKey)) {
         const generator = new PathTilesetGenerator(this.scene);
         const tilesetKey = `${sourceKey}_generated_tileset`;
         const success = generator.generateTileset(sourceKey, tilesetKey);
@@ -115,6 +113,8 @@ export abstract class GameSceneRenderer {
         } else if (!TextureVerifier.verifyTexture(this.scene, tilesetKey)) {
           failed.push(`${tilesetKey}:verification`);
         }
+      } else {
+        failed.push(`path_source:${sourceKey}`);
       }
     }
 

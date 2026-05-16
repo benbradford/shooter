@@ -24,6 +24,7 @@ interface Session {
   tag?: string;
   prompt?: string;
   agent?: string;
+  engine?: 'kiro' | 'claude';
 }
 
 const sessions: Map<string, Session> = new Map();

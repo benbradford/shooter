@@ -42,10 +42,10 @@ export class HitFlashComponent implements Component {
       this.isRed = !this.isRed;
       if (this.isRed) {
         sprite.sprite.setTint(this.tintColor);
-      } else if (this.baseTint !== null) {
-        sprite.sprite.setTint(this.baseTint);
-      } else {
+      } else if (this.baseTint === null) {
         sprite.sprite.clearTint();
+      } else {
+        sprite.sprite.setTint(this.baseTint);
       }
     }
   }
@@ -65,10 +65,10 @@ export class HitFlashComponent implements Component {
   stop(): void {
     this.active = false;
     const sprite = this.entity.require(SpriteComponent);
-    if (this.baseTint !== null) {
-      sprite.sprite.setTint(this.baseTint);
-    } else {
+    if (this.baseTint === null) {
       sprite.sprite.clearTint();
+    } else {
+      sprite.sprite.setTint(this.baseTint);
     }
   }
 }

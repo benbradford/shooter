@@ -38,41 +38,6 @@ function setPlayerInput(dx, dy, durationMs) {
   });
 }
 
-function fireWeapon(aimDx, aimDy, durationMs) {
-  const remoteInput = enableRemoteInput();
-  
-  remoteInput.setAim(aimDx, aimDy, true);
-  testLog(`[DEBUG] Firing weapon in direction (${aimDx}, ${aimDy})`);
-  
-  return new Promise(resolve => {
-    setTimeout(() => {
-      remoteInput.setAim(0, 0, false);
-      testLog('[DEBUG] Stopped firing');
-      setTimeout(resolve, 100);
-    }, durationMs);
-  });
-}
-
-function fireSingleShot(aimDx, aimDy) {
-  const remoteInput = enableRemoteInput();
-  const waitTime = window.INITIAL_AIM_WAIT_TIME_MS + 50;
-  
-  remoteInput.setAim(aimDx, aimDy, true);
-  
-  return new Promise(resolve => {
-    setTimeout(() => {
-      remoteInput.setAim(0, 0, false);
-      resolve();
-    }, waitTime);
-  });
-}
-
-function getBulletCount() {
-  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
-  const bullets = scene.entityManager.getByType('bullet');
-  return bullets.length;
-}
-
 function moveToPathfindHelper(targetCol, targetRow, maxTimeMs = 10000) {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const player = scene.entityManager.getFirst('player');
@@ -273,6 +238,57 @@ function moveToColHelper(targetCol, maxTimeMs = 5000) {
   });
 }
 
+function punch(dirX = 0, dirY = 1) {
+  const remoteInput = enableRemoteInput();
+  remoteInput.setAim(dirX, dirY, true);
+  testLog(`[DEBUG] Punch triggered in direction (${dirX}, ${dirY})`);
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      remoteInput.setAim(0, 0, false);
+      resolve();
+    }, 100);
+  });
+}
+
+function punchAndWait(dirX = 0, dirY = 1, waitMs = 600) {
+  const remoteInput = enableRemoteInput();
+  remoteInput.setAim(dirX, dirY, true);
+  testLog(`[DEBUG] Punch and wait in direction (${dirX}, ${dirY})`);
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      remoteInput.setAim(0, 0, false);
+      setTimeout(resolve, waitMs);
+    }, 100);
+  });
+}
+
+function chargeSuperPunch(dirX = 0, dirY = 1, holdMs = 1200) {
+  const remoteInput = enableRemoteInput();
+  remoteInput.setAim(dirX, dirY, true);
+  testLog(`[DEBUG] Charging super punch for ${holdMs}ms`);
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      remoteInput.setAim(0, 0, false);
+      testLog('[DEBUG] Super punch released');
+      setTimeout(resolve, 600);
+    }, holdMs);
+  });
+}
+
+function getAttackButtonState() {
+  const hudScene = window.game.scene.scenes.find(s => s.scene.key === 'HudScene');
+  if (!hudScene || !hudScene.attackButtonEntity) return null;
+  const btn = hudScene.attackButtonEntity.get(window.AttackButtonComponent);
+  if (!btn) return null;
+  return {
+    visible: btn.sprite ? btn.sprite.visible : false,
+    texture: btn.sprite ? btn.sprite.texture.key : null
+  };
+}
+
 function moveToCellHelper(targetCol, targetRow, maxTimeMs = 2000) {
   const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
   const player = scene.entityManager.getFirst('player');
@@ -332,109 +348,3 @@ function moveToCellHelper(targetCol, targetRow, maxTimeMs = 2000) {
 }
 
 
-// Expose ProjectileComponent for tests
-window.ProjectileComponent = window.ProjectileComponent || (() => {
-  const { ProjectileComponent } = window;
-  return ProjectileComponent;
-})();
-
-function holdFire(aimDx, aimDy, durationMs) {
-  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
-  const player = scene.entityManager.getFirst('player');
-  const remoteInput = player.get(window.RemoteInputComponent);
-  
-  remoteInput.setAimInput(aimDx, aimDy);
-  remoteInput.setFirePressed(true);
-  
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      remoteInput.setFirePressed(false);
-      resolve();
-    }, durationMs);
-  });
-}
-
-function waitForFullAmmo() {
-  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
-  const player = scene.entityManager.getFirst('player');
-  const ammo = player.get(window.AmmoComponent);
-  const maxAmmo = window.PLAYER_MAX_AMMO;
-  
-  return new Promise((resolve) => {
-    const checkInterval = setInterval(() => {
-      if (ammo.getCurrentAmmo() >= maxAmmo) {
-        clearInterval(checkInterval);
-        resolve();
-      }
-    }, 100);
-  });
-}
-
-
-window.traceBullet = function(dirX, dirY, durationMs) {
-  const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
-  const player = scene.entityManager.getFirst('player');
-  const input = player.require(window.RemoteInputComponent);
-  const grid = scene.grid;
-  
-  const trace = {
-    cells: [],
-    startLayer: null,
-    endLayer: null,
-    destroyed: false,
-    maxY: -Infinity
-  };
-  
-  let trackedBulletId = null;
-  
-  input.setAimInput(dirX, dirY);
-  input.setFirePressed(true);
-  
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const checkInterval = setInterval(() => {
-        const bullets = scene.entityManager.getByType('bullet');
-        
-        if (bullets.length > 0 && trackedBulletId === null) {
-          trackedBulletId = bullets[0].id;
-        }
-        
-        const trackedBullet = bullets.find(b => b.id === trackedBulletId);
-        
-        if (trackedBullet) {
-          const transform = trackedBullet.require(window.TransformComponent);
-          const projectile = trackedBullet.require(window.ProjectileComponent);
-          
-          const cell = grid.worldToCell(transform.x, transform.y);
-          const cellKey = `${cell.col},${cell.row}`;
-          
-          if (trace.cells.length === 0 || trace.cells[trace.cells.length - 1] !== cellKey) {
-            trace.cells.push(cellKey);
-          }
-          
-          if (trace.startLayer === null) {
-            trace.startLayer = projectile.currentLayer;
-          }
-          trace.endLayer = projectile.currentLayer;
-          
-          if (transform.y > trace.maxY) {
-            trace.maxY = transform.y;
-          }
-        } else if (trackedBulletId !== null) {
-          trace.destroyed = true;
-          clearInterval(checkInterval);
-          input.setFirePressed(false);
-          input.setAimInput(0, 0);
-          resolve(trace);
-        }
-      }, 16);
-      
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        input.setFirePressed(false);
-        input.setAimInput(0, 0);
-        resolve(trace);
-      }, durationMs);
-    }, 100);
-  });
-};

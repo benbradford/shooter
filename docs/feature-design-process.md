@@ -223,6 +223,50 @@ How to verify it works
 
 ---
 
+## Phase 4.5: Test Specification ⭐ NEW
+
+### Purpose
+Define how the feature will be verified with automated integration tests, BEFORE implementation begins.
+
+### Process
+1. For each acceptance criterion in requirements.md, define a test case
+2. Specify test level requirements (what entities, cells, and layout are needed)
+3. Identify which existing test helpers can be reused
+4. Identify new helpers needed
+
+### Structure
+```markdown
+# {Feature} - Test Specification
+
+## Test Cases
+
+### TC-1: {Test Name}
+**Verifies:** {acceptance criterion from requirements.md}
+**Test Level:** `public/levels/test/test-{feature}-{id}.json`
+**Level Requirements:** {entities, layout, cell types needed}
+**Steps:**
+1. Given {initial state}
+2. When {action}
+3. Then {expected result}
+**Helpers needed:** {existing or new helpers}
+
+## Test Levels to Create
+- `test-{feature}-{id}.json` — {description}
+
+## New Helpers Needed
+- `{helperName}()` — {what it does}
+```
+
+### Output
+- `features/{feature}/test-spec.md`
+
+### Success Criteria
+- ✅ Every acceptance criterion has at least one test case
+- ✅ Test levels are specified with required entities
+- ✅ Helpers identified (existing reuse preferred)
+
+---
+
 ## Phase 5: Runtime Analysis ⭐ NEW
 
 ### Purpose
@@ -370,6 +414,7 @@ Break design into implementable tasks with time estimates.
 ## Phase 1: {Phase Name}
 ### Task 1.1: {Task Name}
 **File**: path/to/file.ts
+**Test**: test/tests/{feature}/test-{feature}-1.1.js (from test-spec.md TC-X)
 
 **Subtasks**:
 - [ ] Specific action 1
@@ -473,9 +518,10 @@ Checklist of completed work
 2. implementation-clarifications.md ⭐
 3. requirements.md
 4. design.md
-5. runtime-analysis.md ⭐
-6. failure-analysis.md ⭐
-7. tasks.md
+5. test-spec.md ⭐
+6. runtime-analysis.md ⭐
+7. failure-analysis.md ⭐
+8. tasks.md
 
 ### Critical Design Decisions
 Summary of key points
@@ -543,10 +589,11 @@ Before starting implementation, verify:
 - [ ] **POC completed** - Technical approach validated
 - [ ] **Requirements written** - All APIs defined with acceptance criteria
 - [ ] **Design documented** - Architecture and data flow clear
+- [ ] **Test specification written** - Test cases for each acceptance criterion ⭐
 - [ ] **Runtime analysis performed** - Execution flows verified ⭐
 - [ ] **Failure analysis performed** - Edge cases and stress tests passed ⭐
 - [ ] **Scrutiny performed** - All ambiguities identified and resolved
-- [ ] **Tasks broken down** - Concrete, estimable tasks
+- [ ] **Tasks broken down** - Concrete, estimable tasks with test references
 - [ ] **Clarifications captured** - All decisions in one document
 - [ ] **README created** - Future sessions know where to start
 - [ ] **User approval** - All questions answered, design approved

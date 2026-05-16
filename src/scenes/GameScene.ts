@@ -542,7 +542,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initializeFadeIn(): void {
-    if (!this.isEditorMode) {
+    if (this.isEditorMode) {
+      if (this.background) this.background.setAlpha(1);
+      if (this.vignette) this.vignette.setAlpha(this.getVignetteAlpha());
+    } else {
       this.cameras.main.fadeIn(500, 0, 0, 0);
       this.cameras.main.once('camerafadeincomplete', () => {
         if (this.background) {
@@ -552,9 +555,6 @@ export default class GameScene extends Phaser.Scene {
           this.tweens.add({ targets: this.vignette, alpha: this.getVignetteAlpha(), duration: 300, ease: 'Linear' });
         }
       });
-    } else {
-      if (this.background) this.background.setAlpha(1);
-      if (this.vignette) this.vignette.setAlpha(this.getVignetteAlpha());
     }
   }
 

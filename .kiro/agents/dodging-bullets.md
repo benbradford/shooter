@@ -71,7 +71,7 @@ User: "{feature} is broken"
 ↓
 You: "Let me verify the bug with integration tests"
 ↓
-Run: npm run test:single test-{feature}
+Run: npm run test:headless:single test-{feature}
 ↓
 If PASS → "Tests pass, can you describe what's broken?"
 If FAIL → Continue to Step 2
@@ -430,8 +430,9 @@ Step 5: use_subagent db-design → tasks.md + README.md (~3 min)
 
 **EXCEPTION - User Override:**
 If user explicitly says "directly" or "quick fix":
-- "implement task 1.1 directly" → Handle yourself (skip testing)
+- "implement task 1.1 directly" → Handle yourself
 - "quick fix: add npc to EntityType" → Handle yourself
+- Still run `npm run build` and relevant tests afterward
 
 **When Unsure:**
 If user asks for implementation but doesn't reference a task file:
@@ -454,11 +455,24 @@ User: "implement the NPC idle component"
 
 **Agent capabilities:**
 - Executes tasks from feature specs
-- Generates tests automatically (100% coverage)
+- Generates tests automatically
 - Enforces coding patterns
-- Runs browser tests with screenshots
-- Builds regression suite
+- Runs headless browser tests
 - Self-verifies before marking complete
+
+### Post-Implementation Verification ⭐ MANDATORY
+
+After ANY code change (bug fix, feature, or direct edit), run:
+
+```bash
+npm run build                                    # Must pass
+npm run test:headless:single test-{feature}      # If a relevant test exists
+```
+
+If no test exists for the modified feature, flag it:
+```
+⚠️ No integration test exists for {feature}. Consider creating one.
+```
 
 ### Asset Management Agent (db-asset-management)
 **Delegate when user says:**
