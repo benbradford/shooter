@@ -117,7 +117,8 @@ See `src/systems/grid/Grid.ts` for complete API.
 
 The grid maintains a tag-based index for O(1) entity lookup by tag. Uses ref-counting to handle multi-cell entities correctly — an entity occupying 4 cells is only added to the tag index once and only removed when its last cell occupancy is cleared.
 
-- `grid.getEntitiesWithTag(tag)` — Returns all entities currently on the grid with the given tag
+- `grid.getEntitiesWithTag(tag)` — Returns all entities currently on the grid with the given tag (allocates a new array each call)
+- `grid.getFirstEntityWithTag(tag)` — Zero-allocation helper that returns the first entity with the tag (or `undefined`). Use this in hot paths like `TriggerComponent.update()` and `HoleComponent.update()` where only the player entity is needed.
 - Used by systems that need to find all entities of a type without scanning every cell (e.g., finding all lasers, all enemies)
 
 ### Debug Visualization

@@ -15,19 +15,18 @@ Automated browser tests using Puppeteer with custom shell script runner. Tests s
 
 ```bash
 # All tests
-npm test                                    # Visible browser
-npm run test:headless                       # Headless mode (faster)
+npm test                                      # Visible browser
+npm run test:headless                         # Headless mode (faster)
 
 # Single test file
-npm run test:single test-ammo-system        # Visible browser
-npm run test:headless:single test-ammo-system  # Headless mode
+npm run test:single test-player-movement      # Visible browser
+npm run test:headless:single test-player-movement  # Headless mode
 
 # Filter by keyword
-npm run test:single test-ammo-system "refills"
-npm run test:headless:single test-ammo-system "refills"
+npm run test:single test-player-movement "diagonal"
 
 # Verbose mode (show all debug logs)
-VERBOSE=true npm run test:single test-ammo-system
+VERBOSE=true npm run test:single test-player-movement
 
 # Kill stuck dev server
 npm run kill
@@ -39,12 +38,7 @@ npm run kill
 
 ### Test Isolation is Critical
 
-Tests can fail due to state bleeding from previous tests. Always ensure clean state:
-
-```javascript
-// Wait for full ammo before starting test
-await page.evaluate(() => waitForFullAmmo());
-```
+Tests can fail due to state bleeding from previous tests. Always ensure a clean starting position before each test (e.g. `moveToCellHelper(startCol, startRow)`), and reset transient state between tests.
 
 ### Don't Optimize Tests Prematurely
 
@@ -63,24 +57,13 @@ Use headless mode for faster execution:
 
 Never hardcode game values in tests. Export them and use dynamically to prevent tests from breaking when you tune game balance.
 
-### Single-Shot vs Continuous Fire
-
-- `fireSingleShot(dx, dy)` - Fires exactly once (waits INITIAL_AIM_WAIT_TIME_MS + 50ms, releases before cooldown)
-- `fireWeapon(dx, dy, duration)` / `holdFire(dx, dy, duration)` - Holds fire button for duration (fires multiple times)
-
-Use the right helper for your test case.
-
 ### Debug One Test at a Time
 
 When tests fail, use keyword filtering to run just one:
 
 ```bash
-npm run test:single test-ammo-system "fires once"
+npm run test:single test-player-movement "blocked by wall"
 ```
-
-### Add State Management Helpers
-
-Create helpers like `waitForFullAmmo()` to manage game state between tests. This is better than fixed delays because it waits exactly as long as needed.
 
 ## Creating a New Test
 
@@ -91,16 +74,30 @@ Create helpers like `waitForFullAmmo()` to manage game state between tests. This
 
 ## Available Helpers
 
-See `test/interactions/player.js` for complete list:
-- Movement: `moveToPathfindHelper()`, `moveToCellHelper()`, `moveToRowHelper()`, `moveToColHelper()`
-- Combat: `fireWeapon()`, `fireSingleShot()`, `traceBullet()`
-- Setup: `enableRemoteInput()`, `waitForFullAmmo()`
+See `test/interactions/player.js` for the complete list:
+
+**Setup:**
+- `enableRemoteInput()` — must be called before any movement helpers
+- `setPlayerInput(dx, dy, durationMs)` — direct input override
+
+**Movement:**
+- `moveToPathfindHelper(col, row)` — A* pathfinding around walls
+- `moveToCellHelper(col, row)` — direct movement, with stuck detection
+- `moveToRowHelper(row)` / `moveToColHelper(col)` — single-axis movement
+
+**Combat:**
+- `punch(dirX, dirY)` — fires one punch in the given direction
+- `punchAndWait(dirX, dirY, waitMs)` — punch and wait for it to complete (default 600ms)
+- `chargeSuperPunch(dirX, dirY, holdMs)` — hold punch for `holdMs` to trigger super punch (≥1s + `hasSuperPunch` flag)
+- `getAttackButtonState()` — read current button state (for verifying icon overrides like push/jump/lips)
+
+**Inspection:**
+- `getPlayerPosition()` — current `{ x, y }` and grid cell
 
 **When to use which movement helper:**
-
-- **`moveToPathfindHelper(col, row)`** - Best for navigating around walls and obstacles (uses A* pathfinding)
-- **`moveToCellHelper(col, row)`** - Independent tests where each test can move the player to any position
-- **`moveToRowHelper(row)` / `moveToColHelper(col)`** - Sequential tests where each test depends on the player being at a specific position from the previous test
+- **`moveToPathfindHelper(col, row)`** — best for navigating around walls and obstacles
+- **`moveToCellHelper(col, row)`** — independent tests where each test moves the player anywhere
+- **`moveToRowHelper(row)` / `moveToColHelper(col)`** — sequential tests where each depends on the previous position
 
 ## Best Practices
 
@@ -114,8 +111,8 @@ When adding methods or getters solely for testing, mark them with a comment:
 
 ```typescript
 // Visible for testing
-getCurrentAmmo(): number {
-  return this.currentAmmo;
+getCurrentHealth(): number {
+  return this.currentHealth;
 }
 ```
 
@@ -128,7 +125,7 @@ getCurrentAmmo(): number {
 - Return boolean from test functions
 - Use stuck detection for movement
 - Check existence, not deltas
-- Call enableRemoteInput() before using movement helpers
+- Call `enableRemoteInput()` before using movement helpers
 
 ### ❌ DON'T
 
@@ -149,9 +146,8 @@ getCurrentAmmo(): number {
 **Cause:** Using fixed timeouts instead of stuck detection
 **Solution:** Use `moveToCellHelper()` which detects when player stops moving
 
-### Bullets Not Spawning
-**Cause:** Not waiting for bullets to spawn
-**Solution:** Check bullet count during firing period, not at single point
+### Punch Doesn't Land
+**Cause:** Punch hitbox spawns 150ms into the animation; testing immediately after `punch()` won't see damage applied. Use `punchAndWait()` or poll for the enemy state change.
 
 ### Test Passes Locally But Fails in CI
 **Cause:** Timing-dependent tests fail intermittently

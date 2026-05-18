@@ -55,6 +55,7 @@ Load with: `http://localhost:5173/?level=test_room1`
 
 ## Related Files
 
+- `src/systems/LevelTransitionManager.ts` - Owns the transition flow (`start()` saves state + fades + hands off to LoadingScene; `reload()` restores the level-entry snapshot then transitions). GameScene's `startLevelTransition()` and `reloadCurrentLevel()` are 1-line delegators.
 - `src/systems/level/LevelLoader.ts` - LevelExit type definition
 - `src/ecs/components/level/LevelExitComponent.ts` - Exit event listener
 - `src/exit/LevelExitEntity.ts` - Exit entity factory

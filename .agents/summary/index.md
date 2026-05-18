@@ -308,7 +308,11 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **EscortCrouchBehavior**: Knight crouch/shiver logic extracted from `EscortComponent` into `src/ecs/components/escort/EscortCrouchBehavior.ts`
 - **EscortPathfinding**: Path-following and destination movement logic extracted from `EscortComponent` into `src/ecs/components/escort/EscortPathfinding.ts`
 - **PetSyncJumpBehavior**: Sync-jump logic extracted from `PetFollowComponent` into `src/ecs/components/pet/PetSyncJumpBehavior.ts`
-- **WorldFlags constants**: `src/constants/WorldFlags.ts` — typed flag name constants to prevent typos
+- **WorldFlags constants**: `src/constants/WorldFlags.ts` — typed flag name constants to prevent typos. Migrated 9 call sites from raw strings.
+- **CachedFlag pattern**: `src/systems/state/CachedFlag.ts` — caches a boolean WorldState flag and refreshes via `WorldStateManager.subscribeFlag()`. Used in 5 hot-path components (JumpComponent, GridMovementValidator, AttackButtonComponent, AttackComboComponent, PlayerStateHelpers) to eliminate per-frame singleton lookups.
+- **WorldStateManager API additions**: `isFlagTrue(name)` (type-safe boolean), `subscribeFlag(name, cb)` (returns unsubscribe; fires on `setFlag` + `loadFromJSON`).
+- **LevelTransitionManager**: `src/systems/LevelTransitionManager.ts` — owns `start()` (save state + fade + LoadingScene handoff) and `reload()` (restore entry snapshot, preserving active escort). GameScene's `startLevelTransition` and `reloadCurrentLevel` are now 1-line delegators.
+- **Grid.getFirstEntityWithTag()**: Zero-allocation helper on `Grid` / `GridReader`. Used by `TriggerComponent` and `HoleComponent` instead of `getEntitiesWithTag(...)[0]`.
 - **Rarity constants**: `src/constants/Rarity.ts` — extracted `Rarity` type and drop chance tables (`RARITY_COIN_COUNTS`, `RARITY_MEDIPACK_CHANCE`, `RARITY_SMALL_MUSHROOM_CHANCE`)
 - **Standalone editor**: Old `src/editor/` state machine removed. Editor is now a separate app at `editor/` (HTML panels + Phaser canvas). Accessed via `http://localhost:5173/editor/`
 - **Lua Runtime split**: `src/systems/LuaRuntime.ts` refactored — API registration moved to `src/systems/lua-api/` (PlayerAPI, NpcAPI, WorldAPI, UIAPI, types)

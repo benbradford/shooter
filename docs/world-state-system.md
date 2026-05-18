@@ -84,6 +84,29 @@ end
 - Flags persist across game sessions when saved (Y key)
 - Flags reset on new game start (same as other world state)
 
+### TypeScript API
+
+In addition to the Lua helpers, `WorldStateManager` exposes:
+
+- **`getFlag(name)`** — returns the raw string value (or `undefined` if not set)
+- **`isFlagTrue(name)`** — type-safe boolean check (returns true only when value is exactly `'true'`)
+- **`setFlag(name, value)`** — sets a flag and notifies subscribers
+- **`subscribeFlag(name, callback)`** — registers a listener for a single flag. Callback fires on `setFlag` changes and after `loadFromJSON`. Returns an unsubscribe function. The callback does **not** fire immediately on subscription — read the current value first if you need it.
+
+**Flag name constants:** `src/constants/WorldFlags.ts` exports the `WorldFlags` object listing every flag referenced from TypeScript. Use these constants instead of raw strings (`WorldFlags.canPunch` not `'canPunch'`) so renames and typos are caught at compile time.
+
+### CachedFlag (hot-path optimization)
+
+Calling `WorldStateManager.getInstance().getFlag(...)` every frame is wasteful — the singleton lookup and string compare run regardless of whether the flag changed. `CachedFlag` (`src/systems/state/CachedFlag.ts`) caches a boolean value and refreshes via `subscribeFlag`:
+
+```typescript
+private readonly canPunchFlag = new CachedFlag(WorldFlags.canPunch);
+// ...later in update():
+if (!this.canPunchFlag.get()) return;
+```
+
+Used by `JumpComponent`, `GridMovementValidator`, `AttackButtonComponent`, `AttackComboComponent`, and `PlayerStateHelpers` to eliminate per-frame singleton lookups for `canJump`, `canSwim`, `canPunch`, `hasSuperPunch`, and `canPush`. Call `destroy()` from the owning component's `onDestroy` to unsubscribe.
+
 ### Known Gameplay Flags
 
 | Flag | Values | Effect |

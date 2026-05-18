@@ -646,7 +646,7 @@ If there are no changes to commit, say so and stop.`;
           cleanupDeadSessions();
           const list = [...sessions.values()].map(s => ({
             id: s.id, port: s.port, label: s.label, status: s.status,
-            archived: s.archived, createdAt: s.createdAt, tag: s.tag,
+            archived: s.archived, createdAt: s.createdAt, tag: s.tag, engine: s.engine,
           }));
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(list));
@@ -658,8 +658,9 @@ If there are no changes to commit, say so and stop.`;
       server.middlewares.use('/api/sessions/create', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
-          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string; tag?: string; prompt?: string; agent?: string };
+          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string; tag?: string; prompt?: string; agent?: string; engine?: 'kiro' | 'claude' };
           const cwd = process.cwd();
+          const engine = body.engine ?? 'kiro';
 
           // Auto-kill existing session with same tag
           if (body.tag) {
@@ -674,18 +675,23 @@ If there are no changes to commit, say so and stop.`;
 
           let shellCmd: string;
           if (body.prompt) {
-            // Quick command with prompt — write to tmp file to avoid shell escaping issues
             const agent = body.agent ?? 'dodging-bullets';
             const tmpFile = path.resolve('tmp', `quick-${Date.now()}.txt`);
             fs.mkdirSync(path.resolve('tmp'), { recursive: true });
             fs.writeFileSync(tmpFile, body.prompt, 'utf-8');
-            shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+            shellCmd = engine === 'claude'
+              ? `cd '${cwd}' && claude --dangerously-skip-permissions "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
+              : `cd '${cwd}' && kiro-cli --classic chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           } else {
-            shellCmd = body.command ?? `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
+            shellCmd = body.command
+              ?? (engine === 'claude'
+                ? `cd '${cwd}' && claude`
+                : `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`);
           }
 
           const label = body.label ?? `Session ${nextSessionId}`;
           const session = spawnSession(label, shellCmd);
+          session.engine = engine;
           if (body.tag) session.tag = body.tag;
           if (body.prompt) session.prompt = body.prompt;
           if (body.agent) session.agent = body.agent;

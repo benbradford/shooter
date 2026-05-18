@@ -4,15 +4,15 @@
 - [ECS Architecture](./ecs-architecture.md) - Component system overview
 - [Coding Standards](./coding-standards.md) - Component design principles
 
-This document covers all input systems: joystick controls, keyboard input, and touch-based firing.
+This document covers all input systems: joystick controls, keyboard input, and touch-based attack input.
 
 ---
 
 ## Overview
 
 The game supports dual input methods:
-- **Keyboard**: WASD/Arrow keys for movement, Space for firing
-- **Touch/Mouse**: Virtual joystick for movement, crosshair button for firing
+- **Keyboard**: WASD/Arrow keys for movement, Space for punching
+- **Touch/Mouse**: Virtual joystick for movement, attack button for punching
 
 Both systems work simultaneously and are integrated through the `InputComponent`.
 
@@ -172,21 +172,9 @@ Both update from raw input, ensuring instant response to player intent.
 
 ### Attack Button Component
 
-**AttackButtonComponent** renders a crosshair sprite in the lower-right area of the screen that acts as an attack button.
+**AttackButtonComponent** renders a punch icon in the lower-right area of the screen that acts as the attack button. See [HUD System](./hud-system.md#attack-button-punchcrosshair) for visual details (position, scale, icon stack).
 
-**Features:**
-- Positioned at 85% camera width, 85% camera height (bottom-right)
-- Uses `crosshair.png` sprite asset
-- Scaled to 0.8x by default
-- Fixed to camera (doesn't scroll)
-- High depth (2000) to stay on top
-- Recalculates position every frame (Android compatibility)
-- Uses camera dimensions (not displaySize) for correct positioning in HudScene
-
-**Visual Feedback:**
-- **Normal state**: Default appearance with 0.7 alpha
-- **Pressed state**: Scales up to 1.0x and applies blue tint (0x6666ff)
-- Instant visual response when touched/held
+The texture key is historically `crosshair` — the asset is a fist sprite, not a crosshair, despite the name. The button can swap to `lips`, `push`, or `jump` icons via `setIconOverride()` based on game state.
 
 ### Touch Detection
 
@@ -203,6 +191,7 @@ Both update from raw input, ensuring instant response to player intent.
 - Single tap/press: Triggers one punch
 - Must release and press again for next punch
 - Works with both touch and spacebar
+- When the icon override is `'jump'` (player at a void/platform edge), `isAttackPressed()` returns false to suppress the punch and let the jump button handle the press
 
 ---
 

@@ -484,10 +484,6 @@ See `attacker-spritesheet-reference.md` for complete mapping.
 **Cause:** GridCollisionComponent initializes previousX/Y to (0,0), thinks player is moving from origin.
 **Fix:** Component now initializes to actual starting position on first frame.
 
-### Overheat System Not Working
-**Cause:** Multiple issues with canFire() checks and overheat lock.
-**Fix:** Added `isOverheated` flag that locks gun until fully reloaded.
-
 ### Sprite Shattering Effect
 Divide sprite into 3×3 grid, use physics-based motion with randomness. Use absolute position calculation to prevent rotation affecting trajectory.
 
