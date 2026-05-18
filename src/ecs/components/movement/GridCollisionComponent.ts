@@ -224,5 +224,6 @@ export class GridCollisionComponent implements Component {
       this.grid.removeOccupant(col, row, this.entity);
     });
     this.occupiedCells.clear();
+    this.validator.destroy();
   }
 }

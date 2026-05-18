@@ -2,7 +2,12 @@ import type { InputComponent } from '../../components/input/InputComponent';
 import type { AttackComboComponent } from '../../components/combat/AttackComboComponent';
 import type { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import type { WaterEffectComponent } from '../../components/visual/WaterEffectComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
+
+// Module-level cached flags — shared across player state classes.
+// Lifetime is program lifetime (no cleanup needed).
+const canPunchFlag = new CachedFlag('canPunch');
+export const canPushFlag = new CachedFlag('canPush');
 
 export function handlePunchInput(
   input: InputComponent,
@@ -21,8 +26,7 @@ export function handlePunchInput(
     if (input.tryNPCInteraction()) {
       return true;
     }
-    const canPunch = WorldStateManager.getInstance().getFlag('canPunch') === 'true';
-    if (canPunch) {
+    if (canPunchFlag.get()) {
       attackCombo.tryStartPunch();
     }
     return true;

@@ -34,10 +34,9 @@ export class TriggerComponent implements Component {
   update(_delta: number): void {
     if (this.oneShot && this.triggered) return;
 
-    const playerEntities = this.grid.getEntitiesWithTag('player');
-    if (playerEntities.length === 0) return;
+    const player = this.grid.getFirstEntityWithTag('player');
+    if (!player) return;
 
-    const player = playerEntities[0];
     const playerGridPos = player.get(GridPositionComponent);
     if (!playerGridPos) return;
 

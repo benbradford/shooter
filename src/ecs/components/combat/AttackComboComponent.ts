@@ -14,10 +14,12 @@ import { PunchParticlesComponent } from '../visual/PunchParticlesComponent';
 import { SuperPunchParticlesComponent } from '../visual/SuperPunchParticlesComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import type { WorldStateManager } from '../../../systems/WorldStateManager';
+import { WorldFlags } from '../../../constants/WorldFlags';
 import { ChargeCircleEffect } from './ChargeCircleEffect';
 import type { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../pet/RockThrowAbility';
 import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 import { findNearestEntityInFOV } from '../../../utils/EnemyTargeting';
 
 const PUNCH_DAMAGE = 20;
@@ -76,6 +78,7 @@ export class AttackComboComponent implements Component {
   private readonly worldState: WorldStateManager;
   private readonly soundManager: SoundManager;
   private readonly petManager: PetManager;
+  private readonly hasSuperPunchFlag: CachedFlag;
   private chargeCircle: ChargeCircleEffect | null = null;
 
   constructor(props: AttackComboComponentProps) {
@@ -85,6 +88,7 @@ export class AttackComboComponent implements Component {
     this.worldState = props.worldState;
     this.soundManager = props.soundManager;
     this.petManager = props.petManager;
+    this.hasSuperPunchFlag = new CachedFlag('hasSuperPunch', this.worldState);
     this.sm = new ComponentStateMachine<ComboPhase>('idle', {
       idle: { update: () => { /* no-op */ } },
       punching: { update: (d) => this.updatePunching(d) },
@@ -153,7 +157,7 @@ export class AttackComboComponent implements Component {
 
     // Enter hold phase (only if super punch is available)
     const currentAnim = anim?.animationSystem.getCurrentAnimation();
-    const hasSuperPunch = this.worldState.getFlag('hasSuperPunch') === 'true';
+    const hasSuperPunch = this.hasSuperPunchFlag.get();
     if (hasSuperPunch && this.isHoldingAttack && !this.wasReleasedDuringPunch && currentAnim && currentAnim.getIndex() >= HOLD_FRAME_INDEX) {
       this.sm.transition('holding');
       this.holdDurationMs = 0;
@@ -220,7 +224,7 @@ export class AttackComboComponent implements Component {
     // Released — destroy charge circle and resolve
     this.destroyChargeCircle();
     const isSuperPunch = this.holdDurationMs >= SUPER_PUNCH_HOLD_THRESHOLD_MS &&
-      this.worldState.getFlag('hasSuperPunch') === 'true';
+      this.worldState.isFlagTrue(WorldFlags.hasSuperPunch);
     this.hitboxCreated = true;
     this.phaseTimer = 0;
 
@@ -414,6 +418,7 @@ export class AttackComboComponent implements Component {
 
   onDestroy(): void {
     this.destroyChargeCircle();
+    this.hasSuperPunchFlag.destroy();
   }
 
   private destroyChargeCircle(): void {

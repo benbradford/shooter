@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-16 (14:04) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 61 issues (3 critical, 19 high, 24 medium, 15 low). 1 issue resolved (#47 HealthComponent CachedFlag pattern). 6 new issues added (#48-#53). Trend: GameScene grew from 841→911 LOC, +12 methods — extraction pace not keeping up with feature accretion. Highest-leverage next action: extract LevelTransitionManager + propagate CachedFlag pattern. Full report: <code>tmp/architecture-review-2026-05-16-1404.md</code></p>
+<p class="updated">Last audit: 2026-05-16 (20:19) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · Implementation session: 7 issues resolved (#31 startLevelTransition, #45 reloadCurrentLevel, #48 CachedFlag pattern, #49 EscortPathfinding alloc, #50 PetFollow recalc alloc, #51 GameScene regrowth reversed, #52 getEntitiesWithTag alloc). Created: src/systems/state/CachedFlag.ts, src/systems/LevelTransitionManager.ts. GameScene reduced 911 → 812 LOC (-99 LOC, -10.9%). 7 per-frame WorldState singleton lookups eliminated via CachedFlag. Build green at 1804 kB. Full report: <code>tmp/architecture-review-2026-05-16-1404.md</code></p>
 
 <script>
 const ISSUES = [
@@ -423,12 +423,12 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-08 audit, session 2) ──
   {
-    id: 31, severity: 'medium', status: 'open',
+    id: 31, severity: 'medium', status: 'done',
     title: 'GameScene.startLevelTransition() is 68 LOC mixing escort persistence, world state, and scene transition',
     detail: 'Lines 729-796. Mixes 3 concerns: (1) escort proximity check and persistence (~25 LOC), (2) world state saving (health, cells, time, level, spawn), (3) fade-out and scene.start. The escort logic creates a new EscortPersistence() inline and does distance checks — this should be a method on EscortPersistence or a dedicated LevelTransitionHelper. GameScene grew from 33→41 methods since last audit.',
     files: ['src/scenes/GameScene.ts'],
     effort: '2h', risk: 'Med', fanIn: 13, category: 'maintainability',
-    added: '2026-05-08',
+    added: '2026-05-08', resolution: 'Fixed (2026-05-16): Extracted LevelTransitionManager (src/systems/LevelTransitionManager.ts, 186 LOC). startLevelTransition is now a 1-line delegator. Escort proximity check, world state save, and fade-handoff each split into focused private methods (savePlayerStateForTransition, persistEscortAcrossTransition, handOffToLoadingScene).',
   },
   {
     id: 32, severity: 'medium', status: 'open',
@@ -541,12 +541,12 @@ const ISSUES = [
     added: '2026-05-11',
   },
   {
-    id: 45, severity: 'medium', status: 'open',
+    id: 45, severity: 'medium', status: 'done',
     title: 'GameScene.reloadCurrentLevel() is 47 LOC — mixes escort state preservation, snapshot restore, and transition',
     detail: 'Lines 703-748. Manages 3 concerns: (1) escort state capture (position, definition flags), (2) death reset and snapshot restore, (3) escort state re-application. This is tightly coupled with EscortPersistence and EscortSpawnManager — the escort cross-level logic is spread across startLevelTransition, reloadCurrentLevel, and spawnEntities. Consider a LevelTransitionManager that owns the full transition flow.',
     files: ['src/scenes/GameScene.ts'],
     effort: '3h', risk: 'Med', fanIn: 13, category: 'architecture',
-    added: '2026-05-11',
+    added: '2026-05-11', resolution: 'Fixed (2026-05-16): Extracted to LevelTransitionManager.reload(). Captures escort state via captureActiveEscortState(), restores via restoreEntrySnapshot() + reapplyEscortState(). reloadCurrentLevel is now a 1-line delegator.',
   },
   {
     id: 46, severity: 'low', status: 'open',
@@ -569,44 +569,44 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-16 audit, session 2) ──
   {
-    id: 48, severity: 'high', status: 'open',
+    id: 48, severity: 'high', status: 'done',
     title: 'CachedFlag pattern: 7 components poll WorldStateManager.getFlag() every frame',
     detail: 'Same pattern as resolved #47 but unfixed at 7 hot sites. JumpComponent.update():70 (canJump), GridMovementValidator.canMoveTo():54+217 (canSwim), AttackButtonComponent.update():175 (canPunch), AttackComboComponent.updatePunching (hasSuperPunch), PlayerWalkState/PlayerIdleState/PlayerStateHelpers (canPush, canPunch). Flags rarely change; values should be cached on construction with a refresh hook. Recommended: add CachedFlag primitive at src/systems/state/CachedFlag.ts + WorldStateManager.subscribeFlag(name, cb) lifecycle hook. Then migrate the 7 sites individually. Eliminates ~7 singleton lookups per frame and makes flag dependencies visible at construction.',
     files: ['src/ecs/components/movement/JumpComponent.ts', 'src/ecs/components/movement/GridMovementValidator.ts', 'src/ecs/components/input/AttackButtonComponent.ts', 'src/ecs/components/combat/AttackComboComponent.ts', 'src/ecs/entities/player/PlayerWalkState.ts', 'src/ecs/entities/player/PlayerIdleState.ts', 'src/ecs/entities/player/PlayerStateHelpers.ts'],
     effort: '3h', risk: 'Low', fanIn: 44, category: 'performance',
-    added: '2026-05-16',
+    added: '2026-05-16', resolution: 'Fixed (2026-05-16): Added CachedFlag primitive at src/systems/state/CachedFlag.ts and WorldStateManager.subscribeFlag(name, cb) lifecycle hook (fires on setFlag changes + loadFromJSON). Migrated all 7 sites: JumpComponent (canJumpFlag with onDestroy), GridMovementValidator (canSwimFlag, cleanup via GridCollisionComponent), AttackButtonComponent (canPunchFlag), AttackComboComponent (hasSuperPunchFlag), PlayerStateHelpers (module-level canPunchFlag and exported canPushFlag), PlayerIdleState/PlayerWalkState (use shared canPushFlag).',
   },
   {
-    id: 49, severity: 'medium', status: 'open',
+    id: 49, severity: 'medium', status: 'done',
     title: 'EscortPathfinding allocates new Pathfinder 3× per recalc cycle',
     detail: 'Lines 36, 44, 65 of EscortPathfinding.ts each construct `new Pathfinder(this.grid, this.grid.getBlockedAreaCells())` inside recalculatePathToPlayer/recalculatePathToDestination/checkDestinationReachable. DogBarkAbility (line 47) and 9+ other consumers cache the Pathfinder once in their constructor. Fix: cache `this.pathfinder = new Pathfinder(...)` in EscortPathfinding constructor, replace 3 inline allocations.',
     files: ['src/ecs/components/escort/EscortPathfinding.ts'],
     effort: '15m', risk: 'None', fanIn: 3, category: 'performance',
-    added: '2026-05-16',
+    added: '2026-05-16', resolution: 'Fixed (2026-05-16): Pathfinder now cached as a private readonly field in EscortPathfinding constructor. All 3 inline allocations removed.',
   },
   {
-    id: 50, severity: 'low', status: 'open',
+    id: 50, severity: 'low', status: 'done',
     title: 'PetFollowComponent.recalculatePath() allocates new Pathfinder per recalc',
     detail: 'Line 305: `const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells())` allocated inside recalculatePath(), called every PATH_RECALC_MS (500ms). Other consumers cache once in constructor. Fix: cache as instance field. Same pattern as #49.',
     files: ['src/ecs/components/pet/PetFollowComponent.ts'],
     effort: '15m', risk: 'None', fanIn: 5, category: 'performance',
-    added: '2026-05-16',
+    added: '2026-05-16', resolution: 'Fixed (2026-05-16): Pathfinder cached as readonly field in PetFollowComponent constructor. recalculatePath uses this.pathfinder. Also deduplicated worldToCell call in startWanderMove (was called twice for same coord).',
   },
   {
-    id: 51, severity: 'high', status: 'open',
+    id: 51, severity: 'high', status: 'done',
     title: 'GameScene regrew: 841→911 LOC, 33→45 methods since last audit (anti-trend)',
     detail: 'Despite previous extractions (initializeScene, createGameScene, etc.), GameScene grew by 70 LOC and 12 methods. Newly added: initializePetManager, initializeCompanionManager, initializeBlockedAreas, getVignetteAlpha, reloadCurrentLevel, expanded startLevelTransition, createEditorPlayer. Pattern: new gameplay features wire into GameScene rather than self-contained subsystems. Recommended: extract LevelTransitionManager (resolves #31, #45) and SceneInitializer (the 7 initializeX helpers). Effort 4-6h. Without intervention, next audit will report further growth.',
     files: ['src/scenes/GameScene.ts'],
     effort: '6h', risk: 'Med', fanIn: 13, category: 'architecture',
-    added: '2026-05-16',
+    added: '2026-05-16', resolution: 'Fixed (2026-05-16): LevelTransitionManager extracted (186 LOC). GameScene reduced 911 → 812 LOC (-99 LOC, -10.9%). Score dropped 90 → 27. startLevelTransition + reloadCurrentLevel now 1-line delegators. Trend reversed for this audit cycle. Note: SceneInitializer extraction (the 7 initializeX helpers) deferred — addresses different concern, lower ROI.',
   },
   {
-    id: 52, severity: 'medium', status: 'open',
+    id: 52, severity: 'medium', status: 'done',
     title: 'Grid.getEntitiesWithTag() returns [...set] — allocated per-frame in Trigger/Hole',
     detail: 'Grid.getEntitiesWithTag (line 376) returns `[...set]` — allocates new array on every call. Called every frame from TriggerComponent.update():37 and HoleComponent.update():69, both of which only read `players[0]`. With N triggers and M holes per level, that\'s N+M arrays per frame. Fix: add `Grid.getFirstEntityWithTag(tag): Entity | undefined` zero-alloc helper. Existing getEntitiesWithTag can stay for callers that genuinely need the array.',
     files: ['src/systems/grid/Grid.ts', 'src/ecs/components/core/TriggerComponent.ts', 'src/ecs/components/hole/HoleComponent.ts'],
     effort: '30m', risk: 'None', fanIn: 97, category: 'performance',
-    added: '2026-05-16',
+    added: '2026-05-16', resolution: 'Fixed (2026-05-16): Added Grid.getFirstEntityWithTag(tag) zero-alloc helper to Grid + GridReader interface. TriggerComponent and HoleComponent updated to use it instead of getEntitiesWithTag(...)[0]. Per-frame array allocation eliminated.',
   },
   {
     id: 53, severity: 'low', status: 'open',

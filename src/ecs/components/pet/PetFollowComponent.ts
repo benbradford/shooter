@@ -304,12 +304,10 @@ export class PetFollowComponent implements Component {
     const startCell = this.grid.worldToCell(transform.x, transform.y);
     const goalCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
-    const pathfinder = new Pathfinder(this.grid, this.grid.getBlockedAreaCells());
-
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
     const layer = playerGridPos?.currentLayer ?? 0;
 
-    const path = pathfinder.findPath(
+    const path = this.pathfinder.findPath(
       startCell.col, startCell.row,
       goalCell.col, goalCell.row,
       layer, false, true
@@ -382,7 +380,8 @@ export class PetFollowComponent implements Component {
     const angle = Math.random() * Math.PI * 2;
     const targetX = playerTransform.x + Math.cos(angle) * WANDER_RADIUS_PX;
     const targetY = playerTransform.y + Math.sin(angle) * WANDER_RADIUS_PX;
-    const targetCell = this.grid.getCell(this.grid.worldToCell(targetX, targetY).col, this.grid.worldToCell(targetX, targetY).row);
+    const targetCellCoord = this.grid.worldToCell(targetX, targetY);
+    const targetCell = this.grid.getCell(targetCellCoord.col, targetCellCoord.row);
     if (targetCell?.properties.has('void')) {
       this.startWanderPause(anim, playerTransform);
       return;

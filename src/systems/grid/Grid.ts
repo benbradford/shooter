@@ -30,6 +30,7 @@ export type GridReader = {
   isOccupied(col: number, row: number): boolean;
   getOccupants(col: number, row: number): ReadonlySet<Entity>;
   getEntitiesWithTag(tag: string): Entity[];
+  getFirstEntityWithTag(tag: string): Entity | undefined;
   getBlockedAreaCells(): ReadonlySet<string> | undefined;
 };
 
@@ -376,6 +377,14 @@ export class Grid implements GridReader {
   getEntitiesWithTag(tag: string): Entity[] {
     const set = this.tagIndex.get(tag);
     return set ? [...set] : [];
+  }
+
+  /** Zero-allocation variant — returns first entity with the tag, or undefined. */
+  getFirstEntityWithTag(tag: string): Entity | undefined {
+    const set = this.tagIndex.get(tag);
+    if (!set) return undefined;
+    for (const entity of set) return entity;
+    return undefined;
   }
 
   destroy(): void {

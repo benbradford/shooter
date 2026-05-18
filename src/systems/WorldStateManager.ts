@@ -11,6 +11,7 @@ export class WorldStateManager {
   private trackDestructions: boolean = true;
   private lastTimeUpdateMs: number = Date.now();
   private profileName: string | null = null;
+  private readonly flagSubscribers: Map<string, Set<(value: string | undefined) => void>> = new Map();
 
   private constructor() {
     this.worldState = this.createEmptyState();
@@ -75,6 +76,7 @@ export class WorldStateManager {
 
   loadFromJSON(json: string): void {
     this.worldState = JSON.parse(json);
+    this.notifyAllFlagSubscribers();
   }
 
   getState(): WorldState {
@@ -162,7 +164,12 @@ export class WorldStateManager {
   }
 
   setFlag(name: string, value: string | number): void {
-    this.worldState.flags[name] = value.toString();
+    const stringValue = value.toString();
+    const previous = this.worldState.flags[name];
+    this.worldState.flags[name] = stringValue;
+    if (previous !== stringValue) {
+      this.notifyFlagSubscribers(name, stringValue);
+    }
   }
 
   getFlag(name: string): string | undefined {
@@ -172,6 +179,41 @@ export class WorldStateManager {
   /** Type-safe flag check — returns true if flag equals the expected value. */
   isFlagTrue(name: string): boolean {
     return this.worldState.flags[name] === 'true';
+  }
+
+  /**
+   * Subscribe to changes for a single flag.
+   * Callback fires whenever setFlag changes the value, or after loadFromJSON.
+   * Returns an unsubscribe function. The callback does NOT fire immediately on subscription —
+   * read the current value with getFlag/isFlagTrue if needed.
+   */
+  subscribeFlag(name: string, callback: (value: string | undefined) => void): () => void {
+    let set = this.flagSubscribers.get(name);
+    if (!set) {
+      set = new Set();
+      this.flagSubscribers.set(name, set);
+    }
+    set.add(callback);
+    return () => {
+      const subs = this.flagSubscribers.get(name);
+      if (!subs) return;
+      subs.delete(callback);
+      if (subs.size === 0) this.flagSubscribers.delete(name);
+    };
+  }
+
+  private notifyFlagSubscribers(name: string, value: string | undefined): void {
+    const subs = this.flagSubscribers.get(name);
+    if (!subs) return;
+    for (const callback of subs) callback(value);
+  }
+
+  /** Called after loadFromJSON to refresh every cached flag value. */
+  private notifyAllFlagSubscribers(): void {
+    for (const [name, subs] of this.flagSubscribers) {
+      const value = this.worldState.flags[name];
+      for (const callback of subs) callback(value);
+    }
   }
 
   isFlagCondition(name: string, condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte', value: string | number): boolean {

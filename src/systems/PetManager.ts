@@ -2,6 +2,7 @@ import type Phaser from 'phaser';
 import type { Entity } from '../ecs/Entity';
 import type { Grid } from './grid/Grid';
 import { PET_REGISTRY, type PetSpritesheetMetadata } from '../ecs/entities/pet/PetConfig';
+import { WorldFlags } from '../constants/WorldFlags';
 import { createPetEntity } from '../ecs/entities/pet/PetEntity';
 import { WorldStateManager } from './WorldStateManager';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
@@ -34,7 +35,7 @@ export class PetManager {
     this.playerEntity = playerEntity;
     
     const worldState = WorldStateManager.getInstance();
-    const selectedId = worldState.getFlag('pet_selected');
+    const selectedId = worldState.getFlag(WorldFlags.petSelected);
     
     if (selectedId && selectedId !== '') {
       void this.spawnPet(selectedId);
@@ -85,7 +86,7 @@ export class PetManager {
     this.wireJumpSync();
     
     this.selectedPetId = petId;
-    WorldStateManager.getInstance().setFlag('pet_selected', petId);
+    WorldStateManager.getInstance().setFlag(WorldFlags.petSelected, petId);
   }
   
   despawnPet(): void {

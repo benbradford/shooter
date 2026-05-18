@@ -7,6 +7,7 @@ import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
 import { Direction } from '../../../constants/Direction';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { WorldFlags } from '../../../constants/WorldFlags';
 
 const DIRECTION_MAP: Record<string, Direction> = {
   'down': Direction.Down,
@@ -39,7 +40,7 @@ export class InteractionComponent implements Component {
     
     const startCell = this.grid.worldToCell(transform.x, transform.y);
 
-    const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
+    const canSwim = WorldStateManager.getInstance().isFlagTrue(WorldFlags.canSwim);
     this.pathfinder.allowWater = canSwim;
     
     const path = this.pathfinder.findPath(

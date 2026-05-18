@@ -7,6 +7,7 @@ import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { InputComponent } from '../input/InputComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { WorldFlags } from '../../../constants/WorldFlags';
 
 const HOP_DURATION_MS = 300;
 const HOP_HEIGHT_PX = 20;
@@ -66,10 +67,9 @@ export class HoleComponent implements Component {
     if (this.phase !== 'idle') return;
 
     // Detect player entering hole cell
-    const players = this.grid.getEntitiesWithTag('player');
-    if (players.length === 0) return;
+    const player = this.grid.getFirstEntityWithTag('player');
+    if (!player) return;
 
-    const player = players[0];
     const gridPos = player.get(GridPositionComponent);
     if (!gridPos) return;
 
@@ -122,7 +122,7 @@ export class HoleComponent implements Component {
     if (this.hopProgress >= 1) {
       this.phase = 'falling';
       this.fallProgress = 0;
-      WorldStateManager.getInstance().setFlag('_enteredViaHole', 'true');
+      WorldStateManager.getInstance().setFlag(WorldFlags.enteredViaHole, 'true');
       this.onTransition(this.targetLevel, this.targetCol, this.targetRow);
     }
   }

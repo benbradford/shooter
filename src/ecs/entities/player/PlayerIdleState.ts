@@ -11,11 +11,10 @@ import { GridCollisionComponent } from '../../components/movement/GridCollisionC
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { PushableComponent, PUSH_ALIGNMENT_DIVISOR } from '../../components/pushable/PushableComponent';
 import { Direction } from '../../../constants/Direction';
-import { handlePunchInput, handlePetAbilityInput } from './PlayerStateHelpers';
+import { handlePunchInput, handlePetAbilityInput, canPushFlag } from './PlayerStateHelpers';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../../components/pet/RockThrowAbility';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
 
 const CARDINAL_DOMINANCE_RATIO = 3;
 
@@ -100,7 +99,7 @@ export class PlayerIdleState implements IState {
       // Check if player was blocked by a pushable this frame
       const gridCollision = this.entity.require(GridCollisionComponent);
       const blockedEntity = gridCollision.blockedByPushable;
-      if (blockedEntity && WorldStateManager.getInstance().getFlag('canPush') === 'true') {
+      if (blockedEntity && canPushFlag.get()) {
         const pushable = blockedEntity.get(PushableComponent);
         if (pushable?.pushEnabled) {
           const input2 = this.entity.require(InputComponent);

@@ -4,8 +4,7 @@ import type { EntityManager } from '../ecs/EntityManager';
 import { createCompanionEntity } from '../ecs/entities/companion/CompanionEntity';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { WorldStateManager } from './WorldStateManager';
-
-const COMPANION_FLAG = 'hasCompanion';
+import { WorldFlags } from '../constants/WorldFlags';
 
 export class CompanionManager {
   private static instance: CompanionManager | null = null;
@@ -23,7 +22,7 @@ export class CompanionManager {
     this.destroy();
 
     const worldState = WorldStateManager.getInstance();
-    if (worldState.getFlag(COMPANION_FLAG) !== 'true') return;
+    if (!worldState.isFlagTrue(WorldFlags.hasCompanion)) return;
 
     const pt = playerEntity.require(TransformComponent);
     this.companionEntity = createCompanionEntity({

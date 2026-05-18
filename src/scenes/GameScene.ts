@@ -8,10 +8,11 @@ import { Entity } from "../ecs/Entity";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
 import { WorldStateManager } from "../systems/WorldStateManager";
+import { WorldFlags } from "../constants/WorldFlags";
 import { CompanionManager } from "../systems/CompanionManager";
 import { NPCManager } from "../systems/NPCManager";
 import type HudScene from "./HudScene";
-import { PLAYER_MAX_HEALTH, createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
+import { createPlayerEntity } from "../ecs/entities/player/PlayerEntity";
 import { EventManagerSystem } from "../ecs/systems/EventManagerSystem";
 import { StateMachine } from "../systems/state/StateMachine";
 import type { IState } from "../systems/state/IState";
@@ -22,7 +23,6 @@ import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
-import { InputComponent } from "../ecs/components/input/InputComponent";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
@@ -32,11 +32,11 @@ import { SceneOverlays } from "../systems/SceneOverlays";
 import { PaintRenderer } from "./theme/PaintRenderer";
 
 import type { GameSceneRenderer } from "./theme/GameSceneRenderer";
-import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
 import { BlockedAreaManager } from "../systems/BlockedAreaManager";
 import { createThemeRenderer } from "./theme/ThemeRendererFactory";
 import { HoleDropInAnimator } from "../systems/animations/HoleDropInAnimator";
 import { EscortSpawnManager } from "../systems/escort/EscortSpawnManager";
+import { LevelTransitionManager } from "../systems/LevelTransitionManager";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -63,6 +63,7 @@ export default class GameScene extends Phaser.Scene {
   public isInInteraction: boolean = false;
   private isResetting: boolean = false;
   public blockedAreaManager?: BlockedAreaManager;
+  private readonly levelTransitions: LevelTransitionManager = new LevelTransitionManager(this);
 
   constructor() {
     super({ key: "game" });
@@ -654,7 +655,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Hole drop-in sequence
     const worldState2 = WorldStateManager.getInstance();
-    if (worldState2.getFlag('_enteredViaHole') === 'true') {
+    if (worldState2.isFlagTrue(WorldFlags.enteredViaHole)) {
       new HoleDropInAnimator(this, this.entityManager).play(player, startX, startY);
     }
   }
@@ -715,6 +716,16 @@ export default class GameScene extends Phaser.Scene {
     return this.sceneRenderer;
   }
 
+  /** Read the world state snapshot taken at level entry — used by LevelTransitionManager to restore on reload. */
+  getLevelEntrySnapshot(): string | null {
+    return this.levelEntrySnapshot;
+  }
+
+  /** Hand off the current entity manager to the next scene for cleanup. */
+  savePreviousEntityManager(manager: EntityManager): void {
+    GameScene.previousEntityManager = manager;
+  }
+
   refreshPaint(): void {
     this.initializePaint();
   }
@@ -748,120 +759,11 @@ export default class GameScene extends Phaser.Scene {
   }
 
   reloadCurrentLevel(): void {
-    const worldState = WorldStateManager.getInstance();
-
-    // Save escort state before snapshot restore
-    const escortPersistence = new EscortPersistence();
-    const activeEscortId = escortPersistence.getCurrentEscortId();
-    let escortPos: { col: number; row: number } | null = null;
-    const escortFlags: Array<[string, string]> = [];
-    if (activeEscortId) {
-      const escortEntity = this.entityManager.getAll().find(e => e.id === activeEscortId);
-      if (escortEntity) {
-        const t = escortEntity.get(TransformComponent);
-        if (t) {
-          const cell = this.grid.worldToCell(t.x, t.y);
-          escortPos = { col: cell.col, row: cell.row };
-        }
-      }
-      // Preserve escort definition flags
-      escortFlags.push(...escortPersistence.getDefinitionFlagEntries(activeEscortId));
-    }
-
-    // (V6 fix): Explicit escort death reset before level reload
-    new EscortSpawnManager(this, this.grid, this.entityManager, this.eventManager).handleDeathReset(this.currentLevelName);
-
-    // Restore world state to when we entered the level
-    if (this.levelEntrySnapshot) {
-      worldState.loadFromJSON(this.levelEntrySnapshot);
-    } else {
-      // Fallback: just restore health
-      worldState.setPlayerHealth(PLAYER_MAX_HEALTH);
-    }
-
-    // Re-apply active escort so it spawns as 'following' at its death-time position
-    if (activeEscortId) {
-      escortPersistence.setCurrentEscortId(activeEscortId);
-      escortPersistence.restoreFlags(escortFlags);
-      if (escortPos) {
-        worldState.updateMovedEntity(this.currentLevelName, activeEscortId, escortPos.col, escortPos.row);
-      }
-    }
-
-    const state = worldState.getState();
-    const spawnCol = state.player.spawnCol ?? this.levelData.playerStart.x;
-    const spawnRow = state.player.spawnRow ?? this.levelData.playerStart.y;
-
-    this.startLevelTransition(this.currentLevelName, spawnCol, spawnRow);
+    this.levelTransitions.reload();
   }
 
   startLevelTransition(targetLevel: string, spawnCol: number, spawnRow: number): void {
-    console.log('[DBGAME] Transition to:', targetLevel);
-    const worldState = WorldStateManager.getInstance();
-    const player = this.entityManager.getFirst('player');
-    if (player) {
-      const health = player.get(HealthComponent);
-      if (health && health.getHealth() > 0) {
-        worldState.setPlayerHealth(health.getHealth());
-      }
-
-      const input = player.get(InputComponent);
-      if (input) {
-        input.setEnabled(false);
-      }
-    }
-
-    worldState.updateModifiedCells(this.currentLevelName, this.grid, this.levelData);
-    worldState.updateTimePlayed();
-
-    // Check if active escort is close enough to follow
-    const transitionPersistence = new EscortPersistence();
-    const escortId = transitionPersistence.getCurrentEscortId();
-    if (escortId) {
-      const escortEntity = this.entityManager.getAll().find(e => e.id === escortId);
-      if (escortEntity && player) {
-        const escortT = escortEntity.get(TransformComponent);
-        const playerT = player.get(TransformComponent);
-        if (escortT && playerT) {
-          // Always save escort position in current level
-          const escortCell = this.grid.worldToCell(escortT.x, escortT.y);
-          worldState.updateMovedEntity(this.currentLevelName, escortId, escortCell.col, escortCell.row);
-
-          const dist = Math.hypot(playerT.x - escortT.x, playerT.y - escortT.y);
-          if (dist > 200) {
-            // Too far — escort stays in this level
-            transitionPersistence.setLeftInLevel(escortId, this.currentLevelName);
-          } else {
-            // Close enough — escort follows, clear stale position data
-            transitionPersistence.clearLeftInLevel(escortId);
-            worldState.removeMovedEntity(this.currentLevelName, escortId);
-          }
-        }
-      }
-    }
-
-    worldState.setCurrentLevel(targetLevel);
-    worldState.setPlayerSpawnPosition(spawnCol, spawnRow);
-    void worldState.saveToFile();
-
-    // Save entity manager for cleanup BEFORE fade
-    console.log('[DBGAME] Saving', this.entityManager.count, 'entities for cleanup');
-    GameScene.previousEntityManager = this.entityManager;
-
-    // Fade out, then start transition
-    console.log('[DBGAME] Starting fade out');
-    this.cameras.main.fadeOut(500, 0, 0, 0);
-
-    // Use timeout instead of callback (more reliable)
-    this.time.delayedCall(500, () => {
-      console.log('[DBGAME] Fade complete (timeout), starting LoadingScene');
-      this.scene.start('LoadingScene', {
-        targetLevel,
-        targetCol: spawnCol,
-        targetRow: spawnRow,
-        previousLevel: this.currentLevelName
-      });
-    });
+    this.levelTransitions.start(targetLevel, spawnCol, spawnRow);
   }
 
   private saveWorldState(): void {

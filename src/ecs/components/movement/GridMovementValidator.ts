@@ -4,7 +4,7 @@ import type { GridPositionComponent } from './GridPositionComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { GridCellBlocker } from './GridCellBlocker';
 import { JumpComponent } from './JumpComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 
 /**
  * Validates grid-based movement. Extracted from GridCollisionComponent
@@ -13,8 +13,15 @@ import { WorldStateManager } from '../../../systems/WorldStateManager';
 export class GridMovementValidator {
   blockedByPushable: Entity | null = null;
   private readonly allowedLayersSet: Set<number> = new Set();
+  private readonly canSwimFlag: CachedFlag;
 
-  constructor(private readonly grid: GridReader) {}
+  constructor(private readonly grid: GridReader) {
+    this.canSwimFlag = new CachedFlag('canSwim');
+  }
+
+  destroy(): void {
+    this.canSwimFlag.destroy();
+  }
 
   // eslint-disable-next-line complexity -- Layer-based movement validation requires many conditions
   canMoveTo(entity: Entity, fromCol: number, fromRow: number, toCol: number, toRow: number): boolean {
@@ -51,7 +58,7 @@ export class GridMovementValidator {
 
     // Block movement into water if player can't swim, or if entity is not a swimmer (enemies)
     const waterEffect = entity.get(WaterEffectComponent);
-    const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
+    const canSwim = this.canSwimFlag.get();
     if (!toCell.properties.has('bridge') && toCell.properties.has('water')) {
       if (!waterEffect || !canSwim) {
         return false;
@@ -214,7 +221,7 @@ export class GridMovementValidator {
       const centerCell = this.grid.getCell(centerCellCol, centerCellRow);
       if (centerCell && !centerCell.properties.has('bridge') && centerCell.properties.has('water')) {
         const waterEffect = entity.get(WaterEffectComponent);
-        const canSwim = WorldStateManager.getInstance().getFlag('canSwim') === 'true';
+        const canSwim = this.canSwimFlag.get();
         if (!waterEffect || !canSwim) {
           return true; // blocked
         }

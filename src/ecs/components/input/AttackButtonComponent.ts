@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import { NPCManager } from '../../../systems/NPCManager';
 import type GameScene from '../../../scenes/GameScene';
 import { TOUCH_CONTROLS_SCALE } from '../../../constants/GameConstants';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 
 const BASE_UNPRESSED_SCALE = 4.44;
 const BASE_PRESSED_SCALE = 4.86;
@@ -38,6 +38,7 @@ export class AttackButtonComponent implements Component {
   private iconOverride: string | null = null;
   private isHudVisible: boolean = true;
   private bounceTween: Phaser.Tweens.Tween | null = null;
+  private readonly canPunchFlag: CachedFlag = new CachedFlag('canPunch');
 
   constructor(private readonly scene: Phaser.Scene) {
     this.sprite = scene.add.sprite(0, 0, 'crosshair');
@@ -172,7 +173,7 @@ export class AttackButtonComponent implements Component {
     }
 
     if (this.isHudVisible) {
-      const canPunch = WorldStateManager.getInstance().getFlag('canPunch') === 'true';
+      const canPunch = this.canPunchFlag.get();
       const shouldShow = canPunch || closestNPC !== null;
       this.applyVisibility(shouldShow);
     }
@@ -215,5 +216,6 @@ export class AttackButtonComponent implements Component {
     this.ring.destroy();
     this.bg.destroy();
     this.shadow.destroy();
+    this.canPunchFlag.destroy();
   }
 }

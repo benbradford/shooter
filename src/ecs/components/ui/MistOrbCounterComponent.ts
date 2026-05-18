@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { WorldFlags } from '../../../constants/WorldFlags';
 import { Depth } from '../../../constants/DepthConstants';
 
 const ICON_SIZE_PX = 56;
@@ -44,7 +45,7 @@ export class MistOrbCounterComponent implements Component {
     if (!this.icon || !this.text) return;
 
     const wsm = WorldStateManager.getInstance();
-    const shouldShow = wsm.getFlag('show_mist_orbs') === 'true' && wsm.getFlag('canPunch') !== 'true';
+    const shouldShow = wsm.isFlagTrue(WorldFlags.showMistOrbs) && !wsm.isFlagTrue(WorldFlags.canPunch);
 
     this.icon.setVisible(shouldShow);
     this.text.setVisible(shouldShow);
@@ -59,7 +60,7 @@ export class MistOrbCounterComponent implements Component {
     this.icon.setPosition(x - ICON_SIZE_PX * 0.7, y);
     this.text.setPosition(x + ICON_SIZE_PX * 0.5, y);
 
-    const count = Number.parseInt(wsm.getFlag('mist_orb') ?? '0', 10);
+    const count = Number.parseInt(wsm.getFlag(WorldFlags.mistOrb) ?? '0', 10);
     if (count !== this.lastCount) {
       this.lastCount = count;
       this.text.setText(count.toString());

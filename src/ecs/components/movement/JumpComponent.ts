@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import type { GridReader } from '../../../systems/grid/Grid';
 import { AttackButtonComponent } from '../input/AttackButtonComponent';
-import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 import { JumpDetector, type PendingJump } from './JumpDetector';
 import { JumpAnimator } from './JumpAnimator';
 import type HudScene from '../../../scenes/HudScene';
@@ -28,6 +28,7 @@ export class JumpComponent implements Component {
   private readonly scene: Phaser.Scene | undefined;
   private readonly detector: JumpDetector;
   private readonly animator: JumpAnimator;
+  private readonly canJumpFlag: CachedFlag;
   private pendingJump: PendingJump | null = null;
   private isShowingJumpIcon = false;
 
@@ -35,6 +36,7 @@ export class JumpComponent implements Component {
     this.scene = props.scene;
     this.detector = new JumpDetector(props.grid, !!props.scene);
     this.animator = new JumpAnimator(props.grid);
+    this.canJumpFlag = new CachedFlag('canJump');
     if (props.onJumpStart) {
       this.animator.setOnJumpStart(props.onJumpStart);
     }
@@ -42,6 +44,10 @@ export class JumpComponent implements Component {
 
   isJumping(): boolean {
     return this.animator.phase !== 'idle';
+  }
+
+  onDestroy(): void {
+    this.canJumpFlag.destroy();
   }
 
   triggerWaterJump(landCol: number, landRow: number, dx: number, dy: number, enteringWater: boolean): void {
@@ -67,7 +73,7 @@ export class JumpComponent implements Component {
 
     this.animator.updateSafePosition(this.entity);
 
-    const canJump = !this.scene || WorldStateManager.getInstance().getFlag('canJump') === 'true';
+    const canJump = !this.scene || this.canJumpFlag.get();
     const newPending = canJump ? this.detector.detect(this.entity) : null;
 
     const attackButton = this.getAttackButton();

@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import type { HudBarDataSource } from '../ui/HudBarComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { WorldFlags } from '../../../constants/WorldFlags';
 
 const REGEN_DELAY_MS = 3000;
 const REGEN_RATE_PER_SEC = 20;
@@ -29,7 +30,7 @@ export class HealthComponent implements Component, HudBarDataSource {
     this.maxHealth = props.maxHealth;
     this.currentHealth = this.maxHealth;
     this.enableRegen = props.enableRegen ?? false;
-    this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue('hasAutoHeal');
+    this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue(WorldFlags.hasAutoHeal);
     this.onDeath = props.onDeath;
   }
 
@@ -77,7 +78,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   }
 
   refreshAutoHeal(): void {
-    this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue('hasAutoHeal');
+    this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue(WorldFlags.hasAutoHeal);
   }
 
   setOnDeath(callback: () => void): void {
