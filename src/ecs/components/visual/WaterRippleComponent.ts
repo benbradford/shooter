@@ -4,7 +4,7 @@ import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { WaterEffectComponent } from './WaterEffectComponent';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord, WorldCoord } from '../../../systems/grid/Grid';
 
 const RIPPLE_INTERVAL_MS = 250;
 const RIPPLE_INTERVAL_VARIANCE_MS = 100;
@@ -15,6 +15,8 @@ const RIPPLE_OFFSET_VARIANCE_PX = 15;
 export class WaterRippleComponent implements Component {
   entity!: Entity;
   private timeSinceLastRippleMs = 0;
+  private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -65,15 +67,15 @@ export class WaterRippleComponent implements Component {
     maskGraphics.setVisible(false); // Mask graphics should be invisible
     
     // Check cells within ripple radius
-    const centerCell = this.grid.worldToCell(x, y);
+    const centerCell = this.grid.worldToCellInto(x, y, this._tmpCell);
     const cellRadius = Math.ceil(rippleRadius / this.grid.cellSize);
-    
+
     for (let row = centerCell.row - cellRadius; row <= centerCell.row + cellRadius; row++) {
       for (let col = centerCell.col - cellRadius; col <= centerCell.col + cellRadius; col++) {
         const cell = this.grid.getCell(col, row);
-        
+
         if (cell?.properties.has('water')) {
-          const world = this.grid.cellToWorld(col, row);
+          const world = this.grid.cellToWorldInto(col, row, this._tmpWorld);
           
           // Check neighbors to determine which edges border land
           const hasWaterLeft = this.grid.getCell(col - 1, row)?.properties.has('water') ?? false;

@@ -416,6 +416,8 @@ The workbench includes a chat-based session system (inspired by KiRoom) that man
 - **Idle management** — sessions auto-idle after inactivity (10min), ttyd killed but tmux preserved for transparent resume
 - **Room organization** — sessions grouped by room (pill tabs at top of sidebar)
 - **Session recovery** — deduplicates tagged sessions, drops dead workflows and stale (>24h) sessions on startup
+- **Workflow singletons** — tagged sessions (`workflow:update-docs`, `fix:bugs-42`, etc.) are auto-replaced when re-triggered, preventing session list bloat
+- **Cleanup dead** — 🧹 button bulk-removes all dead/broken sessions; only appears when dead sessions exist
 
 **Session API endpoints** (in `vite.config.ts`):
 - `GET /api/sessions` — list all sessions with status
@@ -428,6 +430,7 @@ The workbench includes a chat-based session system (inspired by KiRoom) that man
 - `POST /api/sessions/delete` — permanently remove a session (`{ id }`)
 - `POST /api/sessions/capture` — capture terminal content for copy mode (`{ id }`), returns `{ text }`
 - `POST /api/sessions/update` — update session fields like room or label (`{ id, fields }`)
+- `POST /api/sessions/cleanup-dead` — bulk-remove all dead/broken (port 0) sessions
 - `GET /api/sessions/{id}/messages` — get message history for a session
 - `POST /api/sessions/{id}/send` — send text to a session (writes to tmux, stores user message)
 - `POST /api/sessions/{id}/resume` — resume a dead/idle session (respawns tmux if needed)

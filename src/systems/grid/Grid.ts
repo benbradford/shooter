@@ -12,6 +12,7 @@ export type { CellProperty, CellData } from './CellData';
 const EMPTY_SET: Set<Entity> = new Set();
 
 export type CellCoord = { col: number; row: number };
+export type WorldCoord = { x: number; y: number };
 
 export type GridReader = {
   readonly cellSize: number;
@@ -23,6 +24,7 @@ export type GridReader = {
   worldToCell(x: number, y: number): { col: number; row: number };
   worldToCellInto(x: number, y: number, out: CellCoord): CellCoord;
   cellToWorld(col: number, row: number): { x: number; y: number };
+  cellToWorldInto(col: number, row: number, out: WorldCoord): WorldCoord;
   getCell(col: number, row: number): CellData | null;
   getLayer(cell: CellData): number;
   isTransition(cell: CellData): boolean;
@@ -177,6 +179,12 @@ export class Grid implements GridReader {
    */
   cellToWorld(col: number, row: number) {
     return { x: col * this.cellSize, y: row * this.cellSize };
+  }
+
+  cellToWorldInto(col: number, row: number, out: WorldCoord): WorldCoord {
+    out.x = col * this.cellSize;
+    out.y = row * this.cellSize;
+    return out;
   }
 
   setCell(col: number, row: number, data: Partial<CellData>) {

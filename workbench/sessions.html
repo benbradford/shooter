@@ -49,6 +49,10 @@
 
   .session-list { flex: 1; overflow-y: auto; padding: 4px 0; }
   .section-label { padding: 8px 16px 4px; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .workflow-btns { padding: 4px 12px 8px; display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); }
+  .workflow-btns button { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; transition: 0.15s; }
+  .workflow-btns button:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .workflow-btns button.running { border-color: var(--accent-green); color: var(--accent-green); }
   .session-item { padding: 8px 16px; cursor: pointer; border-left: 3px solid transparent; transition: 0.15s; display: flex; align-items: center; gap: 8px; }
   .session-item:hover { background: var(--surface2); }
   .session-item.active { background: var(--surface2); border-left-color: var(--accent-blue); }
@@ -120,6 +124,8 @@
     <button class="new-btn" onclick="createSession('kiro')">+ Kiro</button>
     <button class="new-btn claude" onclick="createSession('claude')">+ Claude</button>
   </div>
+  <div class="section-label">Workflows</div>
+  <div class="workflow-btns" id="workflowBtns"></div>
   <div class="session-list" id="sessionList"></div>
 </div>
 
@@ -231,7 +237,7 @@ const QUICK_COMMANDS = {
     label: '🧠 Help Me Decide',
     agent: 'dodging-bullets',
     prompt: `Read workbench/architecture-issues.html and extract all open issues from the ISSUES array. Each issue has an 'id' field — always reference issues by their actual id (e.g. "#5", "#12"). Then analyze them and recommend which ONE I should tackle next. Consider:\n- Severity and risk\n- Fan-in (how many files depend on it)\n- Effort vs impact ratio\n- Whether fixing it unblocks other issues\n\nGive a clear recommendation with reasoning, and a suggested approach. Always use the issue's actual id number, not a sequential count.`
-  }
+  },
 };
 
 // ── Sessions ───────────────────────────────────────────────────────
@@ -239,7 +245,7 @@ async function loadSessions() {
   try {
     const res = await fetch('/api/sessions');
     sessions = await res.json();
-    if (!isRenaming) render();
+    if (!isRenaming) { render(); renderWorkflowBtns(); }
     if (autoSelectId && !activeSessionId) {
       selectSession(autoSelectId);
       window.history.replaceState({}, '', window.location.pathname);
@@ -261,8 +267,9 @@ function filteredSessions() {
 
 function render() {
   const list = filteredSessions();
-  const workflows = list.filter(s => s.tag);
-  const active = list.filter(s => !s.tag);
+  const isWorkflowTag = (tag) => tag && (tag.startsWith('quick:') || tag.startsWith('workflow:'));
+  const workflows = list.filter(s => isWorkflowTag(s.tag));
+  const active = list.filter(s => !isWorkflowTag(s.tag));
 
   let html = '';
   if (workflows.length) {
@@ -284,7 +291,7 @@ function sessionHTML(s) {
   const dotClass = s.status === 'active' ? 'alive' : 'dead';
   const time = new Date(s.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const engineIcon = s.engine === 'claude' ? '🟣 ' : '';
-  const isWorkflow = !!s.tag;
+  const isWorkflow = s.tag && (s.tag.startsWith('quick:') || s.tag.startsWith('workflow:'));
 
   const popout = s.status === 'active' ? `<button onclick="event.stopPropagation(); window.open('http://localhost:${s.port}', '_blank')" title="Pop out">↗</button><button onclick="event.stopPropagation(); openCopyMode('${s.id}')" title="Copy mode">📋</button>` : '';
 
@@ -356,9 +363,10 @@ async function createSession(engine = 'kiro') {
 async function rerunWorkflow(id, engine = 'kiro') {
   const s = sessions.find(x => x.id === id);
   if (!s) return;
-  // Match tag to QUICK_COMMANDS
+  // Match tag to QUICK_COMMANDS (try stripped tag, then check WORKFLOW_TAGS mapping)
   const tagId = (s.tag || '').replace('quick:', '').replace('workflow:', '');
-  const cmd = QUICK_COMMANDS[tagId];
+  const wfEntry = WORKFLOW_TAGS.find(w => w.tag === s.tag);
+  const cmd = QUICK_COMMANDS[tagId] || (wfEntry && QUICK_COMMANDS[wfEntry.cmdKey]);
   const prompt = cmd?.prompt || s.prompt;
   if (!prompt) { showToast('No prompt stored for this workflow'); return; }
 
@@ -497,6 +505,44 @@ function colorDiff(text) {
   }).join('\n');
 }
 
+// ── Workflow Buttons ───────────────────────────────────────────────
+const WORKFLOW_BUTTONS = [
+  { cmdKey: 'update-docs', tags: ['quick:update-docs', 'workflow:update-docs'] },
+  { cmdKey: 'commit-all', tags: ['quick:commit-all', 'workflow:commit-all'] },
+  { cmdKey: 'refresh-issues', tags: ['quick:refresh-issues', 'workflow:refresh-issues'] },
+  { cmdKey: 'help-decide', tags: ['quick:help-decide', 'workflow:decide'] },
+];
+
+// Flat list for tag matching in rerunWorkflow
+const WORKFLOW_TAGS = WORKFLOW_BUTTONS.flatMap(w => w.tags.map(tag => ({ tag, cmdKey: w.cmdKey })));
+
+function renderWorkflowBtns() {
+  const el = document.getElementById('workflowBtns');
+  el.innerHTML = WORKFLOW_BUTTONS.map(w => {
+    const cmd = QUICK_COMMANDS[w.cmdKey];
+    const running = sessions.some(s => w.tags.includes(s.tag) && s.status === 'active');
+    return `<button class="${running ? 'running' : ''}" onclick="runWorkflow('${w.cmdKey}', '${w.tags[0]}')">${cmd.label}</button>`;
+  }).join('');
+}
+
+async function runWorkflow(cmdKey, tag) {
+  const cmd = QUICK_COMMANDS[cmdKey];
+  if (!cmd) return;
+  try {
+    const res = await fetch('/api/sessions/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ label: cmd.label, prompt: cmd.prompt, agent: cmd.agent, tag })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await loadSessions();
+      setTimeout(() => selectSession(data.session.id), 800);
+      showToast(`${cmd.label} started`);
+    }
+  } catch (e) { showToast('Failed: ' + e.message); }
+}
+
 // ── Utilities ──────────────────────────────────────────────────────
 function escapeHtml(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
@@ -519,6 +565,7 @@ window.addEventListener('pageshow', async () => {
 });
 
 renderRoomBar();
+renderWorkflowBtns();
 loadSessions();
 pollInterval = setInterval(loadSessions, 5000);
 </script>

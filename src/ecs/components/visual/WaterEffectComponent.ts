@@ -10,7 +10,7 @@ import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { JumpComponent } from '../movement/JumpComponent';
 import type { CollisionBox } from '../combat/CollisionComponent';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, WorldCoord } from '../../../systems/grid/Grid';
 
 const SWIMMING_COLLISION_BOX: CollisionBox = { offsetX: 0, offsetY: 0, width: 48, height: 32 };
 
@@ -25,6 +25,7 @@ export class WaterEffectComponent implements Component {
   private spriteMaskActive = false;
   private swimmingSplashTimerMs: number = 0;
   private pendingEntrySplash = false;
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
   constructor(private readonly scene: Phaser.Scene, private readonly splashTextureKey: string = 'water_splash') {}
 
@@ -112,7 +113,7 @@ export class WaterEffectComponent implements Component {
     }
 
     const transform = this.entity.require(TransformComponent);
-    const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
+    const cellWorld = grid.cellToWorldInto(gridPos.currentCell.col, gridPos.currentCell.row, this._tmpWorld);
     const cellCenterX = cellWorld.x + grid.cellSize / 2;
     const cellCenterY = cellWorld.y + grid.cellSize / 2;
     const halfCell = grid.cellSize / 2;
@@ -280,7 +281,7 @@ export class WaterEffectComponent implements Component {
       for (let col = centerCell.col - cellRadius; col <= centerCell.col + cellRadius; col++) {
         const cell = grid.getCell(col, row);
         if (cell?.properties.has('water')) {
-          const world = grid.cellToWorld(col, row);
+          const world = grid.cellToWorldInto(col, row, this._tmpWorld);
 
           const hasWaterLeft = grid.getCell(col - 1, row)?.properties.has('water') ?? false;
           const hasWaterRight = grid.getCell(col + 1, row)?.properties.has('water') ?? false;
@@ -324,7 +325,7 @@ export class WaterEffectComponent implements Component {
         const cell = grid.getCell(col, row);
         if (!cell?.properties.has('water')) continue;
         const hasWaterBelow = grid.getCell(col, row + 1)?.properties.has('water') ?? false;
-        const world = grid.cellToWorld(col, row);
+        const world = grid.cellToWorldInto(col, row, this._tmpWorld);
         const bottomY = hasWaterBelow ? world.y + grid.cellSize : world.y + grid.cellSize - BOTTOM_INSET_PX;
         if (bottomY > maxBottomY) maxBottomY = bottomY;
       }

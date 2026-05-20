@@ -3,6 +3,7 @@ import type { Entity } from '../../Entity';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { SpriteComponent } from '../core/SpriteComponent';
 import type { WorldStateManager } from '../../../systems/WorldStateManager';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 
 export type LeverState = 'on' | 'off';
 
@@ -22,6 +23,7 @@ export class LeverComponent implements Component {
   private readonly eventManager: EventManagerSystem;
   private readonly oneShot: boolean;
   private readonly worldState: WorldStateManager;
+  private readonly lockedFlag: CachedFlag;
   private state: LeverState;
 
   constructor(props: LeverComponentProps) {
@@ -34,6 +36,7 @@ export class LeverComponent implements Component {
     const flagKey = `${this.worldState.getCurrentLevelName()}_lever_${props.entityId}`;
     const saved = this.worldState.getFlag(flagKey);
     this.state = (saved === 'on' || saved === 'off') ? saved : props.startState;
+    this.lockedFlag = new CachedFlag(`${flagKey}_locked`, props.worldState);
   }
 
   private get flagPrefix(): string {
@@ -41,7 +44,7 @@ export class LeverComponent implements Component {
   }
 
   private get isLocked(): boolean {
-    return this.oneShot && this.worldState.getFlag(`${this.flagPrefix}_locked`) === 'true';
+    return this.oneShot && this.lockedFlag.get();
   }
 
   init(): void {
@@ -52,6 +55,10 @@ export class LeverComponent implements Component {
     if (this.state === 'on') {
       sprite.sprite.setFlipX(true);
     }
+  }
+
+  onDestroy(): void {
+    this.lockedFlag.destroy();
   }
 
   activate(): void {

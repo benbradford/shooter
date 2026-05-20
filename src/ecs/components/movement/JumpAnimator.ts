@@ -1,5 +1,5 @@
 import type { Entity } from '../../Entity';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord, WorldCoord } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { InputComponent } from '../input/InputComponent';
@@ -51,6 +51,12 @@ export class JumpAnimator {
   private safeX = 0;
   private safeY = 0;
 
+  private readonly _tmpCells: readonly [CellCoord, CellCoord, CellCoord, CellCoord, CellCoord] = [
+    { col: 0, row: 0 }, { col: 0, row: 0 }, { col: 0, row: 0 },
+    { col: 0, row: 0 }, { col: 0, row: 0 },
+  ];
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
+
   private onJumpStart?: (info: JumpStartInfo) => void;
 
   constructor(private readonly grid: GridReader) {}
@@ -85,7 +91,7 @@ export class JumpAnimator {
     this.startY = transform.y;
     this.originalScale = transform.scale;
 
-    const landWorld = this.grid.cellToWorld(landCol, landRow);
+    const landWorld = this.grid.cellToWorldInto(landCol, landRow, this._tmpWorld);
     this.targetX = dx === 0 ? transform.x : landWorld.x + this.grid.cellSize / 2;
     this.targetY = dy === 0 ? transform.y : landWorld.y + this.grid.cellSize / 2;
 
@@ -228,7 +234,8 @@ export class JumpAnimator {
 
     const gridPos = entity.get(GridPositionComponent);
     if (gridPos) {
-      gridPos.currentCell = this.grid.worldToCell(transform.x, transform.y);
+      this.grid.worldToCellInto(transform.x, transform.y, this._tmpCells[0]);
+      gridPos.currentCell = this._tmpCells[0];
     }
 
     this.reEnableSystems(entity, transform);
@@ -244,10 +251,10 @@ export class JumpAnimator {
     if (gridPos) {
       const cx = transform.x + gridPos.collisionBox.offsetX;
       const cy = transform.y;
-      gridPos.currentCell = this.grid.worldToCell(cx, cy);
-      // Use collision box center for layer (determines collision rules)
+      this.grid.worldToCellInto(cx, cy, this._tmpCells[0]);
+      gridPos.currentCell = this._tmpCells[0];
       const feetY = transform.y + gridPos.collisionBox.offsetY;
-      const layerCell = this.grid.worldToCell(cx, feetY);
+      const layerCell = this.grid.worldToCellInto(cx, feetY, this._tmpCells[1]);
       const landCell = this.grid.getCell(layerCell.col, layerCell.row);
       if (landCell) {
         gridPos.currentLayer = landCell.layer;
@@ -268,10 +275,10 @@ export class JumpAnimator {
     const cx = transform.x + box.offsetX;
     const cy = transform.y + box.offsetY;
 
-    const leftCell = this.grid.worldToCell(cx - halfW, cy);
-    const rightCell = this.grid.worldToCell(cx + halfW, cy);
-    const topCell = this.grid.worldToCell(cx, cy - halfH);
-    const bottomCell = this.grid.worldToCell(cx, cy + halfH);
+    const leftCell = this.grid.worldToCellInto(cx - halfW, cy, this._tmpCells[0]);
+    const rightCell = this.grid.worldToCellInto(cx + halfW, cy, this._tmpCells[1]);
+    const topCell = this.grid.worldToCellInto(cx, cy - halfH, this._tmpCells[2]);
+    const bottomCell = this.grid.worldToCellInto(cx, cy + halfH, this._tmpCells[3]);
 
     const leftData = this.grid.getCell(leftCell.col, leftCell.row);
     const rightData = this.grid.getCell(rightCell.col, rightCell.row);

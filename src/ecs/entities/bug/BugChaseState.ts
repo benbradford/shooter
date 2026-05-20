@@ -8,7 +8,7 @@ import { BugHopComponent } from '../../components/movement/BugHopComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { HealthComponent } from '../../components/core/HealthComponent';
 import { BugBurstComponent } from '../../components/visual/BugBurstComponent';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord, WorldCoord } from '../../../systems/grid/Grid';
 import { Pathfinder } from '../../../systems/Pathfinder';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { FearComponent } from '../../components/combat/FearComponent';
@@ -34,6 +34,8 @@ export class BugChaseState implements IState {
   private pathRecalcTimer = 0;
   private currentPathIndex = 0;
   private attackCooldownMs = 0;
+  private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
   constructor(entity: Entity, playerEntity: Entity, grid: GridReader, speedPxPerSec: number, scene: Phaser.Scene) {
     this.entity = entity;
@@ -147,7 +149,7 @@ export class BugChaseState implements IState {
     if (this.pathRecalcTimer < PATH_RECALC_INTERVAL_MS && this.path !== null) return;
 
     this.pathRecalcTimer = 0;
-    const bugCell = this.grid.worldToCell(transform.x, transform.y);
+    const bugCell = this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
     const playerCell = getPlayerFeetCell(this.playerEntity, this.grid);
     const gridPos = this.entity.require(GridPositionComponent);
 
@@ -179,7 +181,7 @@ export class BugChaseState implements IState {
             const hop = this.entity.get(BugHopComponent);
             // eslint-disable-next-line max-depth
             if (hop && !hop.isActive()) {
-              const targetWorld = this.grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row + 2);
+              const targetWorld = this.grid.cellToWorldInto(gridPos.currentCell.col, gridPos.currentCell.row + 2, this._tmpWorld);
               const targetX = targetWorld.x + this.grid.cellSize / 2;
               const targetY = targetWorld.y + this.grid.cellSize / 2;
               hop.hop(targetX, targetY, gridPos.currentCell.col, gridPos.currentCell.row + 2);
@@ -233,7 +235,7 @@ export class BugChaseState implements IState {
             }
           }
 
-          const targetWorld = this.grid.cellToWorld(hopCol, hopRow);
+          const targetWorld = this.grid.cellToWorldInto(hopCol, hopRow, this._tmpWorld);
           const targetX = targetWorld.x + this.grid.cellSize / 2;
           const targetY = targetWorld.y + this.grid.cellSize / 2;
           hop.hop(targetX, targetY, hopCol, hopRow);
@@ -253,7 +255,7 @@ export class BugChaseState implements IState {
     gridPos: GridPositionComponent,
     sprite: SpriteComponent
   ): void {
-    const targetWorld = this.grid.cellToWorld(this.targetCellCol, this.targetCellRow);
+    const targetWorld = this.grid.cellToWorldInto(this.targetCellCol, this.targetCellRow, this._tmpWorld);
     const targetX = targetWorld.x + this.grid.cellSize / 2;
     const targetY = targetWorld.y + this.grid.cellSize / 2;
     const distance = Math.hypot(targetX - transform.x, targetY - transform.y);
@@ -298,7 +300,7 @@ export class BugChaseState implements IState {
   }
 
   private arriveAtTarget(transform: TransformComponent, _gridPos: GridPositionComponent): void {
-    const targetWorld = this.grid.cellToWorld(this.targetCellCol, this.targetCellRow);
+    const targetWorld = this.grid.cellToWorldInto(this.targetCellCol, this.targetCellRow, this._tmpWorld);
     transform.x = targetWorld.x + this.grid.cellSize / 2;
     transform.y = targetWorld.y + this.grid.cellSize / 2;
     this.isMovingToCell = false;

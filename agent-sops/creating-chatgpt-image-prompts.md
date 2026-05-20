@@ -18,6 +18,55 @@ Trigger phrases include:
 If the user only describes what they want (e.g. "I need a prompt for an old bush
 sprite"), proceed without further confirmation.
 
+## Core Philosophy: Gameplay Assets, NOT Illustrations
+
+The single most important distinction: **you are creating gameplay assets, not
+illustrations.** Image models default toward showcase art, concept renders,
+cinematic composition, and object presentation. Game sprites need readability,
+silhouette clarity, map integration, consistent perspective, and low visual
+noise.
+
+A good top-down sprite is closer to **iconography and cartography** than
+realistic rendering. The player only needs to instantly understand: what it is,
+where collision is, and whether it matters.
+
+### The 10 Core Rules
+
+1. **Prioritize gameplay readability over realism.** Props are exaggerated,
+   simplified, symbolic — not physically accurate.
+2. **Describe the sprite's FUNCTION.** Say "top-down gameplay map prop
+   representing X" not just "X". The phrase "gameplay map prop" is powerful.
+3. **Define the camera aggressively.** Models drift toward isometric/3/4.
+   Explicitly say: viewed directly from above, 90-degree orthographic, no
+   perspective convergence.
+4. **Ban presentation rendering.** Not concept art, not a diorama, not a
+   showcase render, not a display model, not cinematic.
+5. **Tilemap integration is critical.** "The sprite should read correctly when
+   placed directly onto a grass tilemap" forces cleaner edges and less haloing.
+6. **Reduce texture density.** Use broad readable shapes instead of fine
+   realistic detail. Avoid excessive texture noise and micro-detail.
+7. **Define silhouette importance.** "The object silhouette must be readable
+   instantly at gameplay scale" — many generated props only look good zoomed in.
+8. **Avoid environmental ownership.** The terrain belongs to the map, not the
+   sprite. The object should terminate directly into transparency without
+   environmental blending.
+9. **Use existing games as functional references.** A Link to the Past, Minish
+   Cap, GBA Pokemon, Secret of Mana, Golden Sun — for readability reference, not
+   style copying.
+10. **Think in terms of map symbols.** Props are closer to cartographic symbols
+    than realistic objects.
+
+### Strongest Universal Phrases
+
+These are the highest-value steering lines discovered through iteration:
+
+- `DESIGNED TO SIT DIRECTLY ON A TILEMAP`
+- `DESIGNED AS A GAMEPLAY MAP OBJECT`
+- `READABLE AT GAMEPLAY SCALE`
+- `VIEWED DIRECTLY FROM ABOVE`
+- `THE TERRAIN BELONGS TO THE MAP, NOT THE SPRITE`
+- `Object proportions should prioritize gameplay readability over realism`
+
 ## Why ChatGPT drifts back to bad asset output
 
 The model has a strong prior that a noun like "well", "cart", "bush" is part of
@@ -36,12 +85,13 @@ Describe the request as a *modular sprite*, not as a *thing in a scene*.
 
 ## Reusable prompt template
 
-Hand the user this exact block, with `[SUBJECT]` and `[DETAIL]` slots filled in
-based on what they asked for:
+Hand the user this exact block, with `[SUBJECT]`, `[INCLUDE DETAILS]`, and
+`[EXCLUDE DETAILS]` slots filled in based on what they asked for:
 
 ```
-Top-down RPG prop sprite of [SUBJECT] for a 2D game.
-ONLY the [SUBJECT] structure itself should be visible.
+SNES Zelda-style top-down world prop sprite of [SUBJECT] for a 2D tile-based RPG.
+
+ONLY the [SUBJECT] itself should be visible.
 
 The asset must have:
 - fully transparent alpha background
@@ -54,32 +104,79 @@ The asset must have:
 - NO baked floor underneath
 - NO vignette
 - NO feathered edge blending
+- NO background color whatsoever
 
-The [SUBJECT] should end cleanly at its outer edges, with full transparency
-immediately outside the object's silhouette.
+The object must end cleanly at the outer edges with immediate transparency outside the silhouette.
 
 Include:
-- [DETAIL 1]
-- [DETAIL 2]
-- [DETAIL 3]
+- [INCLUDE DETAIL 1]
+- [INCLUDE DETAIL 2]
+- [INCLUDE DETAIL 3]
 
-Perspective:
-- true top-down RPG perspective
-- readable gameplay silhouette
-- simplified stylized game prop
-- clean shape language
-- not painterly concept art
+Exclude:
+- [EXCLUDE DETAIL 1]
+- [EXCLUDE DETAIL 2]
 
-Soft minimal contact shadow directly beneath the [SUBJECT] only,
-no wider than the object's footprint.
-Square canvas.
+VISUAL STYLE:
+- SNES Zelda-style gameplay prop
+- A Link to the Past inspired readability
+- Minish Cap inspired world object design
+- sprite-sheet asset aesthetic
+- stylized 2D game prop
+- tilemap-friendly silhouette
+- readable at small scale
+- simplified gameplay-focused forms
+- hand-painted pixel-art-inspired texture treatment
+- grounded but slightly stylized proportions
+- object proportions prioritize gameplay readability over realism
+- broad readable shapes instead of fine realistic detail
+- designed to sit directly on a tilemap
+- the terrain belongs to the map, not the sprite
+
+PERSPECTIVE:
+- true 90-degree overhead orthographic view
+- extremely flattened gameplay perspective
+- viewed directly from above
+- roof occupies most of the sprite
+- walls minimally visible
+- NO visible front facade
+- NO isometric angle
+- NO 3/4 camera angle
+- NO cinematic perspective
+- NO perspective convergence
+- designed like a classic Zelda map object
+- designed as a gameplay map object
+- designed for gameplay readability first
+- object silhouette must be readable instantly at gameplay scale
+
+LIGHTING:
+- soft ambient lighting only
+- subtle shadow directly beneath object only
+- NO dramatic directional lighting
+- NO rim lighting
+- NO studio lighting
+- NO environmental bounce lighting
+
+RENDERING:
+- clean sprite edges
+- crisp readable silhouette
+- no painterly concept art look
+- no realistic 3D render appearance
+- no diorama presentation
+- no display-model presentation
+- should feel like an in-game asset, not an illustration
+
+CANVAS:
+- square canvas
 ```
 
-The two non-negotiable lines are:
+The non-negotiable lines are:
 
-- **"ONLY the [SUBJECT] structure itself should be visible"**
-- **"end cleanly at its outer edges, with full transparency immediately outside
-  the object's silhouette"**
+- **"ONLY the [SUBJECT] itself should be visible"**
+- **"The object must end cleanly at the outer edges with immediate transparency
+  outside the silhouette"**
+- The full PERSPECTIVE block (prevents isometric/3/4 view drift)
+- The full VISUAL STYLE block (anchors to SNES Zelda aesthetic)
 
 Without those, the negative list does about half its job.
 
@@ -233,8 +330,9 @@ Response:
 > Subject: faded old bush prop, dry/sparse, suitable for grass or wilds theme.
 >
 > ```
-> Top-down RPG prop sprite of an old faded bush for a 2D game.
-> ONLY the bush structure itself should be visible.
+> SNES Zelda-style top-down world prop sprite of an old faded bush for a 2D tile-based RPG.
+>
+> ONLY the bush itself should be visible.
 >
 > The asset must have:
 > - fully transparent alpha background
@@ -247,9 +345,9 @@ Response:
 > - NO baked floor underneath
 > - NO vignette
 > - NO feathered edge blending
+> - NO background color whatsoever
 >
-> The bush should end cleanly at its outer leaf and twig edges, with full
-> transparency immediately outside the silhouette.
+> The object must end cleanly at the outer edges with immediate transparency outside the silhouette.
 >
 > Include:
 > - sparse, irregular foliage clusters
@@ -257,16 +355,55 @@ Response:
 > - dry exposed twigs visible between the leaves
 > - a few yellowing leaves at the bottom
 >
-> Perspective:
-> - true top-down RPG perspective
-> - readable gameplay silhouette
-> - simplified stylized game prop
-> - clean shape language
-> - not painterly concept art
+> Exclude:
+> - vibrant green colors
+> - tidy hedge shape
+> - flowers or fruit
 >
-> Soft minimal contact shadow directly beneath the bush only,
-> no wider than the object's footprint.
-> Square canvas.
+> VISUAL STYLE:
+> - SNES Zelda-style gameplay prop
+> - A Link to the Past inspired readability
+> - Minish Cap inspired world object design
+> - sprite-sheet asset aesthetic
+> - stylized 2D game prop
+> - tilemap-friendly silhouette
+> - readable at small scale
+> - simplified gameplay-focused forms
+> - hand-painted pixel-art-inspired texture treatment
+> - grounded but slightly stylized proportions
+>
+> PERSPECTIVE:
+> - true 90-degree overhead orthographic view
+> - extremely flattened gameplay perspective
+> - roof occupies most of the sprite
+> - walls minimally visible
+> - NO visible front facade
+> - NO isometric angle
+> - NO 3/4 camera angle
+> - NO cinematic perspective
+> - NO perspective convergence
+> - designed like a classic Zelda map object
+> - designed for gameplay readability first
+>
+> LIGHTING:
+> - soft ambient lighting only
+> - subtle shadow directly beneath object only
+> - NO dramatic directional lighting
+> - NO rim lighting
+> - NO studio lighting
+> - NO environmental bounce lighting
+>
+> RENDERING:
+> - clean sprite edges
+> - crisp readable silhouette
+> - no painterly concept art look
+> - no realistic 3D render appearance
+> - no diorama presentation
+> - no display-model presentation
+> - should feel like an in-game asset, not an illustration
+>
+> CANVAS:
+> - square canvas
 > ```
 >
 > Detail choices: faded = desaturated olive + dust-grey rather than vivid

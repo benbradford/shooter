@@ -16,6 +16,7 @@ import { StateMachineComponent } from '../core/StateMachineComponent';
 import { BugBurstComponent } from '../visual/BugBurstComponent';
 import { SoundManager } from '../../../systems/SoundManager';
 import type { WorldStateManager } from '../../../systems/WorldStateManager';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 import { Depth } from '../../../constants/DepthConstants';
 
 const BEAM_OUTER_WIDTH_PX = 8;
@@ -55,7 +56,6 @@ export class LaserBeamComponent implements Component, EventListener {
   private readonly grid: GridReader;
   private readonly dirX: number;
   private readonly dirY: number;
-  private readonly flagName: string;
   private readonly layer: number;
   private readonly blockedAreaManager?: BlockedAreaManager;
   private readonly entityManager: EntityManager;
@@ -66,6 +66,7 @@ export class LaserBeamComponent implements Component, EventListener {
   private readonly onDestroyEvent?: string;
   private readonly eventManager?: EventManagerSystem;
   private readonly worldState: WorldStateManager;
+  private readonly onFlag: CachedFlag;
 
   private isOn = true;
   private isDestroyed = false;
@@ -80,13 +81,13 @@ export class LaserBeamComponent implements Component, EventListener {
   constructor(props: LaserBeamProps) {
     this.scene = props.scene;
     this.grid = props.grid;
-    this.flagName = props.flagName;
     this.layer = props.layer;
     this.blockedAreaManager = props.blockedAreaManager;
     this.entityManager = props.entityManager;
     this.baseSprite = props.baseSprite;
     this.onDestroyEvent = props.onDestroyEvent;
     this.worldState = props.worldState;
+    this.onFlag = new CachedFlag(props.flagName, props.worldState, (v) => v !== 'false');
 
     const rad = (props.angle - 90) * Math.PI / 180;
     this.dirX = Math.cos(rad);
@@ -157,8 +158,7 @@ export class LaserBeamComponent implements Component, EventListener {
     this.pulseTimeMs += delta;
     if (this.damageCooldownMs > 0) this.damageCooldownMs -= delta;
 
-    const flagValue = this.worldState.getFlag(this.flagName);
-    this.isOn = flagValue !== 'false';
+    this.isOn = this.onFlag.get();
 
     if (!this.isOn) {
       this.graphics.setVisible(false);
@@ -185,6 +185,7 @@ export class LaserBeamComponent implements Component, EventListener {
   }
 
   onDestroy(): void {
+    this.onFlag.destroy();
     this.graphics.destroy();
     this.emitter.destroy();
     this.nozzleSprite?.destroy();

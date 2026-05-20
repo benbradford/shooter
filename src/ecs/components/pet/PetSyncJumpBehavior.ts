@@ -1,5 +1,5 @@
 import type { Entity } from '../../Entity';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord, WorldCoord } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
@@ -24,6 +24,8 @@ export class PetSyncJumpBehavior {
   private syncFallTimerMs = 0;
   private syncFallStartY = 0;
   private originalScale = 1;
+  private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
   constructor(
     private readonly entity: Entity,
@@ -35,7 +37,7 @@ export class PetSyncJumpBehavior {
     const transform = this.entity.require(TransformComponent);
     this.syncJumpStartX = transform.x;
     this.syncJumpStartY = transform.y;
-    const cellWorld = this.grid.cellToWorld(landCol, landRow);
+    const cellWorld = this.grid.cellToWorldInto(landCol, landRow, this._tmpWorld);
     this.syncJumpTargetX = cellWorld.x + this.grid.cellSize / 2;
     this.syncJumpTargetY = cellWorld.y + this.grid.cellSize / 2;
     this.syncJumpDurationMs = isFallJump ? flightDurationMs : durationMs;
@@ -96,7 +98,7 @@ export class PetSyncJumpBehavior {
     if (this.syncFallTimerMs >= SYNC_FALL_DURATION_MS + SYNC_FALL_FINISH_DELAY_MS) {
       transform.scale = this.originalScale;
       const playerFeetCell = getPlayerFeetCell(this.playerEntity, this.grid);
-      const cellWorld = this.grid.cellToWorld(playerFeetCell.col, playerFeetCell.row);
+      const cellWorld = this.grid.cellToWorldInto(playerFeetCell.col, playerFeetCell.row, this._tmpWorld);
       transform.x = cellWorld.x + this.grid.cellSize / 2;
       transform.y = cellWorld.y + this.grid.cellSize / 2;
       const shadow = this.entity.get(ShadowComponent);
@@ -112,7 +114,8 @@ export class PetSyncJumpBehavior {
     const petGridPos = this.entity.get(GridPositionComponent);
     if (playerGridPos && petGridPos) {
       petGridPos.currentLayer = playerGridPos.currentLayer;
-      petGridPos.currentCell = this.grid.worldToCell(transform.x, transform.y);
+      this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
+      petGridPos.currentCell = this._tmpCell;
     }
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) {

@@ -94,6 +94,12 @@ const transform = this.entity.get(TransformComponent);
 ### Asset registration
 Register in `src/assets/AssetRegistry.ts`, load in `AssetLoader.ts`, reference by key.
 
+### Adding a background texture (4 steps — all required)
+1. Add PNG to `public/assets/cell_drawables/`
+2. Register in `src/assets/AssetRegistry.ts` (key, path, type: `'image'`)
+3. Add key to the `editor` asset group array in `AssetRegistry.ts` (without this, the editor can't show it)
+4. Add key to `BACKGROUND_TEXTURE_KEYS` in `editor/panels/TexturePicker.ts`
+
 ## Level Themes
 
 dungeon, swamp, grass, wilds, tunnels — each with their own renderer in `src/scenes/theme/`.

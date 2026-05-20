@@ -12,6 +12,7 @@ const BACKGROUND_TEXTURE_KEYS = [
   'stone_floor', 'stone_stairs', 'stone_wall', 'submerged_rock1',
   'table1', 'table2', 'tree1', 'tree2', 'wall_cracked', 'wall_torch',
   'sconce_bg', 'grass1', 'grass2', 'rock', 'dungeon_vase', 'grey_platform', 'well',
+  'crumbled_cottage', 'abandoned_hut', 'shrine',
 ];
 
 const ANIMATED_TEXTURE_KEYS = [

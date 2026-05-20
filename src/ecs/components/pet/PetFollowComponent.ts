@@ -1,6 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
 import { AnimationComponent } from '../core/AnimationComponent';
@@ -67,6 +67,7 @@ export class PetFollowComponent implements Component {
 
   private syncJumpBehavior!: PetSyncJumpBehavior;
   private readonly pathfinder: Pathfinder;
+  private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
 
   constructor(
     private readonly grid: GridReader,
@@ -301,7 +302,7 @@ export class PetFollowComponent implements Component {
   private recalculatePath(): void {
     const transform = this.entity.require(TransformComponent);
 
-    const startCell = this.grid.worldToCell(transform.x, transform.y);
+    const startCell = this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
     const goalCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
@@ -380,7 +381,7 @@ export class PetFollowComponent implements Component {
     const angle = Math.random() * Math.PI * 2;
     const targetX = playerTransform.x + Math.cos(angle) * WANDER_RADIUS_PX;
     const targetY = playerTransform.y + Math.sin(angle) * WANDER_RADIUS_PX;
-    const targetCellCoord = this.grid.worldToCell(targetX, targetY);
+    const targetCellCoord = this.grid.worldToCellInto(targetX, targetY, this._tmpCell);
     const targetCell = this.grid.getCell(targetCellCoord.col, targetCellCoord.row);
     if (targetCell?.properties.has('void')) {
       this.startWanderPause(anim, playerTransform);

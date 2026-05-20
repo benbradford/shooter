@@ -4,6 +4,7 @@ import type { TransformComponent } from '../core/TransformComponent';
 import type { InputComponent } from '../input/InputComponent';
 import type { ControlModeComponent } from '../input/ControlModeComponent';
 import type { LevelData } from '../../../systems/level/LevelLoader';
+import type { WorldCoord } from '../../../systems/grid/Grid';
 import { GridPositionComponent } from './GridPositionComponent';
 import { GridCollisionComponent } from './GridCollisionComponent';
 import { HealthComponent } from '../core/HealthComponent';
@@ -31,6 +32,7 @@ export class WalkComponent implements Component {
   private velocityX = 0;
   private velocityY = 0;
   private enabled = true;
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
   
   getVelocityX(): number {
     return this.velocityX;
@@ -150,13 +152,13 @@ export class WalkComponent implements Component {
         
         let checkCol = gridPos.currentCell.col;
         let checkRow = gridPos.currentCell.row;
-        
+        const cellWorld = grid.cellToWorldInto(gridPos.currentCell.col, gridPos.currentCell.row, this._tmpWorld);
+
         if (flowDir === 'left') {
           checkCol -= 1;
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextWater = nextCell?.properties.has('water') ?? false;
           const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
-          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
           const cellEdgeX = cellWorld.x;
           const distToBlocker = this.transformComp.x - cellEdgeX;
           if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
@@ -167,7 +169,6 @@ export class WalkComponent implements Component {
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextWater = nextCell?.properties.has('water') ?? false;
           const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
-          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
           const cellEdgeX = cellWorld.x + grid.cellSize;
           const distToBlocker = cellEdgeX - this.transformComp.x;
           if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
@@ -178,7 +179,6 @@ export class WalkComponent implements Component {
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextWater = nextCell?.properties.has('water') ?? false;
           const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
-          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
           const cellEdgeY = cellWorld.y;
           const distToBlocker = this.transformComp.y - cellEdgeY;
           if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {
@@ -189,7 +189,6 @@ export class WalkComponent implements Component {
           const nextCell = grid.getCell(checkCol, checkRow);
           const isNextWater = nextCell?.properties.has('water') ?? false;
           const isNextBlocked = nextCell?.properties.has('blocked') ?? false;
-          const cellWorld = grid.cellToWorld(gridPos.currentCell.col, gridPos.currentCell.row);
           const cellEdgeY = cellWorld.y + grid.cellSize;
           const distToBlocker = cellEdgeY - this.transformComp.y;
           if ((isNextWater && !isNextBlocked) || distToBlocker > BLOCKER_STOP_DISTANCE_PX) {

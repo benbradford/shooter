@@ -2,7 +2,7 @@ import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { SpriteComponent } from '../core/SpriteComponent';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord } from '../../../systems/grid/Grid';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 
 export type RockArcProps = {
@@ -37,6 +37,7 @@ export class RockArcComponent implements Component {
   private readonly skipDistance: number;
   private maxDropPx = 25;
   private readonly playerFeetY: number;
+  private readonly _tmpCells: readonly [CellCoord, CellCoord] = [{ col: 0, row: 0 }, { col: 0, row: 0 }];
 
   constructor(props: RockArcProps) {
     this.dirX = props.dirX;
@@ -57,8 +58,8 @@ export class RockArcComponent implements Component {
 
   private computeMaxDrop(groundY: number, transform: TransformComponent): void {
     const LAND_DROP_PX = 25;
-    const currentCell = this.grid.worldToCell(transform.x, groundY);
-    const cellBelow = this.grid.worldToCell(transform.x, groundY + LAND_DROP_PX);
+    const currentCell = this.grid.worldToCellInto(transform.x, groundY, this._tmpCells[0]);
+    const cellBelow = this.grid.worldToCellInto(transform.x, groundY + LAND_DROP_PX, this._tmpCells[1]);
     if (cellBelow.row !== currentCell.row) {
       const cellBelowData = this.grid.getCell(cellBelow.col, cellBelow.row);
       const cellBelowLayer = cellBelowData?.layer ?? 0;
@@ -101,7 +102,7 @@ export class RockArcComponent implements Component {
         }
 
         if (!this.isStopped && !this.passedThroughStairs) {
-          const cell = this.grid.worldToCell(nextX, groundY);
+          const cell = this.grid.worldToCellInto(nextX, groundY, this._tmpCells[0]);
           const cellData = this.grid.getCell(cell.col, cell.row);
           if (cellData && this.grid.isTransition(cellData)) {
             this.passedThroughStairs = true;

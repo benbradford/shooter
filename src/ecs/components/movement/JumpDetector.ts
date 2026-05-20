@@ -1,5 +1,5 @@
 import type { Entity } from '../../Entity';
-import type { GridReader } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord, WorldCoord } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../core/TransformComponent';
 import { InputComponent } from '../input/InputComponent';
 import { WalkComponent } from '../movement/WalkComponent';
@@ -18,6 +18,8 @@ export type PendingJump = {
 export class JumpDetector {
   private prevTransformX = 0;
   private prevTransformY = 0;
+  private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
+  private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
   constructor(
     private readonly grid: GridReader,
@@ -58,7 +60,7 @@ export class JumpDetector {
     const cx = transform.x + offsetX;
     const cy = transform.y + offsetY;
 
-    const fromCell = this.grid.worldToCell(cx, cy);
+    const fromCell = this.grid.worldToCellInto(cx, cy, this._tmpCell);
     const fromCellData = this.grid.getCell(fromCell.col, fromCell.row);
     if (!fromCellData) return null;
 
@@ -71,7 +73,7 @@ export class JumpDetector {
     }
 
     if (this.hasScene) {
-      const cellWorld = this.grid.cellToWorld(fromCell.col, fromCell.row);
+      const cellWorld = this.grid.cellToWorldInto(fromCell.col, fromCell.row, this._tmpWorld);
       const EDGE_PROXIMITY_PX = 18;
       if (dx > 0 && (cellWorld.x + this.grid.cellSize) - cx > EDGE_PROXIMITY_PX) return null;
       if (dx < 0 && cx - cellWorld.x > EDGE_PROXIMITY_PX) return null;

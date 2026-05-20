@@ -73,7 +73,18 @@ export default defineConfig([
       "unicorn/no-array-method-this-argument": "error",
       "unicorn/prefer-array-find": "error",
       "unicorn/no-array-push-push": "warn",
-      "unicorn/prefer-set-has": "warn"
+      "unicorn/prefer-set-has": "warn",
+      "no-restricted-syntax": [
+        "error",
+        {
+          "selector": "MethodDefinition[key.name='update'] CallExpression[callee.property.name='getFlag']",
+          "message": "Do not call worldState.getFlag() inside update() — use CachedFlag instead (see src/systems/state/CachedFlag.ts)."
+        },
+        {
+          "selector": "MethodDefinition[key.name='update'] CallExpression[callee.property.name='isFlagTrue']",
+          "message": "Do not call worldState.isFlagTrue() inside update() — use CachedFlag instead (see src/systems/state/CachedFlag.ts)."
+        }
+      ]
     }
   },
   tseslint.configs.recommended,
