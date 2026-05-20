@@ -5,10 +5,12 @@ import LoadingScene from "./scenes/LoadingScene";
 import BootScene from "./scenes/BootScene";
 import TitleScene from "./scenes/TitleScene";
 import ProfileSelectScene from "./scenes/ProfileSelectScene";
-import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AttackButtonComponent, WalkComponent, StateMachineComponent, HealthComponent, WaterEffectComponent } from "./ecs";
+import { AttackComboComponent } from "./ecs/components/combat/AttackComboComponent";
 import { PetAbilityComponent } from "./ecs/components/pet/PetAbilityComponent";
 import { DogBarkAbility } from "./ecs/components/pet/DogBarkAbility";
 import { Pathfinder } from "./systems/Pathfinder";
+import { WorldStateManager } from "./systems/WorldStateManager";
 
 // Add Eruda console for mobile debugging
 if (globalThis.location.search.includes('debug')) {
@@ -43,14 +45,22 @@ const config: Phaser.Types.Core.GameConfig = {
 
 const game = new Phaser.Game(config);
 if (params.get('test') === 'true') {
-  (globalThis as unknown as { game: Phaser.Game; TransformComponent: typeof TransformComponent; RemoteInputComponent: typeof RemoteInputComponent; JoystickVisualsComponent: typeof JoystickVisualsComponent; AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent; GridPositionComponent: typeof GridPositionComponent; ProjectileComponent: typeof ProjectileComponent; PetAbilityComponent: typeof PetAbilityComponent }).game = game;
-  (globalThis as unknown as { TransformComponent: typeof TransformComponent }).TransformComponent = TransformComponent;
-  (globalThis as unknown as { RemoteInputComponent: typeof RemoteInputComponent }).RemoteInputComponent = RemoteInputComponent;
-  (globalThis as unknown as { JoystickVisualsComponent: typeof JoystickVisualsComponent }).JoystickVisualsComponent = JoystickVisualsComponent;
-  (globalThis as unknown as { AimJoystickVisualsComponent: typeof AimJoystickVisualsComponent }).AimJoystickVisualsComponent = AimJoystickVisualsComponent;
-  (globalThis as unknown as { GridPositionComponent: typeof GridPositionComponent }).GridPositionComponent = GridPositionComponent;
-  (globalThis as unknown as { ProjectileComponent: typeof ProjectileComponent }).ProjectileComponent = ProjectileComponent;
-  (globalThis as unknown as { PetAbilityComponent: typeof PetAbilityComponent }).PetAbilityComponent = PetAbilityComponent;
-  (globalThis as unknown as { DogBarkAbility: typeof DogBarkAbility }).DogBarkAbility = DogBarkAbility;
-  (globalThis as unknown as { Pathfinder: typeof Pathfinder }).Pathfinder = Pathfinder;
+  const g = globalThis as Record<string, unknown>;
+  g.game = game;
+  g.TransformComponent = TransformComponent;
+  g.RemoteInputComponent = RemoteInputComponent;
+  g.JoystickVisualsComponent = JoystickVisualsComponent;
+  g.AimJoystickVisualsComponent = AimJoystickVisualsComponent;
+  g.GridPositionComponent = GridPositionComponent;
+  g.ProjectileComponent = ProjectileComponent;
+  g.PetAbilityComponent = PetAbilityComponent;
+  g.DogBarkAbility = DogBarkAbility;
+  g.Pathfinder = Pathfinder;
+  g.AttackButtonComponent = AttackButtonComponent;
+  g.WorldStateManager = WorldStateManager;
+  g.AttackComboComponent = AttackComboComponent;
+  g.HealthComponent = HealthComponent;
+  g.WalkComponent = WalkComponent;
+  g.StateMachineComponent = StateMachineComponent;
+  g.WaterEffectComponent = WaterEffectComponent;
 }

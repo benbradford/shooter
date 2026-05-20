@@ -283,114 +283,113 @@ The key conceptual shift: describe a **reusable terrain system component**, not
 "a texture." The prompt must communicate how this tile functions in the level
 editor and game renderer.
 
+Use a **flat format** (no markdown section dividers) — image models parse plain
+structured text better than hierarchical markup.
+
 ```
-Modular repeating terrain [TILE_TYPE] tile for a classic SNES-style top-down RPG (A Link to the Past, Minish Cap).
+Modular repeating terrain [TILE_TYPE] tile for a classic SNES-style top-down RPG inspired by The Legend of Zelda: A Link to the Past and Minish Cap.
 
-[TERRAIN PURPOSE SENTENCE]
+[TERRAIN CONTEXT PARAGRAPH — purpose, topology, neighbours, camera, and tiling behaviour in plain prose. See guidance below.]
 
---- HARD RULES (non-negotiable) ---
+HARD REQUIREMENTS:
 
-TILE TOPOLOGY:
-- this tile is a [TOPOLOGY: repeating midsection / top edge / bottom edge / corner / transition]
-- [NEIGHBOUR DESCRIPTION: what tiles sit above/below/beside this one]
-- [STACKING DIRECTION: how this tile repeats when placed in a strip]
-
-TILING:
-- must tile seamlessly with itself when repeated in [DIRECTION]
-- NO visible seams, joins, or repeat boundaries when tiled
-- avoid strong central focal points or unique formations that reveal repetition
-- consistent visual density across the entire tile
-- avoid strong horizontal/vertical bands that expose wallpaper repetition
-
-PERSPECTIVE:
-- top-down terrain abstraction (symbolic, not physically accurate)
-- NOT a literal side-view — this is a diagrammatic terrain element
-- styled like ALTTP cliff walls / Pokemon ledges / Minish Cap terrain
-- NO isometric angle, NO perspective convergence
-
-CANVAS:
 - square canvas
-- texture fills 100% of the canvas edge-to-edge
-- NO padding, border, frame, or margin
-
---- SOFT STYLE ---
+- texture reaches edge-to-edge
+- no border, no padding, no frame
+- true top-down perspective (NOT isometric)
+- seamless tiling on [TILING EDGES: all four edges / vertical edges / horizontal edges]
+- no visible repeat focal point
+- no unique formations centered in the tile
+- consistent value density throughout
+- avoid edge-darkening or corner emphasis
+- low-frequency broad variation only
+- readable as calm terrain background during gameplay
 
 VISUAL STYLE:
-- stylized painted-game texture treatment with simplified readable forms
-- designed to visually harmonize with stylized painted grass tiles
-- muted natural tones with subtle warm/cool variation
-- should feel like a terrain tile from a classic top-down game
 
-VALUE AND FREQUENCY:
-- restrained contrast suitable for gameplay backgrounds
-- avoid high-contrast detail clusters that overpower sprites
+- stylized painted SNES-era terrain texture
+- simplified readable forms suitable for gameplay
+- visually harmonizes with stylized painted grass terrain
+- evokes [REFERENCE: ALTTP cliffs / Minish Cap swamp / Pokemon ledges / etc.]
+- restrained contrast and compressed value range
+- broad soft colour transitions instead of detailed texture
+- diffuse painterly rendering, not photorealistic
+- low visual noise
+- [ENERGY/MOOD: calm still surface / weathered solidity / etc.]
+
+COLOUR PALETTE:
+
+- [COLOUR 1]
+- [COLOUR 2]
+- [COLOUR 3]
+- avoid [UNWANTED COLOURS]
+
+SURFACE DETAIL:
+
+- [DETAIL 1 — system-oriented, e.g. "broad diffuse macro-patterns"]
+- [DETAIL 2]
+- [DETAIL 3]
+- no high-frequency noise
 - macro variation should dominate over micro-detail
-- detail frequency should remain broad and diffuse across the tile
-- low-frequency value variation to avoid visual flatness
-- maintain a compressed value range with minimal extreme highlights or shadows
-- surface variation should distribute organically without forming detectable repeating motifs
-- texture should remain readable when repeated over large contiguous areas (20x20+)
-- this tile functions as background terrain beneath interactive gameplay elements
 
-RENDERING:
-- use broad readable forms, not fine realistic noise
-- low texture density for gameplay readability
-- not photorealistic, not noisy
-- avoid excessive micro-detail that distracts from gameplay
+EXCLUDE COMPLETELY:
 
---- CONTENT ---
+- [EXCLUSIONS specific to this tile type]
+- anything that reveals the tile boundary when repeated
+- obvious repeated motifs that become visible at 20x20+ scale
+- dramatic lighting or hard shadows
+- bright highlights or extreme darks
 
-Include:
-- [TERRAIN DETAIL 1]
-- [TERRAIN DETAIL 2]
-- [TERRAIN DETAIL 3]
-
-Exclude:
-- [EXCLUSION 1]
-- any element that would break seamless tiling when repeated
-- avoid obvious repeated shapes that become visible at scale
+Technical target:
+Create a perfectly seamless modular terrain [TILE_TYPE] tile suitable for use as [ROLE DESCRIPTION] in a top-down 2D action-adventure game level editor.
 ```
 
 ### Filling in the Terrain Template
 
-**[TERRAIN PURPOSE SENTENCE]** — the single most important line. Describes the
-tile's gameplay function, spatial hierarchy, and relationship to neighbours.
+**[TERRAIN CONTEXT PARAGRAPH]** — the single most important part. Write 2-4
+sentences of plain prose covering:
+
+1. **Topology**: what part of the terrain system (midsection, top edge, corner,
+   transition)
+2. **Neighbours**: what tiles sit on each side
+3. **Camera**: viewed from where (usually "strict 90-degree gameplay camera
+   directly above")
+4. **Gameplay role**: what it represents functionally ("quiet gameplay background
+   beneath player movement", "inaccessible cliff wall below walkable grass")
+5. **Tiling behaviour**: how it repeats ("tiles in all directions for large
+   fills", "stacks vertically in strips")
+
 Examples:
 
-- "This is a modular repeating terrain wall tile intended to visually connect
-  grassy walkable terrain above with lower inaccessible terrain below."
+- "This is a seamless interior water-fill terrain tile viewed directly from
+  above using a strict 90-degree gameplay camera. The tile represents subdued
+  swampy pond water intended for large contiguous level-editor fills. It
+  functions as a quiet gameplay background beneath player movement and props."
+- "This is the repeating vertical midsection of a cliff wall. Identical cliff
+  tiles stack above and below to create height. Grassy walkable terrain sits
+  at the top of the strip. The tile uses top-down terrain abstraction — symbolic
+  and diagrammatic, not physically accurate side-view."
 - "This is the top edge cap tile where grass terrain ends and a cliff drop
-  begins."
-- "This is a horizontal platform edge tile showing the boundary between
-  walkable stone floor and void."
+  begins. Grass tiles sit directly above; cliff midsection tiles sit below."
 
-**[TOPOLOGY]** — which part of the terrain system this tile represents:
+**Topology types:**
 - `repeating midsection` — the main body, tiles with itself
 - `top edge` — transition from walkable surface to this terrain
 - `bottom edge` — where this terrain ends below
 - `corner` — directional change
 - `transition` — blends between two terrain types
 
-**[NEIGHBOUR DESCRIPTION]** — what the level editor places next to this:
-- "grassy walkable terrain sits directly above this tile"
-- "identical cliff tiles sit above and below"
-- "grass to the left, void to the right"
-
-**[STACKING DIRECTION]** — how it repeats:
-- "tiles vertically in a strip to create cliff height"
-- "tiles horizontally to create a platform edge"
-- "tiles in a 2x2 grid for large floor areas"
-
 ### Terrain Detail Guidance
 
-For repeating terrain, detail must be **tiling-safe** and described in
-**system-oriented language** (how the texture behaves), not aesthetic prose (how
-it looks in a scene).
+Details must be **tiling-safe** and written in **system-oriented language** (how
+the texture behaves as a system component), not aesthetic prose (how it looks as
+an illustration).
 
 System-oriented (good):
+- "broad diffuse macro-patterns suggesting gentle stillness"
 - "subtle low-frequency value variation to avoid visual flatness"
-- "broad diffuse colour shifts across the tile"
 - "restrained contrast that won't overpower sprite layers"
+- "soft cloudy tonal shifts distributed organically"
 
 Aesthetic prose (avoid — drifts toward illustration):
 - "gentle value variation implying depth differences beneath the surface"
@@ -400,7 +399,8 @@ Aesthetic prose (avoid — drifts toward illustration):
 Good tiling-safe details:
 - "subtle broken sediment layering with irregular interruptions"
 - "large readable rock masses with gentle value shifts"
-- "extremely subtle diffuse surface variation"
+- "very faint low-contrast mottling"
+- "broad slow-moving tonal shifts"
 
 Bad (breaks tiling or creates wallpaper artifacts):
 - "strong horizontal strata lines" (exposes repetition immediately)

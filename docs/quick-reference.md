@@ -504,8 +504,6 @@ Sample 6 random pieces from center 40% of texture, create runtime spritesheet.
 
 ## Performance Tips
 
-- Use sprite sheets
-- Limit entities updated per frame
-- Object pooling for frequently spawned entities
-- Profile with browser DevTools
+- Use zero-alloc `Into` coordinate helpers in hot paths (see `docs/grid-and-collision.md`)
+- Use `CachedFlag` for WorldState flag checks in `update()` methods
 - Compress assets with `sips -Z <size>`

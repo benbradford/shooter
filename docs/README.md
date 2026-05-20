@@ -390,17 +390,7 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 - Changes persist to disk via Vite dev server API (same pattern as level editor save)
 - Toast notifications confirm each action
 
-**API endpoints** (in `vite.config.ts`):
-- `POST /api/tracker/update` — update fields on an entry (`{ tracker, id, fields }`)
-- `POST /api/tracker/add` — add a new entry (`{ tracker, entry }`)
-- `POST /api/tracker/fix` — spawn kiro-cli or claude in ttyd to fix (`{ tracker, id, title, detail, engine?: 'kiro' | 'claude' }`), returns `{ ok, url }`
-- `POST /api/tracker/refresh` — spawn db-architect agent to scan codebase and refresh all issues, returns `{ ok, url }`
-- `POST /api/tracker/decide` — spawn kiro agent to recommend next priority (`{ issues }`), returns `{ ok, url }`
-- `POST /api/tracker/session` — spawn a blank kiro-cli session in ttyd, returns `{ ok, url }`
-- `POST /api/tracker/commit` — spawn kiro agent to commit all changes and optionally push, returns `{ ok, url }`
-- `POST /api/tracker/update-docs` — spawn kiro agent to update documentation, returns `{ ok, url }`
-- `GET /api/lint` — run eslint and return categorized results (used by linter-errors tracker)
-- `GET /api/git/diff` — return `git diff --stat` and per-file diff chunks (used by sessions diff viewer)
+**API endpoints:** All defined in `vite.config.ts` under `/api/tracker/*` (CRUD + agent spawn) and `/api/lint`, `/api/git/diff`.
 
 **Kiro agent phrases** (still work in chat):
 - "log a feature: {description}" → adds to feature tracker
@@ -419,21 +409,7 @@ The workbench includes a chat-based session system (inspired by KiRoom) that man
 - **Workflow singletons** — tagged sessions (`workflow:update-docs`, `fix:bugs-42`, etc.) are auto-replaced when re-triggered, preventing session list bloat
 - **Cleanup dead** — 🧹 button bulk-removes all dead/broken sessions; only appears when dead sessions exist
 
-**Session API endpoints** (in `vite.config.ts`):
-- `GET /api/sessions` — list all sessions with status
-- `POST /api/sessions/create` — create a new session (`{ label?, command?, engine? }`)
-- `POST /api/sessions/rename` — rename a session (`{ id, label }`)
-- `POST /api/sessions/archive` — hide a session from the active list (`{ id }`)
-- `POST /api/sessions/unarchive` — restore an archived session (`{ id }`)
-- `POST /api/sessions/kill` — kill tmux + ttyd for a session (`{ id }`)
-- `POST /api/sessions/reconnect` — re-spawn ttyd if tmux is still alive (`{ id }`)
-- `POST /api/sessions/delete` — permanently remove a session (`{ id }`)
-- `POST /api/sessions/capture` — capture terminal content for copy mode (`{ id }`), returns `{ text }`
-- `POST /api/sessions/update` — update session fields like room or label (`{ id, fields }`)
-- `POST /api/sessions/cleanup-dead` — bulk-remove all dead/broken (port 0) sessions
-- `GET /api/sessions/{id}/messages` — get message history for a session
-- `POST /api/sessions/{id}/send` — send text to a session (writes to tmux, stores user message)
-- `POST /api/sessions/{id}/resume` — resume a dead/idle session (respawns tmux if needed)
+**Session API endpoints:** All defined in `vite.config.ts` under `/api/sessions/*` (CRUD, messaging, lifecycle). Key operations: create, kill, reconnect, send, resume, cleanup-dead.
 
 **UI:** `workbench/sessions.html` — Chat-based session manager with room tabs, session list sidebar, rendered message history, compose box with send button, and status badges (active/idle/dead).
 

@@ -13,7 +13,9 @@
       "Bash(curl -s -I http://localhost:5173/icon.png)",
       "Bash(curl -s -I \"http://localhost:5173/levels/house3_interior_paint.png\")",
       "Bash(curl *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(kill 90038)",
+      "Bash(kill -9 90038)"
     ]
   }
 }

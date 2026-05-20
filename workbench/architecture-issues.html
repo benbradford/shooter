@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-20 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9245 LOC / 60 issues (3 critical, 19 high, 23 medium, 15 low). Resolved since last audit: #54 (CachedFlag for Laser/Lever — both migrated), #55 (worldToCellInto adopted in all 11 listed hot-path files, 0 remaining worldToCell calls). New findings: 5 issues added (#60-#64) covering PathTilesetGenerator big method, SpeechBoxComponent growth, worldToCell lint enforcement, and residual allocating-worldToCell in EscortPathfinding/DogBarkAbility per-frame paths. GameScene stable at 812 LOC (score 89). Grid unchanged at 415 LOC / 98 fan-in. Verdict: performance hot-path cleanup is largely complete; remaining work is enforcement (lint rules) and lower-priority structural extraction. Full report: <code>tmp/architect-report.json</code></p>
+<p class="updated">Last audit: 2026-05-20 (14:02) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9253 LOC / 62 issues (3 critical, 19 high, 23 medium, 17 low). Re-run of same-day audit confirms: zero raw flag string literals for known flag names anywhere in src/ (WorldFlags + CachedFlag adoption complete); worldToCell hot-path migration complete (0 remaining update-method allocations in the 11 tracked files); 32 worldToCell callers remain in per-event paths (acceptable). New findings: 2 minor issues added (#65 AttackComboComponent.updateHolding 4-concern split, #66 AttackComboComponent public API surface drift). Top priority remains GameScene (score 89, 813 LOC, 47 methods — growing methods reflects POSITIVE helper extraction trend). Highest-ROI open work: #56 PlayerProximityChecker, #59 EntityManager.getByTag, #62 hot-path lint enforcement. Full report: <code>tmp/architecture-review-2026-05-20-1402.md</code> · Scanner JSON: <code>tmp/architect-report.json</code></p>
 
 <script>
 const ISSUES = [
@@ -706,6 +706,24 @@ const ISSUES = [
     detail: 'src/ecs/components/pet/DogBarkAbility.ts lines 62, 83, 141, 142: `this.grid.worldToCell(...)`. Lines 62/83 are inside updateApproaching() called every frame. Lines 141/142 are in recalcPath called every 500ms. The per-frame sites (62, 83) should be migrated to worldToCellInto for consistency with issue #55 pattern. The recalc sites are low-impact.',
     files: ['src/ecs/components/pet/DogBarkAbility.ts'],
     effort: '15m', risk: 'None', fanIn: 2, category: 'performance',
+    added: '2026-05-20',
+  },
+
+  // ── NEW ISSUES (2026-05-20 audit, session 2 — 14:02) ──
+  {
+    id: 65, severity: 'low', status: 'open',
+    title: 'AttackComboComponent.updateHolding (63 LOC) mixes 4 concerns — extract resolveHoldRelease + updateHoldAnimation',
+    detail: 'src/ecs/components/combat/AttackComboComponent.ts lines 184-246. After issue #22 introduced ComponentStateMachine, updateHolding still mixes: (1) hold-time tracking + sprite shake (~10 LOC), (2) charge circle visual update (~5 LOC), (3) animation switching between walk-punch and freeze-punch (~20 LOC), (4) post-release resolution: super-punch vs normal-punch path (~25 LOC). The post-release block is logically a separate phase and a natural extraction point. Mechanical refactor: extract resolveHoldRelease() (post-return block) and updateHoldAnimation(input, anim). updateHolding drops to ~30 LOC, no longer hits BIG_METHOD threshold. Only meaningful BIG_METHOD remaining in this file after #22.',
+    files: ['src/ecs/components/combat/AttackComboComponent.ts'],
+    effort: '30m', risk: 'None', fanIn: 9, category: 'maintainability',
+    added: '2026-05-20',
+  },
+  {
+    id: 66, severity: 'low', status: 'open',
+    title: 'AttackComboComponent public API surface drift — 9 query methods callers use to peek at internal state',
+    detail: 'src/ecs/components/combat/AttackComboComponent.ts exposes isPunching(), isMovementLocked(), isFacingLocked(), getChargeSpeedMultiplier(), getCurrentDir(), and several others. PlayerWalkState/PlayerIdleState/WalkComponent each query 3-5 of these per frame. This is a "what state am I in?" pattern done via 9 individual flag-getters rather than a single read-only state view. Could consolidate to `getAttackState(): { kind, isMovementLocked, chargeMultiplier, ... }` returning a cached/mutable view object. Defer — currently working and the methods are pure. Track if count grows past 10 or if callers start chaining checks (`isPunching() && isMovementLocked() && !isFacingLocked()` patterns).',
+    files: ['src/ecs/components/combat/AttackComboComponent.ts'],
+    effort: '2h', risk: 'Low', fanIn: 9, category: 'architecture',
     added: '2026-05-20',
   },
 ];

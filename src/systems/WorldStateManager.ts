@@ -49,6 +49,7 @@ export class WorldStateManager {
         try {
           this.worldState = JSON.parse(localData);
           this.resetTimeTracker();
+          this.notifyAllFlagSubscribers();
           console.log(`[WorldState] Loaded from localStorage: state_${profile}`);
           return;
         } catch {
@@ -65,6 +66,7 @@ export class WorldStateManager {
       if (response.ok) {
         this.worldState = await response.json();
         this.resetTimeTracker();
+        this.notifyAllFlagSubscribers();
         console.log(`[WorldState] Loaded from ${statePath}`);
       } else {
         console.log('[WorldState] No saved state found, starting fresh');
