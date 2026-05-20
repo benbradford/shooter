@@ -99,7 +99,7 @@ When asked to "update the docs":
 
 **Time investment**: 1-3 hours of design saves 10-20 hours of implementation confusion.
 
-**Example**: `features/interactions/` - Complete implementation in 3 hours (vs 26-34 hour estimate) thanks to thorough design.
+**Examples**: `features/interactions/` - Complete implementation in 3 hours (vs 26-34 hour estimate) thanks to thorough design. `features/regression-tests/` - Combat/flag/state test coverage spec.
 
 ## 🚨 Start Here
 

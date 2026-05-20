@@ -1,0 +1,20 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 5,
+    "y": 5
+  },
+  "cells": [],
+  "entities": [
+    {
+      "id": "target_skeleton",
+      "type": "skeleton",
+      "data": {
+        "col": 5,
+        "row": 6,
+        "difficulty": "medium"
+      }
+    }
+  ]
+}

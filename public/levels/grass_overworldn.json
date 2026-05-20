@@ -1571,9 +1571,10 @@
     }
   ],
   "levelTheme": "grass_overworld1",
+  "music": "btr_tonal",
   "background": {
     "floor_texture": "grass_faded",
-    "floor_tile": 5,
+    "floor_tile": 8,
     "hasEdges": false,
     "hasShadows": false,
     "water": {

@@ -72,9 +72,30 @@ npm run test:single test-player-movement "blocked by wall"
 3. Use `test()` helper with GWT format
 4. Call `runTests()` with level, commands, tests array
 
+## Test-Mode Globals
+
+When the game loads with `?test=true`, `src/main.ts` exposes these on `globalThis`:
+- `game`, `TransformComponent`, `RemoteInputComponent`, `GridPositionComponent`, `ProjectileComponent`
+- `AttackButtonComponent`, `AttackComboComponent`, `HealthComponent`, `WalkComponent`, `StateMachineComponent`
+- `WorldStateManager`, `WaterEffectComponent`, `PetAbilityComponent`, `DogBarkAbility`, `Pathfinder`
+- `JoystickVisualsComponent`, `AimJoystickVisualsComponent`
+
+**Test levels:** `public/levels/test/` — dedicated levels for testing (e.g., `test-combat.json`, `test-punch-damage.json`, `test-player-transition.json`)
+
+When adding a new test that needs access to a component not yet exposed, add it to the test-mode block in `src/main.ts`.
+
 ## Available Helpers
 
-See `test/interactions/player.js` for the complete list:
+Helpers are split across files in `test/interactions/`:
+
+| File | Provides |
+|------|----------|
+| `player.js` | Movement, position, remote input, punch actions, attack button |
+| `combat.js` | Punch state inspection, enemy health/count, wait-for-punch |
+| `flags.js` | WorldState flag get/set/wait |
+| `state.js` | Player state machine, health, death, water detection |
+| `hud.js` | Joystick visual state |
+| `input.js` | Low-level joystick touch simulation, testLog |
 
 **Setup:**
 - `enableRemoteInput()` — must be called before any movement helpers
@@ -85,11 +106,32 @@ See `test/interactions/player.js` for the complete list:
 - `moveToCellHelper(col, row)` — direct movement, with stuck detection
 - `moveToRowHelper(row)` / `moveToColHelper(col)` — single-axis movement
 
-**Combat:**
+**Combat (player.js):**
 - `punch(dirX, dirY)` — fires one punch in the given direction
 - `punchAndWait(dirX, dirY, waitMs)` — punch and wait for it to complete (default 600ms)
 - `chargeSuperPunch(dirX, dirY, holdMs)` — hold punch for `holdMs` to trigger super punch (≥1s + `hasSuperPunch` flag)
 - `getAttackButtonState()` — read current button state (for verifying icon overrides like push/jump/lips)
+
+**Combat (combat.js):**
+- `isPunching()` — boolean: is the player currently in a punch animation
+- `getPunchState()` — returns `{ isPunching, isMovementLocked, isFacingLocked }`
+- `getEnemyHealth(entityId)` — get enemy health by entity ID
+- `getEnemyCount()` — count of alive enemies in scene
+- `getAllEnemies()` — array of `{ id, health, x, y }` for all enemies
+- `waitForPunchComplete(maxMs)` — resolves when punch ends (default 1000ms)
+
+**Flags:**
+- `setFlag(name, value)` — set a WorldState flag from test code
+- `getFlag(name)` — get a WorldState flag value
+- `isFlagTrue(name)` — boolean check
+- `waitForFlagSync(ms)` — wait for CachedFlag subscribers to update (default 50ms)
+
+**State:**
+- `getPlayerState()` — current state machine key (e.g., `'idle'`, `'walk'`, `'punch'`)
+- `getPlayerHealth()` / `getPlayerMaxHealth()` — player HP
+- `setPlayerHealth(value)` — set player HP directly
+- `isPlayerDead()` — death check
+- `isPlayerInWater()` — water state check
 
 **Inspection:**
 - `getPlayerPosition()` — current `{ x, y }` and grid cell

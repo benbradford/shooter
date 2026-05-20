@@ -356,6 +356,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/music/btr_wilds.mp3',
     type: 'audio' as const,
   },
+  btr_tonal: {
+    key: 'btr_tonal',
+    path: 'assets/music/btr_tonal.mp3',
+    type: 'audio' as const,
+  },
   throw_whoosh1: {
     key: 'throw_whoosh1',
     path: 'assets/sounds/throw_whoosh1.mp3',

@@ -4,7 +4,7 @@ const TILESET_COLS = 8;
 export class PathTilesetGenerator {
   constructor(private readonly scene: Phaser.Scene) {}
 
-  generateTileset(sourceKey: string, outputKey: string): boolean {
+  generateTileset(sourceKey: string, outputKey: string, strokeWidth = 3): boolean {
     if (!this.scene.textures.exists(sourceKey)) {
       console.error(`[PathTilesetGenerator] Source texture not found: ${sourceKey}`);
       return false;
@@ -27,7 +27,7 @@ export class PathTilesetGenerator {
       return false;
     }
 
-    const tilesetCanvas = this.generateTilesetFromCanvas(sourceCanvas);
+    const tilesetCanvas = this.generateTilesetFromCanvas(sourceCanvas, strokeWidth);
     
     const canvasTexture = this.scene.textures.createCanvas(outputKey, tilesetCanvas.width, tilesetCanvas.height);
     if (canvasTexture) {
@@ -52,7 +52,7 @@ export class PathTilesetGenerator {
     return canvas;
   }
 
-  private generateTilesetFromCanvas(sourceCanvas: HTMLCanvasElement): HTMLCanvasElement {
+  private generateTilesetFromCanvas(sourceCanvas: HTMLCanvasElement, strokeWidth: number): HTMLCanvasElement {
     const TILE_CONFIGS = this.getTileConfigs();
     const tilesetWidth = TILESET_COLS * TILE_SIZE_PX;
     const tilesetHeight = Math.ceil(TILE_CONFIGS.length / TILESET_COLS) * TILE_SIZE_PX;
@@ -69,7 +69,7 @@ export class PathTilesetGenerator {
       const tileX = tileCol * TILE_SIZE_PX;
       const tileY = tileRow * TILE_SIZE_PX;
 
-      this.drawPathTile(ctx, sourceCanvas, tileX, tileY, TILE_CONFIGS[tileIdx]);
+      this.drawPathTile(ctx, sourceCanvas, tileX, tileY, TILE_CONFIGS[tileIdx], strokeWidth);
     }
 
     return canvas;
@@ -130,7 +130,7 @@ export class PathTilesetGenerator {
     return configs;
   }
 
-  private drawPathTile(ctx: CanvasRenderingContext2D, sourceCanvas: HTMLCanvasElement, x: number, y: number, config: boolean[]): void {
+  private drawPathTile(ctx: CanvasRenderingContext2D, sourceCanvas: HTMLCanvasElement, x: number, y: number, config: boolean[], strokeWidth: number): void {
     const [north, east, south, west, hasNW = false, hasNE = false, hasSW = false, hasSE = false] = config;
     const radius = TILE_SIZE_PX * 0.4;
     const centerX = x + TILE_SIZE_PX / 2;
@@ -208,7 +208,7 @@ export class PathTilesetGenerator {
     ctx.restore();
 
     ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = strokeWidth;
 
     if (isDeadEnd) {
       if (west) {

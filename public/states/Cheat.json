@@ -1,12 +1,16 @@
 {
-  "timePlayed": 0,
+  "timePlayed": 155.98900000000003,
   "profileDisplayName": "Cheat",
   "player": {
     "health": 100,
     "coins": 0,
-    "currentLevel": "house3_interior",
-    "spawnCol": 1,
-    "spawnRow": 3
+    "currentLevel": "grass_overworldn",
+    "spawnCol": 18,
+    "spawnRow": 18,
+    "entryCell": {
+      "col": 18,
+      "row": 18
+    }
   },
   "flags": {
     "canPunch": "true",
@@ -18,7 +22,74 @@
     "pet_dog_collected": "true",
     "hasSuperPunch": "true",
     "hasCompanion": "true",
-    "hasAutoHeal": "false"
+    "hasAutoHeal": "false",
+    "level_entered_house3_interior": "true",
+    "_enteredViaHole": "",
+    "level_entered_grass_overworld1": "true",
+    "level_entered_grass_overworldn": "true",
+    "otis_complete_live": "false",
+    "level_entered_wilds1": "true"
   },
-  "levels": {}
+  "levels": {
+    "house3_interior": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [],
+      "modifiedCells": [],
+      "movedEntities": []
+    },
+    "grass_overworld1": {
+      "liveEntities": [],
+      "destroyedEntities": [
+        "breakable0",
+        "breakable1"
+      ],
+      "firedTriggers": [
+        "exit_exit1"
+      ],
+      "modifiedCells": [
+        {
+          "col": 20,
+          "row": 28,
+          "layer": 0,
+          "properties": [
+            "path"
+          ]
+        },
+        {
+          "col": 21,
+          "row": 28,
+          "layer": 0,
+          "properties": [
+            "path"
+          ]
+        }
+      ],
+      "movedEntities": [
+        {
+          "id": "pushable0",
+          "col": 2,
+          "row": 6
+        }
+      ]
+    },
+    "grass_overworldn": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit0"
+      ],
+      "modifiedCells": [],
+      "movedEntities": []
+    },
+    "wilds1": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit2"
+      ],
+      "modifiedCells": [],
+      "movedEntities": []
+    }
+  }
 }

@@ -40,11 +40,15 @@ export class WaterAnimator {
       const offsetKey = `${sourceKey}_flow_offset_${frameIdx}`;
       const tilesetKey = `${sourceKey}_flow_tileset_${frameIdx}`;
 
-      const offsetCanvas = this.createOffsetTexture(sourceImage, offsetPercent);
-      this.scene.textures.addCanvas(offsetKey, offsetCanvas);
+      if (!this.scene.textures.exists(offsetKey)) {
+        const offsetCanvas = this.createOffsetTexture(sourceImage, offsetPercent);
+        this.scene.textures.addCanvas(offsetKey, offsetCanvas);
+      }
       this.generatedTextureKeys.push(offsetKey);
       
-      this.generator.generateTileset(offsetKey, tilesetKey);
+      if (!this.scene.textures.exists(tilesetKey)) {
+        this.generator.generateTileset(offsetKey, tilesetKey);
+      }
       this.generatedTextureKeys.push(tilesetKey);
       if (this.scene.textures.exists(tilesetKey)) {
         this.tilesetKeys.push(tilesetKey);

@@ -105,7 +105,7 @@ export abstract class GameSceneRenderer {
       if (TextureVerifier.verifyTexture(this.scene, sourceKey)) {
         const generator = new PathTilesetGenerator(this.scene);
         const tilesetKey = `${sourceKey}_generated_tileset`;
-        const success = generator.generateTileset(sourceKey, tilesetKey);
+        const success = generator.generateTileset(sourceKey, tilesetKey, 1.5);
         console.log('[GameSceneRenderer] Path tileset generated:', tilesetKey, 'success:', success);
 
         if (!success) {
