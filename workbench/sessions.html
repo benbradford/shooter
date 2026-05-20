@@ -32,6 +32,8 @@
   .new-btn { flex: 1; background: var(--accent-green); color: #000; border: none; border-radius: 6px; padding: 8px 10px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
   .new-btn:hover { opacity: 0.9; }
   .new-btn.claude { background: var(--accent-blue); }
+  .cleanup-btn { display: block; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 0.75rem; cursor: pointer; margin: 0 16px 8px; width: calc(100% - 32px); }
+  .cleanup-btn:hover { color: var(--text); border-color: var(--text); }
 
   .session-list { flex: 1; overflow-y: auto; padding: 8px 0; }
   .session-item { padding: 10px 16px; cursor: pointer; border-left: 3px solid transparent; transition: 0.15s; display: flex; align-items: center; gap: 8px; }
@@ -113,6 +115,7 @@
     <button class="new-btn" onclick="createSession('kiro')">+ Kiro</button>
     <button class="new-btn claude" onclick="createSession('claude')">+ Claude</button>
   </div>
+  <button class="cleanup-btn" onclick="cleanupDead()" title="Remove all dead sessions and broken (port 0) entries">🧹 Clean up dead (<span id="deadCount">0</span>)</button>
   <details class="section-collapse" id="taskList" open></details>
   <details class="section-collapse" id="activeList" open></details>
   <details class="section-collapse" id="archiveSection">
@@ -191,6 +194,12 @@ function render() {
 
   document.getElementById('archiveList').innerHTML = archived.map(s => sessionHTML(s, true)).join('');
   document.getElementById('archiveCount').textContent = archived.length;
+  // Dead-session count for cleanup button (excludes archived — those are intentional)
+  const deadCount = sessions.filter(s => !s.archived && (s.status === 'dead' || !s.port)).length;
+  const deadEl = document.getElementById('deadCount');
+  if (deadEl) deadEl.textContent = deadCount;
+  const cleanupBtn = document.querySelector('.cleanup-btn');
+  if (cleanupBtn) cleanupBtn.style.display = deadCount > 0 ? '' : 'none';
 }
 
 function sessionHTML(s, isArchived = false) {
@@ -374,6 +383,26 @@ async function deleteSession(id) {
   if (activeSessionId === id) { activeSessionId = null; resetMainPanel(); }
   render();
   showToast('Session deleted');
+}
+
+async function cleanupDead() {
+  const deadCount = sessions.filter(s => !s.archived && (s.status === 'dead' || !s.port)).length;
+  if (deadCount === 0) { showToast('No dead sessions to clean'); return; }
+  if (!confirm(`Remove ${deadCount} dead session${deadCount === 1 ? '' : 's'}? Archived sessions are kept.`)) return;
+  try {
+    const res = await fetch('/api/sessions/cleanup-dead', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    if (!res.ok) { showToast('Cleanup failed: ' + await res.text()); return; }
+    const data = await res.json();
+    showToast(`Removed ${data.removed} dead session${data.removed === 1 ? '' : 's'}`);
+    // Reload session list from server
+    const list = await fetch('/api/sessions').then(r => r.json());
+    sessions = list;
+    if (activeSessionId && !sessions.find(s => s.id === activeSessionId)) {
+      activeSessionId = null;
+      resetMainPanel();
+    }
+    render();
+  } catch (e) { showToast('Cleanup failed: ' + e.message); }
 }
 
 function resetMainPanel() {

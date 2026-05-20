@@ -615,6 +615,21 @@ When user references a feature spec (e.g., "implement the shields feature"):
 5. **Read tasks:** Follow implementation breakdown
 6. **Mark progress:** Update tasks.md as you complete each task
 
+## SOPs (read on demand)
+
+When the user's request matches a trigger phrase below, read the named SOP file
+and follow its procedure. Do not respond from memory — the SOP file is the
+authoritative source.
+
+### ChatGPT image prompts
+
+Triggers: "help me create a chatgpt prompt to draw …", "give me a chatgpt
+prompt for …", "chatgpt prompt for an image of …", "what should i tell chatgpt
+to draw …", "image prompt for …", "tell chatgpt how to draw …".
+
+→ Read `agent-sops/creating-chatgpt-image-prompts.md` and follow it. Do **not**
+delegate to a sub-agent — handle directly.
+
 ## Critical Development Rules
 
 **After EVERY code change, you MUST run:**

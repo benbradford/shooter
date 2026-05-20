@@ -79,7 +79,15 @@ function recoverSessions(): void {
   if (!fs.existsSync(SESSION_FILE)) return;
   try {
     const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
+    let dropped = 0;
     for (const s of data) {
+      // Drop sessions with port 0 — they're leftover from a failed spawn and
+      // can never be opened. Keep other dead sessions so the VS Code extension
+      // can restart them.
+      if (!s.port || s.port === 0) {
+        dropped++;
+        continue;
+      }
       // Check if tmux session is still alive
       if (isTmuxSessionAlive(s.tmuxSession)) {
         s.status = 'active';
@@ -93,7 +101,9 @@ function recoverSessions(): void {
       const num = Number.parseInt(s.id.replace('s', ''), 10);
       if (num >= nextSessionId) nextSessionId = num + 1;
     }
+    if (dropped > 0) console.log(`📋 Dropped ${dropped} broken (port 0) sessions during recovery`);
     console.log(`📋 Recovered ${sessions.size} sessions from disk`);
+    if (dropped > 0) persistSessions();
   } catch { /* corrupted file, start fresh */ }
 }
 
@@ -127,8 +137,16 @@ function isPortInUse(port: number): boolean {
 }
 
 function findAvailablePort(): number {
+  // Exclude both OS-bound ports AND ports held by sessions in the in-memory map.
+  // After dev-server restart, ttyd processes die so the OS sees ports as free,
+  // but recovered sessions still claim those ports — without this guard, multiple
+  // sessions can be assigned the same port and collide on next reconnect.
+  const claimedByMap = new Set<number>();
+  for (const s of sessions.values()) {
+    if (s.port > 0) claimedByMap.add(s.port);
+  }
   let port = 7681;
-  while (isPortInUse(port)) port++;
+  while (isPortInUse(port) || claimedByMap.has(port)) port++;
   return port;
 }
 
@@ -160,8 +178,24 @@ function spawnTtydForTmux(tmuxName: string, port: number): number {
   return ttyd.pid!;
 }
 
-function spawnSession(label: string, shellCmd: string): Session {
+function spawnSession(label: string, shellCmd: string, tag?: string): Session {
   const cwd = process.cwd();
+
+  // Auto-kill any existing session with the same tag — this makes workflow
+  // sessions (Update Docs, Commit All, etc.) singletons. Without this, every
+  // click of a workflow button creates a fresh session and the list grows.
+  // Also match by label as a fallback — catches older sessions from before
+  // tags existed, which would otherwise stick around forever.
+  if (tag) {
+    for (const [, existing] of sessions) {
+      const matches = existing.tag === tag || (!existing.tag && existing.label === label);
+      if (!matches) continue;
+      if (existing.ttydPid > 0) { try { process.kill(existing.ttydPid); } catch { /* already dead */ } }
+      try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${existing.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+      sessions.delete(existing.id);
+    }
+  }
+
   const port = findAvailablePort();
   const tmuxPath = '/opt/homebrew/bin/tmux';
   const id = generateSessionId();
@@ -182,6 +216,7 @@ function spawnSession(label: string, shellCmd: string): Session {
     id, port, label, status: 'active', archived: false,
     ttydPid, tmuxSession: tmuxName, createdAt: new Date().toISOString(), command: shellCmd,
   };
+  if (tag) session.tag = tag;
   sessions.set(id, session);
   persistSessions();
   return session;
@@ -190,10 +225,18 @@ function spawnSession(label: string, shellCmd: string): Session {
 /** Re-spawn ttyd for an existing tmux session (reconnect after tab switch) */
 function ensureTtydRunning(session: Session): void {
   if (isProcessAlive(session.ttydPid)) return;
+  // If our stored port is now occupied by another process (e.g. another session
+  // grabbed it after dev-server restart), reassign to a fresh port. Otherwise
+  // ttyd would silently fail to bind and the iframe would connect to whichever
+  // session got there first, making this session look "broken".
+  if (isPortInUse(session.port) || session.port === 0) {
+    session.port = findAvailablePort();
+  }
   // Ensure mouse mode is on (may be missing for sessions created before this fix)
   try { execSync(`/opt/homebrew/bin/tmux set-option -t '${session.tmuxSession}' mouse on`); } catch { /* session may be dead */ }
   // tmux is alive but ttyd died (user navigated away) — respawn ttyd
   session.ttydPid = spawnTtydForTmux(session.tmuxSession, session.port);
+  persistSessions();
 }
 
 function readBody(req: import('http').IncomingMessage): Promise<string> {
@@ -475,7 +518,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const session = spawnSession('🔄 Refresh Issues', shellCmd);
+          const session = spawnSession('🔄 Refresh Issues', shellCmd, 'workflow:refresh-issues');
 
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}`, message: 'db-architect agent launched to refresh issues' }));
@@ -496,7 +539,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const session = spawnSession('🧠 Help Me Decide', shellCmd);
+          const session = spawnSession('🧠 Help Me Decide', shellCmd, 'workflow:decide');
 
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
@@ -524,7 +567,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const session = spawnSession('📝 Update Docs', shellCmd);
+          const session = spawnSession('📝 Update Docs', shellCmd, 'workflow:update-docs');
 
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
@@ -552,7 +595,7 @@ If there are no changes to commit, say so and stop.`;
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
           const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
-          const session = spawnSession('🔀 Commit All', shellCmd);
+          const session = spawnSession('🔀 Commit All', shellCmd, 'workflow:commit-all');
 
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
@@ -630,7 +673,9 @@ If there are no changes to commit, say so and stop.`;
             : `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const engineTag = engine === 'claude' ? '🟣' : '🤖';
           const label = `${action}${engineTag} ${type} #${body.id}: ${body.title.slice(0, 40)}`;
-          const session = spawnSession(label, shellCmd);
+          // Tag scoped to (type, id) so re-fixing the same issue replaces the
+          // old session instead of stacking duplicates.
+          const session = spawnSession(label, shellCmd, `fix:${type}-${body.id}`);
 
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, sessionId: session.id, url: `http://localhost:${session.port}` }));
@@ -662,16 +707,7 @@ If there are no changes to commit, say so and stop.`;
           const cwd = process.cwd();
           const engine = body.engine ?? 'kiro';
 
-          // Auto-kill existing session with same tag
-          if (body.tag) {
-            for (const [, existing] of sessions) {
-              if (existing.tag === body.tag) {
-                if (existing.ttydPid > 0) { try { process.kill(existing.ttydPid); } catch { /* already dead */ } }
-                try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${existing.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
-                sessions.delete(existing.id);
-              }
-            }
-          }
+          // Note: auto-kill of same-tag sessions now lives inside spawnSession itself.
 
           let shellCmd: string;
           if (body.prompt) {
@@ -690,9 +726,8 @@ If there are no changes to commit, say so and stop.`;
           }
 
           const label = body.label ?? `Session ${nextSessionId}`;
-          const session = spawnSession(label, shellCmd);
+          const session = spawnSession(label, shellCmd, body.tag);
           session.engine = engine;
-          if (body.tag) session.tag = body.tag;
           if (body.prompt) session.prompt = body.prompt;
           if (body.agent) session.agent = body.agent;
           persistSessions();
@@ -759,6 +794,28 @@ If there are no changes to commit, say so and stop.`;
           persistSessions();
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Cleanup dead — bulk-remove all sessions that are no longer running.
+      // Useful for clearing the list after dev-server restarts have left
+      // behind unrecoverable entries.
+      server.middlewares.use('/api/sessions/cleanup-dead', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          cleanupDeadSessions(); // refresh status flags first
+          let removed = 0;
+          for (const [id, s] of sessions) {
+            if (s.status !== 'dead' && s.port > 0) continue;
+            // Belt-and-suspenders: try to kill anything that might still be lingering
+            if (s.ttydPid > 0) { try { process.kill(s.ttydPid); } catch { /* already dead */ } }
+            try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${s.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+            sessions.delete(id);
+            removed++;
+          }
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true, removed }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 

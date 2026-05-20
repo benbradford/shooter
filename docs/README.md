@@ -307,6 +307,17 @@ npx eslint src --ext .ts     # Must pass with zero errors
 npm run dev                  # Start dev server
 ```
 
+### Dual Development System
+
+Both **Kiro** (`kiro-cli chat --agent dodging-bullets`) and **Claude Code** (`claude`) are supported. `CLAUDE.md` in the project root provides compact context for Claude Code. `scripts/extract-sessions.mjs` reads both session histories for doc updates.
+
+### Agent SOPs
+
+`agent-sops/` contains on-demand procedures for AI agents:
+- `creating-chatgpt-image-prompts.md` — Writing effective image-gen prompts for game props
+- `updating-attacker-spritesheet.md` — Regenerating the player spritesheet
+- `adding-background-textures.md` — Adding new cell textures to the editor
+
 ## Common File Locations
 
 - **Entity factories**: `src/{entityType}/{EntityName}Entity.ts`

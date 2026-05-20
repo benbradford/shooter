@@ -141,3 +141,17 @@ This project supports both **Kiro** and **Claude Code** for AI-assisted developm
 - Claude Code sessions: `claude` (picks up context from this file)
 - Both managed via the VS Code extension (DB Sessions sidebar)
 - Session type shown by icon in the sidebar
+
+## SOPs (read on demand)
+
+When the user's request matches a trigger phrase below, read the named SOP file
+and follow it. Do not respond from memory — the SOP files contain the
+authoritative procedure.
+
+### ChatGPT image prompts
+
+Triggers: "help me create a chatgpt prompt to draw …", "give me a chatgpt
+prompt for …", "chatgpt prompt for an image of …", "what should i tell chatgpt
+to draw …", "image prompt for …", "tell chatgpt how to draw …".
+
+→ Read `agent-sops/creating-chatgpt-image-prompts.md` and follow the SOP.

@@ -244,6 +244,22 @@
       ]
     },
     {
+      "col": 1,
+      "row": 1,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "cart",
+          "transformOverride": {
+            "scaleX": 3,
+            "scaleY": 2,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
+      ]
+    },
+    {
       "col": 6,
       "row": 1,
       "layer": 0,
@@ -835,11 +851,19 @@
       ]
     },
     {
-      "col": 14,
-      "row": 6,
+      "col": 15,
+      "row": 11,
       "layer": 0,
       "backgroundTexture": [
-        "bush1"
+        {
+          "image": "well",
+          "transformOverride": {
+            "scaleX": 3,
+            "scaleY": 4,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
       ]
     },
     {

@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-16 (20:19) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · Implementation session: 7 issues resolved (#31 startLevelTransition, #45 reloadCurrentLevel, #48 CachedFlag pattern, #49 EscortPathfinding alloc, #50 PetFollow recalc alloc, #51 GameScene regrowth reversed, #52 getEntitiesWithTag alloc). Created: src/systems/state/CachedFlag.ts, src/systems/LevelTransitionManager.ts. GameScene reduced 911 → 812 LOC (-99 LOC, -10.9%). 7 per-frame WorldState singleton lookups eliminated via CachedFlag. Build green at 1804 kB. Full report: <code>tmp/architecture-review-2026-05-16-1404.md</code></p>
+<p class="updated">Last audit: 2026-05-18 (21:39) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9212 LOC / 60 issues (3 critical, 19 high, 23 medium, 15 low). New findings: 6 issues added (#54-#59) covering CachedFlag/zero-alloc half-migrations, PlayerProximityChecker missing abstraction, LaserBeamComponent hot-path patterns, EnemyIndex hardcoding. Top priority remains GameScene (89, residue is editor mode interleaving). Most foundational primitives (ComponentStateMachine, CachedFlag, subscribeFlag, LevelTransitionManager, PathFollower) are correctly applied. Verdict: architecture is fundamentally sound, single most important change is enforcing existing patterns via lint or policy. Full report: <code>tmp/architecture-review-2026-05-18-2139.md</code></p>
 
 <script>
 const ISSUES = [
@@ -615,6 +615,56 @@ const ISSUES = [
     files: ['src/constants/WorldFlags.ts'],
     effort: '2h', risk: 'Low', fanIn: 1, category: 'scaling',
     added: '2026-05-16',
+  },
+
+  // ── NEW ISSUES (2026-05-18 audit) ──
+  {
+    id: 54, severity: 'high', status: 'open',
+    title: 'CachedFlag half-migrated — LaserBeamComponent + LeverComponent still poll getFlag() every frame',
+    detail: 'Issue #48 introduced the CachedFlag primitive and migrated 7 hot sites. Two sites with identical patterns were missed: (1) LaserBeamComponent.update():167 — `const flagValue = this.worldState.getFlag(this.flagName); this.isOn = flagValue !== \'false\'` runs every frame for every laser entity. (2) LeverComponent.isLocked() — `this.worldState.getFlag(`${this.flagPrefix}_locked`) === \'true\'` runs every frame inside update(). Both should use CachedFlag (LaserBeam needs a custom predicate variant or store as `!== \'false\'` boolean). Architectural concern: pattern is not enforced. Each new flag-polling component lands raw because surrounding code did. Recommendation: migrate these 2, then add a lint rule or ESLint custom rule banning `worldState.getFlag(` inside `update()` method bodies.',
+    files: ['src/ecs/components/laser/LaserBeamComponent.ts', 'src/ecs/components/lever/LeverComponent.ts'],
+    effort: '30m', risk: 'None', fanIn: 4, category: 'performance',
+    added: '2026-05-18',
+  },
+  {
+    id: 55, severity: 'high', status: 'open',
+    title: 'worldToCellInto zero-alloc variant adoption stalled at 2/15 hot-path sites',
+    detail: 'Grid.worldToCellInto(x, y, out) was added during issue #1 (May 4) but only 2 files use it: GridMovementValidator and GridCollisionComponent. 13+ hot-path callers still allocate via worldToCell()/cellToWorld() inside per-frame update chains. Worst offenders: BugChaseState (3 sites), JumpAnimator (2 sites in update), JumpDetector (2 sites per input), PetSyncJumpBehavior (3 sites), PetFollowComponent.recalculatePath/startWanderMove (2 sites), KnockbackComponent (2 sites), RockArcComponent (3 sites), WaterEffectComponent.updateShadowMask/updateSpriteMask (2 sites), WaterRippleComponent (1 site). Estimated 30-60 {col,row} object allocations per frame on a typical level. Migration is mechanical — pre-allocate tmpCells: CellCoord[] field, replace each call. Same pattern as issue #1 fix. See migration path in tmp/architecture-review-2026-05-18-2139.md.',
+    files: ['src/ecs/entities/bug/BugChaseState.ts', 'src/ecs/components/movement/JumpAnimator.ts', 'src/ecs/components/movement/JumpDetector.ts', 'src/ecs/components/pet/PetSyncJumpBehavior.ts', 'src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/components/movement/KnockbackComponent.ts', 'src/ecs/components/pet/RockArcComponent.ts', 'src/ecs/components/visual/WaterEffectComponent.ts', 'src/ecs/components/visual/WaterRippleComponent.ts', 'src/ecs/components/escort/EscortPathfinding.ts', 'src/ecs/components/pet/DogBarkAbility.ts'],
+    effort: '3h', risk: 'Low', fanIn: 97, category: 'performance',
+    added: '2026-05-18',
+  },
+  {
+    id: 56, severity: 'medium', status: 'open',
+    title: 'Missing abstraction: PlayerProximityChecker (4× duplication in PetFollowComponent)',
+    detail: 'PetFollowComponent has 4 nearly identical "distance check / teleport check / start_follow_distance check" blocks across updateIdle, updateFollowing, updateWanderingPause, updateWanderingMove. Each is ~12 LOC, total ~48 LOC duplication. The same pattern likely exists in EscortComponent.updateFollowing and BugChaseState. This is not duplication — it is a missing AI primitive. Proposed abstraction: `PlayerProximityChecker` with thresholds {teleport, follow, stop} returning a mutable `PlayerProximityResult { shouldTeleport, shouldFollow, shouldStop, distancePx, dx, dy }` field (mutable to avoid per-frame allocation). Each state handler shrinks to ~5 LOC. Also unblocks future companion entities (hawk, fox, summon) reusing the abstraction. ROI: pet companion was the second AI to use this pattern; the next will land soon.',
+    files: ['src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/DogBarkAbility.ts'],
+    effort: '2h', risk: 'Low', fanIn: 5, category: 'architecture',
+    added: '2026-05-18',
+  },
+  {
+    id: 57, severity: 'medium', status: 'open',
+    title: 'LaserBeamComponent.raycast() returns {x,y} object every frame per laser',
+    detail: 'src/ecs/components/laser/LaserBeamComponent.ts line 197: `private raycast(startX: number, startY: number): { x: number; y: number }` returns a freshly-allocated object every call. Called once per laser per frame (line 174). Inside the raycast loop, also returns `{ x, y }` literals on early-exit branches. Each laser produces 1 allocation/frame minimum. Levels can have 4-8 lasers → 4-8 allocs/frame from this single method. Fix: cache `private readonly _endpoint = { x: 0, y: 0 }` field, mutate and return reference. Mechanical 10-line change.',
+    files: ['src/ecs/components/laser/LaserBeamComponent.ts'],
+    effort: '30m', risk: 'None', fanIn: 2, category: 'performance',
+    added: '2026-05-18',
+  },
+  {
+    id: 58, severity: 'medium', status: 'open',
+    title: 'LuaRuntime hosts 150 LOC of SpecialItemDisplay logic — extract to dedicated class',
+    detail: 'After issue #7 (May 4) extracted lua-api/* helpers, LuaRuntime is 351 LOC. Of that, ~150 LOC is special item display logic: handleShowSpecialItem (63 LOC), hideSpecialItemDisplay (~25 LOC), destroySpecialItemDisplay (~10 LOC), scaleDownSpecialItemDisplay (~20 LOC), the SpecialItemDisplay type definition, and 13 SPECIAL_ITEM_* constants. This is presentation logic embedded in a script executor — wrong concern boundary. Extract `src/systems/lua-displays/SpecialItemDisplay.ts` with show(itemType)/scaleDown()/hide() public API. LuaRuntime gains a `private specialItem?: SpecialItemDisplay` field, command handlers become 1-line delegations. Establishes pattern for future Lua-driven display widgets (toasts, notifications, item tooltips). Related to but supersedes #44.',
+    files: ['src/systems/LuaRuntime.ts'],
+    effort: '1h', risk: 'None', fanIn: 1, category: 'architecture',
+    added: '2026-05-18',
+  },
+  {
+    id: 59, severity: 'medium', status: 'open',
+    title: 'GameScene.spawnEntities hardcodes enemy types in getEnemies callback',
+    detail: 'Lines 638-639: `getEnemies: () => this.entityManager.getByType(\'stalking_robot\').concat(this.entityManager.getByType(\'bug\')).concat(this.entityManager.getByType(\'thrower\'))`. Three concerns: (1) Per-call allocates 4 arrays (3 getByType results + spread chain). AttackComboComponent calls this on every punch + every targeting check. (2) Hardcoding enemy types in GameScene means adding a new enemy requires modifying a central scene file (OCP violation). (3) Grid already has a tagIndex<string, Set<Entity>> from issue #40 — extend the pattern to EntityManager. Proposed: `entityManager.getByTag(\'enemy\')` returns a cached/indexed Set in O(1). Set tag at factory level (each enemy factory adds `entity.tags.add(\'enemy\')`). Eliminates GameScene\'s knowledge of enemy types and removes the per-call allocation. Effort: 1h. Same architectural pattern as issue #40 extended to EntityManager.',
+    files: ['src/scenes/GameScene.ts', 'src/ecs/EntityManager.ts'],
+    effort: '1h', risk: 'Low', fanIn: 14, category: 'architecture',
+    added: '2026-05-18',
   },
 ];
 

@@ -280,6 +280,26 @@ graph TB
 ✅ **Complete:** Companion system documented in quick-reference.md
 ✅ **Complete:** Punch charge/release animation fix documented
 ✅ **Complete:** Workbench dashboard (new session, commit all, update docs) documented
+✅ **Complete:** Dual development system (Kiro + Claude Code) documented
+✅ **Complete:** Agent SOPs documented (ChatGPT prompts, attacker spritesheet, background textures)
+
+## Dual Development System
+
+This project supports both **Kiro** and **Claude Code** for AI-assisted development:
+- **Kiro sessions**: `kiro-cli chat --agent dodging-bullets` (orchestrator with sub-agents)
+- **Claude Code sessions**: `claude` (picks up context from `CLAUDE.md` in project root)
+- Both managed via the VS Code extension (DB Sessions sidebar) or `workbench/sessions.html`
+- Session type shown by icon in the sidebar
+- `scripts/extract-sessions.mjs` reads both kiro and claude session histories for doc updates
+
+**`CLAUDE.md`** — Compact project context file for Claude Code (tech stack, architecture, coding standards, key patterns). Kept in sync with docs manually.
+
+## Agent SOPs
+
+`agent-sops/` contains Standard Operating Procedures that agents read on demand:
+- `creating-chatgpt-image-prompts.md` — How to write effective image-gen prompts for game props (trigger phrases: "help me create a chatgpt prompt", "image prompt for", etc.)
+- `updating-attacker-spritesheet.md` — SOP for regenerating the player spritesheet
+- `adding-background-textures.md` — SOP for adding new cell textures
 
 ## Project Trackers
 
@@ -356,3 +376,4 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **HealthComponent autoheal cache**: `HealthComponent` now caches the `hasAutoHeal` flag at construction instead of polling `WorldStateManager` every frame. Call `refreshAutoHeal()` after the flag changes (e.g., after Lua sets it).
 - **AttackComboComponent refactor**: `createPunchHitbox()` split into `playPunchSound()`, `resolveAimDirection()`, `spawnPunchParticles()` helpers for reduced complexity.
 - **WorldStateManager array texture handling**: `scanModifiedCells` now correctly compares cells with array `backgroundTexture` (multi-texture cells), fixing a regression where modified cells were re-detected as changed every load.
+- **Architecture review (2026-05-18)**: Scanner: 20 files / 9212 LOC / 60 issues (3 critical, 19 high, 23 medium, 15 low). 6 new issues added (#54-#59): CachedFlag half-migration (LaserBeam/Lever still poll), worldToCellInto adoption stalled (13 hot-path sites), PlayerProximityChecker missing abstraction, LaserBeamComponent raycast allocation, LuaRuntime SpecialItemDisplay extraction, EnemyIndex hardcoding. Verdict: architecture fundamentally sound, main action is enforcing existing patterns.
