@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, execSync } from 'node:child_process';
 
+
 // Prevent child process errors from crashing the Vite server
 process.on('uncaughtException', (err) => {
   console.error('⚠️ Uncaught exception (server kept alive):', err.message);
@@ -25,6 +26,7 @@ interface Session {
   prompt?: string;
   agent?: string;
   engine?: 'kiro' | 'claude';
+  room?: string;
 }
 
 const sessions: Map<string, Session> = new Map();
@@ -80,34 +82,60 @@ function recoverSessions(): void {
   try {
     const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
     let dropped = 0;
+
+    // First pass: collect all sessions, checking liveness
+    const candidates: Session[] = [];
     for (const s of data) {
-      // Drop sessions with port 0 — they're leftover from a failed spawn and
-      // can never be opened. Keep other dead sessions so the VS Code extension
-      // can restart them.
-      if (!s.port || s.port === 0) {
-        dropped++;
-        continue;
-      }
-      // Check if tmux session is still alive
+      if (!s.port || s.port === 0) { dropped++; continue; }
       if (isTmuxSessionAlive(s.tmuxSession)) {
         s.status = 'active';
-        s.ttydPid = 0; // Will be re-spawned on connect
+        s.ttydPid = 0;
       } else {
         s.status = 'dead';
         s.ttydPid = 0;
       }
+      candidates.push(s);
+    }
+
+    // Second pass: deduplicate and clean up.
+    // - Dead tagged sessions are dropped (workflows can be re-triggered)
+    // - Dead untagged sessions older than 24h are dropped (stale one-off fix sessions)
+    // - For live tagged sessions, keep only the newest per tag
+    const seenTags = new Map<string, Session>();
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    for (const s of candidates) {
+      if (s.status === 'dead') {
+        if (s.tag) { dropped++; continue; }
+        if (new Date(s.createdAt).getTime() < oneDayAgo) { dropped++; continue; }
+      }
+      if (s.tag) {
+        const existing = seenTags.get(s.tag);
+        if (existing) {
+          if (new Date(s.createdAt) > new Date(existing.createdAt)) {
+            sessions.delete(existing.id);
+            dropped++;
+            seenTags.set(s.tag, s);
+          } else {
+            dropped++;
+            continue;
+          }
+        } else {
+          seenTags.set(s.tag, s);
+        }
+      }
       sessions.set(s.id, s);
-      // Track highest ID to avoid collisions
       const num = Number.parseInt(s.id.replace('s', ''), 10);
       if (num >= nextSessionId) nextSessionId = num + 1;
     }
-    if (dropped > 0) console.log(`📋 Dropped ${dropped} broken (port 0) sessions during recovery`);
+
+    if (dropped > 0) console.log(`📋 Dropped ${dropped} stale/broken sessions during recovery`);
     console.log(`📋 Recovered ${sessions.size} sessions from disk`);
     if (dropped > 0) persistSessions();
   } catch { /* corrupted file, start fresh */ }
 }
 
 recoverSessions();
+
 
 function generateSessionId(): string {
   let id = `s${nextSessionId++}`;
@@ -692,6 +720,7 @@ If there are no changes to commit, say so and stop.`;
           const list = [...sessions.values()].map(s => ({
             id: s.id, port: s.port, label: s.label, status: s.status,
             archived: s.archived, createdAt: s.createdAt, tag: s.tag, engine: s.engine,
+            room: s.room,
           }));
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify(list));
@@ -703,7 +732,7 @@ If there are no changes to commit, say so and stop.`;
       server.middlewares.use('/api/sessions/create', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
-          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string; tag?: string; prompt?: string; agent?: string; engine?: 'kiro' | 'claude' };
+          const body = JSON.parse(await readBody(req)) as { label?: string; command?: string; tag?: string; prompt?: string; agent?: string; engine?: 'kiro' | 'claude'; room?: string };
           const cwd = process.cwd();
           const engine = body.engine ?? 'kiro';
 
@@ -728,6 +757,7 @@ If there are no changes to commit, say so and stop.`;
           const label = body.label ?? `Session ${nextSessionId}`;
           const session = spawnSession(label, shellCmd, body.tag);
           session.engine = engine;
+          if (body.room) session.room = body.room;
           if (body.prompt) session.prompt = body.prompt;
           if (body.agent) session.agent = body.agent;
           persistSessions();
@@ -857,6 +887,21 @@ If there are no changes to commit, say so and stop.`;
           session.status = 'active';
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ ok: true, port: session.port }));
+        } catch (error) { res.statusCode = 500; res.end(String(error)); }
+      });
+
+      // Update session fields (room, etc.)
+      server.middlewares.use('/api/sessions/update', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
+        try {
+          const body = JSON.parse(await readBody(req)) as { id: string; fields: Record<string, unknown> };
+          const session = sessions.get(body.id);
+          if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
+          if (body.fields.room !== undefined) session.room = body.fields.room as string;
+          if (body.fields.label !== undefined) session.label = body.fields.label as string;
+          persistSessions();
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ ok: true }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }
       });
 

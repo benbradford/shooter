@@ -408,16 +408,18 @@ All trackers are interactive when the dev server is running (`npm run dev`):
 
 ### Session Management
 
-The workbench includes a multi-session system that manages kiro-cli sessions via tmux + ttyd:
+The workbench includes a chat-based session system (inspired by KiRoom) that manages kiro-cli and claude sessions via tmux:
 
-- Sessions are spawned as tmux sessions with ttyd providing browser-based terminal access
-- Each session gets a unique port (starting at 7681) and a tmux session named `db-{id}`
-- Sessions persist even when the browser tab is closed — reconnecting re-attaches ttyd to the existing tmux session
-- Dead sessions (tmux exited) are detected automatically on list refresh
+- **Chat UI** replaces raw terminal iframes — compose box at bottom, rendered message history above
+- **Message persistence** in `.session-data/{sessionId}.json` — survives session restarts
+- **WebSocket streaming** (`/ws/sessions`) — real-time output from tmux pushed to subscribed clients
+- **Idle management** — sessions auto-idle after inactivity (10min), ttyd killed but tmux preserved for transparent resume
+- **Room organization** — sessions grouped by room (pill tabs at top of sidebar)
+- **Session recovery** — deduplicates tagged sessions, drops dead workflows and stale (>24h) sessions on startup
 
 **Session API endpoints** (in `vite.config.ts`):
 - `GET /api/sessions` — list all sessions with status
-- `POST /api/sessions/create` — create a new session (`{ label?, command? }`)
+- `POST /api/sessions/create` — create a new session (`{ label?, command?, engine? }`)
 - `POST /api/sessions/rename` — rename a session (`{ id, label }`)
 - `POST /api/sessions/archive` — hide a session from the active list (`{ id }`)
 - `POST /api/sessions/unarchive` — restore an archived session (`{ id }`)
@@ -425,13 +427,15 @@ The workbench includes a multi-session system that manages kiro-cli sessions via
 - `POST /api/sessions/reconnect` — re-spawn ttyd if tmux is still alive (`{ id }`)
 - `POST /api/sessions/delete` — permanently remove a session (`{ id }`)
 - `POST /api/sessions/capture` — capture terminal content for copy mode (`{ id }`), returns `{ text }`
+- `POST /api/sessions/update` — update session fields like room or label (`{ id, fields }`)
+- `GET /api/sessions/{id}/messages` — get message history for a session
+- `POST /api/sessions/{id}/send` — send text to a session (writes to tmux, stores user message)
+- `POST /api/sessions/{id}/resume` — resume a dead/idle session (respawns tmux if needed)
 
-**UI:** `workbench/sessions.html` — Session manager page with live session list, connect/rename/archive/delete controls, embedded ttyd terminal iframe, and collapsible diff viewer panel (shows `git diff` output per-file). Workflows (tagged sessions launched via dashboard buttons) have no action buttons.
-
-**Copy mode:** Click the 📋 button on any active session to capture terminal content (last 500 lines via tmux `capture-pane`). Text is displayed in a selectable panel for easy Cmd+C copying.
+**UI:** `workbench/sessions.html` — Chat-based session manager with room tabs, session list sidebar, rendered message history, compose box with send button, and status badges (active/idle/dead).
 
 **VS Code extension:** `vscode-sessions/` — Alternative to the browser-based session manager. Opens sessions in VS Code integrated terminals (native copy/paste support). Shares `.sessions.json` with the web UI — sessions created in either system are visible in both. Install: `cd vscode-sessions && npx tsc -p ./ && npx @vscode/vsce package --allow-missing-repository && code --install-extension db-sessions-0.1.0.vsix`
 
-**Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`)
+**Requirements:** `brew install ttyd` and tmux (comes with macOS or `brew install tmux`), `ws` npm package for WebSocket server
 
 **When fixing a bug:** Update its status to `'fixed'` in `workbench/bug-tracker.html`

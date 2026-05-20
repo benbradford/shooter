@@ -282,6 +282,7 @@ graph TB
 ✅ **Complete:** Workbench dashboard (new session, commit all, update docs) documented
 ✅ **Complete:** Dual development system (Kiro + Claude Code) documented
 ✅ **Complete:** Agent SOPs documented (ChatGPT prompts, attacker spritesheet, background textures)
+✅ **Complete:** Session redesign documented (chat UI, message persistence, WebSocket, idle management, rooms)
 
 ## Dual Development System
 
@@ -305,7 +306,7 @@ This project supports both **Kiro** and **Claude Code** for AI-assisted developm
 
 All trackers live in `workbench/` folder:
 - `workbench/main.html` — Dashboard with New Session, Commit All, Update Docs buttons
-- `workbench/sessions.html` — Session manager (live list, connect/rename/archive/delete, embedded terminal, diff viewer panel, copy-mode panel)
+- `workbench/sessions.html` — Chat-based session manager (room tabs, message history, compose box, WebSocket streaming, idle management)
 - `workbench/architecture-issues.html` — Tech debt tracker
 - `workbench/bug-tracker.html` — Bug tracker
 - `workbench/feature-tracker.html` — Feature tracker
@@ -313,7 +314,7 @@ All trackers live in `workbench/` folder:
 
 Interactive when dev server running. API endpoints in `vite.config.ts`.
 
-Session management via tmux + ttyd — sessions persist across tab switches, reconnect automatically. Full CRUD: create, rename, archive, unarchive, kill, reconnect, delete. Workflows (tagged sessions) have no action buttons. VS Code extension (`vscode-sessions/`) provides alternative access via integrated terminals with native copy/paste. See `docs/README.md` § Session Management.
+Session management redesigned (KiRoom-inspired): chat-based UI with compose box + rendered message history replaces raw terminal iframes. Messages persisted in `.session-data/`. WebSocket streaming (`/ws/sessions`) for real-time output. Idle management (10min auto-idle, transparent resume). Room organization via pill tabs. Session recovery deduplicates tagged sessions and drops stale entries. New APIs: `/{id}/messages`, `/{id}/send`, `/{id}/resume`, `/update`. VS Code extension (`vscode-sessions/`) provides alternative access via integrated terminals with native copy/paste. See `docs/README.md` § Session Management.
 
 ## Recent Architecture Changes (May 2026)
 
@@ -376,4 +377,5 @@ Session management via tmux + ttyd — sessions persist across tab switches, rec
 - **HealthComponent autoheal cache**: `HealthComponent` now caches the `hasAutoHeal` flag at construction instead of polling `WorldStateManager` every frame. Call `refreshAutoHeal()` after the flag changes (e.g., after Lua sets it).
 - **AttackComboComponent refactor**: `createPunchHitbox()` split into `playPunchSound()`, `resolveAimDirection()`, `spawnPunchParticles()` helpers for reduced complexity.
 - **WorldStateManager array texture handling**: `scanModifiedCells` now correctly compares cells with array `backgroundTexture` (multi-texture cells), fixing a regression where modified cells were re-detected as changed every load.
+- **Session redesign (2026-05-20)**: Replaced ttyd terminal iframes with chat-based UI. Messages stored in `.session-data/{sessionId}.json`. WebSocket server (`/ws/sessions`) streams tmux output to subscribed clients. Idle management: 10min inactivity → idle state (ttyd killed, tmux preserved), another 10min → full cull. Room organization: sessions assigned to rooms, pill-tab UI for filtering. Session recovery: deduplicates tagged sessions, drops dead workflows and stale (>24h) untagged sessions. New endpoints: `/{id}/messages`, `/{id}/send`, `/{id}/resume`, `/update`. Feature spec: `features/session-redesign/requirements.md`.
 - **Architecture review (2026-05-18)**: Scanner: 20 files / 9212 LOC / 60 issues (3 critical, 19 high, 23 medium, 15 low). 6 new issues added (#54-#59): CachedFlag half-migration (LaserBeam/Lever still poll), worldToCellInto adoption stalled (13 hot-path sites), PlayerProximityChecker missing abstraction, LaserBeamComponent raycast allocation, LuaRuntime SpecialItemDisplay extraction, EnemyIndex hardcoding. Verdict: architecture fundamentally sound, main action is enforcing existing patterns.
