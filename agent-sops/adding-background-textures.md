@@ -1,132 +1,103 @@
 # SOP: Adding Background Textures
 
 ## When to Use
-When adding new textures that can be placed on grid cells (doors, decorations, floor tiles, etc.).
+
+When the user asks to add a new texture to a grid cell — e.g. "add `crumbled_cottage.png` as a backgroundTexture", "register `well` as a cell texture", "make `shrine` available in the editor".
 
 ## Prerequisites
-- Texture file (PNG format, ideally 128x128 or smaller)
-- Texture placed in `public/assets/` subdirectory
 
-## Step 1: Add Texture File
+- Texture PNG already in the repo (typical location: `public/assets/cell_drawables/`)
+- Recommended size: 128×128 to 1024×1024. Resize with `sips -z 128 128 path/to/file.png` on macOS if oversized.
 
-Place your texture in the appropriate directory:
-- Dungeon elements: `public/assets/cell_drawables/`
-- Decorations: `public/assets/cell_drawables/`
-- Buildings: `public/assets/cell_drawables/`
+## The 4 Required Steps
 
-**Recommended size:** 128x128 pixels (can be resized with `sips -z 128 128 path/to/file.png` on macOS)
+All four steps are required. Skipping any one of them means the texture either won't load, won't appear in the editor, or won't render in-game.
 
-## Step 2: Register in AssetRegistry
+### Step 1: Place the PNG
 
-Add to `src/assets/AssetRegistry.ts`:
+Drop the file under `public/assets/cell_drawables/` (or another subdirectory under `public/assets/` if it's an interior/prop/etc.).
+
+### Step 2: Register in `AssetRegistry`
+
+Add an entry to `ASSET_REGISTRY` in `src/assets/AssetRegistry.ts`:
 
 ```typescript
-your_texture: {
-  key: 'your_texture',
-  path: 'assets/cell_drawables/your_texture.png',
-  type: 'image' as const
+crumbled_cottage: {
+  key: 'crumbled_cottage',
+  path: 'assets/cell_drawables/crumbled_cottage.png',
+  type: 'image' as const,
 },
 ```
 
-**Location:** Add alphabetically within the existing assets.
+### Step 3: Add to the `editor` asset group
 
-## Step 3: Add to AssetLoader
-
-Add to default assets in `src/assets/AssetLoader.ts`:
+In the **same file** (`src/assets/AssetRegistry.ts`), append the new key to the `editor` array inside `ASSET_GROUPS`. Without this, the editor's asset loader won't preload the texture and the picker will show a placeholder.
 
 ```typescript
-const keysToLoad: AssetKey[] = keys ?? [
-  'player', 'attacker', ..., 'your_texture', ...
+editor: [..., 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
+```
+
+### Step 4: Add to `BACKGROUND_TEXTURE_KEYS`
+
+In `editor/panels/TexturePicker.ts`, append the key to `BACKGROUND_TEXTURE_KEYS` so it shows up under the **Background** tab of the texture picker:
+
+```typescript
+const BACKGROUND_TEXTURE_KEYS = [
+  ...,
+  'crumbled_cottage', 'abandoned_hut', 'shrine',
 ];
 ```
 
-**Location:** Add to the array (order doesn't matter but alphabetical is cleaner).
-
-## Step 4: Add to Texture Editor
-
-Add to `src/editor/TextureEditorState.ts`:
-
-```typescript
-const AVAILABLE_TEXTURES: string[] = [
-  'door_closed', 'dungeon_door', ..., 'your_texture', ...
-];
-```
-
-**Location:** Add alphabetically to the array.
-
-## Step 5: (Optional) Add Transform Override
-
-If the texture needs custom scaling or positioning, add to `src/scenes/theme/GameSceneRenderer.ts`:
-
-```typescript
-const BACKGROUND_TEXTURE_TRANSFORM_OVERRIDES: Record<string, { 
-  scaleX: number; 
-  scaleY: number; 
-  offsetX: number; 
-  offsetY: number 
-}> = {
-  house1: { scaleX: 4, scaleY: 4, offsetX: 23, offsetY: 0 },
-  your_texture: { scaleX: 2, scaleY: 2, offsetX: 0, offsetY: 0 }
-};
-```
-
-**When to use:**
-- Texture needs to be larger/smaller than cell size
-- Texture needs to be offset from cell center
-
-## Step 6: Build and Test
+## Verifying
 
 ```bash
-npm run build
-npm run dev
+npm run build              # Must pass
 ```
 
-**Test in editor:**
-1. Press E to enter editor
-2. Click Texture button
-3. Verify your texture appears in the panel
-4. Click texture, then click a cell
-5. Verify texture renders correctly
+Then in the dev server:
 
-## Step 7: Verify in Level JSON
+1. Open the editor at `http://localhost:5173/editor/`
+2. Pick any level, select **Grid** tool → click a cell with the **Select** tool
+3. Click **Choose** under Texture → **Background** tab
+4. Confirm the new texture appears (filterable via the search box)
+5. Apply it to a cell → save (Ctrl+S) → reload the level in-game
+6. Confirm it renders at the placed cell
 
-Click Log button and check the cell has:
+## Optional: Transform Override
+
+If the texture needs custom scaling/positioning per-cell, save the texture from the editor with a transform — the resulting JSON uses the object form:
 
 ```json
 {
-  "col": 10,
-  "row": 5,
-  "backgroundTexture": "your_texture"
+  "backgroundTexture": {
+    "image": "crumbled_cottage",
+    "transformOverride": { "scaleX": 1.5, "scaleY": 1.5, "offsetX": 0, "offsetY": -8 }
+  }
 }
 ```
 
+The editor's Cell form has scaleX/scaleY/offsetX/offsetY inputs once a texture is set — no code change needed for per-cell transforms.
+
+## Optional: Spritesheet Sub-sprites
+
+If the source PNG contains multiple sprites (cropped via `sourceRect`), register it instead in `editor/SpritesheetTextures.ts` and follow the spritesheet workflow in `docs/level-themes.md` § "Adding a Spritesheet to SPRITESHEET_TEXTURES".
+
 ## Checklist
 
-- [ ] Texture file added to `public/assets/`
-- [ ] Added to `AssetRegistry.ts`
-- [ ] Added to `AssetLoader.ts` default assets
-- [ ] Added to `AVAILABLE_TEXTURES` in `TextureEditorState.ts`
-- [ ] (Optional) Added transform override if needed
-- [ ] Build passes (`npm run build`)
-- [ ] Texture appears in editor
-- [ ] Texture renders correctly on grid
-- [ ] Texture saves to level JSON
+- [ ] PNG placed under `public/assets/cell_drawables/` (or appropriate subfolder)
+- [ ] Entry added to `ASSET_REGISTRY` in `src/assets/AssetRegistry.ts` (type `'image'`)
+- [ ] Key appended to `editor` array in `ASSET_GROUPS` (same file)
+- [ ] Key appended to `BACKGROUND_TEXTURE_KEYS` in `editor/panels/TexturePicker.ts`
+- [ ] `npm run build` passes
+- [ ] Texture visible in editor's Background tab
+- [ ] Texture renders correctly when placed on a cell
 
 ## Common Issues
 
-**Texture not appearing in editor:**
-- Check it's in AVAILABLE_TEXTURES array
-- Verify asset key matches exactly
+**Texture missing from picker but build passes:** You forgot Step 4 (`BACKGROUND_TEXTURE_KEYS`).
 
-**Texture not rendering:**
-- Check AssetRegistry path is correct
-- Verify texture is in AssetLoader default assets
-- Check browser console for loading errors
+**Texture shows as a `__MISSING` placeholder in editor:** You forgot Step 3 (`editor` asset group).
 
-**Texture wrong size:**
-- Add transform override in GameSceneRenderer.ts
-- Use scaleX/scaleY to adjust size
+**Texture missing from in-game render after Save:** Make sure the level JSON has `"backgroundTexture": "<key>"` on the cell. If yes, the asset isn't being loaded for that level — confirm Step 3 is done so the asset loader includes it via the editor group (in-game uses level-specific groups, but Step 3 is enough for textures placed via the editor since `AssetLoader.getRequiredAssetGroups()` reads referenced texture keys from the level JSON).
 
-**Texture wrong position:**
-- Add transform override with offsetX/offsetY
-- Positive offset moves right/down, negative moves left/up
+**Texture wrong size on cells:** Use the editor's per-cell transform inputs (scaleX/scaleY/offsetX/offsetY) — they're stored as `transformOverride` in the cell JSON.

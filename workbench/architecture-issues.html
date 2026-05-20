@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-18 (21:39) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9212 LOC / 60 issues (3 critical, 19 high, 23 medium, 15 low). New findings: 6 issues added (#54-#59) covering CachedFlag/zero-alloc half-migrations, PlayerProximityChecker missing abstraction, LaserBeamComponent hot-path patterns, EnemyIndex hardcoding. Top priority remains GameScene (89, residue is editor mode interleaving). Most foundational primitives (ComponentStateMachine, CachedFlag, subscribeFlag, LevelTransitionManager, PathFollower) are correctly applied. Verdict: architecture is fundamentally sound, single most important change is enforcing existing patterns via lint or policy. Full report: <code>tmp/architecture-review-2026-05-18-2139.md</code></p>
+<p class="updated">Last audit: 2026-05-20 · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9245 LOC / 60 issues (3 critical, 19 high, 23 medium, 15 low). Resolved since last audit: #54 (CachedFlag for Laser/Lever — both migrated), #55 (worldToCellInto adopted in all 11 listed hot-path files, 0 remaining worldToCell calls). New findings: 5 issues added (#60-#64) covering PathTilesetGenerator big method, SpeechBoxComponent growth, worldToCell lint enforcement, and residual allocating-worldToCell in EscortPathfinding/DogBarkAbility per-frame paths. GameScene stable at 812 LOC (score 89). Grid unchanged at 415 LOC / 98 fan-in. Verdict: performance hot-path cleanup is largely complete; remaining work is enforcement (lint rules) and lower-priority structural extraction. Full report: <code>tmp/architect-report.json</code></p>
 
 <script>
 const ISSUES = [
@@ -619,20 +619,20 @@ const ISSUES = [
 
   // ── NEW ISSUES (2026-05-18 audit) ──
   {
-    id: 54, severity: 'high', status: 'open',
+    id: 54, severity: 'high', status: 'done',
     title: 'CachedFlag half-migrated — LaserBeamComponent + LeverComponent still poll getFlag() every frame',
     detail: 'Issue #48 introduced the CachedFlag primitive and migrated 7 hot sites. Two sites with identical patterns were missed: (1) LaserBeamComponent.update():167 — `const flagValue = this.worldState.getFlag(this.flagName); this.isOn = flagValue !== \'false\'` runs every frame for every laser entity. (2) LeverComponent.isLocked() — `this.worldState.getFlag(`${this.flagPrefix}_locked`) === \'true\'` runs every frame inside update(). Both should use CachedFlag (LaserBeam needs a custom predicate variant or store as `!== \'false\'` boolean). Architectural concern: pattern is not enforced. Each new flag-polling component lands raw because surrounding code did. Recommendation: migrate these 2, then add a lint rule or ESLint custom rule banning `worldState.getFlag(` inside `update()` method bodies.',
     files: ['src/ecs/components/laser/LaserBeamComponent.ts', 'src/ecs/components/lever/LeverComponent.ts'],
     effort: '30m', risk: 'None', fanIn: 4, category: 'performance',
-    added: '2026-05-18',
+    added: '2026-05-18', resolution: 'Fixed (2026-05-20): Both LaserBeamComponent and LeverComponent now use CachedFlag. LaserBeamComponent uses custom predicate `(v) => v !== \'false\'`. LeverComponent uses CachedFlag for the `_locked` flag. All known flag-polling hot paths now use CachedFlag.',
   },
   {
-    id: 55, severity: 'high', status: 'open',
+    id: 55, severity: 'high', status: 'done',
     title: 'worldToCellInto zero-alloc variant adoption stalled at 2/15 hot-path sites',
     detail: 'Grid.worldToCellInto(x, y, out) was added during issue #1 (May 4) but only 2 files use it: GridMovementValidator and GridCollisionComponent. 13+ hot-path callers still allocate via worldToCell()/cellToWorld() inside per-frame update chains. Worst offenders: BugChaseState (3 sites), JumpAnimator (2 sites in update), JumpDetector (2 sites per input), PetSyncJumpBehavior (3 sites), PetFollowComponent.recalculatePath/startWanderMove (2 sites), KnockbackComponent (2 sites), RockArcComponent (3 sites), WaterEffectComponent.updateShadowMask/updateSpriteMask (2 sites), WaterRippleComponent (1 site). Estimated 30-60 {col,row} object allocations per frame on a typical level. Migration is mechanical — pre-allocate tmpCells: CellCoord[] field, replace each call. Same pattern as issue #1 fix. See migration path in tmp/architecture-review-2026-05-18-2139.md.',
     files: ['src/ecs/entities/bug/BugChaseState.ts', 'src/ecs/components/movement/JumpAnimator.ts', 'src/ecs/components/movement/JumpDetector.ts', 'src/ecs/components/pet/PetSyncJumpBehavior.ts', 'src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/components/movement/KnockbackComponent.ts', 'src/ecs/components/pet/RockArcComponent.ts', 'src/ecs/components/visual/WaterEffectComponent.ts', 'src/ecs/components/visual/WaterRippleComponent.ts', 'src/ecs/components/escort/EscortPathfinding.ts', 'src/ecs/components/pet/DogBarkAbility.ts'],
     effort: '3h', risk: 'Low', fanIn: 97, category: 'performance',
-    added: '2026-05-18',
+    added: '2026-05-18', resolution: 'Fixed (2026-05-20): All 11 listed files migrated to worldToCellInto with pre-allocated _tmpCell fields. Zero remaining worldToCell() calls in these files. 32 worldToCell() callers remain in non-hot-path code (pathfinding init, one-shot interactions, enemy state transitions) — acceptable since those run per-event, not per-frame.',
   },
   {
     id: 56, severity: 'medium', status: 'open',
@@ -665,6 +665,48 @@ const ISSUES = [
     files: ['src/scenes/GameScene.ts', 'src/ecs/EntityManager.ts'],
     effort: '1h', risk: 'Low', fanIn: 14, category: 'architecture',
     added: '2026-05-18',
+  },
+
+  // ── NEW ISSUES (2026-05-20 audit) ──
+  {
+    id: 60, severity: 'medium', status: 'open',
+    title: 'PathTilesetGenerator.drawPathTile() is 100 LOC — largest method in the tileset subsystem',
+    detail: 'src/scenes/theme/PathTilesetGenerator.ts drawPathTile() is 100 LOC with complex canvas drawing operations (corner rounding, edge detection, texture sampling). The method handles 4 edge directions + 4 corners, each with distinct fill logic. Could split into drawPathEdges() and drawPathCorners() helper methods. Low priority — tile generation runs once at level load, not per-frame. File is 339 LOC total with 37 magic numbers (pixel offsets, canvas dimensions).',
+    files: ['src/scenes/theme/PathTilesetGenerator.ts'],
+    effort: '2h', risk: 'Low', fanIn: 2, category: 'maintainability',
+    added: '2026-05-20',
+  },
+  {
+    id: 61, severity: 'medium', status: 'open',
+    title: 'SpeechBoxComponent 362 LOC / 18 methods — growing toward god-object threshold',
+    detail: 'src/ecs/components/ui/SpeechBoxComponent.ts handles text rendering, typewriter animation, speech bubble positioning, portrait display, choice selection, and scroll management in a single class. 13 magic numbers (padding, margin, animation timing). Currently just above the 300 LOC threshold at 362 LOC. The choice/selection logic (~80 LOC) could be extracted to a SpeechChoiceHandler. Medium priority — UI component with moderate fan-in, changes infrequently.',
+    files: ['src/ecs/components/ui/SpeechBoxComponent.ts'],
+    effort: '2h', risk: 'Low', fanIn: 3, category: 'architecture',
+    added: '2026-05-20',
+  },
+  {
+    id: 62, severity: 'low', status: 'open',
+    title: 'worldToCell() allocating variant still has 32 callers — enforce worldToCellInto in hot paths via lint',
+    detail: 'Issue #55 migrated all per-frame hot-path callers, but 32 worldToCell() callers remain across pathfinding init, one-shot interactions (InteractionComponent, RockProjectileComponent, ProjectileComponent), enemy state transitions (PumaChasingState, ThrowerRunningState, SkeletonIdleState), and EscortPathfinding. These are acceptable since they run per-event not per-frame. However, new code could accidentally use worldToCell() in a hot path. Suggestion: add an ESLint rule or scanner check that flags worldToCell() calls inside methods named update/render/tick, forcing explicit opt-in for the allocating variant.',
+    files: ['src/systems/grid/Grid.ts'],
+    effort: '1h', risk: 'None', fanIn: 97, category: 'scaling',
+    added: '2026-05-20',
+  },
+  {
+    id: 63, severity: 'low', status: 'open',
+    title: 'EscortPathfinding still uses allocating worldToCell() — 4 calls in pathfinding methods',
+    detail: 'src/ecs/components/escort/EscortPathfinding.ts lines 37, 39, 46, 66: `this.grid.worldToCell(...)` allocates {col,row} objects. These run on pathfinding recalc (every 500ms), not every frame, so impact is modest (~8 allocs/sec per escort). Could migrate to worldToCellInto with pre-allocated _tmpCell fields for consistency with the pattern established in issue #55. Mechanical 15-min change.',
+    files: ['src/ecs/components/escort/EscortPathfinding.ts'],
+    effort: '15m', risk: 'None', fanIn: 3, category: 'performance',
+    added: '2026-05-20',
+  },
+  {
+    id: 64, severity: 'low', status: 'open',
+    title: 'DogBarkAbility uses allocating worldToCell() 4 times in update-adjacent methods',
+    detail: 'src/ecs/components/pet/DogBarkAbility.ts lines 62, 83, 141, 142: `this.grid.worldToCell(...)`. Lines 62/83 are inside updateApproaching() called every frame. Lines 141/142 are in recalcPath called every 500ms. The per-frame sites (62, 83) should be migrated to worldToCellInto for consistency with issue #55 pattern. The recalc sites are low-impact.',
+    files: ['src/ecs/components/pet/DogBarkAbility.ts'],
+    effort: '15m', risk: 'None', fanIn: 2, category: 'performance',
+    added: '2026-05-20',
   },
 ];
 

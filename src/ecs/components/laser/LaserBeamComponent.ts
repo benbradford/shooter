@@ -303,43 +303,51 @@ export class LaserBeamComponent implements Component, EventListener {
     const hitFlash = player.get(HitFlashComponent);
     hitFlash?.flash(300);
 
-    // If player is in push state, force exit so knockback works
     const sm = player.get(StateMachineComponent);
     if (sm?.stateMachine.getCurrentKey() === 'push') {
       sm.stateMachine.enter('idle');
     }
 
-    // Push player fully out of the beam so they can't walk through
-    // Find perpendicular direction from beam to player
+    this.pushEntityFromBeam(playerTransform, collision, gridPos!.currentLayer, cx, cy, startX, startY, dist);
+  }
+
+  private pushEntityFromBeam(
+    transform: TransformComponent,
+    collision: CollisionComponent,
+    layer: number,
+    cx: number,
+    cy: number,
+    beamStartX: number,
+    beamStartY: number,
+    distFromBeam: number
+  ): void {
     const perpX = -this.dirY;
     const perpY = this.dirX;
-    const toPlayerX = cx - startX;
-    const toPlayerY = cy - startY;
-    const side = toPlayerX * perpX + toPlayerY * perpY;
-    // Push toward the side the player is on
+    const toEntityX = cx - beamStartX;
+    const toEntityY = cy - beamStartY;
+    const side = toEntityX * perpX + toEntityY * perpY;
     const pushDirX = side >= 0 ? perpX : -perpX;
     const pushDirY = side >= 0 ? perpY : -perpY;
 
-    // Distance needed: beam half-width + player half-width + margin - current distance from beam center
     const clearancePx = BEAM_COLLISION_HALF_WIDTH_PX + collision.box.width / 2 + PUSHBACK_MARGIN_PX;
-    const pushDistPx = clearancePx - dist;
+    const pushDistPx = clearancePx - distFromBeam;
     if (pushDistPx <= 0) return;
 
-    const targetX = playerTransform.x + pushDirX * pushDistPx;
-    const targetY = playerTransform.y + pushDirY * pushDistPx;
+    const targetX = transform.x + pushDirX * pushDistPx;
+    const targetY = transform.y + pushDirY * pushDistPx;
     const targetCell = this.grid.worldToCell(targetX, targetY);
     const cell = this.grid.getCell(targetCell.col, targetCell.row);
 
     if (!cell) return;
     if (this.grid.isWall(cell) || cell.properties.has('platform')) return;
-    if (cell.layer !== gridPos.currentLayer) return;
+    if (cell.layer !== layer) return;
     if (this.blockedAreaManager?.getBlockedCells().has(`${targetCell.col},${targetCell.row}`)) return;
     for (const occupant of cell.occupants) {
       if (occupant.get(GridCellBlocker)) return;
     }
 
-    playerTransform.x = targetX;
-    playerTransform.y = targetY;
+    transform.x = targetX;
+    transform.y = targetY;
   }
 
   private checkEnemyCollision(startX: number, startY: number, endX: number, endY: number): void {

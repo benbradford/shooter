@@ -836,14 +836,14 @@
     },
     {
       "col": 8,
-      "row": 7,
+      "row": 6,
       "layer": 0,
       "backgroundTexture": [
         {
           "image": "shrine",
           "transformOverride": {
             "scaleX": 3,
-            "scaleY": 3,
+            "scaleY": 4,
             "offsetX": 0,
             "offsetY": 0
           }
@@ -858,8 +858,8 @@
         {
           "image": "abandoned_hut",
           "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
+            "scaleX": 7,
+            "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
           }
@@ -867,15 +867,15 @@
       ]
     },
     {
-      "col": 11,
+      "col": 4,
       "row": 9,
       "layer": 0,
       "backgroundTexture": [
         {
           "image": "crumbled_cottage",
           "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
+            "scaleX": 7,
+            "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
           }
@@ -890,8 +890,8 @@
         {
           "image": "cart",
           "transformOverride": {
-            "scaleX": 3,
-            "scaleY": 3,
+            "scaleX": 4,
+            "scaleY": 5,
             "offsetX": 0,
             "offsetY": 0
           }
@@ -906,8 +906,8 @@
         {
           "image": "well",
           "transformOverride": {
-            "scaleX": 3,
-            "scaleY": 4,
+            "scaleX": 4,
+            "scaleY": 5,
             "offsetX": 0,
             "offsetY": 0
           }

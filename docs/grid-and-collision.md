@@ -113,6 +113,13 @@ See `src/systems/grid/Grid.ts` for complete API.
 
 **GridReader interface:** Read-only view of Grid (coordinate conversion, cell queries, occupant checks). Most consumers (~70 files) use `GridReader` — only GameScene, EntityLoader, GridCollisionComponent, CellModifierComponent, and PushableComponent need full `Grid` mutation access.
 
+**Zero-alloc coordinate helpers:** Hot-path code (movement, collision, jumps) should use the `Into` variants instead of the allocating versions:
+
+- `worldToCell(x, y)` → returns `{col, row}` (allocates) | `worldToCellInto(x, y, out)` → writes into `out: CellCoord`
+- `cellToWorld(col, row)` → returns `{x, y}` (allocates) | `cellToWorldInto(col, row, out)` → writes into `out: WorldCoord`
+
+The `Into` variants are used by `JumpAnimator`, `GridCollisionComponent`, `KnockbackComponent`, `JumpDetector`, `GridMovementValidator`, `WalkComponent`, `WaterEffectComponent`, `WaterRippleComponent`, `PetFollowComponent`, `PetSyncJumpBehavior`, `RockArcComponent`, and `BugChaseState`. Components store reusable scratch coords as private fields and pass them to the `Into` calls each frame, eliminating per-frame allocations.
+
 ### Grid Tag Index
 
 The grid maintains a tag-based index for O(1) entity lookup by tag. Uses ref-counting to handle multi-cell entities correctly — an entity occupying 4 cells is only added to the tag index once and only removed when its last cell occupancy is cleared.

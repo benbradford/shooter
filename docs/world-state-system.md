@@ -105,7 +105,14 @@ private readonly canPunchFlag = new CachedFlag(WorldFlags.canPunch);
 if (!this.canPunchFlag.get()) return;
 ```
 
-Used by `JumpComponent`, `GridMovementValidator`, `AttackButtonComponent`, `AttackComboComponent`, and `PlayerStateHelpers` to eliminate per-frame singleton lookups for `canJump`, `canSwim`, `canPunch`, `hasSuperPunch`, and `canPush`. Call `destroy()` from the owning component's `onDestroy` to unsubscribe.
+**Custom predicate:** The default predicate treats `'true'` as true and everything else as false. For non-standard flags (e.g., a flag that defaults to "on" unless set to `'false'`), pass a custom `FlagPredicate`:
+
+```typescript
+// Laser is "on" unless flag is exactly 'false'
+this.onFlag = new CachedFlag(props.flagName, props.worldState, (v) => v !== 'false');
+```
+
+Used by `JumpComponent`, `GridMovementValidator`, `AttackButtonComponent`, `AttackComboComponent`, `PlayerStateHelpers`, `LaserBeamComponent` (with custom predicate for the on/off flag), and `LeverComponent` (for `_locked` flag) to eliminate per-frame singleton lookups for `canJump`, `canSwim`, `canPunch`, `hasSuperPunch`, `canPush`, laser-on, and lever-locked flags. Call `destroy()` from the owning component's `onDestroy` to unsubscribe.
 
 ### Known Gameplay Flags
 
