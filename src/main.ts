@@ -5,12 +5,14 @@ import LoadingScene from "./scenes/LoadingScene";
 import BootScene from "./scenes/BootScene";
 import TitleScene from "./scenes/TitleScene";
 import ProfileSelectScene from "./scenes/ProfileSelectScene";
-import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AttackButtonComponent, WalkComponent, StateMachineComponent, HealthComponent, WaterEffectComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AttackButtonComponent, WalkComponent, StateMachineComponent, HealthComponent, WaterEffectComponent, PushableComponent } from "./ecs";
 import { AttackComboComponent } from "./ecs/components/combat/AttackComboComponent";
 import { PetAbilityComponent } from "./ecs/components/pet/PetAbilityComponent";
 import { DogBarkAbility } from "./ecs/components/pet/DogBarkAbility";
 import { Pathfinder } from "./systems/Pathfinder";
 import { WorldStateManager } from "./systems/WorldStateManager";
+import { CachedFlag } from "./systems/state/CachedFlag";
+import { JumpComponent } from "./ecs/components/movement/JumpComponent";
 
 // Add Eruda console for mobile debugging
 if (globalThis.location.search.includes('debug')) {
@@ -63,4 +65,7 @@ if (params.get('test') === 'true') {
   g.WalkComponent = WalkComponent;
   g.StateMachineComponent = StateMachineComponent;
   g.WaterEffectComponent = WaterEffectComponent;
+  g.CachedFlag = CachedFlag;
+  g.PushableComponent = PushableComponent;
+  g.JumpComponent = JumpComponent;
 }

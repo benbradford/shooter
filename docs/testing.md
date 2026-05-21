@@ -79,6 +79,7 @@ When the game loads with `?test=true`, `src/main.ts` exposes these on `globalThi
 - `AttackButtonComponent`, `AttackComboComponent`, `HealthComponent`, `WalkComponent`, `StateMachineComponent`
 - `WorldStateManager`, `WaterEffectComponent`, `PetAbilityComponent`, `DogBarkAbility`, `Pathfinder`
 - `JoystickVisualsComponent`, `AimJoystickVisualsComponent`
+- `CachedFlag`, `PushableComponent`, `JumpComponent`
 
 **Test levels:** `public/levels/test/` — dedicated levels for testing (e.g., `test-combat.json`, `test-punch-damage.json`, `test-player-transition.json`)
 

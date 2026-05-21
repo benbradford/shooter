@@ -1,0 +1,46 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 5,
+    "y": 5
+  },
+  "cells": [
+    {
+      "col": 5,
+      "row": 2,
+      "properties": ["wall"]
+    },
+    {
+      "col": 8,
+      "row": 5,
+      "properties": ["wall"]
+    }
+  ],
+  "entities": [
+    {
+      "id": "pushable_enabled",
+      "type": "pushable",
+      "data": {
+        "col": 5,
+        "row": 4,
+        "texture": "pushing_box",
+        "pushEnabled": true,
+        "doesPersist": false,
+        "singlePushOnly": false
+      }
+    },
+    {
+      "id": "pushable_disabled",
+      "type": "pushable",
+      "data": {
+        "col": 7,
+        "row": 5,
+        "texture": "pushing_box",
+        "pushEnabled": false,
+        "doesPersist": false,
+        "singlePushOnly": false
+      }
+    }
+  ]
+}

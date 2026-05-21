@@ -140,6 +140,8 @@ Browser-based trackers at `http://localhost:5173/workbench/`:
 - Architecture issues, features, bugs, linter errors
 - Interactive status buttons and agent session spawning
 
+**Feature lifecycle:** When implementing a tracked feature, set its status to `'in-progress'` in `workbench/feature-tracker.html` when starting, and `'done'` when complete. If `features/{name}/tasks.md` exists, mark individual tasks with `✓ COMPLETE`.
+
 ## Dual Development System
 
 This project supports both **Kiro** and **Claude Code** for AI-assisted development:

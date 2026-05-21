@@ -244,6 +244,22 @@
       ]
     },
     {
+      "col": 4,
+      "row": 1,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "shrine",
+          "transformOverride": {
+            "scaleX": 3,
+            "scaleY": 4,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
+      ]
+    },
+    {
       "col": 6,
       "row": 1,
       "layer": 0,
@@ -835,28 +851,12 @@
       ]
     },
     {
-      "col": 8,
-      "row": 6,
+      "col": 2,
+      "row": 5,
       "layer": 0,
       "backgroundTexture": [
         {
-          "image": "shrine",
-          "transformOverride": {
-            "scaleX": 3,
-            "scaleY": 4,
-            "offsetX": 0,
-            "offsetY": 0
-          }
-        }
-      ]
-    },
-    {
-      "col": 14,
-      "row": 7,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "abandoned_hut",
+          "image": "crumbled_cottage",
           "transformOverride": {
             "scaleX": 7,
             "scaleY": 7,
@@ -867,7 +867,23 @@
       ]
     },
     {
-      "col": 4,
+      "col": 26,
+      "row": 6,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "abandoned_hut",
+          "transformOverride": {
+            "scaleX": -7,
+            "scaleY": 7,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
+      ]
+    },
+    {
+      "col": 2,
       "row": 9,
       "layer": 0,
       "backgroundTexture": [
@@ -883,12 +899,12 @@
       ]
     },
     {
-      "col": 8,
-      "row": 11,
+      "col": 11,
+      "row": 10,
       "layer": 0,
       "backgroundTexture": [
         {
-          "image": "cart",
+          "image": "well",
           "transformOverride": {
             "scaleX": 4,
             "scaleY": 5,
@@ -899,15 +915,31 @@
       ]
     },
     {
-      "col": 15,
-      "row": 11,
+      "col": 26,
+      "row": 10,
       "layer": 0,
       "backgroundTexture": [
         {
-          "image": "well",
+          "image": "abandoned_hut",
           "transformOverride": {
-            "scaleX": 4,
-            "scaleY": 5,
+            "scaleX": -7,
+            "scaleY": 7,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "crumbled_cottage",
+          "transformOverride": {
+            "scaleX": 7,
+            "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
           }
@@ -957,6 +989,38 @@
             "offsetY": -8
           },
           "alpha": 0.7
+        }
+      ]
+    },
+    {
+      "col": 26,
+      "row": 14,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "abandoned_hut",
+          "transformOverride": {
+            "scaleX": -7,
+            "scaleY": 7,
+            "offsetX": 0,
+            "offsetY": 0
+          }
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "cart",
+          "transformOverride": {
+            "scaleX": 4,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          }
         }
       ]
     },
@@ -1571,7 +1635,6 @@
     }
   ],
   "levelTheme": "grass_overworld1",
-  "music": "btr_tonal",
   "background": {
     "floor_texture": "grass_faded",
     "floor_tile": 8,

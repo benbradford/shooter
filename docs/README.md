@@ -348,6 +348,16 @@ Both **Kiro** (`kiro-cli chat --agent dodging-bullets`) and **Claude Code** (`cl
 - Fix a tech debt issue → Mark as done in `workbench/architecture-issues.html`
 - Architecture review completed → Update `workbench/architecture-issues.html` (mark done, add new issues)
 
+## Feature Lifecycle (Feature Tracker)
+
+**⚠️ MANDATORY: When implementing a feature from the feature tracker, update its status:**
+
+1. **Starting work** → Set status to `'in-progress'` in `workbench/feature-tracker.html`
+2. **Work complete** → Set status to `'done'`
+3. **If tasks.md exists** → Also mark individual tasks complete with `✓ COMPLETE` and `[x]` checkboxes
+
+This applies to features, tests, and any other tracked items. Don't wait until a doc update — do it as part of the implementation workflow.
+
 ## 🔧 Tech Debt Tracker
 
 **[architecture-issues.html](../workbench/architecture-issues.html)** — Open in browser to view all architecture issues by severity/status.

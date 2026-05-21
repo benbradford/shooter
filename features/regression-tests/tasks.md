@@ -77,15 +77,15 @@
 
 ---
 
-### Task 2: Punch Damage Test
+### Task 2: Punch Damage Test ✓ COMPLETE
 **Files**:
-- `test/tests/combat/test-punch-damage.js`
-- Update `test-combat.json` or create `test-combat-enemy.json`
+- `test/tests/player/test-punch-damage.js`
+- `public/levels/test/test-punch-damage.json`
 
 **Test Cases**:
-- [ ] GIVEN enemy in punch range facing player, WHEN player punches toward enemy, THEN enemy takes damage
-- [ ] GIVEN enemy out of punch range, WHEN player punches toward enemy, THEN enemy takes no damage
-- [ ] GIVEN enemy at full health, WHEN player punches enough times, THEN enemy is destroyed
+- [x] GIVEN enemy in punch range facing player, WHEN player punches toward enemy, THEN enemy takes damage
+- [x] GIVEN enemy out of punch range, WHEN player punches toward enemy, THEN enemy takes no damage
+- [x] GIVEN enemy at full health, WHEN player punches enough times, THEN enemy is destroyed
 
 **Level Needs**: Small room, player + 1 stationary enemy (e.g., skeleton with patrol disabled).
 
@@ -113,17 +113,17 @@
 
 ---
 
-### Task 4: Basic Push Test
+### Task 4: Basic Push Test ✓ COMPLETE
 **Files**:
-- `test/tests/movement/test-push-basic.js`
-- `public/levels/test/test-push.json` (new test level)
+- `test/tests/player/test-push.js`
+- `public/levels/test/test-push.json`
 
 **Test Cases**:
-- [ ] GIVEN canPush is true and player faces pushable block, WHEN player holds movement into block, THEN block moves one cell in push direction
-- [ ] GIVEN pushable is against a wall, WHEN player pushes, THEN block does not move
-- [ ] GIVEN canPush is false, WHEN player walks into pushable, THEN block stays
+- [x] GIVEN canPush is true and player faces pushable block, WHEN player holds movement into block and presses attack, THEN block moves one cell in push direction
+- [x] GIVEN pushable is against a wall, WHEN player pushes, THEN block does not move
+- [x] GIVEN pushEnabled is false, WHEN player walks into pushable, THEN player does not enter push state
 
-**Level Needs**: Small room (8x8), player, 1 pushable block with open space, 1 wall-adjacent block.
+**Level Needs**: Small room (10x10), player, 1 pushable block with open space, 1 wall-adjacent block, 1 disabled pushable.
 
 **Estimated Time**: 1.5 hours
 
@@ -160,16 +160,16 @@
 
 ## Phase 2: State & Persistence Tests
 
-### Task 7: Flag Persistence Across Transitions
+### Task 7: Flag Persistence Across Transitions ✓ COMPLETE
 **Files**:
 - `test/tests/flags/test-flag-persistence.js`
 
 **Test Cases**:
-- [ ] GIVEN canPunch is set to true, WHEN player transitions to new level, THEN canPunch is still true
-- [ ] GIVEN flag is set during gameplay, WHEN game state is saved and reloaded, THEN flag persists
-- [ ] GIVEN flags are loaded from save, WHEN CachedFlag reads the value, THEN it reflects the saved value (not stale)
+- [x] GIVEN canPunch is set to true, WHEN player transitions to new level, THEN canPunch is still true
+- [x] GIVEN flag is set during gameplay, WHEN game state is saved and reloaded, THEN flag persists
+- [x] GIVEN flags are loaded from save, WHEN CachedFlag reads the value, THEN it reflects the saved value (not stale)
 
-**Level Needs**: Two small connected test levels with transitions.
+**Level Needs**: Reuses `test/test-combat` level (no separate transition levels needed — tests simulate WorldState transition operations directly).
 
 **Estimated Time**: 1.5 hours
 
@@ -177,15 +177,15 @@
 
 ## Phase 3: Movement Ability Tests
 
-### Task 8: Basic Jump Test
+### Task 8: Basic Jump Test ✓ COMPLETE
 **Files**:
-- `test/tests/movement/test-jump-basic.js`
-- `public/levels/test/test-jump.json` (new test level)
+- `test/tests/player/test-jump.js`
+- `public/levels/test/test-jump.json`
 
 **Test Cases**:
-- [ ] GIVEN canJump is true and player is at a gap edge, WHEN player presses attack (jump icon showing), THEN player lands on other side
-- [ ] GIVEN canJump is false and player is at a gap edge, WHEN player walks toward edge, THEN player is blocked
-- [ ] GIVEN player is mid-jump, WHEN jump completes, THEN player cell position matches target
+- [x] GIVEN canJump is true and player is at a gap edge, WHEN player presses attack (jump icon showing), THEN player lands on other side
+- [x] GIVEN canJump is false and player is at a gap edge, WHEN player walks toward edge, THEN player is blocked
+- [x] GIVEN player is mid-jump, WHEN jump completes, THEN player cell position matches target
 
 **Level Needs**: Small room with a 1-cell gap (void/hole) player can jump across.
 
@@ -211,18 +211,17 @@
 
 ## Phase 4: Health & Damage Tests
 
-### Task 10: Health and Damage Test
+### Task 10: Health and Damage Test ✓ COMPLETE
 **Files**:
 - `test/tests/health/test-health-damage.js`
-- `public/levels/test/test-health.json` (new test level)
 
 **Test Cases**:
-- [ ] GIVEN player at full health, WHEN player takes damage, THEN health decreases
-- [ ] GIVEN player health is low, WHEN enough damage taken, THEN player enters death state
-- [ ] GIVEN player health is below max, WHEN time passes, THEN health regenerates (if regen enabled)
-- [ ] GIVEN player is in death state, WHEN death animation completes, THEN game handles death (no crash)
+- [x] GIVEN player at full health, WHEN player takes damage, THEN health decreases
+- [x] GIVEN player health is low, WHEN enough damage taken, THEN player enters death state
+- [x] GIVEN player health is below max, WHEN time passes, THEN health regenerates (if regen enabled)
+- [x] GIVEN player is in death state, WHEN death animation completes, THEN game handles death (no crash)
 
-**Level Needs**: Player + 1 projectile-firing enemy (e.g., BulletDude) or programmatic damage.
+**Level Needs**: Uses `test-combat` level with programmatic damage via `takeDamage()`.
 
 **Estimated Time**: 1.5 hours
 

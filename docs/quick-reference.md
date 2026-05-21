@@ -255,7 +255,7 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 
 **Music:**
 1. Place MP3 in `public/assets/music/`
-2. Register in `AssetRegistry.ts` with `type: 'audio'` (e.g., `btr_overworld`, `btr_wilds`)
+2. Register in `AssetRegistry.ts` with `type: 'audio'` (e.g., `btr_overworld`, `btr_wilds`, `btr_tonal`)
 3. Reference in level JSON: `"music": "btr_overworld"` at the top level
 4. Played automatically by `MusicManager` after the level loads — no per-level wiring needed
 

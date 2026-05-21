@@ -91,7 +91,8 @@ export class BackgroundTextureRenderer {
           }
 
           if (transform) {
-            sprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
+            sprite.setDisplaySize(this.cellSize * Math.abs(transform.scaleX), this.cellSize * Math.abs(transform.scaleY));
+            sprite.setFlip(transform.scaleX < 0, transform.scaleY < 0);
           } else {
             sprite.setDisplaySize(this.cellSize, this.cellSize);
           }
@@ -138,7 +139,8 @@ export class BackgroundTextureRenderer {
 
         const animSprite = this.scene.add.sprite(spriteX, spriteY, config.spritesheet, 0);
         if (transform) {
-          animSprite.setDisplaySize(this.cellSize * transform.scaleX, this.cellSize * transform.scaleY);
+          animSprite.setDisplaySize(this.cellSize * Math.abs(transform.scaleX), this.cellSize * Math.abs(transform.scaleY));
+          animSprite.setFlip(transform.scaleX < 0, transform.scaleY < 0);
         } else {
           animSprite.setDisplaySize(this.cellSize, this.cellSize);
         }
