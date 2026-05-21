@@ -15,7 +15,10 @@
       "Bash(curl *)",
       "Bash(python3 *)",
       "Bash(kill 90038)",
-      "Bash(kill -9 90038)"
+      "Bash(kill -9 90038)",
+      "Bash(HEADLESS=true node test/tests/loading/test-level-transition.js)",
+      "Bash(HEADLESS*)",
+      "Bash(git diff *)"
     ]
   }
 }

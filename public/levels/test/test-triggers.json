@@ -1,0 +1,44 @@
+{
+  "width": 10,
+  "height": 10,
+  "playerStart": {
+    "x": 2,
+    "y": 2
+  },
+  "cells": [],
+  "entities": [
+    {
+      "id": "trigger_repeating",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "event_repeating",
+        "triggerCells": [
+          { "col": 4, "row": 2 }
+        ],
+        "oneShot": false
+      }
+    },
+    {
+      "id": "trigger_oneshot",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "event_oneshot",
+        "triggerCells": [
+          { "col": 6, "row": 2 }
+        ],
+        "oneShot": true
+      }
+    },
+    {
+      "id": "trigger_flag_setter",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "event_flag_setter",
+        "triggerCells": [
+          { "col": 4, "row": 4 }
+        ],
+        "oneShot": true
+      }
+    }
+  ]
+}

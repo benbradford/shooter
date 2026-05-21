@@ -455,7 +455,7 @@ Register a factory function in `src/systems/entityFactories.ts` via `registerEnt
 
 **Cause:** When you move an entity, the Transform and Sprite are updated, but GridPositionComponent.currentCell is not. When extractEntities() runs, it reads from GridPositionComponent.currentCell which still has the old position.
 
-**Solution:** MoveEditorState now updates GridPositionComponent.currentCell when moving entities.
+**Solution:** `EditorBridge` now updates `GridPositionComponent.currentCell` when moving entities.
 
 ## Migration Notes
 

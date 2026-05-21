@@ -253,6 +253,7 @@ export class ContextPanel {
         <span class="label">Name</span><span>${this.bridge.currentLevelName ?? '—'}</span>
         <span class="label">Size</span><span>${grid.width} x ${grid.height}</span>
         <span class="label">Theme</span><select id="li-theme" style="font-size:11px">${['dungeon', 'swamp', 'grass', 'wilds', 'tunnels', 'default'].map(t => `<option ${(levelData.levelTheme ?? 'dungeon') === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        <span class="label">Music</span><select id="li-music" style="font-size:11px">${['(none)', 'btr_music', 'btr_overworld', 'btr_wilds', 'btr_tonal'].map(m => `<option value="${m === '(none)' ? '' : m}" ${(levelData.music ?? '') === (m === '(none)' ? '' : m) ? 'selected' : ''}>${m}</option>`).join('')}</select>
         <span class="label">Entities</span><span>${entityCount}</span>
         <span class="label">Player</span><span style="display:flex;gap:4px"><input type="number" id="li-px" value="${levelData.playerStart.x}" style="width:50px;font-size:11px"> <input type="number" id="li-py" value="${levelData.playerStart.y}" style="width:50px;font-size:11px"></span>
       </div>
@@ -287,6 +288,7 @@ export class ContextPanel {
     this.container.querySelector('#ri-rem-col')?.addEventListener('click', () => { if (grid.width > 1) { this.bridge.resizeGrid(grid.width - 1, grid.height); this.showLevelInfo(); } });
     this.container.querySelector('#ri-rem-row')?.addEventListener('click', () => { if (grid.height > 1) { this.bridge.resizeGrid(grid.width, grid.height - 1); this.showLevelInfo(); } });
     this.container.querySelector('#li-theme')?.addEventListener('change', (e) => { this.bridge.setTheme((e.target as HTMLSelectElement).value); (e.target as HTMLSelectElement).blur(); });
+    this.container.querySelector('#li-music')?.addEventListener('change', (e) => { const val = (e.target as HTMLSelectElement).value; levelData.music = val || undefined; if (!this.bridge.isDirty) { this.bridge.isDirty = true; this.bridge.onDirtyStateChanged?.(true); } (e.target as HTMLSelectElement).blur(); });
     const updatePlayerStart = () => {
       const px = Number.parseInt((this.container.querySelector('#li-px') as HTMLInputElement).value);
       const py = Number.parseInt((this.container.querySelector('#li-py') as HTMLInputElement).value);

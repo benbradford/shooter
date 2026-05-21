@@ -81,7 +81,7 @@ When the game loads with `?test=true`, `src/main.ts` exposes these on `globalThi
 - `JoystickVisualsComponent`, `AimJoystickVisualsComponent`
 - `CachedFlag`, `PushableComponent`, `JumpComponent`
 
-**Test levels:** `public/levels/test/` — dedicated levels for testing (e.g., `test-combat.json`, `test-punch-damage.json`, `test-player-transition.json`)
+**Test levels:** `public/levels/test/` — dedicated levels for testing (e.g., `test-combat.json`, `test-punch-damage.json`, `test-super-punch.json`, `test-swim.json`, `test-triggers.json`, `test-gameplay-loop.json`, `test-push.json`, `test-jump.json`)
 
 When adding a new test that needs access to a component not yet exposed, add it to the test-mode block in `src/main.ts`.
 

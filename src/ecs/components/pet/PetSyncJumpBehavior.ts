@@ -78,6 +78,10 @@ export class PetSyncJumpBehavior {
       if (shadow) shadow.shadow.setVisible(false);
       return 'fall';
     }
+    const playerFeetCell = getPlayerFeetCell(this.playerEntity, this.grid);
+    const cellWorld = this.grid.cellToWorldInto(playerFeetCell.col, playerFeetCell.row, this._tmpWorld);
+    transform.x = cellWorld.x + this.grid.cellSize / 2;
+    transform.y = cellWorld.y + this.grid.cellSize / 2;
     this.finishJump(transform);
     return 'done';
   }
@@ -110,12 +114,15 @@ export class PetSyncJumpBehavior {
   }
 
   private finishJump(transform: TransformComponent): void {
-    const playerGridPos = this.playerEntity.get(GridPositionComponent);
     const petGridPos = this.entity.get(GridPositionComponent);
-    if (playerGridPos && petGridPos) {
-      petGridPos.currentLayer = playerGridPos.currentLayer;
+    if (petGridPos) {
       this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
-      petGridPos.currentCell = this._tmpCell;
+      petGridPos.currentCell.col = this._tmpCell.col;
+      petGridPos.currentCell.row = this._tmpCell.row;
+      const landCell = this.grid.getCell(this._tmpCell.col, this._tmpCell.row);
+      if (landCell) {
+        petGridPos.currentLayer = landCell.layer;
+      }
     }
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) {

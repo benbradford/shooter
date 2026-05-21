@@ -1,0 +1,31 @@
+{
+  "width": 12,
+  "height": 10,
+  "playerStart": {
+    "x": 3,
+    "y": 5
+  },
+  "cells": [
+    { "col": 5, "row": 3, "properties": ["water"] },
+    { "col": 6, "row": 3, "properties": ["water"] },
+    { "col": 7, "row": 3, "properties": ["water"] },
+    { "col": 8, "row": 3, "properties": ["water"] },
+    { "col": 5, "row": 4, "properties": ["water"] },
+    { "col": 6, "row": 4, "properties": ["water"] },
+    { "col": 7, "row": 4, "properties": ["water"] },
+    { "col": 8, "row": 4, "properties": ["water"] },
+    { "col": 5, "row": 5, "properties": ["water"] },
+    { "col": 6, "row": 5, "properties": ["water"] },
+    { "col": 7, "row": 5, "properties": ["water", "bridge"] },
+    { "col": 8, "row": 5, "properties": ["water"] },
+    { "col": 9, "row": 5, "properties": ["water", "bridge"] },
+    { "col": 5, "row": 6, "properties": ["water"] },
+    { "col": 6, "row": 6, "properties": ["water"] },
+    { "col": 7, "row": 6, "properties": ["water"] },
+    { "col": 8, "row": 6, "properties": ["water"] },
+    { "col": 5, "row": 7, "properties": ["water"] },
+    { "col": 6, "row": 7, "properties": ["water"] },
+    { "col": 7, "row": 7, "properties": ["water"] },
+    { "col": 8, "row": 7, "properties": ["water"] }
+  ]
+}

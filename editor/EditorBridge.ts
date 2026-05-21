@@ -1088,6 +1088,7 @@ export class EditorBridge {
       cells,
       entities: entities.length > 0 ? entities : [],
       levelTheme: existingLevelData.levelTheme,
+      ...(existingLevelData.music ? { music: existingLevelData.music } : {}),
       background: existingLevelData.background,
       ...(existingLevelData.fixedCamera ? { fixedCamera: existingLevelData.fixedCamera } : {}),
       ...(existingLevelData.blockedAreas?.length ? { blockedAreas: existingLevelData.blockedAreas } : {}),

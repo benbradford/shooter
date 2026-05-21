@@ -129,14 +129,14 @@
 
 ---
 
-### Task 5: Super Punch (Charge Attack) Test
+### Task 5: Super Punch (Charge Attack) Test ✓ COMPLETE
 **Files**:
 - `test/tests/combat/test-super-punch.js`
 
 **Test Cases**:
-- [ ] GIVEN hasSuperPunch is true, WHEN player holds attack for >1000ms then releases, THEN super punch fires (greater damage)
-- [ ] GIVEN hasSuperPunch is false, WHEN player holds attack for >1000ms, THEN normal punch fires (no charge)
-- [ ] GIVEN player is charging, WHEN attack released before threshold, THEN normal punch completes
+- [x] GIVEN hasSuperPunch is true, WHEN player holds attack for >1000ms then releases, THEN super punch fires (greater damage)
+- [x] GIVEN hasSuperPunch is false, WHEN player holds attack for >1000ms, THEN normal punch fires (no charge)
+- [x] GIVEN player is charging, WHEN attack released before threshold, THEN normal punch completes
 
 **Level Needs**: Reuse `test-combat-enemy.json` with `hasSuperPunch: true` flag.
 
@@ -149,8 +149,8 @@
 - `test/tests/combat/test-punch-while-moving.js`
 
 **Test Cases**:
-- [ ] GIVEN player is walking, WHEN player presses attack, THEN punch fires (walking_punch animation)
-- [ ] GIVEN player punches while moving, WHEN punch completes, THEN player resumes walking
+- [x] GIVEN player is walking, WHEN player presses attack, THEN punch fires (walking_punch animation) ✓ COMPLETE
+- [x] GIVEN player punches while moving, WHEN punch completes, THEN player resumes walking ✓ COMPLETE
 
 **Level Needs**: Reuse `test-combat.json`.
 
@@ -193,15 +193,19 @@
 
 ---
 
-### Task 9: Water/Swim Test
+### Task 9: Water/Swim Test ✓ COMPLETE
 **Files**:
-- `test/tests/movement/test-water-swim.js`
+- `test/tests/player/test-swim.js`
 - `public/levels/test/test-swim.json` (new test level)
 
 **Test Cases**:
-- [ ] GIVEN canSwim is true, WHEN player enters water cell, THEN `isInWater` is true
-- [ ] GIVEN canSwim is false, WHEN player walks toward water, THEN player cannot enter
-- [ ] GIVEN player is swimming, WHEN player presses attack, THEN no punch (punch blocked in water)
+- [x] GIVEN canSwim is true, WHEN player enters water cell, THEN `isInWater` is true
+- [x] GIVEN canSwim is false, WHEN player walks toward water, THEN player cannot enter
+- [x] GIVEN player is swimming, WHEN player presses attack, THEN no punch (punch blocked in water)
+- [x] GIVEN player is swimming, WHEN player swims through bridge+water cell, THEN remains swimming
+- [x] GIVEN player is swimming at edge, WHEN player swims toward dry land, THEN exits water
+- [x] GIVEN player is swimming mid-pool, WHEN swimming between water cells, THEN stays in water
+- [x] GIVEN player is on bridge (not swimming), WHEN walking toward water, THEN blocked
 
 **Level Needs**: Small room with water cells on one side.
 
@@ -229,15 +233,15 @@
 
 ## Phase 5: Event System Tests
 
-### Task 11: Trigger and Event Test
+### Task 11: Trigger and Event Test ✓ COMPLETE
 **Files**:
-- `test/tests/events/test-triggers.js`
+- `test/tests/triggers/test-triggers.js`
 - `public/levels/test/test-triggers.json` (new test level)
 
 **Test Cases**:
-- [ ] GIVEN trigger zone exists at cell (X,Y), WHEN player enters that cell, THEN the trigger's event fires
-- [ ] GIVEN trigger sets a flag, WHEN player enters trigger, THEN flag value changes
-- [ ] GIVEN trigger has `once: true`, WHEN player enters trigger twice, THEN event fires only once
+- [x] GIVEN trigger zone exists at cell (X,Y), WHEN player enters that cell, THEN the trigger's event fires
+- [x] GIVEN trigger sets a flag, WHEN player enters trigger, THEN flag value changes
+- [x] GIVEN trigger has `once: true`, WHEN player enters trigger twice, THEN event fires only once
 
 **Level Needs**: Small room with trigger zones that set specific flags.
 
@@ -247,15 +251,16 @@
 
 ## Phase 6: Integration / Smoke Tests
 
-### Task 12: Full Gameplay Loop Smoke Test
+### Task 12: Full Gameplay Loop Smoke Test ✓ COMPLETE
 **Files**:
 - `test/tests/combat/test-gameplay-loop.js`
 
 **Test Cases**:
-- [ ] GIVEN player starts in test level with enemy, WHEN player moves to enemy and punches it to death, THEN enemy is destroyed and player survives
-- [ ] GIVEN player has all abilities enabled, WHEN player moves, punches, pushes in sequence, THEN no errors or crashes
+- [x] GIVEN player starts in test level with enemy, WHEN player moves to enemy and punches it to death, THEN enemy is destroyed and player survives
+- [x] GIVEN player in attack range, WHEN player waits for enemy to attack, THEN player takes damage (enemy AI functioning)
+- [x] GIVEN player in combat, WHEN rapid alternating movement and attack inputs sent, THEN no crash and state machine recovers
 
-**Level Needs**: Reuse test-combat-enemy level.
+**Level Needs**: `public/levels/test/test-gameplay-loop.json` (medium skeleton)
 
 **Estimated Time**: 1 hour
 

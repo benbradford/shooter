@@ -609,6 +609,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/murky_water.png',
     type: 'image' as const
   },
+   water_poison: {
+    key: 'water_poison',
+    path: 'assets/cell_drawables/water_poison.png',
+    type: 'image' as const
+  },
   lava: {
     key: 'lava',
     path: 'assets/cell_drawables/lava.png',
