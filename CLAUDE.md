@@ -119,6 +119,14 @@ npm run test:headless                  # All tests headless
 
 Tests use Puppeteer + RemoteInputComponent to drive the game programmatically.
 
+### Bug fix workflow — test first
+When fixing bugs, **always write a failing test before changing implementation code**:
+1. Write a test that asserts correct behavior (must FAIL against current code)
+2. Run it — confirm it fails for the right reason
+3. Fix the code
+4. Run the test — confirm it passes
+5. Run related tests to check for regressions
+
 ## Documentation
 
 Detailed docs in `docs/` — see `docs/README.md` for index. Key ones:

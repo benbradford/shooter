@@ -6,6 +6,7 @@ import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 const SYNC_JUMP_ARC_HEIGHT_PX = 30;
 const SYNC_FALL_DURATION_MS = 600;
@@ -28,7 +29,7 @@ export class PetSyncJumpBehavior {
 
   constructor(
     private readonly entity: Entity,
-    _playerEntity: Entity,
+    private readonly playerEntity: Entity,
     private readonly grid: GridReader,
   ) {}
 
@@ -93,8 +94,10 @@ export class PetSyncJumpBehavior {
     transform.scale = 0;
     if (this.syncFallTimerMs >= SYNC_FALL_DURATION_MS + SYNC_FALL_FINISH_DELAY_MS) {
       transform.scale = this.originalScale;
-      transform.x = this.syncJumpTargetX;
-      transform.y = this.syncJumpTargetY;
+      const feetCell = getPlayerFeetCell(this.playerEntity, this.grid);
+      const feetWorld = this.grid.cellToWorldInto(feetCell.col, feetCell.row, this._tmpWorld);
+      transform.x = feetWorld.x + this.grid.cellSize / 2;
+      transform.y = feetWorld.y + this.grid.cellSize / 2;
       const shadow = this.entity.get(ShadowComponent);
       if (shadow) shadow.shadow.setVisible(true);
       return true;

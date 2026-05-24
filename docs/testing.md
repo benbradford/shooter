@@ -36,6 +36,17 @@ npm run kill
 
 ## Lessons Learned
 
+### Test-First Bug Fixes
+
+When fixing bugs, always write a failing test before changing implementation code:
+1. Write a test that asserts correct behavior (must FAIL against current code)
+2. Run it — confirm it fails for the right reason
+3. Fix the code
+4. Run the test — confirm it passes
+5. Run related tests to check for regressions
+
+Without a reproducing test, fixes are just guesses that require manual verification.
+
 ### Test Isolation is Critical
 
 Tests can fail due to state bleeding from previous tests. Always ensure a clean starting position before each test (e.g. `moveToCellHelper(startCol, startRow)`), and reset transient state between tests.

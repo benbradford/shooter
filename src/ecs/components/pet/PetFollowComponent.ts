@@ -133,6 +133,19 @@ export class PetFollowComponent implements Component {
 
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
+
+    const petCell = this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
+    const petCellData = this.grid.getCell(petCell.col, petCell.row);
+    if (petCellData?.properties.has('void')) {
+      const feetCell = getPlayerFeetCell(this.playerEntity, this.grid);
+      const feetWorld = this.grid.cellToWorld(feetCell.col, feetCell.row);
+      transform.x = feetWorld.x + this.grid.cellSize / 2;
+      transform.y = feetWorld.y + this.grid.cellSize / 2;
+      this.sm.transition('idle');
+      this.pathFollower.clear();
+      return;
+    }
+
     const dx = playerTransform.x - transform.x;
     const dy = playerTransform.y - transform.y;
     const distancePx = Math.hypot(dx, dy);
@@ -304,6 +317,17 @@ export class PetFollowComponent implements Component {
   private finishSyncJump(): void {
     const transform = this.entity.require(TransformComponent);
     this.syncJumpBehavior.finishJump(transform);
+
+    const cell = this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
+    const cellData = this.grid.getCell(cell.col, cell.row);
+    if (cellData?.properties.has('void')) {
+      const feetCell = getPlayerFeetCell(this.playerEntity, this.grid);
+      const feetWorld = this.grid.cellToWorld(feetCell.col, feetCell.row);
+      transform.x = feetWorld.x + this.grid.cellSize / 2;
+      transform.y = feetWorld.y + this.grid.cellSize / 2;
+      this.syncJumpBehavior.finishJump(transform);
+    }
+
     this.sm.transition('idle');
   }
 
@@ -442,16 +466,6 @@ export class PetFollowComponent implements Component {
   syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): void {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
-
-    const landCell = this.grid.getCell(landCol, landRow);
-    const landLayer = landCell ? landCell.layer : 0;
-    const petGridPos = this.entity.get(GridPositionComponent);
-    const petLayer = petGridPos?.currentLayer ?? 0;
-
-    if (petLayer === landLayer) {
-      // Pet is already on the destination layer — just follow normally, no arc needed
-      return;
-    }
 
     if (!this.syncJumpBehavior) {
       this.syncJumpBehavior = new PetSyncJumpBehavior(this.entity, this.playerEntity, this.grid);
