@@ -56,7 +56,7 @@ Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
 - **Teleport:** If >800px away, teleports to player
 - **Layer sync:** Pet syncs `GridPositionComponent.currentLayer` with player each frame — walls/platforms only block on higher layers
 - **Water:** Pet rides on player's back when swimming, matches player direction, resumes follow on exit
-- **Void/Jump sync:** Pet does NOT have its own JumpComponent. When the player jumps (void or platform), the pet tweens to the landing cell center with a sine arc, matching the player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to the player's respawn position. Pathfinding treats void as impassable for the pet. **Critical:** After landing, `PetSyncJumpBehavior.finishJump()` must call `gridCollision.syncPreviousPosition()` — without this, GridCollisionComponent snaps the pet back to its pre-jump position on the next frame.
+- **Void/Jump sync:** Pet does NOT have its own JumpComponent. When the player jumps (void or platform), the pet tweens to the landing cell center with a sine arc, matching the player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to the player's respawn position. Pathfinding treats void as impassable for the pet. **Critical:** After any position discontinuity (jump landing, exiting water ride), call `gridCollision.syncPreviousPosition(transform.x, transform.y)` — without this, GridCollisionComponent snaps the pet back to its pre-discontinuity position on the next frame.
 - **Void blocking:** Pet is blocked by void cells in GridCollisionComponent (via `pet` tag check). Wander targets on void cells are rejected.
 
 ## ⚠️ Pathfinding Pitfalls (Critical)

@@ -851,6 +851,14 @@
       ]
     },
     {
+      "col": 18,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 2,
       "row": 5,
       "layer": 0,
@@ -864,6 +872,22 @@
             "offsetY": 0
           }
         }
+      ]
+    },
+    {
+      "col": 18,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -884,6 +908,150 @@
       ]
     },
     {
+      "col": 14,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 2,
       "row": 9,
       "layer": 0,
@@ -900,6 +1068,38 @@
       ]
     },
     {
+      "col": 14,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 11,
       "row": 10,
       "layer": 0,
@@ -913,6 +1113,22 @@
             "offsetY": 0
           }
         }
+      ]
+    },
+    {
+      "col": 14,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -934,7 +1150,15 @@
       ]
     },
     {
-      "col": 19,
+      "col": 21,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
       "row": 10,
       "layer": 0,
       "properties": [
@@ -959,6 +1183,110 @@
       ]
     },
     {
+      "col": 14,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 14,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 2,
       "row": 13,
       "layer": 0,
@@ -972,6 +1300,78 @@
             "offsetY": 0
           }
         }
+      ]
+    },
+    {
+      "col": 14,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 16,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 17,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 18,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 20,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 22,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -995,6 +1395,22 @@
           },
           "alpha": 0.7
         }
+      ]
+    },
+    {
+      "col": 18,
+      "row": 14,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 14,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -1076,6 +1492,22 @@
       ]
     },
     {
+      "col": 18,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 20,
       "row": 15,
       "layer": 0,
@@ -1122,6 +1554,22 @@
       ]
     },
     {
+      "col": 18,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 20,
       "row": 16,
       "layer": 0,
@@ -1165,6 +1613,22 @@
           },
           "alpha": 0.7
         }
+      ]
+    },
+    {
+      "col": 18,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -1313,6 +1777,22 @@
           },
           "alpha": 0.7
         }
+      ]
+    },
+    {
+      "col": 18,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 18,
+      "layer": 0,
+      "properties": [
+        "path"
       ]
     },
     {
@@ -1534,6 +2014,22 @@
       ]
     },
     {
+      "col": 18,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
+      "col": 19,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 20,
       "row": 19,
       "layer": 0,
@@ -1669,6 +2165,7 @@
     "floor_tile": 8,
     "hasEdges": false,
     "hasShadows": false,
+    "path_texture": "stone_wall2",
     "water": {
       "sourceImage": "water_poison",
       "rippleSpritesheet": "water_ripple",

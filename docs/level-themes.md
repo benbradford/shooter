@@ -290,6 +290,7 @@ Individual cells can have custom background textures that override theme renderi
 - `sourceRect`: Crops a region from the source image (creates a Phaser texture frame). If omitted, uses the full image.
 - `sourceRect` and `transformOverride` can be combined
 - `zOffsetOverride`: Absolute depth value (overrides default depth entirely). Use positive values to render in front of the player (e.g., `10` for tall grass).
+- `dynamicZ`: Boolean — if true, sprite renders in front of or behind the player based on Y position (player above sprite → sprite renders in front; player below → sprite renders behind). Useful for tall objects like trees. Overrides `zOffsetOverride` when set.
 - `blendMode`: `'normal'` | `'multiply'` | `'screen'` | `'add'` — how texture blends with floor
 - `alpha`: Number (0-1) — opacity of the texture
 - `tint`: Hex color string (e.g., `"#88aa66"`) — applies color tint to the texture

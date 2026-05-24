@@ -130,15 +130,8 @@ const testPetDoesNotSnapToPlayerOnJumpStart = test(
       }
     }
 
-    const beforeSnap = positions[maxJumpFrame - 1];
-    const afterSnap = positions[maxJumpFrame];
-    const distToPlayerAfter = Math.hypot(afterSnap.petX - afterSnap.playerX, afterSnap.petY - afterSnap.playerY);
-
     console.log(`Total frames recorded: ${positions.length}`);
     console.log(`Max pet movement in single frame: ${maxPetJump.toFixed(1)}px at frame ${maxJumpFrame}`);
-    console.log(`  Before: pet=(${beforeSnap.petX.toFixed(0)},${beforeSnap.petY.toFixed(0)}) player=(${beforeSnap.playerX.toFixed(0)},${beforeSnap.playerY.toFixed(0)})`);
-    console.log(`  After:  pet=(${afterSnap.petX.toFixed(0)},${afterSnap.petY.toFixed(0)}) player=(${afterSnap.playerX.toFixed(0)},${afterSnap.playerY.toFixed(0)})`);
-    console.log(`  Pet-player dist after snap: ${distToPlayerAfter.toFixed(0)}px`);
 
     // The pet should never move more than ~30px in a single frame during normal gameplay
     // (500px/s * 16ms = 8px normal, allow some slack for catchup)
@@ -147,10 +140,6 @@ const testPetDoesNotSnapToPlayerOnJumpStart = test(
 
     if (maxPetJump > TELEPORT_THRESHOLD_PX) {
       console.log(`❌ Pet teleported ${maxPetJump.toFixed(0)}px in a single frame (threshold: ${TELEPORT_THRESHOLD_PX}px)`);
-      // Check if it snapped to player
-      if (distToPlayerAfter < 20) {
-        console.log(`   → Pet snapped to player's feet!`);
-      }
       return false;
     }
 

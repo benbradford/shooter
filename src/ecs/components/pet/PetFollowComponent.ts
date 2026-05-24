@@ -95,8 +95,8 @@ export class PetFollowComponent implements Component {
       const isInWater = water.getIsInWater();
       const isHopping = water.isHopping();
 
-      // Player just entered water or is jumping in → start riding
-      if ((isInWater || isHopping) && this.sm.state !== 'riding') {
+      // Player just entered water → start riding
+      if (isInWater && this.sm.state !== 'riding') {
         this.sm.transition('riding');
         this.wasInWater = true;
         this.pathFollower.clear();
@@ -106,7 +106,7 @@ export class PetFollowComponent implements Component {
         if (gridCollision) gridCollision.enabled = false;
       }
 
-      // Player exited water and jump is complete → resume following
+      // Player exited water and hop is complete → resume following
       if (this.sm.state === 'riding' && !isInWater && !isHopping && this.wasInWater) {
         this.wasInWater = false;
         this.sm.transition('idle');
