@@ -4,26 +4,30 @@ import { runTests } from '../../helpers/test-runner.js';
 const testPetSpawns = test(
   {
     given: 'World state with pet_rock_collected and pet_selected flags',
-    when: 'Level loads',
-    then: 'Pet entity spawns'
+    when: 'PetManager spawns pet',
+    then: 'Pet entity exists'
   },
   async (page) => {
-    const result = await page.evaluate(() => {
+    const result = await page.evaluate(async () => {
       const gameScene = window.game.scene.getScene('game');
+      const ws = window.WorldStateManager.getInstance();
+      ws.setFlag('pet_rock_collected', 'true');
+      ws.setFlag('pet_selected', 'rock');
+
+      const petManager = window.PetManager.getInstance();
+      await petManager.spawnPet('rock');
+
       const petEntities = gameScene.entityManager.getByType('pet');
-      
       if (petEntities.length === 0) {
         return { ok: false, reason: 'No pet entity' };
       }
-      
       return { ok: true, petId: petEntities[0].id };
     });
-    
+
     if (!result.ok) {
       console.log(`❌ ${result.reason}`);
       return false;
     }
-    
     return true;
   }
 );
@@ -72,7 +76,7 @@ const testPetFollows = test(
 );
 
 await runTests({
-  level: 'test_room1',
+  level: 'test/test_room1',
   commands: ['test/interactions/player.js'],
   tests: [testPetSpawns, testPetFollows],
   screenshotPath: 'tmp/test/screenshots/test-pet-basic.png'

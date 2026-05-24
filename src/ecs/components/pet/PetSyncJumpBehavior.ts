@@ -6,7 +6,6 @@ import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
-import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 
 const SYNC_JUMP_ARC_HEIGHT_PX = 30;
 const SYNC_FALL_DURATION_MS = 600;
@@ -29,7 +28,7 @@ export class PetSyncJumpBehavior {
 
   constructor(
     private readonly entity: Entity,
-    private readonly playerEntity: Entity,
+    _playerEntity: Entity,
     private readonly grid: GridReader,
   ) {}
 
@@ -53,7 +52,6 @@ export class PetSyncJumpBehavior {
     return dir === Direction.None ? Direction.Down : dir;
   }
 
-  /** Returns true when jump is complete (transition to fall or idle). */
   updateJump(delta: number): 'jumping' | 'fall' | 'done' {
     this.syncJumpTimerMs += delta;
     const progress = Math.min(1, this.syncJumpTimerMs / this.syncJumpDurationMs);
@@ -78,15 +76,9 @@ export class PetSyncJumpBehavior {
       if (shadow) shadow.shadow.setVisible(false);
       return 'fall';
     }
-    const playerFeetCell = getPlayerFeetCell(this.playerEntity, this.grid);
-    const cellWorld = this.grid.cellToWorldInto(playerFeetCell.col, playerFeetCell.row, this._tmpWorld);
-    transform.x = cellWorld.x + this.grid.cellSize / 2;
-    transform.y = cellWorld.y + this.grid.cellSize / 2;
-    this.finishJump(transform);
     return 'done';
   }
 
-  /** Returns true when fall is complete. */
   updateFall(delta: number): boolean {
     this.syncFallTimerMs += delta;
     const shrinkProgress = Math.min(1, this.syncFallTimerMs / SYNC_FALL_DURATION_MS);
@@ -101,28 +93,23 @@ export class PetSyncJumpBehavior {
     transform.scale = 0;
     if (this.syncFallTimerMs >= SYNC_FALL_DURATION_MS + SYNC_FALL_FINISH_DELAY_MS) {
       transform.scale = this.originalScale;
-      const playerFeetCell = getPlayerFeetCell(this.playerEntity, this.grid);
-      const cellWorld = this.grid.cellToWorldInto(playerFeetCell.col, playerFeetCell.row, this._tmpWorld);
-      transform.x = cellWorld.x + this.grid.cellSize / 2;
-      transform.y = cellWorld.y + this.grid.cellSize / 2;
+      transform.x = this.syncJumpTargetX;
+      transform.y = this.syncJumpTargetY;
       const shadow = this.entity.get(ShadowComponent);
       if (shadow) shadow.shadow.setVisible(true);
-      this.finishJump(transform);
       return true;
     }
     return false;
   }
 
-  private finishJump(transform: TransformComponent): void {
+  finishJump(transform: TransformComponent): void {
     const petGridPos = this.entity.get(GridPositionComponent);
     if (petGridPos) {
       this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
       petGridPos.currentCell.col = this._tmpCell.col;
       petGridPos.currentCell.row = this._tmpCell.row;
       const landCell = this.grid.getCell(this._tmpCell.col, this._tmpCell.row);
-      if (landCell) {
-        petGridPos.currentLayer = landCell.layer;
-      }
+      petGridPos.currentLayer = landCell ? landCell.layer : 0;
     }
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) {

@@ -50,16 +50,16 @@ const testLevelTransitionViaLoadingScene = test(
     const result = await page.evaluate(() => {
       return new Promise((resolve) => {
         const gameScene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+        const startLevel = gameScene.getCurrentLevelName();
         gameScene.startLevelTransition('test/test-loading-complex', 2, 4);
 
         const checkInterval = setInterval(() => {
           const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
           if (scene && scene.scene.isActive() && scene.entityManager) {
-            const player = scene.entityManager.getFirst('player');
-            if (player) {
+            const levelName = scene.getCurrentLevelName();
+            if (levelName !== startLevel) {
               clearInterval(checkInterval);
               clearTimeout(timeout);
-              const levelName = scene.getCurrentLevelName();
               resolve(levelName === 'test/test-loading-complex');
             }
           }
@@ -85,16 +85,16 @@ const testTransitionBackToOriginal = test(
     const result = await page.evaluate(() => {
       return new Promise((resolve) => {
         const gameScene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+        const startLevel = gameScene.getCurrentLevelName();
         gameScene.startLevelTransition('test/test-loading-simple', 2, 2);
 
         const checkInterval = setInterval(() => {
           const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
           if (scene && scene.scene.isActive() && scene.entityManager) {
-            const player = scene.entityManager.getFirst('player');
-            if (player) {
+            const levelName = scene.getCurrentLevelName();
+            if (levelName !== startLevel) {
               clearInterval(checkInterval);
               clearTimeout(timeout);
-              const levelName = scene.getCurrentLevelName();
               resolve(levelName === 'test/test-loading-simple');
             }
           }

@@ -100,4 +100,9 @@ const testHideShowAlphaConsistency = test(
   }
 );
 
-runTests([testRapidWaterToggle, testHideShowAlphaConsistency]);
+await runTests({
+  level: 'test/test_room1',
+  commands: ['test/interactions/player.js'],
+  tests: [testRapidWaterToggle, testHideShowAlphaConsistency],
+  screenshotPath: 'tmp/test/screenshots/test-water-edge-cases.png'
+});

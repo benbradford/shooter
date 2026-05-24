@@ -1,79 +1,84 @@
 import { test } from '../../helpers/test-helper.js';
 import { runTests } from '../../helpers/test-runner.js';
 
-async function spawnPetAndWait(page) {
-  // Wait for game scene to fully create (player exists) - match working test pattern
+async function waitForGameReady(page) {
   await page.waitForFunction(() => {
     const scene = window.game && window.game.scene.scenes.find(s => s.scene.key === 'game');
     return scene && scene.entityManager && scene.entityManager.getFirst('player');
   }, { timeout: 15000 });
-  // Now wait for pet (spawned async by PetManager)
   await page.waitForFunction(() => {
     const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
     return scene && scene.entityManager && scene.entityManager.getFirst('pet');
   }, { timeout: 10000 });
-  // Enable jump flag
   await page.evaluate(() => {
     window.WorldStateManager.getInstance().setFlag('canJump', 'true');
   });
   await new Promise(r => setTimeout(r, 500));
 }
 
-async function waitForJumpComplete(page, timeoutMs = 3000) {
-  await page.waitForFunction(() => {
-    const scene = window.game.scene.getScene('game');
-    const player = scene.entityManager.getFirst('player');
-    const jump = player.get(window.JumpComponent);
-    return !jump || !jump.isJumping();
-  }, { timeout: timeoutMs });
-}
-
-const testPetFollowsAfterPlatformJump = test(
+const testPetDoesNotSnapToPlayerOnJumpStart = test(
   {
-    given: 'Player and pet on platform (layer 1)',
-    when: 'Player jumps down off platform',
-    then: 'Pet lands near player, not back at old position'
+    given: 'Player walking toward void with pet following behind',
+    when: 'Player reaches edge and initiates jump',
+    then: 'Pet does not teleport to player feet — stays at its own position'
   },
   async (page) => {
-    await spawnPetAndWait(page);
+    await waitForGameReady(page);
 
-    // Record the pet's initial position on the platform
-    const preJump = await page.evaluate(() => {
+    // Move player to cell (1,5) so there's more walking distance before void at (4,5)
+    await page.evaluate(() => {
       const scene = window.game.scene.getScene('game');
       const player = scene.entityManager.getFirst('player');
       const pet = scene.entityManager.getFirst('pet');
       const playerT = player.require(window.TransformComponent);
       const petT = pet.require(window.TransformComponent);
-
-      return {
-        playerX: playerT.x, playerY: playerT.y,
-        petX: petT.x, petY: petT.y
-      };
+      const cellSize = scene.grid.cellSize;
+      playerT.x = 1 * cellSize + cellSize / 2;
+      playerT.y = 5 * cellSize + cellSize / 2;
+      petT.x = 1 * cellSize + cellSize / 2;
+      petT.y = 5 * cellSize + cellSize / 2;
+      // Sync collision previous positions
+      const playerGC = player.get(window.GridPositionComponent);
+      const petGC = pet.components ? null : null;
     });
+    await new Promise(r => setTimeout(r, 100));
 
-    console.log(`Pre-jump: player=(${preJump.playerX.toFixed(0)}, ${preJump.playerY.toFixed(0)}) pet=(${preJump.petX.toFixed(0)}, ${preJump.petY.toFixed(0)})`);
-
-    // Walk player down toward the platform edge and trigger jump
-    const jumpResult = await page.evaluate(() => {
+    // Walk player right toward the void. Pet will follow behind.
+    // Record pet position every frame from jump button appearing until jump starts.
+    const result = await page.evaluate(() => {
       return new Promise((resolve) => {
         const scene = window.game.scene.getScene('game');
         const player = scene.entityManager.getFirst('player');
+        const pet = scene.entityManager.getFirst('pet');
+        const playerT = player.require(window.TransformComponent);
+        const petT = pet.require(window.TransformComponent);
         const remoteInput = enableRemoteInput();
 
-        // Enable jumping
-        window.WorldStateManager.getInstance().setFlag('canJump', 'true');
-
-        // Walk right toward void gap at col 4
         remoteInput.setWalk(1, 0, true);
+
+        const positions = [];
+        let jumpButtonSeen = false;
+        let jumpPressed = false;
 
         const startTime = Date.now();
         const interval = setInterval(() => {
+          // Record every frame
+          positions.push({
+            t: Date.now() - startTime,
+            petX: petT.x,
+            petY: petT.y,
+            playerX: playerT.x,
+            playerY: playerT.y,
+          });
+
           if (Date.now() - startTime >= 5000) {
             remoteInput.setWalk(0, 0, false);
             clearInterval(interval);
-            resolve({ jumped: false, reason: 'timeout' });
+            resolve({ jumped: false, reason: 'timeout', positions });
             return;
           }
+
+          if (jumpPressed) return;
 
           const hudScene = window.game.scene.scenes.find(s => s.scene.key === 'HudScene');
           if (!hudScene) return;
@@ -82,67 +87,74 @@ const testPetFollowsAfterPlatformJump = test(
           const btn = joystickEntity.get(window.AttackButtonComponent);
           if (!btn) return;
 
-          if (btn.getIconOverride() === 'jump') {
-            // Press the jump button
-            btn.isPressed = true;
-            setTimeout(() => { btn.isPressed = false; }, 100);
-            setTimeout(() => {
-              remoteInput.setWalk(0, 0, false);
-              clearInterval(interval);
-              // Wait for jump to complete
+          if (btn.getIconOverride() === 'jump' && !jumpButtonSeen) {
+            jumpButtonSeen = true;
+          }
+
+          if (jumpButtonSeen && !jumpPressed) {
+            // Press jump immediately when available
+            if (true) {
+              jumpPressed = true;
+              btn.isPressed = true;
               setTimeout(() => {
-                resolve({ jumped: true });
-              }, 1500);
-            }, 100);
+                btn.isPressed = false;
+                remoteInput.setWalk(0, 0, false);
+              }, 100);
+              // Record for another 200ms after pressing
+              setTimeout(() => {
+                clearInterval(interval);
+                resolve({ jumped: true, positions });
+              }, 200);
+            }
           }
         }, 16);
       });
     });
 
-    if (!jumpResult.jumped) {
-      console.log(`❌ Jump did not happen: ${jumpResult.reason}`);
+    if (!result.jumped) {
+      console.log(`❌ Jump did not happen: ${result.reason}`);
       return false;
     }
 
-    // Wait a bit more for pet to settle
-    await new Promise(r => setTimeout(r, 500));
+    // Analyze positions for sudden pet movement
+    const positions = result.positions;
+    let maxPetJump = 0;
+    let maxJumpFrame = 0;
+    for (let i = 1; i < positions.length; i++) {
+      const dx = positions[i].petX - positions[i-1].petX;
+      const dy = positions[i].petY - positions[i-1].petY;
+      const dist = Math.hypot(dx, dy);
+      if (dist > maxPetJump) {
+        maxPetJump = dist;
+        maxJumpFrame = i;
+      }
+    }
 
-    // Check positions after jump
-    const postJump = await page.evaluate(() => {
-      const scene = window.game.scene.getScene('game');
-      const player = scene.entityManager.getFirst('player');
-      const pet = scene.entityManager.getFirst('pet');
-      const playerT = player.require(window.TransformComponent);
-      const petT = pet.require(window.TransformComponent);
-      const playerGrid = player.require(window.GridPositionComponent);
-      const petFollow = pet.get(window.PetFollowComponent);
+    const beforeSnap = positions[maxJumpFrame - 1];
+    const afterSnap = positions[maxJumpFrame];
+    const distToPlayerAfter = Math.hypot(afterSnap.petX - afterSnap.playerX, afterSnap.petY - afterSnap.playerY);
 
-      return {
-        playerX: playerT.x, playerY: playerT.y,
-        petX: petT.x, petY: petT.y,
-        playerLayer: playerGrid.currentLayer,
-        distance: Math.hypot(playerT.x - petT.x, playerT.y - petT.y)
-      };
-    });
+    console.log(`Total frames recorded: ${positions.length}`);
+    console.log(`Max pet movement in single frame: ${maxPetJump.toFixed(1)}px at frame ${maxJumpFrame}`);
+    console.log(`  Before: pet=(${beforeSnap.petX.toFixed(0)},${beforeSnap.petY.toFixed(0)}) player=(${beforeSnap.playerX.toFixed(0)},${beforeSnap.playerY.toFixed(0)})`);
+    console.log(`  After:  pet=(${afterSnap.petX.toFixed(0)},${afterSnap.petY.toFixed(0)}) player=(${afterSnap.playerX.toFixed(0)},${afterSnap.playerY.toFixed(0)})`);
+    console.log(`  Pet-player dist after snap: ${distToPlayerAfter.toFixed(0)}px`);
 
-    console.log(`Post-jump: player=(${postJump.playerX.toFixed(0)}, ${postJump.playerY.toFixed(0)}) pet=(${postJump.petX.toFixed(0)}, ${postJump.petY.toFixed(0)})`);
-    console.log(`Distance pet-player: ${postJump.distance.toFixed(0)}px, playerLayer: ${postJump.playerLayer}`);
+    // The pet should never move more than ~30px in a single frame during normal gameplay
+    // (500px/s * 16ms = 8px normal, allow some slack for catchup)
+    // If it moves more than 50px in one frame, that's a teleport
+    const TELEPORT_THRESHOLD_PX = 50;
 
-    // The pet should have moved RIGHT with the player across the gap
-    const petMovedRight = postJump.petX > preJump.petX + 50;
-    // The pet should be within reasonable distance of the player
-    const petNearPlayer = postJump.distance < 300;
-
-    if (!petMovedRight) {
-      console.log(`❌ Pet did not move right (petX went from ${preJump.petX.toFixed(0)} to ${postJump.petX.toFixed(0)})`);
+    if (maxPetJump > TELEPORT_THRESHOLD_PX) {
+      console.log(`❌ Pet teleported ${maxPetJump.toFixed(0)}px in a single frame (threshold: ${TELEPORT_THRESHOLD_PX}px)`);
+      // Check if it snapped to player
+      if (distToPlayerAfter < 20) {
+        console.log(`   → Pet snapped to player's feet!`);
+      }
       return false;
     }
 
-    if (!petNearPlayer) {
-      console.log(`❌ Pet too far from player: ${postJump.distance.toFixed(0)}px`);
-      return false;
-    }
-
+    console.log(`✓ No teleport detected (max single-frame movement: ${maxPetJump.toFixed(0)}px)`);
     return true;
   }
 );
@@ -153,6 +165,6 @@ await runTests({
     'test/interactions/player.js',
     'test/interactions/flags.js'
   ],
-  tests: [testPetFollowsAfterPlatformJump],
+  tests: [testPetDoesNotSnapToPlayerOnJumpStart],
   screenshotPath: 'tmp/test/screenshots/test-pet-jump.png'
 });

@@ -36,6 +36,10 @@ where collision is, and whether it matters.
 **The asset should feel like an in-game map object, not an illustration of an
 object.** This is the single highest-value sentence discovered through testing.
 
+**The asset should look like a clean PNG exported from a professional 2D game
+pipeline.** This reframes the model away from illustration logic toward
+production sprite extraction.
+
 ### The 10 Core Rules
 
 1. **Prioritize gameplay readability over realism.** Props are exaggerated,
@@ -100,6 +104,8 @@ These are the highest-value steering lines discovered through iteration:
 - `THE TERRAIN BELONGS TO THE MAP, NOT THE SPRITE`
 - `Object proportions should prioritize gameplay readability over realism`
 - `The asset should feel like an in-game map object, not an illustration of an object`
+- `The asset should look like a clean PNG exported from a professional 2D game pipeline`
+- `Imagine the object has already been cut from a sprite sheet and placed over transparency`
 
 ## Why ChatGPT drifts back to bad asset output
 
@@ -116,6 +122,36 @@ Once that prior fires, "remove the white halo" gets interpreted as "make the
 dirt look better" rather than "delete the dirt entirely". The cure is not a
 bigger negative list — it is to never let the prior fire in the first place.
 Describe the request as a *gameplay map object*, not as a *thing in a scene*.
+
+### The "object shading" vs "ground shading" confusion
+
+Models confuse internal form shading with environmental grounding. Saying "no
+shadows" gets interpreted as "no cast shadow" while still adding AO haze,
+grounding fog, and soft environmental paint. Be explicit about what is allowed
+vs forbidden:
+
+**Allowed:** internal form shading within the object silhouette only.
+
+**Forbidden:** any pixels beneath, around, or outside the object silhouette;
+any ambient occlusion extending outside the sprite; any environmental shading;
+any grounding effect.
+
+## Prompt Section Order
+
+Diffusion models obey prompts better when spatial/geometric constraints come
+before aesthetics. Structure ALL prompts (both prop and terrain) in this order:
+
+1. **Object Identity** — what it is, production framing
+2. **Geometric Rules** — camera, perspective, canvas
+3. **Alpha / Isolation Rules** — transparency behavior (props only)
+4. **Gameplay Readability** — scale, detail level, silhouette
+5. **Render Style** — colours, painting style, references
+6. **Content** — include/exclude details
+7. **Anti-Illustration Constraints** — suppress fantasy artwork mode
+8. **Absolute Exclusions** — negative priority block (end of prompt)
+
+Putting exclusions LAST improves compliance noticeably — the end of the prompt
+heavily affects image generation weighting.
 
 ## Asset Class Selection
 
@@ -156,37 +192,16 @@ Examples: cliff walls, platform edges, water borders, path tiles, floor tiles.
 
 ## Prop Template
 
-For Category A assets (props). Structure:
-
-## Prompt Template
-
-Structure prompts into these explicit sections. This improves consistency and
-reduces conflicting instructions:
-
-1. Object Identity
-2. Asset Isolation Rules
-3. Gameplay Readability Rules (Include/Exclude)
-4. Visual Style
-5. Perspective Rules
-6. Lighting Rules
-7. Rendering Restrictions
-8. Canvas/Layout
-
-Hand the user this block with slots filled in:
+For Category A assets (props). Hand the user this block with slots filled in:
 
 ```
 SNES Zelda-style top-down gameplay map prop representing [SUBJECT] for a 2D tile-based RPG.
 
 ONLY the [SUBJECT] itself should be visible.
 
---- HARD RULES (geometric constraints — non-negotiable) ---
+This is a gameplay production asset, NOT a fantasy illustration. The asset should look like a clean PNG exported from a professional 2D game pipeline. Imagine the object has already been cut from a sprite sheet and placed over transparency.
 
-ISOLATION:
-- fully transparent alpha background
-- NO ground texture, dirt patch, grass, terrain base, or environmental plate
-- NO circular halo, vignette, feathered edge blending, or background color
-- The object must end cleanly at the outer edges with immediate transparency outside the silhouette
-- The terrain belongs to the map, not the sprite
+--- GEOMETRIC RULES (non-negotiable) ---
 
 PERSPECTIVE:
 - true 90-degree overhead orthographic view
@@ -198,23 +213,51 @@ PERSPECTIVE:
 - NO perspective convergence
 - NO visible front facade
 
-LIGHTING:
-- soft ambient lighting only
-- subtle shadow directly beneath object only
-- NO dramatic, rim, studio, or environmental lighting
+CAMERA INTERPRETATION LOCK:
+- [SUBJECT-SPECIFIC CAMERA LOCK — e.g. "trunk top visible from directly above", "branches radiate outward in planar top-down space", "no visible side profile", "no horizon-facing surfaces"]
 
 CANVAS:
 - square canvas
 - prop should occupy approximately 60-80% of the canvas with consistent padding around edges
 
---- SOFT STYLE (aesthetic preferences) ---
+--- ALPHA / ISOLATION RULES ---
+
+- fully transparent alpha background
+- NO ground texture, dirt patch, grass, terrain base, or environmental plate
+- NO circular halo, vignette, feathered edge blending, or background color
+- The object must end cleanly at the outer edges with immediate transparency outside the silhouette
+- The terrain belongs to the map, not the sprite
+
+ALPHA BEHAVIOR:
+- hard transparency outside silhouette
+- no semi-transparent fog
+- no glow
+- no feathering
+- no painted fadeout
+- no translucent grounding beneath object
+
+LIGHTING:
+- flat ambient lighting only
+- internal form shading within the object silhouette is allowed
+- NO shadows of any kind — no drop shadow, no contact shadow, no cast shadow
+- NO ambient occlusion extending outside the sprite
+- NO dramatic, rim, studio, or environmental lighting
+
+--- GAMEPLAY READABILITY ---
+
+- silhouette readable at 64x64
+- broad primary forms
+- limited secondary detail
+- [SUBJECT-SPECIFIC READABILITY NOTES — e.g. "avoid thin noisy branch clutter", "branch spacing must remain readable at gameplay zoom"]
+- object proportions prioritize gameplay readability over realism
+- tilemap-friendly silhouette, readable at small scale
+- designed to visually harmonize with stylized painted grass tiles
+
+--- RENDER STYLE ---
 
 VISUAL STYLE:
 - SNES Zelda-style gameplay prop (A Link to the Past readability, Minish Cap world objects)
 - simplified gameplay-focused forms with broad readable shapes
-- object proportions prioritize gameplay readability over realism
-- tilemap-friendly silhouette, readable at small scale
-- designed to visually harmonize with stylized painted grass tiles
 - the asset should feel like an in-game map object, not an illustration
 
 RENDERING:
@@ -232,6 +275,38 @@ Include:
 Exclude:
 - [EXCLUDE DETAIL 1]
 - [EXCLUDE DETAIL 2]
+
+--- ANTI-ILLUSTRATION CONSTRAINTS ---
+
+This is a gameplay production asset, NOT a fantasy illustration.
+The object must appear as if extracted directly from a sprite sheet.
+No environmental remnants should remain.
+
+DO NOT render:
+- atmospheric fog or haze
+- ambient ground haze
+- environmental paint strokes
+- vignette or backdrop gradients
+- concept-art lighting
+- showcase rendering
+- cinematic shading
+- contact shadows
+- terrain integration
+- rooted grounding
+
+--- ABSOLUTE EXCLUSIONS (highest priority) ---
+
+- no ground
+- no roots touching terrain
+- no dirt
+- no fog
+- no shadow outside the silhouette
+- no glow
+- no environmental paint
+- no background color
+- no atmospheric effects
+- no concept art presentation
+- any pixels beneath, around, or outside the object silhouette are FORBIDDEN
 ```
 
 ### Asset-Class Perspective Lines
@@ -259,19 +334,49 @@ Replace `[ASSET-CLASS PERSPECTIVE LINES]` based on asset class:
 - organic depth variation acceptable
 ```
 
+### Camera Interpretation Lock Examples
+
+Replace `[SUBJECT-SPECIFIC CAMERA LOCK]` based on the subject:
+
+**Trees:**
+```
+- trunk top visible from directly above
+- branches radiate outward in planar top-down space
+- no visible side profile
+- no horizon-facing surfaces
+- no front-facing trunk facade
+```
+
+**Buildings/Structures:**
+```
+- roof plane fills most of the silhouette
+- no visible wall faces
+- no door visible from the front
+```
+
+**Small props (barrels, crates, signs):**
+```
+- lid/top surface visible only
+- no side faces visible
+- flat planar object from above
+```
+
 ### Non-Negotiable Lines
 
-These MUST remain in every prompt:
+These MUST remain in every prop prompt:
 
 - **"gameplay map prop representing [SUBJECT]"** (not just "[SUBJECT]")
 - **"ONLY the [SUBJECT] itself should be visible"**
+- **"This is a gameplay production asset, NOT a fantasy illustration"**
+- **"The asset should look like a clean PNG exported from a professional 2D game pipeline"**
 - **"The object must end cleanly at the outer edges with immediate transparency
   outside the silhouette"**
 - **"The terrain belongs to the map, not the sprite"**
 - **"the asset should feel like an in-game map object, not an illustration"**
 - **"prop should occupy approximately 60-80% of the canvas"**
 - **"designed to visually harmonize with stylized painted grass tiles"**
-- The full HARD RULES section (geometric constraints the model must not violate)
+- The full ANTI-ILLUSTRATION CONSTRAINTS section
+- The full ABSOLUTE EXCLUSIONS section at the end
 
 ## Terrain Template
 
@@ -283,30 +388,34 @@ The key conceptual shift: describe a **reusable terrain system component**, not
 "a texture." The prompt must communicate how this tile functions in the level
 editor and game renderer.
 
-Use a **flat format** (no markdown section dividers) — image models parse plain
-structured text better than hierarchical markup.
-
 ```
-Modular repeating terrain [TILE_TYPE] tile for a classic SNES-style top-down RPG inspired by The Legend of Zelda: A Link to the Past and Minish Cap.
+Modular repeating terrain [TILE_TYPE] tile for a classic SNES-style top-down 2D RPG.
 
+OBJECT IDENTITY:
 [TERRAIN CONTEXT PARAGRAPH — purpose, topology, neighbours, camera, and tiling behaviour in plain prose. See guidance below.]
 
-HARD REQUIREMENTS:
-
+GEOMETRIC RULES:
 - square canvas
-- texture reaches edge-to-edge
-- no border, no padding, no frame
-- true top-down perspective (NOT isometric)
+- texture reaches edge-to-edge with no padding, border, or frame
 - seamless tiling on [TILING EDGES: all four edges / vertical edges / horizontal edges]
+- true top-down perspective — NOT isometric, NOT 3/4 angle
+- no perspective convergence
+- no visible side surfaces or depth extrusion
+- [SUBJECT] viewed strictly from above
+- camera interpretation lock: flat planar surface, no horizon-facing surfaces, no front-facing facade
+
+GAMEPLAY READABILITY:
+- readable as [ROLE — e.g. "a wall barrier", "calm terrain background"] at 64x64
+- broad primary forms
+- limited secondary detail
+- [SUBJECT-SPECIFIC READABILITY NOTES]
+- consistent value density — no focal points, no centered formations
 - no visible repeat focal point
 - no unique formations centered in the tile
-- consistent value density throughout
-- avoid edge-darkening or corner emphasis
 - low-frequency broad variation only
-- readable as calm terrain background during gameplay
+- avoid edge-darkening or corner emphasis
 
-VISUAL STYLE:
-
+RENDER STYLE:
 - stylized painted SNES-era terrain texture
 - simplified readable forms suitable for gameplay
 - visually harmonizes with stylized painted grass terrain
@@ -318,27 +427,43 @@ VISUAL STYLE:
 - [ENERGY/MOOD: calm still surface / weathered solidity / etc.]
 
 COLOUR PALETTE:
-
 - [COLOUR 1]
 - [COLOUR 2]
 - [COLOUR 3]
 - avoid [UNWANTED COLOURS]
 
 SURFACE DETAIL:
-
 - [DETAIL 1 — system-oriented, e.g. "broad diffuse macro-patterns"]
 - [DETAIL 2]
 - [DETAIL 3]
-- no high-frequency noise
+- no high-frequency noise or grain
 - macro variation should dominate over micro-detail
 
-EXCLUDE COMPLETELY:
+--- ANTI-ILLUSTRATION CONSTRAINTS ---
+
+This is a gameplay production asset, NOT a fantasy illustration.
+This tile must appear as if exported directly from a professional 2D game tileset.
+
+DO NOT render:
+- atmospheric fog or haze
+- concept-art lighting
+- showcase rendering
+- cinematic shading
+- dramatic directional light
+- ambient occlusion pooling in corners
+- depth-of-field
+- painted vignette
+- environmental storytelling
+
+--- ABSOLUTE EXCLUSIONS (highest priority) ---
 
 - [EXCLUSIONS specific to this tile type]
 - anything that reveals the tile boundary when repeated
-- obvious repeated motifs that become visible at 20x20+ scale
+- obvious repeated motifs that become visible at 10+ tiles scale
 - dramatic lighting or hard shadows
 - bright highlights or extreme darks
+- no atmospheric effects
+- no concept art presentation
 
 Technical target:
 Create a perfectly seamless modular terrain [TILE_TYPE] tile suitable for use as [ROLE DESCRIPTION] in a top-down 2D action-adventure game level editor.
@@ -453,7 +578,7 @@ Each one of these silently re-summons the dirt plate:
 | `environment` | invokes scene composition |
 | `grounded` / `set in` / `placed on` | implies terrain |
 | `realistic scene` | invokes illustration mode |
-| `terrain` | obvious |
+| `terrain` (in prop prompts) | obvious |
 | `abandoned area`, `ruined area`, `forgotten place` | "area" = scene |
 | `forest floor`, `village square`, `clearing` | locations |
 | `surrounded by ...` | implies surroundings |
@@ -479,9 +604,16 @@ Add these to the prompt or to a follow-up if the model drifts:
 - "no terrain ownership"
 - "designed for tilemap readability"
 - "this will be placed on a single grid cell at 100% scale"
+- "clean PNG exported from a professional 2D game pipeline"
+- "already cut from a sprite sheet and placed over transparency"
+- "no environmental remnants should remain"
 
 The `inventory icon scaled up` framing is surprisingly effective — it activates
 a different prior (object catalog, not landscape).
+
+The `sprite sheet extraction` framing is the single highest-value improvement
+for persistent illustration drift — it reframes the entire task away from
+"generate artwork" toward "produce a production asset."
 
 ## Game-specific framing (optional, very effective)
 
@@ -519,6 +651,10 @@ When the user reports the result is still wrong:
 
 5. **Stop describing aesthetics, describe geometry.** Atmospheric words drag
    the model toward illustrative output.
+
+6. **Invoke the sprite extraction framing.** *"This should look like a clean
+   PNG already cut from a sprite sheet. No environmental remnants. Hard alpha
+   outside the silhouette."* This reframes the model's entire approach.
 
 ## Recovery: if the asset is 90% correct but has a faint halo or fringe
 

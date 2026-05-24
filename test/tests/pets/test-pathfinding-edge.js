@@ -12,7 +12,7 @@ const testNoValidPath = test(
     page.on('pageerror', e => errors.push(e.message));
 
     // Let the game run for a few seconds with pet active
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     if (errors.some(e => e.includes('null') || e.includes('undefined') || e.includes('path'))) {
       console.log(`❌ Pathfinding null-path crash: ${errors[0]}`);
@@ -54,4 +54,9 @@ const testPathRecalcUnderStress = test(
   }
 );
 
-runTests([testNoValidPath, testPathRecalcUnderStress]);
+await runTests({
+  level: 'test/test_room1',
+  commands: ['test/interactions/player.js'],
+  tests: [testNoValidPath, testPathRecalcUnderStress],
+  screenshotPath: 'tmp/test/screenshots/test-pathfinding-edge.png'
+});

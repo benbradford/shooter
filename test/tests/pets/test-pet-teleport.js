@@ -8,12 +8,22 @@ const testPetTeleports = test(
     then: 'Pet teleports to player'
   },
   async (page) => {
-    // Teleport player far away
+    // Spawn pet first
+    await page.evaluate(async () => {
+      const ws = window.WorldStateManager.getInstance();
+      ws.setFlag('pet_rock_collected', 'true');
+      ws.setFlag('pet_selected', 'rock');
+      const petManager = window.PetManager.getInstance();
+      await petManager.spawnPet('rock');
+    });
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const result = await page.evaluate(() => {
       const gameScene = window.game.scene.getScene('game');
       const player = gameScene.entityManager.getFirst('player');
       const pet = gameScene.entityManager.getFirst('pet');
-      
+      if (!pet) return { initialDistance: -1, error: 'no pet' };
+
       const playerTransform = player.require(window.TransformComponent);
       const petTransform = pet.require(window.TransformComponent);
       
@@ -25,16 +35,21 @@ const testPetTeleports = test(
       return { initialDistance };
     });
     
+    if (result.error) {
+      console.log(`❌ ${result.error}`);
+      return false;
+    }
     console.log('Initial distance:', result.initialDistance);
-    
+
     // Wait for pet to detect and teleport
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     const finalResult = await page.evaluate(() => {
       const gameScene = window.game.scene.getScene('game');
       const player = gameScene.entityManager.getFirst('player');
       const pet = gameScene.entityManager.getFirst('pet');
-      
+      if (!pet) return { distance: -1, ok: false };
+
       const playerTransform = player.require(window.TransformComponent);
       const petTransform = pet.require(window.TransformComponent);
       
@@ -54,7 +69,7 @@ const testPetTeleports = test(
 );
 
 await runTests({
-  level: 'test_room1',
+  level: 'test/test_room1',
   commands: ['test/interactions/player.js'],
   tests: [testPetTeleports],
   screenshotPath: 'tmp/test/screenshots/test-pet-teleport.png'

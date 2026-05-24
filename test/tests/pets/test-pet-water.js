@@ -16,7 +16,7 @@ const testPetHidesInWater = test(
       if (pets.length === 0) return { ok: false, reason: 'No pet' };
       
       const pet = pets[0];
-      const hasFollow = pet.components.some(c => c.constructor.name === 'PetFollowComponent');
+      const hasFollow = pet.has(window.PetFollowComponent);
       
       return { ok: true, hasFollow, petId: pet.id };
     });

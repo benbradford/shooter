@@ -78,7 +78,7 @@ const testDisabledWhenTooFar = test(
 );
 
 await runTests({
-  level: 'test_room1',
+  level: 'test/test_room1',
   commands: ['test/interactions/player.js'],
   tests: [testDisabledWhilePunching, testDisabledWhenTooFar],
   screenshotPath: 'tmp/test/screenshots/test-pet-ability-disabled.png'

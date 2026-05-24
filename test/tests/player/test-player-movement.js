@@ -9,7 +9,7 @@ const testHudInitialState = test(
   },
   async (page) => {
     const hud = await page.evaluate(() => getJoystickVisuals());
-    return hud.outerCircle.alpha === 0.3;
+    return hud.outerCircle.alpha === 0.15;
   }
 );
 
@@ -41,7 +41,7 @@ const testHudReleasedState = test(
   async (page) => {
     await new Promise(resolve => setTimeout(resolve, 50));
     const hud = await page.evaluate(() => getJoystickVisuals());
-    return hud.outerCircle.alpha === 0.3;
+    return hud.outerCircle.alpha === 0.15;
   }
 );
 

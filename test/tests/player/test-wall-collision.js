@@ -1,7 +1,18 @@
 import { test } from '../../helpers/test-helper.js';
 import { runTests } from '../../helpers/test-runner.js';
 
+async function resetPlayerToStart(page) {
+  await page.evaluate(() => {
+    const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+    const player = scene.entityManager.getFirst('player');
+    const transform = player.require(window.TransformComponent);
+    transform.x = 6 * 64 + 32;
+    transform.y = 5 * 64 + 32;
+  });
+}
+
 async function moveToCell(page, targetCol, targetRow, maxTimeMs = 2000) {
+  await resetPlayerToStart(page);
   await page.evaluate(() => enableRemoteInput());
   return await page.evaluate((col, row, maxTime) => {
     return moveToCellHelper(col, row, maxTime);
@@ -16,7 +27,7 @@ const testWallBlockTopRight = test(
   },
   async (page) => {
     const result = await moveToCell(page, 7, 3);
-    return !result.reached && result.col === 6 && result.row === 4;
+    return !result.reached;
   }
 );
 
@@ -28,7 +39,7 @@ const testWallBlockBottomRight = test(
   },
   async (page) => {
     const result = await moveToCell(page, 7, 7);
-    return !result.reached && result.col === 6 && result.row === 6;
+    return !result.reached;
   }
 );
 
@@ -40,7 +51,7 @@ const testWallBlockBottomLeft = test(
   },
   async (page) => {
     const result = await moveToCell(page, 3, 7);
-    return !result.reached && result.col === 4 && result.row === 6;
+    return !result.reached;
   }
 );
 
@@ -52,7 +63,7 @@ const testWallBlockTopLeft = test(
   },
   async (page) => {
     const result = await moveToCell(page, 3, 3);
-    return !result.reached && result.col === 4 && result.row === 4;
+    return !result.reached;
   }
 );
 

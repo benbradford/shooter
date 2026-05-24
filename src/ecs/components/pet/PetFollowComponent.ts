@@ -88,6 +88,18 @@ export class PetFollowComponent implements Component {
   }
 
   update(delta: number): void {
+    const _dbgTransform = this.entity.get(TransformComponent);
+    const _dbgStartX = _dbgTransform?.x ?? 0;
+    const _dbgStartY = _dbgTransform?.y ?? 0;
+    const _dbgCheck = () => {
+      if (!_dbgTransform) return;
+      const moved = Math.hypot(_dbgTransform.x - _dbgStartX, _dbgTransform.y - _dbgStartY);
+      if (moved > 50) {
+        console.warn(`[PET MOVE ${moved.toFixed(0)}px] state=${this.sm.state} from=(${_dbgStartX.toFixed(0)},${_dbgStartY.toFixed(0)}) to=(${_dbgTransform.x.toFixed(0)},${_dbgTransform.y.toFixed(0)})`);
+        console.trace();
+      }
+    };
+
     // Check if player is in water or jumping in/out
     const water = this.playerEntity.get(WaterEffectComponent);
 
@@ -111,7 +123,11 @@ export class PetFollowComponent implements Component {
         this.wasInWater = false;
         this.sm.transition('idle');
         const gridCollision = this.entity.get(GridCollisionComponent);
-        if (gridCollision) gridCollision.enabled = true;
+        if (gridCollision) {
+          gridCollision.enabled = true;
+          const transform = this.entity.require(TransformComponent);
+          gridCollision.syncPreviousPosition(transform.x, transform.y);
+        }
         const sprite = this.entity.get(SpriteComponent);
         if (sprite) {
           sprite.sprite.setDepth(Depth.pet);
@@ -121,6 +137,7 @@ export class PetFollowComponent implements Component {
     }
 
     this.sm.update(delta);
+    _dbgCheck();
   }
 
   private updateIdle(_delta: number): void {
@@ -232,11 +249,9 @@ export class PetFollowComponent implements Component {
   }
 
   private syncPetLayer(): void {
-    const playerGridPos = this.playerEntity.get(GridPositionComponent);
-    const petGridPos = this.entity.get(GridPositionComponent);
-    if (playerGridPos && petGridPos) {
-      petGridPos.currentLayer = playerGridPos.currentLayer;
-    }
+    // No-op: layer is determined by GridCollisionComponent from the actual
+    // cell the pet occupies. Syncing from the player caused collision failures
+    // when the player's layer was stale after platform jumps.
   }
 
   private teleportToPlayer(transform: TransformComponent, playerTransform: TransformComponent): void {
@@ -289,14 +304,20 @@ export class PetFollowComponent implements Component {
     if (result === 'fall') {
       this.sm.transition('sync_falling');
     } else if (result === 'done') {
-      this.sm.transition('idle');
+      this.finishSyncJump();
     }
   }
 
   private updateSyncFall(delta: number): void {
     if (this.syncJumpBehavior.updateFall(delta)) {
-      this.sm.transition('idle');
+      this.finishSyncJump();
     }
+  }
+
+  private finishSyncJump(): void {
+    const transform = this.entity.require(TransformComponent);
+    this.syncJumpBehavior.finishJump(transform);
+    this.sm.transition('idle');
   }
 
   private recalculatePath(): void {
@@ -305,8 +326,8 @@ export class PetFollowComponent implements Component {
     const startCell = this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
     const goalCell = getPlayerFeetCell(this.playerEntity, this.grid);
 
-    const playerGridPos = this.playerEntity.get(GridPositionComponent);
-    const layer = playerGridPos?.currentLayer ?? 0;
+    const petGridPos = this.entity.get(GridPositionComponent);
+    const layer = petGridPos?.currentLayer ?? 0;
 
     const path = this.pathfinder.findPath(
       startCell.col, startCell.row,
@@ -383,7 +404,9 @@ export class PetFollowComponent implements Component {
     const targetY = playerTransform.y + Math.sin(angle) * WANDER_RADIUS_PX;
     const targetCellCoord = this.grid.worldToCellInto(targetX, targetY, this._tmpCell);
     const targetCell = this.grid.getCell(targetCellCoord.col, targetCellCoord.row);
-    if (targetCell?.properties.has('void')) {
+    const petGridPos = this.entity.get(GridPositionComponent);
+    const petLayer = petGridPos?.currentLayer ?? 0;
+    if (targetCell?.properties.has('void') || (targetCell && targetCell.layer !== petLayer)) {
       this.startWanderPause(anim, playerTransform);
       return;
     }
@@ -432,6 +455,17 @@ export class PetFollowComponent implements Component {
   syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): void {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
+
+    const landCell = this.grid.getCell(landCol, landRow);
+    const landLayer = landCell ? landCell.layer : 0;
+    const petGridPos = this.entity.get(GridPositionComponent);
+    const petLayer = petGridPos?.currentLayer ?? 0;
+
+    if (petLayer === landLayer) {
+      // Pet is already on the destination layer — just follow normally, no arc needed
+      return;
+    }
+
     if (!this.syncJumpBehavior) {
       this.syncJumpBehavior = new PetSyncJumpBehavior(this.entity, this.playerEntity, this.grid);
     }

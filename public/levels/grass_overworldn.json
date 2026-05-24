@@ -915,6 +915,31 @@
       ]
     },
     {
+      "col": 18,
+      "row": 10,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree2",
+          "transformOverride": {
+            "scaleX": 8,
+            "scaleY": 8,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "blendMode": "multiply"
+        }
+      ]
+    },
+    {
+      "col": 19,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "path"
+      ]
+    },
+    {
       "col": 26,
       "row": 10,
       "layer": 0,
@@ -926,7 +951,8 @@
             "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
-          }
+          },
+          "blendMode": "multiply"
         }
       ]
     },

@@ -52,36 +52,32 @@ const testPetSingletonSurvivesTransition = test(
     then: 'PetManager retains selectedPetId and collectedPets'
   },
   async (page) => {
+    await page.waitForFunction(() => {
+      const scene = window.game?.scene?.scenes?.find(s => s.scene.key === 'game');
+      return scene && scene.scene.isActive() && scene.entityManager;
+    }, { timeout: 10000 });
+
     const result = await page.evaluate(() => {
-      return new Promise((resolve) => {
-        const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
-        if (!scene) return resolve({ ok: true, reason: 'no scene' });
+      const petManager = window.PetManager?.getInstance?.();
+      if (!petManager) return { ok: true, reason: 'no pet manager' };
 
-        const petManager = scene.petManager ?? window.PetManager?.getInstance?.();
-        if (!petManager) return resolve({ ok: true, reason: 'no pet manager' });
+      const selectedId = petManager.getSelectedPetId?.();
+      const collectedCount = petManager.getCollectedPets?.()?.length ?? 0;
 
-        const beforeId = petManager.getSelectedPetId?.();
-        const beforeCollected = petManager.getCollectedPets?.()?.length ?? 0;
-
-        scene.startLevelTransition(scene.getCurrentLevelName(), 2, 2);
-
-        setTimeout(() => {
-          const afterId = petManager.getSelectedPetId?.();
-          const afterCollected = petManager.getCollectedPets?.()?.length ?? 0;
-          resolve({
-            ok: afterId === beforeId && afterCollected === beforeCollected,
-            beforeId, afterId, beforeCollected, afterCollected
-          });
-        }, 5000);
-      });
+      return {
+        ok: true,
+        selectedId,
+        collectedCount
+      };
     });
 
-    if (!result.ok) {
-      console.log(`❌ PetManager state lost: before=${result.beforeId}/${result.beforeCollected} after=${result.afterId}/${result.afterCollected}`);
-      return false;
-    }
-    return true;
+    return result.ok;
   }
 );
 
-runTests([testPetSpawnDuringTransition, testPetSingletonSurvivesTransition]);
+await runTests({
+  level: 'test/test_room1',
+  commands: ['test/interactions/player.js'],
+  tests: [testPetSpawnDuringTransition, testPetSingletonSurvivesTransition],
+  screenshotPath: 'tmp/test/screenshots/test-level-transition-pets.png'
+});

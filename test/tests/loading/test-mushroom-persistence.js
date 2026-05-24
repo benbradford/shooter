@@ -40,7 +40,7 @@ const testNoMushroomsAfterRoundTrip = test(
       }
     });
 
-    await page.waitForTimeout(2000);
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     const currentLevel1 = await page.evaluate(() => {
       const gameScene = window.game.scene.getScene('game');
@@ -64,7 +64,7 @@ const testNoMushroomsAfterRoundTrip = test(
       }
     });
 
-    await page.waitForTimeout(2000);
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     const finalCount = await countMushrooms();
     console.log('[INFO] Final mushroom count:', finalCount);
@@ -77,5 +77,5 @@ runTests({
   level: 'grass_overworld1',
   commands: [],
   tests: [testNoMushroomsAfterRoundTrip],
-  screenshotPath: 'test/screenshots/mushroom-persistence.png'
+  screenshotPath: 'tmp/test/screenshots/mushroom-persistence.png'
 });

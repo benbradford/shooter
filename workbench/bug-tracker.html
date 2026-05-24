@@ -175,6 +175,7 @@ the player from exiting, unless you have any other bright ideas.`, area: '', id:
   { severity: 'high', status: 'fixed', title: 'Can enter water from south even when cannot swim', detail: 'GridMovementValidator now checks the visual-center cell when moving north — if it is water and canSwim is false, movement is blocked. Without this, the player\'s collision box (offset south of the visual sprite) could walk onto water from below.', area: 'gameplay', id: 24, added: '2026-05-16' },
   { severity: 'critical', status: 'fixed', title: 'Punch doesn\'t work', detail: 'It is not possible to punch, either with space or by pressing the punch icon, even if canPunch: true is set. This is a recently introduced bug, possibly a side-effect of some of the issues we recently fixed', area: 'combat', id: 25, added: '2026-05-20' },
   { severity: 'medium', status: 'open', title: 'pet doesnt follow after jump', detail: 'whenever a pet jumps off of a platform with me, they land and then immediately go back to their previous position. they should stay in the same place as the player', area: 'pet', id: 26, added: '2026-05-21' },
+  { severity: 'medium', status: 'open', title: 'swimming detection too lenient', detail: 'when walking down onto water, i have to be standing on the water before the player will jump in. the collision detection should be based on the player\'s feedt position', area: 'gameplay', id: 27, added: '2026-05-24' },
 ];
 
 function severityOrder(s) { return { critical: 0, high: 1, medium: 2, low: 3 }[s] ?? 4; }

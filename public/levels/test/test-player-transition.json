@@ -9,6 +9,7 @@
     {
       "col": 1,
       "row": 0,
+      "layer": 1,
       "properties": [
         "platform"
       ]
@@ -16,6 +17,7 @@
     {
       "col": 2,
       "row": 0,
+      "layer": 1,
       "properties": [
         "platform"
       ]
@@ -23,6 +25,7 @@
     {
       "col": 3,
       "row": 0,
+      "layer": 1,
       "properties": [
         "platform"
       ]
@@ -30,6 +33,7 @@
     {
       "col": 4,
       "row": 0,
+      "layer": 1,
       "properties": [
         "platform"
       ]
@@ -37,6 +41,7 @@
     {
       "col": 5,
       "row": 0,
+      "layer": 1,
       "properties": [
         "platform"
       ]
@@ -44,6 +49,7 @@
     {
       "col": 6,
       "row": 0,
+      "layer": 1,
       "properties": [
         "platform"
       ]
@@ -51,6 +57,7 @@
     {
       "col": 1,
       "row": 1,
+      "layer": 1,
       "properties": [
         "wall"
       ]
@@ -58,6 +65,7 @@
     {
       "col": 2,
       "row": 1,
+      "layer": 1,
       "properties": [
         "wall"
       ]
@@ -79,6 +87,7 @@
     {
       "col": 5,
       "row": 1,
+      "layer": 1,
       "properties": [
         "wall"
       ]
@@ -86,6 +95,7 @@
     {
       "col": 6,
       "row": 1,
+      "layer": 1,
       "properties": [
         "wall"
       ]

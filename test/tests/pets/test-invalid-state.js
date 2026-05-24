@@ -59,14 +59,13 @@ const testMissingMetadataFile = test(
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
 
-    // This test verifies the design's error handling claim
-    // The design says: "Missing metadata: Log error, don't spawn pet"
     const result = await page.evaluate(() => {
       return new Promise((resolve) => {
-        // Attempt to fetch a non-existent metadata file
         fetch('/assets/pets/fake/fake_spritesheet_metadata.json')
           .then(r => {
-            resolve({ ok: !r.ok, status: r.status });
+            const contentType = r.headers.get('content-type') || '';
+            const isJson = contentType.includes('application/json');
+            resolve({ ok: !isJson, status: r.status, contentType });
           })
           .catch(() => {
             resolve({ ok: true, reason: 'fetch failed gracefully' });
@@ -74,7 +73,6 @@ const testMissingMetadataFile = test(
       });
     });
 
-    // The key question: does the design actually handle this fetch failure?
     return result.ok;
   }
 );
@@ -117,4 +115,9 @@ const testDirectionMappingEdgeCases = test(
   }
 );
 
-runTests([testCorruptedPetFlags, testMissingMetadataFile, testDirectionMappingEdgeCases]);
+await runTests({
+  level: 'test/test_room1',
+  commands: ['test/interactions/player.js'],
+  tests: [testCorruptedPetFlags, testMissingMetadataFile, testDirectionMappingEdgeCases],
+  screenshotPath: 'tmp/test/screenshots/test-invalid-state.png'
+});
