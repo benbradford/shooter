@@ -456,16 +456,6 @@ export class PetFollowComponent implements Component {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
 
-    const landCell = this.grid.getCell(landCol, landRow);
-    const landLayer = landCell ? landCell.layer : 0;
-    const petGridPos = this.entity.get(GridPositionComponent);
-    const petLayer = petGridPos?.currentLayer ?? 0;
-
-    if (petLayer === landLayer) {
-      // Pet is already on the destination layer — just follow normally, no arc needed
-      return;
-    }
-
     if (!this.syncJumpBehavior) {
       this.syncJumpBehavior = new PetSyncJumpBehavior(this.entity, this.playerEntity, this.grid);
     }

@@ -198,11 +198,9 @@ export class GridCollisionComponent implements Component {
     this.swapOccupiedCells = this.occupiedCells;
     this.occupiedCells = newOccupiedCells;
 
-    // Update currentCell based on entity center (transform position).
-    // Using transform position rather than collision box center ensures symmetric
-    // cell transitions in all directions and matches the player's visual position.
+    // Update currentCell based on collision box center (feet position).
     const centerX = transform.x + gridPos.collisionBox.offsetX;
-    const centerY = transform.y;
+    const centerY = transform.y + gridPos.collisionBox.offsetY;
     const centerCell = this.grid.worldToCellInto(centerX, centerY, this._tmpCells[3]);
 
     gridPos.previousCell.col = gridPos.currentCell.col;
@@ -210,11 +208,7 @@ export class GridCollisionComponent implements Component {
     gridPos.currentCell.col = centerCell.col;
     gridPos.currentCell.row = centerCell.row;
 
-    // Update currentLayer based on collision box center (where the feet are).
-    // Layer determines collision rules, so it should follow the collision box.
-    const feetY = transform.y + gridPos.collisionBox.offsetY;
-    const layerCell = this.grid.worldToCellInto(centerX, feetY, this._tmpCells[4]);
-    const layerCellData = this.grid.getCell(layerCell.col, layerCell.row);
+    const layerCellData = this.grid.getCell(centerCell.col, centerCell.row);
 
     if (layerCellData) {
       gridPos.currentLayer = this.grid.getLayer(layerCellData);

@@ -61,6 +61,8 @@ All theme renderers extend this base class. The base class orchestrates renderin
 - Paths automatically connect between adjacent cells
 - Dead ends render with square caps instead of rounded
 - Inner and outer corner arcs for smooth perimeter
+- Path edge blending: Multi-pass alpha gradient softens path edges into surrounding floor
+- Path edge scatter: Random jagged particles along path edges for natural stone-to-dirt transition (`PathTilesetGenerator`)
 - Green vignette
 - Edge color: `0x3a5a2e`
 
