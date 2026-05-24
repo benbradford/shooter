@@ -113,6 +113,7 @@ export type BackgroundTextureConfig = {
     offsetY: number;
   };
   zOffsetOverride?: number;
+  dynamicZ?: boolean;
   blendMode?: 'normal' | 'multiply' | 'screen' | 'add';
   alpha?: number;
   tint?: string;

@@ -367,6 +367,7 @@ export class ContextPanel {
         const key = bgTextureKey(tex);
         const t = typeof tex === 'object' && 'transformOverride' in tex ? tex.transformOverride : null;
         const z = typeof tex === 'object' && 'zOffsetOverride' in tex ? tex.zOffsetOverride : undefined;
+        const dz = typeof tex === 'object' && 'dynamicZ' in tex ? tex.dynamicZ : false;
         const bm = typeof tex === 'object' && 'blendMode' in tex ? tex.blendMode : 'normal';
         const al = typeof tex === 'object' && 'alpha' in tex ? tex.alpha : undefined;
         const ti = typeof tex === 'object' && 'tint' in tex ? tex.tint : '';
@@ -382,8 +383,9 @@ export class ContextPanel {
         <div class="form-group"><label>offsetY</label><input type="number" class="tex-oy" data-tex-idx="${i}" value="${t?.offsetY ?? 0}" /></div>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin:4px 0">
-        <label style="display:flex;align-items:center;gap:4px;font-size:11px"><input type="checkbox" class="tex-z-enable" data-tex-idx="${i}" ${z !== undefined ? 'checked' : ''} /> Z Override</label>
-        <input type="number" class="tex-z-val" data-tex-idx="${i}" value="${z ?? 0}" style="width:60px" ${z === undefined ? 'disabled' : ''} />
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px"><input type="checkbox" class="tex-z-enable" data-tex-idx="${i}" ${z !== undefined ? 'checked' : ''} ${dz ? 'disabled' : ''} /> Z Override</label>
+        <input type="number" class="tex-z-val" data-tex-idx="${i}" value="${z ?? 0}" style="width:60px" ${z === undefined || dz ? 'disabled' : ''} />
+        <label style="display:flex;align-items:center;gap:4px;font-size:11px"><input type="checkbox" class="tex-dz-enable" data-tex-idx="${i}" ${dz ? 'checked' : ''} /> Dynamic Z</label>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:4px 0">
         <div class="form-group"><label>Blend</label><select class="tex-blend" data-tex-idx="${i}">
@@ -491,6 +493,27 @@ export class ContextPanel {
         const idx = cb.dataset.texIdx!;
         const input = this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement;
         input.disabled = !cb.checked;
+        if (cb.checked) {
+          const dzCb = this.container.querySelector(`.tex-dz-enable[data-tex-idx="${idx}"]`) as HTMLInputElement;
+          dzCb.checked = false;
+        }
+        applyTexTransform(Number.parseInt(idx, 10));
+      });
+    }
+    for (const cb of this.container.querySelectorAll<HTMLInputElement>('.tex-dz-enable')) {
+      cb.addEventListener('change', () => {
+        const idx = cb.dataset.texIdx!;
+        if (cb.checked) {
+          const zCb = this.container.querySelector(`.tex-z-enable[data-tex-idx="${idx}"]`) as HTMLInputElement;
+          const zVal = this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement;
+          zCb.checked = false;
+          zCb.disabled = true;
+          zVal.disabled = true;
+        } else {
+          const zCb = this.container.querySelector(`.tex-z-enable[data-tex-idx="${idx}"]`) as HTMLInputElement;
+          zCb.disabled = false;
+        }
+        applyTexTransform(Number.parseInt(idx, 10));
       });
     }
     for (const btn of this.container.querySelectorAll('.tex-tint-clear')) {
@@ -505,6 +528,7 @@ export class ContextPanel {
       const getVal = (cls: string) => Number.parseFloat((this.container.querySelector(`.${cls}[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
       const zEnabled = (this.container.querySelector(`.tex-z-enable[data-tex-idx="${idx}"]`) as HTMLInputElement).checked;
       const zVal = Number.parseFloat((this.container.querySelector(`.tex-z-val[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
+      const dzEnabled = (this.container.querySelector(`.tex-dz-enable[data-tex-idx="${idx}"]`) as HTMLInputElement).checked;
       const blendVal = (this.container.querySelector(`.tex-blend[data-tex-idx="${idx}"]`) as HTMLSelectElement).value;
       const alphaVal = Number.parseFloat((this.container.querySelector(`.tex-alpha[data-tex-idx="${idx}"]`) as HTMLInputElement).value);
       const tintVal = (this.container.querySelector(`.tex-tint[data-tex-idx="${idx}"]`) as HTMLInputElement).value.trim();
@@ -517,10 +541,16 @@ export class ContextPanel {
       const tex = texArr[idx];
       const entry = typeof tex === 'string' ? { image: tex } : { ...tex };
       entry.transformOverride = { scaleX: getVal('tex-sx'), scaleY: getVal('tex-sy'), offsetX: getVal('tex-ox'), offsetY: getVal('tex-oy') };
-      if (zEnabled) {
-        entry.zOffsetOverride = zVal;
-      } else {
+      if (dzEnabled) {
+        entry.dynamicZ = true;
         delete entry.zOffsetOverride;
+      } else {
+        delete entry.dynamicZ;
+        if (zEnabled) {
+          entry.zOffsetOverride = zVal;
+        } else {
+          delete entry.zOffsetOverride;
+        }
       }
       if (blendVal && blendVal !== 'normal') {
         entry.blendMode = blendVal as 'multiply' | 'screen' | 'add';
@@ -542,7 +572,7 @@ export class ContextPanel {
       this.bridge.getScene().refreshSprites();
     };
     // Auto-apply on any texture field change
-    for (const el of this.container.querySelectorAll<HTMLElement>('.tex-sx, .tex-sy, .tex-ox, .tex-oy, .tex-z-val, .tex-z-enable, .tex-blend, .tex-alpha, .tex-tint')) {
+    for (const el of this.container.querySelectorAll<HTMLElement>('.tex-sx, .tex-sy, .tex-ox, .tex-oy, .tex-z-val, .tex-z-enable, .tex-dz-enable, .tex-blend, .tex-alpha, .tex-tint')) {
       const idx = Number.parseInt(el.dataset.texIdx!, 10);
       el.addEventListener('change', () => applyTexTransform(idx));
     }

@@ -101,14 +101,6 @@ export class GridCollisionComponent implements Component {
       const xOnlyBlocked = this.validator.checkCollision(this.entity, newX, this.previousY, this.previousX, this.previousY, gridPos, this._tmpCells);
       const yOnlyBlocked = this.validator.checkCollision(this.entity, this.previousX, newY, this.previousX, this.previousY, gridPos, this._tmpCells);
 
-      if (this.entity.tags.has('pet')) {
-        const moveDist = Math.hypot(newX - this.previousX, newY - this.previousY);
-        const revertDist = Math.hypot(transform.x - this.previousX, transform.y - this.previousY);
-        if (revertDist > 30) {
-          console.warn(`[PET BLOCKED] new=(${newX.toFixed(0)},${newY.toFixed(0)}) prev=(${this.previousX.toFixed(0)},${this.previousY.toFixed(0)}) moveDist=${moveDist.toFixed(0)} revert=${revertDist.toFixed(0)} layer=${gridPos.currentLayer} xB=${xOnlyBlocked} yB=${yOnlyBlocked}`);
-        }
-      }
-
       const walk = this.entity.get(WalkComponent);
       const knockback = this.entity.get(KnockbackComponent);
 

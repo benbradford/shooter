@@ -683,11 +683,12 @@ export default class GameScene extends Phaser.Scene {
     // Update state machine (delegates to InGameState)
     this.stateMachine.update(delta);
 
-    // Update scene renderer (for water animation)
-    this.sceneRenderer.update(delta);
+    // Update scene renderer (water animation + dynamic Z)
+    const player = this.entityManager.getFirst('player');
+    const playerTransform = player?.get(TransformComponent);
+    this.sceneRenderer.update(delta, playerTransform?.y);
 
     // Update layer debug text
-    const player = this.entityManager.getFirst('player');
     if (player && this.layerDebugText) {
       const gridPos = player.get(GridPositionComponent);
       if (gridPos) {

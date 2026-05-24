@@ -66,9 +66,12 @@ export abstract class GameSceneRenderer {
     this.prepareRuntimeTilesets(levelData);
   }
 
-  update(delta: number): void {
+  update(delta: number, playerY?: number): void {
     if (this.waterAnimator) {
       this.waterAnimator.update(delta, this.waterSprites);
+    }
+    if (playerY !== undefined) {
+      this.bgTextureRenderer.updateDynamicZ(playerY);
     }
   }
 
@@ -253,6 +256,7 @@ export abstract class GameSceneRenderer {
     this.floorSprites.length = 0;
     for (const sprite of this.cellSprites) sprite.destroy();
     this.cellSprites.length = 0;
+    this.bgTextureRenderer.clearDynamicZ();
     for (const sprite of this.waterSprites) sprite.destroy();
     this.waterSprites.length = 0;
     if (this.waterAnimator) {
@@ -270,6 +274,7 @@ export abstract class GameSceneRenderer {
     console.log('[GameSceneRenderer] Invalidating cache - destroying', this.cellSprites.length, 'sprites');
     for (const sprite of this.cellSprites) sprite.destroy();
     this.cellSprites.length = 0;
+    this.bgTextureRenderer.clearDynamicZ();
     for (const sprites of this.renderedCellTextures.values()) {
       for (const s of sprites) s.destroy();
     }

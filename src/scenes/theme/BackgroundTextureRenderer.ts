@@ -25,6 +25,8 @@ const TILE_THREE_NEIGHBOR_BASE_NO_UP = 27;
 const TILE_FOUR_NEIGHBOR_BASE = 31;
 
 export class BackgroundTextureRenderer {
+  private readonly dynamicZSprites: Array<{ sprite: Phaser.GameObjects.Image; y: number }> = [];
+
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly cellSize: number,
@@ -32,6 +34,16 @@ export class BackgroundTextureRenderer {
     private readonly renderedCellTextures: Map<string, Phaser.GameObjects.Image[]>,
     private readonly addImage: (x: number, y: number, texture: string) => Phaser.GameObjects.Image
   ) {}
+
+  updateDynamicZ(playerY: number): void {
+    for (const entry of this.dynamicZSprites) {
+      entry.sprite.setDepth(playerY < entry.y ? Depth.player + 1 : Depth.cellTextureModified);
+    }
+  }
+
+  clearDynamicZ(): void {
+    this.dynamicZSprites.length = 0;
+  }
 
   createBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
     if (!levelData.cells) return;
@@ -57,6 +69,7 @@ export class BackgroundTextureRenderer {
           let transform: { scaleX: number; scaleY: number; offsetX: number; offsetY: number } | undefined;
           let sourceRect: { x: number; y: number; width: number; height: number } | undefined;
           let zOffsetOverride: number | undefined;
+          let dynamicZ = false;
           let blendMode: string | undefined;
           let alpha: number | undefined;
           let tint: string | undefined;
@@ -68,6 +81,7 @@ export class BackgroundTextureRenderer {
             transform = tex.transformOverride;
             sourceRect = tex.sourceRect;
             zOffsetOverride = tex.zOffsetOverride;
+            dynamicZ = tex.dynamicZ ?? false;
             blendMode = tex.blendMode;
             alpha = tex.alpha;
             tint = tex.tint;
@@ -97,7 +111,10 @@ export class BackgroundTextureRenderer {
             sprite.setDisplaySize(this.cellSize, this.cellSize);
           }
 
-          const depth: number = zOffsetOverride ?? baseDepth;
+          if (dynamicZ) {
+            this.dynamicZSprites.push({ sprite, y: spriteY });
+          }
+          const depth: number = dynamicZ ? Depth.cellTextureModified : (zOffsetOverride ?? baseDepth);
           sprite.setDepth(depth);
 
           if (blendMode === 'multiply') sprite.setBlendMode(Phaser.BlendModes.MULTIPLY);

@@ -88,18 +88,6 @@ export class PetFollowComponent implements Component {
   }
 
   update(delta: number): void {
-    const _dbgTransform = this.entity.get(TransformComponent);
-    const _dbgStartX = _dbgTransform?.x ?? 0;
-    const _dbgStartY = _dbgTransform?.y ?? 0;
-    const _dbgCheck = () => {
-      if (!_dbgTransform) return;
-      const moved = Math.hypot(_dbgTransform.x - _dbgStartX, _dbgTransform.y - _dbgStartY);
-      if (moved > 50) {
-        console.warn(`[PET MOVE ${moved.toFixed(0)}px] state=${this.sm.state} from=(${_dbgStartX.toFixed(0)},${_dbgStartY.toFixed(0)}) to=(${_dbgTransform.x.toFixed(0)},${_dbgTransform.y.toFixed(0)})`);
-        console.trace();
-      }
-    };
-
     // Check if player is in water or jumping in/out
     const water = this.playerEntity.get(WaterEffectComponent);
 
@@ -137,7 +125,6 @@ export class PetFollowComponent implements Component {
     }
 
     this.sm.update(delta);
-    _dbgCheck();
   }
 
   private updateIdle(_delta: number): void {
@@ -455,6 +442,16 @@ export class PetFollowComponent implements Component {
   syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): void {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
+
+    const landCell = this.grid.getCell(landCol, landRow);
+    const landLayer = landCell ? landCell.layer : 0;
+    const petGridPos = this.entity.get(GridPositionComponent);
+    const petLayer = petGridPos?.currentLayer ?? 0;
+
+    if (petLayer === landLayer) {
+      // Pet is already on the destination layer — just follow normally, no arc needed
+      return;
+    }
 
     if (!this.syncJumpBehavior) {
       this.syncJumpBehavior = new PetSyncJumpBehavior(this.entity, this.playerEntity, this.grid);
