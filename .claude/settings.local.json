@@ -21,7 +21,10 @@
       "Bash(git diff *)",
       "Bash(lsof -ti:5173)",
       "Bash(xargs kill -9)",
-      "Bash(xargs *)"
+      "Bash(xargs *)",
+      "Bash(/opt/homebrew/bin/tmux list-sessions *)",
+      "Bash(ps *)",
+      "Bash(pkill ttyd *)"
     ]
   }
 }

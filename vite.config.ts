@@ -148,7 +148,7 @@ function generateSessionId(): string {
 
 function isTmuxSessionAlive(tmuxName: string): boolean {
   try {
-    execSync(`/opt/homebrew/bin/tmux has-session -t '${tmuxName}' 2>/dev/null`);
+    execSync(`/opt/homebrew/bin/tmux has-session -t '${tmuxName}' 2>/dev/null`, { timeout: 3000 });
     return true;
   } catch { return false; }
 }
@@ -159,7 +159,7 @@ function isProcessAlive(pid: number): boolean {
 
 function isPortInUse(port: number): boolean {
   try {
-    execSync(`lsof -i :${port} -P -t 2>/dev/null`);
+    execSync(`lsof -i :${port} -P -t 2>/dev/null`, { timeout: 2000 });
     return true;
   } catch { return false; }
 }
@@ -208,6 +208,8 @@ function spawnTtydForTmux(tmuxName: string, port: number): number {
 
 function spawnSession(label: string, shellCmd: string, tag?: string): Session {
   const cwd = process.cwd();
+  const tmuxPath = '/opt/homebrew/bin/tmux';
+  const EXEC_TIMEOUT_MS = 5000;
 
   // Auto-kill any existing session with the same tag — this makes workflow
   // sessions (Update Docs, Commit All, etc.) singletons. Without this, every
@@ -219,23 +221,22 @@ function spawnSession(label: string, shellCmd: string, tag?: string): Session {
       const matches = existing.tag === tag || (!existing.tag && existing.label === label);
       if (!matches) continue;
       if (existing.ttydPid > 0) { try { process.kill(existing.ttydPid); } catch { /* already dead */ } }
-      try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${existing.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+      try { execSync(`${tmuxPath} kill-session -t '${existing.tmuxSession}' 2>/dev/null`, { timeout: EXEC_TIMEOUT_MS }); } catch { /* already dead */ }
       sessions.delete(existing.id);
     }
   }
 
   const port = findAvailablePort();
-  const tmuxPath = '/opt/homebrew/bin/tmux';
   const id = generateSessionId();
   const tmuxName = `db-${id}`;
 
   console.log(`🚀 Session "${label}" (tmux: ${tmuxName}) on port ${port}...`);
 
   // Create a detached tmux session running the command
-  execSync(`${tmuxPath} new-session -d -s '${tmuxName}' -c '${cwd}' '${shellCmd.replace(/'/g, "'\\''")}'`);
-  // Enable mouse mode for scroll support
-  execSync(`${tmuxPath} set-option -t '${tmuxName}' mouse on 2>/dev/null || true`);
-  execSync(`${tmuxPath} set-option -t '${tmuxName}' history-limit 10000 2>/dev/null || true`);
+  execSync(`${tmuxPath} new-session -d -s '${tmuxName}' -c '${cwd}' '${shellCmd.replace(/'/g, "'\\''")}'`, { timeout: EXEC_TIMEOUT_MS });
+  // Enable mouse mode and history in background — don't block on these
+  spawn(tmuxPath, ['set-option', '-t', tmuxName, 'mouse', 'on'], { stdio: 'ignore', detached: true }).unref();
+  spawn(tmuxPath, ['set-option', '-t', tmuxName, 'history-limit', '10000'], { stdio: 'ignore', detached: true }).unref();
 
   // Spawn ttyd attached to the tmux session
   const ttydPid = spawnTtydForTmux(tmuxName, port);
@@ -261,7 +262,7 @@ function ensureTtydRunning(session: Session): void {
     session.port = findAvailablePort();
   }
   // Ensure mouse mode is on (may be missing for sessions created before this fix)
-  try { execSync(`/opt/homebrew/bin/tmux set-option -t '${session.tmuxSession}' mouse on`); } catch { /* session may be dead */ }
+  try { execSync(`/opt/homebrew/bin/tmux set-option -t '${session.tmuxSession}' mouse on`, { timeout: 3000 }); } catch { /* session may be dead */ }
   // tmux is alive but ttyd died (user navigated away) — respawn ttyd
   session.ttydPid = spawnTtydForTmux(session.tmuxSession, session.port);
   persistSessions();
@@ -818,7 +819,7 @@ If there are no changes to commit, say so and stop.`;
           if (session.ttydPid > 0) { try { process.kill(session.ttydPid); } catch { /* already dead */ } }
           // Kill tmux session
           try {
-            execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`);
+            execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`, { timeout: 3000 });
           } catch { /* already dead */ }
           session.status = 'dead';
           persistSessions();
@@ -839,7 +840,7 @@ If there are no changes to commit, say so and stop.`;
             if (s.status !== 'dead' && s.port > 0) continue;
             // Belt-and-suspenders: try to kill anything that might still be lingering
             if (s.ttydPid > 0) { try { process.kill(s.ttydPid); } catch { /* already dead */ } }
-            try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${s.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+            try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${s.tmuxSession}' 2>/dev/null`, { timeout: 3000 }); } catch { /* already dead */ }
             sessions.delete(id);
             removed++;
           }
@@ -858,11 +859,11 @@ If there are no changes to commit, say so and stop.`;
           if (session) {
             // Kill if still alive
             if (session.ttydPid > 0) try { process.kill(session.ttydPid); } catch { /* already dead */ }
-            if (session.tmuxSession) try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`); } catch { /* already dead */ }
+            if (session.tmuxSession) try { execSync(`/opt/homebrew/bin/tmux kill-session -t '${session.tmuxSession}' 2>/dev/null`, { timeout: 3000 }); } catch { /* already dead */ }
             sessions.delete(body.id);
           } else {
             // Session not in Map (orphaned from previous server instance) — try tmux cleanup
-            try { execSync(`/opt/homebrew/bin/tmux kill-session -t 'db-${body.id}' 2>/dev/null`); } catch { /* already dead */ }
+            try { execSync(`/opt/homebrew/bin/tmux kill-session -t 'db-${body.id}' 2>/dev/null`, { timeout: 3000 }); } catch { /* already dead */ }
           }
           persistSessions();
           res.setHeader('Content-Type', 'application/json');
@@ -933,7 +934,7 @@ If there are no changes to commit, say so and stop.`;
           const session = sessions.get(body.id);
           if (!session) { res.statusCode = 404; res.end('Session not found'); return; }
           const tmuxPath = '/opt/homebrew/bin/tmux';
-          const text = execSync(`${tmuxPath} capture-pane -t '${session.tmuxSession}' -p -S -500`, { encoding: 'utf-8' });
+          const text = execSync(`${tmuxPath} capture-pane -t '${session.tmuxSession}' -p -S -500`, { encoding: 'utf-8', timeout: 5000 });
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ text }));
         } catch (error) { res.statusCode = 500; res.end(String(error)); }

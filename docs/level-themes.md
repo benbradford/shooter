@@ -267,6 +267,8 @@ Individual cells can have custom background textures that override theme renderi
 }
 ```
 
+Negative `scaleX`/`scaleY` values flip the sprite horizontally/vertically (the absolute value is used for sizing).
+
 **Spritesheet format** (extract region from a larger image):
 ```json
 {

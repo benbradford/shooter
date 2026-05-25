@@ -104,6 +104,10 @@ export class PetFollowComponent implements Component {
         if (sprite) sprite.sprite.setAlpha(1);
         const gridCollision = this.entity.get(GridCollisionComponent);
         if (gridCollision) gridCollision.enabled = false;
+        const playerWalk = this.playerEntity.get(WalkComponent);
+        if (playerWalk && playerWalk.lastDir !== Direction.None) {
+          this.currentDirection = playerWalk.lastDir;
+        }
       }
 
       // Player exited water and hop is complete → resume following
@@ -270,28 +274,29 @@ export class PetFollowComponent implements Component {
     const sprite = this.entity.get(SpriteComponent);
     const playerWalk = this.playerEntity.get(WalkComponent);
 
+    // Sync direction from player BEFORE calculating offset
+    if (playerWalk) {
+      const dir = playerWalk.lastDir;
+      if (dir !== Direction.None) {
+        this.currentDirection = dir;
+      }
+    }
+
     // Stick to player with per-direction offset
     const offset = RIDE_OFFSETS[this.currentDirection] ?? RIDE_OFFSETS[Direction.Down];
     transform.x = playerTransform.x + offset.x;
     transform.y = playerTransform.y + offset.y;
     if (sprite) sprite.sprite.setAngle(offset.deg);
 
-    // Match player direction
+    // Play animation and set depth
     if (playerWalk) {
-      const dir = playerWalk.lastDir;
-      if (dir !== Direction.None) {
-        this.currentDirection = dir;
-
-        // Snap to 4-dir for animation only if pet has 4 directions
-        let animDir = dir;
-        if (this.directionCount === 4) {
-          if (dir === Direction.UpLeft || dir === Direction.UpRight) animDir = Direction.Up;
-          else if (dir === Direction.DownLeft || dir === Direction.DownRight) animDir = Direction.Down;
-        }
-        this.playAnim(anim, `idle_${animDir}`);
+      let animDir = this.currentDirection;
+      if (this.directionCount === 4) {
+        if (animDir === Direction.UpLeft || animDir === Direction.UpRight) animDir = Direction.Up;
+        else if (animDir === Direction.DownLeft || animDir === Direction.DownRight) animDir = Direction.Down;
       }
+      this.playAnim(anim, `idle_${animDir}`);
 
-      // Render behind player when facing down, on top otherwise
       if (sprite) {
         const isFacingDown = this.currentDirection === Direction.Down || this.currentDirection === Direction.DownLeft || this.currentDirection === Direction.DownRight;
         sprite.sprite.setDepth(isFacingDown ? Depth.playerSwimming - 1 : Depth.playerSwimming + 1);
