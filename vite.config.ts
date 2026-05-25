@@ -414,6 +414,21 @@ function saveLevelPlugin(): Plugin {
         });
       });
 
+      // Serve level JSON files directly from disk — prevents Vite's SPA fallback
+      // from returning index.html for levels created after dev server started.
+      server.middlewares.use('/levels/', (req, res, next) => {
+        const url = req.url ?? '';
+        if (!url.endsWith('.json')) { next(); return; }
+        const fileName = url.replace(/^\//, '').replace(/\?.*$/, '');
+        const filePath = path.resolve('public/levels', path.basename(fileName));
+        if (!filePath.startsWith(path.resolve('public/levels'))) { next(); return; }
+        try {
+          const content = fs.readFileSync(filePath, 'utf-8');
+          res.setHeader('Content-Type', 'application/json');
+          res.end(content);
+        } catch { next(); }
+      });
+
       server.middlewares.use('/api/levels', (_req, res) => {
         try {
           const levelsDir = path.resolve('public/levels');

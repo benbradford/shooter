@@ -20,9 +20,12 @@ import { InGameState } from "./states/InGameState";
 import { InteractionState, type InteractionStateData } from "./states/InteractionState";
 import { CELL_SIZE, CAMERA_ZOOM, CAMERA_BOUNDS_INSET_X_PX, CAMERA_BOUNDS_INSET_Y_PX } from "../constants/GameConstants";
 import { SpriteComponent } from "../ecs/components/core/SpriteComponent";
+import { AnimationComponent } from "../ecs/components/core/AnimationComponent";
 import { GridPositionComponent } from "../ecs/components/movement/GridPositionComponent";
 import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
+import { WalkComponent } from "../ecs/components/movement/WalkComponent";
+import { Direction } from "../constants/Direction";
 import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
@@ -636,6 +639,24 @@ export default class GameScene extends Phaser.Scene {
       levelData: () => this.levelData,
       blockedAreaManager: this.blockedAreaManager,
     }));
+
+    const savedDir = worldState.getPlayerSpawnDirection();
+    if (savedDir !== undefined && savedDir !== Direction.None) {
+      const walk = player.get(WalkComponent);
+      const anim = player.get(AnimationComponent);
+      if (walk) {
+        walk.lastDir = savedDir;
+        const hasLeft = savedDir === Direction.Left || savedDir === Direction.UpLeft || savedDir === Direction.DownLeft;
+        const hasRight = savedDir === Direction.Right || savedDir === Direction.UpRight || savedDir === Direction.DownRight;
+        const hasUp = savedDir === Direction.Up || savedDir === Direction.UpLeft || savedDir === Direction.UpRight;
+        const hasDown = savedDir === Direction.Down || savedDir === Direction.DownLeft || savedDir === Direction.DownRight;
+        walk.lastMoveX = hasLeft ? -1 : hasRight ? 1 : 0;
+        walk.lastMoveY = hasUp ? -1 : hasDown ? 1 : 0;
+      }
+      if (anim) {
+        anim.animationSystem.play(`idle_${savedDir}`);
+      }
+    }
 
     // Initialize PetManager
     void this.initializePetManager(player);

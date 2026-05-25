@@ -34,6 +34,7 @@ export type GridReader = {
   getEntitiesWithTag(tag: string): Entity[];
   getFirstEntityWithTag(tag: string): Entity | undefined;
   getBlockedAreaCells(): ReadonlySet<string> | undefined;
+  isPointInBlockedArea(x: number, y: number, layer: number): boolean;
 };
 
 export class Grid implements GridReader {
@@ -58,6 +59,10 @@ export class Grid implements GridReader {
 
   getBlockedAreaCells(): ReadonlySet<string> | undefined {
     return this.blockedAreaManager?.getBlockedCells();
+  }
+
+  isPointInBlockedArea(x: number, y: number, layer: number): boolean {
+    return this.blockedAreaManager?.isPointBlocked(x, y, layer) ?? false;
   }
 
   public get gridDebugEnabled(): boolean {

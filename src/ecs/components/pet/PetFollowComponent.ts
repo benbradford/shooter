@@ -101,7 +101,10 @@ export class PetFollowComponent implements Component {
         this.wasInWater = true;
         this.pathFollower.clear();
         const sprite = this.entity.get(SpriteComponent);
-        if (sprite) sprite.sprite.setAlpha(1);
+        if (sprite) {
+          sprite.sprite.setAlpha(1);
+          sprite.visualOffsetYPx = 0;
+        }
         const gridCollision = this.entity.get(GridCollisionComponent);
         if (gridCollision) gridCollision.enabled = false;
         const playerWalk = this.playerEntity.get(WalkComponent);
@@ -422,7 +425,10 @@ export class PetFollowComponent implements Component {
     const targetCell = this.grid.getCell(targetCellCoord.col, targetCellCoord.row);
     const petGridPos = this.entity.get(GridPositionComponent);
     const petLayer = petGridPos?.currentLayer ?? 0;
-    if (targetCell?.properties.has('void') || (targetCell && targetCell.layer !== petLayer)) {
+    if (targetCell?.properties.has('void') ||
+        (targetCell && this.grid.isWall(targetCell)) ||
+        this.grid.isPointInBlockedArea(targetX, targetY, petLayer) ||
+        (targetCell && targetCell.layer !== petLayer)) {
       this.startWanderPause(anim, playerTransform);
       return;
     }

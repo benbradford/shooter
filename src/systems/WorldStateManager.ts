@@ -160,6 +160,14 @@ export class WorldStateManager {
     this.worldState.player.entryCell = { col, row };
   }
 
+  setPlayerSpawnDirection(dir: number): void {
+    this.worldState.player.spawnDir = dir;
+  }
+
+  getPlayerSpawnDirection(): number | undefined {
+    return this.worldState.player.spawnDir;
+  }
+
   clearPlayerSpawnPosition(): void {
     this.worldState.player.spawnCol = undefined;
     this.worldState.player.spawnRow = undefined;

@@ -4,6 +4,7 @@ import { EscortSpawnManager } from './escort/EscortSpawnManager';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { HealthComponent } from '../ecs/components/core/HealthComponent';
 import { InputComponent } from '../ecs/components/input/InputComponent';
+import { WalkComponent } from '../ecs/components/movement/WalkComponent';
 import { PLAYER_MAX_HEALTH } from '../ecs/entities/player/PlayerEntity';
 import type GameScene from '../scenes/GameScene';
 
@@ -71,6 +72,11 @@ export class LevelTransitionManager {
     const health = player.get(HealthComponent);
     if (health && health.getHealth() > 0) {
       worldState.setPlayerHealth(health.getHealth());
+    }
+
+    const walk = player.get(WalkComponent);
+    if (walk) {
+      worldState.setPlayerSpawnDirection(walk.lastDir);
     }
 
     const input = player.get(InputComponent);

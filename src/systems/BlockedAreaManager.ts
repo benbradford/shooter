@@ -57,6 +57,14 @@ export class BlockedAreaManager {
     return false;
   }
 
+  isPointBlocked(x: number, y: number, layer: number): boolean {
+    for (const area of this.areas) {
+      if (area.layer !== layer) continue;
+      if (isPointInPolygon(x, y, area.vertices)) return true;
+    }
+    return false;
+  }
+
   getBlockedCells(): ReadonlySet<string> {
     return this.blockedCells;
   }

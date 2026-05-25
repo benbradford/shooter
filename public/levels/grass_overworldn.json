@@ -7,6 +7,32 @@
   },
   "cells": [
     {
+      "col": 0,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
+      ]
+    },
+    {
       "col": 6,
       "row": 0,
       "layer": 0,
@@ -241,22 +267,6 @@
       "layer": 0,
       "properties": [
         "water"
-      ]
-    },
-    {
-      "col": 4,
-      "row": 1,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "shrine",
-          "transformOverride": {
-            "scaleX": 3,
-            "scaleY": 4,
-            "offsetX": 0,
-            "offsetY": 0
-          }
-        }
       ]
     },
     {
@@ -867,6 +877,14 @@
       ]
     },
     {
+      "col": 29,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 18,
       "row": 4,
       "layer": 0,
@@ -875,11 +893,156 @@
       ]
     },
     {
+      "col": 28,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 1,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 3,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 18,
       "row": 5,
       "layer": 0,
       "properties": [
         "path"
+      ]
+    },
+    {
+      "col": 21,
+      "row": 5,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "shrine",
+          "transformOverride": {
+            "scaleX": 3,
+            "scaleY": 4,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "dynamicZ": true
+        }
+      ]
+    },
+    {
+      "col": 29,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 0,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
       ]
     },
     {
@@ -908,6 +1071,71 @@
       ]
     },
     {
+      "col": 29,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 7,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 8,
       "row": 7,
       "layer": 0,
@@ -919,7 +1147,8 @@
             "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
-          }
+          },
+          "dynamicZ": true
         }
       ]
     },
@@ -996,6 +1225,42 @@
       ]
     },
     {
+      "col": 29,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 14,
       "row": 8,
       "layer": 0,
@@ -1068,6 +1333,79 @@
       ]
     },
     {
+      "col": 29,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 1,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 9,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 14,
       "row": 9,
       "layer": 0,
@@ -1100,6 +1438,34 @@
       ]
     },
     {
+      "col": 29,
+      "row": 9,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 8,
       "row": 10,
       "layer": 0,
@@ -1111,7 +1477,8 @@
             "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
-          }
+          },
+          "dynamicZ": true
         }
       ]
     },
@@ -1184,6 +1551,68 @@
       ]
     },
     {
+      "col": 29,
+      "row": 10,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 11,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 11,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 14,
       "row": 11,
       "layer": 0,
@@ -1213,6 +1642,34 @@
       "layer": 0,
       "properties": [
         "path"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 11,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "blocked"
       ]
     },
     {
@@ -1288,6 +1745,68 @@
       ]
     },
     {
+      "col": 29,
+      "row": 12,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 13,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 8,
       "row": 13,
       "layer": 0,
@@ -1299,7 +1818,8 @@
             "scaleY": 7,
             "offsetX": 0,
             "offsetY": 0
-          }
+          },
+          "dynamicZ": true
         }
       ]
     },
@@ -1373,6 +1893,34 @@
       "layer": 0,
       "properties": [
         "path"
+      ]
+    },
+    {
+      "col": 29,
+      "row": 13,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 14,
+      "layer": 0,
+      "properties": [
+        "blocked"
       ]
     },
     {
@@ -1459,6 +2007,68 @@
             "offsetY": 0
           },
           "dynamicZ": true
+        }
+      ]
+    },
+    {
+      "col": 29,
+      "row": 14,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 15,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
         }
       ]
     },
@@ -1549,6 +2159,34 @@
       ]
     },
     {
+      "col": 29,
+      "row": 15,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 16,
       "row": 16,
       "layer": 0,
@@ -1619,6 +2257,68 @@
       ]
     },
     {
+      "col": 29,
+      "row": 16,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 2,
+      "row": 17,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 17,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
       "col": 16,
       "row": 17,
       "layer": 0,
@@ -1689,9 +2389,12 @@
       ]
     },
     {
-      "col": 1,
-      "row": 18,
+      "col": 29,
+      "row": 17,
       "layer": 0,
+      "properties": [
+        "blocked"
+      ],
       "backgroundTexture": [
         {
           "image": "dead_tree1",
@@ -1709,85 +2412,8 @@
       "col": 4,
       "row": 18,
       "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
-      ]
-    },
-    {
-      "col": 7,
-      "row": 18,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
-      ]
-    },
-    {
-      "col": 10,
-      "row": 18,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
-      ]
-    },
-    {
-      "col": 13,
-      "row": 18,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
-      ]
-    },
-    {
-      "col": 15,
-      "row": 18,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
+      "properties": [
+        "blocked"
       ]
     },
     {
@@ -1861,54 +2487,11 @@
       ]
     },
     {
-      "col": 21,
+      "col": 29,
       "row": 18,
       "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
-      ]
-    },
-    {
-      "col": 24,
-      "row": 18,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
-      ]
-    },
-    {
-      "col": 27,
-      "row": 18,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "dead_tree1",
-          "transformOverride": {
-            "scaleX": 5,
-            "scaleY": 5,
-            "offsetX": 0,
-            "offsetY": 0
-          },
-          "zOffsetOverride": 500
-        }
+      "properties": [
+        "blocked"
       ]
     },
     {
@@ -1925,6 +2508,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -1941,6 +2536,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -1957,6 +2564,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -1973,6 +2592,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -1989,6 +2620,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -2005,6 +2648,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -2017,6 +2672,54 @@
     },
     {
       "col": 13,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 14,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 15,
+      "row": 19,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
+      ]
+    },
+    {
+      "col": 16,
       "row": 19,
       "layer": 0,
       "properties": [
@@ -2042,35 +2745,10 @@
       ]
     },
     {
-      "col": 14,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 15,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
-      "col": 16,
-      "row": 19,
-      "layer": 0,
-      "properties": [
-        "blocked"
-      ]
-    },
-    {
       "col": 17,
       "row": 19,
       "layer": 0,
       "properties": [
-        "blocked",
         "path"
       ]
     },
@@ -2096,6 +2774,24 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "wilds_props",
+          "sourceRect": {
+            "x": 920,
+            "y": 238,
+            "width": 256,
+            "height": 151
+          },
+          "transformOverride": {
+            "scaleX": 1.5,
+            "scaleY": 1.5,
+            "offsetX": 3,
+            "offsetY": -8
+          },
+          "alpha": 0.7
+        }
       ]
     },
     {
@@ -2104,6 +2800,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -2120,6 +2828,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -2136,6 +2856,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -2152,6 +2884,18 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "dead_tree1",
+          "transformOverride": {
+            "scaleX": 5,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 0
+          },
+          "zOffsetOverride": 500
+        }
       ]
     },
     {
@@ -2214,6 +2958,85 @@
           {
             "col": 18,
             "row": 19
+          },
+          {
+            "col": 17,
+            "row": 19
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit2",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworldnnw",
+        "targetCol": 5,
+        "targetRow": 8,
+        "triggerCells": [
+          {
+            "col": 5,
+            "row": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit3",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworldnnw",
+        "targetCol": 4,
+        "targetRow": 8,
+        "triggerCells": [
+          {
+            "col": 4,
+            "row": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit4",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworldnnw",
+        "targetCol": 3,
+        "targetRow": 8,
+        "triggerCells": [
+          {
+            "col": 3,
+            "row": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit5",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworldnnw",
+        "targetCol": 2,
+        "targetRow": 8,
+        "triggerCells": [
+          {
+            "col": 2,
+            "row": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "exit6",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworldnnw",
+        "targetCol": 1,
+        "targetRow": 8,
+        "triggerCells": [
+          {
+            "col": 1,
+            "row": 0
           }
         ]
       }
@@ -2251,49 +3074,6 @@
     }
   },
   "blockedAreas": [
-    {
-      "id": "ba7",
-      "vertices": [
-        {
-          "x": 232.79914569484708,
-          "y": 135.8825090267939
-        },
-        {
-          "x": 319.0495068808958,
-          "y": 145.69368265101224
-        },
-        {
-          "x": 350.2780859310169,
-          "y": 124.6697391705444
-        },
-        {
-          "x": 351.7651611238797,
-          "y": 78.41706351351525
-        },
-        {
-          "x": 298.23045418081495,
-          "y": 51.78673510492274
-        },
-        {
-          "x": 293.76922860222635,
-          "y": 26.55800292836136
-        },
-        {
-          "x": 275.9243262878714,
-          "y": 27.959599160392543
-        },
-        {
-          "x": 272.9501759021457,
-          "y": 47.58194640882914
-        },
-        {
-          "x": 228.33792011625837,
-          "y": 78.41706351351525
-        }
-      ],
-      "layer": 0,
-      "blocksProjectiles": true
-    },
     {
       "id": "ba9",
       "vertices": [
@@ -2448,6 +3228,145 @@
         {
           "x": 1735.0024471959207,
           "y": 862.4402886597927
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    },
+    {
+      "id": "ba15",
+      "vertices": [
+        {
+          "x": 393.95842680262166,
+          "y": 512.5357113402048
+        },
+        {
+          "x": 564.5629424617623,
+          "y": 543.0511752577306
+        },
+        {
+          "x": 704.402709395484,
+          "y": 499.339835051545
+        },
+        {
+          "x": 701.6059140568095,
+          "y": 449.0305567010295
+        },
+        {
+          "x": 509.559300801165,
+          "y": 430.8862268041223
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    },
+    {
+      "id": "ba16",
+      "vertices": [
+        {
+          "x": 682.0283466860885,
+          "y": 684.9068453608234
+        },
+        {
+          "x": 679.2315513474141,
+          "y": 642.020247422679
+        },
+        {
+          "x": 440.5716824471956,
+          "y": 607.381072164947
+        },
+        {
+          "x": 399.5520174799705,
+          "y": 646.1439587628852
+        },
+        {
+          "x": 408.8746686088853,
+          "y": 697.2779793814418
+        },
+        {
+          "x": 582.2759796067003,
+          "y": 722.8449896907202
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    },
+    {
+      "id": "ba17",
+      "vertices": [
+        {
+          "x": 392.62498470502675,
+          "y": 896.8666391752575
+        },
+        {
+          "x": 567.8908259286247,
+          "y": 932.3305567010308
+        },
+        {
+          "x": 704.0015324107806,
+          "y": 884.495505154639
+        },
+        {
+          "x": 701.2047370721061,
+          "y": 843.2583917525772
+        },
+        {
+          "x": 511.954919155136,
+          "y": 809.4439587628865
+        },
+        {
+          "x": 390.76045447924383,
+          "y": 839.9594226804122
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    },
+    {
+      "id": "ba18",
+      "vertices": [
+        {
+          "x": 716.1209788783698,
+          "y": 971.093443298969
+        },
+        {
+          "x": 723.5790997815016,
+          "y": 1007.3821030927834
+        },
+        {
+          "x": 846.6380946831767,
+          "y": 1032.1243711340203
+        },
+        {
+          "x": 881.1319038601614,
+          "y": 1004.0831340206184
+        },
+        {
+          "x": 758.0729089584863,
+          "y": 960.3717938144329
+        }
+      ],
+      "layer": 0,
+      "blocksProjectiles": true
+    },
+    {
+      "id": "ba19",
+      "vertices": [
+        {
+          "x": 1329.4584617625644,
+          "y": 377.285525773196
+        },
+        {
+          "x": 1400.3106103423167,
+          "y": 388.83191752577335
+        },
+        {
+          "x": 1424.5495032774952,
+          "y": 373.16181443298984
+        },
+        {
+          "x": 1366.7490662782236,
+          "y": 355.84222680412387
         }
       ],
       "layer": 0,

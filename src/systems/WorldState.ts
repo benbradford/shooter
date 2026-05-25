@@ -7,6 +7,7 @@ export type WorldState = {
     currentLevel: string;
     spawnCol?: number;
     spawnRow?: number;
+    spawnDir?: number;
     entryCell: { col: number; row: number };
   };
   flags: {
