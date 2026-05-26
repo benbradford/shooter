@@ -2,16 +2,86 @@
   "width": 16,
   "height": 10,
   "playerStart": {
-    "x": 1,
-    "y": 3
+    "x": 2,
+    "y": 6
   },
   "cells": [
     {
+      "col": 0,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 0,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 0,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
+      ],
+      "backgroundTexture": [
+        "submerged_rock1"
       ]
     },
     {
@@ -19,7 +89,11 @@
       "row": 0,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
+      ],
+      "backgroundTexture": [
+        "submerged_rock1"
       ]
     },
     {
@@ -27,7 +101,11 @@
       "row": 0,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
+      ],
+      "backgroundTexture": [
+        "submerged_rock1"
       ]
     },
     {
@@ -35,7 +113,11 @@
       "row": 0,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
+      ],
+      "backgroundTexture": [
+        "submerged_rock1"
       ]
     },
     {
@@ -43,7 +125,11 @@
       "row": 0,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
+      ],
+      "backgroundTexture": [
+        "submerged_rock1"
       ]
     },
     {
@@ -51,7 +137,11 @@
       "row": 0,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
+      ],
+      "backgroundTexture": [
+        "submerged_rock1"
       ]
     },
     {
@@ -87,6 +177,72 @@
       ]
     },
     {
+      "col": 0,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 1,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 2,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 4,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 5,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 1,
       "layer": 0,
@@ -167,6 +323,17 @@
       ]
     },
     {
+      "col": 0,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 2,
       "layer": 0,
@@ -247,6 +414,17 @@
       ]
     },
     {
+      "col": 0,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 3,
       "layer": 0,
@@ -327,6 +505,55 @@
       ]
     },
     {
+      "col": 0,
+      "row": 4,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
+      "col": 3,
+      "row": 4,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "roots_spritesheet2",
+          "sourceRect": {
+            "x": 30,
+            "y": 90,
+            "width": 250,
+            "height": 160
+          }
+        }
+      ]
+    },
+    {
+      "col": 4,
+      "row": 4,
+      "layer": 0,
+      "backgroundTexture": [
+        {
+          "image": "roots_spritesheet2",
+          "sourceRect": {
+            "x": 1258,
+            "y": 431,
+            "width": 250,
+            "height": 160
+          },
+          "transformOverride": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "offsetX": 0,
+            "offsetY": -23
+          }
+        }
+      ]
+    },
+    {
       "col": 6,
       "row": 4,
       "layer": 0,
@@ -407,6 +634,17 @@
       ]
     },
     {
+      "col": 0,
+      "row": 5,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 5,
       "layer": 0,
@@ -487,6 +725,17 @@
       ]
     },
     {
+      "col": 0,
+      "row": 6,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 6,
       "layer": 0,
@@ -567,6 +816,17 @@
       ]
     },
     {
+      "col": 0,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
+      ]
+    },
+    {
       "col": 6,
       "row": 7,
       "layer": 0,
@@ -644,6 +904,17 @@
       "layer": 0,
       "backgroundTexture": [
         "stone_wall"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 8,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rocks3"
       ]
     },
     {
@@ -924,6 +1195,14 @@
       "scale": 1,
       "scaleVariation": 0.3,
       "tint": "#8b9446"
+    },
+    "screenTint": {
+      "color": "#ff0000",
+      "alpha": 0.1
     }
+  },
+  "fixedCamera": {
+    "centerCol": 7,
+    "centerRow": 5
   }
 }

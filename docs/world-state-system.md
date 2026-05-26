@@ -238,6 +238,7 @@ When bug bases are destroyed:
 
 **On level transition:**
 - Update player health, overheal, and coins
+- Update player facing direction (restored on spawn)
 - Update current level
 - Update spawn position
 - Scan and save modified cells

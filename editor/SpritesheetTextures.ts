@@ -43,6 +43,31 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
     ],
   },
   {
+    textureKey: 'rocks_spritesheet2',
+    sprites: [
+      // Row 1
+      { name: 'round_rock_1', sourceRect: { x: 30, y: 30, width: 320, height: 210 } },
+      { name: 'round_rock_2', sourceRect: { x: 400, y: 30, width: 320, height: 210 } },
+      { name: 'round_rock_3', sourceRect: { x: 780, y: 30, width: 320, height: 210 } },
+      { name: 'round_rock_4', sourceRect: { x: 1150, y: 30, width: 340, height: 210 } },
+      // Row 2
+      { name: 'round_rock_5', sourceRect: { x: 30, y: 270, width: 300, height: 200 } },
+      { name: 'round_rock_6', sourceRect: { x: 390, y: 270, width: 310, height: 200 } },
+      { name: 'round_rock_7', sourceRect: { x: 770, y: 270, width: 330, height: 200 } },
+      { name: 'round_rock_8', sourceRect: { x: 1140, y: 270, width: 350, height: 200 } },
+      // Row 3
+      { name: 'round_rock_9', sourceRect: { x: 20, y: 510, width: 320, height: 220 } },
+      { name: 'round_rock_10', sourceRect: { x: 380, y: 520, width: 330, height: 210 } },
+      { name: 'round_rock_11', sourceRect: { x: 760, y: 510, width: 350, height: 220 } },
+      { name: 'round_rock_12', sourceRect: { x: 1140, y: 510, width: 360, height: 220 } },
+      // Row 4
+      { name: 'round_rock_13', sourceRect: { x: 50, y: 770, width: 260, height: 200 } },
+      { name: 'round_rock_14', sourceRect: { x: 370, y: 760, width: 370, height: 220 } },
+      { name: 'round_rock_15', sourceRect: { x: 770, y: 760, width: 350, height: 220 } },
+      { name: 'round_rock_16', sourceRect: { x: 1150, y: 770, width: 340, height: 210 } },
+    ],
+  },
+  {
     textureKey: 'roots_spritesheet',
     sprites: [
       // Row 1
@@ -76,6 +101,31 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
       { name: 'root_long_crawl', sourceRect: { x: 591, y: 793, width: 486, height: 111 } },
       { name: 'root_mossy_crawl', sourceRect: { x: 1095, y: 807, width: 224, height: 104 } },
       { name: 'root_small_knot', sourceRect: { x: 1344, y: 814, width: 145, height: 89 } },
+    ],
+  },
+  {
+    textureKey: 'roots_spritesheet2',
+    sprites: [
+      // Row 1
+      { name: 'root2_branch_twisted', sourceRect: { x: 80, y: 83, width: 320, height: 117 } },
+      { name: 'root2_branch_forked', sourceRect: { x: 466, y: 98, width: 307, height: 97 } },
+      { name: 'root2_branch_reaching', sourceRect: { x: 832, y: 71, width: 356, height: 158 } },
+      { name: 'root2_branch_gnarled', sourceRect: { x: 1228, y: 73, width: 237, height: 142 } },
+      // Row 2
+      { name: 'root2_limb_curved', sourceRect: { x: 90, y: 305, width: 302, height: 96 } },
+      { name: 'root2_limb_split', sourceRect: { x: 488, y: 279, width: 278, height: 101 } },
+      { name: 'root2_limb_wide', sourceRect: { x: 856, y: 307, width: 280, height: 120 } },
+      { name: 'root2_limb_hooked', sourceRect: { x: 1217, y: 272, width: 247, height: 150 } },
+      // Row 3
+      { name: 'root2_snag_bent', sourceRect: { x: 89, y: 487, width: 279, height: 102 } },
+      { name: 'root2_snag_crooked', sourceRect: { x: 450, y: 475, width: 306, height: 92 } },
+      { name: 'root2_snag_tangled', sourceRect: { x: 840, y: 475, width: 261, height: 131 } },
+      { name: 'root2_snag_jagged', sourceRect: { x: 1166, y: 481, width: 314, height: 113 } },
+      // Row 4
+      { name: 'root2_knot_sprawl', sourceRect: { x: 67, y: 672, width: 277, height: 118 } },
+      { name: 'root2_knot_tangled', sourceRect: { x: 458, y: 669, width: 299, height: 121 } },
+      { name: 'root2_knot_gnarled', sourceRect: { x: 847, y: 683, width: 249, height: 117 } },
+      { name: 'root2_knot_twisted', sourceRect: { x: 1161, y: 657, width: 289, height: 142 } },
     ],
   },
   {

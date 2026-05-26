@@ -77,6 +77,10 @@ export class HealthComponent implements Component, HudBarDataSource {
     this.currentHealth = Math.max(0, value);
   }
 
+  getHasAutoHeal(): boolean {
+    return this.hasAutoHeal;
+  }
+
   refreshAutoHeal(): void {
     this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue(WorldFlags.hasAutoHeal);
   }

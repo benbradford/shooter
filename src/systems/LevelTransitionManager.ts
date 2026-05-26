@@ -53,6 +53,7 @@ export class LevelTransitionManager {
     ).handleDeathReset(this.scene.getCurrentLevelName());
 
     this.restoreEntrySnapshot(worldState);
+    worldState.setPlayerHealth(PLAYER_MAX_HEALTH);
     this.reapplyEscortState(worldState, escortSnapshot);
 
     const state = worldState.getState();

@@ -57,8 +57,10 @@ export class CellModifierComponent implements Component {
         if (mod.backgroundTexture) {
           updates.backgroundTexture = bgTextureKey(mod.backgroundTexture);
         } else {
-          updates.backgroundTexture = undefined;
+          updates.backgroundTexture = '';
         }
+      } else {
+        updates.backgroundTexture = '';
       }
 
       if (mod.layer !== undefined) {
@@ -92,6 +94,8 @@ export class CellModifierComponent implements Component {
           } else {
             delete levelCell.backgroundTexture;
           }
+        } else {
+          delete levelCell.backgroundTexture;
         }
       }
 

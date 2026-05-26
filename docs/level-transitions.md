@@ -33,6 +33,7 @@ Each level defines its own exits. To create a two-way connection, each level has
 - Uses existing trigger/entity system
 - LoadingScene manages asset loading/unloading
 - Player never spawns on exit cells (spawn positions are separate)
+- Player facing direction is preserved across transitions (saved/restored via WorldState)
 - Errors logged to console if target level doesn't exist
 - All previous level entities/assets cleaned up on transition
 - Runtime textures (water animations, tilesets) preserved across transitions

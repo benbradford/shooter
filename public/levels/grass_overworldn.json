@@ -3071,6 +3071,10 @@
       "scale": 1,
       "scaleVariation": 0.3,
       "tint": "#8b9446"
+    },
+    "screenTint": {
+      "color": "#ff0000",
+      "alpha": 0.1
     }
   },
   "blockedAreas": [

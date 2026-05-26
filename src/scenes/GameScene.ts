@@ -54,6 +54,7 @@ export default class GameScene extends Phaser.Scene {
   private currentLevelName: string = 'house3_interior';
   private levelEntrySnapshot: string | null = null;
   private vignette?: Phaser.GameObjects.Image;
+  private screenTint?: Phaser.GameObjects.Rectangle;
   private background?: Phaser.GameObjects.Image;
   private sceneRenderer!: GameSceneRenderer;
   public layerDebugText?: Phaser.GameObjects.Text;
@@ -405,6 +406,7 @@ export default class GameScene extends Phaser.Scene {
     this.levelEntrySnapshot = WorldStateManager.getInstance().serializeToJSON();
 
     this.initializeCameraFollow();
+    this.initializeScreenTint();
     this.initializeFadeIn();
 
     this.eventManager.raiseEvent('level_loaded');
@@ -543,6 +545,22 @@ export default class GameScene extends Phaser.Scene {
         }
       }
     }
+  }
+
+  private initializeScreenTint(): void {
+    if (this.screenTint) {
+      this.screenTint.destroy();
+      this.screenTint = undefined;
+    }
+    const tintConfig = this.levelData.background?.screenTint;
+    if (!tintConfig) return;
+
+    const color = Number.parseInt(tintConfig.color.replace('#', ''), 16);
+    const cam = this.cameras.main;
+    this.screenTint = this.add.rectangle(cam.width / 2, cam.height / 2, cam.width, cam.height, color);
+    this.screenTint.setScrollFactor(0);
+    this.screenTint.setDepth(Depth.debugText);
+    this.screenTint.setAlpha(tintConfig.alpha);
   }
 
   private initializeFadeIn(): void {
@@ -767,6 +785,7 @@ export default class GameScene extends Phaser.Scene {
 
     if (this.background) this.background.destroy();
     if (this.vignette) this.vignette.destroy();
+    if (this.screenTint) this.screenTint.destroy();
     if (this.sceneRenderer) {
       this.sceneRenderer.destroy();
     }

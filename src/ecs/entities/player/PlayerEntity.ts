@@ -294,7 +294,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   entity.add(new MedipackHealerComponent());
 
   const hudBars = entity.add(new HudBarComponent(scene, [
-    { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y_PX, fillColor: 0x00ff00 },
+    { dataSource: health, offsetY: PLAYER_HEALTH_BAR_OFFSET_Y_PX, fillColor: 0x00ff00, colorByHealth: true, pulseOnCritical: true },
   ]));
   hudBars.init();
 

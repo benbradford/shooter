@@ -80,6 +80,10 @@ export type LevelBackground = {
   hasShadows?: boolean;
   hasEdges?: boolean;
   floorAlpha?: number;
+  screenTint?: {
+    color: string;
+    alpha: number;
+  };
 }
 
 export type AnimatedTextureConfig = {

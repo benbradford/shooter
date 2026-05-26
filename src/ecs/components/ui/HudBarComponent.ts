@@ -15,8 +15,10 @@ type BarConfig = {
   dataSource: HudBarDataSource;
   offsetY: number;
   fillColor: number;
-  redOutlineOnLow?: boolean; // Optional: outline turns red as ratio decreases
-  shakeOnLow?: boolean; // Optional: shake when ratio is low
+  redOutlineOnLow?: boolean;
+  shakeOnLow?: boolean;
+  colorByHealth?: boolean;
+  pulseOnCritical?: boolean;
 }
 
 export class HudBarComponent implements Component {
@@ -35,15 +37,21 @@ export class HudBarComponent implements Component {
     flashTimer: number;
     redOutlineOnLow: boolean;
     shakeOnLow: boolean;
+    colorByHealth: boolean;
+    pulseOnCritical: boolean;
     shakeTimer: number;
+    pulseTimer: number;
     fullTimer: number;
     fadeTimer: number;
   }> = [];
   private readonly flashIntervalMs: number = 300;
-  private readonly shakeSpeedMs: number = 100; // milliseconds per shake cycle
-  private readonly shakeAmountPx: number = 2; // pixels
-  private readonly shakeLowThreshold: number = 0.3; // 30% - shake when below this ratio
+  private readonly shakeSpeedMs: number = 100;
+  private readonly shakeAmountPx: number = 2;
+  private readonly shakeLowThreshold: number = 0.3;
   private readonly shakeFrequency: number = 2;
+  private readonly pulseCriticalThreshold: number = 0.33;
+  private readonly pulseSpeedMs: number = 600;
+  private readonly pulseMinScale: number = 0.85;
   private readonly fullDelayMs: number = 1000;
   private readonly fadeDurationMs: number = 1000;
 
@@ -54,7 +62,7 @@ export class HudBarComponent implements Component {
 
   init(): void {
     const transform = this.entity.require(TransformComponent);
-    
+
     for (const config of this.configs) {
       const background = this.scene.add.rectangle(
         transform.x,
@@ -63,7 +71,7 @@ export class HudBarComponent implements Component {
         this.barHeight,
         0x000000
       );
-      
+
       // Fill (configurable color)
       const fill = this.scene.add.rectangle(
         transform.x,
@@ -72,7 +80,7 @@ export class HudBarComponent implements Component {
         this.barHeight,
         config.fillColor
       );
-      
+
       // Outline (white)
       const outline = this.scene.add.rectangle(
         transform.x,
@@ -82,7 +90,7 @@ export class HudBarComponent implements Component {
       );
       outline.setStrokeStyle(2, 0xffffff);
       outline.setFillStyle(0x000000, 0);
-      
+
       const overhealFill = this.scene.add.rectangle(
         transform.x,
         transform.y + config.offsetY,
@@ -91,7 +99,7 @@ export class HudBarComponent implements Component {
         0xff00ff
       );
       overhealFill.setDepth(Depth.hudOverheal);
-      
+
       const sparkles = this.scene.add.particles(transform.x, transform.y + config.offsetY, 'coin', {
         speed: { min: 10, max: 30 },
         angle: { min: 0, max: 360 },
@@ -103,7 +111,7 @@ export class HudBarComponent implements Component {
         emitting: false
       });
       sparkles.setDepth(Depth.hudSparkles);
-      
+
       this.bars.push({
         background,
         fill,
@@ -116,7 +124,10 @@ export class HudBarComponent implements Component {
         flashTimer: 0,
         redOutlineOnLow: config.redOutlineOnLow ?? false,
         shakeOnLow: config.shakeOnLow ?? false,
+        colorByHealth: config.colorByHealth ?? false,
+        pulseOnCritical: config.pulseOnCritical ?? false,
         shakeTimer: 0,
+        pulseTimer: 0,
         fullTimer: 0,
         fadeTimer: 0,
       });
@@ -138,12 +149,12 @@ export class HudBarComponent implements Component {
       }
       return;
     }
-    
+
     for (const bar of this.bars) {
       const ratio = bar.dataSource.getRatio();
       const isHealing = healer?.isHealing() ?? false;
       const hasOverheal = health.isOverhealed();
-      
+
       if (ratio >= 1 && !isHealing && !hasOverheal) {
         bar.fullTimer += delta;
         if (bar.fullTimer >= this.fullDelayMs) {
@@ -161,10 +172,10 @@ export class HudBarComponent implements Component {
         bar.fill.setAlpha(1);
         bar.outline.setAlpha(1);
       }
-      
+
       let barX = transform.x;
       const barY = transform.y + bar.offsetY;
-      
+
       // Shake if enabled and ratio is low
       if (bar.shakeOnLow && ratio < this.shakeLowThreshold && ratio > 0) {
         bar.shakeTimer += delta;
@@ -174,11 +185,11 @@ export class HudBarComponent implements Component {
       } else {
         bar.shakeTimer = 0;
       }
-      
+
       // Update positions (centered)
       bar.background.setPosition(barX, barY);
       bar.outline.setPosition(barX, barY);
-      
+
       // Update fill width and position (left-aligned from left edge of bar)
       if (bar.fill) {
         const fillWidth = this.barWidth * ratio;
@@ -186,13 +197,13 @@ export class HudBarComponent implements Component {
         const fillX = barX - this.barWidth / 2 + fillWidth / 2;
         bar.fill.setPosition(fillX, barY);
       }
-      
+
       if (healer && bar.overhealFill) {
         const overhealAmount = health.getOverhealAmount();
         const maxHealth = bar.dataSource.getMaxHealth?.() ?? 100;
         const overhealRatio = overhealAmount / maxHealth;
         const overhealWidth = this.barWidth * overhealRatio;
-        
+
         if (overhealWidth > 0) {
           bar.overhealFill.setSize(overhealWidth, this.barHeight);
           const overhealX = barX - this.barWidth / 2 + overhealWidth / 2;
@@ -202,7 +213,7 @@ export class HudBarComponent implements Component {
         } else {
           bar.overhealFill.setVisible(false);
         }
-        
+
         if (bar.sparkles) {
           if (healer.isHealing()) {
             const sparkleX = barX - this.barWidth / 2 + overhealWidth;
@@ -213,17 +224,34 @@ export class HudBarComponent implements Component {
           }
         }
       }
-      
-      // Check if overheated and change fill color
+
+      // Update fill color based on health ratio or overheat state
       if (bar.fill) {
         const isOverheated = bar.dataSource.isBarOverheated?.() ?? false;
         if (isOverheated && ratio < 1) {
           bar.fill.setFillStyle(0xff0000);
+        } else if (bar.colorByHealth && ratio < 1) {
+          const red = Math.floor(255 * (1 - ratio));
+          const green = Math.floor(255 * ratio);
+          const color = (red << 16) | (green << 8) | 0;
+          bar.fill.setFillStyle(color);
         } else {
           bar.fill.setFillStyle(bar.fillColor);
         }
       }
-      
+
+      // Pulse when critically low
+      if (bar.pulseOnCritical && ratio > 0 && ratio < this.pulseCriticalThreshold) {
+        bar.pulseTimer += delta;
+        const pulseProgress = (bar.pulseTimer % this.pulseSpeedMs) / this.pulseSpeedMs;
+        const pulseAlpha = this.pulseMinScale + (1 - this.pulseMinScale) * (0.5 + 0.5 * Math.cos(pulseProgress * Math.PI * 2));
+        bar.background.setAlpha(pulseAlpha);
+        bar.fill.setAlpha(pulseAlpha);
+        bar.outline.setAlpha(pulseAlpha);
+      } else {
+        bar.pulseTimer = 0;
+      }
+
       // Update outline color if redOutlineOnLow is enabled
       if (bar.redOutlineOnLow) {
         // Interpolate from white (full) to red (empty)
@@ -234,7 +262,7 @@ export class HudBarComponent implements Component {
         const color = (red << 16) | (green << 8) | blue;
         bar.outline.setStrokeStyle(2, color);
       }
-      
+
       // Flash when empty (ratio at 0)
       if (ratio === 0) {
         bar.flashTimer += delta;
