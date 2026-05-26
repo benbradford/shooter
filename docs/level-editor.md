@@ -108,7 +108,7 @@ Opens as a full-screen overlay with four tabs:
 |-----|----------|
 | **Background** | ~50 curated single-image textures (rocks, furniture, doors, etc.) |
 | **Animated** | Spritesheet textures for animated cells (sconce_flame, fire_interior) |
-| **Spritesheet** | Sub-sprites from wilds_props, rocks_spritesheet, and roots_spritesheet with source rect |
+| **Spritesheet** | Sub-sprites from wilds_props, rocks_spritesheet, rocks_spritesheet2, roots_spritesheet, roots_spritesheet2, and roots_chest with source rect |
 | **All** | Every texture currently loaded in Phaser |
 
 Search box filters in real-time. Click a thumbnail to apply.

@@ -37,7 +37,7 @@ Quick reference for navigating the Dodging Bullets documentation.
 ```
 
 This checks:
-- Total line count (target: <7,000 lines)
+- Total line count (target: <7,500 lines)
 - Largest files (candidates for condensation)
 - Files with most code blocks (potential bloat)
 - Files with JSON examples (often redundant)
@@ -62,7 +62,7 @@ When asked to "update the docs":
 4. Add new information for new features
 5. Keep docs accurate and minimal
 6. Update multiple doc files as needed
-7. **Update `.agents/summary` to keep it in sync with doc changes**
+7. **Update `.agents/summary/index.md` to keep it in sync with doc changes**
 8. **Ask clarifying questions if there's conflicting information or unclear behavior**
 9. **Audit** — Run the audit script, fact-check file paths/symbols/code references, review files >300 lines, remove stale info
 10. **Run `node scripts/extract-sessions.mjs`** (without --dry-run) to write the timestamp
@@ -257,6 +257,16 @@ When asked to "update the docs":
     - Rotating projectiles
     - Combining effects
 
+16. **[Adding Editor Functionality](./adding-editor-functionality.md)** - Extending the level editor
+
+17. **[Aligning Misaligned Sprites](./aligning-misaligned-sprites.md)** - Fixing sprite offset issues
+
+18. **[Asset Optimization](./asset-optimization.md)** - Texture atlas and loading strategies
+
+19. **[Entity System Quick Reference](./entity-system-quick-ref.md)** - Compact ECS cheat sheet
+
+20. **[Attacker Spritesheet](./attacker-spritesheet.md)** - Player spritesheet frame layout
+
 ## Implemented Enemies
 
 - **Stalking Robot**: Patrols waypoints, detects player, shoots fireballs
@@ -320,9 +330,9 @@ Both **Kiro** (`kiro-cli chat --agent dodging-bullets`) and **Claude Code** (`cl
 
 ## Common File Locations
 
-- **Entity factories**: `src/{entityType}/{EntityName}Entity.ts`
-- **Components**: `src/ecs/components/{ComponentName}Component.ts`
-- **State classes**: `src/{entityType}/{EntityName}{StateName}State.ts`
+- **Entity factories**: `src/ecs/entities/{type}/{EntityName}Entity.ts`
+- **Components**: `src/ecs/components/{category}/{ComponentName}Component.ts`
+- **State classes**: `src/ecs/entities/{type}/{EntityName}{StateName}State.ts`
 - **Assets**: `public/assets/{category}/`
 - **Asset registry**: `src/assets/AssetRegistry.ts`
 - **Levels**: `public/levels/{levelName}.json`

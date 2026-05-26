@@ -30,7 +30,7 @@ src/
 ├── ecs/
 │   ├── components/{category}/   # Core, movement, combat, AI, visual, UI, input, etc.
 │   ├── entities/{type}/         # Entity factories (robot, skeleton, puma, etc.)
-│   └── systems/                 # Collision, movement, etc.
+│   └── systems/                 # EventManagerSystem, PathFollower
 ├── scenes/                      # GameScene, LoadingScene, theme renderers
 ├── systems/                     # Animation, combat, grid, level, state, entity-factories
 ├── assets/                      # AssetRegistry, AssetLoader
@@ -48,15 +48,15 @@ test/                            # Puppeteer integration tests
 
 ### ECS Pattern
 - **Entity:** Container with unique ID holding components
-- **Component:** Data + behavior, implements `Component` interface with `init()` and `onDestroy()`
+- **Component:** Data + behavior, implements `Component` interface with `update()` and `onDestroy()`
 - **EntityManager:** Centralized lifecycle management
 - All components use **props objects** for configuration (no defaults in constructors)
 
 ### Grid System
 - Fixed 64x64 pixel cells
-- Layer-based collision: FLOOR (0), WALL (1), ENTITY (2)
+- Layer-based collision: numeric elevation (-1, 0, 1, 2+)
 - A* pathfinding (layer-aware)
-- Grid dimensions: 30x30 to 40x30
+- Grid dimensions: 16x10 to 40x30
 
 ### State Machines
 - Used for player states (idle, walk, push) and enemy AI (patrol, alert, chase, attack, hit, death)

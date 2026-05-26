@@ -26,12 +26,11 @@ Assets are organized into logical groups in `src/assets/AssetRegistry.ts`:
 
 ```typescript
 export const ASSET_GROUPS = {
-  core: ['vignette', 'shadow'],
-  player: ['player', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke', ...],
-  stalking_robot: ['attacker'],
-  bug_base: ['bug_base', 'bug'],
-  thrower: ['thrower', 'grenade'],
+  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', ...],  // Always loaded
+  player: ['attacker'],
+  stalking_robot: ['floating_robot', 'exclamation', 'fireball', 'fire', 'robot_hit_particle'],
   skeleton: ['skeleton', 'bone_small'],
+  editor: ['dungeon_vase', 'pillar', 'rocks1', ...],  // Editor-only assets
 }
 ```
 
@@ -78,8 +77,9 @@ Critical: All texture existence checks must happen before creating sprites to pr
       "seed": 1
     }
   },
-  "robots": [...],
-  "throwers": [...],
+  "entities": [
+    { "id": "skeleton_1", "type": "skeleton", "data": { "col": 5, "row": 10 } }
+  ],
   "cells": [
     {
       "col": 10,
