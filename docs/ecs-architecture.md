@@ -157,6 +157,7 @@ class EntityManager {
   add(entity: Entity): Entity
   update(delta: number): void
   getByType(type: string): Entity[]
+  getByTag(tag: string): ReadonlySet<Entity>
   getFirst(type: string): Entity | undefined
   destroyAll(): void
   get count(): number
@@ -190,6 +191,11 @@ The `Animation` class supports four styles:
 if (anim.animationSystem.getCurrentKey() !== targetKey) {
   anim.animationSystem.play(targetKey);
 }
+```
+
+**`playIfChanged(key)`**: Convenience method that plays the animation only if it differs from the current key. Equivalent to the pattern above but as a single call — preferred in AI components (escorts, pets) to eliminate boilerplate:
+```typescript
+anim.animationSystem.playIfChanged(targetKey);
 ```
 
 ## ComponentStateMachine

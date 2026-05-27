@@ -177,7 +177,7 @@ graph TB
 - Persistent entity destruction
 - Event-spawned entity tracking
 - Cell modification persistence
-- Player health/coins across levels
+- Player health/coins/direction across levels
 
 ### Level Design
 
@@ -198,6 +198,7 @@ graph TB
 **level-transitions.md** (3KB)
 - Exit triggers and bidirectional travel
 - WorldState persistence across transitions
+- Player facing direction preserved across transitions
 
 **entity-creation-system.md** (17KB)
 - Unified entity array in level JSON
@@ -402,3 +403,13 @@ Session management redesigned (KiRoom-inspired): chat-based UI with compose box 
 - **New test globals (2026-05-25)**: `AnimationComponent`, `PetFollowComponent`, `PetManager`, `LevelExitComponent` added to test-mode globals in `src/main.ts`.
 - **Pet water ride direction fix (2026-05-25)**: `PetFollowComponent` now syncs direction from the player when entering water AND updates direction before calculating ride offset — fixes floating/misaligned pet sprite during swimming.
 - **Session stability fix (2026-05-25)**: All `execSync` calls in `vite.config.ts` session management now have timeouts (2-5s). Tmux `set-option` calls (mouse, history-limit) use fire-and-forget `spawn().unref()` instead of blocking. Fixes bug where clicking "fix a bug" button killed the sessions window.
+- **Player direction preservation (2026-05-25)**: `LevelTransitionManager.start()` saves player facing direction via `WorldStateManager.setPlayerSpawnDirection(walk.lastDir)`. `GameScene` restores it on spawn. Direction persists across level transitions and in save files.
+- **Pet blocked area wander fix (2026-05-25)**: `PetFollowComponent` rejects wander targets on walls, blocked areas, and cells on a different layer. `BlockedAreaManager.isPointBlocked()` and `Grid.isPointBlocked()` added for point-in-blocked-area queries.
+- **VignetteHealthComponent autoHeal guard (2026-05-26)**: Red vignette overlay only pulses when `hasAutoHeal` flag is active. Uses `HealthComponent.getHasAutoHeal()` which caches the flag at construction.
+- **Editor music save fix (2026-05-26)**: Music dropdown added to Level Info panel. `EditorBridge.ts` preserves `music` field when saving level JSON (was previously stripped on save). Options: (none), btr_music, btr_overworld, btr_wilds, btr_tonal.
+- **Claude Code skills/hooks (2026-05-26)**: Skills in `.claude/skills/`: `add-texture`, `new-level`, `run-test`, `run-all-tests`, `chatgpt-prompt`. Hooks in `.claude/hooks/`: `validate-level-json.sh` (validates level JSON structure on save).
+- **New background textures (2026-05-26)**: `dead_tree2`, `dead_tree3`, `stone_wall2` added to `public/assets/cell_drawables/`. `rocks_spritesheet2` and `roots_spritesheet2` added with sub-sprite definitions in `editor/SpritesheetTextures.ts`.
+- **Vite level JSON middleware (2026-05-26)**: Dev server now serves level JSON directly from disk (prevents SPA fallback returning HTML for new levels that don't exist yet — fixes the `grass_overworldnnw` "not valid JSON" bug).
+- **EditorScene extraction (2026-05-26)**: GameScene no longer handles editor mode. New `src/scenes/EditorScene.ts` (dedicated Phaser scene, ~260 LOC) owns all editor rendering — level load, theme setup, entity spawning for editor, paint loading. `editor/main.ts` registers and starts `EditorScene` directly instead of `GameScene` with `editorMode` flag. GameScene lost ~150 LOC of editor branches (`createEditorScene`, `createEditorPlayer`, `isEditorMode` field, editor guards in `create`/`update`/`initializeFadeIn`/`initializeCameraFollow`). Resolves architecture issue #70.
+- **AnimationSystem.playIfChanged (2026-05-26)**: New convenience method on `AnimationSystem` — plays animation only if key differs from current. Replaces duplicated `if (key !== currentKey) play(key)` private helpers in `EscortComponent` and `PetFollowComponent`. Resolves architecture issue #69.
+- **EntityManager.getByTag (2026-05-26)**: Zero-allocation tag query returning a `ReadonlySet<Entity>`. Tags indexed at `add()` time via internal `tagIndex: Map<string, Set<Entity>>`. `refreshEntityTags(entity)` re-syncs after dynamic tag changes. GameScene's `getEnemies` lambda now uses `entityManager.getByTag('enemy')` instead of chaining 3× `getByType()` calls. `LaserBeamComponent.checkEnemyCollision` also migrated. Resolves architecture issues #59 and #73.

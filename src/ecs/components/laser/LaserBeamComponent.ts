@@ -351,8 +351,8 @@ export class LaserBeamComponent implements Component, EventListener {
   }
 
   private checkEnemyCollision(startX: number, startY: number, endX: number, endY: number): void {
-    for (const entity of this.entityManager.getAll()) {
-      if (entity.isDestroyed || !entity.tags.has('enemy') || entity.tags.has('laser')) continue;
+    for (const entity of this.entityManager.getByTag('enemy')) {
+      if (entity.isDestroyed) continue;
 
       const transform = entity.get(TransformComponent);
       if (!transform) continue;

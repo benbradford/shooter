@@ -22,6 +22,7 @@ import { createHoleEntity } from '../../ecs/entities/hole/HoleEntity';
 import { createLaserEntity } from '../../ecs/entities/laser/LaserEntity';
 import { createEscortEntity } from '../../ecs/entities/escort/EscortEntity';
 import { createRootChestEntity } from '../../ecs/entities/root_chest/RootChestEntity';
+import { createBellEntity } from '../../ecs/entities/bell/BellEntity';
 
 registerEntityFactory('breakable', (entityDef, ctx) => {
   const data = entityDef.data as { col: number; row: number; texture: string; health: number; rarity?: string; requiresSuperPunch?: boolean; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
@@ -178,5 +179,13 @@ registerEntityFactory('escort', (entityDef, ctx) => {
     enemyDetectDistancePx: data.enemyDetectDistancePx ?? 128, initialState,
     currentLevelName: ctx.levelData.name ?? '', scale: data.scale,
     shadowScale: data.shadowScale, shadowOffsetX: data.shadowOffsetX, shadowOffsetY: data.shadowOffsetY,
+  });
+});
+
+registerEntityFactory('bell', (entityDef, ctx) => {
+  const data = entityDef.data as { col: number; row: number };
+  return () => createBellEntity({
+    scene: ctx.scene as GameScene, col: data.col, row: data.row, grid: ctx.grid,
+    entityId: entityDef.id, eventManager: ctx.eventManager,
   });
 });

@@ -336,6 +336,7 @@ async function selectSession(id) {
       if (res.status === 404) { sessions = sessions.filter(x => x.id !== id); activeSessionId = null; render(); resetMainPanel(); return; }
       const data = await res.json();
       if (!data.ok) { s.status = 'dead'; render(); return; }
+      if (data.port) s.port = data.port;
     } catch { /* proceed */ }
   }
 

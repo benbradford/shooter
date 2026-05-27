@@ -25,15 +25,21 @@ export class EscortCrouchBehavior {
 
   areEnemiesNearby(): boolean {
     const transform = this.entity.require(TransformComponent);
-    for (const enemy of this.entityManager.getAll()) {
-      if (enemy.isDestroyed || (!enemy.tags.has('enemy') && !enemy.tags.has('laser'))) continue;
-      if (enemy.tags.has('laser')) {
-        const laser = enemy.get(LaserBeamComponent);
+    if (this.isThreatInRange(this.entityManager.getByTag('enemy'), transform.x, transform.y, false)) return true;
+    if (this.isThreatInRange(this.entityManager.getByTag('laser'), transform.x, transform.y, true)) return true;
+    return false;
+  }
+
+  private isThreatInRange(threats: ReadonlySet<Entity>, originX: number, originY: number, requireLaserActive: boolean): boolean {
+    for (const threat of threats) {
+      if (threat.isDestroyed) continue;
+      if (requireLaserActive) {
+        const laser = threat.get(LaserBeamComponent);
         if (laser && !laser.isActive()) continue;
       }
-      const et = enemy.get(TransformComponent);
+      const et = threat.get(TransformComponent);
       if (!et) continue;
-      if (Math.hypot(et.x - transform.x, et.y - transform.y) <= this.enemyDetectDistancePx) {
+      if (Math.hypot(et.x - originX, et.y - originY) <= this.enemyDetectDistancePx) {
         return true;
       }
     }

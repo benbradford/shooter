@@ -14,6 +14,7 @@ import { Depth } from '../../../constants/DepthConstants';
 import { getPlayerFeetCell } from '../../../utils/PlayerPositionHelper';
 import { ComponentStateMachine } from '../../../systems/state/ComponentStateMachine';
 import { PetSyncJumpBehavior } from './PetSyncJumpBehavior';
+import { PlayerProximityChecker } from '../../systems/movement/PlayerProximityChecker';
 
 import { WalkComponent } from '../movement/WalkComponent';
 
@@ -52,7 +53,6 @@ export class PetFollowComponent implements Component {
   private isHidden = false;
   private isBarking = false;
   private wasInWater = false;
-  private lastAnimKey = '';
 
   private readonly pathFollower: PathFollower;
   private pathRecalcTimerMs = 0;
@@ -68,6 +68,11 @@ export class PetFollowComponent implements Component {
   private syncJumpBehavior!: PetSyncJumpBehavior;
   private readonly pathfinder: Pathfinder;
   private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
+  private readonly proximityChecker = new PlayerProximityChecker({
+    teleportPx: TELEPORT_DISTANCE_PX,
+    followPx: START_FOLLOW_DISTANCE_PX,
+    stopPx: STOP_DISTANCE_PX,
+  });
 
   constructor(
     private readonly grid: GridReader,
@@ -153,21 +158,19 @@ export class PetFollowComponent implements Component {
       return;
     }
 
-    const dx = playerTransform.x - transform.x;
-    const dy = playerTransform.y - transform.y;
-    const distancePx = Math.hypot(dx, dy);
+    const prox = this.proximityChecker.check(transform.x, transform.y, playerTransform.x, playerTransform.y);
 
-    if (distancePx > TELEPORT_DISTANCE_PX) {
+    if (prox.shouldTeleport) {
       this.teleportToPlayer(transform, playerTransform);
       return;
     }
 
-    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+    if (prox.shouldFollow) {
       this.sm.transition('following');
-      const newDir = dirFromDelta(dx, dy);
+      const newDir = dirFromDelta(prox.dx, prox.dy);
       if (newDir !== Direction.None) {
         this.currentDirection = newDir;
-        this.playAnim(this.entity.require(AnimationComponent), `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
+        this.entity.require(AnimationComponent).animationSystem.playIfChanged(`${this.getMoveAnimPrefix()}_${this.currentDirection}`);
       }
     } else {
       this.startWanderMove(this.entity.require(AnimationComponent), playerTransform);
@@ -181,17 +184,15 @@ export class PetFollowComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
     const anim = this.entity.require(AnimationComponent);
-    const dx = playerTransform.x - transform.x;
-    const dy = playerTransform.y - transform.y;
-    const distancePx = Math.hypot(dx, dy);
+    const prox = this.proximityChecker.check(transform.x, transform.y, playerTransform.x, playerTransform.y);
 
-    if (distancePx > TELEPORT_DISTANCE_PX) {
+    if (prox.shouldTeleport) {
       this.teleportToPlayer(transform, playerTransform);
       return;
     }
 
     // Close enough → start wandering
-    if (distancePx <= STOP_DISTANCE_PX) {
+    if (prox.shouldStop) {
       this.startWanderMove(anim, playerTransform);
       return;
     }
@@ -212,14 +213,14 @@ export class PetFollowComponent implements Component {
 
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
-    const distancePx = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+    const prox = this.proximityChecker.check(transform.x, transform.y, playerTransform.x, playerTransform.y);
 
-    if (distancePx > TELEPORT_DISTANCE_PX) {
+    if (prox.shouldTeleport) {
       this.teleportToPlayer(transform, playerTransform);
       return;
     }
 
-    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+    if (prox.shouldFollow) {
       this.sm.transition('following');
       return;
     }
@@ -235,14 +236,14 @@ export class PetFollowComponent implements Component {
 
     const transform = this.entity.require(TransformComponent);
     const playerTransform = this.playerEntity.require(TransformComponent);
-    const distancePx = Math.hypot(playerTransform.x - transform.x, playerTransform.y - transform.y);
+    const prox = this.proximityChecker.check(transform.x, transform.y, playerTransform.x, playerTransform.y);
 
-    if (distancePx > TELEPORT_DISTANCE_PX) {
+    if (prox.shouldTeleport) {
       this.teleportToPlayer(transform, playerTransform);
       return;
     }
 
-    if (distancePx > START_FOLLOW_DISTANCE_PX) {
+    if (prox.shouldFollow) {
       this.sm.transition('following');
       return;
     }
@@ -267,7 +268,7 @@ export class PetFollowComponent implements Component {
     this.sm.transition('idle');
     this.pathFollower.clear();
     const anim = this.entity.require(AnimationComponent);
-    this.playAnim(anim, `idle_${this.currentDirection}`);
+    anim.animationSystem.playIfChanged(`idle_${this.currentDirection}`);
   }
 
   private updateRiding(_delta: number): void {
@@ -298,7 +299,7 @@ export class PetFollowComponent implements Component {
         if (animDir === Direction.UpLeft || animDir === Direction.UpRight) animDir = Direction.Up;
         else if (animDir === Direction.DownLeft || animDir === Direction.DownRight) animDir = Direction.Down;
       }
-      this.playAnim(anim, `idle_${animDir}`);
+      anim.animationSystem.playIfChanged(`idle_${animDir}`);
 
       if (sprite) {
         const isFacingDown = this.currentDirection === Direction.Down || this.currentDirection === Direction.DownLeft || this.currentDirection === Direction.DownRight;
@@ -371,7 +372,7 @@ export class PetFollowComponent implements Component {
     const newDir = result.direction;
     if (newDir !== Direction.None && newDir !== this.currentDirection) {
       this.currentDirection = newDir;
-      this.playAnim(anim, `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
+      anim.animationSystem.playIfChanged(`${this.getMoveAnimPrefix()}_${this.currentDirection}`);
     }
   }
 
@@ -403,7 +404,7 @@ export class PetFollowComponent implements Component {
     const newDir = dirFromDelta(dx, dy);
     if (newDir !== Direction.None && newDir !== this.currentDirection) {
       this.currentDirection = newDir;
-      this.playAnim(anim, `${this.getMoveAnimPrefix()}_${this.currentDirection}`);
+      anim.animationSystem.playIfChanged(`${this.getMoveAnimPrefix()}_${this.currentDirection}`);
     }
   }
 
@@ -411,7 +412,7 @@ export class PetFollowComponent implements Component {
     this.sm.transition('wandering_pause');
     this.wanderTimerMs = 0;
     this.wanderDurationMs = WANDER_PAUSE_MIN_MS + Math.random() * (WANDER_PAUSE_MAX_MS - WANDER_PAUSE_MIN_MS);
-    this.playAnim(anim, `idle_${this.currentDirection}`);
+    anim.animationSystem.playIfChanged(`idle_${this.currentDirection}`);
   }
 
   private startWanderMove(anim: AnimationComponent, playerTransform: TransformComponent): void {
@@ -437,7 +438,7 @@ export class PetFollowComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const newDir = dirFromDelta(this.wanderTargetX - transform.x, this.wanderTargetY - transform.y);
     if (newDir !== Direction.None) this.currentDirection = newDir;
-    this.playAnim(anim, `walk_${this.currentDirection}`);
+    anim.animationSystem.playIfChanged(`walk_${this.currentDirection}`);
   }
 
   getIsHidden(): boolean {
@@ -446,12 +447,6 @@ export class PetFollowComponent implements Component {
 
   getCurrentDirection(): Direction {
     return this.currentDirection;
-  }
-
-  private playAnim(anim: AnimationComponent, key: string): void {
-    if (key === this.lastAnimKey) return;
-    this.lastAnimKey = key;
-    anim.animationSystem.play(key);
   }
 
   private getMoveAnimPrefix(): string {
@@ -486,6 +481,6 @@ export class PetFollowComponent implements Component {
     this.currentDirection = dir;
     this.pathFollower.clear();
     const anim = this.entity.get(AnimationComponent);
-    if (anim) this.playAnim(anim, `idle_${this.currentDirection}`);
+    if (anim) anim.animationSystem.playIfChanged(`idle_${this.currentDirection}`);
   }
 }

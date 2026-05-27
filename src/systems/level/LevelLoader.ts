@@ -24,7 +24,8 @@ export type EntityType =
   | 'hole'
   | 'laser'
   | 'escort'
-  | 'root_chest';
+  | 'root_chest'
+  | 'bell';
 
 export type LevelEntity = {
   id: string;

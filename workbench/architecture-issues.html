@@ -161,7 +161,7 @@
   <tbody id="tbody"></tbody>
 </table>
 
-<p class="updated">Last audit: 2026-05-20 (14:02) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9253 LOC / 62 issues (3 critical, 19 high, 23 medium, 17 low). Re-run of same-day audit confirms: zero raw flag string literals for known flag names anywhere in src/ (WorldFlags + CachedFlag adoption complete); worldToCell hot-path migration complete (0 remaining update-method allocations in the 11 tracked files); 32 worldToCell callers remain in per-event paths (acceptable). New findings: 2 minor issues added (#65 AttackComboComponent.updateHolding 4-concern split, #66 AttackComboComponent public API surface drift). Top priority remains GameScene (score 89, 813 LOC, 47 methods — growing methods reflects POSITIVE helper extraction trend). Highest-ROI open work: #56 PlayerProximityChecker, #59 EntityManager.getByTag, #62 hot-path lint enforcement. Full report: <code>tmp/architecture-review-2026-05-20-1402.md</code> · Scanner JSON: <code>tmp/architect-report.json</code></p>
+<p class="updated">Last audit: 2026-05-26 (13:27) · Scanner: <code>node scripts/arch-scan.mjs --top=20</code> · 20 files / 9460 LOC / 61 issues (3 critical, 19 high, 24 medium, 15 low). <strong>Headline: GameScene re-grew 812→854 LOC (+7 methods)</strong> since the May 16 LevelTransitionManager extraction — third audit cycle showing this drift pattern. Driver: editor concerns embedded in the runtime scene (createEditorScene 87 LOC, createEditorPlayer, forceEditorSpritesVisible, isEditorMode branching). New high-priority issue #70 proposes extracting <code>EditorScene</code> as a sibling Phaser.Scene to remove ~150 LOC permanently. New issues this cycle: #67 (DIR_DELTAS hoist), #68 (lastMaskCell mutate-in-place), #69 (AnimationComponent.playIfChanged primitive — duplicated in 2 components), #70 (GameScene editor split), #71 (spawnEntities split), #72 (createGameScene split), #73 (LaserBeam.checkEnemyCollision via EntityManager.getByTag). No issues marked done this cycle. Architecture is structurally sound with localized issues; main gap is recurring drift driven by editor coupling. Full report: <code>tmp/architecture-review-2026-05-26-1327.md</code> · Scanner JSON: <code>tmp/architect-report.json</code></p>
 
 <script>
 const ISSUES = [
@@ -635,12 +635,12 @@ const ISSUES = [
     added: '2026-05-18', resolution: 'Fixed (2026-05-20): All 11 listed files migrated to worldToCellInto with pre-allocated _tmpCell fields. Zero remaining worldToCell() calls in these files. 32 worldToCell() callers remain in non-hot-path code (pathfinding init, one-shot interactions, enemy state transitions) — acceptable since those run per-event, not per-frame.',
   },
   {
-    id: 56, severity: 'medium', status: 'open',
+    id: 56, severity: 'medium', status: 'done',
     title: 'Missing abstraction: PlayerProximityChecker (4× duplication in PetFollowComponent)',
     detail: 'PetFollowComponent has 4 nearly identical "distance check / teleport check / start_follow_distance check" blocks across updateIdle, updateFollowing, updateWanderingPause, updateWanderingMove. Each is ~12 LOC, total ~48 LOC duplication. The same pattern likely exists in EscortComponent.updateFollowing and BugChaseState. This is not duplication — it is a missing AI primitive. Proposed abstraction: `PlayerProximityChecker` with thresholds {teleport, follow, stop} returning a mutable `PlayerProximityResult { shouldTeleport, shouldFollow, shouldStop, distancePx, dx, dy }` field (mutable to avoid per-frame allocation). Each state handler shrinks to ~5 LOC. Also unblocks future companion entities (hawk, fox, summon) reusing the abstraction. ROI: pet companion was the second AI to use this pattern; the next will land soon.',
-    files: ['src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/DogBarkAbility.ts'],
+    files: ['src/ecs/components/pet/PetFollowComponent.ts', 'src/ecs/systems/movement/PlayerProximityChecker.ts'],
     effort: '2h', risk: 'Low', fanIn: 5, category: 'architecture',
-    added: '2026-05-18',
+    added: '2026-05-18', resolution: 'Fixed (2026-05-26): Created PlayerProximityChecker primitive at src/ecs/systems/movement/PlayerProximityChecker.ts (55 LOC). Holds thresholds (teleportPx/followPx/stopPx) and a single mutable ProximityResult field returned by check(fromX, fromY, toX, toY). Migrated all 4 PetFollowComponent sites (updateIdle, updateFollowing, updateWanderingPause, updateWanderingMove) — each block dropped from ~6 lines of dx/dy/distancePx + 3 threshold checks to a single check() call + flag reads. Zero per-frame allocations. EscortComponent and BugChaseState left as-is — different threshold semantics; can adopt the same primitive incrementally.',
   },
   {
     id: 57, severity: 'medium', status: 'open',
@@ -659,12 +659,12 @@ const ISSUES = [
     added: '2026-05-18',
   },
   {
-    id: 59, severity: 'medium', status: 'open',
+    id: 59, severity: 'medium', status: 'done',
     title: 'GameScene.spawnEntities hardcodes enemy types in getEnemies callback',
     detail: 'Lines 638-639: `getEnemies: () => this.entityManager.getByType(\'stalking_robot\').concat(this.entityManager.getByType(\'bug\')).concat(this.entityManager.getByType(\'thrower\'))`. Three concerns: (1) Per-call allocates 4 arrays (3 getByType results + spread chain). AttackComboComponent calls this on every punch + every targeting check. (2) Hardcoding enemy types in GameScene means adding a new enemy requires modifying a central scene file (OCP violation). (3) Grid already has a tagIndex<string, Set<Entity>> from issue #40 — extend the pattern to EntityManager. Proposed: `entityManager.getByTag(\'enemy\')` returns a cached/indexed Set in O(1). Set tag at factory level (each enemy factory adds `entity.tags.add(\'enemy\')`). Eliminates GameScene\'s knowledge of enemy types and removes the per-call allocation. Effort: 1h. Same architectural pattern as issue #40 extended to EntityManager.',
     files: ['src/scenes/GameScene.ts', 'src/ecs/EntityManager.ts'],
     effort: '1h', risk: 'Low', fanIn: 14, category: 'architecture',
-    added: '2026-05-18',
+    added: '2026-05-18', resolution: 'Fixed (2026-05-26): Added EntityManager.tagIndex (Map<string, Set<Entity>>) maintained in add()/remove()/destroyAll() and during the destroyed-entity sweep in update(). New EntityManager.getByTag(tag) returns a shared ReadonlySet<Entity> (zero-alloc, EMPTY_TAG_SET sentinel). Also added refreshEntityTags(entity) escape hatch for dynamic tag changes. GameScene.spawnEntities getEnemies callback now `() => entityManager.getByTag(\'enemy\')` — covers all 9 enemy types automatically (was previously missing puma, skeleton, red_skeleton, bulletdude, tvmonk, bugbase). findNearestEntityInFOV signature changed Entity[] → Iterable<Entity>; AttackComboComponent and PlayerEntity props updated. DogBarkAbility (2 sites) and EscortCrouchBehavior also migrated to getByTag for consistency.',
   },
 
   // ── NEW ISSUES (2026-05-20 audit) ──
@@ -725,6 +725,64 @@ const ISSUES = [
     files: ['src/ecs/components/combat/AttackComboComponent.ts'],
     effort: '2h', risk: 'Low', fanIn: 9, category: 'architecture',
     added: '2026-05-20',
+  },
+
+  // ── NEW ISSUES (2026-05-26 audit) ──
+  {
+    id: 67, severity: 'low', status: 'open',
+    title: 'AttackComboComponent.forcePunch allocates DIR_DELTAS object literal every call',
+    detail: 'src/ecs/components/combat/AttackComboComponent.ts lines 378-382: `const DIR_DELTAS: Record<number, [number, number]> = { ... }` is declared inside forcePunch(). The array literals nested inside (e.g. [0,1], [-DIAG,-DIAG]) also allocate. Called only from Lua scripts (player.punch() in interaction scripts) so per-frame cost is zero, but it is a regression of the "hoist constants to module scope" pattern. Mechanical 5-min fix: hoist DIAG and DIR_DELTAS to module-level const.',
+    files: ['src/ecs/components/combat/AttackComboComponent.ts'],
+    effort: '5m', risk: 'None', fanIn: 9, category: 'performance',
+    added: '2026-05-26',
+  },
+  {
+    id: 68, severity: 'low', status: 'open',
+    title: 'WaterEffectComponent.lastMaskCell allocates {col,row} on every cell change',
+    detail: 'src/ecs/components/visual/WaterEffectComponent.ts line 230: `this.lastMaskCell = { col: gridPos.currentCell.col, row: gridPos.currentCell.row }` reassigns the field with a fresh object literal on every cell crossing. Few allocations per second when the player is moving in/around water, not per frame. Trivial mutate-in-place fix matches the established zero-alloc pattern (`this.lastMaskCell.col = ...; this.lastMaskCell.row = ...`).',
+    files: ['src/ecs/components/visual/WaterEffectComponent.ts'],
+    effort: '5m', risk: 'None', fanIn: 10, category: 'performance',
+    added: '2026-05-26',
+  },
+  {
+    id: 69, severity: 'medium', status: 'open',
+    title: 'Missing primitive: AnimationComponent.playIfChanged — duplicated playAnim(key) helper across components',
+    detail: 'EscortComponent (lines 256-260) and PetFollowComponent (lines 410-414) each have a byte-identical private helper:\n  private playAnim(key: string): void { if (key === this.lastAnimKey) return; this.lastAnimKey = key; anim.animationSystem.play(key); }\nThis is not duplication that should be DRY\'d — it is a missing primitive. AnimationSystem already has getCurrentKey(); the missing one-liner is AnimationComponent.playIfChanged(key) (or AnimationSystem.playIfChanged). The fact two AI components both invented the same private helper is the signal that the next AI component will invent it too. Migrate both consumers, delete the private helpers, eliminate the lastAnimKey field.',
+    files: ['src/ecs/components/core/AnimationComponent.ts', 'src/ecs/components/escort/EscortComponent.ts', 'src/ecs/components/pet/PetFollowComponent.ts'],
+    effort: '30m', risk: 'None', fanIn: 80, category: 'pattern',
+    added: '2026-05-26',
+  },
+  {
+    id: 70, severity: 'high', status: 'done',
+    title: 'GameScene re-grew 812→854 LOC (+7 methods); editor concerns embedded — extract EditorScene',
+    detail: 'DONE: Extracted EditorScene as a sibling Phaser.Scene (src/scenes/EditorScene.ts, 260 LOC). Removed ~150 LOC from GameScene: createEditorScene, createEditorPlayer, forceEditorSpritesVisible, setupThemeRenderer, isEditorMode field, and all editor branches in create/update/initializeFadeIn/initializeCameraFollow. EditorBridge now uses EditorScene type directly. Editor entry point (editor/main.ts) registers and starts EditorScene instead of GameScene with editorMode flag. GameScene no longer knows about editor mode.',
+    files: ['src/scenes/GameScene.ts', 'src/scenes/EditorScene.ts'],
+    effort: '4h', risk: 'Med', fanIn: 14, category: 'architecture',
+    added: '2026-05-26',
+  },
+  {
+    id: 71, severity: 'medium', status: 'open',
+    title: 'GameScene.spawnEntities (76 LOC) does six things — extract EntitySpawner',
+    detail: 'src/scenes/GameScene.ts lines 599-674. Mixes: (1) player spawn position resolution from world state vs level default, (2) player entity creation via createPlayerEntity, (3) facing-direction restore from saved direction (lastDir + lastMoveX/Y reconstruction), (4) pet manager init via dynamic import, (5) companion manager init, (6) entity loading via entityLoader, (7) escort cross-level spawning, (8) hole drop-in animation trigger when enteredViaHole flag is set. Each concern is small but the accumulation pushes the method past the 50 LOC threshold. Extract EntitySpawner helper class with spawn(level, isEditorMode) method; GameScene calls it once. Lower priority than #70 — coherent code, just at the size threshold.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '2h', risk: 'Low', fanIn: 14, category: 'maintainability',
+    added: '2026-05-26',
+  },
+  {
+    id: 72, severity: 'medium', status: 'open',
+    title: 'GameScene.createGameScene (81 LOC) mixes 12 init concerns',
+    detail: 'src/scenes/GameScene.ts lines 185-265. Sequence: cleanup of previous EntityManager, fade setup, world state load (with profile resolution), manager init, NPCManager singleton init, HudScene launch + wait, level resolve from URL/world state, level data load, theme renderer creation, asset preload + paint, music play, ripple anim, theme rendering, scene init via initializeScene, collision system, state machine setup, debug text + keys. Coherent boot sequence but at the size threshold. Lower priority than #70 (which solves the editor split). Could extract GameSceneBootstrap orchestrator that owns the boot DAG, leaving createGameScene as a 5-line dispatcher.',
+    files: ['src/scenes/GameScene.ts'],
+    effort: '3h', risk: 'Med', fanIn: 14, category: 'architecture',
+    added: '2026-05-26',
+  },
+  {
+    id: 73, severity: 'medium', status: 'done',
+    title: 'LaserBeamComponent.checkEnemyCollision iterates getAll() filtering by tag — needs EntityManager.getByTag',
+    detail: 'src/ecs/components/laser/LaserBeamComponent.ts line 344: `for (const entity of this.entityManager.getAll())` followed by `if (entity.isDestroyed || !entity.tags.has(\'enemy\') || entity.tags.has(\'laser\')) continue`. Per-laser per-frame O(N) scan. With 4 lasers and 30 entities = 120 filter checks per frame. Same architectural pattern that Grid solved with tagIndex (issue #40 closed). Once EntityManager.getByTag(\'enemy\') exists (issue #59), replace iteration with that. Useful at scale — measurably slow at 80+ entities. Currently fine at 30-50.',
+    files: ['src/ecs/components/laser/LaserBeamComponent.ts', 'src/ecs/EntityManager.ts'],
+    effort: '30m', risk: 'Low', fanIn: 2, category: 'performance',
+    added: '2026-05-26', resolution: 'Fixed (2026-05-26): Together with issue #59. checkEnemyCollision now iterates `entityManager.getByTag(\'enemy\')` directly — shared ReadonlySet, zero allocation. Removed the explicit `tags.has(\'enemy\')` and `tags.has(\'laser\')` filters since lasers are tagged \'laser\' (not \'enemy\') and never appear in the enemy set.',
   },
 ];
 

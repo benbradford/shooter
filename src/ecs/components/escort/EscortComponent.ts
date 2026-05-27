@@ -87,7 +87,6 @@ export class EscortComponent implements Component, EventListener {
   private pathfinding!: EscortPathfinding;
   private pathRecalcTimerMs = 0;
   private currentDirection: Direction = Direction.Down;
-  private lastAnimKey = '';
 
   // (V5 fix): Cross-level spawn tracking
   private readonly playerSpawnCol: number = -1;
@@ -157,7 +156,7 @@ export class EscortComponent implements Component, EventListener {
     }
 
     this.sm.transition('awakening');
-    this.playAnim('crouch_reverse');
+    this.entity.require(AnimationComponent).animationSystem.playIfChanged('crouch_reverse');
 
     this.persistence.setCurrentEscortId(this.entity.id);
     this.persistence.persistDefinition(this.entity.id, {
@@ -193,7 +192,7 @@ export class EscortComponent implements Component, EventListener {
     const anim = this.entity.require(AnimationComponent);
     if (anim.animationSystem.isOnLastFrame('crouch_reverse')) {
       this.sm.transition('following');
-      this.playAnim(`idle_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`idle_${this.currentDirection}`);
     }
   }
 
@@ -209,7 +208,7 @@ export class EscortComponent implements Component, EventListener {
       const shadow = this.entity.get(ShadowComponent);
       if (shadow?.shadow) shadow.shadow.setAlpha(1);
       this.sm.transition('following');
-      this.playAnim(`idle_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`idle_${this.currentDirection}`);
     }
   }
 
@@ -249,7 +248,7 @@ export class EscortComponent implements Component, EventListener {
 
     if (dist <= STOP_DISTANCE_PX) {
       this.pathFollower.clear();
-      this.playAnim(`idle_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`idle_${this.currentDirection}`);
       return;
     }
 
@@ -262,7 +261,7 @@ export class EscortComponent implements Component, EventListener {
     if (this.pathFollower.hasPath()) {
       this.followPath(delta, transform);
     } else {
-      this.playAnim(`idle_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`idle_${this.currentDirection}`);
     }
   }
 
@@ -271,7 +270,7 @@ export class EscortComponent implements Component, EventListener {
   private ensureCrouchBehavior(): EscortCrouchBehavior {
     if (!this.crouchBehavior) {
       this.crouchBehavior = new EscortCrouchBehavior(
-        this.entity, this.entityManager, this.enemyDetectDistancePx, (key) => this.playAnim(key),
+        this.entity, this.entityManager, this.enemyDetectDistancePx, (key) => this.entity.require(AnimationComponent).animationSystem.playIfChanged(key),
       );
     }
     return this.crouchBehavior;
@@ -298,7 +297,7 @@ export class EscortComponent implements Component, EventListener {
     const result = crouch.update(delta);
     if (result === 'done') {
       this.sm.transition(this.previousActiveState);
-      this.playAnim(`idle_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`idle_${this.currentDirection}`);
     }
   }
 
@@ -311,7 +310,7 @@ export class EscortComponent implements Component, EventListener {
       this.sm.transition('walking_to_destination');
       this.previousActiveState = 'walking_to_destination';
       this.pathRecalcTimerMs = 0;
-      this.playAnim(`walk_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`walk_${this.currentDirection}`);
       return true;
     }
 
@@ -336,7 +335,7 @@ export class EscortComponent implements Component, EventListener {
       const gridCollision = this.entity.get(GridCollisionComponent);
       if (gridCollision) gridCollision.enabled = false;
       if (direction !== Direction.None) this.currentDirection = direction;
-      this.playAnim(`walk_${this.currentDirection}`);
+      this.entity.require(AnimationComponent).animationSystem.playIfChanged(`walk_${this.currentDirection}`);
       return;
     }
 
@@ -370,9 +369,7 @@ export class EscortComponent implements Component, EventListener {
     this.persistence.clearCurrentEscort();
     this.persistence.markCompleted(this.entity.id, this.currentLevelName, this.destinationCol, this.destinationRow);
 
-    // Force animation change (clear dedup guard)
-    this.lastAnimKey = '';
-    this.playAnim('arms_stretched');
+    this.entity.require(AnimationComponent).animationSystem.play('arms_stretched');
     this.eventManager.raiseEvent(`${this.entity.id}_reached_destination`);
   }
 
@@ -393,15 +390,7 @@ export class EscortComponent implements Component, EventListener {
     if (newDir !== Direction.None && newDir !== this.currentDirection) {
       this.currentDirection = newDir;
     }
-    this.playAnim(`walk_${this.currentDirection}`);
-  }
-
-  // --- Animation Helper ---
-
-  private playAnim(key: string): void {
-    if (key === this.lastAnimKey) return;
-    this.lastAnimKey = key;
-    this.entity.require(AnimationComponent).animationSystem.play(key);
+    this.entity.require(AnimationComponent).animationSystem.playIfChanged(`walk_${this.currentDirection}`);
   }
 
   // (F3 fix): Allow external force to completed

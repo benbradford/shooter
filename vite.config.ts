@@ -562,7 +562,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --model auto --agent db-architect "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('🔄 Refresh Issues', shellCmd, 'workflow:refresh-issues');
 
           res.setHeader('Content-Type', 'application/json');
@@ -583,7 +583,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --model auto --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('🧠 Help Me Decide', shellCmd, 'workflow:decide');
 
           res.setHeader('Content-Type', 'application/json');
@@ -611,7 +611,7 @@ IMPORTANT: Make changes directly to workbench/architecture-issues.html. Follow t
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --model auto --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('📝 Update Docs', shellCmd, 'workflow:update-docs');
 
           res.setHeader('Content-Type', 'application/json');
@@ -639,7 +639,7 @@ If there are no changes to commit, say so and stop.`;
           fs.mkdirSync(path.resolve('tmp'), { recursive: true });
           fs.writeFileSync(tmpFile, message, 'utf-8');
 
-          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+          const shellCmd = `cd '${cwd}' && kiro-cli --classic chat --model auto --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const session = spawnSession('🔀 Commit All', shellCmd, 'workflow:commit-all');
 
           res.setHeader('Content-Type', 'application/json');
@@ -652,7 +652,7 @@ If there are no changes to commit, say so and stop.`;
         if (req.method !== 'POST') { res.statusCode = 405; res.end('Method not allowed'); return; }
         try {
           const cwd = process.cwd();
-          const shellCmd = `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`;
+          const shellCmd = `cd '${cwd}' && kiro-cli chat --model auto --agent dodging-bullets`;
           const session = spawnSession(`Session ${nextSessionId - 1}`, shellCmd);
 
           res.setHeader('Content-Type', 'application/json');
@@ -715,7 +715,7 @@ If there are no changes to commit, say so and stop.`;
 
           const shellCmd = engine === 'claude'
             ? `cd '${cwd}' && claude --dangerously-skip-permissions "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
-            : `cd '${cwd}' && kiro-cli --classic chat --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+            : `cd '${cwd}' && kiro-cli --classic chat --model auto --agent dodging-bullets "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           const engineTag = engine === 'claude' ? '🟣' : '🤖';
           const label = `${action}${engineTag} ${type} #${body.id}: ${body.title.slice(0, 40)}`;
           // Tag scoped to (type, id) so re-fixing the same issue replaces the
@@ -763,12 +763,12 @@ If there are no changes to commit, say so and stop.`;
             fs.writeFileSync(tmpFile, body.prompt, 'utf-8');
             shellCmd = engine === 'claude'
               ? `cd '${cwd}' && claude --dangerously-skip-permissions "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`
-              : `cd '${cwd}' && kiro-cli --classic chat --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
+              : `cd '${cwd}' && kiro-cli --classic chat --model auto --agent ${agent} "$(cat '${tmpFile}')" ; rm -f '${tmpFile}'`;
           } else {
             shellCmd = body.command
               ?? (engine === 'claude'
                 ? `cd '${cwd}' && claude`
-                : `cd '${cwd}' && kiro-cli chat --agent dodging-bullets`);
+                : `cd '${cwd}' && kiro-cli chat --model auto --agent dodging-bullets`);
           }
 
           const label = body.label ?? `Session ${nextSessionId}`;

@@ -380,7 +380,6 @@ Click **Save** button to save level JSON with all entities in the new format.
 - `src/constants/Rarity.ts` - Rarity type and drop chance tables (coins, medipacks, small mushrooms)
 - `src/ecs/components/pickup/HealthDropOnDeathComponent.ts` - Enemy health drop on death (per-type chance)
 - `src/ecs/entities/pickup/SmallMushroomEntity.ts` - Small mushroom pickup entity factory
-- `src/scenes/GameScene.ts` - Entity extraction to JSON
 
 ## Entity Destruction Events
 

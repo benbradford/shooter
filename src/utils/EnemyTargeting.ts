@@ -7,7 +7,7 @@ export type TargetingProps = {
   facingAngleRadians: number;
   fovRadians: number;
   rangePx: number;
-  candidates: Entity[];
+  candidates: Iterable<Entity>;
   requireFacing: boolean;
 }
 

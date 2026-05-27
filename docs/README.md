@@ -321,6 +321,9 @@ npm run dev                  # Start dev server
 
 Both **Kiro** (`kiro-cli chat --agent dodging-bullets`) and **Claude Code** (`claude`) are supported. `CLAUDE.md` in the project root provides compact context for Claude Code. `scripts/extract-sessions.mjs` reads both session histories for doc updates.
 
+**Claude Code skills** (`.claude/skills/`): `add-texture`, `new-level`, `run-test`, `run-all-tests`, `chatgpt-prompt`
+**Claude Code hooks** (`.claude/hooks/`): `validate-level-json.sh` (validates JSON on save)
+
 ### Agent SOPs
 
 `agent-sops/` contains on-demand procedures for AI agents:

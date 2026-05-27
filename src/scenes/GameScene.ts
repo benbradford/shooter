@@ -1,9 +1,8 @@
 import Phaser from "phaser";
 import { Depth } from '../constants/DepthConstants';
 import { Grid, type CellProperty } from "../systems/grid/Grid";
-import { LevelLoader, type LevelData, type LevelTheme, normalizeBgTextures, bgTextureKey } from "../systems/level/LevelLoader";
+import { LevelLoader, type LevelData, normalizeBgTextures, bgTextureKey } from "../systems/level/LevelLoader";
 import { EntityManager } from "../ecs/EntityManager";
-import { NPCIdleComponent } from "../ecs/entities/npc/NPCIdleComponent";
 import { Entity } from "../ecs/Entity";
 import { EntityCreatorManager } from "../systems/EntityCreatorManager";
 import { EntityLoader } from "../systems/EntityLoader";
@@ -26,7 +25,7 @@ import { TransformComponent } from "../ecs/components/core/TransformComponent";
 import { HealthComponent } from "../ecs/components/core/HealthComponent";
 import { WalkComponent } from "../ecs/components/movement/WalkComponent";
 import { Direction } from "../constants/Direction";
-import { preloadAssets, preloadLevelAssets, preloadAssetGroups } from "../assets/AssetLoader";
+import { preloadAssets, preloadLevelAssets } from "../assets/AssetLoader";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { SoundManager } from "../systems/SoundManager";
 import { MusicManager } from "../systems/MusicManager";
@@ -60,7 +59,6 @@ export default class GameScene extends Phaser.Scene {
   public layerDebugText?: Phaser.GameObjects.Text;
   private sceneOverlays?: SceneOverlays;
   private paintRenderer?: PaintRenderer;
-  private isEditorMode: boolean = false;
   private static hasLoadedFromURL: boolean = false;
   private static hasLoadedWorldState: boolean = false;
   private static previousEntityManager?: EntityManager;
@@ -78,118 +76,8 @@ export default class GameScene extends Phaser.Scene {
     preloadAssets(this);
   }
 
-  async create(data?: { editorMode?: boolean; levelName?: string; levelData?: LevelData }) {
-    if (data?.editorMode) {
-      MusicManager.getInstance().stop();
-      await this.createEditorScene(data);
-    } else {
-      await this.createGameScene();
-    }
-  }
-
-  // ── Editor Mode ──────────────────────────────────────────────
-
-  private async createEditorScene(data: { levelName?: string; levelData?: LevelData }): Promise<void> {
-    this.isEditorMode = true;
-    this.currentLevelName = data.levelName ?? this.currentLevelName;
-
-    // Outer try/catch ensures notifySceneReady() always fires (Fixed: N1)
-    try {
-      // Inner try/catch for level load failure (Fixed: failure #1)
-      try {
-        if (data.levelData) {
-          this.levelData = data.levelData;
-          this.levelData.name = this.currentLevelName;
-        } else {
-          this.levelData = await LevelLoader.load(this.currentLevelName);
-        }
-      } catch (e) {
-        console.error('[Editor] Failed to load level:', e);
-        this.levelData = {
-          name: this.currentLevelName,
-          width: 10, height: 10,
-          playerStart: { x: 1, y: 3 },
-          cells: [], entities: [],
-          levelTheme: 'dungeon' as LevelTheme,
-        };
-      }
-
-      this.initializeManagers();
-
-      // Load ALL assets upfront for editor (including all background textures and enemy sprites)
-      preloadAssets(this);
-      preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables']);
-      preloadLevelAssets(this, this.levelData);
-      await this.waitForLoad();
-      await this.loadPaintAsync();
-
-      this.setupThemeRenderer();
-
-      // Initialize grid
-      this.grid = new Grid(this, this.levelData.width, this.levelData.height, this.cellSize, this.isEditorMode);
-      for (const cell of this.levelData.cells) {
-        const textures = normalizeBgTextures(cell.backgroundTexture);
-        const bgTexture = textures ? bgTextureKey(textures[0]) : undefined;
-        this.grid.setCell(cell.col, cell.row, {
-          layer: cell.layer ?? 0,
-          properties: new Set(cell.properties ?? []),
-          backgroundTexture: bgTexture
-        });
-      }
-
-      this.sceneRenderer.initializeSprites(this.grid, this.levelData);
-      this.initializePaint();
-      this.grid.render();
-      this.grid.setGridDebugEnabled(true);
-      this.sceneRenderer.updateGraphics(this.grid, this.levelData);
-
-      // Free camera for editor
-      this.cameras.main.setBounds(-10000, -10000, 20000, 20000);
-      this.cameras.main.setZoom(1);
-
-      // Spawn entities in editor mode (all immediately, no events, no player input)
-      const editorPlayer = this.createEditorPlayer();
-      const noopTransition = (_level: string, _col: number, _row: number): void => { /* editor: no transitions */ };
-      this.entityLoader = new EntityLoader(
-        this, this.grid, this.entityManager, this.eventManager,
-        this.entityCreatorManager,
-        noopTransition
-      );
-      this.entityLoader.loadEntities(this.levelData, editorPlayer, true);
-
-      this.forceEditorSpritesVisible();
-
-    } catch (e) {
-      console.error('[Editor] Scene init failed:', e);
-      if (!this.entityManager) this.entityManager = new EntityManager();
-      if (!this.eventManager) this.eventManager = new EventManagerSystem();
-      if (!this.grid) this.grid = new Grid(this, 10, 10, this.cellSize, this.isEditorMode);
-      if (!this.sceneRenderer) this.sceneRenderer = createThemeRenderer(this, this.cellSize, 'dungeon');
-    }
-
-    // ALWAYS notify bridge (Fixed: runtime violation #2, N1)
-    if (import.meta.env.DEV) {
-      const { EditorBridge } = await import('../../editor/EditorBridge');
-      const bridge = EditorBridge.getInstance();
-      bridge.setScene(this);
-      bridge.notifySceneReady();
-    }
-  }
-
-  /** Force all sprites visible in editor (spawn animations leave alpha/scale at 0) */
-  private forceEditorSpritesVisible(): void {
-    for (const entity of this.entityManager.getAll()) {
-      const sprite = entity.get(SpriteComponent);
-      if (sprite) {
-        sprite.sprite.setAlpha(1);
-        if (sprite.sprite.scaleX === 0 || sprite.sprite.scaleY === 0) {
-          const fitScale = this.cellSize / Math.max(sprite.sprite.width, sprite.sprite.height);
-          sprite.sprite.setScale(fitScale);
-        }
-      }
-      const idle = entity.get(NPCIdleComponent);
-      if (idle) idle.update(0);
-    }
+  async create() {
+    await this.createGameScene();
   }
 
   // ── Game Mode ────────────────────────────────────────────────
@@ -287,26 +175,6 @@ export default class GameScene extends Phaser.Scene {
     this.load.start();
     if (this.load.isLoading()) {
       await new Promise<void>(resolve => { this.load.once('complete', resolve); });
-    }
-  }
-
-  private setupThemeRenderer(): void {
-    const theme = this.levelData.levelTheme ?? 'dungeon';
-    this.sceneRenderer = createThemeRenderer(this, this.cellSize, theme, this.levelData.mistConfig);
-
-    if (this.isEditorMode && this.sceneRenderer instanceof TunnelsSceneRenderer) {
-      this.sceneRenderer.setEditorMode(true);
-    }
-
-    this.sceneRenderer.loadAllAssets(this.levelData);
-
-    const rendered = this.sceneRenderer.renderTheme(this.levelData.width, this.levelData.height);
-    this.background = rendered.background;
-    this.vignette = rendered.vignette;
-    if (this.background) this.background.setAlpha(1);
-    if (this.vignette) {
-      const targetAlpha = theme === 'grass' ? 0.25 : theme === 'swamp' ? 0.3 : theme === 'wilds' ? 0.3 : 0.2;
-      this.vignette.setAlpha(targetAlpha);
     }
   }
 
@@ -413,7 +281,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initializeGrid(level: typeof this.levelData, levelState: ReturnType<WorldStateManager['getLevelState']>): void {
-    this.grid = new Grid(this, level.width, level.height, this.cellSize, this.isEditorMode);
+    this.grid = new Grid(this, level.width, level.height, this.cellSize, false);
 
     for (const cell of level.cells) {
       const textures = normalizeBgTextures(cell.backgroundTexture);
@@ -524,8 +392,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initializeCameraFollow(): void {
-    if (this.isEditorMode) return;
-
     const levelData = this.getLevelData();
     if (levelData.fixedCamera) {
       const grid = this.grid;
@@ -564,20 +430,15 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private initializeFadeIn(): void {
-    if (this.isEditorMode) {
-      if (this.background) this.background.setAlpha(1);
-      if (this.vignette) this.vignette.setAlpha(this.getVignetteAlpha());
-    } else {
-      this.cameras.main.fadeIn(500, 0, 0, 0);
-      this.cameras.main.once('camerafadeincomplete', () => {
-        if (this.background) {
-          this.tweens.add({ targets: this.background, alpha: 1, duration: 300, ease: 'Linear' });
-        }
-        if (this.vignette) {
-          this.tweens.add({ targets: this.vignette, alpha: this.getVignetteAlpha(), duration: 300, ease: 'Linear' });
-        }
-      });
-    }
+    this.cameras.main.fadeIn(500, 0, 0, 0);
+    this.cameras.main.once('camerafadeincomplete', () => {
+      if (this.background) {
+        this.tweens.add({ targets: this.background, alpha: 1, duration: 300, ease: 'Linear' });
+      }
+      if (this.vignette) {
+        this.tweens.add({ targets: this.vignette, alpha: this.getVignetteAlpha(), duration: 300, ease: 'Linear' });
+      }
+    });
   }
 
   private getVignetteAlpha(): number {
@@ -649,7 +510,7 @@ export default class GameScene extends Phaser.Scene {
       y: startY,
       grid: this.grid,
       joystick,
-      getEnemies: () => this.entityManager.getByType('stalking_robot').concat(this.entityManager.getByType('bug')).concat(this.entityManager.getByType('thrower')),
+      getEnemies: () => this.entityManager.getByTag('enemy'),
       entityManager: this.entityManager,
       eventManager: this.eventManager,
       vignetteSprite: this.vignette,
@@ -683,14 +544,12 @@ export default class GameScene extends Phaser.Scene {
     this.initializeCompanionManager(player);
 
     // Load entities from new format
-    this.entityLoader.loadEntities(level, player, this.isEditorMode);
+    this.entityLoader.loadEntities(level, player, false);
 
     // Spawn cross-level escorts
-    if (!this.isEditorMode) {
-      const escortManager = new EscortSpawnManager(this, this.grid, this.entityManager, this.eventManager);
-      escortManager.spawnCrossLevelEscort(player, this.currentLevelName, this.levelData.playerStart.x, this.levelData.playerStart.y);
-      escortManager.spawnCompletedEscorts(player, this.currentLevelName);
-    }
+    const escortManager = new EscortSpawnManager(this, this.grid, this.entityManager, this.eventManager);
+    escortManager.spawnCrossLevelEscort(player, this.currentLevelName, this.levelData.playerStart.x, this.levelData.playerStart.y);
+    escortManager.spawnCompletedEscorts(player, this.currentLevelName);
 
     // Hole drop-in sequence
     const worldState2 = WorldStateManager.getInstance();
@@ -711,11 +570,6 @@ export default class GameScene extends Phaser.Scene {
 
 
   update(_time: number, delta: number): void {
-    // Skip all gameplay in editor mode
-    if (this.isEditorMode) {
-      if (this.sceneRenderer) this.sceneRenderer.update(delta);
-      return;
-    }
     // Wait for async create to finish
     if (!this.entityManager || !this.grid || !this.stateMachine) return;
 
@@ -841,13 +695,4 @@ export default class GameScene extends Phaser.Scene {
     return this.currentLevelName;
   }
 
-  private createEditorPlayer(): Entity {
-    // Minimal player entity for editor mode (no input, no HUD, just position)
-    const player = new Entity('player');
-    const startX = this.grid.cellSize * this.levelData.playerStart.x + this.grid.cellSize / 2;
-    const startY = this.grid.cellSize * this.levelData.playerStart.y + this.grid.cellSize / 2;
-    player.add(new TransformComponent(startX, startY));
-    this.entityManager.add(player);
-    return player;
-  }
 }

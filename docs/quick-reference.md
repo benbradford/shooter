@@ -27,7 +27,7 @@ Then rebuild in Android Studio.
 Level transitions work automatically via exit triggers. The system:
 - Unloads previous level assets (except core assets and enemy textures)
 - Loads new level assets
-- Preserves player health, coins, world state
+- Preserves player health, coins, world state, facing direction
 - Filters runtime textures (UUIDs, gradients, tilesets) from unload
 - Destroys entities before transition to clean up references
 
@@ -387,6 +387,8 @@ Use `canPlayerHitEnemy()` for player attacks across layers:
 Player only: After 3 seconds without damage, regens at 20 HP/sec. Regen timer accumulates at 0.3× speed while moving, 1× while still.
 
 **Requires:** WorldState flag `hasAutoHeal` = `"true"`
+
+**Visual:** Red vignette overlay pulses proportional to missing health (only visible when `hasAutoHeal` is active).
 
 ## Hit Flash Effect
 

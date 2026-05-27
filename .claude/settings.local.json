@@ -24,7 +24,20 @@
       "Bash(xargs *)",
       "Bash(/opt/homebrew/bin/tmux list-sessions *)",
       "Bash(ps *)",
-      "Bash(pkill ttyd *)"
+      "Bash(pkill ttyd *)",
+      "Bash(sips *)",
+      "Bash(magick *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(sort -t'+' -k3 -n)",
+      "Bash(chmod +x *)",
+      "Bash(it happens for both claude and kiro sessions)",
+      "Bash(/opt/homebrew/bin/tmux has-session *)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(/opt/homebrew/bin/tmux capture-pane *)",
+      "Bash(/opt/homebrew/bin/ttyd --help)",
+      "Bash(kill 21335 21150)",
+      "Bash(kiro-cli --help)",
+      "Bash(kiro-cli chat *)"
     ]
   }
 }

@@ -184,7 +184,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -195,7 +209,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -206,7 +234,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -217,7 +259,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -228,7 +284,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -239,7 +309,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -329,6 +413,28 @@
       "properties": [
         "blocked"
       ],
+      "backgroundTexture": [
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
+      ]
+    },
+    {
+      "col": 3,
+      "row": 2,
+      "layer": 0,
       "backgroundTexture": [
         "rocks3"
       ]
@@ -421,7 +527,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -512,7 +632,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -641,7 +775,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -732,7 +880,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -823,7 +985,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -914,7 +1090,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -1005,7 +1195,21 @@
         "blocked"
       ],
       "backgroundTexture": [
-        "rocks3"
+        {
+          "image": "rocks_spritesheet2",
+          "sourceRect": {
+            "x": 780,
+            "y": 30,
+            "width": 320,
+            "height": 210
+          },
+          "transformOverride": {
+            "scaleX": 1.33,
+            "scaleY": 1.33,
+            "offsetX": 6,
+            "offsetY": -14
+          }
+        }
       ]
     },
     {
@@ -1090,6 +1294,14 @@
     }
   ],
   "entities": [
+    {
+      "id": "bell0",
+      "type": "bell",
+      "data": {
+        "col": 2,
+        "row": 5
+      }
+    },
     {
       "id": "exit0",
       "type": "exit",

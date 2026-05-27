@@ -1,0 +1,87 @@
+import { Entity } from '../../Entity';
+import { Depth } from '../../../constants/DepthConstants';
+import { TransformComponent } from '../../components/core/TransformComponent';
+import { SpriteComponent } from '../../components/core/SpriteComponent';
+import { CollisionComponent } from '../../components/combat/CollisionComponent';
+import { BellComponent } from './BellComponent';
+import type { GridReader } from '../../../systems/grid/Grid';
+import type { EventManagerSystem } from '../../systems/EventManagerSystem';
+import { WorldStateManager } from '../../../systems/WorldStateManager';
+import type GameScene from '../../../scenes/GameScene';
+
+export type CreateBellProps = {
+  scene: GameScene;
+  col: number;
+  row: number;
+  grid: GridReader;
+  entityId: string;
+  eventManager: EventManagerSystem;
+};
+
+const BELL_SCALE = 0.1;
+
+export function createBellEntity(props: CreateBellProps): Entity {
+  const { scene, col, row, grid, entityId, eventManager } = props;
+  const entity = new Entity(entityId);
+  entity.tags.add('bell');
+
+  const worldPos = grid.cellToWorld(col, row);
+  const x = worldPos.x + grid.cellSize / 2;
+  const y = worldPos.y + grid.cellSize / 2;
+
+  const transform = entity.add(new TransformComponent(x, y, 0, BELL_SCALE));
+
+  const barSprite = scene.add.image(x, y, 'bell_bar');
+  barSprite.setScale(BELL_SCALE);
+  barSprite.setDepth(Depth.breakable);
+
+  const bodySprite = scene.add.image(x, y + 8, 'bell_body');
+  bodySprite.setScale(BELL_SCALE);
+  bodySprite.setDepth(Depth.breakable);
+  bodySprite.setOrigin(0.5, 0.1);
+
+  const clapperSprite = scene.add.image(x, y + 8, 'bell_clapper');
+  clapperSprite.setScale(BELL_SCALE);
+  clapperSprite.setDepth(Depth.breakable);
+
+  const spriteComp = entity.add(new SpriteComponent(scene, 'bell_bar', transform));
+  spriteComp.sprite.setVisible(false);
+
+  const levelName = scene.getCurrentLevelName();
+  const eventName = `${levelName}_${entityId}_rung`;
+  const alreadyRung = WorldStateManager.getInstance().isFlagTrue(eventName);
+
+  const bell = entity.add(new BellComponent({
+    scene,
+    barSprite,
+    bodySprite,
+    clapperSprite,
+    eventManager,
+    eventName,
+    alreadyRung,
+  }));
+
+  if (!alreadyRung) {
+    const COLLISION_SIZE_PX = grid.cellSize;
+    const handledPunches = new Set<string>();
+    entity.add(new CollisionComponent({
+      box: { offsetX: -COLLISION_SIZE_PX / 2, offsetY: -COLLISION_SIZE_PX / 2, width: COLLISION_SIZE_PX, height: COLLISION_SIZE_PX },
+      collidesWith: ['player_projectile'],
+      onHit: (other) => {
+        if (other.tags.has('player_projectile') && !handledPunches.has(other.id)) {
+          handledPunches.add(other.id);
+          bell.ring();
+        }
+      }
+    }));
+  }
+
+  entity.setUpdateOrder([
+    TransformComponent,
+    SpriteComponent,
+    BellComponent,
+    CollisionComponent,
+  ]);
+
+  return entity;
+}

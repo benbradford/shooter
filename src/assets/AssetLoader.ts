@@ -84,6 +84,9 @@ export function getRequiredAssetGroups(levelData: LevelData): AssetGroupKey[] {
     if (entityTypes.has('escort')) {
       groups.push('escort');
     }
+    if (entityTypes.has('bell')) {
+      groups.push('bell');
+    }
     for (const entity of levelData.entities) {
       if (entity.type === 'npc' && typeof entity.data.assets === 'string') {
         const assetGroup = entity.data.assets as AssetGroupKey;

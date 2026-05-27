@@ -1,4 +1,4 @@
-import type GameScene from '../src/scenes/GameScene';
+import type EditorScene from '../src/scenes/EditorScene';
 import type { Grid, CellProperty } from '../src/systems/grid/Grid';
 import type { EntityManager } from '../src/ecs/EntityManager';
 import type { Entity } from '../src/ecs/Entity';
@@ -17,7 +17,7 @@ const MAX_HISTORY = 50;
 
 export class EditorBridge {
   private static instance: EditorBridge;
-  private scene!: GameScene;
+  private scene!: EditorScene;
   toast!: Toast;
 
   // Editor state
@@ -75,8 +75,8 @@ export class EditorBridge {
   }
 
   setToast(toast: Toast): void { this.toast = toast; }
-  getScene(): GameScene { return this.scene; }
-  setScene(scene: GameScene): void { this.scene = scene; }
+  getScene(): EditorScene { return this.scene; }
+  setScene(scene: EditorScene): void { this.scene = scene; }
   getGrid(): Grid { return this.scene.getGrid(); }
   getEntityManager(): EntityManager { return this.scene.getEntityManager(); }
 
@@ -143,7 +143,7 @@ export class EditorBridge {
     const camZoom = camera.zoom;
 
     this.isLoading = true;
-    this.scene.scene.restart({ editorMode: true, levelName: this.currentLevelName, levelData });
+    this.scene.scene.restart({ levelName: this.currentLevelName, levelData });
 
     const origOnReady = this.onSceneReady;
     this.onSceneReady = () => {
@@ -469,7 +469,7 @@ export class EditorBridge {
         const camZoom = camera.zoom;
 
         this.isLoading = true;
-        this.scene.scene.restart({ editorMode: true, levelName: this.currentLevelName, levelData });
+        this.scene.scene.restart({ levelName: this.currentLevelName, levelData });
 
         // Restore camera and select new entity after scene is ready
         const pendingEntityId = newId;
@@ -687,7 +687,7 @@ export class EditorBridge {
         const camZoom = camera.zoom;
 
         this.isLoading = true;
-        this.scene.scene.restart({ editorMode: true, levelName: this.currentLevelName, levelData });
+        this.scene.scene.restart({ levelName: this.currentLevelName, levelData });
 
         const pendingEntityId = newId;
         const origOnReady = this.onSceneReady;
@@ -999,7 +999,7 @@ export class EditorBridge {
     this.selectedEntity = null;
     this.selectedCell = null;
     this.resetPaintCanvas();
-    this.scene.scene.restart({ editorMode: true, levelName });
+    this.scene.scene.restart({ levelName });
   }
 
   async saveLevel(): Promise<void> {
@@ -1223,6 +1223,9 @@ export class EditorBridge {
         type = 'escort';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         data = { col: cell.col, row: cell.row, ...existing?.data };
+      } else if (entity.id.startsWith('bell')) {
+        type = 'bell';
+        data = { col: cell.col, row: cell.row };
       } else if (entity.id.startsWith('npc') || entity.tags?.has('npc')) {
         type = 'npc';
         const idle = entity.get(NPCIdleComponent);

@@ -52,7 +52,7 @@ type ComboPhase = 'idle' | 'punching' | 'holding' | 'super_punching';
 export type AttackComboComponentProps = {
   scene: Phaser.Scene;
   entityManager: EntityManager;
-  getEnemies: () => Entity[];
+  getEnemies: () => Iterable<Entity>;
   worldState: WorldStateManager;
   soundManager: SoundManager;
   petManager: PetManager;
@@ -74,7 +74,7 @@ export class AttackComboComponent implements Component {
   private punchDirY: number = 1;
   private readonly scene: Phaser.Scene;
   private readonly entityManager: EntityManager;
-  private readonly getEnemies: () => Entity[];
+  private readonly getEnemies: () => Iterable<Entity>;
   private readonly worldState: WorldStateManager;
   private readonly soundManager: SoundManager;
   private readonly petManager: PetManager;

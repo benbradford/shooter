@@ -57,15 +57,16 @@ export class DogBarkAbility implements Component {
 
   getNearestEnemyInRange(): Entity | null {
     const transform = this.entity.require(TransformComponent);
-    const gameScene = this.scene as unknown as { entityManager?: { getAll(): Entity[] } };
-    const entities = gameScene.entityManager?.getAll() ?? [];
+    const gameScene = this.scene as unknown as { entityManager?: { getByTag(tag: string): ReadonlySet<Entity> } };
+    const enemies = gameScene.entityManager?.getByTag('enemy');
+    if (!enemies) return null;
     const dogCell = this.grid.worldToCell(transform.x, transform.y);
 
     let nearest: Entity | null = null;
     let nearestPathLen = MAX_BARK_TARGET_PATH_CELLS + 1;
 
-    for (const e of entities) {
-      if (e.isDestroyed || !e.tags.has('enemy')) continue;
+    for (const e of enemies) {
+      if (e.isDestroyed) continue;
       if (e.id.startsWith('bugbase')) continue;
 
       const sm = e.get(StateMachineComponent);
@@ -220,11 +221,12 @@ export class DogBarkAbility implements Component {
 
   private applyFearToNearbyEnemies(): void {
     const transform = this.entity.require(TransformComponent);
-    const gameScene = this.scene as unknown as { entityManager?: { getAll(): Entity[] } };
-    const entities = gameScene.entityManager?.getAll() ?? [];
+    const gameScene = this.scene as unknown as { entityManager?: { getByTag(tag: string): ReadonlySet<Entity> } };
+    const enemies = gameScene.entityManager?.getByTag('enemy');
+    if (!enemies) return;
 
-    for (const e of entities) {
-      if (e.isDestroyed || !e.tags.has('enemy')) continue;
+    for (const e of enemies) {
+      if (e.isDestroyed) continue;
       if (e.id.startsWith('bugbase')) continue;
 
       const sm = e.get(StateMachineComponent);

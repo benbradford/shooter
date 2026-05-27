@@ -216,7 +216,7 @@ The editor uses a split architecture:
 - **`editor/CanvasInteraction.ts`** — Handles Phaser input events, WASD camera, zoom, keyboard shortcuts
 - **`editor/panels/`** — HTML panel classes (Toolbar, ContextPanel, TexturePicker, Toast, PanelController)
 - **`editor/SpritesheetTextures.ts`** — Spritesheet sub-sprite definitions
-- **`src/scenes/GameScene.ts`** — Runs in `editorMode` when started from editor (gameplay disabled, rendering active)
+- **`src/scenes/EditorScene.ts`** — Dedicated Phaser scene for editor (level rendering, no gameplay logic)
 
 **WASD conflict resolution**: WASD only fires when mouse is over the canvas AND no HTML input is focused. Typing in any form field never triggers camera movement.
 

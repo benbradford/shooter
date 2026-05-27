@@ -67,6 +67,11 @@ export class AnimationSystem {
     return this.currentKey;
   }
 
+  playIfChanged(key: string): void {
+    if (key === this.currentKey) return;
+    this.play(key);
+  }
+
   isOnLastFrame(animKey: string): boolean {
     if (this.currentKey !== animKey) return false;
     return this.current?.isOnLastFrame() ?? false;

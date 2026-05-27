@@ -160,6 +160,31 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/wall_cracked.png',
     type: 'image' as const,
   },
+  bell_bar: {
+    key: 'bell_bar',
+    path: 'assets/cell_drawables/bell_bar.png',
+    type: 'image' as const,
+  },
+  bell_ding: {
+    key: 'bell_ding',
+    path: 'assets/sounds/bell_ding.mp3',
+    type: 'audio' as const,
+  },
+  bell_body: {
+    key: 'bell_body',
+    path: 'assets/cell_drawables/bell_body.png',
+    type: 'image' as const,
+  },
+  bell_clapper: {
+    key: 'bell_clapper',
+    path: 'assets/cell_drawables/bell_clapper.png',
+    type: 'image' as const,
+  },
+  bell_cracked: {
+    key: 'bell_cracked',
+    path: 'assets/cell_drawables/bell_cracked.png',
+    type: 'image' as const,
+  },
   dead_tree1: {
     key: 'dead_tree1',
     path: 'assets/cell_drawables/dead_tree1.png',
@@ -1127,8 +1152,11 @@ export const ASSET_GROUPS = {
   // Escort
   escort: ['knight_spritesheet'] as const,
 
+  // Bell
+  bell: ['bell_bar', 'bell_body', 'bell_clapper', 'bell_cracked', 'bell_ding'] as const,
+
   // Editor - all textures that can be used in editor
-  editor: ['dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_wall2', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'cart', 'well', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'rocks_spritesheet2', 'roots_spritesheet', 'roots_spritesheet2', 'roots_chest', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'chasm', 'blank', 'dead_tree1', 'dead_tree2', 'dead_tree3', 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
+  editor: ['bell_bar', 'bell_body', 'bell_clapper', 'bell_cracked', 'dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_wall2', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'cart', 'well', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'rocks_spritesheet2', 'roots_spritesheet', 'roots_spritesheet2', 'roots_chest', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'chasm', 'blank', 'dead_tree1', 'dead_tree2', 'dead_tree3', 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

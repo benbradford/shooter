@@ -63,7 +63,7 @@ export type CreatePlayerEntityProps = {
   y: number;
   grid: Grid;
   joystick: Entity;
-  getEnemies: () => Entity[];
+  getEnemies: () => Iterable<Entity>;
   entityManager: EntityManager;
   eventManager: EventManagerSystem;
   vignetteSprite?: Phaser.GameObjects.Image;

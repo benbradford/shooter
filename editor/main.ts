@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import GameScene from '../src/scenes/GameScene';
+import EditorScene from '../src/scenes/EditorScene';
 import { EditorBridge } from './EditorBridge';
 import { PanelController } from './panels/PanelController';
 import { CanvasInteraction } from './CanvasInteraction';
@@ -57,8 +57,8 @@ game.events.once('ready', () => {
   };
 
   // Add scene then start it with editor data
-  game.scene.add('game', GameScene);
-  game.scene.start('game', { editorMode: true, levelName: startLevel });
+  game.scene.add('editor', EditorScene);
+  game.scene.start('editor', { levelName: startLevel });
 
   window.addEventListener('beforeunload', (e) => {
     if (bridge.isDirty) {
