@@ -224,6 +224,10 @@ Then in `update()`: `this.sm.update(delta)` and transitions via `this.sm.transit
 
 ## Common Patterns
 
+### PlayerProximityChecker
+
+Zero-allocation utility (`src/ecs/systems/movement/PlayerProximityChecker.ts`) for distance/proximity decisions in AI components. Configure thresholds (teleport, follow, stop) once at construction; call `check(fromX, fromY, toX, toY)` each frame. Result is a mutable struct with `dx`, `dy`, `distancePx`, `shouldTeleport`, `shouldFollow`, `shouldStop`. Used by `PetFollowComponent` and `EscortComponent`.
+
 ### Smooth Enemy Pushing
 
 When enemies should move away from the player on collision box overlap, use `KnockbackComponent` for smooth movement instead of instant teleport.

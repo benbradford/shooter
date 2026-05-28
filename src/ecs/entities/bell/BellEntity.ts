@@ -19,6 +19,8 @@ export type CreateBellProps = {
 };
 
 const BELL_SCALE = 0.1;
+const BELL_OFFSET_Y_PX = -33;
+const SHADOW_OFFSET_Y_PX = 60;
 
 export function createBellEntity(props: CreateBellProps): Entity {
   const { scene, col, row, grid, entityId, eventManager } = props;
@@ -31,18 +33,21 @@ export function createBellEntity(props: CreateBellProps): Entity {
 
   const transform = entity.add(new TransformComponent(x, y, 0, BELL_SCALE));
 
-  const barSprite = scene.add.image(x, y, 'bell_bar');
+  const visualY = y + BELL_OFFSET_Y_PX;
+
+  const shadowSprite = scene.add.image(x, visualY + SHADOW_OFFSET_Y_PX, 'shadow');
+  shadowSprite.setScale(1.2);
+  shadowSprite.setAlpha(0.5);
+  shadowSprite.setDepth(Depth.shadow);
+
+  const barSprite = scene.add.image(x, visualY, 'bell_bar');
   barSprite.setScale(BELL_SCALE);
-  barSprite.setDepth(Depth.breakable);
+  barSprite.setDepth(Depth.bell);
 
-  const bodySprite = scene.add.image(x, y + 8, 'bell_body');
+  const bodySprite = scene.add.image(x, visualY + 8, 'bell_body');
   bodySprite.setScale(BELL_SCALE);
-  bodySprite.setDepth(Depth.breakable);
+  bodySprite.setDepth(Depth.bell);
   bodySprite.setOrigin(0.5, 0.1);
-
-  const clapperSprite = scene.add.image(x, y + 8, 'bell_clapper');
-  clapperSprite.setScale(BELL_SCALE);
-  clapperSprite.setDepth(Depth.breakable);
 
   const spriteComp = entity.add(new SpriteComponent(scene, 'bell_bar', transform));
   spriteComp.sprite.setVisible(false);
@@ -55,10 +60,12 @@ export function createBellEntity(props: CreateBellProps): Entity {
     scene,
     barSprite,
     bodySprite,
-    clapperSprite,
+    shadowSprite,
     eventManager,
     eventName,
     alreadyRung,
+    visualOffsetY: BELL_OFFSET_Y_PX,
+    shadowOffsetY: SHADOW_OFFSET_Y_PX,
   }));
 
   if (!alreadyRung) {
@@ -76,12 +83,9 @@ export function createBellEntity(props: CreateBellProps): Entity {
     }));
   }
 
-  entity.setUpdateOrder([
-    TransformComponent,
-    SpriteComponent,
-    BellComponent,
-    CollisionComponent,
-  ]);
+  const updateOrder: Array<new (...args: never[]) => import('../../Component').Component> = [TransformComponent, SpriteComponent, BellComponent];
+  if (!alreadyRung) updateOrder.push(CollisionComponent);
+  entity.setUpdateOrder(updateOrder);
 
   return entity;
 }

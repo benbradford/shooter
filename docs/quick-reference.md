@@ -265,7 +265,7 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 - `stop()` — stops any current music
 - Title music: `BootScene` plays `btr_music` via `MusicManager` after asset load
 - Level music: `GameScene.createGameScene()` calls `MusicManager.play(this, levelData.music ?? null)` after `preloadLevelAssets` + `waitForLoad()`
-- Editor mode: `GameScene.create()` calls `MusicManager.stop()` when entering editor
+- Editor: `EditorScene` (separate Phaser scene) does not play music — no explicit stop needed
 - Music asset is loaded per-level via `preloadLevelAssets` (and `AssetManifest.fromLevelData` for `LoadingScene` transitions)
 - Music files in `assets/music/*` are skipped by `SoundManager`'s native SoundPool preload (streamed via Phaser instead)
 

@@ -27,6 +27,9 @@ export const Depth = {
   breakable: -7,
   cellTextureModified: -8,
 
+  // Props
+  bell: -5,
+
   // Entities
   specialItem: -1,
   pet: -1,

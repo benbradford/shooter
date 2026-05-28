@@ -93,7 +93,7 @@ Click a cell with the **Select** tool to open the Cell form:
 - **Layer** — Set cell layer (0 = ground, 1 = elevated)
 - **Properties** — Checkboxes for wall, platform, stairs, water, bridge, blocked, push_lock
 - **Texture** — Click **Choose** to open the texture picker
-- **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields, Z Override checkbox, Blend mode dropdown, Alpha input, Tint input, and Apply Transform button
+- **Transform Override** — When a texture is set, shows scaleX/scaleY/offsetX/offsetY fields, Z Override checkbox, Dynamic Z checkbox, Blend mode dropdown, Alpha input, Tint input, and Apply Transform button
 - **Clear Cell** — Remove all properties and texture
 - **Animated Texture** — When present, shows spritesheet info + transform fields + Apply/Remove buttons. When absent, shows **+ Animated Texture** button to add one.
 - **Drag textures** — Click and hold a cell with a texture in Select mode, then drag to move that texture to another cell
@@ -141,6 +141,7 @@ Entity form shows all editable fields per type:
 - Laser: angle (0°=up, 90°=right), flagName (world state toggle), onDestroyEvent (optional)
 - Pushable: texture, pushEnabled, doesPersist, singlePushOnly
 - Hole: texture, targetLevel, targetCol, targetRow, transformOverride (scaleX/Y, offsetX/Y) + **Leave** button
+- Bell: (no editable data fields — position only)
 - Escort: escortType, awakeOnEvent, destinationLevel, destinationCol/Row, reachDistance, followSpeed, followToLevels (comma-sep), enemyDetectPx, scale, shadowScale/offsetX/offsetY
 
 ### Editing Trigger Cells

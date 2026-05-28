@@ -49,6 +49,7 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
 - `escort` - NPC that follows the player across levels to a destination cell, with subtype-specific behavior (e.g., knight)
 - `tv_monk` - Boss with dynamic TV screen face. Pre-combat: mood set via `monk_{state}` events. Combat: mood follows health. Faces player. Sound: `tv_static` on face transitions.
+- `bell` - Punchable bell that swings, emits shockwaves, cracks, and raises an event. Persists via WorldState flag (shows cracked on re-entry). Triggered by `player_projectile` collision.
 - `root_chest` - Punchable root-covered chest (60 HP) with living spore particles. Death sequence animates through 5 sprites, then spawns a configurable special item pickup (mushroom, boots, max_health_increase, bandage, autoheal, push_strength). Fires `{entityId}_destroyed` on open and `special_pickup_{itemType}` on collection. Persistence: destroyed chest shows `chest_empty` sprite on re-entry (via `{id}_opened` in liveEntities), uncollected pickup respawns until `{id}_collected` flag is set.
   - Chest keeps GridCellBlocker until entity is destroyed (player can't walk into chest during death animation)
   - Special item pickup has 1000ms delay after spawning (prevents instant collection when standing next to chest)
@@ -154,6 +155,16 @@ Plus one interaction entity per script:
 - Newlines: `<newline/>`
 
 **⚠️ `getFlag` returns a string.** Use `tonumber()` in Lua for numeric comparisons: `if tonumber(getFlag("mist_orb")) == 1 then`
+
+### Bell
+- No extra data fields beyond `col`, `row` — behavior is self-contained
+- Triggered by `player_projectile` collision (punch hitbox)
+- On hit: plays `bell_ding` sound, body swings with damped oscillation (25° amplitude, 2.5s), clapper counter-swings
+- Emits 3 expanding shockwave rings during swing
+- At 60% progress, body sprite swaps to `bell_cracked`
+- On completion: sets WorldState flag `{levelName}_{entityId}_rung`, raises event `{levelName}_{entityId}_rung`
+- Persists: on re-entry, shows cracked sprite and has no collision (already rung)
+- Key files: `src/ecs/entities/bell/BellEntity.ts`, `src/ecs/entities/bell/BellComponent.ts`
 
 ### Trigger
 - `eventToRaise`: Event name to fire
@@ -342,7 +353,7 @@ Click **Save** button to save level JSON with all entities in the new format.
 - `src/systems/EntityRegistry.ts` - Factory registry pattern (registerEntityFactory, getEntityFactory)
 - `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import, delegates to subdirectory)
 - `src/systems/entity-factories/enemyFactories.ts` - Enemy entity factories (skeleton, thrower, robot, bug_base, bullet_dude, puma, red_skeleton)
-- `src/systems/entity-factories/gameplayFactories.ts` - Gameplay entity factories (trigger, exit, eventchainer, cellmodifier, lever, pushable, hole, breakable, laser, collectible, escort, root_chest)
+- `src/systems/entity-factories/gameplayFactories.ts` - Gameplay entity factories (trigger, exit, eventchainer, cellmodifier, lever, pushable, hole, breakable, laser, collectible, escort, root_chest, bell)
 - `src/systems/entity-factories/levelFactories.ts` - Level/NPC entity factories (npc, interaction, tv_monk)
 - `src/systems/EntityLoader.ts` - Entity loading orchestrator (delegates to registry)
 - `src/systems/level/LevelLoader.ts` - LevelEntity and EntityType definitions
