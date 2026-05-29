@@ -1942,7 +1942,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -1989,7 +1989,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2107,7 +2107,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2154,7 +2154,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2205,7 +2205,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2252,7 +2252,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2337,7 +2337,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2384,7 +2384,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2435,7 +2435,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2482,7 +2482,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2740,7 +2740,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2790,7 +2790,7 @@
             "offsetX": 3,
             "offsetY": -8
           },
-          "alpha": 0.7
+          "blendMode": "multiply"
         }
       ]
     },
@@ -2967,75 +2967,52 @@
       }
     },
     {
-      "id": "exit2",
+      "id": "exit_north_nnw",
       "type": "exit",
       "data": {
         "targetLevel": "grass_overworldnnw",
-        "targetCol": 5,
+        "targetCol": 0,
         "targetRow": 8,
-        "triggerCells": [
-          {
-            "col": 5,
-            "row": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit3",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldnnw",
-        "targetCol": 4,
-        "targetRow": 8,
-        "triggerCells": [
-          {
-            "col": 4,
-            "row": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit4",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldnnw",
-        "targetCol": 3,
-        "targetRow": 8,
-        "triggerCells": [
-          {
-            "col": 3,
-            "row": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit5",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldnnw",
-        "targetCol": 2,
-        "targetRow": 8,
-        "triggerCells": [
-          {
-            "col": 2,
-            "row": 0
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit6",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldnnw",
-        "targetCol": 1,
-        "targetRow": 8,
+        "preserveCol": true,
         "triggerCells": [
           {
             "col": 1,
+            "row": 0
+          },
+          {
+            "col": 2,
+            "row": 0
+          },
+          {
+            "col": 3,
+            "row": 0
+          },
+          {
+            "col": 4,
+            "row": 0
+          },
+          {
+            "col": 5,
+            "row": 0
+          },
+          {
+            "col": 6,
+            "row": 0
+          },
+          {
+            "col": 7,
+            "row": 0
+          },
+          {
+            "col": 8,
+            "row": 0
+          },
+          {
+            "col": 9,
+            "row": 0
+          },
+          {
+            "col": 10,
             "row": 0
           }
         ]
@@ -3052,12 +3029,12 @@
     "path_texture": "stone_wall2",
     "water": {
       "sourceImage": "water_poison",
-      "rippleSpritesheet": "water_ripple",
-      "splashParticle": "water_splash",
-      "flowDirection": "down",
-      "numFrames": 30,
-      "animSpeedMs": 150,
-      "force": 30
+      "rippleSpritesheet": "murky_ripple",
+      "splashParticle": "murky_splash",
+      "flowDirection": "up",
+      "numFrames": 20,
+      "animSpeedMs": 250,
+      "force": 10
     },
     "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet.png",

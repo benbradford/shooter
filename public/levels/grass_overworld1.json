@@ -5421,38 +5421,6 @@
       }
     },
     {
-      "id": "exit1",
-      "type": "exit",
-      "data": {
-        "targetLevel": "wilds1",
-        "targetCol": 20,
-        "targetRow": 1,
-        "triggerCells": [
-          {
-            "col": 20,
-            "row": 29
-          }
-        ],
-        "oneShot": true
-      }
-    },
-    {
-      "id": "exit2",
-      "type": "exit",
-      "data": {
-        "targetLevel": "wilds1",
-        "targetCol": 21,
-        "targetRow": 1,
-        "triggerCells": [
-          {
-            "col": 21,
-            "row": 29
-          }
-        ],
-        "oneShot": true
-      }
-    },
-    {
       "id": "exit3",
       "type": "exit",
       "data": {
@@ -5709,6 +5677,26 @@
       "createOnAnyEvent": [
         "enter_wilds1"
       ]
+    },
+    {
+      "id": "exit_south_wilds",
+      "type": "exit",
+      "data": {
+        "targetLevel": "wilds1",
+        "targetCol": 0,
+        "targetRow": 1,
+        "preserveCol": true,
+        "triggerCells": [
+          {
+            "col": 20,
+            "row": 29
+          },
+          {
+            "col": 21,
+            "row": 29
+          }
+        ]
+      }
     }
   ],
   "levelTheme": "grass",

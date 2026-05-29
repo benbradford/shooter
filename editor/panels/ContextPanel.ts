@@ -697,6 +697,10 @@ export class ContextPanel {
       typeFields += `<div class="form-group"><label>Target Level</label><input id="ef-target" value="${data.targetLevel ?? ''}" /></div>
         <div class="form-group"><label>Target Col</label><input type="number" id="ef-tcol" value="${data.targetCol ?? 0}" /></div>
         <div class="form-group"><label>Target Row</label><input type="number" id="ef-trow" value="${data.targetRow ?? 0}" /></div>
+        <div class="form-group" style="display:flex;gap:12px">
+          <label><input type="checkbox" id="ef-preserve-col" ${data.preserveCol ? 'checked' : ''} /> Preserve Col</label>
+          <label><input type="checkbox" id="ef-preserve-row" ${data.preserveRow ? 'checked' : ''} /> Preserve Row</label>
+        </div>
         <div class="form-group"><label>Trigger Cells (${cells.length})</label>
         <div id="ef-tcells">${cells.map((c, i) => `<span style="font-size:11px">${i}: (${c.col},${c.row}) </span>`).join('')}</div>
         <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>
@@ -876,6 +880,12 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-trow')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { targetRow: Number.parseInt((e.target as HTMLInputElement).value) });
+    });
+    this.container.querySelector('#ef-preserve-col')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { preserveCol: (e.target as HTMLInputElement).checked || undefined });
+    });
+    this.container.querySelector('#ef-preserve-row')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { preserveRow: (e.target as HTMLInputElement).checked || undefined });
     });
     this.container.querySelector('#ef-events')?.addEventListener('change', (e) => {
       try { this.bridge.updateEntityData(entityId, { eventsToRaise: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }

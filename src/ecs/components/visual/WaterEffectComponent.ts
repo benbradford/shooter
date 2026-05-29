@@ -33,6 +33,16 @@ export class WaterEffectComponent implements Component {
     return this.isInWater && !this.isHopping();
   }
 
+  enterWaterImmediate(): void {
+    this.isInWater = true;
+    this.spriteMaskActive = true;
+    this.lastMaskCell = { col: -1, row: -1 };
+    const gridPos = this.entity.get(GridPositionComponent);
+    if (gridPos) gridPos.pushCollisionBox(SWIMMING_COLLISION_BOX);
+    const sprite = this.entity.get(SpriteComponent);
+    if (sprite) sprite.sprite.setDepth(Depth.playerSwimming);
+  }
+
   isHopping(): boolean {
     const jump = this.entity.get(JumpComponent);
     return jump?.isJumping() ?? false;

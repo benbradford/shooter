@@ -39,6 +39,7 @@ import { createThemeRenderer } from "./theme/ThemeRendererFactory";
 import { HoleDropInAnimator } from "../systems/animations/HoleDropInAnimator";
 import { EscortSpawnManager } from "../systems/escort/EscortSpawnManager";
 import { LevelTransitionManager } from "../systems/LevelTransitionManager";
+import { WaterEffectComponent } from "../ecs/components/visual/WaterEffectComponent";
 
 export default class GameScene extends Phaser.Scene {
   public entityManager!: EntityManager;
@@ -534,6 +535,22 @@ export default class GameScene extends Phaser.Scene {
       }
       if (anim) {
         anim.animationSystem.play(`idle_${savedDir}`);
+      }
+    }
+
+    // If spawning on water, enter swimming state immediately (no jump-in animation)
+    const spawnCell = this.grid.getCell(
+      spawnPos.col ?? level.playerStart.x,
+      spawnPos.row ?? level.playerStart.y
+    );
+    if (spawnCell?.properties.has('water') && !spawnCell.properties.has('bridge')) {
+      const waterEffect = player.get(WaterEffectComponent);
+      if (waterEffect) {
+        waterEffect.enterWaterImmediate();
+        const anim = player.get(AnimationComponent);
+        const walk = player.get(WalkComponent);
+        const dir = walk?.lastDir ?? Direction.Down;
+        if (anim) anim.animationSystem.play(`swim_${dir}`);
       }
     }
 

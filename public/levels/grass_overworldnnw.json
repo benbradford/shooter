@@ -136,12 +136,8 @@
       "col": 11,
       "row": 0,
       "layer": 0,
-      "properties": [
-        "blocked",
-        "water"
-      ],
       "backgroundTexture": [
-        "submerged_rock1"
+        "stone_wall"
       ]
     },
     {
@@ -331,6 +327,7 @@
       "row": 1,
       "layer": 0,
       "properties": [
+        "blocked",
         "water"
       ]
     },
@@ -370,8 +367,8 @@
       "col": 11,
       "row": 1,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -483,8 +480,8 @@
       "col": 11,
       "row": 2,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -588,8 +585,8 @@
       "col": 11,
       "row": 3,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -731,8 +728,8 @@
       "col": 11,
       "row": 4,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -836,8 +833,8 @@
       "col": 11,
       "row": 5,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -941,8 +938,8 @@
       "col": 11,
       "row": 6,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -1046,8 +1043,8 @@
       "col": 11,
       "row": 7,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -1151,8 +1148,8 @@
       "col": 11,
       "row": 8,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -1256,8 +1253,8 @@
       "col": 11,
       "row": 9,
       "layer": 0,
-      "properties": [
-        "water"
+      "backgroundTexture": [
+        "stone_wall"
       ]
     },
     {
@@ -1303,75 +1300,52 @@
       }
     },
     {
-      "id": "exit0",
+      "id": "exit_south_n",
       "type": "exit",
       "data": {
         "targetLevel": "grass_overworldn",
-        "targetCol": 5,
+        "targetCol": 0,
         "targetRow": 1,
-        "triggerCells": [
-          {
-            "col": 5,
-            "row": 9
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit1",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldn",
-        "targetCol": 4,
-        "targetRow": 1,
-        "triggerCells": [
-          {
-            "col": 4,
-            "row": 9
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit2",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldn",
-        "targetCol": 3,
-        "targetRow": 1,
-        "triggerCells": [
-          {
-            "col": 3,
-            "row": 9
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit3",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldn",
-        "targetCol": 2,
-        "targetRow": 1,
-        "triggerCells": [
-          {
-            "col": 2,
-            "row": 9
-          }
-        ]
-      }
-    },
-    {
-      "id": "exit4",
-      "type": "exit",
-      "data": {
-        "targetLevel": "grass_overworldn",
-        "targetCol": 1,
-        "targetRow": 1,
+        "preserveCol": true,
         "triggerCells": [
           {
             "col": 1,
+            "row": 9
+          },
+          {
+            "col": 2,
+            "row": 9
+          },
+          {
+            "col": 3,
+            "row": 9
+          },
+          {
+            "col": 4,
+            "row": 9
+          },
+          {
+            "col": 5,
+            "row": 9
+          },
+          {
+            "col": 6,
+            "row": 9
+          },
+          {
+            "col": 7,
+            "row": 9
+          },
+          {
+            "col": 8,
+            "row": 9
+          },
+          {
+            "col": 9,
+            "row": 9
+          },
+          {
+            "col": 10,
             "row": 9
           }
         ]
@@ -1388,12 +1362,12 @@
     "path_texture": "stone_wall2",
     "water": {
       "sourceImage": "water_poison",
-      "rippleSpritesheet": "water_ripple",
-      "splashParticle": "water_splash",
-      "flowDirection": "down",
-      "numFrames": 30,
-      "animSpeedMs": 150,
-      "force": 30
+      "rippleSpritesheet": "murky_ripple",
+      "splashParticle": "murky_splash",
+      "flowDirection": "up",
+      "numFrames": 20,
+      "animSpeedMs": 250,
+      "force": 10
     },
     "overlays": {
       "spritesheet": "assets/cell_drawables/grass_overlays/grass_overlays_faded_spritesheet.png",
