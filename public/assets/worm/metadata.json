@@ -1,0 +1,89 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "5f4564ed-f9f2-4e6b-8fc1-4e1c781f29b0",
+        "name": "A worm, just his head, i will draw his body later. so just his head and face. no arms, no legs",
+        "prompt": "A worm, just his head, i will draw his body later. so just his head and face. no arms, no legs",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "cat",
+        "directions": 4,
+        "view": "high top-down",
+        "created_at": "2026-05-28T23:09:35.870718+00:00"
+      },
+      "folder": "A_worm_just_his_head_i_will_draw_his_body_later._s",
+      "frames": {
+        "rotations": {
+          "south": "A_worm_just_his_head_i_will_draw_his_body_later._s/rotations/south.png",
+          "west": "A_worm_just_his_head_i_will_draw_his_body_later._s/rotations/west.png",
+          "east": "A_worm_just_his_head_i_will_draw_his_body_later._s/rotations/east.png",
+          "north": "A_worm_just_his_head_i_will_draw_his_body_later._s/rotations/north.png"
+        },
+        "animations": {
+          "Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73": {
+            "east": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/east/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/east/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/east/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/east/frame_003.png"
+            ],
+            "west": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/west/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/west/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/west/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/west/frame_003.png"
+            ],
+            "north": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/north/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/north/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/north/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/north/frame_003.png"
+            ],
+            "south": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/south/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/south/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/south/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Walk_but_this_is_a_worm_so_he_doesnt_have_any_legs-03532d73/south/frame_003.png"
+            ]
+          },
+          "Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32": {
+            "west": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/west/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/west/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/west/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/west/frame_003.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/west/frame_004.png"
+            ],
+            "east": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/east/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/east/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/east/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/east/frame_003.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/east/frame_004.png"
+            ],
+            "north": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/north/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/north/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/north/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/north/frame_003.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/north/frame_004.png"
+            ],
+            "south": [
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/south/frame_000.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/south/frame_001.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/south/frame_002.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/south/frame_003.png",
+              "A_worm_just_his_head_i_will_draw_his_body_later._s/animations/Spitting._This_is_a_worm_so_just_move_his_head_bac-b8cc1a32/south/frame_004.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-29T06:38:24.743025"
+}

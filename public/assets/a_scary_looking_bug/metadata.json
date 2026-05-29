@@ -1,0 +1,101 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "c13b785d-2611-4b54-b1c6-08f4737afbde",
+        "name": "a scary looking bug",
+        "prompt": "a scary looking bug",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "dog",
+        "directions": 4,
+        "view": "high top-down",
+        "created_at": "2026-05-18T21:18:06.580949+00:00"
+      },
+      "folder": "a_scary_looking_bug",
+      "frames": {
+        "rotations": {
+          "south": "a_scary_looking_bug/rotations/south.png",
+          "west": "a_scary_looking_bug/rotations/west.png",
+          "east": "a_scary_looking_bug/rotations/east.png",
+          "north": "a_scary_looking_bug/rotations/north.png"
+        },
+        "animations": {
+          "Sneaking-feb1c29a": {
+            "west": [
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_000.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_001.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_002.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_003.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_004.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_005.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_006.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/west/frame_007.png"
+            ],
+            "east": [
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_000.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_001.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_002.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_003.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_004.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_005.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_006.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/east/frame_007.png"
+            ],
+            "north": [
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_000.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_001.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_002.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_003.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_004.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_005.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_006.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/north/frame_007.png"
+            ],
+            "south": [
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_000.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_001.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_002.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_003.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_004.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_005.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_006.png",
+              "a_scary_looking_bug/animations/Sneaking-feb1c29a/south/frame_007.png"
+            ]
+          },
+          "animation-972afe6d": {
+            "west": [
+              "a_scary_looking_bug/animations/animation-972afe6d/west/frame_000.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/west/frame_001.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/west/frame_002.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/west/frame_003.png"
+            ],
+            "south": [
+              "a_scary_looking_bug/animations/animation-972afe6d/south/frame_000.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/south/frame_001.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/south/frame_002.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/south/frame_003.png"
+            ],
+            "east": [
+              "a_scary_looking_bug/animations/animation-972afe6d/east/frame_000.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/east/frame_001.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/east/frame_002.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/east/frame_003.png"
+            ],
+            "north": [
+              "a_scary_looking_bug/animations/animation-972afe6d/north/frame_000.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/north/frame_001.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/north/frame_002.png",
+              "a_scary_looking_bug/animations/animation-972afe6d/north/frame_003.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-29T06:28:52.844418"
+}

@@ -20,7 +20,7 @@ registerEntityFactory('trigger', (entityDef, ctx) => {
 });
 
 registerEntityFactory('exit', (entityDef, ctx) => {
-  const data = entityDef.data as { targetLevel: string; targetCol: number; targetRow: number; triggerCells: Array<{ col: number; row: number }>; oneShot?: boolean };
+  const data = entityDef.data as { targetLevel: string; targetCol: number; targetRow: number; triggerCells: Array<{ col: number; row: number }>; oneShot?: boolean; preserveCol?: boolean; preserveRow?: boolean };
   const eventName = `exit_${entityDef.id}`;
   return () => {
     const trigger = createTriggerEntity({
@@ -31,6 +31,7 @@ registerEntityFactory('exit', (entityDef, ctx) => {
     return createLevelExitEntity({
       eventManager: ctx.eventManager, eventName,
       targetLevel: data.targetLevel, targetCol: data.targetCol, targetRow: data.targetRow,
+      preserveCol: data.preserveCol, preserveRow: data.preserveRow, grid: ctx.grid,
       onTransition: (targetLevel, targetCol, targetRow) => { ctx.onTransition(targetLevel, targetCol, targetRow); }
     });
   };

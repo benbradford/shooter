@@ -1,6 +1,7 @@
 import { Entity } from '../ecs/Entity';
 import { LevelExitComponent } from '../ecs/components/level/LevelExitComponent';
 import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
+import type { GridReader } from '../systems/grid/Grid';
 
 export type CreateLevelExitEntityProps = {
   eventManager: EventManagerSystem;
@@ -8,6 +9,9 @@ export type CreateLevelExitEntityProps = {
   targetLevel: string;
   targetCol: number;
   targetRow: number;
+  preserveCol?: boolean;
+  preserveRow?: boolean;
+  grid?: GridReader;
   onTransition: (targetLevel: string, targetCol: number, targetRow: number) => void;
 }
 
@@ -19,6 +23,9 @@ export function createLevelExitEntity(props: CreateLevelExitEntityProps): Entity
     targetLevel: props.targetLevel,
     targetCol: props.targetCol,
     targetRow: props.targetRow,
+    preserveCol: props.preserveCol,
+    preserveRow: props.preserveRow,
+    grid: props.grid,
     onTransition: props.onTransition
   }));
 

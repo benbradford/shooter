@@ -159,7 +159,7 @@ Plus one interaction entity per script:
 ### Bell
 - No extra data fields beyond `col`, `row` — behavior is self-contained
 - Triggered by `player_projectile` collision (punch hitbox)
-- On hit: plays `bell_ding` sound, body swings with damped oscillation (25° amplitude, 2.5s), clapper counter-swings
+- On hit: plays `bell_ding` sound, body swings with damped oscillation (25° amplitude, 2.5s)
 - Emits 3 expanding shockwave rings during swing
 - At 60% progress, body sprite swaps to `bell_cracked`
 - On completion: sets WorldState flag `{levelName}_{entityId}_rung`, raises event `{levelName}_{entityId}_rung`
