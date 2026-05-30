@@ -25,6 +25,8 @@ import { createBugEntity } from '../../ecs/entities/bug/BugEntity';
 import { createExhaustedBugBaseEntity } from '../../ecs/entities/bug/ExhaustedBugBaseEntity';
 import { createBoneProjectileEntity } from '../../ecs/entities/skeleton/BoneProjectileEntity';
 import { createGrenadeEntity } from '../../ecs/entities/projectile/GrenadeEntity';
+import { createWormEntity } from '../../ecs/entities/worm/WormEntity';
+import { createWormSpitEntity } from '../../ecs/entities/worm/WormSpitProjectileEntity';
 import { getBugBaseDifficultyConfig } from '../../ecs/entities/bug/BugBaseDifficulty';
 import { HealthDropOnDeathComponent } from '../../ecs/components/pickup/HealthDropOnDeathComponent';
 
@@ -35,6 +37,7 @@ const ENEMY_DROP_CHANCES: Record<string, number> = {
   bug: 0.1,
   thrower: 0.05,
   puma: 0.25,
+  worm: 0.15,
 };
 
 function addHealthDrop(entity: import('../../ecs/Entity').Entity, enemyType: string, ctx: EntityCreationContext): void {
@@ -167,6 +170,27 @@ registerEntityFactory('bug_base', (entityDef, ctx) => {
         ctx.entityManager.add(bug);
       }
     });
+  };
+});
+
+registerEntityFactory('worm', (entityDef, ctx) => {
+  const { data } = entityDef;
+  return () => {
+    const entity = createWormEntity({
+      scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
+      playerEntity: ctx.player, entityManager: ctx.entityManager,
+      col: data.col as number, row: data.row as number,
+      difficulty: (data.difficulty as EnemyDifficulty) || 'medium',
+      onSpit: (x, y, dirX, dirY) => {
+        ctx.entityManager.add(createWormSpitEntity({
+          scene: ctx.scene, x, y, dirX, dirY, grid: ctx.grid,
+          layer: ctx.player.require(GridPositionComponent).currentLayer,
+          blockedAreaManager: ctx.blockedAreaManager,
+        }));
+      }
+    });
+    addHealthDrop(entity, 'worm', ctx);
+    return entity;
   };
 });
 

@@ -972,6 +972,12 @@ export const ASSET_REGISTRY = {
     path: 'assets/interior/interior_door2.png',
     type: 'image' as const,
   },
+  worm: {
+    key: 'worm',
+    path: 'assets/worm/worm_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
   skeleton: {
     key: 'skeleton',
     path: 'assets/skeleton/skeleton-spritesheet.png',
@@ -1121,6 +1127,7 @@ export const ASSET_GROUPS = {
   bug_base: ['bug_base', 'base_destroyed', 'bug', 'hole_stretch', 'splatter', 'rubble'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
+  worm: ['worm'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   puma: ['puma', 'cat_detect', 'cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4', 'cat_death'] as const,
   tv_monk: ['tv_monk', 'tv_static'] as const,

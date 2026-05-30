@@ -448,6 +448,7 @@ export class EditorBridge {
         npc: { col, row, assets: 'npc1', direction: 'Down', interactions: [] },
         escort: { col, row, escortType: 'knight', destinationLevel: '', destinationCol: 0, destinationRow: 0, awakeOnEvent: '', reachDistance: 15, followSpeed: 200, followToLevels: [], enemyDetectDistancePx: 128 },
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
+        worm: { col, row, difficulty: 'medium' },
         exit: { targetLevel: '', targetCol: 0, targetRow: 0, triggerCells: [{ col, row }] },
         eventchainer: { col: 0, row: 0, eventsToRaise: [] },
         cellmodifier: { col: 0, row: 0, cellsToModify: [] },
@@ -1170,6 +1171,9 @@ export class EditorBridge {
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium', startDirection: existing?.data.startDirection ?? 4 };
       } else if (entity.id.startsWith('bullet_dude') || entity.id.startsWith('bulletdude')) {
         type = 'bullet_dude';
+        data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('worm')) {
+        type = 'worm';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
       } else if (entity.id.startsWith('tv_monk')) {
         type = 'tv_monk';

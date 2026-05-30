@@ -669,7 +669,7 @@ export class ContextPanel {
     let typeFields = '';
 
     // Difficulty field for enemies
-    if (['skeleton', 'thrower', 'bug_base', 'bullet_dude', 'puma', 'stalking_robot'].includes(entityDef.type)) {
+    if (['skeleton', 'thrower', 'bug_base', 'bullet_dude', 'puma', 'stalking_robot', 'worm'].includes(entityDef.type)) {
       typeFields += `<div class="form-group"><label>Difficulty</label>
         <select id="ef-diff">${['easy', 'medium', 'hard'].map(d => `<option ${data.difficulty === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>`;
     }

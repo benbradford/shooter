@@ -1300,6 +1300,15 @@
       }
     },
     {
+      "id": "worm0",
+      "type": "worm",
+      "data": {
+        "col": 4,
+        "row": 5,
+        "difficulty": "hard"
+      }
+    },
+    {
       "id": "exit_south_n",
       "type": "exit",
       "data": {

@@ -1,15 +1,16 @@
 {
-  "timePlayed": 155.98900000000003,
+  "timePlayed": 153.773,
   "profileDisplayName": "Cheat",
   "player": {
-    "health": 100,
-    "coins": 0,
-    "currentLevel": "grass_overworldn",
-    "spawnCol": 18,
-    "spawnRow": 18,
+    "health": 10,
+    "coins": 12,
+    "currentLevel": "dungeon3right",
+    "spawnCol": 1,
+    "spawnRow": 17,
+    "spawnDir": 4,
     "entryCell": {
-      "col": 18,
-      "row": 18
+      "col": 1,
+      "row": 17
     }
   },
   "flags": {
@@ -18,7 +19,7 @@
     "canJump": "true",
     "canPush": "true",
     "pet_rock_collected": "true",
-    "pet_selected": "dog",
+    "pet_selected": "rock",
     "pet_dog_collected": "true",
     "hasSuperPunch": "true",
     "hasCompanion": "true",
@@ -26,14 +27,21 @@
     "level_entered_house3_interior": "true",
     "_enteredViaHole": "",
     "level_entered_grass_overworld1": "true",
+    "go1_first_interaction_live": "false",
     "level_entered_grass_overworldn": "true",
-    "otis_complete_live": "false",
-    "level_entered_wilds1": "true"
+    "level_entered_grass_overworldnnw": "true",
+    "grass_overworldnnw_bell2_rung": "true",
+    "level_entered_dungeon1": "true",
+    "level_entered_dungeon2": "true",
+    "level_entered_dungeon3": "true"
   },
   "levels": {
     "house3_interior": {
       "liveEntities": [],
-      "destroyedEntities": [],
+      "destroyedEntities": [
+        "breakable2",
+        "breakable3"
+      ],
       "firedTriggers": [],
       "modifiedCells": [],
       "movedEntities": []
@@ -47,46 +55,92 @@
       "firedTriggers": [
         "exit_exit1"
       ],
-      "modifiedCells": [
-        {
-          "col": 20,
-          "row": 28,
-          "layer": 0,
-          "properties": [
-            "path"
-          ]
-        },
-        {
-          "col": 21,
-          "row": 28,
-          "layer": 0,
-          "properties": [
-            "path"
-          ]
-        }
-      ],
-      "movedEntities": [
-        {
-          "id": "pushable0",
-          "col": 2,
-          "row": 6
-        }
-      ]
+      "modifiedCells": [],
+      "movedEntities": []
     },
     "grass_overworldn": {
       "liveEntities": [],
       "destroyedEntities": [],
       "firedTriggers": [
-        "exit_exit0"
+        "exit_exit0",
+        "exit_exit_south_n"
       ],
       "modifiedCells": [],
       "movedEntities": []
     },
-    "wilds1": {
+    "grass_overworldnnw": {
       "liveEntities": [],
       "destroyedEntities": [],
       "firedTriggers": [
-        "exit_exit2"
+        "exit_exit_north_nnw"
+      ],
+      "modifiedCells": [],
+      "movedEntities": []
+    },
+    "dungeon1": {
+      "liveEntities": [
+        "bug_base1_exhausted",
+        "skeleton7",
+        "skeleton11",
+        "skeleton12",
+        "thrower1",
+        "thrower2"
+      ],
+      "destroyedEntities": [
+        "skeleton6",
+        "skeleton5",
+        "breakable18",
+        "breakable8",
+        "breakable13",
+        "breakable9",
+        "breakable12",
+        "trigger0",
+        "breakable11",
+        "skeleton2",
+        "skeleton1",
+        "skeleton3",
+        "bug_base1",
+        "skeleton0",
+        "skeleton4",
+        "trigger1",
+        "skeleton8",
+        "skeleton9",
+        "skeleton10",
+        "trigger3",
+        "trigger2"
+      ],
+      "firedTriggers": [
+        "exit_exit0",
+        "hidden",
+        "narrow",
+        "key_pickup",
+        "throwers"
+      ],
+      "modifiedCells": [
+        {
+          "col": 32,
+          "row": 8,
+          "layer": 0
+        }
+      ],
+      "movedEntities": []
+    },
+    "dungeon2": {
+      "liveEntities": [],
+      "destroyedEntities": [
+        "skeleton2"
+      ],
+      "firedTriggers": [
+        "exit_exit1"
+      ],
+      "modifiedCells": [],
+      "movedEntities": []
+    },
+    "dungeon3": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit1"
       ],
       "modifiedCells": [],
       "movedEntities": []
