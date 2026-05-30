@@ -4,6 +4,7 @@ import type { Grid } from '../../../systems/grid/Grid';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
+import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { Direction } from '../../../constants/Direction';
 import { getBeetleAnimKey } from './BeetleAnimations';
 
@@ -15,23 +16,18 @@ const CHARGE_COOLDOWN_MS = 3000;
 const CHARGE_DELAY_MS = 500;
 
 const CARDINAL_DIRS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right];
-const DIR_DELTAS: Record<Direction, [number, number]> = {
+const DIR_DELTAS: Record<number, [number, number]> = {
   [Direction.Up]: [0, -1],
   [Direction.Down]: [0, 1],
   [Direction.Left]: [-1, 0],
   [Direction.Right]: [1, 0],
-  [Direction.None]: [0, 0],
-  [Direction.UpLeft]: [-1, -1],
-  [Direction.UpRight]: [1, -1],
-  [Direction.DownLeft]: [-1, 1],
-  [Direction.DownRight]: [1, 1],
 };
 
 export class BeetleWanderState implements IState {
   private direction: Direction = Direction.Down;
   private nextChangeMs = 0;
   private elapsedMs = 0;
-  private lastChargeCooldownMs = 0;
+  private chargeCooldownMs = CHARGE_COOLDOWN_MS;
   private chargeDelayMs = 0;
   private isPreparingCharge = false;
 
@@ -52,16 +48,12 @@ export class BeetleWanderState implements IState {
     sprite.sprite.play(getBeetleAnimKey('sneak', this.direction));
   }
 
-  onExit(): void {
-    // no-op
-  }
-
-  update(delta: number): string | void {
+  onUpdate(delta: number): void {
     this.elapsedMs += delta;
-    this.lastChargeCooldownMs += delta;
+    this.chargeCooldownMs += delta;
 
     // Check for player detection
-    if (this.lastChargeCooldownMs >= CHARGE_COOLDOWN_MS) {
+    if (this.chargeCooldownMs >= CHARGE_COOLDOWN_MS) {
       const transform = this.entity.require(TransformComponent);
       const playerTransform = this.playerEntity.get(TransformComponent);
       if (playerTransform) {
@@ -70,14 +62,13 @@ export class BeetleWanderState implements IState {
           if (!this.isPreparingCharge) {
             this.isPreparingCharge = true;
             this.chargeDelayMs = 0;
-            // Stop and play idle while preparing
             const sprite = this.entity.require(SpriteComponent);
             sprite.sprite.play(getBeetleAnimKey('idle', this.direction));
           }
           this.chargeDelayMs += delta;
           if (this.chargeDelayMs >= CHARGE_DELAY_MS) {
-            this.lastChargeCooldownMs = 0;
-            return 'charge';
+            this.chargeCooldownMs = 0;
+            this.entity.require(StateMachineComponent).stateMachine.enter('charge');
           }
           return;
         } else {
@@ -96,7 +87,9 @@ export class BeetleWanderState implements IState {
     }
 
     // Move
-    const [dx, dy] = DIR_DELTAS[this.direction];
+    const deltas = DIR_DELTAS[this.direction];
+    if (!deltas) return;
+    const [dx, dy] = deltas;
     const transform = this.entity.require(TransformComponent);
     const speed = WANDER_SPEED_PX_PER_SEC * (delta / 1000);
     const newX = transform.x + dx * speed;
@@ -110,7 +103,6 @@ export class BeetleWanderState implements IState {
       transform.x = newX;
       transform.y = newY;
     } else {
-      // Hit obstacle, pick new direction
       this.pickRandomDirection();
       this.elapsedMs = 0;
       this.nextChangeMs = this.randomInterval();

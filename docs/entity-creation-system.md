@@ -49,6 +49,8 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
 - `escort` - NPC that follows the player across levels to a destination cell, with subtype-specific behavior (e.g., knight)
 - `tv_monk` - Boss with dynamic TV screen face. Pre-combat: mood set via `monk_{state}` events. Combat: mood follows health. Faces player. Sound: `tv_static` on face transitions.
+- `worm` - 4-directional enemy that wanders slowly and spits projectiles at the player when within range
+- `beetle` - 4-directional enemy that wanders, detects player, charges in a cardinal direction, and leaves a toxic puddle on death
 - `bell` - Punchable bell that swings, emits shockwaves, cracks, and raises an event. Persists via WorldState flag (shows cracked on re-entry). Triggered by `player_projectile` collision.
 - `root_chest` - Punchable root-covered chest (60 HP) with living spore particles. Death sequence animates through 5 sprites, then spawns a configurable special item pickup (mushroom, boots, max_health_increase, bandage, autoheal, push_strength). Fires `{entityId}_destroyed` on open and `special_pickup_{itemType}` on collection. Persistence: destroyed chest shows `chest_empty` sprite on re-entry (via `{id}_opened` in liveEntities), uncollected pickup respawns until `{id}_collected` flag is set.
   - Chest keeps GridCellBlocker until entity is destroyed (player can't walk into chest during death animation)
@@ -175,6 +177,8 @@ Plus one interaction entity per script:
 - `targetLevel`: Level filename without .json
 - `targetCol`: Spawn column in target level
 - `targetRow`: Spawn row in target level
+- `preserveCol`: Boolean (optional) — if true, player spawns at their current column instead of `targetCol`
+- `preserveRow`: Boolean (optional) — if true, player spawns at their current row instead of `targetRow`
 - `triggerCells`: Array of {col, row} cells that activate exit
 - `oneShot`: Boolean (default true)
 
@@ -352,7 +356,7 @@ Click **Save** button to save level JSON with all entities in the new format.
 - `src/systems/EntityCreatorManager.ts` - Event-driven entity creation
 - `src/systems/EntityRegistry.ts` - Factory registry pattern (registerEntityFactory, getEntityFactory)
 - `src/systems/entityFactories.ts` - All entity factory registrations (side-effect import, delegates to subdirectory)
-- `src/systems/entity-factories/enemyFactories.ts` - Enemy entity factories (skeleton, thrower, robot, bug_base, bullet_dude, puma, red_skeleton)
+- `src/systems/entity-factories/enemyFactories.ts` - Enemy entity factories (skeleton, thrower, robot, bug_base, bullet_dude, puma, red_skeleton, worm, beetle)
 - `src/systems/entity-factories/gameplayFactories.ts` - Gameplay entity factories (trigger, exit, eventchainer, cellmodifier, lever, pushable, hole, breakable, laser, collectible, escort, root_chest, bell)
 - `src/systems/entity-factories/levelFactories.ts` - Level/NPC entity factories (npc, interaction, tv_monk)
 - `src/systems/EntityLoader.ts` - Entity loading orchestrator (delegates to registry)

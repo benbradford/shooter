@@ -133,7 +133,7 @@ Entity form shows all editable fields per type:
 - Robot: waypoints list
 - NPC: assets, direction (including facePlayer), name, interactions (JSON)
 - Trigger: eventToRaise, oneShot, triggerCells + **Edit Cells** button
-- Exit: targetLevel, targetCol, targetRow, triggerCells + **Edit Cells** button + **Leave** button (loads target level)
+- Exit: targetLevel, targetCol, targetRow, preserveCol, preserveRow, triggerCells + **Edit Cells** button + **Leave** button (loads target level)
 - EventChainer: eventsToRaise (JSON)
 - CellModifier: cellsToModify (structured form with col/row/properties/layer per entry)
 - Interaction: filename

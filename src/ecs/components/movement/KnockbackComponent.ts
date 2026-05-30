@@ -1,8 +1,7 @@
 import type { Entity } from '../../Entity';
 import type { Component } from '../../Component';
 import { TransformComponent } from '../core/TransformComponent';
-import { GridPositionComponent } from './GridPositionComponent';
-import type { GridReader, CellCoord } from '../../../systems/grid/Grid';
+import type { GridReader } from '../../../systems/grid/Grid';
 
 export class KnockbackComponent implements Component {
   entity!: Entity;
@@ -12,12 +11,11 @@ export class KnockbackComponent implements Component {
   duration: number;
   elapsed: number = 0;
   isActive: boolean = false;
-  private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
 
   constructor(
     friction: number,
     duration: number,
-    private readonly grid: GridReader
+    _grid: GridReader
   ) {
     this.friction = friction;
     this.duration = duration;
@@ -28,28 +26,10 @@ export class KnockbackComponent implements Component {
       return;
     }
 
-    const transform = this.entity.require(TransformComponent);
-    const gridPos = this.entity.require(GridPositionComponent);
-
-    const targetX = transform.x + dirX * 50;
-    const targetY = transform.y + dirY * 50;
-    const targetCell = this.grid.worldToCellInto(targetX, targetY, this._tmpCell);
-    const cell = this.grid.getCell(targetCell.col, targetCell.row);
-
-    if (cell?.layer === gridPos.currentLayer && !this.grid.isWall(cell) && !(cell.properties.has('water') && !cell.properties.has('bridge'))) {
-      this.velocityX = dirX * force;
-      this.velocityY = dirY * force;
-      this.elapsed = 0;
-      this.isActive = true;
-    } else {
-      const currentCell = this.grid.worldToCellInto(transform.x, transform.y, this._tmpCell);
-      const safeX = currentCell.col * this.grid.cellSize + this.grid.cellSize / 2;
-      const safeY = currentCell.row * this.grid.cellSize + this.grid.cellSize / 2;
-      const nudgeX = (safeX - transform.x) * 0.2;
-      const nudgeY = (safeY - transform.y) * 0.2;
-      transform.x += nudgeX;
-      transform.y += nudgeY;
-    }
+    this.velocityX = dirX * force;
+    this.velocityY = dirY * force;
+    this.elapsed = 0;
+    this.isActive = true;
   }
 
   stop(): void {

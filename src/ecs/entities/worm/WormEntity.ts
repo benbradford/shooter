@@ -28,7 +28,7 @@ import type { EntityManager } from '../../EntityManager';
 const WORM_SCALE = 1.4;
 const WORM_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 10, width: 24, height: 14 };
 const WORM_ENTITY_COLLISION_BOX = { offsetX: -12, offsetY: -12, width: 24, height: 24 };
-const WORM_SHADOW_PROPS = { scale: 0.7, offsetX: 0, offsetY: 16 };
+const WORM_SHADOW_PROPS = { scale: 0.7, offsetX: 0, offsetY: 9 };
 const KNOCKBACK_FRICTION = 0.85;
 const KNOCKBACK_FORCE_PX = 300;
 const HIT_DURATION_MS = 300;

@@ -1,6 +1,7 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
+import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 
 const HIT_DURATION_MS = 300;
 
@@ -13,19 +14,14 @@ export class BeetleHitState implements IState {
     this.elapsedMs = 0;
   }
 
-  onExit(): void {
-    // no-op
-  }
-
-  update(delta: number): string | void {
+  onUpdate(delta: number): void {
     this.elapsedMs += delta;
 
-    // Wait for knockback to finish
     const knockback = this.entity.get(KnockbackComponent);
     if (knockback?.isActive) return;
 
     if (this.elapsedMs >= HIT_DURATION_MS) {
-      return 'wander';
+      this.entity.require(StateMachineComponent).stateMachine.enter('wander');
     }
   }
 }

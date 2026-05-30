@@ -12,6 +12,7 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
+import { PunchHitboxComponent } from '../../components/combat/PunchHitboxComponent';
 import { StateMachine } from '../../../systems/state/StateMachine';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import type { Grid } from '../../../systems/grid/Grid';
@@ -35,12 +36,12 @@ export type CreateBeetleProps = {
   entityManager: EntityManager;
 };
 
-const BEETLE_SCALE = 1;
+const BEETLE_SCALE = 0.5;
 const BEETLE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 8, width: 28, height: 16 };
 const BEETLE_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
 const KNOCKBACK_FRICTION = 0.01;
 const KNOCKBACK_DURATION_MS = 300;
-const KNOCKBACK_FORCE_PX = 200;
+const KNOCKBACK_FORCE_PX = 400;
 const HIT_FLASH_DURATION_MS = 300;
 
 const HEALTH_BY_DIFFICULTY: Record<EnemyDifficulty, number> = {
@@ -73,7 +74,7 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 8 }));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 4 }));
   shadow.init();
 
   let lastHitDirX = 0;
@@ -108,15 +109,20 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
         health.takeDamage(dmg?.damage ?? 20);
 
         const projectile = other.get(ProjectileComponent);
+        const punch = other.get(PunchHitboxComponent);
         if (projectile) {
           const length = Math.hypot(projectile.dirX, projectile.dirY);
           lastHitDirX = projectile.dirX / length;
           lastHitDirY = projectile.dirY / length;
+        } else if (punch) {
+          const length = Math.hypot(punch.dirX, punch.dirY);
+          lastHitDirX = punch.dirX / length;
+          lastHitDirY = punch.dirY / length;
+        }
 
-          const knockback = entity.get(KnockbackComponent);
-          if (knockback) {
-            knockback.applyKnockback(lastHitDirX, lastHitDirY, KNOCKBACK_FORCE_PX);
-          }
+        const knockback = entity.get(KnockbackComponent);
+        if (knockback) {
+          knockback.applyKnockback(lastHitDirX, lastHitDirY, KNOCKBACK_FORCE_PX);
         }
 
         const hitFlash = entity.get(HitFlashComponent);

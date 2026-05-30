@@ -22,7 +22,11 @@ Level transitions allow players to move between levels by entering designated ex
 
 Exits are defined as entities in the unified `entities` array. See `entity-creation-system.md` for full entity documentation.
 
-**Key fields:** `targetLevel`, `targetCol`, `targetRow`, `triggerCells`
+**Key fields:** `targetLevel`, `targetCol`, `targetRow`, `preserveCol`, `preserveRow`, `triggerCells`
+
+**preserveCol/preserveRow:** For multi-cell exits (e.g., a row of exit cells spanning a level edge), set `preserveCol: true` or `preserveRow: true` so the player spawns at their current column/row instead of a fixed target position.
+
+**Water exits:** If the target spawn cell is a water cell (and not a bridge), the player spawns already swimming — no jump-in animation plays.
 
 ## Bidirectional Travel
 

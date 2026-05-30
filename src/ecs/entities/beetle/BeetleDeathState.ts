@@ -6,15 +6,12 @@ import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { createToxicPuddleEntity } from './ToxicPuddleEntity';
 
-const DEATH_KNOCKBACK_FORCE_PX = 150;
 const SHRINK_DURATION_MS = 400;
 
 export class BeetleDeathState implements IState {
   private elapsedMs = 0;
   private knockbackDone = false;
   private puddleSpawned = false;
-  private lastHitDirX = 0;
-  private lastHitDirY = -1;
 
   constructor(
     private readonly entity: Entity,
@@ -27,29 +24,23 @@ export class BeetleDeathState implements IState {
     this.knockbackDone = false;
     this.puddleSpawned = false;
 
-    // Apply death knockback away from last hit direction
+    // Knockback was already applied from the hit collision handler
     const knockback = this.entity.get(KnockbackComponent);
-    if (knockback) {
-      // Use the knockback that was already applied from the hit
-      // If not active, apply a small one
-      if (!knockback.isActive) {
-        knockback.applyKnockback(this.lastHitDirX, this.lastHitDirY, DEATH_KNOCKBACK_FORCE_PX);
-      }
+    if (!knockback?.isActive) {
+      // If no knockback active, skip waiting
+      this.knockbackDone = true;
     }
   }
 
-  onExit(): void {
-    // no-op
-  }
-
-  update(delta: number): string | void {
+  onUpdate(delta: number): void {
     this.elapsedMs += delta;
 
     // Wait for knockback to finish before spawning puddle
-    const knockback = this.entity.get(KnockbackComponent);
     if (!this.knockbackDone) {
+      const knockback = this.entity.get(KnockbackComponent);
       if (!knockback?.isActive) {
         this.knockbackDone = true;
+        this.elapsedMs = 0; // Reset timer for shrink phase
       }
       return;
     }
