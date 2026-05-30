@@ -42,7 +42,7 @@ const BEETLE_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, hei
 const KNOCKBACK_FRICTION = 0.01;
 const KNOCKBACK_DURATION_MS = 300;
 const KNOCKBACK_FORCE_PX = 400;
-const HIT_FLASH_DURATION_MS = 300;
+const HIT_FLASH_DURATION_MS = 500;
 
 const HEALTH_BY_DIFFICULTY: Record<EnemyDifficulty, number> = {
   easy: 20,
@@ -70,7 +70,7 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
   entity.add(new GridPositionComponent(col, row, BEETLE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
   entity.add(new HealthComponent({ maxHealth: HEALTH_BY_DIFFICULTY[difficulty] }));
-  entity.add(new HitFlashComponent());
+  entity.add(new HitFlashComponent(0x88ff88));
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
 
@@ -125,8 +125,7 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
           knockback.applyKnockback(lastHitDirX, lastHitDirY, KNOCKBACK_FORCE_PX);
         }
 
-        const hitFlash = entity.get(HitFlashComponent);
-        if (hitFlash) hitFlash.flash(HIT_FLASH_DURATION_MS);
+        entity.require(HitFlashComponent).flash(HIT_FLASH_DURATION_MS);
 
         if (health.getHealth() <= 0) {
           stateMachine.enter('death');

@@ -7,6 +7,7 @@ import { KnockbackComponent } from '../../components/movement/KnockbackComponent
 import { createToxicPuddleEntity } from './ToxicPuddleEntity';
 
 const SHRINK_DURATION_MS = 400;
+const BEETLE_SCALE = 0.5;
 
 export class BeetleDeathState implements IState {
   private elapsedMs = 0;
@@ -62,7 +63,7 @@ export class BeetleDeathState implements IState {
     const sprite = this.entity.get(SpriteComponent);
     const progress = Math.min(this.elapsedMs / SHRINK_DURATION_MS, 1);
     if (sprite) {
-      sprite.sprite.setScale(1 - progress);
+      sprite.sprite.setScale(BEETLE_SCALE * (1 - progress));
       sprite.sprite.setAlpha(1 - progress);
     }
 

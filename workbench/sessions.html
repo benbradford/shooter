@@ -335,9 +335,13 @@ async function selectSession(id) {
       const res = await fetch('/api/sessions/reconnect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
       if (res.status === 404) { sessions = sessions.filter(x => x.id !== id); activeSessionId = null; render(); resetMainPanel(); return; }
       const data = await res.json();
-      if (!data.ok) { s.status = 'dead'; render(); return; }
+      if (!data.ok) { s.status = 'dead'; render(); resetMainPanel(); return; }
       if (data.port) s.port = data.port;
     } catch { /* proceed */ }
+  } else {
+    // Dead session — don't try to load iframe
+    render();
+    return;
   }
 
   await new Promise(r => setTimeout(r, 600));

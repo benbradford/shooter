@@ -13,6 +13,7 @@ import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { DifficultyComponent } from '../../components/ai/DifficultyComponent';
 import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
+import { PunchHitboxComponent } from '../../components/combat/PunchHitboxComponent';
 import { StateMachine } from '../../../systems/state/StateMachine';
 import { WormWanderState } from './WormWanderState';
 import { WormSpitState } from './WormSpitState';
@@ -106,10 +107,16 @@ export function createWormEntity(props: CreateWormProps): Entity {
       hp.takeDamage(dmg?.damage ?? PUNCH_DAMAGE);
 
       const projectile = other.get(ProjectileComponent);
+      const punch = other.get(PunchHitboxComponent);
       if (projectile) {
         const len = Math.hypot(projectile.dirX, projectile.dirY);
         const dirX = projectile.dirX / len;
         const dirY = projectile.dirY / len;
+        entity.require(KnockbackComponent).applyKnockback(dirX, dirY, KNOCKBACK_FORCE_PX);
+      } else if (punch) {
+        const len = Math.hypot(punch.dirX, punch.dirY);
+        const dirX = punch.dirX / len;
+        const dirY = punch.dirY / len;
         entity.require(KnockbackComponent).applyKnockback(dirX, dirY, KNOCKBACK_FORCE_PX);
       }
 

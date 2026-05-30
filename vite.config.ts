@@ -149,16 +149,17 @@ function findAvailablePort(): number {
 }
 
 function cleanupDeadSessions(): void {
-  for (const [, session] of sessions) {
+  const toDelete: string[] = [];
+  for (const [id, session] of sessions) {
     if (session.status === 'active' && !isTmuxSessionAlive(session.tmuxSession)) {
-      session.status = 'dead';
       // Kill orphaned ttyd if still running
       try { process.kill(session.ttydPid); } catch { /* already dead */ }
+      toDelete.push(id);
     }
-    // Note: Do NOT delete dead sessions from the map. Workflows (with `tag`) and
-    // sessions with saved prompts can be re-run via the VS Code extension's
-    // restartSession. Auto-deleting them here corrupts `.sessions.json` for both
-    // surfaces. Use the explicit /api/sessions/delete endpoint to remove a session.
+  }
+  if (toDelete.length > 0) {
+    for (const id of toDelete) sessions.delete(id);
+    persistSessions();
   }
 }
 
