@@ -26,7 +26,8 @@ export type EntityType =
   | 'escort'
   | 'root_chest'
   | 'bell'
-  | 'worm';
+  | 'worm'
+  | 'beetle';
 
 export type LevelEntity = {
   id: string;

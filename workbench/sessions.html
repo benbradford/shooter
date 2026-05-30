@@ -293,7 +293,7 @@ function sessionHTML(s) {
   const engineIcon = s.engine === 'claude' ? '🟣 ' : '';
   const isWorkflow = s.tag && (s.tag.startsWith('quick:') || s.tag.startsWith('workflow:'));
 
-  const popout = s.status === 'active' ? `<button onclick="event.stopPropagation(); window.open('http://localhost:${s.port}', '_blank')" title="Pop out">↗</button><button onclick="event.stopPropagation(); openCopyMode('${s.id}')" title="Copy mode">📋</button>` : '';
+  const popout = s.status === 'active' ? `<button onclick="event.stopPropagation(); popoutSession('${s.id}')" title="Pop out">↗</button><button onclick="event.stopPropagation(); openCopyMode('${s.id}')" title="Copy mode">📋</button>` : '';
 
   let actions = '';
   if (isWorkflow) {
@@ -340,12 +340,24 @@ async function selectSession(id) {
     } catch { /* proceed */ }
   }
 
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 600));
   const iframe = document.createElement('iframe');
   iframe.src = `http://localhost:${s.port}`;
   iframe.setAttribute('allow', 'clipboard-read; clipboard-write');
   main.appendChild(iframe);
   render();
+}
+
+async function popoutSession(id) {
+  const s = sessions.find(x => x.id === id);
+  if (!s) return;
+  try {
+    const res = await fetch('/api/sessions/reconnect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    const data = await res.json();
+    if (data.port) s.port = data.port;
+  } catch { /* proceed with existing port */ }
+  await new Promise(r => setTimeout(r, 500));
+  window.open(`http://localhost:${s.port}`, '_blank');
 }
 
 async function createSession(engine = 'kiro') {

@@ -87,52 +87,18 @@ function recoverSessions(): void {
     const data = JSON.parse(fs.readFileSync(SESSION_FILE, 'utf-8')) as Session[];
     let dropped = 0;
 
-    // First pass: collect all sessions, checking liveness
-    const candidates: Session[] = [];
     for (const s of data) {
-      if (!s.port || s.port === 0) { dropped++; continue; }
-      if (isTmuxSessionAlive(s.tmuxSession)) {
-        s.status = 'active';
-        s.ttydPid = 0;
-      } else {
-        s.status = 'dead';
-        s.ttydPid = 0;
-      }
-      candidates.push(s);
-    }
-
-    // Second pass: deduplicate and clean up.
-    // - Dead tagged sessions are dropped (workflows can be re-triggered)
-    // - Dead untagged sessions older than 24h are dropped (stale one-off fix sessions)
-    // - For live tagged sessions, keep only the newest per tag
-    const seenTags = new Map<string, Session>();
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    for (const s of candidates) {
-      if (s.status === 'dead') {
-        if (s.tag) { dropped++; continue; }
-        if (new Date(s.createdAt).getTime() < oneDayAgo) { dropped++; continue; }
-      }
-      if (s.tag) {
-        const existing = seenTags.get(s.tag);
-        if (existing) {
-          if (new Date(s.createdAt) > new Date(existing.createdAt)) {
-            sessions.delete(existing.id);
-            dropped++;
-            seenTags.set(s.tag, s);
-          } else {
-            dropped++;
-            continue;
-          }
-        } else {
-          seenTags.set(s.tag, s);
-        }
-      }
+      if (!s.tmuxSession) { dropped++; continue; }
+      if (!isTmuxSessionAlive(s.tmuxSession)) { dropped++; continue; }
+      // tmux is alive — recover it (ttyd will be spawned on first reconnect)
+      s.status = 'active';
+      s.ttydPid = 0;
       sessions.set(s.id, s);
       const num = Number.parseInt(s.id.replace('s', ''), 10);
       if (num >= nextSessionId) nextSessionId = num + 1;
     }
 
-    if (dropped > 0) console.log(`📋 Dropped ${dropped} stale/broken sessions during recovery`);
+    if (dropped > 0) console.log(`📋 Dropped ${dropped} dead sessions during recovery`);
     console.log(`📋 Recovered ${sessions.size} sessions from disk`);
     if (dropped > 0) persistSessions();
   } catch { /* corrupted file, start fresh */ }
@@ -258,17 +224,20 @@ function spawnSession(label: string, shellCmd: string, tag?: string): Session {
 
 /** Re-spawn ttyd for an existing tmux session (reconnect after tab switch) */
 function ensureTtydRunning(session: Session): void {
-  if (isProcessAlive(session.ttydPid)) return;
-  // If our stored port is now occupied by another process (e.g. another session
-  // grabbed it after dev-server restart), reassign to a fresh port. Otherwise
-  // ttyd would silently fail to bind and the iframe would connect to whichever
-  // session got there first, making this session look "broken".
+  // Always kill old ttyd — it may be alive but stuck on "press return to reconnect"
+  // because the tmux session it was attached to died and was recreated.
+  if (isProcessAlive(session.ttydPid)) {
+    try { process.kill(session.ttydPid); } catch { /* already dead */ }
+    // Give it a moment to release the port
+    try { execSync('sleep 0.1', { timeout: 500 }); } catch { /* ignore */ }
+  }
+  // If our stored port is now occupied by another process, reassign to a fresh port.
   if (isPortInUse(session.port) || session.port === 0) {
     session.port = findAvailablePort();
   }
   // Ensure mouse mode is on (may be missing for sessions created before this fix)
   try { execSync(`/opt/homebrew/bin/tmux set-option -t '${session.tmuxSession}' mouse on`, { timeout: 3000 }); } catch { /* session may be dead */ }
-  // tmux is alive but ttyd died (user navigated away) — respawn ttyd
+  // Spawn fresh ttyd attached to the tmux session
   session.ttydPid = spawnTtydForTmux(session.tmuxSession, session.port);
   persistSessions();
 }

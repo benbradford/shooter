@@ -63,7 +63,7 @@ export default class EditorScene extends Phaser.Scene {
       this.initializeManagers();
 
       preloadAssets(this);
-      preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables']);
+      preloadAssetGroups(this, ['editor', 'stalking_robot', 'bug_base', 'thrower', 'skeleton', 'puma', 'bullet_dude', 'breakables', 'beetle']);
       preloadLevelAssets(this, this.levelData);
       await this.waitForLoad();
       await this.loadPaintAsync();

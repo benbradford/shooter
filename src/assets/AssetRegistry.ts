@@ -978,6 +978,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 48, frameHeight: 48 }
   },
+  beetle: {
+    key: 'beetle',
+    path: 'assets/beetle/beetle_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
   skeleton: {
     key: 'skeleton',
     path: 'assets/skeleton/skeleton-spritesheet.png',
@@ -1128,6 +1134,7 @@ export const ASSET_GROUPS = {
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   worm: ['worm'] as const,
+  beetle: ['beetle'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   puma: ['puma', 'cat_detect', 'cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4', 'cat_death'] as const,
   tv_monk: ['tv_monk', 'tv_static'] as const,
