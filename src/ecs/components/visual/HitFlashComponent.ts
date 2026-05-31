@@ -14,10 +14,12 @@ export class HitFlashComponent implements Component {
   private elapsedMs: number = 0;
   private readonly tintColor: number;
   private readonly baseTint: number | null;
+  private readonly useFill: boolean;
 
-  constructor(tintColor: number = DEFAULT_HIT_TINT_COLOR, baseTint: number | null = null) {
+  constructor(tintColor: number = DEFAULT_HIT_TINT_COLOR, baseTint: number | null = null, useFill: boolean = false) {
     this.tintColor = tintColor;
     this.baseTint = baseTint;
+    this.useFill = useFill;
   }
 
   onDestroy(): void {
@@ -41,7 +43,7 @@ export class HitFlashComponent implements Component {
       this.flashTimerMs = 0;
       this.isRed = !this.isRed;
       if (this.isRed) {
-        sprite.sprite.setTint(this.tintColor);
+        if (this.useFill) { sprite.sprite.setTintFill(this.tintColor); } else { sprite.sprite.setTint(this.tintColor); }
       } else if (this.baseTint === null) {
         sprite.sprite.clearTint();
       } else {
@@ -58,7 +60,7 @@ export class HitFlashComponent implements Component {
     this.isRed = false;
 
     const sprite = this.entity.require(SpriteComponent);
-    sprite.sprite.setTint(this.tintColor);
+    if (this.useFill) { sprite.sprite.setTintFill(this.tintColor); } else { sprite.sprite.setTint(this.tintColor); }
     this.isRed = true;
   }
 

@@ -27,6 +27,7 @@ const DIR_TO_INDEX: Record<Direction, number> = {
 
 export function createBeetleAnimations(scene: Phaser.Scene): void {
   if (scene.anims.exists('beetle_idle_east')) return;
+  if (!scene.textures.exists('beetle')) return;
 
   DIRS.forEach((dir, index) => {
     scene.anims.create({

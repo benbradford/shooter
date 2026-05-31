@@ -8,6 +8,8 @@
 
 Never dismiss warnings as "harmless."
 
+**When struggling to fix a bug (2+ failed attempts): STOP guessing and write a test.** A test that reproduces the issue will reveal the root cause faster than iterating on assumptions. The test stays as a regression guard after the fix.
+
 ## Debugging Workflow
 
 ### 1. Reproduce with Integration Tests

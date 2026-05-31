@@ -38,7 +38,7 @@ export type CreateBeetleProps = {
 
 const BEETLE_SCALE = 0.5;
 const BEETLE_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 8, width: 28, height: 16 };
-const BEETLE_ENTITY_COLLISION_BOX = { offsetX: -16, offsetY: -16, width: 32, height: 32 };
+const BEETLE_ENTITY_COLLISION_BOX = { offsetX: -24, offsetY: -24, width: 48, height: 48 };
 const KNOCKBACK_FRICTION = 0.01;
 const KNOCKBACK_DURATION_MS = 300;
 const KNOCKBACK_FORCE_PX = 400;
@@ -70,7 +70,7 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
   entity.add(new GridPositionComponent(col, row, BEETLE_GRID_COLLISION_BOX));
   entity.add(new GridCollisionComponent(grid));
   entity.add(new HealthComponent({ maxHealth: HEALTH_BY_DIFFICULTY[difficulty] }));
-  entity.add(new HitFlashComponent(0x88ff88));
+  entity.add(new HitFlashComponent(0xffffff, null, true));
   entity.add(new DifficultyComponent(difficulty));
   entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
 

@@ -171,7 +171,7 @@ function spawnTtydForTmux(tmuxName: string, port: number): number {
     '--writable',
     '-t', 'scrollback=10000',
     '-t', 'reconnect=3',
-    tmuxPath, 'attach-session', '-t', tmuxName,
+    '/bin/sh', '-c', `${tmuxPath} attach-session -t '${tmuxName}'`,
   ], { stdio: 'ignore', detached: true, env: { ...process.env, TERM: 'xterm-256color' } });
   ttyd.on('error', () => { /* prevent unhandled error from crashing vite */ });
   ttyd.unref();
