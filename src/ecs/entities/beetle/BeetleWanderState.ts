@@ -1,12 +1,14 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { Direction } from '../../../constants/Direction';
 import { getBeetleAnimKey } from './BeetleAnimations';
+import { testAABBvsPolygon } from '../../../math/SATCollision';
 
 const WANDER_SPEED_PX_PER_SEC = 40;
 const DIRECTION_CHANGE_MIN_MS = 1000;
@@ -34,7 +36,8 @@ export class BeetleWanderState implements IState {
   constructor(
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
-    private readonly grid: Grid
+    private readonly grid: Grid,
+    private readonly blockedAreaManager?: BlockedAreaManager
   ) {}
 
   onEnter(): void {
@@ -99,7 +102,7 @@ export class BeetleWanderState implements IState {
     const gridPos = this.entity.require(GridPositionComponent);
     const targetCell = this.grid.worldToCell(newX, newY);
     const cell = this.grid.getCell(targetCell.col, targetCell.row);
-    if (cell && cell.layer === gridPos.currentLayer && !this.grid.isWall(cell) && !cell.properties.has('water') && !cell.properties.has('void')) {
+    if (cell && cell.layer === gridPos.currentLayer && !this.grid.isWall(cell) && !cell.properties.has('water') && !cell.properties.has('void') && !cell.properties.has('blocked') && !this.isInBlockedArea(newX, newY, gridPos)) {
       transform.x = newX;
       transform.y = newY;
     } else {
@@ -117,5 +120,21 @@ export class BeetleWanderState implements IState {
 
   private randomInterval(): number {
     return DIRECTION_CHANGE_MIN_MS + Math.random() * (DIRECTION_CHANGE_MAX_MS - DIRECTION_CHANGE_MIN_MS);
+  }
+
+  private isInBlockedArea(x: number, y: number, gridPos: GridPositionComponent): boolean {
+    if (!this.blockedAreaManager) return false;
+    const box = gridPos.collisionBox;
+    const aabb = {
+      x: x + box.offsetX - box.width / 2,
+      y: y + box.offsetY - box.height / 2,
+      width: box.width,
+      height: box.height,
+    };
+    const polygons = this.blockedAreaManager.getForLayer(gridPos.currentLayer);
+    for (const polygon of polygons) {
+      if (testAABBvsPolygon(aabb, polygon)) return true;
+    }
+    return false;
   }
 }

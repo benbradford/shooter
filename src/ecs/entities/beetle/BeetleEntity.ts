@@ -25,6 +25,8 @@ import { BeetleHitState } from './BeetleHitState';
 import { BeetleDeathState } from './BeetleDeathState';
 import { EnemyFearState } from '../common/EnemyFearState';
 
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
+
 export type CreateBeetleProps = {
   scene: Phaser.Scene;
   col: number;
@@ -34,6 +36,7 @@ export type CreateBeetleProps = {
   difficulty: EnemyDifficulty;
   entityId: string;
   entityManager: EntityManager;
+  blockedAreaManager?: BlockedAreaManager;
 };
 
 const BEETLE_SCALE = 0.5;
@@ -51,7 +54,7 @@ const HEALTH_BY_DIFFICULTY: Record<EnemyDifficulty, number> = {
 };
 
 export function createBeetleEntity(props: CreateBeetleProps): Entity {
-  const { scene, col, row, grid, playerEntity, difficulty, entityId, entityManager } = props;
+  const { scene, col, row, grid, playerEntity, difficulty, entityId, entityManager, blockedAreaManager } = props;
 
   createBeetleAnimations(scene);
 
@@ -81,8 +84,8 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
   let lastHitDirY = -1;
 
   const stateMachine = new StateMachine<void>({
-    wander: new BeetleWanderState(entity, playerEntity, grid),
-    charge: new BeetleChargeState(entity, playerEntity, grid, scene),
+    wander: new BeetleWanderState(entity, playerEntity, grid, blockedAreaManager),
+    charge: new BeetleChargeState(entity, playerEntity, grid, scene, blockedAreaManager),
     hit: new BeetleHitState(entity),
     death: new BeetleDeathState(entity, scene, entityManager),
     fear: new EnemyFearState(entity, 100, (dir) => {

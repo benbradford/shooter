@@ -32,7 +32,8 @@ export function createWormSpitEntity(props: CreateWormSpitProps): Entity {
   const entity = new Entity('worm_spit');
   entity.tags.add('enemy_projectile');
 
-  const transform = entity.add(new TransformComponent(x, y, 0, SPIT_SCALE));
+  const rotation = (dirX !== 0 && dirY === 0) ? Math.PI / 2 : 0;
+  const transform = entity.add(new TransformComponent(x, y, rotation, SPIT_SCALE));
 
   // Use a worm idle frame as the spit blob (tinted green)
   const sprite = entity.add(new SpriteComponent(scene, 'worm', transform));

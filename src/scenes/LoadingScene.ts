@@ -137,7 +137,8 @@ export default class LoadingScene extends Phaser.Scene {
       'bug_base', 'base_destroyed', 'bug',
       'floating_robot', 'exclamation', 'fireball', 'robot_hit_particle',
       'bullet_dude_sprite',
-      'puma'
+      'puma',
+      'beetle'
     ]);
 
     const candidates = textureKeys.filter(key => 

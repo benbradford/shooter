@@ -27,6 +27,7 @@ import { AttackComboComponent } from '../../components/combat/AttackComboCompone
 import { PetAbilityComponent } from '../../components/pet/PetAbilityComponent';
 import { InteractionComponent } from '../../components/interaction/InteractionComponent';
 import { BlockedAreaCollisionComponent } from '../../components/movement/BlockedAreaCollisionComponent';
+import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { JumpComponent } from '../../components/movement/JumpComponent';
 import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { Animation } from '../../../systems/animation/Animation';
@@ -285,6 +286,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     entity.add(new BlockedAreaCollisionComponent({ blockedAreaManager }));
   }
 
+  const PLAYER_KNOCKBACK_FRICTION = 0.01;
+  const PLAYER_KNOCKBACK_DURATION_MS = 300;
+  entity.add(new KnockbackComponent(PLAYER_KNOCKBACK_FRICTION, PLAYER_KNOCKBACK_DURATION_MS, grid, blockedAreaManager));
+
   const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
 
   if (initialHealth !== undefined) {
@@ -365,6 +370,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     WalkComponent,
     GridCollisionComponent,
     BlockedAreaCollisionComponent,
+    KnockbackComponent,
     PetAbilityComponent,
     CollisionComponent,
     HealthComponent,

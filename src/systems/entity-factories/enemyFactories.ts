@@ -204,6 +204,7 @@ registerEntityFactory('beetle', (entityDef, ctx) => {
       playerEntity: ctx.player, entityManager: ctx.entityManager,
       col: data.col as number, row: data.row as number,
       difficulty: (data.difficulty as EnemyDifficulty) || 'medium',
+      blockedAreaManager: ctx.blockedAreaManager,
     });
     addHealthDrop(entity, 'beetle', ctx);
     return entity;

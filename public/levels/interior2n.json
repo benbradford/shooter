@@ -387,8 +387,8 @@
         "targetCol": 10,
         "targetRow": 6,
         "transformOverride": {
-          "scaleX": 1.7,
-          "scaleY": 1.7,
+          "scaleX": 3,
+          "scaleY": 3,
           "offsetX": 0,
           "offsetY": 0
         }

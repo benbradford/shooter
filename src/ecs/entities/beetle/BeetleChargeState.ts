@@ -1,6 +1,7 @@
 import type { IState } from '../../../systems/state/IState';
 import type { Entity } from '../../Entity';
 import type { Grid } from '../../../systems/grid/Grid';
+import type { BlockedAreaManager } from '../../../systems/BlockedAreaManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { GridPositionComponent } from '../../components/movement/GridPositionComponent';
@@ -9,6 +10,7 @@ import { HealthComponent } from '../../components/core/HealthComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
 import { Direction } from '../../../constants/Direction';
 import { getBeetleAnimKey } from './BeetleAnimations';
+import { testAABBvsPolygon } from '../../../math/SATCollision';
 
 const CHARGE_SPEED_PX_PER_SEC = 250;
 const MAX_CHARGE_CELLS = 5;
@@ -32,7 +34,8 @@ export class BeetleChargeState implements IState {
     private readonly entity: Entity,
     private readonly playerEntity: Entity,
     private readonly grid: Grid,
-    _scene: Phaser.Scene
+    _scene: Phaser.Scene,
+    private readonly blockedAreaManager?: BlockedAreaManager
   ) {
     this.maxDistancePx = MAX_CHARGE_CELLS * grid.cellSize;
   }
@@ -80,7 +83,12 @@ export class BeetleChargeState implements IState {
     const gridPos = this.entity.require(GridPositionComponent);
     const targetCell = this.grid.worldToCell(newX, newY);
     const cell = this.grid.getCell(targetCell.col, targetCell.row);
-    if (!cell || cell.layer !== gridPos.currentLayer || this.grid.isWall(cell) || cell.properties.has('water') || cell.properties.has('void')) {
+    if (!cell || cell.layer !== gridPos.currentLayer || this.grid.isWall(cell) || cell.properties.has('water') || cell.properties.has('void') || cell.properties.has('blocked')) {
+      this.entity.require(StateMachineComponent).stateMachine.enter('wander');
+      return;
+    }
+
+    if (this.isInBlockedArea(newX, newY, gridPos)) {
       this.entity.require(StateMachineComponent).stateMachine.enter('wander');
       return;
     }
@@ -109,5 +117,21 @@ export class BeetleChargeState implements IState {
         playerKnockback.applyKnockback(dx / dist, dy / dist, PLAYER_KNOCKBACK_FORCE_PX);
       }
     }
+  }
+
+  private isInBlockedArea(x: number, y: number, gridPos: GridPositionComponent): boolean {
+    if (!this.blockedAreaManager) return false;
+    const box = gridPos.collisionBox;
+    const aabb = {
+      x: x + box.offsetX - box.width / 2,
+      y: y + box.offsetY - box.height / 2,
+      width: box.width,
+      height: box.height,
+    };
+    const polygons = this.blockedAreaManager.getForLayer(gridPos.currentLayer);
+    for (const polygon of polygons) {
+      if (testAABBvsPolygon(aabb, polygon)) return true;
+    }
+    return false;
   }
 }
