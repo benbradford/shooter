@@ -3671,6 +3671,7 @@
     }
   ],
   "levelTheme": "dungeon",
+  "music": "incidental",
   "background": {
     "floor_texture": "dungeon_floor",
     "floor_tile": 8,
