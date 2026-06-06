@@ -6,8 +6,8 @@ import { PetManager } from '../../../systems/PetManager';
 import { PetAbilityComponent } from '../pet/PetAbilityComponent';
 import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 
-const BUTTON_ALPHA_UNPRESSED = 0.9;
-const BUTTON_ALPHA_PRESSED = 1;
+const BUTTON_ALPHA_UNPRESSED = 0.65;
+const BUTTON_ALPHA_PRESSED = 0.8;
 const BUTTON_ALPHA_DISABLED = 0.3;
 const RING_BG_ALPHA = 0.5;
 const ICON_SIZE = 150;

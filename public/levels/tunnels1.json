@@ -1207,6 +1207,7 @@
     }
   ],
   "levelTheme": "tunnels",
+  "music": "capacity",
   "background": {
     "floor_texture": "muddy_floor",
     "wall_texture": "muddy_wall",

@@ -401,6 +401,11 @@ export const ASSET_REGISTRY = {
     path: 'assets/music/incidental.mp3',
     type: 'audio' as const,
   },
+  capacity: {
+    key: 'capacity',
+    path: 'assets/music/capacity.mp3',
+    type: 'audio' as const,
+  },
   throw_whoosh1: {
     key: 'throw_whoosh1',
     path: 'assets/sounds/throw_whoosh1.mp3',
