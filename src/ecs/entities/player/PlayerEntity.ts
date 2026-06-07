@@ -99,32 +99,32 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`idle_${Direction.Down}`, new Animation(['6'], 'static', 0));
   animMap.set(`idle_${Direction.Left}`, new Animation(['7'], 'static', 0));
 
-  animMap.set(`walk_${Direction.Down}`, new Animation(['503', '504', '505', '506'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.DownRight}`, new Animation(['507', '508', '509', '510'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Right}`, new Animation(['511', '512', '513', '514'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.UpRight}`, new Animation(['515', '516', '517', '518'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Up}`, new Animation(['519', '520', '521', '522'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['523', '524', '525', '526'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.Left}`, new Animation(['527', '528', '529', '530'], 'repeat', 0.125));
-  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['531', '532', '533', '534'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Down}`, new Animation(['551', '552', '553', '554'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownRight}`, new Animation(['555', '556', '557', '558'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Right}`, new Animation(['559', '560', '561', '562'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpRight}`, new Animation(['563', '564', '565', '566'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Up}`, new Animation(['567', '568', '569', '570'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.UpLeft}`, new Animation(['571', '572', '573', '574'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.Left}`, new Animation(['575', '576', '577', '578'], 'repeat', 0.125));
+  animMap.set(`walk_${Direction.DownLeft}`, new Animation(['579', '580', '581', '582'], 'repeat', 0.125));
 
-  animMap.set(`run_${Direction.Down}`, new Animation(['351', '352', '353', '354', '355', '356'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.DownRight}`, new Animation(['357', '358', '359', '360', '361', '362'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.Right}`, new Animation(['363', '364', '365', '366', '367', '368'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.UpRight}`, new Animation(['369', '370', '371', '372', '373', '374'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.Up}`, new Animation(['375', '376', '377', '378', '379', '380'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.UpLeft}`, new Animation(['381', '382', '383', '384', '385', '386'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.Left}`, new Animation(['387', '388', '389', '390', '391', '392'], 'repeat', 0.1));
-  animMap.set(`run_${Direction.DownLeft}`, new Animation(['393', '394', '395', '396', '397', '398'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Down}`, new Animation(['399', '400', '401', '402', '403', '404'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.DownRight}`, new Animation(['405', '406', '407', '408', '409', '410'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Right}`, new Animation(['411', '412', '413', '414', '415', '416'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.UpRight}`, new Animation(['417', '418', '419', '420', '421', '422'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Up}`, new Animation(['423', '424', '425', '426', '427', '428'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.UpLeft}`, new Animation(['429', '430', '431', '432', '433', '434'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.Left}`, new Animation(['435', '436', '437', '438', '439', '440'], 'repeat', 0.1));
+  animMap.set(`run_${Direction.DownLeft}`, new Animation(['441', '442', '443', '444', '445', '446'], 'repeat', 0.1));
 
-  animMap.set(`swim_${Direction.Down}`, new Animation(['643', '644', '645', '646', '647', '648', '649'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.DownRight}`, new Animation(['650', '651', '652', '653', '654', '655', '656'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.Right}`, new Animation(['657', '658', '659', '660', '661', '662'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.UpRight}`, new Animation(['663', '664', '665', '666', '667', '668'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.Up}`, new Animation(['669', '670', '671', '672', '673', '674', '675'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.UpLeft}`, new Animation(['676', '677', '678', '679', '680', '681'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.Left}`, new Animation(['682', '683', '684', '685', '686', '687'], 'repeat', 0.125));
-  animMap.set(`swim_${Direction.DownLeft}`, new Animation(['688', '689', '690', '691', '692', '693', '694'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Down}`, new Animation(['691', '692', '693', '694', '695', '696', '697'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.DownRight}`, new Animation(['698', '699', '700', '701', '702', '703', '704'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Right}`, new Animation(['705', '706', '707', '708', '709', '710'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.UpRight}`, new Animation(['711', '712', '713', '714', '715', '716'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Up}`, new Animation(['717', '718', '719', '720', '721', '722', '723'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.UpLeft}`, new Animation(['724', '725', '726', '727', '728', '729'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.Left}`, new Animation(['730', '731', '732', '733', '734', '735'], 'repeat', 0.125));
+  animMap.set(`swim_${Direction.DownLeft}`, new Animation(['736', '737', '738', '739', '740', '741', '742'], 'repeat', 0.125));
 
   animMap.set(`death_${Direction.Down}`, new Animation(['56', '57', '58', '59', '60', '61', '62'], 'once', 0.15));
   animMap.set(`death_${Direction.DownRight}`, new Animation(['63', '64', '65', '66', '67', '68', '69'], 'once', 0.15));
@@ -189,59 +189,59 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   animMap.set(`pickup_${Direction.Left}`, new Animation(['221', '222', '223', '224', '225'], 'once', 0.1));
   animMap.set(`pickup_${Direction.DownLeft}`, new Animation(['226', '227', '228', '229', '230'], 'once', 0.1));
 
-  animMap.set(`push_${Direction.Down}`, new Animation(['303', '304', '305', '306', '307', '308'], 'once', 0.1));
-  animMap.set(`push_${Direction.DownRight}`, new Animation(['309', '310', '311', '312', '313', '314'], 'once', 0.1));
-  animMap.set(`push_${Direction.Right}`, new Animation(['315', '316', '317', '318', '319', '320'], 'once', 0.1));
-  animMap.set(`push_${Direction.UpRight}`, new Animation(['321', '322', '323', '324', '325', '326'], 'once', 0.1));
-  animMap.set(`push_${Direction.Up}`, new Animation(['327', '328', '329', '330', '331', '332'], 'once', 0.1));
-  animMap.set(`push_${Direction.UpLeft}`, new Animation(['333', '334', '335', '336', '337', '338'], 'once', 0.1));
-  animMap.set(`push_${Direction.Left}`, new Animation(['339', '340', '341', '342', '343', '344'], 'once', 0.1));
-  animMap.set(`push_${Direction.DownLeft}`, new Animation(['345', '346', '347', '348', '349', '350'], 'once', 0.1));
+  animMap.set(`push_${Direction.Down}`, new Animation(['351', '352', '353', '354', '355', '356'], 'once', 0.1));
+  animMap.set(`push_${Direction.DownRight}`, new Animation(['357', '358', '359', '360', '361', '362'], 'once', 0.1));
+  animMap.set(`push_${Direction.Right}`, new Animation(['363', '364', '365', '366', '367', '368'], 'once', 0.1));
+  animMap.set(`push_${Direction.UpRight}`, new Animation(['369', '370', '371', '372', '373', '374'], 'once', 0.1));
+  animMap.set(`push_${Direction.Up}`, new Animation(['375', '376', '377', '378', '379', '380'], 'once', 0.1));
+  animMap.set(`push_${Direction.UpLeft}`, new Animation(['381', '382', '383', '384', '385', '386'], 'once', 0.1));
+  animMap.set(`push_${Direction.Left}`, new Animation(['387', '388', '389', '390', '391', '392'], 'once', 0.1));
+  animMap.set(`push_${Direction.DownLeft}`, new Animation(['393', '394', '395', '396', '397', '398'], 'once', 0.1));
 
   // Push lean animations (first 3 frames of push, looped) — cardinal only
-  animMap.set(`push_lean_${Direction.Down}`, new Animation(['303', '304', '305'], 'repeat', 0.15));
-  animMap.set(`push_lean_${Direction.Right}`, new Animation(['315', '316', '317'], 'repeat', 0.15));
-  animMap.set(`push_lean_${Direction.Up}`, new Animation(['327', '328', '329'], 'repeat', 0.15));
-  animMap.set(`push_lean_${Direction.Left}`, new Animation(['339', '340', '341'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Down}`, new Animation(['351', '352', '353'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Right}`, new Animation(['363', '364', '365'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Up}`, new Animation(['375', '376', '377'], 'repeat', 0.15));
+  animMap.set(`push_lean_${Direction.Left}`, new Animation(['387', '388', '389'], 'repeat', 0.15));
 
-  animMap.set(`slide_${Direction.Down}`, new Animation(['399', '400', '401', '402', '403', '404'], 'once', 0.07));
-  animMap.set(`slide_${Direction.DownRight}`, new Animation(['405', '406', '407', '408', '409', '410'], 'once', 0.07));
-  animMap.set(`slide_${Direction.Right}`, new Animation(['411', '412', '413', '414', '415', '416'], 'once', 0.07));
-  animMap.set(`slide_${Direction.UpRight}`, new Animation(['417', '418', '419', '420', '421', '422'], 'once', 0.07));
-  animMap.set(`slide_${Direction.Up}`, new Animation(['423', '424', '425', '426', '427', '428'], 'once', 0.07));
-  animMap.set(`slide_${Direction.UpLeft}`, new Animation(['429', '430', '431', '432', '433', '434'], 'once', 0.07));
-  animMap.set(`slide_${Direction.Left}`, new Animation(['435', '436', '437', '438', '439', '440'], 'once', 0.07));
-  animMap.set(`slide_${Direction.DownLeft}`, new Animation(['441', '442', '443', '444', '445', '446'], 'once', 0.07));
+  animMap.set(`slide_${Direction.Down}`, new Animation(['447', '448', '449', '450', '451', '452'], 'once', 0.07));
+  animMap.set(`slide_${Direction.DownRight}`, new Animation(['453', '454', '455', '456', '457', '458'], 'once', 0.07));
+  animMap.set(`slide_${Direction.Right}`, new Animation(['459', '460', '461', '462', '463', '464'], 'once', 0.07));
+  animMap.set(`slide_${Direction.UpRight}`, new Animation(['465', '466', '467', '468', '469', '470'], 'once', 0.07));
+  animMap.set(`slide_${Direction.Up}`, new Animation(['471', '472', '473', '474', '475', '476'], 'once', 0.07));
+  animMap.set(`slide_${Direction.UpLeft}`, new Animation(['477', '478', '479', '480', '481', '482'], 'once', 0.07));
+  animMap.set(`slide_${Direction.Left}`, new Animation(['483', '484', '485', '486', '487', '488'], 'once', 0.07));
+  animMap.set(`slide_${Direction.DownLeft}`, new Animation(['489', '490', '491', '492', '493', '494'], 'once', 0.07));
 
-  animMap.set(`uppercut_${Direction.Down}`, new Animation(['447', '448', '449', '450', '451', '452', '453'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.DownRight}`, new Animation(['454', '455', '456', '457', '458', '459', '460'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.Right}`, new Animation(['461', '462', '463', '464', '465', '466', '467'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.UpRight}`, new Animation(['468', '469', '470', '471', '472', '473', '474'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.Up}`, new Animation(['475', '476', '477', '478', '479', '480', '481'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.UpLeft}`, new Animation(['482', '483', '484', '485', '486', '487', '488'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.Left}`, new Animation(['489', '490', '491', '492', '493', '494', '495'], 'once', 0.06));
-  animMap.set(`uppercut_${Direction.DownLeft}`, new Animation(['496', '497', '498', '499', '500', '501', '502'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.Down}`, new Animation(['495', '496', '497', '498', '499', '500', '501'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.DownRight}`, new Animation(['502', '503', '504', '505', '506', '507', '508'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.Right}`, new Animation(['509', '510', '511', '512', '513', '514', '515'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.UpRight}`, new Animation(['516', '517', '518', '519', '520', '521', '522'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.Up}`, new Animation(['523', '524', '525', '526', '527', '528', '529'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.UpLeft}`, new Animation(['530', '531', '532', '533', '534', '535', '536'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.Left}`, new Animation(['537', '538', '539', '540', '541', '542', '543'], 'once', 0.06));
+  animMap.set(`uppercut_${Direction.DownLeft}`, new Animation(['544', '545', '546', '547', '548', '549', '550'], 'once', 0.06));
 
-  animMap.set(`throw_${Direction.Down}`, new Animation(['535', '536', '537', '538', '539', '540', '541'], 'once', 0.08));
-  animMap.set(`throw_${Direction.DownRight}`, new Animation(['542', '543', '544', '545', '546', '547', '548'], 'once', 0.08));
-  animMap.set(`throw_${Direction.Right}`, new Animation(['549', '550', '551', '552', '553', '554', '555'], 'once', 0.08));
-  animMap.set(`throw_${Direction.UpRight}`, new Animation(['556', '557', '558', '559', '560', '561', '562'], 'once', 0.08));
-  animMap.set(`throw_${Direction.Up}`, new Animation(['563', '564', '565', '566', '567', '568', '569'], 'once', 0.08));
-  animMap.set(`throw_${Direction.UpLeft}`, new Animation(['570', '571', '572', '573', '574', '575', '576'], 'once', 0.08));
-  animMap.set(`throw_${Direction.Left}`, new Animation(['577', '578', '579', '580', '581', '582', '583'], 'once', 0.08));
-  animMap.set(`throw_${Direction.DownLeft}`, new Animation(['584', '585', '586', '587', '588', '589', '590'], 'once', 0.08));
+  animMap.set(`throw_${Direction.Down}`, new Animation(['583', '584', '585', '586', '587', '588', '589'], 'once', 0.08));
+  animMap.set(`throw_${Direction.DownRight}`, new Animation(['590', '591', '592', '593', '594', '595', '596'], 'once', 0.08));
+  animMap.set(`throw_${Direction.Right}`, new Animation(['597', '598', '599', '600', '601', '602', '603'], 'once', 0.08));
+  animMap.set(`throw_${Direction.UpRight}`, new Animation(['604', '605', '606', '607', '608', '609', '610'], 'once', 0.08));
+  animMap.set(`throw_${Direction.Up}`, new Animation(['611', '612', '613', '614', '615', '616', '617'], 'once', 0.08));
+  animMap.set(`throw_${Direction.UpLeft}`, new Animation(['618', '619', '620', '621', '622', '623', '624'], 'once', 0.08));
+  animMap.set(`throw_${Direction.Left}`, new Animation(['625', '626', '627', '628', '629', '630', '631'], 'once', 0.08));
+  animMap.set(`throw_${Direction.DownLeft}`, new Animation(['632', '633', '634', '635', '636', '637', '638'], 'once', 0.08));
 
   // Fall animation (south-facing only) — Landing
   animMap.set(`fall_${Direction.Down}`, new Animation(['184', '185', '186', '187', '188', '189', '190'], 'once', 0.1));
 
-  animMap.set(`walking_punch_${Direction.Down}`, new Animation(['695', '696', '697', '698', '699'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.DownRight}`, new Animation(['700', '701', '702', '703', '704'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.Right}`, new Animation(['705', '706', '707', '708', '709'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.UpRight}`, new Animation(['710', '711', '712', '713', '714'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.Up}`, new Animation(['715', '716', '717', '718', '719'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.UpLeft}`, new Animation(['720', '721', '722', '723', '724'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.Left}`, new Animation(['725', '726', '727', '728', '729'], 'repeat', 0.1));
-  animMap.set(`walking_punch_${Direction.DownLeft}`, new Animation(['730', '731', '732', '733', '734'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.Down}`, new Animation(['743', '744', '745', '746', '747'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.DownRight}`, new Animation(['748', '749', '750', '751', '752'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.Right}`, new Animation(['753', '754', '755', '756', '757'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.UpRight}`, new Animation(['758', '759', '760', '761', '762'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.Up}`, new Animation(['763', '764', '765', '766', '767'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.UpLeft}`, new Animation(['768', '769', '770', '771', '772'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.Left}`, new Animation(['773', '774', '775', '776', '777'], 'repeat', 0.1));
+  animMap.set(`walking_punch_${Direction.DownLeft}`, new Animation(['778', '779', '780', '781', '782'], 'repeat', 0.1));
 
   const animSystem = new AnimationSystem(animMap, `idle_${Direction.Down}`);
   entity.add(new AnimationComponent(animSystem, sprite));

@@ -4,6 +4,7 @@ import type { EntityManager } from '../../EntityManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { KnockbackComponent } from '../../components/movement/KnockbackComponent';
+import { SoundManager } from '../../../systems/SoundManager';
 import { createToxicPuddleEntity } from './ToxicPuddleEntity';
 
 const SHRINK_DURATION_MS = 400;
@@ -24,6 +25,7 @@ export class BeetleDeathState implements IState {
     this.elapsedMs = 0;
     this.knockbackDone = false;
     this.puddleSpawned = false;
+    SoundManager.getInstance().play('beetle_splat');
 
     // Knockback was already applied from the hit collision handler
     const knockback = this.entity.get(KnockbackComponent);

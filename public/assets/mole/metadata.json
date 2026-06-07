@@ -1,0 +1,159 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "2b67e9bd-68c0-4f7b-a59c-8bec2a6cb66a",
+        "name": "Concept\n\nAn animalistic tunnel predator rather than a civilized mole person.\n\nPrompt\n\n2D top-down gameplay enemy sprite for a SNES Zelda-style action RPG.\n\nBlind mole-like humanoid creature viewed from directly overhead.\n\nStocky body with broad shoulders, hunched posture, oversized digging claws, muddy brown fur, pale flesh around the face.\n\nTiny sealed eye sockets indicating blindness.\n\nLong forearms adapted for digging.\n\nPrimitive animalistic appearance, not intelligent, not wearing clothing, not carrying weapons.\n\nDirty fur stained with clay and tunnel mud.\n\nBroad readable silhouette suitable for 64x64 gameplay scale.\n\nSimplified forms with strong readability similar to Zelda: Minish Cap enemies.\n\nTrue top-down orthographic view.\n\nFully transparent background.\n\nSingle isolated sprite.\n\nNo shadows outside the silhouette.\n\nNo ground, dirt patch, environment, cave background, vignette, atmospheric effects, concept art presentation.",
+        "prompt": "Concept\n\nAn animalistic tunnel predator rather than a civilized mole person.\n\nPrompt\n\n2D top-down gameplay enemy sprite for a SNES Zelda-style action RPG.\n\nBlind mole-like humanoid creature viewed from directly overhead.\n\nStocky body with broad shoulders, hunched posture, oversized digging claws, muddy brown fur, pale flesh around the face.\n\nTiny sealed eye sockets indicating blindness.\n\nLong forearms adapted for digging.\n\nPrimitive animalistic appearance, not intelligent, not wearing clothing, not carrying weapons.\n\nDirty fur stained with clay and tunnel mud.\n\nBroad readable silhouette suitable for 64x64 gameplay scale.\n\nSimplified forms with strong readability similar to Zelda: Minish Cap enemies.\n\nTrue top-down orthographic view.\n\nFully transparent background.\n\nSingle isolated sprite.\n\nNo shadows outside the silhouette.\n\nNo ground, dirt patch, environment, cave background, vignette, atmospheric effects, concept art presentation.",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "bear",
+        "directions": 4,
+        "view": "low top-down",
+        "created_at": "2026-06-06T06:50:20.421239+00:00"
+      },
+      "folder": "Concept_An_animalistic_tunnel_predator_rather_than",
+      "frames": {
+        "rotations": {
+          "south": "Concept_An_animalistic_tunnel_predator_rather_than/rotations/south.png",
+          "west": "Concept_An_animalistic_tunnel_predator_rather_than/rotations/west.png",
+          "east": "Concept_An_animalistic_tunnel_predator_rather_than/rotations/east.png",
+          "north": "Concept_An_animalistic_tunnel_predator_rather_than/rotations/north.png"
+        },
+        "animations": {
+          "animation-beae7f09": {
+            "south": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/south/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/south/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/south/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/south/frame_003.png"
+            ],
+            "east": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/east/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/east/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/east/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/east/frame_003.png"
+            ],
+            "west": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/west/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/west/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/west/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/west/frame_003.png"
+            ],
+            "north": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/north/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/north/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/north/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/animation-beae7f09/north/frame_003.png"
+            ]
+          },
+          "Running-5bcb88db": {
+            "north": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/north/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/north/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/north/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/north/frame_003.png"
+            ],
+            "east": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/east/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/east/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/east/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/east/frame_003.png"
+            ],
+            "west": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/west/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/west/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/west/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/west/frame_003.png"
+            ],
+            "south": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/south/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/south/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/south/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Running-5bcb88db/south/frame_003.png"
+            ]
+          },
+          "knockback._After_running_into_a_wall_this_creature-25656ba1": {
+            "west": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_003.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_004.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_005.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_006.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_007.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/west/frame_008.png"
+            ],
+            "north": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_003.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_004.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_005.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_006.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_007.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/north/frame_008.png"
+            ],
+            "south": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_003.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_004.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_005.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_006.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_007.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/south/frame_008.png"
+            ],
+            "east": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_003.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_004.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_005.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_006.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_007.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/knockback._After_running_into_a_wall_this_creature-25656ba1/east/frame_008.png"
+            ]
+          },
+          "Stand_on_Hind_Legs-bd98f47a": {
+            "south": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_003.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_004.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_005.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_006.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_007.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_008.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_009.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_010.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Stand_on_Hind_Legs-bd98f47a/south/frame_011.png"
+            ]
+          },
+          "Idle_Resting-35419681": {
+            "south": [
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_000.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_001.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_002.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_003.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_004.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_005.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_006.png",
+              "Concept_An_animalistic_tunnel_predator_rather_than/animations/Idle_Resting-35419681/south/frame_007.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-06-07T05:54:18.045645"
+}

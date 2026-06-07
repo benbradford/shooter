@@ -1,0 +1,8 @@
+public/assets/eye/rotations/east.png
+public/assets/eye/rotations/north.png
+public/assets/eye/rotations/north-east.png
+public/assets/eye/rotations/north-west.png
+public/assets/eye/rotations/south.png
+public/assets/eye/rotations/south-east.png
+public/assets/eye/rotations/south-west.png
+public/assets/eye/rotations/west.png

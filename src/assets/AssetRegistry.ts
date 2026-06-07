@@ -988,11 +988,45 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 48, frameHeight: 48 }
   },
+  worm_spit: {
+    key: 'worm_spit',
+    path: 'assets/sounds/worm_spit.mp3',
+    type: 'audio' as const,
+  },
   beetle: {
     key: 'beetle',
     path: 'assets/beetle/beetle_spritesheet.png',
     type: 'spritesheet' as const,
     config: { frameWidth: 68, frameHeight: 68 }
+  },
+  beetle_splat: {
+    key: 'beetle_splat',
+    path: 'assets/sounds/beetle_splat.mp3',
+    type: 'audio' as const,
+  },
+  mole: {
+    key: 'mole',
+    path: 'assets/mole/mole_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  eye: {
+    key: 'eye',
+    path: 'assets/eye/eye_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  frog: {
+    key: 'frog',
+    path: 'assets/frog/frog_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
+  },
+  fly: {
+    key: 'fly',
+    path: 'assets/fly/fly_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 48, frameHeight: 48 }
   },
   skeleton: {
     key: 'skeleton',
@@ -1143,8 +1177,12 @@ export const ASSET_GROUPS = {
   bug_base: ['bug_base', 'base_destroyed', 'bug', 'hole_stretch', 'splatter', 'rubble'] as const,
   thrower: ['thrower', 'grenade'] as const,
   skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
-  worm: ['worm'] as const,
-  beetle: ['beetle'] as const,
+  worm: ['worm', 'worm_spit'] as const,
+  beetle: ['beetle', 'beetle_splat'] as const,
+  mole: ['mole'] as const,
+  eye: ['eye'] as const,
+  frog: ['frog'] as const,
+  fly: ['fly'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   puma: ['puma', 'cat_detect', 'cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4', 'cat_death'] as const,
   tv_monk: ['tv_monk', 'tv_static'] as const,

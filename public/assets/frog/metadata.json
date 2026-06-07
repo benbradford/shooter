@@ -1,0 +1,101 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "72519ca9-1f14-45a5-af07-69e1b80bf09d",
+        "name": "Mud Hoppers  Small frog-like creatures adapted to tunnels. Pale grey skin Tiny vestigial eyes",
+        "prompt": "Mud Hoppers  Small frog-like creatures adapted to tunnels. Pale grey skin Tiny vestigial eyes",
+        "size": {
+          "width": 48,
+          "height": 48
+        },
+        "template_id": "dog",
+        "directions": 4,
+        "view": "high top-down",
+        "created_at": "2026-06-06T06:48:12.74835+00:00"
+      },
+      "folder": "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t",
+      "frames": {
+        "rotations": {
+          "south": "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/rotations/south.png",
+          "west": "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/rotations/west.png",
+          "east": "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/rotations/east.png",
+          "north": "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/rotations/north.png"
+        },
+        "animations": {
+          "Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0": {
+            "west": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/west/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/west/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/west/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/west/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/west/frame_004.png"
+            ],
+            "north": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/north/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/north/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/north/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/north/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/north/frame_004.png"
+            ],
+            "east": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/east/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/east/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/east/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/east/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/east/frame_004.png"
+            ],
+            "south": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/south/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/south/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/south/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/south/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Small_Hop._This_is_a_frog-like_character_that_move-30ecbde0/south/frame_004.png"
+            ]
+          },
+          "Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05": {
+            "east": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_004.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_005.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/east/frame_006.png"
+            ],
+            "south": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_004.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_005.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/south/frame_006.png"
+            ],
+            "west": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_004.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_005.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/west/frame_006.png"
+            ],
+            "north": [
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_000.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_001.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_002.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_003.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_004.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_005.png",
+              "Mud_Hoppers_Small_frog-like_creatures_adapted_to_t/animations/Large_Hop._This_is_a_frog_like_creature._have_him-ac338f05/north/frame_006.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-06-07T05:47:13.644327"
+}

@@ -450,21 +450,24 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 
 ## Sprite Sheets
 
-**Attacker** (player): 672×2968, 56×56 frames
+**Attacker** (player): 672×3696, 56×56 frames
 - Frames 0-7: Idle (alphabetical order, NOT Direction enum order)
 - Frames 8-55: Cross-punch
 - Frames 56-111: Falling back death
-- Frames 112-118: Landing (south only)
-- Frames 119-158: Picking up
-- Frames 159-230: Power up
-- Frames 231-278: Pushing
-- Frames 279-326: Running
-- Frames 327-382: Surprise uppercut
-- Frames 383-438: Throw object
-- Frames 439-470: Walking
-- Frames 471-518: Sliding
-- Frames 519-574: Breaststroke (raw)
-- Frames 575-630: Swimming (blue tint)
+- Frames 112-183: Jumping
+- Frames 184-190: Landing (south only)
+- Frames 191-230: Picking up
+- Frames 231-302: Power up
+- Frames 303-350: Pull object
+- Frames 351-398: Pushing
+- Frames 399-446: Running
+- Frames 447-494: Sliding
+- Frames 495-550: Surprise uppercut
+- Frames 551-582: Walking
+- Frames 583-638: Throw object
+- Frames 639-690: Breaststroke (raw)
+- Frames 691-742: Swimming (blue tint)
+- Frames 743-782: Walking punch
 
 See `attacker-spritesheet-reference.md` for complete mapping.
 

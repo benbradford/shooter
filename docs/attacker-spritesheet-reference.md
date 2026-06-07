@@ -2,8 +2,8 @@
 
 **File:** `public/assets/attacker/attacker-spritesheet.png`
 **Frame Size:** 56x56 pixels
-**Sheet Dimensions:** 12 columns × 62 rows = 744 slots (735 used)
-**Total Frames:** 735
+**Sheet Dimensions:** 12 columns × 66 rows = 792 slots (783 used)
+**Total Frames:** 783
 
 ## Frame Layout
 
@@ -18,17 +18,18 @@ All multi-direction animations use 8 directions in order: South, South-East, Eas
 | 184-190 | Landing (south only) | 7 | `fall` |
 | 191-230 | Picking up | 5 | `pickup` |
 | 231-302 | Power up (raising arms) | 9 | `powerup` |
-| 303-350 | Pushing | 6 | `push` |
-| 351-398 | Running | 6 | `run` |
-| 399-446 | Sliding | 6 | `slide` |
-| 447-502 | Surprise uppercut | 7 | `uppercut` |
-| 503-534 | Walking | 4 | `walk` |
-| 535-590 | Throw object | 7 | `throw` |
-| 591-642 | Breaststroke (raw) | 6-7 | — |
-| 643-694 | Swimming (blue tint) | 6-7 | `swim` |
+| 303-350 | Pull object | 6 | — |
+| 351-398 | Pushing | 6 | `push` |
+| 399-446 | Running | 6 | `run` |
+| 447-494 | Sliding | 6 | `slide` |
+| 495-550 | Surprise uppercut | 7 | `uppercut` |
+| 551-582 | Walking | 4 | `walk` |
+| 583-638 | Throw object | 7 | `throw` |
+| 639-690 | Breaststroke (raw) | 6-7 | — |
+| 691-742 | Swimming (blue tint) | 6-7 | `swim` |
 
 **⚠️ Breaststroke/Swimming have uneven frame counts:** south, south-east, north, south-west have 7 frames; east, north-east, north-west, west have 6. Always verify actual ranges from `frame_list.txt` when updating indices.
-| 695-734 | Walking punch | 5 | `walking_punch` |
+| 743-782 | Walking punch | 5 | `walking_punch` |
 
 ## Idle Rotations (Frames 0-7)
 

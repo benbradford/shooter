@@ -4,6 +4,7 @@ import { TransformComponent } from '../../components/core/TransformComponent';
 import { SpriteComponent } from '../../components/core/SpriteComponent';
 import { StateMachineComponent } from '../../components/core/StateMachineComponent';
 import { Direction } from '../../../constants/Direction';
+import { SoundManager } from '../../../systems/SoundManager';
 import { getWormAnimKey } from './WormAnimations';
 
 const SPIT_EMIT_FRAME = 2;
@@ -48,6 +49,7 @@ export class WormSpitState implements IState {
     const emitTimeMs = (SPIT_EMIT_FRAME / 5) * SPIT_ANIM_DURATION_MS;
     if (!this.hasEmitted && this.elapsedMs >= emitTimeMs) {
       this.hasEmitted = true;
+      SoundManager.getInstance().play('worm_spit');
       const transform = this.entity.require(TransformComponent);
 
       const dirMap: Record<number, { dx: number; dy: number }> = {
