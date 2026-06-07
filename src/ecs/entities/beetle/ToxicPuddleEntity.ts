@@ -4,7 +4,7 @@ import { HealthComponent } from '../../components/core/HealthComponent';
 import type { EntityManager } from '../../EntityManager';
 import type { Component } from '../../Component';
 
-const PUDDLE_DURATION_MS = 2000;
+const PUDDLE_DURATION_MS = 4000;
 const PUDDLE_DAMAGE_PER_SEC = 5;
 const PUDDLE_RADIUS_PX = 30;
 const PUDDLE_COLOR = 0x44cc22;

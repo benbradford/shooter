@@ -15,7 +15,7 @@ const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'block
 
 const ENTITY_TYPES = [
   'beetle', 'bell', 'breakable', 'bug_base', 'bullet_dude', 'cellmodifier', 'collectible', 'escort', 'eventchainer', 'exit',
-  'hole', 'interaction', 'laser', 'lever', 'npc', 'puma', 'pushable', 'red_skeleton',
+  'fly', 'hole', 'interaction', 'laser', 'lever', 'npc', 'puma', 'pushable', 'red_skeleton',
   'root_chest', 'skeleton', 'stalking_robot', 'thrower', 'trigger', 'tv_monk', 'worm'
 ];
 

@@ -2983,6 +2983,14 @@
       }
     },
     {
+      "id": "fly0",
+      "type": "fly",
+      "data": {
+        "col": 24,
+        "row": 12
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

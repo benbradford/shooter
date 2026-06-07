@@ -14,6 +14,7 @@ export type HealthProps = {
   maxHealth: number;
   enableRegen?: boolean;
   onDeath?: () => void;
+  onDamage?: () => void;
 }
 
 export class HealthComponent implements Component, HudBarDataSource {
@@ -24,6 +25,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   private readonly enableRegen: boolean;
   private hasAutoHeal: boolean;
   private onDeath?: () => void;
+  private readonly onDamage?: () => void;
   private isDead = false;
 
   constructor(props: HealthProps) {
@@ -32,6 +34,7 @@ export class HealthComponent implements Component, HudBarDataSource {
     this.enableRegen = props.enableRegen ?? false;
     this.hasAutoHeal = WorldStateManager.getInstance().isFlagTrue(WorldFlags.hasAutoHeal);
     this.onDeath = props.onDeath;
+    this.onDamage = props.onDamage;
   }
 
   getHealth(): number {
@@ -62,6 +65,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   takeDamage(amount: number): void {
     this.currentHealth = Math.max(0, this.currentHealth - amount);
     this.timeSinceLastDamageMs = 0;
+    this.onDamage?.();
     if (this.currentHealth <= 0 && !this.isDead) {
       this.isDead = true;
       this.onDeath?.();

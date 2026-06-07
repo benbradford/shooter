@@ -126,7 +126,7 @@ export class BellComponent implements Component {
     this.scene.tweens.add({
       targets: ring,
       scaleX: 8,
-      scaleY: 8,
+      scaleY: 5,
       alpha: 0,
       duration: 900,
       ease: 'Quad.easeOut',

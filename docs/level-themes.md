@@ -308,6 +308,28 @@ Negative `scaleX`/`scaleY` values flip the sprite horizontally/vertically (the a
 ```
 Each texture in the array renders independently with its own transform/sourceRect. Old single-value format is auto-normalized to an array during rendering.
 
+**Conditional textures** (flag-based texture switching):
+```json
+{
+  "col": 10,
+  "row": 5,
+  "conditionalTextures": {
+    "flag": "door_opened",
+    "cases": [
+      { "value": "true", "textures": ["door_open"] }
+    ],
+    "default": ["door_closed"]
+  }
+}
+```
+
+- Evaluated once at level load based on current WorldState flag value
+- `flag`: WorldState flag name to check
+- `cases`: Array of `{ value, textures }` — first matching case wins
+- `default`: Textures to show if no case matches (or flag is unset)
+- Can coexist with `backgroundTexture` — conditional textures override when present
+- Editor: Cell form shows conditional texture fields (flag name, cases with values/textures, default)
+
 **Adding new background textures:**
 1. Add image to `public/assets/{category}/` (e.g., `public/assets/cell_drawables/bush2.png`)
 2. Register in `src/assets/AssetRegistry.ts` (add entry with key, path, type: `'image'`)

@@ -28,6 +28,7 @@ import { createGrenadeEntity } from '../../ecs/entities/projectile/GrenadeEntity
 import { createWormEntity } from '../../ecs/entities/worm/WormEntity';
 import { createWormSpitEntity } from '../../ecs/entities/worm/WormSpitProjectileEntity';
 import { createBeetleEntity } from '../../ecs/entities/beetle/BeetleEntity';
+import { createFlyEntity } from '../../ecs/entities/fly/FlyEntity';
 import { getBugBaseDifficultyConfig } from '../../ecs/entities/bug/BugBaseDifficulty';
 import { HealthDropOnDeathComponent } from '../../ecs/components/pickup/HealthDropOnDeathComponent';
 
@@ -209,6 +210,15 @@ registerEntityFactory('beetle', (entityDef, ctx) => {
     addHealthDrop(entity, 'beetle', ctx);
     return entity;
   };
+});
+
+registerEntityFactory('fly', (entityDef, ctx) => {
+  const { data } = entityDef;
+  return () => createFlyEntity({
+    scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
+    playerEntity: ctx.player,
+    col: data.col as number, row: data.row as number,
+  });
 });
 
 let miniSkeletonCounter = 0;

@@ -422,6 +422,7 @@ Entities flash when taking damage. Color customizable (default red, green for bu
 - Player presses the jump button to jump over exactly 1 void cell (cardinal only) if landing cell is same layer, walkable, unblocked
 - If landing cell is also void/invalid, player jumps into the void cell and **falls**: sprite shrinks to 0 over 600ms, drifts down 20px, shadow hidden, then respawns at last safe position with 10 HP penalty
 - Jump phases: takeoff (180ms, stationary) → flight (300ms, sine arc + movement) → landing (180ms, stationary)
+- Sound: `jump_hup` plays on takeoff
 - Player invulnerable during jump
 - Pet sync-jumps with player: tweens to landing cell center with sine arc, matching player's jump duration. On fall jumps, pet shrinks/falls in sync then teleports to player's respawn cell
 - Pathfinder treats void as impassable (no jump-over routing)
@@ -496,7 +497,7 @@ Divide sprite into 3×3 grid, use physics-based motion with randomness. Use abso
 - Coins: Physics-based, fly to HUD, 15s lifetime
 - Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
 - Small mushrooms: Instant 20 HP heal (capped at max health — no overheal), 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
-- Enemy health drops: Enemies have a chance to drop small mushrooms on death (skeleton 20%, puma 25%, red_skeleton 20%, bug 10%, thrower 5%). Uses `HealthDropOnDeathComponent`.
+- Enemy health drops: Enemies have a chance to drop small mushrooms on death (skeleton 20%, puma 25%, red_skeleton 20%, beetle 15%, worm 15%, bug 10%, thrower 5%). Uses `HealthDropOnDeathComponent`.
 - Overheal: 1.5× movement speed, 2× punch speed, decays at 5 HP/sec
 
 ### Particle Effects

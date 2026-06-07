@@ -1,8 +1,9 @@
 import type { GridReader } from '../../systems/grid/Grid';
-import { normalizeBgTextures, type LevelData } from '../../systems/level/LevelLoader';
+import { normalizeBgTextures, type LevelData, type ConditionalTextures, type SingleBackgroundTexture } from '../../systems/level/LevelLoader';
 import type { CellProperty } from '../../systems/grid/CellData';
 import { Depth } from '../../constants/DepthConstants';
 import { AssetManager } from '../../systems/AssetManager';
+import { WorldStateManager } from '../../systems/WorldStateManager';
 
 // Tile autotiling frame indices
 const TILE_SINGLE_NEIGHBOR_FRAME: Record<string, number> = {
@@ -45,6 +46,18 @@ export class BackgroundTextureRenderer {
     this.dynamicZSprites.length = 0;
   }
 
+  private resolveTextures(
+    backgroundTexture: SingleBackgroundTexture | SingleBackgroundTexture[] | undefined,
+    conditional: ConditionalTextures | undefined
+  ): SingleBackgroundTexture[] | undefined {
+    if (!conditional) return normalizeBgTextures(backgroundTexture);
+    const flagValue = WorldStateManager.getInstance().getFlag(conditional.flag) ?? '';
+    for (const c of conditional.cases) {
+      if (c.value === flagValue) return c.textures.length > 0 ? c.textures : undefined;
+    }
+    return conditional.default?.length ? conditional.default : undefined;
+  }
+
   createBackgroundTextureSprites(grid: GridReader, levelData: LevelData): void {
     if (!levelData.cells) return;
 
@@ -52,7 +65,7 @@ export class BackgroundTextureRenderer {
       const key = `${cell.col},${cell.row}`;
       const animKey = `${key}_anim`;
 
-      const textures = normalizeBgTextures(cell.backgroundTexture);
+      const textures = this.resolveTextures(cell.backgroundTexture, cell.conditionalTextures);
       if (textures && !this.renderedCellTextures.has(key)) {
         const cellData = grid.getCell(cell.col, cell.row);
         const isWater = cellData?.properties.has('water') ?? false;

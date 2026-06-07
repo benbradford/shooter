@@ -46,7 +46,7 @@ import { PetManager } from '../../../systems/PetManager';
 
 import { SPRITE_SCALE } from '../../../constants/GameConstants';
 
-const PLAYER_SCALE = 2 * SPRITE_SCALE;
+const PLAYER_SCALE = 1.6 * SPRITE_SCALE;
 const PLAYER_SPRITE_FRAME = 0;
 const PLAYER_GRID_COLLISION_BOX = { offsetX: 0, offsetY: 24, width: 34, height: 16 };
 const PLAYER_ENTITY_COLLISION_BOX = { offsetX: -18, offsetY: -20, width: 36, height: 40 };
@@ -290,7 +290,10 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   const PLAYER_KNOCKBACK_DURATION_MS = 300;
   entity.add(new KnockbackComponent(PLAYER_KNOCKBACK_FRICTION, PLAYER_KNOCKBACK_DURATION_MS, grid, blockedAreaManager));
 
-  const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true }));
+  const PLAYER_IMPACT_SOUNDS = ['player_impact1', 'player_impact2'] as const;
+  const health = entity.add(new HealthComponent({ maxHealth: PLAYER_MAX_HEALTH, enableRegen: true, onDamage: () => {
+    SoundManager.getInstance().play(PLAYER_IMPACT_SOUNDS[Math.floor(Math.random() * PLAYER_IMPACT_SOUNDS.length)]);
+  } }));
 
   if (initialHealth !== undefined) {
     health.setHealth(initialHealth);

@@ -529,7 +529,7 @@ export class CanvasInteraction {
     // Entity labels
     const labelMap: Record<string, string> = {
       skeleton: 'S', red_skeleton: 'RS', thrower: 'T', stalking_robot: 'R', bug_base: 'BB',
-      bullet_dude: 'BD', puma: 'P', tv_monk: 'TM', npc: 'NPC', breakable: 'BK', pushable: 'PU', hole: 'HO', collectible: 'CO', lever: 'LV', laser: 'LA', escort: 'ES', root_chest: 'RC', worm: 'WM', beetle: 'BT',
+      bullet_dude: 'BD', puma: 'P', tv_monk: 'TM', npc: 'NPC', breakable: 'BK', pushable: 'PU', hole: 'HO', collectible: 'CO', lever: 'LV', laser: 'LA', escort: 'ES', root_chest: 'RC', worm: 'WM', beetle: 'BT', fly: 'FL',
     };
     for (const entity of entityManager.getAll()) {
       if (entity.id === 'player') continue;

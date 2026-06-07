@@ -49,8 +49,8 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - `laser` - Stationary beam emitter, continuous beam at arbitrary angle, blocks player movement, kills enemies
 - `escort` - NPC that follows the player across levels to a destination cell, with subtype-specific behavior (e.g., knight)
 - `tv_monk` - Boss with dynamic TV screen face. Pre-combat: mood set via `monk_{state}` events. Combat: mood follows health. Faces player. Sound: `tv_static` on face transitions.
-- `worm` - 4-directional enemy that wanders slowly and spits projectiles at the player when within range
-- `beetle` - 4-directional enemy that wanders, detects player, charges in a cardinal direction, and leaves a toxic puddle on death
+- `worm` - 4-directional enemy that wanders slowly and spits projectiles at the player when within range. Sounds: `worm_spit` on spit
+- `beetle` - 4-directional enemy that wanders, detects player, charges in a cardinal direction, and leaves a toxic puddle on death. Sounds: `beetle_splat` on death
 - `bell` - Punchable bell that swings, emits shockwaves, cracks, and raises an event. Persists via WorldState flag (shows cracked on re-entry). Triggered by `player_projectile` collision.
 - `root_chest` - Punchable root-covered chest (60 HP) with living spore particles. Death sequence animates through 5 sprites, then spawns a configurable special item pickup (mushroom, boots, max_health_increase, bandage, autoheal, push_strength). Fires `{entityId}_destroyed` on open and `special_pickup_{itemType}` on collection. Persistence: destroyed chest shows `chest_empty` sprite on re-entry (via `{id}_opened` in liveEntities), uncollected pickup respawns until `{id}_collected` flag is set.
   - Chest keeps GridCellBlocker until entity is destroyed (player can't walk into chest during death animation)

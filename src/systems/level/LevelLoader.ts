@@ -27,7 +27,8 @@ export type EntityType =
   | 'root_chest'
   | 'bell'
   | 'worm'
-  | 'beetle';
+  | 'beetle'
+  | 'fly';
 
 export type LevelEntity = {
   id: string;
@@ -128,12 +129,24 @@ export type BackgroundTextureConfig = {
 
 export type SingleBackgroundTexture = string | BackgroundTextureConfig;
 
+export type ConditionalTextureCase = {
+  value: string;
+  textures: SingleBackgroundTexture[];
+}
+
+export type ConditionalTextures = {
+  flag: string;
+  cases: ConditionalTextureCase[];
+  default?: SingleBackgroundTexture[];
+}
+
 export type LevelCell = {
   col: number;
   row: number;
   layer?: number;
   properties?: CellProperty[];
   backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[];
+  conditionalTextures?: ConditionalTextures;
   animatedTexture?: AnimatedTextureConfig;
 }
 

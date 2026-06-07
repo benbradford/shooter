@@ -277,8 +277,8 @@ When asked to "update the docs":
 - **Bullet Dude**: Shoots bullets at the player
 - **Puma**: Rests until player detected (FOV or proximity), stands up, threatens, chases with momentum, jumps at player (2× distance), recovers with deceleration
 - **TV Monk**: Boss with dynamic TV screen face. Pre-combat mood set via events (`monk_happy`, `monk_angry`, etc.). Combat mood follows health (120 HP). 16 moods with idle animations, B&W static transitions. Faces player. Sound: `tv_static` on face transitions.
-- **Worm**: 4-directional enemy that wanders slowly and spits projectiles at the player when within range (350px detect, 2.5s cooldown)
-- **Beetle**: 4-directional enemy that wanders, detects player (250px), charges in a cardinal direction (up to 5 cells), and leaves a toxic puddle on death (2s duration, 5 DPS)
+- **Worm**: 4-directional enemy that wanders slowly and spits projectiles at the player when within range (350px detect, 4.5s cooldown)
+- **Beetle**: 4-directional enemy that wanders, detects player (250px), charges in a cardinal direction (up to 5 cells), and leaves a toxic puddle on death (4s duration, 5 DPS)
 
 ## Key Concepts
 

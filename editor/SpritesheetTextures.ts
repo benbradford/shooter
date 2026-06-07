@@ -139,4 +139,12 @@ export const SPRITESHEET_TEXTURES: readonly SpritesheetDefinition[] = [
       { name: 'chest_empty', sourceRect: { x: 1031, y: 716, width: 410, height: 140 } },
     ],
   },
+  {
+    textureKey: 'drawbridge_spritesheet',
+    sprites: [
+      { name: 'drawbridge_closed', sourceRect: { x: 132, y: 204, width: 256, height: 550 } },
+      { name: 'drawbridge_mid', sourceRect: { x: 644, y: 391, width: 140, height: 369 } },
+      { name: 'drawbridge_open', sourceRect: { x: 1156, y: 577, width: 256, height: 189 } },
+    ],
+  },
 ] as const;

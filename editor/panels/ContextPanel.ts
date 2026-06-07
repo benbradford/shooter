@@ -416,6 +416,30 @@ export class ContextPanel {
       ` : `
       <button class="ed-btn" id="cf-add-anim" style="width:100%;margin-bottom:6px">+ Animated Texture</button>
       `}
+      <div class="section-header">Conditional Textures</div>
+      ${levelCell?.conditionalTextures ? `
+      <div class="form-group">
+        <label>Flag</label>
+        <input type="text" id="cf-cond-flag" value="${levelCell.conditionalTextures.flag}" />
+      </div>
+      <div id="cf-cond-cases">
+        ${levelCell.conditionalTextures.cases.map((c, i) => `
+        <div style="display:flex;gap:4px;align-items:center;margin-bottom:4px">
+          <input type="text" class="cond-case-val" data-case-idx="${i}" value="${c.value}" style="width:60px" placeholder="value" />
+          <span style="font-size:11px;flex:1">${c.textures.map(t => typeof t === 'string' ? t : t.image).join(', ') || '(none)'}</span>
+          <button class="ed-btn cond-case-pick" data-case-idx="${i}" style="padding:1px 6px;font-size:10px">Pick</button>
+          <button class="ed-btn danger cond-case-del" data-case-idx="${i}" style="padding:1px 6px;font-size:10px">✕</button>
+        </div>`).join('')}
+      </div>
+      <button class="ed-btn" id="cf-cond-add-case" style="width:100%;margin-bottom:4px">+ Add Case</button>
+      <div class="form-group">
+        <label>Default: ${levelCell.conditionalTextures.default?.map(t => typeof t === 'string' ? t : t.image).join(', ') || '(none)'}</label>
+        <button class="ed-btn" id="cf-cond-pick-default" style="width:100%">Pick Default</button>
+      </div>
+      <button class="ed-btn danger" id="cf-cond-remove" style="width:100%;margin-bottom:6px">Remove Conditional</button>
+      ` : `
+      <button class="ed-btn" id="cf-cond-add" style="width:100%;margin-bottom:6px">+ Add Conditional Texture</button>
+      `}
       <button class="ed-btn danger" id="cf-clear">Clear Cell</button>
     `;
 
@@ -639,6 +663,85 @@ export class ContextPanel {
     this.container.querySelector('#cf-clear')?.addEventListener('click', () => {
       this.bridge.clearCell(col, row);
       this.showCellForm(col, row);
+    });
+
+    // Conditional textures handlers
+    this.container.querySelector('#cf-cond-add')?.addEventListener('click', () => {
+      const levelData = this.bridge.getScene().getLevelData();
+      let lc = levelData.cells.find(c => c.col === col && c.row === row);
+      if (!lc) { lc = { col, row }; levelData.cells.push(lc); }
+      lc.conditionalTextures = { flag: '', cases: [] };
+      this.showCellForm(col, row);
+    });
+    this.container.querySelector('#cf-cond-remove')?.addEventListener('click', () => {
+      const levelData = this.bridge.getScene().getLevelData();
+      const lc = levelData.cells.find(c => c.col === col && c.row === row);
+      if (lc) { delete lc.conditionalTextures; }
+      this.showCellForm(col, row);
+    });
+    this.container.querySelector('#cf-cond-flag')?.addEventListener('change', (e) => {
+      const levelData = this.bridge.getScene().getLevelData();
+      const lc = levelData.cells.find(c => c.col === col && c.row === row);
+      if (lc?.conditionalTextures) {
+        lc.conditionalTextures.flag = (e.target as HTMLInputElement).value;
+      }
+    });
+    this.container.querySelector('#cf-cond-add-case')?.addEventListener('click', () => {
+      const levelData = this.bridge.getScene().getLevelData();
+      const lc = levelData.cells.find(c => c.col === col && c.row === row);
+      if (lc?.conditionalTextures) {
+        lc.conditionalTextures.cases.push({ value: '', textures: [] });
+        this.showCellForm(col, row);
+      }
+    });
+    for (const input of this.container.querySelectorAll<HTMLInputElement>('.cond-case-val')) {
+      input.addEventListener('change', () => {
+        const idx = Number.parseInt(input.dataset.caseIdx!, 10);
+        const levelData = this.bridge.getScene().getLevelData();
+        const lc = levelData.cells.find(c => c.col === col && c.row === row);
+        if (lc?.conditionalTextures?.cases[idx]) {
+          lc.conditionalTextures.cases[idx].value = input.value;
+        }
+      });
+    }
+    for (const btn of this.container.querySelectorAll('.cond-case-pick')) {
+      btn.addEventListener('click', () => {
+        const idx = Number.parseInt((btn as HTMLElement).dataset.caseIdx!, 10);
+        this.texturePicker.open((result: PickResult) => {
+          const levelData = this.bridge.getScene().getLevelData();
+          const lc = levelData.cells.find(c => c.col === col && c.row === row);
+          if (!lc?.conditionalTextures?.cases[idx]) return;
+          const tex = result.type === 'spritesheet'
+            ? { image: result.key, sourceRect: result.sourceRect, ...(result.scaleX !== undefined || result.scaleY !== undefined ? { transformOverride: { scaleX: result.scaleX ?? 1, scaleY: result.scaleY ?? 1, offsetX: 0, offsetY: 0 } } : {}), ...(result.zOffsetOverride !== undefined ? { zOffsetOverride: result.zOffsetOverride } : {}) }
+            : result.key;
+          lc.conditionalTextures.cases[idx].textures.push(tex);
+          this.showCellForm(col, row);
+        });
+      });
+    }
+    for (const btn of this.container.querySelectorAll('.cond-case-del')) {
+      btn.addEventListener('click', () => {
+        const idx = Number.parseInt((btn as HTMLElement).dataset.caseIdx!, 10);
+        const levelData = this.bridge.getScene().getLevelData();
+        const lc = levelData.cells.find(c => c.col === col && c.row === row);
+        if (lc?.conditionalTextures) {
+          lc.conditionalTextures.cases.splice(idx, 1);
+          this.showCellForm(col, row);
+        }
+      });
+    }
+    this.container.querySelector('#cf-cond-pick-default')?.addEventListener('click', () => {
+      this.texturePicker.open((result: PickResult) => {
+        const levelData = this.bridge.getScene().getLevelData();
+        const lc = levelData.cells.find(c => c.col === col && c.row === row);
+        if (!lc?.conditionalTextures) return;
+        const tex = result.type === 'spritesheet'
+          ? { image: result.key, sourceRect: result.sourceRect, ...(result.scaleX !== undefined || result.scaleY !== undefined ? { transformOverride: { scaleX: result.scaleX ?? 1, scaleY: result.scaleY ?? 1, offsetX: 0, offsetY: 0 } } : {}), ...(result.zOffsetOverride !== undefined ? { zOffsetOverride: result.zOffsetOverride } : {}) }
+          : result.key;
+        if (!lc.conditionalTextures.default) lc.conditionalTextures.default = [];
+        lc.conditionalTextures.default.push(tex);
+        this.showCellForm(col, row);
+      });
     });
   }
 

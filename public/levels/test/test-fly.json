@@ -1,0 +1,15 @@
+{
+  "name": "test-fly",
+  "width": 20,
+  "height": 15,
+  "playerStart": { "x": 5, "y": 7 },
+  "levelTheme": "dungeon",
+  "cells": [],
+  "entities": [
+    {
+      "id": "fly0",
+      "type": "fly",
+      "data": { "col": 7, "row": 7 }
+    }
+  ]
+}

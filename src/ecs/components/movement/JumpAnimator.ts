@@ -11,6 +11,7 @@ import { CollisionComponent } from '../combat/CollisionComponent';
 import { HealthComponent } from '../core/HealthComponent';
 import { ShadowComponent } from '../visual/ShadowComponent';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { SoundManager } from '../../../systems/SoundManager';
 import type { JumpStartInfo } from './JumpComponent';
 
 const TAKEOFF_DURATION_MS = 180;
@@ -78,6 +79,7 @@ export class JumpAnimator {
 
   startJump(props: StartJumpProps): void {
     const { entity, landCol, landRow, dx, dy, isFallJump, isPlatformJump, isWaterJump, isWaterEntry } = props;
+    SoundManager.getInstance().play('jump_hup');
     this.isFallJump = isFallJump;
     this.isPlatformJump = isPlatformJump;
     this.isWaterJump = isWaterJump;

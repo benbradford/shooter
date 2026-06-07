@@ -93,7 +93,7 @@ When the game loads with `?test=true`, `src/main.ts` exposes these on `globalThi
 - `CachedFlag`, `PushableComponent`, `JumpComponent`, `AnimationComponent`
 - `PetFollowComponent`, `PetManager`, `LevelExitComponent`
 
-**Test levels:** `public/levels/test/` — dedicated levels for testing (e.g., `test-combat.json`, `test-punch-damage.json`, `test-super-punch.json`, `test-swim.json`, `test-triggers.json`, `test-gameplay-loop.json`, `test-push.json`, `test-jump.json`, `test-pet-jump.json`, `test-fall-jump.json`, `test-platform-fall.json`, `test-wall-collision.json`, `test-player-transition.json`)
+**Test levels:** `public/levels/test/` — dedicated levels for testing (e.g., `test-combat.json`, `test-punch-damage.json`, `test-super-punch.json`, `test-swim.json`, `test-triggers.json`, `test-gameplay-loop.json`, `test-push.json`, `test-jump.json`, `test-pet-jump.json`, `test-fall-jump.json`, `test-platform-fall.json`, `test-wall-collision.json`, `test-player-transition.json`, `test-beetle.json`)
 
 When adding a new test that needs access to a component not yet exposed, add it to the test-mode block in `src/main.ts`.
 

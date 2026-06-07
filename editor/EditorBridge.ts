@@ -450,6 +450,7 @@ export class EditorBridge {
         trigger: { eventToRaise: `event_${newId}`, triggerCells: [{ col, row }], oneShot: true },
         worm: { col, row, difficulty: 'medium' },
         beetle: { col, row, difficulty: 'medium' },
+        fly: { col, row },
         exit: { targetLevel: '', targetCol: 0, targetRow: 0, triggerCells: [{ col, row }] },
         eventchainer: { col: 0, row: 0, eventsToRaise: [] },
         cellmodifier: { col: 0, row: 0, cellsToModify: [] },
@@ -1102,6 +1103,7 @@ export class EditorBridge {
     properties?: CellProperty[];
     backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[];
     animatedTexture?: AnimatedTextureConfig;
+    conditionalTextures?: import('../src/systems/level/LevelLoader').ConditionalTextures;
   }> {
     const cells = [];
     for (let row = 0; row < grid.height; row++) {
@@ -1113,12 +1115,13 @@ export class EditorBridge {
         const hasTexture = cell.backgroundTexture && cell.backgroundTexture !== '';
         const originalCell = existingLevelData.cells.find(c => c.col === col && c.row === row);
 
-        if (layer !== 0 || hasProperties || hasTexture || originalCell?.animatedTexture) {
+        if (layer !== 0 || hasProperties || hasTexture || originalCell?.animatedTexture || originalCell?.conditionalTextures) {
           const cellData: {
             col: number; row: number; layer: number;
             properties?: CellProperty[];
             backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[];
             animatedTexture?: AnimatedTextureConfig;
+            conditionalTextures?: import('../src/systems/level/LevelLoader').ConditionalTextures;
           } = { col, row, layer };
 
           if (hasProperties) cellData.properties = Array.from(cell.properties);
@@ -1126,6 +1129,7 @@ export class EditorBridge {
             cellData.backgroundTexture = originalCell?.backgroundTexture ?? cell.backgroundTexture;
           }
           if (originalCell?.animatedTexture) cellData.animatedTexture = originalCell.animatedTexture;
+          if (originalCell?.conditionalTextures) cellData.conditionalTextures = originalCell.conditionalTextures;
           cells.push(cellData);
         }
       }
@@ -1179,6 +1183,9 @@ export class EditorBridge {
       } else if (entity.id.startsWith('beetle')) {
         type = 'beetle';
         data = { col: cell.col, row: cell.row, difficulty: difficulty?.difficulty ?? 'medium' };
+      } else if (entity.id.startsWith('fly')) {
+        type = 'fly';
+        data = { col: cell.col, row: cell.row };
       } else if (entity.id.startsWith('tv_monk')) {
         type = 'tv_monk';
         data = { col: cell.col, row: cell.row };
