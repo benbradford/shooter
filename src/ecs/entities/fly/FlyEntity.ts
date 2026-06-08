@@ -6,6 +6,8 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { ShadowComponent } from '../../components/visual/ShadowComponent';
 import { HitFlashComponent } from '../../components/visual/HitFlashComponent';
 import { DamageComponent } from '../../components/core/DamageComponent';
+import { PunchHitboxComponent } from '../../components/combat/PunchHitboxComponent';
+import { ProjectileComponent } from '../../components/combat/ProjectileComponent';
 import { FlyBehaviorComponent } from '../../components/fly/FlyBehaviorComponent';
 import { canPlayerHitEnemy } from '../../../systems/combat/LayerCollisionHelper';
 import { createFlyAnimations, getFlyAnimKey } from './FlyAnimations';
@@ -53,6 +55,7 @@ export function createFlyEntity(props: CreateFlyProps): Entity {
     box: FLY_COLLISION_BOX,
     collidesWith: ['player_projectile'],
     onHit: (other) => {
+      if (!other.tags.has('player_projectile')) return;
       if (!flyBehavior.isVulnerable()) return;
       if (!canPlayerHitEnemy(playerEntity, entity, grid, other)) return;
 
@@ -63,7 +66,18 @@ export function createFlyEntity(props: CreateFlyProps): Entity {
       entity.require(HitFlashComponent).flash(300);
 
       if (health.getHealth() <= 0) {
-        entity.destroy();
+        const punch = other.get(PunchHitboxComponent);
+        const projectile = other.get(ProjectileComponent);
+        let dirX = 0;
+        let dirY = 1;
+        if (punch) {
+          dirX = punch.dirX;
+          dirY = punch.dirY;
+        } else if (projectile) {
+          dirX = projectile.dirX;
+          dirY = projectile.dirY;
+        }
+        flyBehavior.startDeathSpin(dirX, dirY);
       }
     }
   }));

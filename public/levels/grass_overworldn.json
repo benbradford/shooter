@@ -2991,6 +2991,22 @@
       }
     },
     {
+      "id": "fly1",
+      "type": "fly",
+      "data": {
+        "col": 24,
+        "row": 11
+      }
+    },
+    {
+      "id": "fly2",
+      "type": "fly",
+      "data": {
+        "col": 24,
+        "row": 13
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {

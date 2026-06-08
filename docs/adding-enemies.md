@@ -37,6 +37,10 @@ Use both pathfinding distance (cells) and pixel distance with hysteresis:
 ### ❌ Animations Not Playing
 **Solution:** Track current animation key, only call play() when it changes.
 
+### ❌ Crash When Re-Entering Level
+**Cause:** Phaser animations are global — they persist after a texture is unloaded during level transitions. On re-entry, animations reference destroyed frames.
+**Solution:** In your `createXxxAnimations()` function: (1) guard with `if (!scene.textures.exists('key')) return;` and (2) remove and recreate animations every time (don't early-return if they already exist). Alternatively, add the texture to the `enemyTextures` set in `LoadingScene.ts` to prevent unloading.
+
 ### ❌ Rotating Projectiles Don't Rotate
 **Solution:** Update TransformComponent.rotation, not sprite.angle. Order: RotatingProjectileComponent → TransformComponent → SpriteComponent.
 

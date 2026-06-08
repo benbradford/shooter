@@ -26,8 +26,13 @@ const DIR_TO_INDEX: Record<Direction, number> = {
 };
 
 export function createFlyAnimations(scene: Phaser.Scene): void {
-  if (scene.anims.exists('fly_flap_east')) return;
   if (!scene.textures.exists('fly')) return;
+
+  for (const dir of DIRS) {
+    if (scene.anims.exists(`fly_flap_${dir}`)) {
+      scene.anims.remove(`fly_flap_${dir}`);
+    }
+  }
 
   DIRS.forEach((dir, index) => {
     scene.anims.create({

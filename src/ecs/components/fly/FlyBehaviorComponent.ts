@@ -8,7 +8,7 @@ import { ShadowComponent } from '../visual/ShadowComponent';
 import { getFlyAnimKey } from '../../entities/fly/FlyAnimations';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
-const DETECT_RANGE_PX = 120;
+const DETECT_RANGE_PX = 180;
 const BOB_RADIUS_PX = 30;
 const BOB_SPEED = 0.8;
 const HOVER_HEIGHT_PX = 80;
@@ -19,8 +19,11 @@ const SWOOP_COOLDOWN_MS = 2000;
 const SWOOP_DAMAGE = 15;
 const WIND_UP_MS = 300;
 const OVERSHOOT_DISTANCE_PX = 80;
+const DEATH_SPIN_DISTANCE_PX = 100;
+const DEATH_SPIN_SPEED_PX_PER_SEC = 400;
+const DEATH_SPIN_ROTATION_SPEED = 20;
 
-type FlyState = 'bob' | 'wind_up' | 'swoop_down' | 'swoop_overshoot' | 'swoop_up';
+type FlyState = 'bob' | 'wind_up' | 'swoop_down' | 'swoop_overshoot' | 'swoop_up' | 'death_spin';
 
 export type FlyBehaviorProps = {
   playerEntity: Entity;
@@ -46,6 +49,9 @@ export class FlyBehaviorComponent implements Component {
   private windUpTimerMs = 0;
   private hasHitPlayerThisSwoop = false;
   private lastDir: Direction = Direction.None;
+  private deathSpinDirX = 0;
+  private deathSpinDirY = 0;
+  private deathSpinDistanceRemaining = 0;
 
   constructor(props: FlyBehaviorProps) {
     this.playerEntity = props.playerEntity;
@@ -61,6 +67,7 @@ export class FlyBehaviorComponent implements Component {
       case 'swoop_down': this.updateSwoopDown(delta); break;
       case 'swoop_overshoot': this.updateSwoopOvershoot(delta); break;
       case 'swoop_up': this.updateSwoopUp(delta); break;
+      case 'death_spin': this.updateDeathSpin(delta); break;
     }
     this.updateVisuals();
   }
@@ -178,7 +185,28 @@ export class FlyBehaviorComponent implements Component {
       this.currentHeight = HOVER_HEIGHT_PX;
       this.state = 'bob';
       this.swoopCooldownMs = SWOOP_COOLDOWN_MS;
-      this.bobAngle = Math.random() * Math.PI * 2;
+      this.bobAngle = Math.PI / 2;
+    }
+  }
+
+  startDeathSpin(dirX: number, dirY: number): void {
+    const len = Math.hypot(dirX, dirY);
+    this.deathSpinDirX = len > 0 ? dirX / len : 0;
+    this.deathSpinDirY = len > 0 ? dirY / len : 1;
+    this.deathSpinDistanceRemaining = DEATH_SPIN_DISTANCE_PX;
+    this.state = 'death_spin';
+  }
+
+  private updateDeathSpin(delta: number): void {
+    const transform = this.entity.require(TransformComponent);
+    const moveDist = DEATH_SPIN_SPEED_PX_PER_SEC * (delta / 1000);
+    transform.x += this.deathSpinDirX * moveDist;
+    transform.y += this.deathSpinDirY * moveDist;
+    transform.rotation += DEATH_SPIN_ROTATION_SPEED * (delta / 1000);
+    this.deathSpinDistanceRemaining -= moveDist;
+
+    if (this.deathSpinDistanceRemaining <= 0) {
+      this.entity.destroy();
     }
   }
 
@@ -238,6 +266,6 @@ export class FlyBehaviorComponent implements Component {
     if (this.state === 'swoop_up') {
       return { dx: this.startX - transform.x, dy: this.startY - transform.y };
     }
-    return { dx: Math.cos(this.bobAngle), dy: Math.sin(this.bobAngle * 0.7) };
+    return { dx: -Math.sin(this.bobAngle), dy: Math.cos(this.bobAngle * 0.7) * 0.7 };
   }
 }

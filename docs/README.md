@@ -19,6 +19,7 @@ Quick reference for navigating the Dodging Bullets documentation.
 - JSON formats (read actual level files)
 - Step-by-step code tutorials (obvious from reading code)
 - Large code examples (use code search to find patterns)
+- Specific constants (detect distances, damage values, cooldowns, speeds) — these are trivially found in code and change frequently
 
 ### When Updating Documentation
 
@@ -275,10 +276,11 @@ When asked to "update the docs":
 - **Skeleton**: Pathfinds to player, stops periodically, throws rotating bone projectiles
 - **Red Skeleton**: Red-tinted skeleton, splits into 4 mini skeletons on death
 - **Bullet Dude**: Shoots bullets at the player
-- **Puma**: Rests until player detected (FOV or proximity), stands up, threatens, chases with momentum, jumps at player (2× distance), recovers with deceleration
-- **TV Monk**: Boss with dynamic TV screen face. Pre-combat mood set via events (`monk_happy`, `monk_angry`, etc.). Combat mood follows health (120 HP). 16 moods with idle animations, B&W static transitions. Faces player. Sound: `tv_static` on face transitions.
-- **Worm**: 4-directional enemy that wanders slowly and spits projectiles at the player when within range (350px detect, 4.5s cooldown)
-- **Beetle**: 4-directional enemy that wanders, detects player (250px), charges in a cardinal direction (up to 5 cells), and leaves a toxic puddle on death (4s duration, 5 DPS)
+- **Puma**: Rests until player detected (FOV or proximity), stands up, threatens, chases with momentum, jumps at player, recovers with deceleration
+- **TV Monk**: Boss with dynamic TV screen face. Pre-combat mood set via events (`monk_happy`, `monk_angry`, etc.). Combat mood follows health. Faces player. Sound: `tv_static` on face transitions.
+- **Worm**: 4-directional enemy that wanders slowly and spits projectiles at the player when within range. Sounds: `worm_spit` on spit
+- **Beetle**: 4-directional enemy that wanders, detects player, charges in a cardinal direction, and leaves a toxic puddle on death. Sounds: `beetle_splat` on death
+- **Fly**: Airborne enemy that bobs near start location, detects player, swoops down to attack, only vulnerable during swoop. 1 HP.
 
 ## Key Concepts
 

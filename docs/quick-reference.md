@@ -72,12 +72,12 @@ Camera centers on the specified cell and stays there. Editor: Level Info panel �
 - During charge: Player can move at 25% speed, facing direction locked, plays `walking_punch` anim if moving
 - Charge bar: Horizontal line (64px) grows from center, yellow→red color, pulses when full
 - Release (< 1s): Normal punch, movement locked for punch duration, plays `punch` anim
-- Release (≥ 1s + `hasSuperPunch` flag): Super punch — `uppercut` anim at half speed, 3× damage (60), 72×72 hitbox, extravagant particles (35 directional + 12 radial burst), movement fully locked during animation
+- Release (≥ 1s + `hasSuperPunch` flag): Super punch — `uppercut` anim at half speed, 3× damage (60), 72×72 hitbox, extravagant particles, movement fully locked during animation
 - After release: PlayerIdleState/PlayerWalkState force-replay idle/walk animation (via `wasPunching` flag) to prevent getting stuck on punch frame
 
 **Super Punch:**
 - Requires: Hold punch ≥ 1 second AND WorldState flag `hasSuperPunch` = `"true"`
-- Animation: `uppercut_${dir}` at 0.5× speed, 840ms duration
+- Animation: `uppercut_${dir}` at half speed
 - Damage: 60 (3× normal), Hitbox: 72×72px (vs 44×44 normal)
 - Particles: `SuperPunchParticlesComponent` — white/yellow/orange directional burst + radial ring
 - Sound: `superpunch.mp3`
@@ -94,9 +94,8 @@ Camera centers on the specified cell and stays there. Editor: Level Info panel �
 
 **Slide Ability:**
 - Press P or tap pet action button
-- 250px slide at 400px/s, invulnerable during slide
-- 3 second cooldown
-- Button alpha: 0.9 unpressed, 1.0 pressed, 0.3 cooldown
+- Invulnerable during slide
+- Has cooldown (button dims during cooldown)
 
 ## NPC System
 
@@ -324,7 +323,7 @@ Triggers fire events when player walks into them. Use editor: Entity tool → tr
 **Enable pets:** Set WorldState flags (`pet_rock_collected`, `pet_selected`)
 **Controls:** P key triggers pet ability
 **Behavior:** Pet follows using smooth delta-based movement, stops within 128px, teleports if >800px, hides in water
-**Movement:** Always uses pathfinding on player's current layer, speed lerps between run (300px/s) and wander (60px/s)
+**Movement:** Always uses pathfinding on player's current layer, speed lerps between run and wander
 **Available pets:** rock (4-dir), dog (8-dir)
 
 See [Pet System](./pets-quick-ref.md) for details.
@@ -334,7 +333,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 **Enable:** Set WorldState flag `hasCompanion` to `"true"`
 **Sprite:** `narry.png` — floating crystal construct
 **Behavior:** Follows ahead-right of player using lerp-based smooth movement with gentle perpendicular swerve for natural motion. Overshoots slightly when player stops, then corrects. After 2s idle, starts orbiting the player (restless). Teleports if >600px away.
-**Visuals:** Soft white-cyan additive glow behind sprite. Dual trail (cyan outer + white inner dots). Subtle alpha flicker every 3-8s.
+**Visuals:** Soft white-cyan additive glow behind sprite. Dual trail (cyan outer + white inner dots). Subtle alpha flicker.
 **Coexists with pet:** Yes, independent system.
 
 **Key files:**
@@ -497,7 +496,7 @@ Divide sprite into 3×3 grid, use physics-based motion with randomness. Use abso
 - Coins: Physics-based, fly to HUD, 15s lifetime
 - Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
 - Small mushrooms: Instant 20 HP heal (capped at max health — no overheal), 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
-- Enemy health drops: Enemies have a chance to drop small mushrooms on death (skeleton 20%, puma 25%, red_skeleton 20%, beetle 15%, worm 15%, bug 10%, thrower 5%). Uses `HealthDropOnDeathComponent`.
+- Enemy health drops: Enemies have a per-type chance to drop small mushrooms on death. Uses `HealthDropOnDeathComponent`. Chances defined in `ENEMY_DROP_CHANCES` in `enemyFactories.ts`.
 - Overheal: 1.5× movement speed, 2× punch speed, decays at 5 HP/sec
 
 ### Particle Effects

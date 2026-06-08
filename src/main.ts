@@ -15,6 +15,7 @@ import { CachedFlag } from "./systems/state/CachedFlag";
 import { JumpComponent } from "./ecs/components/movement/JumpComponent";
 import { PetFollowComponent } from "./ecs/components/pet/PetFollowComponent";
 import { PetManager } from "./systems/PetManager";
+import { FlyBehaviorComponent } from "./ecs/components/fly/FlyBehaviorComponent";
 
 // Add Eruda console for mobile debugging
 if (globalThis.location.search.includes('debug')) {
@@ -74,4 +75,5 @@ if (params.get('test') === 'true') {
   g.PetFollowComponent = PetFollowComponent;
   g.PetManager = PetManager;
   g.LevelExitComponent = LevelExitComponent;
+  g.FlyBehaviorComponent = FlyBehaviorComponent;
 }
