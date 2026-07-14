@@ -16,6 +16,7 @@ export const WorldFlags = {
   petSelected: 'pet_selected',
   petRockCollected: 'pet_rock_collected',
   petDogCollected: 'pet_dog_collected',
+  petBubbleCollected: 'pet_bubble_collected',
 
   // Escort system
   currentEscort: 'current_escort',

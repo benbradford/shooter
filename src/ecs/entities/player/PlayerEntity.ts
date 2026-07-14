@@ -346,6 +346,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
     collidesWith: ['enemy_projectile', 'enemy'],
     onHit: (other) => {
       if (other.tags.has('enemy_projectile')) {
+        if (health.isInvulnerableState()) return;
         const damage = other.require(DamageComponent);
         health.takeDamage(damage.damage);
 

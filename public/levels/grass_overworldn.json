@@ -2935,7 +2935,8 @@
         "col": 12,
         "row": 5,
         "difficulty": "medium"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "worm1",
@@ -2944,7 +2945,8 @@
         "col": 13,
         "row": 5,
         "difficulty": "medium"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "worm2",
@@ -2953,34 +2955,38 @@
         "col": 14,
         "row": 5,
         "difficulty": "medium"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "beetle0",
       "type": "beetle",
       "data": {
-        "col": 19,
+        "col": 23,
         "row": 5,
         "difficulty": "medium"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "beetle1",
       "type": "beetle",
       "data": {
-        "col": 19,
+        "col": 23,
         "row": 4,
         "difficulty": "medium"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "beetle2",
       "type": "beetle",
       "data": {
-        "col": 19,
+        "col": 23,
         "row": 6,
         "difficulty": "medium"
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "fly0",
@@ -2988,7 +2994,8 @@
       "data": {
         "col": 24,
         "row": 12
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "fly1",
@@ -2996,7 +3003,8 @@
       "data": {
         "col": 24,
         "row": 11
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "fly2",
@@ -3004,7 +3012,8 @@
       "data": {
         "col": 24,
         "row": 13
-      }
+      },
+      "respawnable": true
     },
     {
       "id": "exit0",

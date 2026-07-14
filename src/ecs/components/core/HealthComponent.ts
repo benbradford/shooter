@@ -27,6 +27,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   private onDeath?: () => void;
   private readonly onDamage?: () => void;
   private isDead = false;
+  private isInvulnerable = false;
 
   constructor(props: HealthProps) {
     this.maxHealth = props.maxHealth;
@@ -63,6 +64,7 @@ export class HealthComponent implements Component, HudBarDataSource {
   }
 
   takeDamage(amount: number): void {
+    if (this.isInvulnerable) return;
     this.currentHealth = Math.max(0, this.currentHealth - amount);
     this.timeSinceLastDamageMs = 0;
     this.onDamage?.();
@@ -70,6 +72,14 @@ export class HealthComponent implements Component, HudBarDataSource {
       this.isDead = true;
       this.onDeath?.();
     }
+  }
+
+  setInvulnerable(value: boolean): void {
+    this.isInvulnerable = value;
+  }
+
+  isInvulnerableState(): boolean {
+    return this.isInvulnerable;
   }
 
   heal(amount: number): void {

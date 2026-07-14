@@ -281,21 +281,24 @@ graph TB
 ✅ **Complete:** Companion system documented in quick-reference.md
 ✅ **Complete:** Punch charge/release animation fix documented
 ✅ **Complete:** Workbench dashboard (new session, commit all, update docs) documented
-✅ **Complete:** Dual development system (Kiro + Claude Code) documented
+✅ **Complete:** Multi-tool development system (Kiro + Claude Code + Codex) documented
 ✅ **Complete:** Agent SOPs documented (ChatGPT prompts, attacker spritesheet, background textures)
 ✅ **Complete:** Session redesign documented (chat UI, message persistence, WebSocket, idle management, rooms)
 ✅ **Complete:** Regression test suite documented (combat, flags, health, player, triggers, loading, pets)
 
-## Dual Development System
+## Multi-Tool Development System
 
-This project supports both **Kiro** and **Claude Code** for AI-assisted development:
+This project supports **Kiro**, **Claude Code**, and **Codex** for AI-assisted development:
 - **Kiro sessions**: `kiro-cli chat --agent dodging-bullets` (orchestrator with sub-agents)
 - **Claude Code sessions**: `claude` (picks up context from `CLAUDE.md` in project root)
-- Both managed via the VS Code extension (DB Sessions sidebar) or `workbench/sessions.html`
+- **Codex sessions**: `codex` (picks up context from `AGENTS.md` in project root)
+- Kiro and Claude managed via the VS Code extension (DB Sessions sidebar) or `workbench/sessions.html`
 - Session type shown by icon in the sidebar
-- `scripts/extract-sessions.mjs` reads both kiro and claude session histories for doc updates
+- `scripts/extract-sessions.mjs` reads kiro and claude session histories for doc updates
 
 **`CLAUDE.md`** — Compact project context file for Claude Code (tech stack, architecture, coding standards, key patterns). Kept in sync with docs manually.
+
+**`AGENTS.md`** — Compact project context file for Codex (same content as CLAUDE.md, formatted for AGENTS.md convention). Kept in sync with CLAUDE.md manually.
 
 ## Agent SOPs
 
@@ -438,3 +441,4 @@ Session management redesigned (KiRoom-inspired): chat-based UI with compose box 
 - **Fly crash fix (2026-06-07)**: Fly enemy crashed when re-entering a level because global Phaser animations referenced unloaded texture frames. Fix: `createFlyAnimations()` now (1) guards with texture existence check, (2) removes and recreates animations instead of early-returning. Pattern documented in `docs/adding-enemies.md` pitfalls. The `enemyTextures` set in `LoadingScene.ts` is an alternative approach (prevents texture unloading entirely).
 - **Fly death spin (2026-06-07)**: Fly no longer instantly destroys on death — enters a `death_spin` state that moves in the hit direction with rotation before destroying. Uses `FlyBehaviorComponent.startDeathSpin(dirX, dirY)`.
 - **Doc audit: removed specific constants (2026-06-08)**: Applied the new "no constants" rule across docs — trimmed slide distance/speed/alphas, pet movement speeds, super punch particle counts/duration, companion flicker timing. Kept design-decision numbers (punch range, damage multipliers, behavioral thresholds that affect level design).
+- **Bubble pet (2026-06-08)**: Third pet type added. Floats near player using lerp-based smooth movement (no pathfinding, no grid collision, no jump sync). Ability: hold pet button to expand bubble shield around player (invulnerable, frozen in place, deactivates on release). Blocked during swimming/jumping. Spawned via separate `BubbleEntity` factory (not `PetEntity`). Not affected by water (stays visible while player swims). Requires `pet_bubble_collected` flag. Included in pet cycle via `getCollectedPets()`. Key files: `src/ecs/entities/pet/BubbleEntity.ts`, `src/ecs/components/pet/BubbleFollowComponent.ts`, `src/ecs/components/pet/BubbleShieldAbility.ts`. Pitfall: because it doesn't use PetFollowComponent/GridCollisionComponent, it's a separate spawn path in PetManager.

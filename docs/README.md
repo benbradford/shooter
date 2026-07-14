@@ -321,9 +321,9 @@ npx eslint src --ext .ts     # Must pass with zero errors
 npm run dev                  # Start dev server
 ```
 
-### Dual Development System
+### Multi-Tool Development System
 
-Both **Kiro** (`kiro-cli chat --agent dodging-bullets`) and **Claude Code** (`claude`) are supported. `CLAUDE.md` in the project root provides compact context for Claude Code. `scripts/extract-sessions.mjs` reads both session histories for doc updates.
+**Kiro** (`kiro-cli chat --agent dodging-bullets`), **Claude Code** (`claude`), and **Codex** (`codex`) are all supported. `CLAUDE.md` provides context for Claude Code, `AGENTS.md` provides context for Codex. `scripts/extract-sessions.mjs` reads kiro and claude session histories for doc updates.
 
 **Claude Code skills** (`.claude/skills/`): `add-texture`, `new-level`, `run-test`, `run-all-tests`, `chatgpt-prompt`
 **Claude Code hooks** (`.claude/hooks/`): `validate-level-json.sh` (validates JSON on save)

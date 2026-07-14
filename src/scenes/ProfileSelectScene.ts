@@ -266,6 +266,7 @@ export default class ProfileSelectScene extends Phaser.Scene {
         pet_rock_collected: 'true',
         pet_selected: 'dog',
         pet_dog_collected: 'true',
+        pet_bubble_collected: 'true',
         hasSuperPunch: 'true',
         hasCompanion: 'true',
         hasAutoHeal: 'false'

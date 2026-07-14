@@ -52,6 +52,19 @@ export const PET_REGISTRY: Record<string, PetConfig> = {
     worldStateFlag: 'pet_dog_collected',
     iconTexture: 'bark_icon',
   },
+  bubble: {
+    id: 'bubble',
+    spritesheet: 'bubble',
+    frameWidth: 128,
+    frameHeight: 128,
+    scale: 0.4,
+    directions: 4,
+    idleAnim: 'breathing-idle',
+    walkAnim: 'breathing-idle',
+    abilityCooldownMs: 0,
+    worldStateFlag: 'pet_bubble_collected',
+    iconTexture: 'bubble',
+  },
 };
 
 export const DIR_8_TO_4: Record<Direction, string> = {

@@ -45,8 +45,9 @@ export class PetCarouselComponent implements Component {
     for (const petId of collected) {
       const config = PET_REGISTRY[petId];
       if (!config) continue;
-      const sprite = this.scene.add.sprite(0, 0, config.spritesheet, 0);
-      sprite.setScale(ICON_SCALE);
+      const sprite = this.scene.add.sprite(0, 0, config.iconTexture);
+      const iconScale = petId === 'bubble' ? ICON_SCALE * 0.5 : ICON_SCALE;
+      sprite.setScale(iconScale);
       sprite.setScrollFactor(0);
       sprite.setDepth(Depth.hud + 1);
       sprite.setAlpha(0);

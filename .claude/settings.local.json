@@ -39,5 +39,8 @@
       "Bash(kiro-cli --help)",
       "Bash(kiro-cli chat *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "builder-mcp"
+  ]
 }

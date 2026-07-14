@@ -13,7 +13,7 @@ Set WorldState flags in `public/states/default.json`:
 }
 ```
 
-Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32)
+Available pets: `"rock"` (4-dir, 48x48) or `"dog"` (8-dir, 32x32) or `"bubble"` (no directions, 128x128)
 
 ## Controls
 
@@ -142,6 +142,20 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 **Per-direction offsets:** `PLAYER_THROW_OFFSETS` defines `{ x, y, z }` per Direction — `z: 1` renders rock in front of player, `z: -1` behind.
 
+## Bubble Shield Ability
+
+**Activation:** Hold P key or pet action button
+
+**Behavior:** Bubble grows around player, making them invulnerable. Player is frozen (can't move or animate) while shield is active. Shield deactivates when button is released.
+
+**Blocked during:** Swimming, jumping
+
+**Unique properties:** Bubble pet floats near the player using lerp-based smooth movement (no pathfinding, no grid collision, no jump sync). Not affected by water — stays visible while player swims.
+
+**Pet cycling:** Bubble is included in the pet cycle (requires `pet_bubble_collected` flag). `PetActionButtonComponent` shows the bubble icon when selected.
+
+**Pitfall:** Because bubble doesn't use `PetFollowComponent` or `GridCollisionComponent`, it's spawned via a separate code path in `PetManager.spawnPet()`. The standard pet entity factory isn't used.
+
 ## Architecture
 
 - **PetManager** — Singleton, spawns pets based on WorldState
@@ -163,14 +177,17 @@ const NON_RESUMABLE_STATES = new Set(['attack', 'jumping', 'recover', 'standup',
 
 - `src/systems/PetManager.ts` — Pet lifecycle
 - `src/ecs/entities/pet/PetEntity.ts` — Entity factory
-- `src/ecs/entities/pet/PetConfig.ts` — Pet registry (rock, dog)
+- `src/ecs/entities/pet/PetConfig.ts` — Pet registry (rock, dog, bubble)
 - `src/ecs/entities/pet/PetAnimations.ts` — Animation map creation (idle, walk, run, bark)
+- `src/ecs/entities/pet/BubbleEntity.ts` — Bubble pet entity factory (separate from PetEntity)
 - `src/ecs/components/pet/PetFollowComponent.ts` — Following + wander logic
 - `src/ecs/components/pet/PetSyncJumpBehavior.ts` — Sync-jump with player (void/platform jumps)
 - `src/ecs/components/pet/PetAbilityComponent.ts` — Ability routing
 - `src/ecs/components/pet/DogBarkAbility.ts` — Bark ability + fear application
 - `src/ecs/components/pet/RockThrowAbility.ts` — Rock throw orchestrator (state pattern)
 - `src/ecs/components/pet/rock-throw/` — State classes (RockChargingState, RockAimingState, RockFlightState, RockReturningState, RockThrowTypes)
+- `src/ecs/components/pet/BubbleFollowComponent.ts` — Bubble lerp-based following (no pathfinding)
+- `src/ecs/components/pet/BubbleShieldAbility.ts` — Shield activation/deactivation
 - `src/ecs/components/combat/FearComponent.ts` — Fear visual effects + timer
 - `src/ecs/entities/common/EnemyFearState.ts` — Shared flee state
 - `features/pets/dog/bark/` — Design docs and tasks

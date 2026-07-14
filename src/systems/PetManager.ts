@@ -4,6 +4,7 @@ import type { Grid } from './grid/Grid';
 import { PET_REGISTRY, type PetSpritesheetMetadata } from '../ecs/entities/pet/PetConfig';
 import { WorldFlags } from '../constants/WorldFlags';
 import { createPetEntity } from '../ecs/entities/pet/PetEntity';
+import { createBubbleEntity } from '../ecs/entities/pet/BubbleEntity';
 import { WorldStateManager } from './WorldStateManager';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
 import { PetFollowComponent } from '../ecs/components/pet/PetFollowComponent';
@@ -57,12 +58,31 @@ export class PetManager {
       this.despawnPet();
     }
     
-    const metadata = await this.loadMetadata(petId);
-    if (!metadata) return;
-    
     const playerTransform = this.playerEntity.require(TransformComponent);
     const playerGridPos = this.playerEntity.get(GridPositionComponent);
     const feetOffsetY = playerGridPos ? playerGridPos.collisionBox.offsetY : 0;
+
+    // Bubble pet has no animations/metadata/grid collision
+    if (config.id === 'bubble') {
+      this.activePetEntity = createBubbleEntity({
+        scene: this.scene,
+        playerEntity: this.playerEntity,
+        startX: playerTransform.x,
+        startY: playerTransform.y + feetOffsetY,
+      });
+
+      if (this.scene && 'entityManager' in this.scene) {
+        const entityManager = (this.scene as unknown as { entityManager: { add(entity: Entity): void } }).entityManager;
+        entityManager?.add(this.activePetEntity);
+      }
+
+      this.selectedPetId = petId;
+      WorldStateManager.getInstance().setFlag(WorldFlags.petSelected, petId);
+      return;
+    }
+
+    const metadata = await this.loadMetadata(petId);
+    if (!metadata) return;
     
     this.activePetEntity = createPetEntity({
       scene: this.scene,
@@ -167,6 +187,8 @@ export class PetManager {
 
   updateWaterState(isInWater: boolean): void {
     if (!this.activePetEntity) return;
+    // Bubble floats — not affected by water
+    if (this.selectedPetId === 'bubble') return;
     
     const follow = this.activePetEntity.get(PetFollowComponent);
     if (!follow) return;

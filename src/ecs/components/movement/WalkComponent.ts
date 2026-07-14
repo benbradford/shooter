@@ -13,6 +13,7 @@ import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { InteractionComponent } from '../interaction/InteractionComponent';
 import { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../pet/RockThrowAbility';
+import { BubbleShieldAbility } from '../pet/BubbleShieldAbility';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
 
 export type WalkProps = {
@@ -99,9 +100,13 @@ export class WalkComponent implements Component {
     const isThrowLocked = rockThrow?.isPlayerLocked() ?? false;
     const isThrowAiming = rockThrow?.isAiming() ?? false;
 
+    // Check bubble shield movement lock
+    const bubbleShield = PetManager.getInstance().getActivePetEntity()?.get(BubbleShieldAbility);
+    const isBubbleLocked = bubbleShield?.isActive() ?? false;
+
     const mode = this.controlMode?.getMode() ?? 1;
     const rawInput = this.inputComp.getInputDelta();
-    const movementInput = (isLocked || isThrowLocked) ? { dx: 0, dy: 0 } : rawInput;
+    const movementInput = (isLocked || isThrowLocked || isBubbleLocked) ? { dx: 0, dy: 0 } : rawInput;
     const facingInput = this.inputComp.getRawInputDelta();
 
     if ((!facingLocked && !isThrowLocked) || isThrowAiming) {

@@ -127,7 +127,8 @@ Used by `JumpComponent`, `GridMovementValidator`, `AttackButtonComponent`, `Atta
 | `hasCompanion` | `"true"` | Spawns companion (Narry) |
 | `pet_rock_collected` | `"true"` | Rock pet available |
 | `pet_dog_collected` | `"true"` | Dog pet available |
-| `pet_selected` | `"rock"` / `"dog"` | Active pet |
+| `pet_bubble_collected` | `"true"` | Bubble pet available |
+| `pet_selected` | `"rock"` / `"dog"` / `"bubble"` | Active pet |
 
 ## How It Works
 

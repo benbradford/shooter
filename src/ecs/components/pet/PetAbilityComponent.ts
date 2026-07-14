@@ -4,6 +4,7 @@ import { PetManager } from '../../../systems/PetManager';
 import { PET_REGISTRY } from '../../entities/pet/PetConfig';
 import { DogBarkAbility } from './DogBarkAbility';
 import { RockThrowAbility } from './RockThrowAbility';
+import { BubbleShieldAbility } from './BubbleShieldAbility';
 import { AttackComboComponent } from '../combat/AttackComboComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 
@@ -79,6 +80,14 @@ export class PetAbilityComponent implements Component {
       return true;
     }
 
+    if (config.id === 'bubble') {
+      const petEntity = petManager.getActivePetEntity();
+      const shieldAbility = petEntity?.get(BubbleShieldAbility);
+      if (!shieldAbility || shieldAbility.isActive()) return false;
+      shieldAbility.activate();
+      return true;
+    }
+
     this.cooldowns.set(petId, config.abilityCooldownMs);
     console.log(`[PET] ${config.id} ability activated!`);
     return true;
@@ -106,6 +115,11 @@ export class PetAbilityComponent implements Component {
       if (throwAbility?.isInFlight()) return false; // Disable button during flight and landing
       if (throwAbility?.isActive()) return true; // Button stays active during throw (for hold detection)
       if (!throwAbility) return false;
+    }
+    if (petId === 'bubble') {
+      const petEntity = petManager.getActivePetEntity();
+      const shieldAbility = petEntity?.get(BubbleShieldAbility);
+      if (!shieldAbility) return false;
     }
 
     return true;

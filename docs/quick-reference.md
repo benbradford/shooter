@@ -324,7 +324,7 @@ Triggers fire events when player walks into them. Use editor: Entity tool → tr
 **Controls:** P key triggers pet ability
 **Behavior:** Pet follows using smooth delta-based movement, stops within 128px, teleports if >800px, hides in water
 **Movement:** Always uses pathfinding on player's current layer, speed lerps between run and wander
-**Available pets:** rock (4-dir), dog (8-dir)
+**Available pets:** rock (4-dir), dog (8-dir), bubble (shield)
 
 See [Pet System](./pets-quick-ref.md) for details.
 
@@ -347,7 +347,7 @@ See [Pet System](./pets-quick-ref.md) for details.
 
 The profile select screen has a 4th "Cheat" slot that starts with all abilities unlocked:
 - `canPunch`, `canSwim`, `canJump`, `canPush`, `hasSuperPunch`, `hasCompanion`, `hasAutoHeal` = `"true"`
-- `pet_rock_collected`, `pet_dog_collected` = `"true"`, `pet_selected` = `"dog"`
+- `pet_rock_collected`, `pet_dog_collected`, `pet_bubble_collected` = `"true"`, `pet_selected` = `"dog"`
 - Starts in `house3_interior`
 
 Useful for testing combat, pets, companion, and super punch without progression.

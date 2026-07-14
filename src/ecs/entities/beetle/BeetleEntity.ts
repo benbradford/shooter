@@ -75,7 +75,7 @@ export function createBeetleEntity(props: CreateBeetleProps): Entity {
   entity.add(new HealthComponent({ maxHealth: HEALTH_BY_DIFFICULTY[difficulty] }));
   entity.add(new HitFlashComponent(0xffffff, null, true));
   entity.add(new DifficultyComponent(difficulty));
-  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid));
+  entity.add(new KnockbackComponent(KNOCKBACK_FRICTION, KNOCKBACK_DURATION_MS, grid, blockedAreaManager));
 
   const shadow = entity.add(new ShadowComponent(scene, { scale: 0.5, offsetX: 0, offsetY: 4 }));
   shadow.init();

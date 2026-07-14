@@ -84,6 +84,11 @@ NEVER let the prompt accidentally encourage:
 - showcase lighting
 - display-model staging
 
+NEVER rely on an ambiguous subject word when the gameplay role depends on
+vertical interpretation. Terms like `stalactite`, `stalagmite`, `ledge`, or
+`pillar` can drift into the wrong camera logic or wrong world attachment unless
+you explicitly say `floor prop`, `ceiling prop`, `wall prop`, or `map object`.
+
 These produce: isometric drift, terrain halos, unreadable silhouettes, poor
 tilemap integration.
 
@@ -377,6 +382,46 @@ These MUST remain in every prop prompt:
 - **"designed to visually harmonize with stylized painted grass tiles"**
 - The full ANTI-ILLUSTRATION CONSTRAINTS section
 - The full ABSOLUTE EXCLUSIONS section at the end
+
+## Spritesheet-Specific Rules
+
+When asking for multiple props on one sheet, image models often produce a
+presentation board instead of a production spritesheet. The most common failure
+mode is a baked sheet background with panel gradients, divider lines, or card
+framing behind each sprite.
+
+If the user wants a spritesheet:
+
+1. Prefer generating isolated single props first, then packing them manually.
+2. If requesting a sheet directly, make these constraints explicit:
+   - `transparent background across the entire sheet`
+   - `cells separated only by transparency`
+   - `no panel background behind any sprite`
+   - `no divider lines`
+   - `no contact sheet presentation`
+   - `no framed boxes, cards, or preview tiles`
+3. Require stronger cell usage than the generic prop template:
+   - `each sprite should fill roughly 70-85% of its cell`
+   - `do not leave large empty margins`
+4. Require clearer variant spread:
+   - `each variant must have a distinct silhouette, not minor rearrangements of the same shape`
+
+## Cave Spike Cluster Guidance
+
+Top-down cave spike props have two recurring failure modes:
+
+- **Direction ambiguity:** `stalactite` often triggers a side-view hanging cave
+  illustration, while `stalagmite` often collapses into a generic rock cluster.
+- **Material drift:** the model over-polishes them into glossy crystals or soft
+  painterly mineral blobs instead of readable cave-rock obstacles.
+
+For cave spikes, prefer phrases like:
+
+- `top-down cave floor spike cluster gameplay prop`
+- `top-down cave ceiling spike cluster gameplay prop`
+- `read as rocky cave spikes, not crystals`
+- `matte cave rock, restrained highlights, no glossy mineral sheen`
+- `chunky readable spikes, avoid thin noisy needles`
 
 ## Terrain Template
 

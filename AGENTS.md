@@ -23,6 +23,33 @@ npx eslint src --ext .ts     # MUST pass with zero errors
 - **Platforms:** Web (Netlify), Android (Capacitor), Desktop (Electron)
 - **Level Editor:** Browser-based at `/editor/` (standalone HTML + Phaser canvas)
 
+## Fast Startup Context
+
+When starting a new Codex session, load the project with this mental model first:
+
+- **Game shape:** Top-down action-adventure with grid movement, combat, pets, NPC interactions, level transitions, and persistent world state
+- **Bootstrap:** `src/main.ts` creates the Phaser game, orders scenes, and exposes internals when `?test=true`
+- **Runtime hub:** `src/scenes/GameScene.ts` orchestrates level loading, theme rendering, ECS setup, collision, event management, world-state restore, and scene-level state transitions
+- **ECS core:** `src/ecs/Entity.ts` and `src/ecs/EntityManager.ts` define entity lifecycle, updates, destruction, and tag queries
+- **Level pipeline:** `src/systems/level/LevelLoader.ts` reads level JSON, `src/systems/EntityLoader.ts` creates runtime entities, and `public/levels/*.json` is the source data
+- **Persistence:** `src/systems/WorldStateManager.ts` owns save/load, flags, persistent destruction, and cross-level state
+- **Assets:** `src/assets/AssetRegistry.ts` is the source of truth for asset keys/groups and `src/assets/AssetLoader.ts` performs scene loading
+- **Editor:** `editor/` is a standalone tool that edits level data and depends on asset keys being registered for editor usage too
+- **Tests:** Browser integration tests live in `test/tests/`; `test/run-all-tests.sh` starts Vite and runs them; tests drive the game through Puppeteer plus `RemoteInputComponent`
+- **Tracking:** `features/` holds requirements/design/tasks for planned work; `workbench/` holds browser-based trackers for features, bugs, architecture issues, and linter cleanup
+
+### Read Order For Broad Tasks
+
+If a request is broad, ambiguous, or touches multiple systems, read in this order before editing:
+
+1. `AGENTS.md`
+2. `docs/coding-standards.md`
+3. `src/main.ts`
+4. `src/scenes/GameScene.ts`
+5. One relevant system file in `src/systems/` or `src/ecs/`
+6. One relevant doc from `docs/README.md`
+7. Related test file in `test/tests/` if the task is a bug or behavior change
+
 ## Project Structure
 
 ```
@@ -148,27 +175,23 @@ Browser-based trackers at `http://localhost:5173/workbench/`:
 - Architecture issues, features, bugs, linter errors
 - Interactive status buttons and agent session spawning
 
-**Feature lifecycle:** When implementing a tracked feature, set its status to `'in-progress'` in `workbench/feature-tracker.html` when starting, and `'done'` when complete. If `features/{name}/tasks.md` exists, mark individual tasks with `✓ COMPLETE`.
+**Feature lifecycle:** When implementing a tracked feature, set its status to `'in-progress'` in `workbench/feature-tracker.html` when starting, and `'done'` when complete. If `features/{name}/tasks.md` exists, mark individual tasks with checkboxes.
 
 ## Multi-Tool Development System
 
 This project supports **Kiro**, **Claude Code**, and **Codex** for AI-assisted development:
 - Kiro sessions: `kiro-cli chat --agent dodging-bullets` (orchestrator with sub-agents)
-- Claude Code sessions: `claude` (picks up context from this file)
-- Codex sessions: `codex` (picks up context from `AGENTS.md` in project root)
-- Kiro and Claude managed via the VS Code extension (DB Sessions sidebar)
-- Session type shown by icon in the sidebar
+- Claude Code sessions: `claude` (picks up context from `CLAUDE.md` in project root)
+- Codex sessions: `codex` (picks up context from this `AGENTS.md` file)
+- Both Kiro and Claude managed via the VS Code extension (DB Sessions sidebar)
+- `scripts/extract-sessions.mjs` reads kiro and claude session histories for doc updates
 
 ## SOPs (read on demand)
 
-When the user's request matches a trigger phrase below, read the named SOP file
-and follow it. Do not respond from memory — the SOP files contain the
-authoritative procedure.
+When the user's request matches a trigger phrase below, read the named SOP file and follow it.
 
 ### ChatGPT image prompts
 
-Triggers: "help me create a chatgpt prompt to draw …", "give me a chatgpt
-prompt for …", "chatgpt prompt for an image of …", "what should i tell chatgpt
-to draw …", "image prompt for …", "tell chatgpt how to draw …".
+Triggers: "help me create a chatgpt prompt to draw ...", "give me a chatgpt prompt for ...", "chatgpt prompt for an image of ...", "what should i tell chatgpt to draw ...", "image prompt for ...", "tell chatgpt how to draw ...".
 
-→ Read `agent-sops/creating-chatgpt-image-prompts.md` and follow the SOP.
+Read `agent-sops/creating-chatgpt-image-prompts.md` and follow the SOP.
