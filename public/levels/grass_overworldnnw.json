@@ -429,14 +429,6 @@
       ]
     },
     {
-      "col": 3,
-      "row": 2,
-      "layer": 0,
-      "backgroundTexture": [
-        "rocks3"
-      ]
-    },
-    {
       "col": 6,
       "row": 2,
       "layer": 0,
@@ -642,44 +634,6 @@
             "scaleY": 1.33,
             "offsetX": 6,
             "offsetY": -14
-          }
-        }
-      ]
-    },
-    {
-      "col": 3,
-      "row": 4,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "roots_spritesheet2",
-          "sourceRect": {
-            "x": 30,
-            "y": 90,
-            "width": 250,
-            "height": 160
-          }
-        }
-      ]
-    },
-    {
-      "col": 4,
-      "row": 4,
-      "layer": 0,
-      "backgroundTexture": [
-        {
-          "image": "roots_spritesheet2",
-          "sourceRect": {
-            "x": 1258,
-            "y": 431,
-            "width": 250,
-            "height": 160
-          },
-          "transformOverride": {
-            "scaleX": 1,
-            "scaleY": 1,
-            "offsetX": 0,
-            "offsetY": -23
           }
         }
       ]
@@ -1295,8 +1249,8 @@
       "id": "bell2",
       "type": "bell",
       "data": {
-        "col": 2,
-        "row": 5
+        "col": 3,
+        "row": 2
       }
     },
     {
@@ -1304,6 +1258,24 @@
       "type": "worm",
       "data": {
         "col": 4,
+        "row": 5,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "id": "worm1",
+      "type": "worm",
+      "data": {
+        "col": 3,
+        "row": 5,
+        "difficulty": "hard"
+      }
+    },
+    {
+      "id": "worm2",
+      "type": "worm",
+      "data": {
+        "col": 2,
         "row": 5,
         "difficulty": "hard"
       }
@@ -1405,20 +1377,20 @@
       "id": "ba0",
       "vertices": [
         {
-          "x": 143.94888178913737,
-          "y": 390.1060070671378
+          "x": 210.69191551347416,
+          "y": 199.58762886597938
         },
         {
-          "x": 176.66453674121405,
-          "y": 389.2579505300354
+          "x": 238.6598689002185,
+          "y": 199.58762886597938
         },
         {
-          "x": 175.84664536741212,
-          "y": 360.42402826855124
+          "x": 238.6598689002185,
+          "y": 179.79381443298968
         },
         {
-          "x": 143.13099041533545,
-          "y": 359.57597173144876
+          "x": 210.69191551347416,
+          "y": 177.31958762886597
         }
       ],
       "layer": 0,

@@ -3,6 +3,7 @@ import { Depth } from '../../../constants/DepthConstants';
 import type { Entity } from '../../Entity';
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
+import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WaterEffectComponent } from './WaterEffectComponent';
 import type { GridReader, CellCoord, WorldCoord } from '../../../systems/grid/Grid';
 
@@ -27,6 +28,13 @@ export class WaterRippleComponent implements Component {
   update(delta: number): void {
     const water = this.entity.get(WaterEffectComponent);
     if (water?.isHopping()) {
+      this.timeSinceLastRippleMs = 0;
+      return;
+    }
+
+    // No ripples while riding a moving tile over water
+    const collision = this.entity.get(GridCollisionComponent);
+    if (collision?.onMovingTile) {
       this.timeSinceLastRippleMs = 0;
       return;
     }

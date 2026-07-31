@@ -4,7 +4,7 @@ import type { GridPositionComponent } from './GridPositionComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { GridCellBlocker } from './GridCellBlocker';
 import { JumpComponent } from './JumpComponent';
-import { MovingTileComponent } from '../moving-tile/MovingTileComponent';
+import { MovingTileComponent, findMovingTileCovering } from '../moving-tile/MovingTileComponent';
 import { CachedFlag } from '../../../systems/state/CachedFlag';
 
 /**
@@ -209,17 +209,11 @@ export class GridMovementValidator {
     // carries riders to, causing false blocks on water cells between boundaries.
     // Check both the previous and new center cells — the tile may only be
     // registered at one of them depending on when syncOccupancy snapped.
-    const prevCenterCellForRider = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
     const newCenter = this.grid.worldToCellInto(x + gridPos.collisionBox.offsetX, y + gridPos.collisionBox.offsetY, tmpCells[5]);
     const newCenterCol = newCenter.col;
     const newCenterRow = newCenter.row;
-    const newCenterCellForRider = this.grid.getCell(newCenterCol, newCenterRow);
-    const ridingTile = (prevCenterCellForRider
-      ? this.getMovingTileAt(prevCenterCellForRider, prevCenterCell.col, prevCenterCell.row)
-      : null)
-      ?? (newCenterCellForRider
-        ? this.getMovingTileAt(newCenterCellForRider, newCenterCol, newCenterRow)
-        : null);
+    const ridingTile = findMovingTileCovering(this.grid, prevCenterCell.col, prevCenterCell.row)
+      ?? findMovingTileCovering(this.grid, newCenterCol, newCenterRow);
 
     // Check each cell the new collision box overlaps
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
@@ -231,7 +225,7 @@ export class GridMovementValidator {
         const isMovingTileCell = cell ? this.getMovingTileAt(cell, col, row) !== null : false;
         // When riding a tile, also treat cells it geometrically covers as tile cells,
         // even if the tile hasn't snapped its occupancy there yet (between-cell movement).
-        const coveredByRidingTile = !isMovingTileCell && ridingTile !== null && ridingTile.coversCell(col, row);
+        const coveredByRidingTile = !isMovingTileCell && ridingTile !== null && ridingTile.coversCellPixel(col, row, this.grid.cellSize);
 
         // Block if any overlapping cell is a different layer (unless it's a transition or allowed)
         if (cell && !isMovingTileCell && !coveredByRidingTile && !this.grid.isTransition(cell) && !allowedLayers.has(this.grid.getLayer(cell))) {
@@ -260,7 +254,7 @@ export class GridMovementValidator {
     const centerCellRow = tmpCells[5].row;
     if (centerCellRow < topLeftCell.row) {
       const centerCell = this.grid.getCell(centerCellCol, centerCellRow);
-      const visualCenterCoveredByTile = ridingTile !== null && ridingTile.coversCell(centerCellCol, centerCellRow);
+      const visualCenterCoveredByTile = ridingTile !== null && ridingTile.coversCellPixel(centerCellCol, centerCellRow, this.grid.cellSize);
       if (centerCell && !visualCenterCoveredByTile && !this.getMovingTileAt(centerCell, centerCellCol, centerCellRow)
         && !centerCell.properties.has('bridge') && centerCell.properties.has('water')) {
         const waterEffect = entity.get(WaterEffectComponent);

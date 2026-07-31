@@ -79,7 +79,11 @@ export class WaterEffectComponent implements Component {
     const grid = gridCollision.getGrid();
     const currentCell = grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
     // Riding a moving tile keeps the entity dry even over water.
-    const onMovingTile = findMovingTileCovering(grid, gridPos.currentCell.col, gridPos.currentCell.row) !== null;
+    const onMovingTile = findMovingTileCovering(grid, gridPos.currentCell.col, gridPos.currentCell.row) !== null
+      || findMovingTileCovering(grid,
+        Math.floor((transform.x + gridPos.collisionBox.offsetX) / grid.cellSize),
+        Math.floor((transform.y + gridPos.collisionBox.offsetY) / grid.cellSize)
+      ) !== null;
     const isCurrentCellWater = !onMovingTile && (currentCell?.properties.has('water') ?? false);
     const isCurrentCellBridge = currentCell?.properties.has('bridge') ?? false;
     const walk = this.entity.get(WalkComponent);

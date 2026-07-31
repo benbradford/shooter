@@ -190,6 +190,12 @@ This project supports **Kiro**, **Claude Code**, and **Codex** for AI-assisted d
 
 When the user's request matches a trigger phrase below, read the named SOP file and follow it.
 
+### Self-reflect / Update docs
+
+Triggers: "self-reflect", "self-improve", "update the docs", "what went wrong since last time".
+
+Read the "When asked to update the docs or self-reflect" section in `docs/README.md` and follow the workflow. This is a self-improvement loop — identify friction from recent sessions and update docs/steering to prevent recurrence.
+
 ### ChatGPT image prompts
 
 Triggers: "help me create a chatgpt prompt to draw ...", "give me a chatgpt prompt for ...", "chatgpt prompt for an image of ...", "what should i tell chatgpt to draw ...", "image prompt for ...", "tell chatgpt how to draw ...".

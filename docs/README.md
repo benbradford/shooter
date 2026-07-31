@@ -20,6 +20,8 @@ Quick reference for navigating the Dodging Bullets documentation.
 - Step-by-step code tutorials (obvious from reading code)
 - Large code examples (use code search to find patterns)
 - Specific constants (detect distances, damage values, cooldowns, speeds) — these are trivially found in code and change frequently
+- Asset inventories (which textures, sounds, or PNGs were added) — trivially found via file system
+- Trivial additions that don't affect behavior (new NPC name, new level file, new sprite)
 
 ### When Updating Documentation
 
@@ -56,17 +58,79 @@ This checks:
 9. Suggest consolidation opportunities
 10. **Don't automatically change** - present findings and wait for approval
 
-When asked to "update the docs":
-1. **Run `node scripts/extract-sessions.mjs --dry-run`** to see what's been worked on since last update
-2. Update existing sections to reflect code changes
-3. Remove obsolete information about deleted features
-4. Add new information for new features
-5. Keep docs accurate and minimal
-6. Update multiple doc files as needed
-7. **Update `.agents/summary/index.md` to keep it in sync with doc changes**
-8. **Ask clarifying questions if there's conflicting information or unclear behavior**
-9. **Audit** — Run the audit script, fact-check file paths/symbols/code references, review files >300 lines, remove stale info
-10. **Run `node scripts/extract-sessions.mjs`** (without --dry-run) to write the timestamp
+When asked to "update the docs" or "self-reflect":
+
+**PURPOSE: Make kiro work better over time.** This is a self-improvement loop, not a changelog. The agent reads sessions since the last checkpoint, identifies friction and patterns of failure, and updates documentation/steering to prevent recurrence. "Nothing actionable" is a valid outcome — don't manufacture findings.
+
+**Trigger phrases:** "update the docs", "self-reflect", "self-improve", "what went wrong since last time"
+
+### Documentation Taxonomy
+
+Every piece of documentation falls into one of these categories. The category determines how often it changes and what priority it has during updates:
+
+| Category | Priority | Example | Audit cadence |
+|----------|----------|---------|---------------|
+| Safety | 5/5 | `Don't deploy to Android unless asked`, `Don't auto-push` | Never remove; expand carefully |
+| Environmental | 4/5 | `npm run build is the build tool`, `64x64 grid cells`, ECS pattern | Rare — only on tooling/architecture change |
+| Procedural | 3/5 | Test-first bug fix workflow, commit message format, doc update process | On team convention change |
+| Defensive | 2/5 | `syncPreviousPosition() after teleporting`, moving tile water pitfall | Quarterly review — retire when baked into general behavior |
+| Model-compensation | 1/5 | `Don't list texture PNGs in docs`, `Don't guess-fix without tests` | Every model improvement; prefer to REMOVE when possible |
+
+**Key insight:** Model-compensation rules are technical debt. As models and tooling improve, they become removable. The category label lets periodic audits find and retire them.
+
+### What the doc update should produce
+
+The doc update workflow exists to create or refine **Defensive** and **Model-compensation** entries from observed friction. It should NOT produce new Environmental entries for things that haven't materially changed.
+
+**Priority order during updates:**
+1. **Friction signals → Defensive entries** (MOST VALUABLE) — pitfalls discovered the hard way
+2. **Repeated agent failures → Model-compensation entries** — patterns of bad behavior to steer against
+3. **Major architectural changes → Environmental updates** — only when systems are added/removed/fundamentally changed
+4. **Stale info removal** — especially expired Model-compensation rules
+
+**What counts as a friction signal:**
+- A bug that took multiple attempts to fix (why did early attempts fail?)
+- An agent guessing at solutions instead of following test-first workflow
+- Conflicting or missing documentation that caused wrong decisions
+- A pattern that repeatedly trips up agents across sessions
+- A workflow that broke down (e.g., context overflow, wrong assumptions)
+
+**What to do with friction signals:**
+- Document the pitfall in the relevant doc as a **Defensive** entry (quick-reference, system doc, etc.)
+- If it reveals a pattern of model failure, add a **Model-compensation** entry to AGENTS.md or this README
+- Add to `.agents/summary/index.md` with the lesson learned
+
+**What NOT to document (these are Environmental noise, not friction):**
+- New asset files (PNGs, sounds, textures) — trivially found via file system
+- New constants or config values — trivially found in code
+- Trivial additions (a new NPC name, a new level file) — pollutes context
+- Anything an agent can discover in 5 seconds with grep or code search
+
+**Steps:**
+1. **Run `node scripts/extract-sessions.mjs --dry-run`** to see what's been worked on since last checkpoint
+2. **Read session summaries looking for friction signals.** Apply this checklist:
+   - **Guess-fixing**: Agent tried to fix something without reproducing it in a test first (violated test-first workflow)
+   - **Repeated failures**: Same error 3+ times without changing approach
+   - **Missing knowledge**: Agent didn't know about an existing pattern/system and reinvented it
+   - **Wrong assumptions**: Agent assumed behavior without reading the code
+   - **Workflow violations**: Agent skipped a mandatory step (e.g., build after changes, lint before commit)
+   - **Context pollution**: Agent produced verbose output or cataloged trivial things (like this doc update is trying to fix)
+   - **User frustration**: User had to repeat themselves, say "stop", or correct the agent
+3. **Gate each finding** — Only act on findings that are:
+   - **Specific**: cites a concrete session event, not a vague "could be better"
+   - **Systemic**: will recur (not a one-off typo or user misspeak)
+   - **Actionable**: proposes a specific doc/steering change
+4. **Classify and apply** findings using the taxonomy:
+   - → **Defensive entry** (pitfall in quick-reference or system doc): for gotchas that tripped up the agent
+   - → **Model-compensation entry** (in AGENTS.md or docs/README.md): for patterns of bad agent behavior to steer against
+   - → **Procedural update** (in docs/README.md workflow): for workflow improvements
+   - → **Environmental update** (rare): only for major new systems that fundamentally change how the project works
+5. **If "Nothing actionable"** — say so and stop. Don't manufacture findings.
+6. Remove stale info — especially expired Model-compensation and Defensive entries that are now general knowledge
+7. **Update `.agents/summary/index.md`** — friction lessons only, not inventories
+8. **Ask clarifying questions** if there's conflicting information or unclear behavior
+9. **Audit** — Run `./scripts/audit-docs.sh`, fact-check file paths/symbols/code references, review files >300 lines
+10. **Run `node scripts/extract-sessions.mjs`** (without --dry-run) to write the checkpoint timestamp
 
 ## 🎯 Designing New Features
 

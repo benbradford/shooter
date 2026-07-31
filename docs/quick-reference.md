@@ -155,7 +155,7 @@ Without #2, the lips icon shows but nothing happens. See `entity-creation-system
 **⚠️ `getFlag` returns a string.** Use `tonumber()` in Lua for numeric comparisons.
 
 **NPC Properties in JSON:**
-- `assets`: Spritesheet key — `npc1`, `village_old_man`, `village_girl`, `village_wizard`
+- `assets`: Spritesheet key — `npc1`, `village_old_man`, `village_girl`, `village_wizard`, `old_village_lady`
 - `direction`: Facing direction — `"Down"`, `"Left"`, `"UpRight"`, etc., or `"facePlayer"` to always face the player
 - `scale`: Optional size multiplier (default 1)
 - `name`: Optional display name for dialogue
@@ -232,6 +232,45 @@ Base sprite (`laser_base_only.png`) stays static, nozzle sprite (`laser_nozzle.p
 **Key files:**
 - `src/ecs/entities/laser/LaserEntity.ts` — Entity factory
 - `src/ecs/components/laser/LaserBeamComponent.ts` — All beam logic
+
+## Moving Tile Entity
+
+A platform-sized entity that follows a scripted path (wait/move steps). Players and pets riding the tile are carried along automatically.
+
+**Behavior:** Tile loops through a script of `waitMs` and `moveTo` steps. Entities standing on the tile's footprint are carried by the same delta each frame. Occupancy is grid-snapped (per-cell) so the movement validator special-cases boarding and leaving.
+
+**Water interaction:** A moving tile overrides the underlying cell's rules — the player stays on the tile even when it crosses water cells. When the player steps off a tile onto water (and can't swim), movement is blocked.
+
+**Key patterns:**
+- `GridMovementValidator` checks `findMovingTileCovering()` to allow movement onto and off of tiles
+- Rider carry uses `TransformComponent` delta + `GridCollisionComponent.syncPreviousPosition()` to prevent snap-back
+- Tile occupancy stored in grid cells; `coversCell()` handles geometric check for between-cell positions
+
+**Script format (level JSON):**
+```json
+"script": [
+  { "waitMs": 1000 },
+  { "moveTo": { "col": 10, "row": 5 }, "speedCellsPerSec": 3 },
+  { "waitMs": 500 },
+  { "moveTo": { "col": 5, "row": 5 }, "speedCellsPerSec": 2 }
+]
+```
+
+**Key files:**
+- `src/ecs/components/moving-tile/MovingTileComponent.ts` — Platform movement, occupancy, rider carry
+- `src/ecs/components/moving-tile/MovingTileScript.ts` — Script types and parser
+- `src/ecs/entities/moving-tile/MovingTileEntity.ts` — Entity factory
+- `src/ecs/components/movement/GridMovementValidator.ts` — Boarding/leaving logic
+
+**⚠️ Water pitfall:** Tile occupancy is grid-snapped and can lag behind the tile's pixel position. When a rider is carried between cell boundaries, the validator must check both the old and new center cells for the riding tile — otherwise water cells in between will incorrectly block the rider. The fix checks `ridingTile.coversCell()` geometrically, not just grid occupancy.
+
+**⚠️ Rider detection pitfall:** Grid cell occupancy is coarser than pixel position. A player standing *near* (but not on) the tile can have their collision box registered in the tile's cell. `carryRiders()` must do a geometric check (rider center within tile pixel bounds) — not just cell occupancy — to avoid pulling nearby players onto the tile when it starts moving.
+
+**⚠️ Ripple suppression:** `WaterRippleComponent` checks `GridCollisionComponent.onMovingTile` to suppress ripples while riding. Without this, ripples appear under the player/tile as it crosses water cells even though the player isn't swimming.
+
+**Depth:** `Depth.movingTile` (-39) — renders between cell textures and edge graphics.
+
+**Tests:** `test/tests/player/test-moving-tile.js`
 
 ## Adding Assets
 
@@ -486,15 +525,19 @@ See `attacker-spritesheet-reference.md` for complete mapping.
 
 ## Troubleshooting
 
+### Entity Sprites Wrong Size in Editor
+**Cause:** `EditorScene.update()` does not call `entityManager.update()`, so component `update()` methods never fire. Any visual property that's only applied in `update()` (like `scaleXOverride`) won't take effect.
+**Fix:** `SpriteComponent` constructor now applies `scaleXOverride`/`scaleYOverride` immediately at construction, not just in `update()`. If adding new visual properties to components, ensure initial state is set in the constructor — don't rely on `update()` for the editor.
+
 ### Player Spawning at Wrong Position
 **Cause:** GridCollisionComponent initializes previousX/Y to (0,0), thinks player is moving from origin.
 **Fix:** Component now initializes to actual starting position on first frame.
 
 ### Sprite Shattering Effect
-Divide sprite into 3×3 grid, use physics-based motion with randomness. Use absolute position calculation to prevent rotation affecting trajectory.
+Divide sprite into 3×3 grid, use physics-based motion with randomness. Use absolute position calculation to prevent rotation affecting trajectory. Rotation decays exponentially over time (not constant speed) — uses `decayingRotationAngleDeg()` from `src/utils/ShardRotation.ts`.
 
 ### Coin and Medipack Pickups
-- Coins: Physics-based, fly to HUD, 15s lifetime
+- Coins: Physics-based with spin (direction matches emit velocity, decays exponentially via `scaleX` squash), fly to HUD on collection, 15s lifetime
 - Medipacks: Mushroom sprite, gradual healing (50 HP/sec for 2s), overheal up to 200, 15s lifetime
 - Small mushrooms: Instant 20 HP heal (capped at max health — no overheal), 40px collection distance, 300ms spawn delay, 15s lifetime (fades after 10s)
 - Enemy health drops: Enemies have a per-type chance to drop small mushrooms on death. Uses `HealthDropOnDeathComponent`. Chances defined in `ENEMY_DROP_CHANCES` in `enemyFactories.ts`.

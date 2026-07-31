@@ -181,6 +181,7 @@ const testRiderCarriedByMovingTile = test(
     if (!arrived.matched) return false;
 
     const cell = await getPlayerCell(page);
+    console.log('  Rider carried test: tile arrived col', arrived.col, 'player cell', JSON.stringify(cell));
     return cell.col >= 13;
   }
 );
@@ -287,24 +288,142 @@ const testRiderCarriedOverWater = test(
     const parked = await waitForTile(page, 'moving_tile1', '(s) => s.col === 10 && !s.isMoving', 10000);
     if (!parked.matched) { console.log('  FAIL: tile did not park at col 10'); return false; }
 
-    // Board the tile
-    await teleportPlayer(page, 10, 5);
+    // Walk onto the tile from an adjacent land cell (col 9) to simulate real gameplay
+    await teleportPlayer(page, 9, 5);
     await new Promise(r => setTimeout(r, 200));
 
-    const boardedCell = await getPlayerCell(page);
-    console.log('  Boarded at cell:', JSON.stringify(boardedCell));
-    if (boardedCell.col !== 10) { console.log('  FAIL: could not board tile'); return false; }
+    // Walk east onto the tile at col 10
+    const walkResult = await page.evaluate(() => moveToCellHelper(10, 5, 3000));
+    console.log('  Walk to tile result:', JSON.stringify(walkResult));
+    if (!walkResult.reached) { console.log('  FAIL: could not walk onto tile'); return false; }
 
-    // Wait for the tile to arrive at col 14 (past all water cells at 11,12,13)
-    const arrived = await waitForTile(page, 'moving_tile1', '(s) => s.col >= 14', 8000);
-    const playerCell = await getPlayerCell(page);
-    console.log('  Tile arrived:', JSON.stringify(arrived), 'Player cell:', JSON.stringify(playerCell));
+    // Now wait for the tile to carry us across water to col 14
+    // Instrument frame-by-frame to diagnose
+    const diagnosis = await page.evaluate(() => new Promise((resolve) => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const tileEntity = scene.entityManager.getAll().find(e => e.id === 'moving_tile1');
+      const tile = tileEntity.get(window.MovingTileComponent);
+      const tileTransform = tileEntity.require(window.TransformComponent);
+      const player = scene.entityManager.getFirst('player');
+      const playerTransform = player.require(window.TransformComponent);
+      const gridPos = player.require(window.GridPositionComponent);
+      const waterEffect = player.get(window.WaterEffectComponent);
+      const walk = player.get(window.WalkComponent);
 
-    if (!arrived.matched) { console.log('  FAIL: tile did not reach col 14'); return false; }
+      const events = [];
+      let frameCount = 0;
+      let detachedAt = -1;
+      let everInWater = false;
+      const start = Date.now();
 
-    // Player should have been carried to col 14, NOT fallen into water
-    if (playerCell.col < 14) {
-      console.log('  FAIL: player fell off tile (col ' + playerCell.col + ' instead of 14)');
+      const interval = setInterval(() => {
+        frameCount++;
+        const tileCol = tile.getTopLeftCol();
+        const playerCol = gridPos.currentCell.col;
+        const tilePx = +tileTransform.x.toFixed(1);
+        const playerPx = +playerTransform.x.toFixed(1);
+        const offset = +(playerPx - tilePx).toFixed(1);
+        const isInWater = waterEffect ? waterEffect.getIsInWater() : false;
+        const isMoving = walk ? walk.isMoving() : false;
+
+        if (isInWater) everInWater = true;
+
+        if (offset !== 0 && detachedAt < 0) {
+          detachedAt = frameCount;
+          events.push({ event: 'DETACHED', frame: frameCount, tileCol, playerCol, tilePx, playerPx, offset, isInWater, isMoving, ms: Date.now() - start });
+        }
+
+        // Log every 3rd frame while tile is moving, up to 30 events
+        if (events.length < 30 && tile.getIsMoving() && frameCount % 3 === 0) {
+          events.push({ frame: frameCount, tileCol, playerCol, tilePx, playerPx, offset, isInWater, isMoving });
+        }
+
+        if (Date.now() - start >= 5000 || tileCol >= 14) {
+          clearInterval(interval);
+          resolve({ events, finalPlayerCol: playerCol, finalTileCol: tileCol, everInWater });
+        }
+      }, 16);
+    }));
+
+    console.log('  Diagnosis:');
+    for (const e of diagnosis.events) {
+      console.log('   ', JSON.stringify(e));
+    }
+    console.log('  Final: player col', diagnosis.finalPlayerCol, 'tile col', diagnosis.finalTileCol, 'everInWater', diagnosis.everInWater);
+
+    if (diagnosis.finalPlayerCol < 13) {
+      console.log('  FAIL: player fell off tile (col ' + diagnosis.finalPlayerCol + ' instead of near 14)');
+      return false;
+    }
+    // A carried rider must stay dry the whole way — swimming over the tile's
+    // water cells is the reported bug.
+    if (diagnosis.everInWater) {
+      console.log('  FAIL: player entered water while being carried across it');
+      return false;
+    }
+    return true;
+  }
+);
+
+const testWalkOffMovingTileIntoWaterBlocked = test(
+  {
+    given: 'Player on a vertical tile moving south over water, walking south (same direction)',
+    when: 'Player keeps walking south while tile moves south over water',
+    then: 'Player stays on the tile and does not fall into water'
+  },
+  async (page) => {
+    await page.evaluate(() => setFlag('canSwim', 'false'));
+    await page.evaluate(() => waitForFlagSync());
+
+    // Wait for the vertical tile to park at row 2
+    const parked = await waitForTile(page, 'moving_tile_vertical', '(s) => s.row === 2 && !s.isMoving', 12000);
+    if (!parked.matched) { console.log('  FAIL: vertical tile did not park at row 2'); return false; }
+
+    // Walk onto the tile from the north (row 1)
+    await teleportPlayer(page, 17, 1);
+    await new Promise(r => setTimeout(r, 100));
+    const walked = await page.evaluate(() => moveToCellHelper(17, 2, 3000));
+    if (!walked.reached) { console.log('  FAIL: could not walk onto tile'); return false; }
+
+    // Now hold south — walk in the same direction the tile is moving.
+    // The tile moves south through water at rows 3-8.
+    const result = await page.evaluate(() => new Promise(resolve => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const playerTransform = player.require(window.TransformComponent);
+      const tileEntity = scene.entityManager.getAll().find(e => e.id === 'moving_tile_vertical');
+      const tile = tileEntity.get(window.MovingTileComponent);
+      const tileTransform = tileEntity.require(window.TransformComponent);
+      const waterEffect = player.get(window.WaterEffectComponent);
+      const remoteInput = enableRemoteInput();
+
+      // Hold south
+      remoteInput.setWalk(0, 1, true);
+
+      let everInWater = false;
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (waterEffect && waterEffect.getIsInWater()) everInWater = true;
+
+        // Stop after 2.5 seconds or when tile reaches row 7+
+        if (Date.now() - start >= 2500 || tile.getTopLeftRow() >= 7) {
+          clearInterval(interval);
+          remoteInput.setWalk(0, 0, false);
+          const offsetY = +(playerTransform.y - tileTransform.y).toFixed(1);
+          resolve({
+            everInWater,
+            tileRow: tile.getTopLeftRow(),
+            playerY: +playerTransform.y.toFixed(1),
+            tileY: +tileTransform.y.toFixed(1),
+            offsetY
+          });
+        }
+      }, 16);
+    }));
+
+    console.log('  Result:', JSON.stringify(result));
+    if (result.everInWater) {
+      console.log('  FAIL: player fell into water while walking south on southbound tile');
       return false;
     }
     return true;
@@ -343,6 +462,7 @@ runTests({
     testExitOntoWalkableGround,
     testRiderCarriedByMovingTile,
     testRiderCarriedOverWater,
+    testWalkOffMovingTileIntoWaterBlocked,
     testRiderCarriedExactlyOnce,
     testRiderMovesIndependentlyWhileCarried,
     testScriptLoopsForever

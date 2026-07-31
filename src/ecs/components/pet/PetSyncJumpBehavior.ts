@@ -24,6 +24,7 @@ export class PetSyncJumpBehavior {
   private syncFallTimerMs = 0;
   private syncFallStartY = 0;
   private originalScale = 1;
+  private trackEntity: Entity | null = null;
   private readonly _tmpCell: CellCoord = { col: 0, row: 0 };
   private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
@@ -33,7 +34,7 @@ export class PetSyncJumpBehavior {
     private readonly grid: GridReader,
   ) {}
 
-  startJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): Direction {
+  startJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number, trackEntity?: Entity): Direction {
     const transform = this.entity.require(TransformComponent);
     this.syncJumpStartX = transform.x;
     this.syncJumpStartY = transform.y;
@@ -43,6 +44,7 @@ export class PetSyncJumpBehavior {
     this.syncJumpDurationMs = isFallJump ? flightDurationMs : durationMs;
     this.syncJumpTimerMs = 0;
     this.isSyncFallJump = isFallJump;
+    this.trackEntity = trackEntity ?? null;
 
     const gridCollision = this.entity.get(GridCollisionComponent);
     if (gridCollision) gridCollision.enabled = false;
@@ -56,6 +58,15 @@ export class PetSyncJumpBehavior {
   updateJump(delta: number): 'jumping' | 'fall' | 'done' {
     this.syncJumpTimerMs += delta;
     const progress = Math.min(1, this.syncJumpTimerMs / this.syncJumpDurationMs);
+
+    // If tracking a moving entity, update the target to its current position
+    if (this.trackEntity) {
+      const trackTransform = this.trackEntity.get(TransformComponent);
+      if (trackTransform) {
+        this.syncJumpTargetX = trackTransform.x;
+        this.syncJumpTargetY = trackTransform.y;
+      }
+    }
 
     const transform = this.entity.require(TransformComponent);
     transform.x = this.syncJumpStartX + (this.syncJumpTargetX - this.syncJumpStartX) * progress;

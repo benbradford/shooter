@@ -469,7 +469,7 @@ export class PetFollowComponent implements Component {
     return this.isBarking;
   }
 
-  syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number): void {
+  syncJump(landCol: number, landRow: number, durationMs: number, isFallJump: boolean, flightDurationMs: number, trackEntity?: Entity): void {
     const transform = this.entity.get(TransformComponent);
     if (!transform) return;
 
@@ -477,7 +477,7 @@ export class PetFollowComponent implements Component {
       this.syncJumpBehavior = new PetSyncJumpBehavior(this.entity, this.playerEntity, this.grid);
     }
     this.sm.transition('sync_jumping');
-    const dir = this.syncJumpBehavior.startJump(landCol, landRow, durationMs, isFallJump, flightDurationMs);
+    const dir = this.syncJumpBehavior.startJump(landCol, landRow, durationMs, isFallJump, flightDurationMs, trackEntity);
     this.currentDirection = dir;
     this.pathFollower.clear();
     const anim = this.entity.get(AnimationComponent);

@@ -2929,36 +2929,6 @@
   ],
   "entities": [
     {
-      "id": "worm0",
-      "type": "worm",
-      "data": {
-        "col": 12,
-        "row": 5,
-        "difficulty": "medium"
-      },
-      "respawnable": true
-    },
-    {
-      "id": "worm1",
-      "type": "worm",
-      "data": {
-        "col": 13,
-        "row": 5,
-        "difficulty": "medium"
-      },
-      "respawnable": true
-    },
-    {
-      "id": "worm2",
-      "type": "worm",
-      "data": {
-        "col": 14,
-        "row": 5,
-        "difficulty": "medium"
-      },
-      "respawnable": true
-    },
-    {
       "id": "beetle0",
       "type": "beetle",
       "data": {

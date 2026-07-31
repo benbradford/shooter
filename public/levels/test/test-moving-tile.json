@@ -8,9 +8,21 @@
   "cells": [
     { "col": 5, "row": 4, "properties": ["wall"] },
     { "col": 6, "row": 5, "properties": ["water"] },
+    { "col": 11, "row": 4, "properties": ["water"] },
+    { "col": 12, "row": 4, "properties": ["water"] },
+    { "col": 13, "row": 4, "properties": ["water"] },
     { "col": 11, "row": 5, "properties": ["water"] },
     { "col": 12, "row": 5, "properties": ["water"] },
-    { "col": 13, "row": 5, "properties": ["water"] }
+    { "col": 13, "row": 5, "properties": ["water"] },
+    { "col": 11, "row": 6, "properties": ["water"] },
+    { "col": 12, "row": 6, "properties": ["water"] },
+    { "col": 13, "row": 6, "properties": ["water"] },
+    { "col": 17, "row": 3, "properties": ["water"] },
+    { "col": 17, "row": 4, "properties": ["water"] },
+    { "col": 17, "row": 5, "properties": ["water"] },
+    { "col": 17, "row": 6, "properties": ["water"] },
+    { "col": 17, "row": 7, "properties": ["water"] },
+    { "col": 17, "row": 8, "properties": ["water"] }
   ],
   "entities": [
     {
@@ -56,6 +68,23 @@
           { "moveTo": { "col": 15, "row": 8 }, "speedCellsPerSec": 3 },
           { "waitMs": 800 },
           { "moveTo": { "col": 2, "row": 8 }, "speedCellsPerSec": 3 }
+        ]
+      }
+    },
+    {
+      "id": "moving_tile_vertical",
+      "type": "moving_tile",
+      "data": {
+        "col": 17,
+        "row": 2,
+        "widthCells": 1,
+        "heightCells": 1,
+        "texture": "ice_platform",
+        "script": [
+          { "waitMs": 1000 },
+          { "moveTo": { "col": 17, "row": 9 }, "speedCellsPerSec": 3 },
+          { "waitMs": 400 },
+          { "moveTo": { "col": 17, "row": 2 }, "speedCellsPerSec": 3 }
         ]
       }
     }

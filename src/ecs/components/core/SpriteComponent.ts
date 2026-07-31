@@ -38,7 +38,9 @@ export class SpriteComponent implements Component {
       transformComp.y + this.offsetYPx,
       texture
     );
-    this.sprite.setScale(transformComp.scale);
+    const initialScaleX = this.scaleXOverride ?? transformComp.scale;
+    const initialScaleY = this.scaleYOverride ?? transformComp.scale;
+    this.sprite.setScale(initialScaleX, initialScaleY);
     TextureReferenceTracker.getInstance().addReference(texture);
   }
 

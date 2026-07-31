@@ -9,6 +9,7 @@ import { BugHopComponent } from './BugHopComponent';
 import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
 import { GridMovementValidator } from './GridMovementValidator';
+import { MovingTileComponent } from '../moving-tile/MovingTileComponent';
 
 
 export class GridCollisionComponent implements Component {
@@ -19,6 +20,8 @@ export class GridCollisionComponent implements Component {
   private swapOccupiedCells: Set<number> = new Set();
   enabled = true;
   blockedByPushable: Entity | null = null;
+  /** Set by MovingTileComponent.carryRiders() — suppresses collision validation for this frame. */
+  onMovingTile = false;
 
   private readonly validator: GridMovementValidator;
 
@@ -95,7 +98,53 @@ export class GridCollisionComponent implements Component {
     const newX = transform.x;
     const newY = transform.y;
 
-    if (this.validator.checkCollision(this.entity, newX, newY, this.previousX, this.previousY, gridPos, this._tmpCells)) {
+    // When carried by a moving tile (flag set by carryRiders on previous frame),
+    // clamp the player to the tile bounds only in directions where stepping off
+    // would put them into water or void. If the adjacent ground is walkable,
+    // allow them to leave the tile freely.
+    let skipCollision = false;
+    if (this.onMovingTile) {
+      const tileComp = this.findRidingTile(newX + gridPos.collisionBox.offsetX, newY + gridPos.collisionBox.offsetY);
+      if (tileComp) {
+        const tileTransform = tileComp.entity.get(TransformComponent);
+        if (tileTransform) {
+          const halfTileW = (tileComp.widthCells * this.grid.cellSize) / 2;
+          const halfTileH = (tileComp.heightCells * this.grid.cellSize) / 2;
+          const halfBoxW = gridPos.collisionBox.width / 2;
+          const halfBoxH = gridPos.collisionBox.height / 2;
+
+          const minX = tileTransform.x - halfTileW + halfBoxW;
+          const maxX = tileTransform.x + halfTileW - halfBoxW;
+          const minY = tileTransform.y - halfTileH + halfBoxH - gridPos.collisionBox.offsetY;
+          const maxY = tileTransform.y + halfTileH - halfBoxH - gridPos.collisionBox.offsetY;
+
+          let clampedX = transform.x;
+          let clampedY = transform.y;
+
+          // Only clamp in X if stepping off would put us in water/void
+          if (transform.x < minX) {
+            clampedX = this.shouldClampEdge(tileComp, tileTransform, 'left') ? minX : transform.x;
+          } else if (transform.x > maxX) {
+            clampedX = this.shouldClampEdge(tileComp, tileTransform, 'right') ? maxX : transform.x;
+          }
+
+          if (transform.y < minY) {
+            clampedY = this.shouldClampEdge(tileComp, tileTransform, 'up') ? minY : transform.y;
+          } else if (transform.y > maxY) {
+            clampedY = this.shouldClampEdge(tileComp, tileTransform, 'down') ? maxY : transform.y;
+          }
+
+          transform.x = clampedX;
+          transform.y = clampedY;
+          skipCollision = true;
+        }
+      } else {
+        // No longer on a tile — clear the flag and run normal collision
+        this.onMovingTile = false;
+      }
+    }
+
+    if (!skipCollision && this.validator.checkCollision(this.entity, transform.x, transform.y, this.previousX, this.previousY, gridPos, this._tmpCells)) {
       this.blockedByPushable = this.validator.blockedByPushable;
 
       const xOnlyBlocked = this.validator.checkCollision(this.entity, newX, this.previousY, this.previousX, this.previousY, gridPos, this._tmpCells);
@@ -210,6 +259,70 @@ export class GridCollisionComponent implements Component {
     this.previousY = transform.y;
 
     this.grid.renderCollisionBox(boxLeft, boxTop, gridPos.collisionBox.width, gridPos.collisionBox.height);
+  }
+
+  /**
+   * Check if a moving tile covers the given cell or a neighboring cell.
+   * Checks the cell and its immediate orthogonal neighbors for tile occupants
+   * whose geometric footprint (coversCell) includes the query coordinates.
+   */
+  /** Check if the tile edge in the given direction has water/void (should clamp) or safe ground (allow exit). */
+  private shouldClampEdge(tile: MovingTileComponent, tileTransform: TransformComponent, direction: 'left' | 'right' | 'up' | 'down'): boolean {
+    const cellSize = this.grid.cellSize;
+    const tileCol = Math.floor(tileTransform.x / cellSize);
+    const tileRow = Math.floor(tileTransform.y / cellSize);
+
+    let checkCols: number[];
+    let checkRows: number[];
+
+    switch (direction) {
+      case 'left':
+        checkCols = [tileCol - Math.ceil(tile.widthCells / 2) - 1 + 1];
+        checkRows = Array.from({ length: tile.heightCells }, (_, i) => tileRow - Math.floor(tile.heightCells / 2) + i);
+        // Check the column just to the left of the tile
+        checkCols = [tile.getTopLeftCol() - 1];
+        checkRows = Array.from({ length: tile.heightCells }, (_, i) => tile.getTopLeftRow() + i);
+        break;
+      case 'right':
+        checkCols = [tile.getTopLeftCol() + tile.widthCells];
+        checkRows = Array.from({ length: tile.heightCells }, (_, i) => tile.getTopLeftRow() + i);
+        break;
+      case 'up':
+        checkRows = [tile.getTopLeftRow() - 1];
+        checkCols = Array.from({ length: tile.widthCells }, (_, i) => tile.getTopLeftCol() + i);
+        break;
+      case 'down':
+        checkRows = [tile.getTopLeftRow() + tile.heightCells];
+        checkCols = Array.from({ length: tile.widthCells }, (_, i) => tile.getTopLeftCol() + i);
+        break;
+    }
+
+    // If ANY cell beyond the edge is water or void (or out of bounds), clamp
+    for (const col of checkCols) {
+      for (const row of checkRows) {
+        const cell = this.grid.getCell(col, row);
+        if (!cell) return true; // out of bounds = clamp
+        if (cell.properties.has('water') || cell.properties.has('void')) return true;
+      }
+    }
+    return false; // safe ground — allow stepping off
+  }
+
+  /** Find the moving tile the entity is currently riding (pixel-based, checks neighbors). */
+  private findRidingTile(centerX: number, centerY: number): MovingTileComponent | null {
+    const col = Math.floor(centerX / this.grid.cellSize);
+    const row = Math.floor(centerY / this.grid.cellSize);
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        const cell = this.grid.getCell(col + dc, row + dr);
+        if (!cell) continue;
+        for (const occupant of cell.occupants) {
+          const tile = occupant.get(MovingTileComponent);
+          if (tile?.coversCellPixel(col, row, this.grid.cellSize)) return tile;
+        }
+      }
+    }
+    return null;
   }
 
   onDestroy(): void {

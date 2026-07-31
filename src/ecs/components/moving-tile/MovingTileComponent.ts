@@ -4,6 +4,7 @@ import type { Grid, GridReader, CellCoord, CellData } from '../../../systems/gri
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
+import { PetFollowComponent } from '../pet/PetFollowComponent';
 import { isMoveStep, type MovingTileStep } from './MovingTileScript';
 
 export type MovingTileProps = {
@@ -20,33 +21,26 @@ const ARRIVAL_THRESHOLD_PX = 0.5;
 
 const RIDER_TAGS = ['player', 'pet'] as const;
 
+const PET_BOARD_JUMP_DURATION_MS = 400;
+
 /**
  * Shared lookup used by movement, water, and depth logic to ask
  * "is this cell currently covered by a moving tile's surface?"
  *
  * Because tile grid occupancy is snap-to-grid (only updates on full cell
  * boundary crossings), a tile may geometrically cover a cell without being
- * registered there yet. We also check immediate neighbors for tiles whose
- * footprint extends into this cell.
+ * registered there yet. We check the cell and immediate neighbors using
+ * pixel-based overlap (coversCellPixel) for accuracy.
  */
 export function findMovingTileCovering(grid: GridReader, col: number, row: number): MovingTileComponent | null {
-  const cell = grid.getCell(col, row);
-  if (!cell) return null;
-  for (const occupant of cell.occupants) {
-    const tile = occupant.get(MovingTileComponent);
-    if (tile?.coversCell(col, row)) {
-      return tile;
-    }
-  }
-  // Check neighbors — tile occupancy may lag one cell behind its visual position
+  const cellSize = grid.cellSize;
   for (let dr = -1; dr <= 1; dr++) {
     for (let dc = -1; dc <= 1; dc++) {
-      if (dc === 0 && dr === 0) continue;
       const neighbor = grid.getCell(col + dc, row + dr);
       if (!neighbor) continue;
       for (const occupant of neighbor.occupants) {
         const tile = occupant.get(MovingTileComponent);
-        if (tile?.coversCell(col, row)) {
+        if (tile?.coversCellPixel(col, row, cellSize)) {
           return tile;
         }
       }
@@ -134,6 +128,22 @@ export class MovingTileComponent implements Component {
       && row >= this.topLeftRow && row < this.topLeftRow + this.heightCells;
   }
 
+  /** True when the tile's pixel bounds overlap the given cell (continuous, not snap-to-grid). */
+  coversCellPixel(col: number, row: number, cellSize: number): boolean {
+    const transform = this.entity.get(TransformComponent);
+    if (!transform) return false;
+    const tileLeft = transform.x - (this.widthCells * cellSize) / 2;
+    const tileRight = transform.x + (this.widthCells * cellSize) / 2;
+    const tileTop = transform.y - (this.heightCells * cellSize) / 2;
+    const tileBottom = transform.y + (this.heightCells * cellSize) / 2;
+    const cellLeft = col * cellSize;
+    const cellRight = (col + 1) * cellSize;
+    const cellTop = row * cellSize;
+    const cellBottom = (row + 1) * cellSize;
+    return tileRight > cellLeft && tileLeft < cellRight
+      && tileBottom > cellTop && tileTop < cellBottom;
+  }
+
   update(delta: number): void {
     this.deltaX = 0;
     this.deltaY = 0;
@@ -166,10 +176,73 @@ export class MovingTileComponent implements Component {
       this.moveSpeedPxPerSec = step.speedCellsPerSec * this.grid.cellSize;
       this.isMoving = true;
       this.waitRemainingMs = 0;
+      this.signalPetToBoard();
     } else {
       this.isMoving = false;
       this.waitRemainingMs = step.waitMs;
     }
+  }
+
+  /**
+   * When the tile starts moving and the player is aboard, signal the pet
+   * to jump onto the tile so it rides along.
+   */
+  private signalPetToBoard(): void {
+    // Check if the player is currently on this tile's footprint
+    let playerOnTile = false;
+    for (let row = this.topLeftRow; row < this.topLeftRow + this.heightCells; row++) {
+      for (let col = this.topLeftCol; col < this.topLeftCol + this.widthCells; col++) {
+        const cell = this.grid.getCell(col, row);
+        if (!cell) continue;
+        for (const occupant of cell.occupants) {
+          if (occupant.tags.has('player')) { playerOnTile = true; break; }
+        }
+        if (playerOnTile) break;
+      }
+      if (playerOnTile) break;
+    }
+    if (!playerOnTile) return;
+
+    // Find the pet — check if it's already on the tile
+    let petEntity: Entity | null = null;
+    let petAlreadyOnTile = false;
+    for (let row = this.topLeftRow; row < this.topLeftRow + this.heightCells; row++) {
+      for (let col = this.topLeftCol; col < this.topLeftCol + this.widthCells; col++) {
+        const cell = this.grid.getCell(col, row);
+        if (!cell) continue;
+        for (const occupant of cell.occupants) {
+          if (occupant.tags.has('pet')) {
+            petEntity = occupant;
+            petAlreadyOnTile = true;
+          }
+        }
+      }
+    }
+
+    // If pet is not on the tile, search nearby cells
+    if (!petEntity) {
+      const searchRadius = 5;
+      for (let row = this.topLeftRow - searchRadius; row < this.topLeftRow + this.heightCells + searchRadius && !petEntity; row++) {
+        for (let col = this.topLeftCol - searchRadius; col < this.topLeftCol + this.widthCells + searchRadius && !petEntity; col++) {
+          const cell = this.grid.getCell(col, row);
+          if (!cell) continue;
+          for (const occupant of cell.occupants) {
+            if (occupant.tags.has('pet')) { petEntity = occupant; break; }
+          }
+        }
+      }
+    }
+
+    if (!petEntity || petAlreadyOnTile) return;
+
+    // Signal the pet to jump onto the tile's center cell, tracking the tile's
+    // live position during flight so the arc lands correctly on a moving target.
+    const petFollow = petEntity.get(PetFollowComponent);
+    if (!petFollow) return;
+
+    const landCol = this.topLeftCol + Math.floor(this.widthCells / 2);
+    const landRow = this.topLeftRow + Math.floor(this.heightCells / 2);
+    petFollow.syncJump(landCol, landRow, PET_BOARD_JUMP_DURATION_MS, false, PET_BOARD_JUMP_DURATION_MS, this.entity);
   }
 
   private updateMove(delta: number): void {
@@ -238,12 +311,30 @@ export class MovingTileComponent implements Component {
       }
     }
 
+    const tileTransform = this.entity.require(TransformComponent);
+    const cellSize = this.grid.cellSize;
+    const tileLeft = tileTransform.x - (this.widthCells * cellSize) / 2;
+    const tileRight = tileLeft + this.widthCells * cellSize;
+    const tileTop = tileTransform.y - (this.heightCells * cellSize) / 2;
+    const tileBottom = tileTop + this.heightCells * cellSize;
+
     for (const rider of riders) {
       const riderTransform = rider.get(TransformComponent);
       if (!riderTransform) continue;
+      // Geometric check: only carry if the rider's center is actually within
+      // the tile's pixel footprint. Grid occupancy is cell-granular and can
+      // register entities whose collision box barely clips into an adjacent cell.
+      if (riderTransform.x < tileLeft || riderTransform.x > tileRight ||
+          riderTransform.y < tileTop || riderTransform.y > tileBottom) {
+        continue;
+      }
       riderTransform.x += this.deltaX;
       riderTransform.y += this.deltaY;
       this.syncRiderCollision(rider, riderTransform);
+      // Tell the rider's collision system to skip validation this frame —
+      // the tile owns the movement and ground rules don't apply while aboard.
+      const collision = rider.get(GridCollisionComponent);
+      if (collision) collision.onMovingTile = true;
     }
 
     riders.clear();
