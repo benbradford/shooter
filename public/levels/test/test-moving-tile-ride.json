@@ -1,0 +1,56 @@
+{
+  "width": 24,
+  "height": 12,
+  "playerStart": { "x": 3, "y": 5 },
+  "cells": [
+    { "col": 6, "row": 3, "properties": ["water"] },
+    { "col": 7, "row": 3, "properties": ["water"] },
+    { "col": 8, "row": 3, "properties": ["water"] },
+    { "col": 9, "row": 3, "properties": ["water"] },
+    { "col": 10, "row": 3, "properties": ["water"] },
+    { "col": 11, "row": 3, "properties": ["water"] },
+    { "col": 6, "row": 4, "properties": ["water"] },
+    { "col": 7, "row": 4, "properties": ["water"] },
+    { "col": 8, "row": 4, "properties": ["water"] },
+    { "col": 9, "row": 4, "properties": ["water"] },
+    { "col": 10, "row": 4, "properties": ["water"] },
+    { "col": 11, "row": 4, "properties": ["water"] },
+    { "col": 6, "row": 5, "properties": ["water"] },
+    { "col": 7, "row": 5, "properties": ["water"] },
+    { "col": 8, "row": 5, "properties": ["water"] },
+    { "col": 9, "row": 5, "properties": ["water"] },
+    { "col": 10, "row": 5, "properties": ["water"] },
+    { "col": 11, "row": 5, "properties": ["water"] },
+    { "col": 6, "row": 6, "properties": ["water"] },
+    { "col": 7, "row": 6, "properties": ["water"] },
+    { "col": 8, "row": 6, "properties": ["water"] },
+    { "col": 9, "row": 6, "properties": ["water"] },
+    { "col": 10, "row": 6, "properties": ["water"] },
+    { "col": 11, "row": 6, "properties": ["water"] },
+    { "col": 6, "row": 7, "properties": ["water"] },
+    { "col": 7, "row": 7, "properties": ["water"] },
+    { "col": 8, "row": 7, "properties": ["water"] },
+    { "col": 9, "row": 7, "properties": ["water"] },
+    { "col": 10, "row": 7, "properties": ["water"] },
+    { "col": 11, "row": 7, "properties": ["water"] }
+  ],
+  "entities": [
+    {
+      "id": "moving_tile0",
+      "type": "moving_tile",
+      "data": {
+        "col": 4,
+        "row": 4,
+        "widthCells": 3,
+        "heightCells": 3,
+        "texture": "grey_platform",
+        "script": [
+          { "waitMs": 3000 },
+          { "moveTo": { "col": 12, "row": 4 }, "speedCellsPerSec": 2 },
+          { "waitMs": 1500 },
+          { "moveTo": { "col": 4, "row": 4 }, "speedCellsPerSec": 2 }
+        ]
+      }
+    }
+  ]
+}

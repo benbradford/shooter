@@ -331,7 +331,7 @@ npm run dev                  # Start dev server
 ### Agent SOPs
 
 `agent-sops/` contains on-demand procedures for AI agents:
-- `creating-chatgpt-image-prompts.md` — Writing effective image-gen prompts for game props
+- `creating-chatgpt-image-prompts.md` — Writing effective image-gen prompts for one-off props, terrain tiles, and full tileset families
 - `updating-attacker-spritesheet.md` — Regenerating the player spritesheet
 - `adding-background-textures.md` — Adding new cell textures to the editor
 

@@ -19,6 +19,7 @@ export const Depth = {
   stairs: -50,
   wall: -50,
   cellTexture: -40,
+  movingTile: -39,
   edgeGraphics: -2,
   pushable: -1,
   shadow: -10,

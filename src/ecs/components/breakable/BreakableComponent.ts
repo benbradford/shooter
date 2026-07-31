@@ -14,6 +14,7 @@ import {
   COIN_SPAWN_TARGET_Y_OFFSET_PX,
   COIN_SPAWN_TARGET_Y_RANDOMNESS_PX
 } from '../pickup/CoinComponent';
+import { decayingRotationAngleDeg } from '../../../utils/ShardRotation';
 
 export type BreakableComponentProps = {
   maxHealth: number;
@@ -90,7 +91,8 @@ export class BreakableComponent implements Component {
     const EXPLOSION_SPEED_PX_PER_SEC = 40;
     const INITIAL_UPWARD_VELOCITY_PX_PER_SEC = 50;
     const GRAVITY_PX_PER_SEC_SQ = 150;
-    const ROTATION_SPEED_DEG_PER_SEC = 120;
+    const INITIAL_ROTATION_SPEED_DEG_PER_SEC = 240;
+    const ROTATION_DECAY_TIME_CONSTANT_SEC = 0.4;
 
     const texture = sprite.sprite.texture;
     const frame = sprite.sprite.frame;
@@ -125,7 +127,7 @@ export class BreakableComponent implements Component {
     let rotationDir = 0;
     if (col > 1) rotationDir = 1;
     else if (col < 1) rotationDir = -1;
-    const rotationSpeed = rotationDir * ROTATION_SPEED_DEG_PER_SEC;
+    const initialRotationSpeed = rotationDir * INITIAL_ROTATION_SPEED_DEG_PER_SEC;
 
     const startTime = this.scene.time.now;
     const startX = shard.x;
@@ -144,7 +146,7 @@ export class BreakableComponent implements Component {
       shard.x = startX + velocityX * elapsedInSec;
       const newY = startY + velocityY * elapsedInSec - INITIAL_UPWARD_VELOCITY_PX_PER_SEC * elapsedInSec + (GRAVITY_PX_PER_SEC_SQ * elapsedInSec * elapsedInSec) / 2;
       shard.y = Math.min(newY, maxY);
-      shard.angle = rotationSpeed * elapsedInSec;
+      shard.angle = decayingRotationAngleDeg(initialRotationSpeed, elapsedInSec, ROTATION_DECAY_TIME_CONSTANT_SEC);
       shard.alpha = 1 - (elapsed / FADE_DURATION_MS);
     };
 
@@ -176,7 +178,8 @@ export class BreakableComponent implements Component {
     const EXPLOSION_SPEED_PX_PER_SEC = 40;
     const INITIAL_UPWARD_VELOCITY_PX_PER_SEC = 70;
     const GRAVITY_PX_PER_SEC_SQ = 450;
-    const ROTATION_SPEED_DEG_PER_SEC = 60;
+    const INITIAL_ROTATION_SPEED_DEG_PER_SEC = 180;
+    const ROTATION_DECAY_TIME_CONSTANT_SEC = 0.5;
     const RANDOM_ANGLE_RANGE_DEG = 50;
     const RANDOMNESS_FACTOR = 0.8;
 
@@ -213,7 +216,7 @@ export class BreakableComponent implements Component {
         let rotationDir = 0;
         if (col > 1) rotationDir = 1;
         else if (col < 1) rotationDir = -1;
-        const rotationSpeed = rotationDir * ROTATION_SPEED_DEG_PER_SEC * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
+        const initialRotationSpeed = rotationDir * INITIAL_ROTATION_SPEED_DEG_PER_SEC * (1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2);
         const gravityMultiplier = 1 - RANDOMNESS_FACTOR + Math.random() * RANDOMNESS_FACTOR * 2;
 
         const startTime = this.scene.time.now;
@@ -233,7 +236,7 @@ export class BreakableComponent implements Component {
           shard.x = startX + velocityX * elapsedInSec;
           const newY = startY + velocityY * elapsedInSec - INITIAL_UPWARD_VELOCITY_PX_PER_SEC * elapsedInSec + (GRAVITY_PX_PER_SEC_SQ * gravityMultiplier * elapsedInSec * elapsedInSec) / 2;
           shard.y = Math.min(newY, maxY);
-          shard.angle = rotationSpeed * elapsedInSec;
+          shard.angle = decayingRotationAngleDeg(initialRotationSpeed, elapsedInSec, ROTATION_DECAY_TIME_CONSTANT_SEC);
 
           if (col === 1) {
             const scaleProgress = (elapsed / FADE_DURATION_MS) * Math.PI * 4;

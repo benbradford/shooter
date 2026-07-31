@@ -20,6 +20,7 @@ export class SpriteComponent implements Component {
   private readonly scaleYOverride?: number;
   private trackedTextureKey: string;
   visualOffsetYPx: number = 0;
+  visualScaleX: number = 1;
 
   constructor(
     scene: Phaser.Scene,
@@ -47,11 +48,9 @@ export class SpriteComponent implements Component {
       this.transformComp.y + this.offsetYPx + this.visualOffsetYPx
     );
     this.sprite.setRotation(this.transformComp.rotation);
-    if (this.scaleXOverride !== undefined || this.scaleYOverride !== undefined) {
-      this.sprite.setScale(this.scaleXOverride ?? this.transformComp.scale, this.scaleYOverride ?? this.transformComp.scale);
-    } else {
-      this.sprite.setScale(this.transformComp.scale);
-    }
+    const scaleX = (this.scaleXOverride ?? this.transformComp.scale) * this.visualScaleX;
+    const scaleY = this.scaleYOverride ?? this.transformComp.scale;
+    this.sprite.setScale(scaleX, scaleY);
   }
 
   onDestroy(): void {

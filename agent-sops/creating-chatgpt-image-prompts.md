@@ -1,8 +1,11 @@
-# SOP: Creating ChatGPT Image Prompts for Game Props
+# SOP: Creating ChatGPT Image Prompts for Game Assets
 
 When the user asks for help writing a ChatGPT (or other image-gen) prompt for a
-game asset, follow this SOP. The output is a ready-to-paste prompt block, plus
-optional iteration tactics if the user reports the result is wrong.
+game asset, follow this SOP. The output is either:
+
+- a ready-to-paste prompt block for a single asset, or
+- a tileset plan plus the first batch of prompts when the user is designing a
+  multi-asset level theme.
 
 ## When to apply
 
@@ -14,9 +17,56 @@ Trigger phrases include:
 - "what should i tell chatgpt to draw ..."
 - "image prompt for ..."
 - "tell chatgpt how to draw ..."
+- "help me design a tileset for ..."
+- "what assets do i need for this level theme ..."
+- "how do i get chatgpt to make tiles that fit together ..."
 
 If the user only describes what they want (e.g. "I need a prompt for an old bush
 sprite"), proceed without further confirmation.
+
+## First Decision: What Kind of Asset Request Is This?
+
+Do NOT jump straight to a prompt until you classify the request. There are three
+different workflows:
+
+### Workflow A: One-off Gameplay Prop
+
+Use this when the user wants a single isolated object such as a crate, bush,
+sign, bone pile, tree, shrine, or bridge.
+
+Output:
+- one prompt
+- optional iteration notes
+
+### Workflow B: Single Terrain Tile
+
+Use this when the user already has a tile family in mind and only needs one
+specific terrain component such as a floor fill, cliff face fill, shoreline
+transition, or edge tile.
+
+Output:
+- one terrain prompt
+- topology notes if needed
+
+### Workflow C: Tileset Family / New Level Theme
+
+Use this when the user is designing a new biome or level theme and needs
+multiple assets that must knit together in a tilemap.
+
+Examples:
+- "I want a snowy cave level"
+- "What assets do I need for this area?"
+- "How do I make ice_ground, ice_edge, and ice_platform fit together?"
+- "Give me prompts for a new tileset"
+
+Output:
+- a short tileset plan first
+- a minimum viable asset list
+- a generation order
+- only then the first batch of prompts
+
+Never treat a tileset-family request as "just several separate prompts." That
+creates incompatible illustrations instead of a coherent asset system.
 
 ## Core Philosophy
 
@@ -160,8 +210,8 @@ heavily affects image generation weighting.
 
 ## Asset Class Selection
 
-There are TWO fundamentally different asset categories. Select the correct one
-BEFORE writing the prompt:
+There are TWO fundamentally different asset categories at the prompt level, but
+tileset-family requests require an additional planning phase BEFORE prompting:
 
 ### Category A: Gameplay Props (use the Prop Template)
 
@@ -181,6 +231,13 @@ Isolated objects placed on the map. Have transparent backgrounds. Do not tile.
 - Perspective lines: "canopy/crown viewed from above", "natural volume from
   overhead view"
 
+**Overlay Props** (flower clusters, clover patches, grass tufts, leaf scatter):
+- Sparse decorative map overlays placed on top of existing terrain
+- Must have fully clean transparency between and around each cluster
+- Must NOT include any painted underlay, glow, haze, or implied ground patch
+- Perspective lines: "flat decorative map overlay viewed directly from above",
+  "very shallow depth", "no terrain ownership"
+
 ### Category B: Terrain Tiles (use the Terrain Template)
 
 Modular repeating system components. Fill the canvas edge-to-edge. Must tile
@@ -194,6 +251,106 @@ system components**. The prompt must describe:
 - how it repeats and what direction it stacks
 
 Examples: cliff walls, platform edges, water borders, path tiles, floor tiles.
+
+### Tileset Family Planning Layer (use before Category B when needed)
+
+If the user is designing a whole level theme, do not start by generating edge
+tiles, platform tiles, or shoreline tiles as independent finished scenes.
+
+First define:
+- the base materials
+- the transition relationships
+- the tile topology required by the level editor
+- the generation order
+
+The central rule:
+
+**Generate materials first, then transitions, then props.**
+
+Do NOT ask ChatGPT for a "complete platform tile" that bakes together:
+- raised top surface
+- cliff face
+- lower ground
+
+That is a composed illustration, not a reusable game-system component.
+
+Instead define atomic materials such as:
+- `ground_fill`
+- `platform_fill`
+- `cliff_fill`
+- `lake_fill`
+
+Then define transition tiles that combine exactly two locked materials:
+- `platform_edge_s`
+- `platform_outer_ne`
+- `shore_edge_w`
+- `shore_outer_sw`
+
+This is the difference between a nice-looking mockup and a usable tileset.
+
+## Workflow C: Tileset Family Planning
+
+When the request is for a new level theme or a family of tiles, gather the
+following before writing prompts. Ask concise questions only when the answer is
+not inferable from the user's message or attached assets.
+
+### Required Tileset Questions
+
+1. What are the core materials?
+   - floor ground, raised platform top, cliff face, water, shoreline, mud, ice,
+     lava, etc.
+2. What relationships must compose cleanly?
+   - e.g. `ground -> cliff edge -> platform top`
+   - e.g. `ground -> shoreline -> lake`
+3. What tile freedom does the user need?
+   - simple hand-placed strips
+   - cardinal edges + outer corners
+   - full autotile set with inner corners too
+4. Which materials must tile seamlessly in all four directions?
+5. Which transitions combine exactly two materials?
+6. What existing assets should act as palette/style anchors?
+7. Does the user need drop-in assets, or are small hand-fixes acceptable?
+8. What props are separate from terrain?
+
+### Tileset Plan Structure
+
+For tileset-family requests, produce the answer in this order:
+
+1. **Tileset brief**
+   - theme, camera, mood, palette anchor, readability goals
+2. **Material inventory**
+   - base fills only
+3. **Transition inventory**
+   - edges, outer corners, inner corners if needed
+4. **Generation order**
+   - fills first, transitions second, props third
+5. **First batch prompts**
+   - usually 3-4 seamless fill prompts only
+6. **Next batch prompts**
+   - first transition family after fills are approved
+
+### Minimum Viable Tileset Rule
+
+If the user wants a new theme, start with the smallest set that can prove the
+system works:
+
+- 3-4 base fill materials
+- 1 transition family
+- 0 props until the terrain relationships are solved
+
+Do not front-load decorative props before the tile relationships are coherent.
+
+### Non-Negotiable Tileset Advice
+
+For tilesets, explicitly tell the user:
+
+- separate **materials** from **topology**
+- lock base fills before generating transitions
+- use approved fills as references for later prompts
+- expect some hand cleanup on seams
+
+Image models are good at material invention and bad at exact seam logic across
+independent images. The SOP should lean into what the model is good at.
 
 ## Prop Template
 
@@ -383,6 +540,283 @@ These MUST remain in every prop prompt:
 - The full ANTI-ILLUSTRATION CONSTRAINTS section
 - The full ABSOLUTE EXCLUSIONS section at the end
 
+## Overlay Prop Guidance
+
+Overlay props are NOT ordinary isolated objects. They are sparse decorative
+elements placed on top of terrain that already exists in the map. The most
+common failure mode is a pale painted bloom, white haze, or soft watercolor
+patch beneath each cluster. This makes the overlay look like it owns the ground
+instead of sitting on it.
+
+Another frequent failure mode looks less obviously broken but is still wrong:
+the model paints a small localized terrain patch under the overlay using colours
+that match the intended environment, such as beige dust under pebbles or pale
+green grass paint under flowers. This is still terrain ownership and must be
+rejected even when the colours seem plausible.
+
+Treat overlays as a distinct prop subtype whenever the user wants:
+
+- flower scatter
+- clover patches
+- grass tuft overlays
+- leaf litter
+- tiny pebble accents
+- any other sparse decoration meant to sit on top of an existing fill tile
+
+### Overlay-specific rules
+
+For overlay prompts, explicitly state all of the following:
+
+- `The game engine provides the ground beneath the overlay`
+- `ONLY the overlay elements themselves should be visible`
+- `No painted underlay beneath the flowers/leaves/pebbles`
+- `No white haze, pale bloom, watercolor patch, glow, or soft ground plate`
+- `No localized dirt patch, sand patch, grass patch, moss patch, or terrain-colored paint beneath the overlay`
+- `Hard transparency outside the visible decorative elements`
+- `The terrain belongs to the map, not the sprite`
+
+Overlay prompts should also tighten canvas usage compared with regular props:
+
+- use `55-70%` canvas occupancy instead of `60-80%`
+- prefer generous transparent space around the clusters
+- keep the arrangement sparse and low-contrast enough to sit quietly on a fill
+  tile
+
+### Fragile Overlay Fallback Rule
+
+If an overlay asset still produces a pale base, white haze, beige dust bed, or
+terrain-colored substrate after one or two attempts, do **not** keep solving it
+by adding more exclusions to the long overlay template.
+
+That usually makes the prompt worse. The model starts averaging the
+instructions, keeps the forbidden concepts active, and drifts further toward an
+"illustrated terrain detail" instead of an isolated gameplay asset.
+
+When that happens, switch to this fallback strategy:
+
+1. Start a **fresh chat** instead of continuing a long iterative thread.
+2. Reduce the request to the **smallest isolated test case**:
+   - one tiny flower tuft
+   - one small pebble group
+   - one simple grass tuft
+3. Use a **short object-first prompt**, not the full overlay template.
+4. Avoid piling on failure-mode vocabulary like:
+   - `white haze`
+   - `pale bloom`
+   - `painted underlay`
+   - `terrain ownership`
+   - `localized terrain-colored patch`
+5. Give the model a **legal readability mechanism** so it does not invent a
+   fake substrate:
+   - thin olive outline
+   - stronger leaf/stem contrast
+   - slightly off-white petals instead of pure white
+   - clearer internal contrast inside the silhouette
+
+The core idea: for fragile decal assets, a short concrete prompt is usually
+more reliable than a comprehensive constraint document.
+
+### Short Object-First Fallback Template
+
+Use this when the full overlay template has already failed:
+
+```text
+Top-down RPG prop sprite of [SMALL SUBJECT] for a 2D game.
+
+ONLY the [SMALL SUBJECT] itself should be visible.
+
+Transparent background.
+No ground.
+No dirt patch.
+No grass patch.
+No painted base.
+No halo.
+No vignette.
+
+[2-4 SHORT CONTENT LINES]
+
+True top-down game prop.
+Clean gameplay silhouette.
+Simplified stylized sprite.
+Not painterly concept art.
+
+[OPTIONAL READABILITY LINE: e.g. "thin olive outline for readability"]
+
+Square canvas.
+```
+
+Recommended uses:
+
+- tiny flower tuft
+- single pebble group
+- single clover tuft
+- one small leaf scatter cluster
+
+Do not use this fallback for large terrain fills or for assets that genuinely
+need the richer prop template. This is specifically for small decal-like assets
+where the long-form overlay instructions have already failed.
+
+### Overlay Template
+
+Use this instead of the generic prop template when the asset is a decorative
+overlay:
+
+```
+SNES Zelda-style top-down gameplay map prop representing [OVERLAY_SUBJECT] for a 2D tile-based RPG.
+
+ONLY the overlay elements themselves should be visible.
+
+This is a gameplay production asset, NOT a fantasy illustration. The asset should look like a clean PNG exported from a professional 2D game pipeline. Imagine the object has already been cut from a sprite sheet and placed over transparency.
+
+This overlay will be placed on top of an existing terrain tile. The game engine provides the ground beneath the overlay.
+
+--- GEOMETRIC RULES (non-negotiable) ---
+
+PERSPECTIVE:
+- true 90-degree overhead orthographic view
+- viewed directly from above
+- flat decorative map overlay viewed directly from above
+- very shallow depth
+- NO isometric angle
+- NO 3/4 camera angle
+- NO cinematic perspective
+- NO perspective convergence
+- NO visible side surfaces
+
+CANVAS:
+- square canvas
+- overlay cluster should occupy approximately 55-70% of the canvas
+- generous transparent space around the cluster
+
+--- ALPHA / ISOLATION RULES ---
+
+- fully transparent alpha background
+- NO ground texture, grass tile, dirt patch, terrain base, environmental plate, or painted underlay
+- NO circular halo, vignette, feathered edge blending, background color, or pale bloom
+- NO localized terrain-colored patch beneath the decorative elements, even if it matches the intended biome palette
+- The decorative elements must end cleanly at the outer edges with immediate transparency outside the silhouette
+- The terrain belongs to the map, not the sprite
+
+ALPHA BEHAVIOR:
+- hard transparency outside the decorative elements
+- no semi-transparent white haze
+- no soft watercolor patch beneath the cluster
+- no beige dust patch, pale grass patch, mossy patch, or any other localized terrain-colored paint under the overlay
+- no glow
+- no feathering
+- no painted fadeout
+- no translucent grounding beneath the overlay
+
+LIGHTING:
+- flat ambient lighting only
+- internal form shading within petals, leaves, or pebbles is allowed
+- NO shadows of any kind
+- NO ambient occlusion extending outside the visible decorative elements
+- NO dramatic, rim, studio, or environmental lighting
+
+--- GAMEPLAY READABILITY ---
+
+- readable at gameplay scale
+- sparse arrangement, not dense coverage
+- broad simple shapes
+- limited secondary detail
+- low enough contrast to sit quietly on top of a terrain fill
+- designed to visually harmonize with stylized painted grass tiles
+
+--- RENDER STYLE ---
+
+VISUAL STYLE:
+- SNES Zelda-style gameplay overlay
+- simplified gameplay-focused forms with broad readable shapes
+- the asset should feel like an in-game map overlay, not an illustration
+
+RENDERING:
+- clean sprite edges, crisp readable silhouette
+- transparent PNG asset, not concept art
+- should feel like an in-game overlay placed directly on a tilemap
+
+--- CONTENT ---
+
+Include:
+- [INCLUDE DETAIL 1]
+- [INCLUDE DETAIL 2]
+- [INCLUDE DETAIL 3]
+
+Exclude:
+- [EXCLUDE DETAIL 1]
+- [EXCLUDE DETAIL 2]
+
+--- ANTI-ILLUSTRATION CONSTRAINTS ---
+
+This is a gameplay production asset, NOT a fantasy illustration.
+The overlay must appear as if extracted directly from a sprite sheet.
+No environmental remnants should remain.
+
+DO NOT render:
+- atmospheric fog or haze
+- ambient ground haze
+- environmental paint strokes
+- vignette or backdrop gradients
+- concept-art lighting
+- showcase rendering
+- cinematic shading
+- contact shadows
+- terrain integration
+- rooted grounding
+
+--- ABSOLUTE EXCLUSIONS (highest priority) ---
+
+- no ground
+- no grass tile
+- no dirt
+- no sand patch
+- no moss patch
+- no painted grass patch
+- no localized terrain-colored underlay of any kind
+- no white background
+- no white haze
+- no pale bloom
+- no painted underlay beneath the decorative elements
+- no glow
+- no shadow outside the silhouette
+- no environmental paint
+- no background color
+- no atmospheric effects
+- no concept art presentation
+- any pixels beneath, around, or outside the visible decorative elements are FORBIDDEN
+```
+
+### Overlay acceptance check
+
+Before declaring an overlay usable, validate it in context:
+
+1. Composite it over the intended terrain fill at gameplay scale.
+2. Inspect the alpha channel or silhouette mask.
+3. Reject it if you see:
+   - pale glow or watercolor bloom beneath the cluster
+   - a white or light-colored plate that changes the ground value
+   - a beige, green, brown, or terrain-colored patch beneath the overlay, even if it appears stylistically consistent
+   - foggy semi-transparent pixels extending beyond the intended silhouette
+   - a cluster so dense it behaves like a terrain patch instead of an overlay
+
+If any of those are present, regenerate from scratch instead of asking for small
+tweaks. Overlay failure modes are usually baked into the composition.
+
+If the overlay keeps failing after regeneration, switch to the **Short
+Object-First Fallback Template** above and test the smallest isolated version of
+the asset in a fresh chat.
+
+### Overlay diagnostic phrasing
+
+When an overlay fails review, describe the failure in terms of terrain
+ownership, not only transparency:
+
+- `This overlay includes a localized terrain patch beneath the subject, which is invalid`
+- `The decorative elements must sit directly on map terrain without bringing their own ground`
+- `Any beige dust plate, green paint patch, moss patch, or pale underlay beneath the overlay is forbidden`
+
+This wording helps distinguish the real problem from a simple alpha-edge issue.
+
 ## Spritesheet-Specific Rules
 
 When asking for multiple props on one sheet, image models often produce a
@@ -428,6 +862,13 @@ For cave spikes, prefer phrases like:
 For Category B assets (modular terrain tiles). Completely different structure
 from props — no transparency, no isolation rules, full-canvas fill, tiling
 constraints, and explicit topology.
+
+Use this template for:
+- a single terrain tile request, or
+- a single tile within an already-planned tileset family
+
+Do NOT use it as the first response to a whole-biome request. In that case, do
+the tileset planning workflow first and only then emit terrain prompts.
 
 The key conceptual shift: describe a **reusable terrain system component**, not
 "a texture." The prompt must communicate how this tile functions in the level
@@ -735,13 +1176,23 @@ re-prompting or post-processing before they commit it.
 
 When responding to a trigger:
 
-1. Identify the asset class (small prop, structure, or nature).
-2. Output the full prompt block with subject/details/perspective filled in for
-   that class. Use a fenced code block so the user can copy it cleanly.
-3. Briefly note 1-2 detail choices you made and why, in case they want to
-   adjust.
-4. Optionally include the iteration playbook if the asset class is known to
-   be tricky (anything circular, anything ground-based, anything organic).
+1. Classify the request as `one-off prop`, `single terrain tile`, or
+   `tileset family`.
+2. For a one-off prop:
+   - identify the prop class
+   - output the full prompt block in a fenced code block
+3. For a single terrain tile:
+   - identify the tile topology
+   - output the full terrain prompt in a fenced code block
+4. For a tileset family:
+   - output a short tileset plan first
+   - list the minimum viable asset set
+   - give the first batch of prompts only
+   - explain the generation order in 2-4 lines
+5. Briefly note 1-2 key assumptions or detail choices if the user may want to
+   adjust them.
+6. Include iteration tactics only when the asset class is known to be tricky or
+   the user is already fighting bad generations.
 
 Do not lecture. Do not include the full SOP background — the user already
 knows why this works. Just hand them the prompt.

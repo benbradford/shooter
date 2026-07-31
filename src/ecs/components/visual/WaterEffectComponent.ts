@@ -9,6 +9,7 @@ import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { JumpComponent } from '../movement/JumpComponent';
+import { findMovingTileCovering } from '../moving-tile/MovingTileComponent';
 import type { CollisionBox } from '../combat/CollisionComponent';
 import type { GridReader, WorldCoord } from '../../../systems/grid/Grid';
 
@@ -77,7 +78,9 @@ export class WaterEffectComponent implements Component {
     if (!gridCollision) return;
     const grid = gridCollision.getGrid();
     const currentCell = grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row);
-    const isCurrentCellWater = currentCell?.properties.has('water') ?? false;
+    // Riding a moving tile keeps the entity dry even over water.
+    const onMovingTile = findMovingTileCovering(grid, gridPos.currentCell.col, gridPos.currentCell.row) !== null;
+    const isCurrentCellWater = !onMovingTile && (currentCell?.properties.has('water') ?? false);
     const isCurrentCellBridge = currentCell?.properties.has('bridge') ?? false;
     const walk = this.entity.get(WalkComponent);
 

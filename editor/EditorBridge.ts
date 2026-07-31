@@ -11,6 +11,7 @@ import { SpriteComponent } from '../src/ecs/components/core/SpriteComponent';
 import { PatrolComponent } from '../src/ecs/components/ai/PatrolComponent';
 import { NPCIdleComponent } from '../src/ecs/entities/npc/NPCIdleComponent';
 import { Direction } from '../src/constants/Direction';
+import { MOVING_TILE_DEFAULT_TEXTURE } from '../src/ecs/components/moving-tile/MovingTileScript';
 import type { Toast } from './panels/Toast';
 
 const MAX_HISTORY = 50;
@@ -440,6 +441,7 @@ export class EditorBridge {
         tv_monk: { col, row },
         breakable: { col, row, texture: 'dungeon_vase', health: 1, rarity: 'epic', requiresSuperPunch: false },
         pushable: { col, row, texture: 'pushing_box', pushEnabled: true, doesPersist: false, singlePushOnly: false },
+        moving_tile: { col, row, texture: MOVING_TILE_DEFAULT_TEXTURE, widthCells: 1, heightCells: 1, script: [] },
         hole: { col, row, texture: 'hole_with_roots', targetLevel: '', targetCol: 0, targetRow: 0 },
         collectible: { col, row, preset: 'mist_orb' },
         lever: { col, row, eventToRaise: `lever_${newId}`, startState: 'off', oneShot: false },
@@ -588,6 +590,34 @@ export class EditorBridge {
         }
       }
     });
+  }
+
+  /**
+   * Restarts the scene so an entity is rebuilt from its level data. Needed for
+   * properties baked in at creation time (sprite texture, footprint size).
+   */
+  respawnEntity(entityId: string): void {
+    const levelData = this.scene.getLevelData();
+    const camera = this.scene.cameras.main;
+    const camX = camera.scrollX;
+    const camY = camera.scrollY;
+    const camZoom = camera.zoom;
+
+    this.isLoading = true;
+    this.scene.scene.restart({ levelName: this.currentLevelName, levelData });
+
+    const origOnReady = this.onSceneReady;
+    this.onSceneReady = () => {
+      this.onSceneReady = origOnReady;
+      origOnReady?.();
+      const cam = this.scene.cameras.main;
+      cam.scrollX = camX;
+      cam.scrollY = camY;
+      cam.setZoom(camZoom);
+
+      const entity = this.getEntityManager().getAll().find(e => e.id === entityId);
+      if (entity) this.selectEntity(entity);
+    };
   }
 
   updateEntityMeta(entityId: string, meta: { createOnAnyEvent?: string[]; createOnAllEvents?: string[]; respawnable?: boolean }): void {
@@ -1206,6 +1236,17 @@ export class EditorBridge {
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);
         const existingData = existing?.data as { texture?: string; pushEnabled?: boolean; doesPersist?: boolean; singlePushOnly?: boolean } | undefined;
         data = { col: cell.col, row: cell.row, texture: existingData?.texture ?? 'pushing_box', pushEnabled: existingData?.pushEnabled !== false, doesPersist: existingData?.doesPersist ?? false, singlePushOnly: existingData?.singlePushOnly ?? false };
+      } else if (entity.id.startsWith('moving_tile')) {
+        type = 'moving_tile';
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const existingData = existing?.data as { texture?: string; widthCells?: number; heightCells?: number; script?: unknown } | undefined;
+        data = {
+          col: cell.col, row: cell.row,
+          texture: existingData?.texture ?? MOVING_TILE_DEFAULT_TEXTURE,
+          widthCells: existingData?.widthCells ?? 1,
+          heightCells: existingData?.heightCells ?? 1,
+          script: existingData?.script ?? [],
+        };
       } else if (entity.id.startsWith('hole')) {
         type = 'hole';
         const existing = existingLevelData.entities?.find(e => e.id === entity.id);

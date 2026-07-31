@@ -233,13 +233,18 @@ export default class GameScene extends Phaser.Scene {
       });
     });
 
-    keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => {
+    keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H).on('down', () => {
       const player = this.entityManager.getFirst('player');
       const health = player?.get(HealthComponent);
       if (health) {
         health.setHealth(health.getMaxHealth());
         console.log('[DBGAME] Player health set to max');
       }
+    });
+
+    keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M).on('down', () => {
+      const muted = MusicManager.getInstance().toggleMuted();
+      console.log(`[DBGAME] Music ${muted ? 'muted' : 'unmuted'}`);
     });
   }
 

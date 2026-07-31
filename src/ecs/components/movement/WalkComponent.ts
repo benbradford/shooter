@@ -15,6 +15,7 @@ import { PetManager } from '../../../systems/PetManager';
 import { RockThrowAbility } from '../pet/RockThrowAbility';
 import { BubbleShieldAbility } from '../pet/BubbleShieldAbility';
 import { Direction, dirFromDelta } from '../../../constants/Direction';
+import { findMovingTileCovering } from '../moving-tile/MovingTileComponent';
 
 export type WalkProps = {
   speed: number;
@@ -137,7 +138,8 @@ export class WalkComponent implements Component {
     const gridCollision = this.entity.get(GridCollisionComponent);
     const grid = gridCollision?.getGrid();
     const cell = grid && gridPos ? grid.getCell(gridPos.currentCell.col, gridPos.currentCell.row) : null;
-    const isInWater = cell?.properties.has('water') ?? false;
+    const onMovingTile = grid && gridPos ? findMovingTileCovering(grid, gridPos.currentCell.col, gridPos.currentCell.row) !== null : false;
+    const isInWater = !onMovingTile && (cell?.properties.has('water') ?? false);
     const isBridge = cell?.properties.has('bridge') ?? false;
     const isSwimming = waterEffect?.getIsInWater() ?? false;
     

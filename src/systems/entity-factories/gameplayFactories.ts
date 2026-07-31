@@ -1,5 +1,5 @@
 /**
- * Gameplay entity factory registrations (breakable, collectible, lever, pushable, hole, laser, escort, npc, root_chest).
+ * Gameplay entity factory registrations (breakable, collectible, lever, pushable, hole, laser, escort, npc, root_chest, moving_tile).
  * Side-effect import — registers factories with EntityRegistry.
  */
 import type { Entity } from '../../ecs/Entity';
@@ -23,6 +23,8 @@ import { createLaserEntity } from '../../ecs/entities/laser/LaserEntity';
 import { createEscortEntity } from '../../ecs/entities/escort/EscortEntity';
 import { createRootChestEntity } from '../../ecs/entities/root_chest/RootChestEntity';
 import { createBellEntity } from '../../ecs/entities/bell/BellEntity';
+import { createMovingTileEntity } from '../../ecs/entities/moving-tile/MovingTileEntity';
+import { parseMovingTileScript, MOVING_TILE_DEFAULT_TEXTURE } from '../../ecs/components/moving-tile/MovingTileScript';
 
 registerEntityFactory('breakable', (entityDef, ctx) => {
   const data = entityDef.data as { col: number; row: number; texture: string; health: number; rarity?: string; requiresSuperPunch?: boolean; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
@@ -179,6 +181,22 @@ registerEntityFactory('escort', (entityDef, ctx) => {
     enemyDetectDistancePx: data.enemyDetectDistancePx ?? 128, initialState,
     currentLevelName: ctx.levelData.name ?? '', scale: data.scale,
     shadowScale: data.shadowScale, shadowOffsetX: data.shadowOffsetX, shadowOffsetY: data.shadowOffsetY,
+  });
+});
+
+registerEntityFactory('moving_tile', (entityDef, ctx) => {
+  const data = entityDef.data as {
+    col: number; row: number; texture?: string;
+    widthCells?: number; heightCells?: number; script?: unknown;
+  };
+  return () => createMovingTileEntity({
+    scene: ctx.scene, grid: ctx.grid, entityId: entityDef.id,
+    col: data.col, row: data.row,
+    widthCells: Math.max(1, data.widthCells ?? 1),
+    heightCells: Math.max(1, data.heightCells ?? 1),
+    texture: data.texture ?? MOVING_TILE_DEFAULT_TEXTURE,
+    script: parseMovingTileScript(data.script),
+    scriptEnabled: ctx.scene.scene.key !== 'editor',
   });
 });
 

@@ -13,6 +13,9 @@ const CLAUDE_CLI = '/Users/bebradfo/.toolbox/bin/claude';
 process.on('uncaughtException', (err) => {
   console.error('⚠️ Uncaught exception (server kept alive):', err.message);
 });
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ Unhandled rejection (server kept alive):', reason);
+});
 process.on('SIGPIPE', () => { /* ignore broken pipe from dead ttyd */ });
 
 // ── Session Registry ──────────────────────────────────────────

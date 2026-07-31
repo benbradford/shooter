@@ -2,7 +2,8 @@ import type { EditorBridge } from '../EditorBridge';
 import { TexturePicker } from './TexturePicker';
 import type { PickResult } from './TexturePicker';
 import { normalizeBgTextures, bgTextureKey } from '../../src/systems/level/LevelLoader';
-import { ASSET_REGISTRY } from '../../src/assets/AssetRegistry';
+import { ASSET_REGISTRY, NPC_ASSET_KEYS } from '../../src/assets/AssetRegistry';
+import { MOVING_TILE_DEFAULT_TEXTURE } from '../../src/ecs/components/moving-tile/MovingTileScript';
 
 export class ContextPanel {
   private readonly texturePicker: TexturePicker;
@@ -830,7 +831,12 @@ export class ContextPanel {
         <button class="ed-btn" id="ef-cellmod-add" style="margin-top:4px;width:100%">+ Add Cell</button></div>`;
     }
     if (entityDef.type === 'npc') {
-      typeFields += `<div class="form-group"><label>Assets</label><input id="ef-assets" value="${data.assets ?? 'npc1'}" /></div>
+      const npcAssets = (data.assets as string) ?? 'npc1';
+      const npcAssetOptions = NPC_ASSET_KEYS.includes(npcAssets as typeof NPC_ASSET_KEYS[number])
+        ? NPC_ASSET_KEYS
+        : [npcAssets, ...NPC_ASSET_KEYS];
+      typeFields += `<div class="form-group"><label>Assets</label>
+        <select id="ef-assets">${npcAssetOptions.map(a => `<option ${npcAssets === a ? 'selected' : ''}>${a}</option>`).join('')}</select></div>
         <div class="form-group"><label>Direction</label>
         <select id="ef-npcdir">${['Down', 'Up', 'Left', 'Right', 'DownLeft', 'DownRight', 'UpLeft', 'UpRight', 'facePlayer'].map(d => `<option ${data.direction === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
         <div class="form-group"><label>Name</label><input id="ef-npcname" value="${data.name ?? ''}" /></div>
@@ -861,6 +867,21 @@ export class ContextPanel {
         <div class="form-group"><label><input type="checkbox" id="ef-push-enabled" ${data.pushEnabled !== false ? 'checked' : ''} /> Push Enabled</label></div>
         <div class="form-group"><label><input type="checkbox" id="ef-push-persist" ${data.doesPersist ? 'checked' : ''} /> Persist Position</label></div>
         <div class="form-group"><label><input type="checkbox" id="ef-push-single" ${data.singlePushOnly ? 'checked' : ''} /> Single Push Only</label></div>`;
+    }
+    if (entityDef.type === 'moving_tile') {
+      const mtData = data as { texture?: string; widthCells?: number; heightCells?: number; script?: unknown };
+      typeFields += `<div class="form-group"><label>Texture</label>
+        <div style="display:flex;gap:4px">
+          <input id="ef-mt-tex" value="${mtData.texture ?? MOVING_TILE_DEFAULT_TEXTURE}" style="flex:1" />
+          <button class="ed-btn" id="ef-mt-pick">Pick</button>
+        </div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          <div class="form-group"><label>Width (cells)</label><input type="number" id="ef-mt-w" value="${mtData.widthCells ?? 1}" min="1" /></div>
+          <div class="form-group"><label>Height (cells)</label><input type="number" id="ef-mt-h" value="${mtData.heightCells ?? 1}" min="1" /></div>
+        </div>
+        <div class="form-group"><label>Script (JSON, loops forever)</label>
+        <div style="font-size:10px;color:#7f8c8d;margin-bottom:4px">{ "waitMs": 2000 } | { "moveTo": { "col": 10, "row": 15 }, "speedCellsPerSec": 5 }</div>
+        <textarea id="ef-mt-script" rows="8">${JSON.stringify(mtData.script ?? [], null, 2)}</textarea></div>`;
     }
     if (entityDef.type === 'hole') {
       const holeData = data as { texture?: string; targetLevel?: string; targetCol?: number; targetRow?: number; transformOverride?: { scaleX?: number; scaleY?: number; offsetX?: number; offsetY?: number } };
@@ -1034,7 +1055,8 @@ export class ContextPanel {
       this.showEntityForm(fakeEntity);
     });
     this.container.querySelector('#ef-assets')?.addEventListener('change', (e) => {
-      this.bridge.updateEntityData(entityId, { assets: (e.target as HTMLInputElement).value });
+      this.bridge.updateEntityData(entityId, { assets: (e.target as HTMLSelectElement).value });
+      this.bridge.respawnEntity(entityId);
     });
     this.container.querySelector('#ef-npcdir')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { direction: (e.target as HTMLSelectElement).value });
@@ -1096,6 +1118,42 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-push-single')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { singlePushOnly: (e.target as HTMLInputElement).checked });
+    });
+    const setMovingTileTexture = (texture: string) => {
+      this.bridge.updateEntityData(entityId, { texture });
+      this.bridge.respawnEntity(entityId);
+    };
+    this.container.querySelector('#ef-mt-tex')?.addEventListener('change', (e) => {
+      setMovingTileTexture((e.target as HTMLInputElement).value);
+    });
+    this.container.querySelector('#ef-mt-pick')?.addEventListener('click', () => {
+      this.texturePicker.open((result: PickResult) => {
+        if (result.type === 'spritesheet') return;
+        setMovingTileTexture(result.key);
+      });
+    });
+    for (const id of ['#ef-mt-w', '#ef-mt-h']) {
+      this.container.querySelector(id)?.addEventListener('change', () => {
+        const widthCells = Number.parseInt((this.container.querySelector('#ef-mt-w') as HTMLInputElement).value);
+        const heightCells = Number.parseInt((this.container.querySelector('#ef-mt-h') as HTMLInputElement).value);
+        if (Number.isNaN(widthCells) || Number.isNaN(heightCells)) return;
+        this.bridge.updateEntityData(entityId, {
+          widthCells: Math.max(1, widthCells),
+          heightCells: Math.max(1, heightCells),
+        });
+        this.bridge.respawnEntity(entityId);
+      });
+    }
+    this.container.querySelector('#ef-mt-script')?.addEventListener('change', (e) => {
+      const textarea = e.target as HTMLTextAreaElement;
+      try {
+        const parsed = JSON.parse(textarea.value);
+        if (!Array.isArray(parsed)) throw new TypeError('script must be an array of steps');
+        this.bridge.updateEntityData(entityId, { script: parsed });
+        textarea.style.borderColor = '';
+      } catch {
+        textarea.style.borderColor = '#e74c3c';
+      }
     });
     this.container.querySelector('#ef-htex')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { texture: (e.target as HTMLInputElement).value });

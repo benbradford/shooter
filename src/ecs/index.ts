@@ -42,6 +42,8 @@ export { NPCIdleComponent } from './entities/npc/NPCIdleComponent';
 export { LeverComponent } from './components/lever/LeverComponent';
 export { NPCInteractionComponent } from './entities/npc/NPCInteractionComponent';
 export { PushableComponent } from './components/pushable/PushableComponent';
+export { MovingTileComponent } from './components/moving-tile/MovingTileComponent';
+export type { MovingTileStep } from './components/moving-tile/MovingTileScript';
 export { EscortComponent } from './components/escort/EscortComponent';
 export type { NPCInteraction, FlagCondition } from './entities/npc/NPCEntity';
 export { createNPCEntity } from './entities/npc/NPCEntity';

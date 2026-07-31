@@ -85,7 +85,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
   scene.children.bringToTop(sprite.sprite);
   console.log(`[PlayerEntity] Player sprite created with depth: ${Depth.player}, actual depth: ${sprite.sprite.depth}`);
 
-  const shadow = entity.add(new ShadowComponent(scene, { scale: 1, offsetX: 0, offsetY: 28 }));
+  const shadow = entity.add(new ShadowComponent(scene, { scale: 0.8, offsetX: 0, offsetY: 22 }));
   shadow.init();
 
   const animMap = new Map<string, Animation>();

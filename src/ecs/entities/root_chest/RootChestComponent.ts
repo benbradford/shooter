@@ -9,6 +9,7 @@ import { GridPositionComponent } from '../../components/movement/GridPositionCom
 import { createSpecialItemEntity } from './SpecialItemEntity';
 import { createOpenedRootChestEntity } from './OpenedRootChestEntity';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
+import { decayingRotationAngleDeg } from '../../../utils/ShardRotation';
 
 const CHEST_HEALTH = 60;
 const HIT_FLASH_DURATION_MS = 300;
@@ -26,7 +27,8 @@ const SHARD_FADE_DURATION_MS = 800;
 const SHARD_EXPLOSION_SPEED_PX_PER_SEC = 40;
 const SHARD_INITIAL_UPWARD_VELOCITY_PX_PER_SEC = 50;
 const SHARD_GRAVITY_PX_PER_SEC_SQ = 150;
-const SHARD_ROTATION_SPEED_DEG_PER_SEC = 120;
+const SHARD_INITIAL_ROTATION_SPEED_DEG_PER_SEC = 240;
+const SHARD_ROTATION_DECAY_TIME_CONSTANT_SEC = 0.4;
 const SHARD_GRID_SIZE = 3;
 
 type ChestState = 'idle' | 'hit_flash' | 'death_cracking' | 'death_breaking' | 'death_open_glow' | 'death_open_particles' | 'dead';
@@ -237,7 +239,7 @@ export class RootChestComponent implements Component {
     const velocityX = Math.cos(finalAngle) * SHARD_EXPLOSION_SPEED_PX_PER_SEC;
     const velocityY = Math.sin(finalAngle) * SHARD_EXPLOSION_SPEED_PX_PER_SEC;
     const rotationDir = col > 1 ? 1 : col < 1 ? -1 : 0;
-    const rotationSpeed = rotationDir * SHARD_ROTATION_SPEED_DEG_PER_SEC;
+    const initialRotationSpeed = rotationDir * SHARD_INITIAL_ROTATION_SPEED_DEG_PER_SEC;
 
     const startTime = this.scene.time.now;
     const startX = shard.x;
@@ -250,7 +252,7 @@ export class RootChestComponent implements Component {
       const t = elapsed / 1000;
       shard.x = startX + velocityX * t;
       shard.y = Math.min(startY + velocityY * t - SHARD_INITIAL_UPWARD_VELOCITY_PX_PER_SEC * t + (SHARD_GRAVITY_PX_PER_SEC_SQ * t * t) / 2, maxY);
-      shard.angle = rotationSpeed * t;
+      shard.angle = decayingRotationAngleDeg(initialRotationSpeed, t, SHARD_ROTATION_DECAY_TIME_CONSTANT_SEC);
       shard.alpha = 1 - (elapsed / SHARD_FADE_DURATION_MS);
     };
 

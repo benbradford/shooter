@@ -1,16 +1,16 @@
 {
-  "timePlayed": 75.008,
+  "timePlayed": 109.16300000000003,
   "profileDisplayName": "Cheat",
   "player": {
     "health": 90,
-    "coins": 7,
-    "currentLevel": "interior2n",
-    "spawnCol": 7,
-    "spawnRow": 7,
-    "spawnDir": 2,
+    "coins": 0,
+    "currentLevel": "grass_overworld1",
+    "spawnCol": 4,
+    "spawnRow": 20,
+    "spawnDir": 1,
     "entryCell": {
-      "col": 7,
-      "row": 7
+      "col": 4,
+      "row": 20
     }
   },
   "flags": {
@@ -21,6 +21,7 @@
     "pet_rock_collected": "true",
     "pet_selected": "dog",
     "pet_dog_collected": "true",
+    "pet_bubble_collected": "true",
     "hasSuperPunch": "true",
     "hasCompanion": "true",
     "hasAutoHeal": "false",
@@ -28,16 +29,15 @@
     "_enteredViaHole": "",
     "level_entered_grass_overworld1": "true",
     "go1_first_interaction_live": "false",
+    "level_entered_interior2": "true",
     "swim_teacher_intro_live": "false",
-    "level_entered_interior2": "true"
+    "level_entered_interior1": "true",
+    "level_entered_interior1n": "true"
   },
   "levels": {
     "house3_interior": {
       "liveEntities": [],
-      "destroyedEntities": [
-        "breakable2",
-        "breakable3"
-      ],
+      "destroyedEntities": [],
       "firedTriggers": [],
       "modifiedCells": [],
       "movedEntities": []
@@ -58,26 +58,33 @@
       ]
     },
     "interior2": {
-      "liveEntities": [
-        "exit0"
-      ],
+      "liveEntities": [],
       "destroyedEntities": [
-        "skeleton0",
-        "breakable0",
-        "breakable1",
-        "breakable2"
+        "skeleton0"
       ],
       "firedTriggers": [
         "exit_exit4"
       ],
-      "modifiedCells": [
-        {
-          "col": 4,
-          "row": 1,
-          "layer": 0,
-          "backgroundTexture": "hole_in_wall"
-        }
+      "modifiedCells": [],
+      "movedEntities": []
+    },
+    "interior1": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit3",
+        "exit_exit0"
       ],
+      "modifiedCells": [],
+      "movedEntities": []
+    },
+    "interior1n": {
+      "liveEntities": [],
+      "destroyedEntities": [],
+      "firedTriggers": [
+        "exit_exit1"
+      ],
+      "modifiedCells": [],
       "movedEntities": []
     }
   }

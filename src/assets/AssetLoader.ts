@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { ASSET_REGISTRY, ASSET_GROUPS, type AssetKey, type AssetGroupKey } from './AssetRegistry';
 import { normalizeBgTextures, bgTextureKey, type LevelData, type SingleBackgroundTexture } from '../systems/level/LevelLoader';
 import { EscortPersistence } from '../ecs/components/escort/EscortPersistence';
+import { MOVING_TILE_DEFAULT_TEXTURE } from '../ecs/components/moving-tile/MovingTileScript';
 
 /**
  * Preloads assets from the registry
@@ -192,6 +193,12 @@ export function getBackgroundTextures(levelData: LevelData): AssetKey[] {
       }
       if (entity.type === 'hole') {
         const texture = (entity.data.texture as string) ?? 'hole_with_roots';
+        if (texture in ASSET_REGISTRY) {
+          textureSet.add(texture as AssetKey);
+        }
+      }
+      if (entity.type === 'moving_tile') {
+        const texture = (entity.data.texture as string) ?? MOVING_TILE_DEFAULT_TEXTURE;
         if (texture in ASSET_REGISTRY) {
           textureSet.add(texture as AssetKey);
         }

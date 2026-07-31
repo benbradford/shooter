@@ -28,7 +28,8 @@ export type EntityType =
   | 'bell'
   | 'worm'
   | 'beetle'
-  | 'fly';
+  | 'fly'
+  | 'moving_tile';
 
 export type LevelEntity = {
   id: string;

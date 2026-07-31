@@ -1,9 +1,10 @@
 import type { Entity } from '../../Entity';
-import type { GridReader, CellCoord } from '../../../systems/grid/Grid';
+import type { GridReader, CellCoord, CellData } from '../../../systems/grid/Grid';
 import type { GridPositionComponent } from './GridPositionComponent';
 import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 import { GridCellBlocker } from './GridCellBlocker';
 import { JumpComponent } from './JumpComponent';
+import { MovingTileComponent } from '../moving-tile/MovingTileComponent';
 import { CachedFlag } from '../../../systems/state/CachedFlag';
 
 /**
@@ -36,6 +37,18 @@ export class GridMovementValidator {
         this.blockedByPushable = occupant;
         return false;
       }
+    }
+
+    // Moving tiles are walkable surfaces over whatever cell they sit on, so they
+    // bypass the underlying cell's rules. Boarding is implicitly limited to sides
+    // the entity can legally stand on; leaving re-applies the target cell's rules.
+    const fromTile = this.getMovingTileAt(fromCell, fromCol, fromRow);
+    const toTile = this.getMovingTileAt(toCell, toCol, toRow);
+    if (toTile) {
+      return true;
+    }
+    if (fromTile) {
+      return this.canLeaveMovingTile(entity, toCell);
     }
 
     // Always allow movement between transition cells
@@ -189,21 +202,49 @@ export class GridMovementValidator {
       allowedLayers.add(prevCenterCellData ? this.grid.getLayer(prevCenterCellData) : gridPos.currentLayer);
     }
 
+    // Determine if the entity is currently riding a moving tile. When riding,
+    // the tile owns the entity's movement — ground-type checks (water, layers)
+    // must not block the carried position. The tile's occupancy is snapped to
+    // whole cells so its grid registration may lag behind the pixel position it
+    // carries riders to, causing false blocks on water cells between boundaries.
+    // Check both the previous and new center cells — the tile may only be
+    // registered at one of them depending on when syncOccupancy snapped.
+    const prevCenterCellForRider = this.grid.getCell(prevCenterCell.col, prevCenterCell.row);
+    const newCenter = this.grid.worldToCellInto(x + gridPos.collisionBox.offsetX, y + gridPos.collisionBox.offsetY, tmpCells[5]);
+    const newCenterCol = newCenter.col;
+    const newCenterRow = newCenter.row;
+    const newCenterCellForRider = this.grid.getCell(newCenterCol, newCenterRow);
+    const ridingTile = (prevCenterCellForRider
+      ? this.getMovingTileAt(prevCenterCellForRider, prevCenterCell.col, prevCenterCell.row)
+      : null)
+      ?? (newCenterCellForRider
+        ? this.getMovingTileAt(newCenterCellForRider, newCenterCol, newCenterRow)
+        : null);
+
     // Check each cell the new collision box overlaps
     for (let row = topLeftCell.row; row <= bottomRightCell.row; row++) {
       for (let col = topLeftCell.col; col <= bottomRightCell.col; col++) {
         const cell = this.grid.getCell(col, row);
 
+        // A moving tile provides its own surface, so the cell beneath it is exempt
+        // from the layer check that would otherwise block standing there.
+        const isMovingTileCell = cell ? this.getMovingTileAt(cell, col, row) !== null : false;
+        // When riding a tile, also treat cells it geometrically covers as tile cells,
+        // even if the tile hasn't snapped its occupancy there yet (between-cell movement).
+        const coveredByRidingTile = !isMovingTileCell && ridingTile !== null && ridingTile.coversCell(col, row);
+
         // Block if any overlapping cell is a different layer (unless it's a transition or allowed)
-        if (cell && !this.grid.isTransition(cell) && !allowedLayers.has(this.grid.getLayer(cell))) {
+        if (cell && !isMovingTileCell && !coveredByRidingTile && !this.grid.isTransition(cell) && !allowedLayers.has(this.grid.getLayer(cell))) {
           return true; // blocked
         }
 
         // Check if this cell was already occupied in previous frame
         const wasOccupied = this.wasCellOccupied(col, row, prevTopLeftCell, prevBottomRightCell);
 
-        // If entering a new cell, check if movement is allowed
-        if (!wasOccupied) {
+        // If entering a new cell, check if movement is allowed.
+        // Skip this check when the cell is covered by the tile we're riding —
+        // the tile carries the entity and ground rules (water, layers) don't apply.
+        if (!wasOccupied && !isMovingTileCell && !coveredByRidingTile) {
           const fromCell = this.grid.worldToCellInto(prevCenterX, prevCenterY, tmpCells[5]);
 
           if (!this.canMoveTo(entity, fromCell.col, fromCell.row, col, row)) {
@@ -219,7 +260,9 @@ export class GridMovementValidator {
     const centerCellRow = tmpCells[5].row;
     if (centerCellRow < topLeftCell.row) {
       const centerCell = this.grid.getCell(centerCellCol, centerCellRow);
-      if (centerCell && !centerCell.properties.has('bridge') && centerCell.properties.has('water')) {
+      const visualCenterCoveredByTile = ridingTile !== null && ridingTile.coversCell(centerCellCol, centerCellRow);
+      if (centerCell && !visualCenterCoveredByTile && !this.getMovingTileAt(centerCell, centerCellCol, centerCellRow)
+        && !centerCell.properties.has('bridge') && centerCell.properties.has('water')) {
         const waterEffect = entity.get(WaterEffectComponent);
         const canSwim = this.canSwimFlag.get();
         if (!waterEffect || !canSwim) {
@@ -229,6 +272,36 @@ export class GridMovementValidator {
     }
 
     return false; // not blocked
+  }
+
+  /** Returns the moving tile whose footprint covers this cell, if any. */
+  private getMovingTileAt(cell: CellData, col: number, row: number): MovingTileComponent | null {
+    for (const occupant of cell.occupants) {
+      const tile = occupant.get(MovingTileComponent);
+      if (tile?.coversCell(col, row)) {
+        return tile;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Stepping off a moving tile is only allowed toward a cell the entity could
+   * otherwise stand on — so walls always block, and water blocks unless the
+   * entity can swim.
+   */
+  private canLeaveMovingTile(entity: Entity, toCell: CellData): boolean {
+    if (this.grid.isWall(toCell)) return false;
+    if (toCell.properties.has('void')) return false;
+
+    if (!toCell.properties.has('bridge') && toCell.properties.has('water')) {
+      const waterEffect = entity.get(WaterEffectComponent);
+      if (!waterEffect || !this.canSwimFlag.get()) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private wasCellOccupied(

@@ -18,6 +18,11 @@ export type CoinComponentProps = {
 }
 
 const GRAVITY_PX_PER_SEC_SQ = 600;
+const SPIN_MIN_TURNS = 4;
+const SPIN_EXTRA_TURN_COUNT = 8;
+const SPIN_DECAY_TIME_CONSTANT_SEC = 0.9;
+const SPIN_MIN_SCALE_X = 0.1;
+const RADIANS_PER_TURN = Math.PI * 2;
 const COLLECTION_DISTANCE_PX = 70;
 const COLLECTION_DELAY_MS = 500;
 const COIN_LIFETIME_MS = 15000;
@@ -51,6 +56,9 @@ export class CoinComponent implements Component {
   private flySpeed = FLY_TO_HUD_SPEED_PX_PER_SEC;
   private hudTargetX = 0;
   private hudTargetY = 0;
+  private spinSpeedRadPerSec: number;
+  private readonly initialSpinSpeedRadPerSec: number;
+  private spinPhaseRad = 0;
 
   constructor(props: CoinComponentProps) {
     this.targetY = props.targetY;
@@ -61,6 +69,11 @@ export class CoinComponent implements Component {
     this.coinSize = props.coinSize;
     this.soundManager = props.soundManager;
     this.worldState = props.worldState;
+
+    const spinDirection = props.velocityX >= 0 ? 1 : -1;
+    const spinTurnsPerSec = SPIN_MIN_TURNS + Math.random() * SPIN_EXTRA_TURN_COUNT;
+    this.spinSpeedRadPerSec = spinDirection * spinTurnsPerSec * RADIANS_PER_TURN;
+    this.initialSpinSpeedRadPerSec = this.spinSpeedRadPerSec;
   }
 
   update(delta: number): void {
@@ -68,6 +81,8 @@ export class CoinComponent implements Component {
     const transform = this.entity.require(TransformComponent);
     const sprite = this.entity.require(SpriteComponent);
     const deltaInSec = delta / 1000;
+
+    this.applySpin(sprite, deltaInSec);
 
     if (this.flyingToHud) {
       const scene = this.entity.require(SpriteComponent).sprite.scene;
@@ -167,6 +182,19 @@ export class CoinComponent implements Component {
         this.soundManager.play(coinSounds[Math.floor(Math.random() * coinSounds.length)]);
       }
     }
+  }
+
+  getSpinPhaseRad(): number {
+    return this.spinPhaseRad;
+  }
+
+  private applySpin(sprite: SpriteComponent, deltaInSec: number): void {
+    this.spinPhaseRad += this.spinSpeedRadPerSec * deltaInSec;
+    this.spinSpeedRadPerSec *= Math.exp(-deltaInSec / SPIN_DECAY_TIME_CONSTANT_SEC);
+
+    const remainingSpinFraction = this.spinSpeedRadPerSec / this.initialSpinSpeedRadPerSec;
+    const squashDepth = remainingSpinFraction * (1 - SPIN_MIN_SCALE_X);
+    sprite.visualScaleX = 1 - squashDepth * (1 - Math.cos(this.spinPhaseRad)) / 2;
   }
 
   onDestroy(): void {

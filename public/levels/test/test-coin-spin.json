@@ -1,0 +1,57 @@
+{
+  "name": "test-coin-spin",
+  "width": 14,
+  "height": 12,
+  "playerStart": {
+    "x": 2,
+    "y": 2
+  },
+  "levelTheme": "dungeon",
+  "cells": [],
+  "entities": [
+    {
+      "id": "breakable0",
+      "type": "breakable",
+      "data": {
+        "col": 6,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "legendary"
+      }
+    },
+    {
+      "id": "breakable1",
+      "type": "breakable",
+      "data": {
+        "col": 8,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "legendary"
+      }
+    },
+    {
+      "id": "breakable2",
+      "type": "breakable",
+      "data": {
+        "col": 10,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "legendary"
+      }
+    },
+    {
+      "id": "breakable3",
+      "type": "breakable",
+      "data": {
+        "col": 12,
+        "row": 7,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "legendary"
+      }
+    }
+  ]
+}

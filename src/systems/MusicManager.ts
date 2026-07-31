@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 
 const DEFAULT_VOLUME = 0.5;
+const MUTED_STORAGE_KEY = 'music_muted';
 
 type MusicOptions = {
   volume?: number;
@@ -13,11 +14,16 @@ type MusicOptions = {
  * Tracks the currently playing music key. Calling `play()` with the same key
  * is a no-op so music continues seamlessly across level transitions.
  * Passing `null` stops any current music.
+ *
+ * Mute state persists across sessions in localStorage. While muted, tracks are
+ * still created and swapped on level transitions but held paused, so unmuting
+ * resumes whatever the current level expects to be playing.
  */
 export class MusicManager {
   private static instance: MusicManager;
   private currentKey: string | null = null;
   private currentSound: Phaser.Sound.BaseSound | null = null;
+  private muted: boolean = localStorage.getItem(MUTED_STORAGE_KEY) === 'true';
 
   static getInstance(): MusicManager {
     if (!MusicManager.instance) {
@@ -28,6 +34,33 @@ export class MusicManager {
 
   getCurrentKey(): string | null {
     return this.currentKey;
+  }
+
+  isMuted(): boolean {
+    return this.muted;
+  }
+
+  /** Flips mute state and returns the new value. */
+  toggleMuted(): boolean {
+    this.setMuted(!this.muted);
+    return this.muted;
+  }
+
+  setMuted(muted: boolean): void {
+    if (muted === this.muted) return;
+
+    this.muted = muted;
+    localStorage.setItem(MUTED_STORAGE_KEY, String(muted));
+
+    if (!this.currentSound) return;
+
+    if (muted) {
+      this.currentSound.pause();
+    } else if (this.currentSound.isPaused) {
+      this.currentSound.resume();
+    } else {
+      this.currentSound.play();
+    }
   }
 
   /**
@@ -50,8 +83,11 @@ export class MusicManager {
       loop: options?.loop ?? true,
       volume: options?.volume ?? DEFAULT_VOLUME,
     });
-    this.currentSound.play();
     this.currentKey = key;
+
+    if (!this.muted) {
+      this.currentSound.play();
+    }
   }
 
   stop(): void {

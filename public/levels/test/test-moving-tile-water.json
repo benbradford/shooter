@@ -1,0 +1,34 @@
+{
+  "width": 20,
+  "height": 10,
+  "playerStart": { "x": 3, "y": 5 },
+  "cells": [
+    { "col": 5, "row": 5, "properties": ["water"] },
+    { "col": 6, "row": 5, "properties": ["water"] },
+    { "col": 7, "row": 5, "properties": ["water"] },
+    { "col": 8, "row": 5, "properties": ["water"] },
+    { "col": 9, "row": 5, "properties": ["water"] },
+    { "col": 10, "row": 5, "properties": ["water"] },
+    { "col": 11, "row": 5, "properties": ["water"] },
+    { "col": 12, "row": 5, "properties": ["water"] }
+  ],
+  "entities": [
+    {
+      "id": "moving_tile0",
+      "type": "moving_tile",
+      "data": {
+        "col": 4,
+        "row": 5,
+        "widthCells": 1,
+        "heightCells": 1,
+        "texture": "grey_platform",
+        "script": [
+          { "waitMs": 2500 },
+          { "moveTo": { "col": 13, "row": 5 }, "speedCellsPerSec": 2 },
+          { "waitMs": 1500 },
+          { "moveTo": { "col": 4, "row": 5 }, "speedCellsPerSec": 2 }
+        ]
+      }
+    }
+  ]
+}

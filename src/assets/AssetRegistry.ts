@@ -41,6 +41,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 68, frameHeight: 68 }
   },
+  old_village_lady: {
+    key: 'old_village_lady',
+    path: 'assets/npc/old_village_lady/old_village_lady_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
   village_wizard: {
     key: 'village_wizard',
     path: 'assets/npc/village_wizard/village_wizard_spritesheet.png',
@@ -699,6 +705,31 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/lava.png',
     type: 'image' as const
   },
+  ice_edge: {
+    key: 'ice_edge',
+    path: 'assets/cell_drawables/ice_edge.png',
+    type: 'image' as const
+  },
+  ice_ground: {
+    key: 'ice_ground',
+    path: 'assets/cell_drawables/ice_ground.png',
+    type: 'image' as const
+  },
+  ice_lake: {
+    key: 'ice_lake',
+    path: 'assets/cell_drawables/ice_lake.png',
+    type: 'image' as const
+  },
+  ice_platform: {
+    key: 'ice_platform',
+    path: 'assets/cell_drawables/ice_platform.png',
+    type: 'image' as const
+  },
+  ice_shoreline: {
+    key: 'ice_shoreline',
+    path: 'assets/cell_drawables/ice_shoreline.png',
+    type: 'image' as const
+  },
   water_splash: {
     key: 'water_splash',
     path: 'assets/cell_drawables/water_splash.png',
@@ -807,6 +838,41 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/grass_faded.png',
     type: 'image' as const,
   },
+  plains_grass_fill_a: {
+    key: 'plains_grass_fill_a',
+    path: 'assets/cell_drawables/plains_grass_fill_a.png',
+    type: 'image' as const,
+  },
+  plains_grass_fill_b: {
+    key: 'plains_grass_fill_b',
+    path: 'assets/cell_drawables/plains_grass_fill_b.png',
+    type: 'image' as const,
+  },
+  plains_pebbles_overlay: {
+    key: 'plains_pebbles_overlay',
+    path: 'assets/cell_drawables/plains_pebbles_overlay.png',
+    type: 'image' as const,
+  },
+  plains_stone_path_fill: {
+    key: 'plains_stone_path_fill',
+    path: 'assets/cell_drawables/plains_stone_path_fill.png',
+    type: 'image' as const,
+  },
+  plains_stone_wall_fill: {
+    key: 'plains_stone_wall_fill',
+    path: 'assets/cell_drawables/plains_stone_wall_fill.png',
+    type: 'image' as const,
+  },
+  plains_wildflower_overlay: {
+    key: 'plains_wildflower_overlay',
+    path: 'assets/cell_drawables/plains_wildflower_overlay.png',
+    type: 'image' as const,
+  },
+  plains_wildflower_overlay_old: {
+    key: 'plains_wildflower_overlay_old',
+    path: 'assets/cell_drawables/plains_wildflower_overlay_old.png',
+    type: 'image' as const,
+  },
   tree1: {
     key: 'tree1',
     path: 'assets/cell_drawables/tree1.png',
@@ -832,14 +898,39 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/bush2.png',
     type: 'image' as const,
   },
+  flower1: {
+    key: 'flower1',
+    path: 'assets/cell_drawables/flower1.png',
+    type: 'image' as const,
+  },
   cart: {
     key: 'cart',
     path: 'assets/cell_drawables/cart.png',
     type: 'image' as const,
   },
+  cart2: {
+    key: 'cart2',
+    path: 'assets/cell_drawables/cart2.png',
+    type: 'image' as const,
+  },
   well: {
     key: 'well',
     path: 'assets/cell_drawables/well.png',
+    type: 'image' as const,
+  },
+  stone_guardian: {
+    key: 'stone_guardian',
+    path: 'assets/cell_drawables/stone_guardian.png',
+    type: 'image' as const,
+  },
+  stone_lantern: {
+    key: 'stone_lantern',
+    path: 'assets/cell_drawables/stone_lantern.png',
+    type: 'image' as const,
+  },
+  tile_sign: {
+    key: 'tile_sign',
+    path: 'assets/cell_drawables/tile_sign.png',
     type: 'image' as const,
   },
   bridge_v: {
@@ -875,6 +966,16 @@ export const ASSET_REGISTRY = {
   house3: {
     key: 'house3',
     path: 'assets/cell_drawables/house3.png',
+    type: 'image' as const,
+  },
+  house4: {
+    key: 'house4',
+    path: 'assets/cell_drawables/house4.png',
+    type: 'image' as const,
+  },
+  house5: {
+    key: 'house5',
+    path: 'assets/cell_drawables/house5.png',
     type: 'image' as const,
   },
   crumbled_cottage: {
@@ -1217,6 +1318,7 @@ export const ASSET_GROUPS = {
   npc1: ['npc1'] as const,
   village_old_man: ['village_old_man'] as const,
   village_girl: ['village_girl'] as const,
+  old_village_lady: ['old_village_lady'] as const,
   village_wizard: ['village_wizard'] as const,
   village_boy: ['village_boy'] as const,
   village_swim_teacher: ['village_swim_teacher'] as const,
@@ -1243,7 +1345,21 @@ export const ASSET_GROUPS = {
   bell: ['bell_bar', 'bell_body', 'bell_cracked', 'bell_ding'] as const,
 
   // Editor - all textures that can be used in editor
-  editor: ['bell_bar', 'bell_body', 'bell_cracked', 'dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_wall2', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'cart', 'well', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'rocks_spritesheet2', 'roots_spritesheet', 'roots_spritesheet2', 'roots_chest', 'drawbridge_spritesheet', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'chasm', 'blank', 'dead_tree1', 'dead_tree2', 'dead_tree3', 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
+  editor: ['bell_bar', 'bell_body', 'bell_cracked', 'dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_wall2', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'plains_grass_fill_a', 'plains_grass_fill_b', 'plains_pebbles_overlay', 'plains_stone_path_fill', 'plains_stone_wall_fill', 'plains_wildflower_overlay', 'plains_wildflower_overlay_old', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'flower1', 'cart', 'cart2', 'well', 'stone_guardian', 'stone_lantern', 'tile_sign', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'house4', 'house5', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'rocks_spritesheet2', 'roots_spritesheet', 'roots_spritesheet2', 'roots_chest', 'drawbridge_spritesheet', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'ice_edge', 'ice_ground', 'ice_lake', 'ice_platform', 'ice_shoreline', 'chasm', 'blank', 'dead_tree1', 'dead_tree2', 'dead_tree3', 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;
+
+/**
+ * Asset groups usable as the `assets` value of an npc entity. Drives the
+ * editor's NPC asset dropdown.
+ */
+export const NPC_ASSET_KEYS = [
+  'npc1',
+  'old_village_lady',
+  'village_boy',
+  'village_girl',
+  'village_old_man',
+  'village_swim_teacher',
+  'village_wizard',
+] as const;

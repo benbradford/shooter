@@ -356,7 +356,8 @@ Useful for testing combat, pets, companion, and super punch without progression.
 
 - **G** - Toggle grid debug (layers, transitions, triggers)
 - **C** - Toggle collision boxes
-- **M** - Set player health to max
+- **M** - Toggle music on/off (persists across sessions)
+- **H** - Set player health to max
 - **P** - Toggle punch targeting mode
 - **V** - Toggle HUD visibility
 - **Y** - Save world state

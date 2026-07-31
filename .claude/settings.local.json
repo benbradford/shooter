@@ -37,10 +37,39 @@
       "Bash(/opt/homebrew/bin/ttyd --help)",
       "Bash(kill 21335 21150)",
       "Bash(kiro-cli --help)",
-      "Bash(kiro-cli chat *)"
+      "Bash(kiro-cli chat *)",
+      "Read(//Users/bebradfo/.claude/plugins/**)",
+      "Bash(git mv *)",
+      "Bash(rm -f public/assets/npc/old_village_lady/.DS_Store)",
+      "Bash(printf '%s\\\\n' rotations/east.png rotations/north-east.png rotations/north-west.png rotations/north.png rotations/south-east.png rotations/south-west.png rotations/south.png rotations/west.png)",
+      "Bash(montage @/tmp/lady_frames.txt -tile 8x1 -geometry 68x68+0+0 -background none old_village_lady_spritesheet.png)"
     ]
   },
   "enabledMcpjsonServers": [
     "builder-mcp"
-  ]
+  ],
+  "enabledPlugins": {
+    "AIPowerUserCapabilities-agent-engineering@aim": false,
+    "AIPowerUserCapabilities-autonomous-coding@aim": false,
+    "AIPowerUserCapabilities-cloudwatch-migration@aim": false,
+    "AIPowerUserCapabilities-code-review@aim": false,
+    "AIPowerUserCapabilities-comms@aim": false,
+    "AIPowerUserCapabilities-core-dev@aim": false,
+    "AIPowerUserCapabilities-multiagent@aim": false,
+    "AIPowerUserCapabilities-pipeline-ops@aim": false,
+    "AIPowerUserCapabilities-pm-handoff@aim": false,
+    "AIPowerUserCapabilities-project-mgmt@aim": false,
+    "AIPowerUserCapabilities-research@aim": false,
+    "AIPowerUserCapabilities-spec-architect@aim": false,
+    "AIPowerUserCapabilities-threat-modeler@aim": false,
+    "AIPowerUserCapabilities-writing@aim": false,
+    "AmazonBuilderCoreAIAgents-core@aim": false,
+    "AmazonBuilderCoreAIAgents-pipeline-assistant@aim": false,
+    "AtlasAICapabilities-all@aim": false,
+    "MeshClawAICapabilities-all@aim": false,
+    "PVEPAICapabilities-all@aim": false,
+    "PVERAIPowerUserCapabilities-all@aim": false,
+    "PVFoundry-all@aim": false,
+    "SampleAICapabilities-all@aim": false
+  }
 }

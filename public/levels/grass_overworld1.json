@@ -939,6 +939,17 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        {
+          "image": "house5",
+          "transformOverride": {
+            "scaleX": 8,
+            "scaleY": 6,
+            "offsetX": -8,
+            "offsetY": 0
+          }
+        }
       ]
     },
     {
@@ -1083,16 +1094,7 @@
       "layer": 0,
       "properties": [
         "path"
-      ],
-      "backgroundTexture": {
-        "image": "house2",
-        "transformOverride": {
-          "scaleX": 4,
-          "scaleY": 4,
-          "offsetX": 24,
-          "offsetY": -15
-        }
-      }
+      ]
     },
     {
       "col": 36,
@@ -2965,18 +2967,17 @@
       "col": 4,
       "row": 18,
       "layer": 0,
-      "properties": [
-        "blocked"
-      ],
-      "backgroundTexture": {
-        "image": "house2",
-        "transformOverride": {
-          "scaleX": 4,
-          "scaleY": 4,
-          "offsetX": 24,
-          "offsetY": -15
+      "backgroundTexture": [
+        {
+          "image": "house2",
+          "transformOverride": {
+            "scaleX": 6.8,
+            "scaleY": 5,
+            "offsetX": 25,
+            "offsetY": -30
+          }
         }
-      }
+      ]
     },
     {
       "col": 6,
@@ -4117,15 +4118,17 @@
       "properties": [
         "blocked"
       ],
-      "backgroundTexture": {
-        "image": "house3",
-        "transformOverride": {
-          "scaleX": 4,
-          "scaleY": 4,
-          "offsetX": 0,
-          "offsetY": 24
+      "backgroundTexture": [
+        {
+          "image": "house3",
+          "transformOverride": {
+            "scaleX": 6,
+            "scaleY": 5,
+            "offsetX": 0,
+            "offsetY": 60
+          }
         }
-      }
+      ]
     },
     {
       "col": 37,
@@ -5398,6 +5401,68 @@
         "pushEnabled": true,
         "doesPersist": true,
         "singlePushOnly": true
+      }
+    },
+    {
+      "id": "moving_tile0",
+      "type": "moving_tile",
+      "data": {
+        "col": 13,
+        "row": 7,
+        "texture": "tile_sign",
+        "widthCells": 1,
+        "heightCells": 1,
+        "script": [
+          {
+            "waitMs": 2000
+          },
+          {
+            "moveTo": {
+              "col": 18,
+              "row": 7
+            }
+          },
+          {
+            "waitMs": 2000
+          },
+          {
+            "moveTo": {
+              "col": 13,
+              "row": 7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "moving_tile1",
+      "type": "moving_tile",
+      "data": {
+        "col": 7,
+        "row": 10,
+        "texture": "tile_sign",
+        "widthCells": 1,
+        "heightCells": 1,
+        "script": [
+          {
+            "waitMs": 2000
+          },
+          {
+            "moveTo": {
+              "col": 7,
+              "row": 15
+            }
+          },
+          {
+            "waitMs": 2000
+          },
+          {
+            "moveTo": {
+              "col": 7,
+              "row": 10
+            }
+          }
+        ]
       }
     },
     {

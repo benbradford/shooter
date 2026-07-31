@@ -5,7 +5,7 @@ import LoadingScene from "./scenes/LoadingScene";
 import BootScene from "./scenes/BootScene";
 import TitleScene from "./scenes/TitleScene";
 import ProfileSelectScene from "./scenes/ProfileSelectScene";
-import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AttackButtonComponent, WalkComponent, StateMachineComponent, HealthComponent, WaterEffectComponent, PushableComponent, AnimationComponent, LevelExitComponent } from "./ecs";
+import { TransformComponent, RemoteInputComponent, JoystickVisualsComponent, AimJoystickVisualsComponent, GridPositionComponent, ProjectileComponent, AttackButtonComponent, WalkComponent, StateMachineComponent, HealthComponent, WaterEffectComponent, PushableComponent, MovingTileComponent, AnimationComponent, LevelExitComponent } from "./ecs";
 import { AttackComboComponent } from "./ecs/components/combat/AttackComboComponent";
 import { PetAbilityComponent } from "./ecs/components/pet/PetAbilityComponent";
 import { DogBarkAbility } from "./ecs/components/pet/DogBarkAbility";
@@ -16,6 +16,10 @@ import { JumpComponent } from "./ecs/components/movement/JumpComponent";
 import { PetFollowComponent } from "./ecs/components/pet/PetFollowComponent";
 import { PetManager } from "./systems/PetManager";
 import { FlyBehaviorComponent } from "./ecs/components/fly/FlyBehaviorComponent";
+import { BreakableComponent } from "./ecs/components/breakable/BreakableComponent";
+import { CoinComponent } from "./ecs/components/pickup/CoinComponent";
+import { SpriteComponent } from "./ecs/components/core/SpriteComponent";
+import { RootChestComponent } from "./ecs/entities/root_chest/RootChestComponent";
 
 // Add Eruda console for mobile debugging
 if (globalThis.location.search.includes('debug')) {
@@ -70,10 +74,15 @@ if (params.get('test') === 'true') {
   g.WaterEffectComponent = WaterEffectComponent;
   g.CachedFlag = CachedFlag;
   g.PushableComponent = PushableComponent;
+  g.MovingTileComponent = MovingTileComponent;
   g.JumpComponent = JumpComponent;
   g.AnimationComponent = AnimationComponent;
   g.PetFollowComponent = PetFollowComponent;
   g.PetManager = PetManager;
   g.LevelExitComponent = LevelExitComponent;
   g.FlyBehaviorComponent = FlyBehaviorComponent;
+  g.BreakableComponent = BreakableComponent;
+  g.CoinComponent = CoinComponent;
+  g.SpriteComponent = SpriteComponent;
+  g.RootChestComponent = RootChestComponent;
 }
