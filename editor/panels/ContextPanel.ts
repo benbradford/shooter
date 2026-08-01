@@ -797,7 +797,7 @@ export class ContextPanel {
         <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>`;
     }
     if (entityDef.type === 'exit') {
-      const cells = (data.triggerCells as Array<{col: number; row: number}>) ?? [];
+      const cells = (data.triggerCells as Array<{col: number; row: number; direction?: string}>) ?? [];
       typeFields += `<div class="form-group"><label>Target Level</label><input id="ef-target" value="${data.targetLevel ?? ''}" /></div>
         <div class="form-group"><label>Target Col</label><input type="number" id="ef-tcol" value="${data.targetCol ?? 0}" /></div>
         <div class="form-group"><label>Target Row</label><input type="number" id="ef-trow" value="${data.targetRow ?? 0}" /></div>
@@ -805,8 +805,12 @@ export class ContextPanel {
           <label><input type="checkbox" id="ef-preserve-col" ${data.preserveCol ? 'checked' : ''} /> Preserve Col</label>
           <label><input type="checkbox" id="ef-preserve-row" ${data.preserveRow ? 'checked' : ''} /> Preserve Row</label>
         </div>
+        <div class="form-group" style="display:flex;gap:12px">
+          <div><label>Col Offset</label><input type="number" id="ef-col-offset" value="${data.colOffset ?? 0}" style="width:60px" /></div>
+          <div><label>Row Offset</label><input type="number" id="ef-row-offset" value="${data.rowOffset ?? 0}" style="width:60px" /></div>
+        </div>
         <div class="form-group"><label>Trigger Cells (${cells.length})</label>
-        <div id="ef-tcells">${cells.map((c, i) => `<span style="font-size:11px">${i}: (${c.col},${c.row}) </span>`).join('')}</div>
+        <div id="ef-tcells">${cells.map((c, i) => `<div style="display:flex;align-items:center;gap:4px;margin-bottom:2px"><span style="font-size:11px">${i}: (${c.col},${c.row})</span><select class="ef-cell-dir" data-i="${i}" style="font-size:10px;padding:1px"><option value="" ${!c.direction ? 'selected' : ''}>—</option><option value="N" ${c.direction === 'N' ? 'selected' : ''}>N</option><option value="S" ${c.direction === 'S' ? 'selected' : ''}>S</option><option value="E" ${c.direction === 'E' ? 'selected' : ''}>E</option><option value="W" ${c.direction === 'W' ? 'selected' : ''}>W</option></select></div>`).join('')}</div>
         <button class="ed-btn" id="ef-edit-cells">Edit Cells</button></div>
         <button class="ed-btn play" id="ef-leave" style="width:100%;margin-top:4px">Leave → ${data.targetLevel ?? '?'}</button>`;
     }
@@ -1011,6 +1015,28 @@ export class ContextPanel {
     this.container.querySelector('#ef-preserve-row')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { preserveRow: (e.target as HTMLInputElement).checked || undefined });
     });
+    this.container.querySelector('#ef-col-offset')?.addEventListener('change', (e) => {
+      const val = Number.parseInt((e.target as HTMLInputElement).value) || 0;
+      this.bridge.updateEntityData(entityId, { colOffset: val || undefined });
+    });
+    this.container.querySelector('#ef-row-offset')?.addEventListener('change', (e) => {
+      const val = Number.parseInt((e.target as HTMLInputElement).value) || 0;
+      this.bridge.updateEntityData(entityId, { rowOffset: val || undefined });
+    });
+    for (const select of this.container.querySelectorAll('.ef-cell-dir')) {
+      select.addEventListener('change', (e) => {
+        const idx = Number.parseInt((e.target as HTMLSelectElement).dataset.i ?? '0');
+        const dir = (e.target as HTMLSelectElement).value || undefined;
+        const levelData = this.bridge.getScene().getLevelData();
+        const entityDef = levelData.entities?.find((ent: { id: string }) => ent.id === entityId);
+        const cells = entityDef?.data?.triggerCells as Array<{col: number; row: number; direction?: string}> | undefined;
+        if (cells?.[idx]) {
+          if (dir) cells[idx].direction = dir;
+          else delete cells[idx].direction;
+          this.bridge.updateEntityData(entityId, { triggerCells: cells });
+        }
+      });
+    }
     this.container.querySelector('#ef-events')?.addEventListener('change', (e) => {
       try { this.bridge.updateEntityData(entityId, { eventsToRaise: JSON.parse((e.target as HTMLTextAreaElement).value) }); } catch { /* invalid json */ }
     });

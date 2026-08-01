@@ -71,6 +71,13 @@ All entities in the game are defined in a unified `entities` array in level JSON
 - Each condition: `{ name, condition, value }` (same format as NPC `whenFlagSet`)
 - Use case: Hide entities after quest completion (e.g., remove blocking NPC after player gets an ability)
 - Interaction entities auto-add a suppress flag for `{filename}_live` to prevent duplicate script execution
+- ⚠️ **Undefined flags always return false** — `suppressOnAnyFlag` cannot suppress based on a flag that doesn't exist yet
+
+### Conditional Requirement
+- `requireAnyFlag`: Array of flag conditions — entity is skipped unless at least ONE condition is true
+- Same condition format as `suppressOnAnyFlag`: `{ name, condition, value }`
+- Use case: Only spawn entities after a cross-level event (e.g., unblock a path after ringing a bell in another level)
+- ⚠️ **Undefined flags always return false** — if the flag hasn't been set yet, the entity won't spawn (which is the desired behavior)
 
 ## Entity Data Fields
 
@@ -162,16 +169,18 @@ Plus one interaction entity per script:
 ### Bell
 - No extra data fields beyond `col`, `row` — behavior is self-contained
 - Triggered by `player_projectile` collision (punch hitbox)
-- On hit: plays `bell_ding` sound, body swings with damped oscillation (25° amplitude, 2.5s)
+- On hit: plays `bell_ding` sound, immediately sets WorldState flag `{levelName}_{entityId}_rung`, body swings with damped oscillation (25° amplitude, 2.5s)
 - Emits 3 expanding shockwave rings during swing
 - At 60% progress, body sprite swaps to `bell_cracked`
-- On completion: sets WorldState flag `{levelName}_{entityId}_rung`, raises event `{levelName}_{entityId}_rung`
+- On completion: raises event `{levelName}_{entityId}_rung` (for same-level listeners like doors/cellmodifiers)
+- Flag is set immediately on hit so player can leave the level before animation completes without losing progress
 - Persists: on re-entry, shows cracked sprite and has no collision (already rung)
 - Key files: `src/ecs/entities/bell/BellEntity.ts`, `src/ecs/entities/bell/BellComponent.ts`
 
 ### Trigger
 - `eventToRaise`: Event name to fire
-- `triggerCells`: Array of {col, row} cells that activate trigger
+- `triggerCells`: Array of {col, row, direction?} cells that activate trigger
+  - `direction`: Optional `"N"` | `"S"` | `"E"` | `"W"` — trigger only fires when player is near that edge of the cell
 - `oneShot`: Boolean (default true)
 
 ### Exit
@@ -180,7 +189,10 @@ Plus one interaction entity per script:
 - `targetRow`: Spawn row in target level
 - `preserveCol`: Boolean (optional) — if true, player spawns at their current column instead of `targetCol`
 - `preserveRow`: Boolean (optional) — if true, player spawns at their current row instead of `targetRow`
-- `triggerCells`: Array of {col, row} cells that activate exit
+- `colOffset`: Number (optional, default 0) — added to player's current column when `preserveCol` is true
+- `rowOffset`: Number (optional, default 0) — added to player's current row when `preserveRow` is true
+- `triggerCells`: Array of {col, row, direction?} cells that activate exit
+  - `direction`: Optional `"N"` | `"S"` | `"E"` | `"W"` — exit only triggers when player is near that edge of the cell (30% threshold). Without direction, triggers anywhere in cell.
 - `oneShot`: Boolean (default true)
 
 ### EventChainer
