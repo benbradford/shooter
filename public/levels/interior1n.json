@@ -106,15 +106,18 @@
         "triggerCells": [
           {
             "col": 1,
-            "row": 4
+            "row": 4,
+            "direction": "S"
           },
           {
             "col": 2,
-            "row": 4
+            "row": 4,
+            "direction": "S"
           },
           {
             "col": 3,
-            "row": 4
+            "row": 4,
+            "direction": "S"
           }
         ]
       }

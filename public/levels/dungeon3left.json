@@ -3640,15 +3640,18 @@
         "triggerCells": [
           {
             "col": 29,
-            "row": 10
+            "row": 10,
+            "direction": "E"
           },
           {
             "col": 29,
-            "row": 9
+            "row": 9,
+            "direction": "E"
           },
           {
             "col": 29,
-            "row": 11
+            "row": 11,
+            "direction": "E"
           }
         ]
       }

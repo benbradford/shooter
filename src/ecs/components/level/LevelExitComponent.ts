@@ -12,6 +12,8 @@ export type LevelExitComponentProps = {
   targetRow: number;
   preserveCol?: boolean;
   preserveRow?: boolean;
+  colOffset?: number;
+  rowOffset?: number;
   grid?: GridReader;
   onTransition: (targetLevel: string, targetCol: number, targetRow: number) => void;
 }
@@ -22,6 +24,8 @@ export class LevelExitComponent extends BaseEventComponent {
   private readonly targetRow: number;
   private readonly preserveCol: boolean;
   private readonly preserveRow: boolean;
+  private readonly colOffset: number;
+  private readonly rowOffset: number;
   private readonly grid?: GridReader;
   private readonly onTransition: (targetLevel: string, targetCol: number, targetRow: number) => void;
 
@@ -32,6 +36,8 @@ export class LevelExitComponent extends BaseEventComponent {
     this.targetRow = props.targetRow;
     this.preserveCol = props.preserveCol ?? false;
     this.preserveRow = props.preserveRow ?? false;
+    this.colOffset = props.colOffset ?? 0;
+    this.rowOffset = props.rowOffset ?? 0;
     this.grid = props.grid;
     this.onTransition = props.onTransition;
     this.registerEvent(props.eventName);
@@ -47,8 +53,8 @@ export class LevelExitComponent extends BaseEventComponent {
       const player = this.grid?.getFirstEntityWithTag('player');
       const playerGridPos = player?.get(GridPositionComponent);
       if (playerGridPos) {
-        if (this.preserveCol) col = playerGridPos.currentCell.col;
-        if (this.preserveRow) row = playerGridPos.currentCell.row;
+        if (this.preserveCol) col = playerGridPos.currentCell.col + this.colOffset;
+        if (this.preserveRow) row = playerGridPos.currentCell.row + this.rowOffset;
       }
     }
 

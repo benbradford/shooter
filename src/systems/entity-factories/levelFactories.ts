@@ -10,9 +10,10 @@ import { createLevelExitEntity } from '../../exit/LevelExitEntity';
 import { createEventChainerEntity } from '../../eventchainer/EventChainerEntity';
 import { createCellModifierEntity } from '../../cellmodifier/CellModifierEntity';
 import { createInteractionEntity } from '../../interaction/InteractionEntity';
+import type { TriggerDirection } from '../../ecs/components/core/TriggerComponent';
 
 registerEntityFactory('trigger', (entityDef, ctx) => {
-  const data = entityDef.data as { eventToRaise: string; triggerCells: Array<{ col: number; row: number }>; oneShot: boolean };
+  const data = entityDef.data as { eventToRaise: string; triggerCells: Array<{ col: number; row: number; direction?: TriggerDirection }>; oneShot: boolean };
   return () => createTriggerEntity({
     entityId: entityDef.id, grid: ctx.grid, eventManager: ctx.eventManager,
     eventName: data.eventToRaise, triggerCells: data.triggerCells, oneShot: data.oneShot ?? true
@@ -20,7 +21,7 @@ registerEntityFactory('trigger', (entityDef, ctx) => {
 });
 
 registerEntityFactory('exit', (entityDef, ctx) => {
-  const data = entityDef.data as { targetLevel: string; targetCol: number; targetRow: number; triggerCells: Array<{ col: number; row: number }>; oneShot?: boolean; preserveCol?: boolean; preserveRow?: boolean };
+  const data = entityDef.data as { targetLevel: string; targetCol: number; targetRow: number; triggerCells: Array<{ col: number; row: number; direction?: TriggerDirection }>; oneShot?: boolean; preserveCol?: boolean; preserveRow?: boolean; colOffset?: number; rowOffset?: number };
   const eventName = `exit_${entityDef.id}`;
   return () => {
     const trigger = createTriggerEntity({
@@ -31,7 +32,8 @@ registerEntityFactory('exit', (entityDef, ctx) => {
     return createLevelExitEntity({
       eventManager: ctx.eventManager, eventName,
       targetLevel: data.targetLevel, targetCol: data.targetCol, targetRow: data.targetRow,
-      preserveCol: data.preserveCol, preserveRow: data.preserveRow, grid: ctx.grid,
+      preserveCol: data.preserveCol, preserveRow: data.preserveRow,
+      colOffset: data.colOffset, rowOffset: data.rowOffset, grid: ctx.grid,
       onTransition: (targetLevel, targetCol, targetRow) => { ctx.onTransition(targetLevel, targetCol, targetRow); }
     });
   };

@@ -59,6 +59,7 @@ export class BellComponent implements Component {
     this.elapsedMs = 0;
     this.shockwavesFired = 0;
     this.scene.sound.play('bell_ding');
+    WorldStateManager.getInstance().setFlag(this.eventName, 'true');
   }
 
   update(delta: number): void {
@@ -139,7 +140,6 @@ export class BellComponent implements Component {
     this.bodySprite.setAngle(0);
     this.rungAlready = true;
 
-    WorldStateManager.getInstance().setFlag(this.eventName, 'true');
     this.eventManager.raiseEvent(this.eventName);
   }
 

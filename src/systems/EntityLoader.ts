@@ -128,6 +128,23 @@ export class EntityLoader {
         }
       }
 
+      // Check if entity requires specific flags to be present
+      if (entityDef.requireAnyFlag) {
+        const ws = WorldStateManager.getInstance();
+        let hasRequiredFlag = false;
+
+        for (const flagCondition of entityDef.requireAnyFlag) {
+          if (ws.isFlagCondition(flagCondition.name, flagCondition.condition, flagCondition.value)) {
+            hasRequiredFlag = true;
+            break;
+          }
+        }
+
+        if (!hasRequiredFlag) {
+          continue;
+        }
+      }
+
       // Check if entity should be spawned based on world state
       if (!isEditorMode) {
         // Skip if destroyed (unless respawnable)

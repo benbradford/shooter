@@ -20,6 +20,10 @@ export class GridMovementValidator {
     this.canSwimFlag = new CachedFlag('canSwim');
   }
 
+  getCanSwim(): boolean {
+    return this.canSwimFlag.get();
+  }
+
   destroy(): void {
     this.canSwimFlag.destroy();
   }

@@ -454,7 +454,8 @@
         "triggerCells": [
           {
             "col": 4,
-            "row": 12
+            "row": 12,
+            "direction": "S"
           }
         ]
       }
@@ -469,7 +470,8 @@
         "triggerCells": [
           {
             "col": 4,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           }
         ]
       }

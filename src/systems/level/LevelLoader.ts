@@ -42,6 +42,11 @@ export type LevelEntity = {
     condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte';
     value: string | number;
   }>;
+  requireAnyFlag?: Array<{
+    name: string;
+    condition: 'eq' | 'neq' | 'gt' | 'lt' | 'gte' | 'lte';
+    value: string | number;
+  }>;
   data: Record<string, unknown>;
 }
 

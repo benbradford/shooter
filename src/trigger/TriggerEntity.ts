@@ -1,13 +1,13 @@
 import { Entity } from '../ecs/Entity';
 import { TransformComponent } from '../ecs/components/core/TransformComponent';
-import { TriggerComponent } from '../ecs/components/core/TriggerComponent';
+import { TriggerComponent, type TriggerDirection } from '../ecs/components/core/TriggerComponent';
 import type { GridReader } from '../systems/grid/Grid';
 import type { EventManagerSystem } from '../ecs/systems/EventManagerSystem';
 
 export type CreateTriggerEntityProps = {
   entityId: string;
   eventName: string;
-  triggerCells: Array<{ col: number; row: number }>;
+  triggerCells: Array<{ col: number; row: number; direction?: TriggerDirection }>;
   grid: GridReader;
   eventManager: EventManagerSystem;
   oneShot: boolean;

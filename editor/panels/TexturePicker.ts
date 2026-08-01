@@ -4,7 +4,7 @@ import type { SourceRect } from '../SpritesheetTextures';
 
 const BACKGROUND_TEXTURE_KEYS = [
   'bed1', 'bench1', 'blank', 'bridge_h', 'bridge_v', 'bush1', 'bush2', 'cart', 'chair1', 'chair2', 'chasm',
-  'dead_tree1', 'dead_tree2', 'dead_tree3', 'door_closed', 'dungeon_door', 'dungeon_floor', 'dungeon_key', 'dungeon_platform',
+  'dead_tree1', 'dead_tree2', 'dead_tree3', 'dead_tree4', 'dead_bush1', 'dead_bush2', 'door_closed', 'dungeon_door', 'dungeon_floor', 'dungeon_key', 'dungeon_platform',
   'dungeon_window', 'dungeon_fence', 'fence1', 'fireplace1', 'flower1', 'hole_in_wall', 'house1', 'house2', 'house3', 'house4', 'house5',
   'interior6', 'interior_door1', 'interior_door2', 'kitchen1', 'lava', 'pillar',
   'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'stone_guardian', 'stone_lantern', 'tile_sign',

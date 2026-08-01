@@ -5475,11 +5475,13 @@
         "triggerCells": [
           {
             "col": 20,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 21,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           }
         ],
         "oneShot": true
@@ -5754,11 +5756,13 @@
         "triggerCells": [
           {
             "col": 20,
-            "row": 29
+            "row": 29,
+            "direction": "S"
           },
           {
             "col": 21,
-            "row": 29
+            "row": 29,
+            "direction": "S"
           }
         ]
       }

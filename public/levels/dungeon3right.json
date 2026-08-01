@@ -2365,7 +2365,8 @@
         "triggerCells": [
           {
             "col": 0,
-            "row": 17
+            "row": 17,
+            "direction": "W"
           }
         ]
       }

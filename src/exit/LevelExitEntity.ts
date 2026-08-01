@@ -11,6 +11,8 @@ export type CreateLevelExitEntityProps = {
   targetRow: number;
   preserveCol?: boolean;
   preserveRow?: boolean;
+  colOffset?: number;
+  rowOffset?: number;
   grid?: GridReader;
   onTransition: (targetLevel: string, targetCol: number, targetRow: number) => void;
 }
@@ -25,6 +27,8 @@ export function createLevelExitEntity(props: CreateLevelExitEntityProps): Entity
     targetRow: props.targetRow,
     preserveCol: props.preserveCol,
     preserveRow: props.preserveRow,
+    colOffset: props.colOffset,
+    rowOffset: props.rowOffset,
     grid: props.grid,
     onTransition: props.onTransition
   }));

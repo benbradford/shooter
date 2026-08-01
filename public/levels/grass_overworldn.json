@@ -270,6 +270,14 @@
       ]
     },
     {
+      "col": 0,
+      "row": 1,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 6,
       "row": 1,
       "layer": 0,
@@ -520,6 +528,14 @@
       ]
     },
     {
+      "col": 0,
+      "row": 2,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 6,
       "row": 2,
       "layer": 0,
@@ -713,6 +729,14 @@
       ]
     },
     {
+      "col": 0,
+      "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 9,
       "row": 3,
       "layer": 0,
@@ -879,6 +903,14 @@
     {
       "col": 29,
       "row": 3,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 0,
+      "row": 4,
       "layer": 0,
       "properties": [
         "blocked"
@@ -3010,15 +3042,18 @@
         "triggerCells": [
           {
             "col": 19,
-            "row": 19
+            "row": 19,
+            "direction": "S"
           },
           {
             "col": 18,
-            "row": 19
+            "row": 19,
+            "direction": "S"
           },
           {
             "col": 17,
-            "row": 19
+            "row": 19,
+            "direction": "S"
           }
         ]
       }
@@ -3034,43 +3069,127 @@
         "triggerCells": [
           {
             "col": 1,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 2,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 3,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 4,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 5,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 6,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 7,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 8,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 9,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 10,
-            "row": 0
+            "row": 0,
+            "direction": "N"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cellmodifier_bell_unblock",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 0,
+            "row": 1,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 0,
+            "row": 2,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 0,
+            "row": 3,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 0,
+            "row": 4,
+            "properties": [],
+            "layer": 0
+          }
+        ]
+      },
+      "requireAnyFlag": [
+        {
+          "name": "grass_overworldnnw_bell2_rung",
+          "condition": "eq",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "exit2",
+      "type": "exit",
+      "data": {
+        "targetLevel": "grass_overworldnw",
+        "targetCol": 28,
+        "targetRow": 14,
+        "preserveRow": true,
+        "rowOffset": 13,
+        "triggerCells": [
+          {
+            "col": 0,
+            "row": 1,
+            "direction": "W"
+          },
+          {
+            "col": 0,
+            "row": 2,
+            "direction": "W"
+          },
+          {
+            "col": 0,
+            "row": 3,
+            "direction": "W"
+          },
+          {
+            "col": 0,
+            "row": 4,
+            "direction": "W"
           }
         ]
       }

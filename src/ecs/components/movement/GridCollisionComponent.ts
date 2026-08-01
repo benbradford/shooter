@@ -10,6 +10,7 @@ import { StateMachineComponent } from '../core/StateMachineComponent';
 import { KnockbackComponent } from './KnockbackComponent';
 import { GridMovementValidator } from './GridMovementValidator';
 import { MovingTileComponent } from '../moving-tile/MovingTileComponent';
+import { WaterEffectComponent } from '../visual/WaterEffectComponent';
 
 
 export class GridCollisionComponent implements Component {
@@ -302,7 +303,11 @@ export class GridCollisionComponent implements Component {
       for (const row of checkRows) {
         const cell = this.grid.getCell(col, row);
         if (!cell) return true; // out of bounds = clamp
-        if (cell.properties.has('water') || cell.properties.has('void')) return true;
+        if (cell.properties.has('void')) return true;
+        if (cell.properties.has('water') && !cell.properties.has('bridge')) {
+          const canSwim = this.entity.get(WaterEffectComponent) && this.validator.getCanSwim();
+          if (!canSwim) return true;
+        }
       }
     }
     return false; // safe ground — allow stepping off

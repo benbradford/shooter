@@ -1256,11 +1256,13 @@
         "triggerCells": [
           {
             "col": 9,
-            "row": 13
+            "row": 13,
+            "direction": "S"
           },
           {
             "col": 10,
-            "row": 13
+            "row": 13,
+            "direction": "S"
           }
         ]
       }
@@ -1346,7 +1348,8 @@
         "triggerCells": [
           {
             "col": 0,
-            "row": 6
+            "row": 6,
+            "direction": "W"
           }
         ]
       },
@@ -1364,7 +1367,8 @@
         "triggerCells": [
           {
             "col": 19,
-            "row": 6
+            "row": 6,
+            "direction": "E"
           }
         ]
       }
@@ -1404,11 +1408,13 @@
         "triggerCells": [
           {
             "col": 9,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           },
           {
             "col": 10,
-            "row": 0
+            "row": 0,
+            "direction": "N"
           }
         ]
       }

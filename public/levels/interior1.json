@@ -467,51 +467,63 @@
         "triggerCells": [
           {
             "col": 3,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 4,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 5,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 6,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 7,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 8,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 9,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 10,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 11,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 12,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 13,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           },
           {
             "col": 2,
-            "row": 7
+            "row": 7,
+            "direction": "S"
           }
         ],
         "oneShot": true

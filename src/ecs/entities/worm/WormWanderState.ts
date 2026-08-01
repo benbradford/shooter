@@ -16,6 +16,7 @@ const WANDER_PAUSE_MIN_MS = 500;
 const WANDER_PAUSE_MAX_MS = 1200;
 const SPIT_DETECT_DISTANCE_PX = 350;
 const SPIT_COOLDOWN_MS = 4500;
+const SPIT_INITIAL_DELAY_MS = 1500;
 
 const CARDINAL_DIRS: Direction[] = [Direction.Up, Direction.Down, Direction.Left, Direction.Right];
 const DIR_DELTAS: Record<number, { dx: number; dy: number }> = {
@@ -30,7 +31,7 @@ export class WormWanderState implements IState {
   private durationMs = 0;
   private isPaused = true;
   private direction = Direction.Down;
-  private spitCooldownMs = 0;
+  private spitCooldownMs = SPIT_INITIAL_DELAY_MS;
   private currentAnimKey = '';
 
   constructor(
