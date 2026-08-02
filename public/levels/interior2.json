@@ -211,7 +211,8 @@
         "triggerCells": [
           {
             "col": 3,
-            "row": 5
+            "row": 5,
+            "direction": "S"
           }
         ],
         "oneShot": true

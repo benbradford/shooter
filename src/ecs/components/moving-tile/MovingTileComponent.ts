@@ -4,6 +4,7 @@ import type { Grid, GridReader, CellCoord, CellData } from '../../../systems/gri
 import { TransformComponent } from '../core/TransformComponent';
 import { GridPositionComponent } from '../movement/GridPositionComponent';
 import { GridCollisionComponent } from '../movement/GridCollisionComponent';
+import { StateMachineComponent } from '../core/StateMachineComponent';
 import { PetFollowComponent } from '../pet/PetFollowComponent';
 import { isMoveStep, type MovingTileStep } from './MovingTileScript';
 
@@ -321,6 +322,9 @@ export class MovingTileComponent implements Component {
     for (const rider of riders) {
       const riderTransform = rider.get(TransformComponent);
       if (!riderTransform) continue;
+      // Skip riders in tileDeath state — they should stay rooted
+      const riderSm = rider.get(StateMachineComponent);
+      if (riderSm?.stateMachine.getCurrentKey() === 'tileDeath') continue;
       // Geometric check: only carry if the rider's center is actually within
       // the tile's pixel footprint. Grid occupancy is cell-granular and can
       // register entities whose collision box barely clips into an adjacent cell.

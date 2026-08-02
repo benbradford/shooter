@@ -1,5 +1,6 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
+import type { EntityManager } from '../../EntityManager';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import { TransformComponent } from '../../components/core/TransformComponent';
@@ -20,6 +21,8 @@ export type BellComponentProps = {
   alreadyRung: boolean;
   visualOffsetY: number;
   shadowOffsetY: number;
+  requiresAll?: boolean;
+  entityManager?: EntityManager;
 };
 
 export class BellComponent implements Component {

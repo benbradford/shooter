@@ -5936,11 +5936,13 @@
         "triggerCells": [
           {
             "col": 12,
-            "row": 28
+            "row": 28,
+            "direction": "S"
           },
           {
             "col": 13,
-            "row": 28
+            "row": 28,
+            "direction": "S"
           }
         ],
         "oneShot": true

@@ -35,4 +35,8 @@ export class StateMachine<TData = void> {
   hasState(key: string): boolean {
     return this.states.has(key);
   }
+
+  getState(key: string): IState<TData> | undefined {
+    return this.states.get(key);
+  }
 }

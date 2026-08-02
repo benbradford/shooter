@@ -23,6 +23,10 @@ export class GridCollisionComponent implements Component {
   blockedByPushable: Entity | null = null;
   /** Set by MovingTileComponent.carryRiders() — suppresses collision validation for this frame. */
   onMovingTile = false;
+  /** The last cell the player occupied before stepping onto a moving tile. Used for tileDeath respawn. */
+  lastCellBeforeMovingTile: { col: number; row: number } | null = null;
+  /** Whether the onMovingTile flag was set on the previous frame (used to detect boarding). */
+  private wasOnMovingTile = false;
 
   private readonly validator: GridMovementValidator;
 
@@ -256,6 +260,26 @@ export class GridCollisionComponent implements Component {
       gridPos.currentLayer = this.grid.getLayer(layerCellData);
     }
 
+    // Track last safe cell before boarding a moving tile
+    if (this.onMovingTile && !this.wasOnMovingTile) {
+      // Just boarded — use the last known safe ground cell as respawn point
+      // (already tracked below each frame when not on a tile)
+    }
+    if (!this.onMovingTile) {
+      this.wasOnMovingTile = false;
+      // Track last safe ground cell while NOT on a moving tile
+      // Only save if the cell is genuinely walkable ground (not water/void/blocked)
+      if (layerCellData && !layerCellData.properties.has('water') && !layerCellData.properties.has('void') && !layerCellData.properties.has('blocked')) {
+        this.lastCellBeforeMovingTile = { col: centerCell.col, row: centerCell.row };
+      }
+    } else {
+      // Check for tileDeath while riding a moving tile
+      if (this.entity.tags.has('player') && layerCellData?.properties.has('tileDeath')) {
+        this.triggerTileDeath();
+      }
+      this.wasOnMovingTile = true;
+    }
+
     this.previousX = transform.x;
     this.previousY = transform.y;
 
@@ -298,12 +322,14 @@ export class GridCollisionComponent implements Component {
         break;
     }
 
-    // If ANY cell beyond the edge is water or void (or out of bounds), clamp
+    // If ANY cell beyond the edge is water, void, or blocked (or out of bounds), clamp
     for (const col of checkCols) {
       for (const row of checkRows) {
         const cell = this.grid.getCell(col, row);
         if (!cell) return true; // out of bounds = clamp
         if (cell.properties.has('void')) return true;
+        if (cell.properties.has('blocked')) return true;
+        if (cell.properties.has('tileDeath')) return true;
         if (cell.properties.has('water') && !cell.properties.has('bridge')) {
           const canSwim = this.entity.get(WaterEffectComponent) && this.validator.getCanSwim();
           if (!canSwim) return true;
@@ -328,6 +354,21 @@ export class GridCollisionComponent implements Component {
       }
     }
     return null;
+  }
+
+  private triggerTileDeath(): void {
+    const sm = this.entity.get(StateMachineComponent);
+    if (!sm || sm.stateMachine.getCurrentKey() === 'tileDeath' || sm.stateMachine.getCurrentKey() === 'death') return;
+
+    // Stop moving with the tile immediately
+    this.onMovingTile = false;
+    this.wasOnMovingTile = false;
+
+    const tileDeathState = sm.stateMachine.getState('tileDeath') as { setRespawnCell?: (col: number, row: number) => void } | undefined;
+    if (tileDeathState?.setRespawnCell && this.lastCellBeforeMovingTile) {
+      tileDeathState.setRespawnCell(this.lastCellBeforeMovingTile.col, this.lastCellBeforeMovingTile.row);
+    }
+    sm.stateMachine.enter('tileDeath');
   }
 
   onDestroy(): void {

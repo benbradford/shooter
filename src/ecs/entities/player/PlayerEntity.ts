@@ -38,6 +38,7 @@ import { PlayerIdleState } from './PlayerIdleState';
 import { PlayerWalkState } from './PlayerWalkState';
 import { PlayerDeathState } from './PlayerDeathState';
 import { PlayerPushState } from './PlayerPushState';
+import { PlayerTileDeathState } from './PlayerTileDeathState';
 import type { Grid } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
 import { SoundManager } from '../../../systems/SoundManager';
@@ -330,6 +331,7 @@ export function createPlayerEntity(props: CreatePlayerEntityProps): Entity {
       idle: new PlayerIdleState(entity),
       walk: new PlayerWalkState(entity),
       death: new PlayerDeathState(entity, scene),
+      tileDeath: new PlayerTileDeathState(entity, scene, grid),
       push: new PlayerPushState(entity, grid),
     },
     'idle'

@@ -11,7 +11,7 @@ const GRID_TOOLS: Array<{ label: string; tool: string }> = [
   { label: 'Paint', tool: 'paint' },
 ];
 
-const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock', 'void'] as const;
+const CELL_PROPERTIES = ['wall', 'platform', 'stairs', 'water', 'bridge', 'blocked', 'path', 'push_lock', 'void', 'tileDeath'] as const;
 
 const ENTITY_TYPES = [
   'beetle', 'bell', 'breakable', 'bug_base', 'bullet_dude', 'cellmodifier', 'collectible', 'escort', 'eventchainer', 'exit',

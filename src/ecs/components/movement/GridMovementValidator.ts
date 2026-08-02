@@ -46,8 +46,10 @@ export class GridMovementValidator {
     // Moving tiles are walkable surfaces over whatever cell they sit on, so they
     // bypass the underlying cell's rules. Boarding is implicitly limited to sides
     // the entity can legally stand on; leaving re-applies the target cell's rules.
+    // Use pixel-based detection (findMovingTileCovering) which checks neighbors,
+    // so the player can board a tile even if it's between grid cell boundaries.
     const fromTile = this.getMovingTileAt(fromCell, fromCol, fromRow);
-    const toTile = this.getMovingTileAt(toCell, toCol, toRow);
+    const toTile = this.getMovingTileAt(toCell, toCol, toRow) ?? findMovingTileCovering(this.grid, toCol, toRow);
     if (toTile) {
       return true;
     }
@@ -291,6 +293,8 @@ export class GridMovementValidator {
   private canLeaveMovingTile(entity: Entity, toCell: CellData): boolean {
     if (this.grid.isWall(toCell)) return false;
     if (toCell.properties.has('void')) return false;
+    if (toCell.properties.has('blocked')) return false;
+    if (toCell.properties.has('tileDeath')) return false;
 
     if (!toCell.properties.has('bridge') && toCell.properties.has('water')) {
       const waterEffect = entity.get(WaterEffectComponent);
