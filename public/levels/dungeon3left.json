@@ -459,8 +459,7 @@
       "row": 2,
       "layer": 0,
       "properties": [
-        "water",
-        "bridge"
+        "water"
       ]
     },
     {
@@ -468,18 +467,8 @@
       "row": 2,
       "layer": 0,
       "properties": [
-        "water",
-        "bridge"
-      ],
-      "backgroundTexture": {
-        "image": "bridge_h",
-        "transformOverride": {
-          "scaleX": 4,
-          "scaleY": 4,
-          "offsetX": -32,
-          "offsetY": 5
-        }
-      }
+        "water"
+      ]
     },
     {
       "col": 15,
@@ -773,19 +762,15 @@
       ]
     },
     {
-      "col": 1,
-      "row": 4,
-      "layer": 0,
-      "properties": [
-        "water"
-      ]
-    },
-    {
       "col": 4,
       "row": 4,
       "layer": 0,
       "properties": [
-        "water"
+        "water",
+        "blocked"
+      ],
+      "backgroundTexture": [
+        "rock"
       ]
     },
     {
@@ -3631,6 +3616,83 @@
       ]
     },
     {
+      "id": "moving_tile0",
+      "type": "moving_tile",
+      "data": {
+        "col": 4,
+        "row": 9,
+        "texture": "tile_sign",
+        "widthCells": 1,
+        "heightCells": 1,
+        "script": [
+          {
+            "moveTo": {
+              "col": 4,
+              "row": 5
+            }
+          },
+          {
+            "waitMs": 2000
+          },
+          {
+            "moveTo": {
+              "col": 4,
+              "row": 9
+            }
+          },
+          {
+            "waitMs": 2000
+          }
+        ]
+      }
+    },
+    {
+      "id": "laser0",
+      "type": "laser",
+      "data": {
+        "col": 1,
+        "row": 4,
+        "angle": 90,
+        "flagName": "laser0_laser_on",
+        "onDestroyEvent": "lever_lever0|on"
+      }
+    },
+    {
+      "id": "lever0",
+      "type": "lever",
+      "data": {
+        "col": 1,
+        "row": 5,
+        "eventToRaise": "lever_lever0",
+        "startState": "off",
+        "oneShot": false
+      }
+    },
+    {
+      "id": "escort1",
+      "type": "escort",
+      "data": {
+        "col": 1,
+        "row": 6,
+        "escortType": "knight",
+        "destinationLevel": "dungeon3",
+        "destinationCol": 8,
+        "destinationRow": 4,
+        "awakeOnEvent": "lever_lever0|on",
+        "reachDistance": 15,
+        "followSpeed": 150,
+        "followToLevels": [
+          "dungeon3left",
+          "dungeon3"
+        ],
+        "enemyDetectDistancePx": 128,
+        "shadowOffsetX": null,
+        "shadowOffsetY": 30,
+        "shadowScale": 1,
+        "scale": 1.5
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -3670,6 +3732,64 @@
         "oneShot": true,
         "col": 23,
         "row": 18
+      }
+    },
+    {
+      "id": "cellmodifier_lever_bridge",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 4,
+            "row": 2,
+            "properties": [
+              "water",
+              "bridge"
+            ],
+            "layer": 0
+          },
+          {
+            "col": 5,
+            "row": 2,
+            "properties": [
+              "water",
+              "bridge"
+            ],
+            "layer": 0,
+            "backgroundTexture": {
+              "image": "bridge_h",
+              "transformOverride": {
+                "scaleX": 4,
+                "scaleY": 4,
+                "offsetX": -32,
+                "offsetY": 5
+              }
+            }
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "lever_lever0|on"
+      ]
+    },
+    {
+      "id": "trigger1",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "event_trigger1",
+        "triggerCells": [
+          {
+            "col": 2,
+            "row": 5
+          },
+          {
+            "col": 2,
+            "row": 6
+          }
+        ],
+        "oneShot": true
       }
     }
   ],

@@ -943,6 +943,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/cell_drawables/stone_lantern.png',
     type: 'image' as const,
   },
+  stone_lantern2: {
+    key: 'stone_lantern2',
+    path: 'assets/cell_drawables/stone_lantern2.png',
+    type: 'image' as const,
+  },
+  stone_obelisk: {
+    key: 'stone_obelisk',
+    path: 'assets/cell_drawables/stone_obelisk.png',
+    type: 'image' as const,
+  },
+  stone_bones: {
+    key: 'stone_bones',
+    path: 'assets/cell_drawables/stone_bones.png',
+    type: 'image' as const,
+  },
   tile_sign: {
     key: 'tile_sign',
     path: 'assets/cell_drawables/tile_sign.png',
@@ -1360,7 +1375,7 @@ export const ASSET_GROUPS = {
   bell: ['bell_bar', 'bell_body', 'bell_cracked', 'bell_ding'] as const,
 
   // Editor - all textures that can be used in editor
-  editor: ['bell_bar', 'bell_body', 'bell_cracked', 'dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_wall2', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'plains_grass_fill_a', 'plains_grass_fill_b', 'plains_pebbles_overlay', 'plains_stone_path_fill', 'plains_stone_wall_fill', 'plains_wildflower_overlay', 'plains_wildflower_overlay_old', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'flower1', 'cart', 'cart2', 'well', 'stone_guardian', 'stone_lantern', 'tile_sign', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'house4', 'house5', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'rocks_spritesheet2', 'roots_spritesheet', 'roots_spritesheet2', 'roots_chest', 'drawbridge_spritesheet', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'ice_edge', 'ice_ground', 'ice_lake', 'ice_platform', 'ice_shoreline', 'chasm', 'blank', 'dead_tree1', 'dead_tree2', 'dead_tree3', 'dead_tree4', 'dead_bush1', 'dead_bush2', 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
+  editor: ['bell_bar', 'bell_body', 'bell_cracked', 'dungeon_vase', 'pillar', 'door_closed', 'dungeon_door', 'dungeon_window', 'dungeon_fence', 'wall_torch', 'dungeon_key', 'submerged_rock1', 'stone_stairs', 'stone_wall', 'stone_wall2', 'stone_floor', 'dungeon_platform', 'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'dungeon_floor', 'grass1', 'grass2', 'plains_grass_fill_a', 'plains_grass_fill_b', 'plains_pebbles_overlay', 'plains_stone_path_fill', 'plains_stone_wall_fill', 'plains_wildflower_overlay', 'plains_wildflower_overlay_old', 'tree1', 'tree2', 'fence1', 'bush1', 'bush2', 'flower1', 'cart', 'cart2', 'well', 'stone_guardian', 'stone_lantern', 'stone_lantern2', 'stone_obelisk', 'stone_bones', 'tile_sign', 'bridge_v', 'bridge_h', 'house1', 'house2', 'house3', 'house4', 'house5', 'interior2', 'interior21', 'interior6', 'interior_door1', 'interior_door2', 'bed1', 'bench1', 'chair1', 'chair2', 'fireplace1', 'kitchen1', 'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8', 'table1', 'table2', 'sconce_bg', 'wilds_props', 'rocks_spritesheet', 'rocks_spritesheet2', 'roots_spritesheet', 'roots_spritesheet2', 'roots_chest', 'drawbridge_spritesheet', 'mushroom', 'pushing_box', 'hole_with_roots', 'hole_in_wall', 'wall_cracked', 'laser_base', 'laser_nozzle', 'push_lock_depression', 'grey_platform', 'tv_monk', 'sconce_flame', 'fire_interior', 'sconce', 'lava', 'ice_edge', 'ice_ground', 'ice_lake', 'ice_platform', 'ice_shoreline', 'chasm', 'blank', 'dead_tree1', 'dead_tree2', 'dead_tree3', 'dead_tree4', 'dead_bush1', 'dead_bush2', 'crumbled_cottage', 'abandoned_hut', 'shrine'] as const,
 } as const;
 
 export type AssetGroupKey = keyof typeof ASSET_GROUPS;

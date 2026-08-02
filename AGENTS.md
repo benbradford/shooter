@@ -156,6 +156,13 @@ When fixing bugs, **always write a failing test before changing implementation c
 
 **⚠️ DO NOT claim a bug is fixed without running a test that proves it.** If the user says "same problem" or "it doesn't work", you violated this workflow. Stop guessing and write a test.
 
+### Fixing bugs in complex systems — don't introduce regressions
+When fixing a bug in a system with multiple interactions (e.g., moving tiles + water + collision):
+1. **Read existing tests first** — run them BEFORE your fix to establish a baseline
+2. **Read the existing level data** that exercises this feature before claiming you understand the current behavior
+3. After fixing, **run ALL related tests** — not just your new one. If you added a geometric check to `carryRiders()`, also verify that normal riding still works
+4. If your fix changes a condition from `always block` to `conditionally block`, verify both the "should block" and "should allow" cases
+
 ### Adding new entity types — editor and system interactions
 When adding a new entity type, you MUST also:
 1. Add it to the editor (Toolbar, EditorBridge, CanvasInteraction, ContextPanel)

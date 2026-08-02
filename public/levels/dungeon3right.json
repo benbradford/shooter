@@ -2325,7 +2325,7 @@
         "destinationRow": 4,
         "awakeOnEvent": "knight_1_begin",
         "reachDistance": 15,
-        "followSpeed": 100,
+        "followSpeed": 150,
         "followToLevels": [
           "dungeon3right",
           "dungeon3"

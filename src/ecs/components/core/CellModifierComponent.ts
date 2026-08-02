@@ -38,11 +38,24 @@ export class CellModifierComponent implements Component {
     if (this.executed) return;
     this.executed = true;
 
+    let anyChanged = false;
+
     for (const mod of this.cellsToModify) {
       const cell = this.grid.getCell(mod.col, mod.row);
       if (!cell) {
         console.warn(`[CellModifier] Cell (${mod.col}, ${mod.row}) not found`);
         continue;
+      }
+
+      // Check if this cell already matches the target state
+      const targetProps: Set<CellProperty> = mod.properties ? new Set(mod.properties as CellProperty[]) : new Set();
+      const propsMatch = cell.properties.size === targetProps.size && [...targetProps].every(p => cell.properties.has(p));
+      const targetTexture = 'backgroundTexture' in mod ? (mod.backgroundTexture ? bgTextureKey(mod.backgroundTexture) : '') : '';
+      const textureMatch = (cell.backgroundTexture ?? '') === targetTexture;
+      const layerMatch = mod.layer === undefined || cell.layer === mod.layer;
+
+      if (!propsMatch || !textureMatch || !layerMatch) {
+        anyChanged = true;
       }
 
       const updates: { properties?: Set<CellProperty>; backgroundTexture?: string; layer?: number } = {};
@@ -77,7 +90,7 @@ export class CellModifierComponent implements Component {
       getLevelData: () => { cells: Array<{ col: number; row: number; backgroundTexture?: SingleBackgroundTexture | SingleBackgroundTexture[]; properties?: string[]; layer?: number }> };
     };
 
-    if (gameScene.sceneRenderer && gameScene.getLevelData) {
+    if (gameScene.sceneRenderer && gameScene.getLevelData && anyChanged) {
       const levelData = gameScene.getLevelData();
       const cellsWithNewTextures: Array<{ col: number; row: number; texture: SingleBackgroundTexture }> = [];
 

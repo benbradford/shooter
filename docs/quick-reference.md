@@ -349,6 +349,8 @@ A platform-sized entity that follows a scripted path (wait/move steps). Players 
 
 **⚠️ WorldState flag naming:** Flags that persist must be **level-scoped** to prevent collisions when the same entityId exists in multiple levels. Pattern: `${levelName}_${entityId}_eventname` (e.g. `grass_overworldnw_bell2_rung`). Without the level prefix, ringing a bell in one level would mark it as rung in all levels.
 
+**⚠️ EntityIds are immutable in the editor.** Once an entity is placed, its ID cannot be changed via the editor UI. If an entityId needs to change (e.g., to add a level prefix for flag scoping), it must be edited directly in the level JSON file. Don't suggest "just rename the entityId" as a fix — it's not a UI-accessible operation.
+
 ## Adding Cell Properties
 
 When adding a new cell property (e.g. `tileDeath`):

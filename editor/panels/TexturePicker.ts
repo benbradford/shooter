@@ -7,7 +7,7 @@ const BACKGROUND_TEXTURE_KEYS = [
   'dead_tree1', 'dead_tree2', 'dead_tree3', 'dead_tree4', 'dead_bush1', 'dead_bush2', 'door_closed', 'dungeon_door', 'dungeon_floor', 'dungeon_key', 'dungeon_platform',
   'dungeon_window', 'dungeon_fence', 'fence1', 'fireplace1', 'flower1', 'hole_in_wall', 'house1', 'house2', 'house3', 'house4', 'house5',
   'interior6', 'interior_door1', 'interior_door2', 'kitchen1', 'lava', 'pillar',
-  'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'stone_guardian', 'stone_lantern', 'tile_sign',
+  'rocks1', 'rocks2', 'rocks3', 'rocks4', 'rocks5', 'rocks6', 'stone_guardian', 'stone_lantern', 'stone_lantern2', 'stone_obelisk', 'stone_bones', 'tile_sign',
   'rug1', 'rug2', 'rug3', 'rug4', 'rug5', 'rug6', 'rug7', 'rug8',
   'stone_floor', 'stone_stairs', 'stone_wall', 'stone_wall2', 'submerged_rock1',
   'table1', 'table2', 'tree1', 'tree2', 'wall_cracked', 'wall_torch',
