@@ -10,6 +10,7 @@ import { GridCollisionComponent } from '../movement/GridCollisionComponent';
 import { WalkComponent } from '../movement/WalkComponent';
 import { JumpComponent } from '../movement/JumpComponent';
 import { findMovingTileCovering } from '../moving-tile/MovingTileComponent';
+import { CachedFlag } from '../../../systems/state/CachedFlag';
 import type { CollisionBox } from '../combat/CollisionComponent';
 import type { GridReader, WorldCoord } from '../../../systems/grid/Grid';
 
@@ -18,6 +19,7 @@ const SWIMMING_COLLISION_BOX: CollisionBox = { offsetX: 0, offsetY: 0, width: 48
 export class WaterEffectComponent implements Component {
   entity!: Entity;
   private isInWater: boolean = false;
+  private readonly canSwimFlag: CachedFlag;
   private shadowMask?: Phaser.Display.Masks.GeometryMask;
   private shadowMaskGraphics?: Phaser.GameObjects.Graphics;
   private lastMaskCell: { col: number; row: number } = { col: -1, row: -1 };
@@ -28,7 +30,9 @@ export class WaterEffectComponent implements Component {
   private pendingEntrySplash = false;
   private readonly _tmpWorld: WorldCoord = { x: 0, y: 0 };
 
-  constructor(private readonly scene: Phaser.Scene, private readonly splashTextureKey: string = 'water_splash') {}
+  constructor(private readonly scene: Phaser.Scene, private readonly splashTextureKey: string = 'water_splash') {
+    this.canSwimFlag = new CachedFlag('canSwim');
+  }
 
   getIsInWater(): boolean {
     return this.isInWater && !this.isHopping();
@@ -198,6 +202,13 @@ export class WaterEffectComponent implements Component {
     }
 
     if (nowInWater && !wasInWater) {
+      // FAILSAFE: if canSwim is false, player should never be in water.
+      // Teleport them to the nearest safe cell immediately.
+      if (!this.canSwimFlag.get()) {
+        this.isInWater = false;
+        this.rescueFromWater(transform, gridPos, grid);
+        return;
+      }
       gridPos.pushCollisionBox(SWIMMING_COLLISION_BOX);
       this.pendingEntrySplash = true;
     }
@@ -376,7 +387,48 @@ export class WaterEffectComponent implements Component {
     this.scene.time.delayedCall(800, () => emitter.destroy());
   }
 
+  private rescueFromWater(transform: TransformComponent, gridPos: GridPositionComponent, grid: GridReader): void {
+    const startCol = gridPos.currentCell.col;
+    const startRow = gridPos.currentCell.row;
+
+    // BFS for nearest non-water, non-void, non-blocked cell
+    const visited = new Set<number>();
+    const queue: Array<{ col: number; row: number }> = [{ col: startCol, row: startRow }];
+    visited.add(startCol * 10000 + startRow);
+
+    while (queue.length > 0) {
+      const { col, row } = queue.shift()!;
+      const cell = grid.getCell(col, row);
+      if (cell && !cell.properties.has('water') && !cell.properties.has('void') && !cell.properties.has('blocked')) {
+        // Found safe cell — teleport player there
+        const worldPos = grid.cellToWorld(col, row);
+        transform.x = worldPos.x + grid.cellSize / 2;
+        transform.y = worldPos.y + grid.cellSize / 2;
+        gridPos.currentCell.col = col;
+        gridPos.currentCell.row = row;
+        const collision = this.entity.get(GridCollisionComponent);
+        if (collision) {
+          collision.syncPreviousPosition(transform.x, transform.y);
+          collision.onMovingTile = false;
+        }
+        console.warn(`[WaterEffect] Rescued player from water at (${startCol},${startRow}) → (${col},${row})`);
+        return;
+      }
+      // Expand neighbors
+      for (const [dc, dr] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) {
+        const nc = col + dc;
+        const nr = row + dr;
+        const key = nc * 10000 + nr;
+        if (!visited.has(key)) {
+          visited.add(key);
+          queue.push({ col: nc, row: nr });
+        }
+      }
+    }
+  }
+
   onDestroy(): void {
+    this.canSwimFlag.destroy();
     if (this.shadowMaskGraphics) {
       this.shadowMaskGraphics.destroy();
     }

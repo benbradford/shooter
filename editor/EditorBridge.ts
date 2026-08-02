@@ -1281,7 +1281,9 @@ export class EditorBridge {
         data = { col: cell.col, row: cell.row, ...existing?.data };
       } else if (entity.id.startsWith('bell')) {
         type = 'bell';
-        data = { col: cell.col, row: cell.row };
+        const existing = existingLevelData.entities?.find(e => e.id === entity.id);
+        const bellData = existing?.data as { requiresAll?: boolean } | undefined;
+        data = { col: cell.col, row: cell.row, requiresAll: bellData?.requiresAll || undefined };
       } else if (entity.id.startsWith('npc') || entity.tags?.has('npc')) {
         type = 'npc';
         const idle = entity.get(NPCIdleComponent);

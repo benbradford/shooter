@@ -39,6 +39,8 @@ export class BellComponent implements Component {
   private shockwavesFired = 0;
   private readonly visualOffsetY: number;
   private readonly shadowOffsetY: number;
+  private readonly requiresAll: boolean;
+  private readonly entityManager?: EntityManager;
 
   constructor(props: BellComponentProps) {
     this.scene = props.scene;
@@ -50,6 +52,8 @@ export class BellComponent implements Component {
     this.rungAlready = props.alreadyRung;
     this.visualOffsetY = props.visualOffsetY;
     this.shadowOffsetY = props.shadowOffsetY;
+    this.requiresAll = props.requiresAll ?? false;
+    this.entityManager = props.entityManager;
 
     if (this.rungAlready) {
       this.swapToCracked();
@@ -62,7 +66,9 @@ export class BellComponent implements Component {
     this.elapsedMs = 0;
     this.shockwavesFired = 0;
     this.scene.sound.play('bell_ding');
-    WorldStateManager.getInstance().setFlag(this.eventName, 'true');
+    if (!this.requiresAll) {
+      WorldStateManager.getInstance().setFlag(this.eventName, 'true');
+    }
   }
 
   update(delta: number): void {
@@ -86,7 +92,7 @@ export class BellComponent implements Component {
       }
     }
 
-    if (progress >= 0.6 && this.bodySprite.texture.key !== 'bell_cracked') {
+    if (!this.requiresAll && progress >= 0.6 && this.bodySprite.texture.key !== 'bell_cracked') {
       this.swapToCracked();
     }
 
@@ -141,9 +147,43 @@ export class BellComponent implements Component {
   private finishRinging(): void {
     this.isRinging = false;
     this.bodySprite.setAngle(0);
-    this.rungAlready = true;
 
+    if (this.requiresAll && !this.allBellsSatisfied()) {
+      this.reset();
+      return;
+    }
+
+    this.rungAlready = true;
+    if (this.requiresAll) {
+      this.swapToCracked();
+      WorldStateManager.getInstance().setFlag(this.eventName, 'true');
+    }
     this.eventManager.raiseEvent(this.eventName);
+  }
+
+  private allBellsSatisfied(): boolean {
+    if (!this.entityManager) return true;
+
+    const bells = this.entityManager.getByTag('bell');
+    for (const bellEntity of bells) {
+      if (bellEntity === this.entity) continue;
+      const otherBell = bellEntity.get(BellComponent);
+      if (!otherBell) continue;
+      // Only check bells that are also part of the requiresAll group
+      if (!otherBell.requiresAll) continue;
+      // Other bell must be either currently ringing or already rung THIS session
+      if (!otherBell.isRinging && !otherBell.rungAlready) {
+        console.log(`[Bell] ${this.entity.id} failed: ${bellEntity.id} is idle (isRinging=${otherBell.isRinging}, rungAlready=${otherBell.rungAlready})`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private reset(): void {
+    this.rungAlready = false;
+    this.bodySprite.setTexture('bell_body');
+    WorldStateManager.getInstance().setFlag(this.eventName, '');
   }
 
   onDestroy(): void {

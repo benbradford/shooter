@@ -280,35 +280,14 @@ export class MovingTileComponent implements Component {
     const riders = this._ridersThisFrame;
     riders.clear();
 
-    // Scan the current (pre-syncOccupancy) footprint — this is where riders
-    // were last registered. After a cell-boundary snap, the post-sync footprint
-    // may no longer include a rider at the trailing edge, so we must look here.
-    for (let row = this.topLeftRow; row < this.topLeftRow + this.heightCells; row++) {
-      for (let col = this.topLeftCol; col < this.topLeftCol + this.widthCells; col++) {
+    // Scan the tile footprint AND all immediately adjacent cells to find riders
+    // whose collision box straddles the edge. Without this, a rider near the
+    // tile edge whose grid occupancy is in an adjacent cell won't be found.
+    for (let row = this.topLeftRow - 1; row <= this.topLeftRow + this.heightCells; row++) {
+      for (let col = this.topLeftCol - 1; col <= this.topLeftCol + this.widthCells; col++) {
         const cell = this.grid.getCell(col, row);
         if (!cell) continue;
         this.collectRidersOf(cell, riders);
-      }
-    }
-
-    // Also scan one cell beyond the footprint in each direction of travel.
-    // A rider at the trailing edge might have been registered in a cell that
-    // the PREVIOUS syncOccupancy already abandoned (small delta between frames).
-    if (this.deltaX !== 0 || this.deltaY !== 0) {
-      const extraCol = this.deltaX > 0 ? this.topLeftCol - 1 : this.deltaX < 0 ? this.topLeftCol + this.widthCells : -1;
-      const extraRow = this.deltaY > 0 ? this.topLeftRow - 1 : this.deltaY < 0 ? this.topLeftRow + this.heightCells : -1;
-
-      if (extraCol >= 0) {
-        for (let row = this.topLeftRow; row < this.topLeftRow + this.heightCells; row++) {
-          const cell = this.grid.getCell(extraCol, row);
-          if (cell) this.collectRidersOf(cell, riders);
-        }
-      }
-      if (extraRow >= 0) {
-        for (let col = this.topLeftCol; col < this.topLeftCol + this.widthCells; col++) {
-          const cell = this.grid.getCell(col, extraRow);
-          if (cell) this.collectRidersOf(cell, riders);
-        }
       }
     }
 
@@ -325,20 +304,30 @@ export class MovingTileComponent implements Component {
       // Skip riders in tileDeath state — they should stay rooted
       const riderSm = rider.get(StateMachineComponent);
       if (riderSm?.stateMachine.getCurrentKey() === 'tileDeath') continue;
-      // Geometric check: only carry if the rider's center is actually within
-      // the tile's pixel footprint. Grid occupancy is cell-granular and can
-      // register entities whose collision box barely clips into an adjacent cell.
-      if (riderTransform.x < tileLeft || riderTransform.x > tileRight ||
-          riderTransform.y < tileTop || riderTransform.y > tileBottom) {
-        continue;
+
+      const collision = rider.get(GridCollisionComponent);
+
+      // If already riding (onMovingTile set from previous frame), always carry.
+      if (collision?.onMovingTile) {
+        // Already aboard — carry unconditionally
+      } else {
+        // New rider trying to board
+        if (collision && !collision.canBoardTile()) continue;
+        // Must be within tile pixel bounds (with small margin for movement between frames)
+        const boardMargin = cellSize * 0.3;
+        if (riderTransform.x < tileLeft - boardMargin || riderTransform.x > tileRight + boardMargin ||
+            riderTransform.y < tileTop - boardMargin || riderTransform.y > tileBottom + boardMargin) {
+          continue;
+        }
       }
+
       riderTransform.x += this.deltaX;
       riderTransform.y += this.deltaY;
       this.syncRiderCollision(rider, riderTransform);
-      // Tell the rider's collision system to skip validation this frame —
-      // the tile owns the movement and ground rules don't apply while aboard.
-      const collision = rider.get(GridCollisionComponent);
-      if (collision) collision.onMovingTile = true;
+      if (collision) {
+        collision.onMovingTile = true;
+        collision.onMovingTileThisFrame = true;
+      }
     }
 
     riders.clear();

@@ -154,6 +154,23 @@ When fixing bugs, **always write a failing test before changing implementation c
 4. Run the test — confirm it passes
 5. Run related tests to check for regressions
 
+**⚠️ DO NOT claim a bug is fixed without running a test that proves it.** If the user says "same problem" or "it doesn't work", you violated this workflow. Stop guessing and write a test.
+
+### Adding new entity types — editor and system interactions
+When adding a new entity type, you MUST also:
+1. Add it to the editor (Toolbar, EditorBridge, CanvasInteraction, ContextPanel)
+2. Check system interactions: water, void, platforms, visual effects, collision clamping
+3. If the entity can carry/block the player, verify behavior with `canSwim`, `canJump`, and all ability flags
+
+### Adding new cell properties
+When adding a new cell property, you MUST:
+1. Add to `CellProperty` type in `src/systems/grid/CellData.ts`
+2. Add to `CELL_PROPERTIES` array in `editor/panels/Toolbar.ts`
+
+If you only add the type, the property will work in code but be invisible in the editor.
+
+This is the most common source of friction — the gameplay code works but the editor doesn't show it, or one system (ripples, clamping, collision) doesn't know about the new entity.
+
 ## Documentation
 
 Detailed docs in `docs/` — see `docs/README.md` for index. Key ones:

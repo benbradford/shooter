@@ -275,6 +275,9 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        "dead_bush1"
       ]
     },
     {
@@ -533,6 +536,9 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        "dead_bush1"
       ]
     },
     {
@@ -734,6 +740,9 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        "dead_bush1"
       ]
     },
     {
@@ -914,6 +923,9 @@
       "layer": 0,
       "properties": [
         "blocked"
+      ],
+      "backgroundTexture": [
+        "dead_bush1"
       ]
     },
     {
@@ -3132,25 +3144,29 @@
             "col": 0,
             "row": 1,
             "properties": [],
-            "layer": 0
+            "layer": 0,
+            "backgroundTexture": ""
           },
           {
             "col": 0,
             "row": 2,
             "properties": [],
-            "layer": 0
+            "layer": 0,
+            "backgroundTexture": ""
           },
           {
             "col": 0,
             "row": 3,
             "properties": [],
-            "layer": 0
+            "layer": 0,
+            "backgroundTexture": ""
           },
           {
             "col": 0,
             "row": 4,
             "properties": [],
-            "layer": 0
+            "layer": 0,
+            "backgroundTexture": ""
           }
         ]
       },

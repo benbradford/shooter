@@ -935,6 +935,9 @@ export class ContextPanel {
         <div class="form-group"><label>Shadow Offset X</label><input type="number" id="ef-eshadowx" value="${eData.shadowOffsetX ?? 0}" /></div>
         <div class="form-group"><label>Shadow Offset Y</label><input type="number" id="ef-eshadowy" value="${eData.shadowOffsetY ?? 0}" /></div>`;
     }
+    if (entityDef.type === 'bell') {
+      typeFields += `<div class="form-group"><label><input type="checkbox" id="ef-bell-requires-all" ${data.requiresAll ? 'checked' : ''} /> Requires All (must ring all bells within time)</label></div>`;
+    }
     if (entityDef.type === 'interaction') {
       typeFields += `<div class="form-group"><label>Filename</label><input id="ef-filename" value="${data.filename ?? ''}" /></div>`;
     }
@@ -1208,6 +1211,9 @@ export class ContextPanel {
     });
     this.container.querySelector('#ef-filename')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { filename: (e.target as HTMLInputElement).value });
+    });
+    this.container.querySelector('#ef-bell-requires-all')?.addEventListener('change', (e) => {
+      this.bridge.updateEntityData(entityId, { requiresAll: (e.target as HTMLInputElement).checked || undefined });
     });
     this.container.querySelector('#ef-lever-event')?.addEventListener('change', (e) => {
       this.bridge.updateEntityData(entityId, { eventToRaise: (e.target as HTMLInputElement).value });

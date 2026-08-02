@@ -6,6 +6,7 @@ import { CollisionComponent } from '../../components/combat/CollisionComponent';
 import { BellComponent } from './BellComponent';
 import type { GridReader } from '../../../systems/grid/Grid';
 import type { EventManagerSystem } from '../../systems/EventManagerSystem';
+import type { EntityManager } from '../../EntityManager';
 import { WorldStateManager } from '../../../systems/WorldStateManager';
 import type GameScene from '../../../scenes/GameScene';
 
@@ -16,6 +17,8 @@ export type CreateBellProps = {
   grid: GridReader;
   entityId: string;
   eventManager: EventManagerSystem;
+  requiresAll?: boolean;
+  entityManager?: EntityManager;
 };
 
 const BELL_SCALE = 0.1;
@@ -66,6 +69,8 @@ export function createBellEntity(props: CreateBellProps): Entity {
     alreadyRung,
     visualOffsetY: BELL_OFFSET_Y_PX,
     shadowOffsetY: SHADOW_OFFSET_Y_PX,
+    requiresAll: props.requiresAll,
+    entityManager: props.entityManager,
   }));
 
   if (!alreadyRung) {

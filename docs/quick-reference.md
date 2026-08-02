@@ -330,6 +330,32 @@ A platform-sized entity that follows a scripted path (wait/move steps). Players 
 1. Create factory function in `src/ecs/entities/{type}/`
 2. Add necessary components
 3. Set update order (order matters!)
+4. Register factory in `src/systems/entity-factories/`
+5. **Editor integration (MANDATORY):**
+   - Add type to `ENTITY_TYPES` in `editor/panels/Toolbar.ts`
+   - Add default data in `EditorBridge.addEntity()`
+   - Add label in `CanvasInteraction.ts` labelMap
+   - Add extraction logic in `EditorBridge.extractEntities()`
+   - Add form fields in `editor/panels/ContextPanel.ts`
+6. **System interaction checklist** — verify against each:
+   - Water: Does this entity cross water? → `GridMovementValidator`, `WaterRippleComponent`, `WaterEffectComponent` need awareness
+   - Void/platforms: Does it cross gaps? → `JumpComponent`, layer checks
+   - Player riding: Can the player stand on it? → rider detection (geometric, not just cell occupancy), `onMovingTile` flag, suppress ripples/water effects
+   - Editor: Does it have a visual? → `SpriteComponent` must apply overrides in constructor (editor never calls `update()`)
+   - Death/destroy: Does it have `HealthDropOnDeathComponent`? → Check `scene.scene.key !== 'editor'` before dropping loot
+   - Collision clamping: Does it constrain player movement? → Check all edge cases (`canSwim`, `canJump`, etc.)
+
+**⚠️ Lesson (moving tile, July 2026):** New entity types that interact with terrain (water, void, platforms) will have bugs in EVERY system that makes assumptions about what the player is standing on. Anticipate these interactions upfront rather than discovering them one at a time.
+
+**⚠️ WorldState flag naming:** Flags that persist must be **level-scoped** to prevent collisions when the same entityId exists in multiple levels. Pattern: `${levelName}_${entityId}_eventname` (e.g. `grass_overworldnw_bell2_rung`). Without the level prefix, ringing a bell in one level would mark it as rung in all levels.
+
+## Adding Cell Properties
+
+When adding a new cell property (e.g. `tileDeath`):
+1. Add to `CellProperty` type in `src/systems/grid/CellData.ts`
+2. Add to `CELL_PROPERTIES` array in `editor/panels/Toolbar.ts`
+
+That's it — the editor auto-generates checkboxes from these. If you add the type but forget the editor array, the property works in code but is invisible in the editor.
 
 ## Entity Positioning
 

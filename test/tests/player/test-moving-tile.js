@@ -447,6 +447,175 @@ const testScriptLoopsForever = test(
   }
 );
 
+const testPlayerCanMoveAfterExitingMovingTileOverWater = test(
+  {
+    given: 'Player riding a moving tile over water, hops off onto dry land and immediately stops',
+    when: 'Player then tries to move again',
+    then: 'Player can move freely (is not stuck)'
+  },
+  async (page) => {
+    await page.waitForFunction(() => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      return scene && scene.entityManager && scene.entityManager.getFirst('player');
+    }, { timeout: 10000 });
+
+    await page.evaluate(() => setFlag('canSwim', 'false'));
+    await page.evaluate(() => waitForFlagSync());
+
+    // Wait for tile1 to park at col 10 (it moves east over water at cols 11-13 to col 14)
+    const parked = await waitForTile(page, 'moving_tile1', '(s) => s.col === 10 && !s.isMoving', 10000);
+    if (!parked.matched) { console.log('  FAIL: tile did not park'); return false; }
+
+    // Board the tile
+    await teleportPlayer(page, 10, 5);
+    await new Promise(r => setTimeout(r, 200));
+
+    // Wait for tile to reach col 14 (dry land on east side)
+    const arrived = await waitForTile(page, 'moving_tile1', '(s) => s.col >= 14', 8000);
+    if (!arrived.matched) { console.log('  FAIL: tile did not reach col 14'); return false; }
+
+    // Now walk east off the tile onto dry land and immediately stop
+    const exitResult = await page.evaluate(() => new Promise(resolve => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const gridPos = player.require(window.GridPositionComponent);
+      const remoteInput = enableRemoteInput();
+
+      // Walk east
+      remoteInput.setWalk(1, 0, true);
+
+      const start = Date.now();
+      const startCol = gridPos.currentCell.col;
+      const interval = setInterval(() => {
+        // Once we've moved to a new cell east of the tile, stop immediately
+        if (gridPos.currentCell.col > startCol) {
+          clearInterval(interval);
+          remoteInput.setWalk(0, 0, false);
+          resolve({ exitedToCol: gridPos.currentCell.col });
+        } else if (Date.now() - start >= 3000) {
+          clearInterval(interval);
+          remoteInput.setWalk(0, 0, false);
+          resolve({ exitedToCol: -1 });
+        }
+      }, 16);
+    }));
+
+    console.log('  Exit result:', JSON.stringify(exitResult));
+    if (exitResult.exitedToCol < 0) { console.log('  FAIL: could not exit tile'); return false; }
+
+    // Wait 500ms standing still
+    await new Promise(r => setTimeout(r, 500));
+
+    // Check state
+    const stateCheck = await page.evaluate(() => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const gridPos = player.require(window.GridPositionComponent);
+      const collision = player.get(window.GridCollisionComponent);
+      return {
+        cell: { col: gridPos.currentCell.col, row: gridPos.currentCell.row },
+        onMovingTile: collision?.onMovingTile ?? false,
+        onMovingTileThisFrame: collision?.onMovingTileThisFrame ?? false,
+        enabled: collision?.enabled ?? false
+      };
+    });
+    console.log('  State after exit+stop:', JSON.stringify(stateCheck));
+
+    // Now try to move south
+    const targetCol = exitResult.exitedToCol;
+    const moveResult = await page.evaluate((col) => moveToCellHelper(col, 6, 3000), targetCol);
+    console.log('  Move after exit result:', JSON.stringify(moveResult));
+    if (!moveResult.reached) {
+      console.log('  FAIL: player stuck after exiting moving tile over water');
+      return false;
+    }
+
+    return true;
+  }
+);
+
+const testPlayerCanMoveAfterExitingTile = test(
+  {
+    given: 'Player on a stationary tile, walks off onto land and stops',
+    when: 'Player then tries to move again',
+    then: 'Player can move freely (is not stuck)'
+  },
+  async (page) => {
+    await page.waitForFunction(() => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      return scene && scene.entityManager && scene.entityManager.getFirst('player');
+    }, { timeout: 10000 });
+
+    // Start on the tile at (5,5)
+    await teleportPlayer(page, 5, 5);
+    await new Promise(r => setTimeout(r, 200));
+
+    // Walk south off the tile onto safe ground at (5,6)
+    const exitResult = await page.evaluate(() => moveToCellHelper(5, 6, 3000));
+    if (!exitResult.reached) {
+      console.log('  FAIL: could not exit tile southward');
+      return false;
+    }
+
+    // Stop all input and wait a moment
+    await page.evaluate(() => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      let remoteInput = player.get(window.RemoteInputComponent);
+      if (remoteInput) remoteInput.setWalk(0, 0, false);
+    });
+    await new Promise(r => setTimeout(r, 500));
+
+    // Check the player is not stuck: verify onMovingTile is cleared
+    const stateCheck = await page.evaluate(() => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const gridPos = player.require(window.GridPositionComponent);
+      const collision = player.get(window.GridCollisionComponent);
+      return {
+        cell: { col: gridPos.currentCell.col, row: gridPos.currentCell.row },
+        onMovingTile: collision?.onMovingTile ?? false,
+        enabled: collision?.enabled ?? false
+      };
+    });
+    console.log('  After exit+stop:', JSON.stringify(stateCheck));
+    if (stateCheck.onMovingTile) {
+      console.log('  FAIL: onMovingTile still true after exiting tile and stopping');
+      return false;
+    }
+
+    // Now try to move south again using direct input
+    const moveResult = await page.evaluate(() => new Promise(resolve => {
+      const scene = window.game.scene.scenes.find(s => s.scene.key === 'game');
+      const player = scene.entityManager.getFirst('player');
+      const gridPos = player.require(window.GridPositionComponent);
+      const transform = player.require(window.TransformComponent);
+      const startY = transform.y;
+      const remoteInput = enableRemoteInput();
+      remoteInput.setWalk(0, 1, true);
+      const start = Date.now();
+      const interval = setInterval(() => {
+        if (transform.y > startY + 20) {
+          clearInterval(interval);
+          remoteInput.setWalk(0, 0, false);
+          resolve({ moved: true, row: gridPos.currentCell.row });
+        } else if (Date.now() - start >= 2000) {
+          clearInterval(interval);
+          remoteInput.setWalk(0, 0, false);
+          resolve({ moved: false, row: gridPos.currentCell.row, y: transform.y, startY });
+        }
+      }, 16);
+    }));
+    console.log('  Move after exit result:', JSON.stringify(moveResult));
+    if (!moveResult.moved) {
+      console.log('  FAIL: player stuck after exiting tile');
+      return false;
+    }
+
+    return true;
+  }
+);
+
 runTests({
   level: 'test/test-moving-tile',
   commands: [
@@ -465,7 +634,9 @@ runTests({
     testWalkOffMovingTileIntoWaterBlocked,
     testRiderCarriedExactlyOnce,
     testRiderMovesIndependentlyWhileCarried,
-    testScriptLoopsForever
+    testScriptLoopsForever,
+    testPlayerCanMoveAfterExitingMovingTileOverWater,
+    testPlayerCanMoveAfterExitingTile
   ],
   screenshotPath: 'tmp/test/screenshots/test-moving-tile.png'
 });

@@ -23,6 +23,10 @@ export class GridCollisionComponent implements Component {
   blockedByPushable: Entity | null = null;
   /** Set by MovingTileComponent.carryRiders() — suppresses collision validation for this frame. */
   onMovingTile = false;
+  /** Whether carryRiders set onMovingTile on the CURRENT frame. Cleared at start of update. */
+  onMovingTileThisFrame = false;
+  /** Cooldown timer preventing re-boarding a tile after stepping off. */
+  private disembarkCooldownMs = 0;
   /** The last cell the player occupied before stepping onto a moving tile. Used for tileDeath respawn. */
   lastCellBeforeMovingTile: { col: number; row: number } | null = null;
   /** Whether the onMovingTile flag was set on the previous frame (used to detect boarding). */
@@ -59,6 +63,13 @@ export class GridCollisionComponent implements Component {
   syncPreviousPosition(x: number, y: number): void {
     this.previousX = x;
     this.previousY = y;
+    // Clear disembark cooldown on teleport so player can board tiles immediately
+    this.disembarkCooldownMs = 0;
+  }
+
+  /** Returns true if the entity can be picked up by a moving tile (not in disembark cooldown). */
+  canBoardTile(): boolean {
+    return this.disembarkCooldownMs <= 0;
   }
 
   // eslint-disable-next-line complexity
@@ -66,6 +77,18 @@ export class GridCollisionComponent implements Component {
     if (!this.enabled) return;
     this.blockedByPushable = null;
     this.validator.blockedByPushable = null;
+
+    // Tick disembark cooldown
+    if (this.disembarkCooldownMs > 0) {
+      this.disembarkCooldownMs -= _delta;
+    }
+
+    // If carryRiders didn't set onMovingTile this frame, the player is no longer on a tile.
+    if (this.onMovingTile && !this.onMovingTileThisFrame) {
+      this.onMovingTile = false;
+      this.disembarkCooldownMs = 500;
+    }
+    this.onMovingTileThisFrame = false;
 
     const transform = this.entity.require(TransformComponent);
     const gridPos = this.entity.require(GridPositionComponent);
@@ -103,11 +126,10 @@ export class GridCollisionComponent implements Component {
     const newX = transform.x;
     const newY = transform.y;
 
-    // When carried by a moving tile (flag set by carryRiders on previous frame),
-    // clamp the player to the tile bounds only in directions where stepping off
-    // would put them into water or void. If the adjacent ground is walkable,
-    // allow them to leave the tile freely.
-    let skipCollision = false;
+    // When carried by a moving tile (flag set by carryRiders on current frame),
+    // clamp the player to the tile bounds in directions where stepping off
+    // would put them into water/void/blocked. Normal collision still runs
+    // afterward to handle the player's own movement correctly.
     if (this.onMovingTile) {
       const tileComp = this.findRidingTile(newX + gridPos.collisionBox.offsetX, newY + gridPos.collisionBox.offsetY);
       if (tileComp) {
@@ -123,33 +145,26 @@ export class GridCollisionComponent implements Component {
           const minY = tileTransform.y - halfTileH + halfBoxH - gridPos.collisionBox.offsetY;
           const maxY = tileTransform.y + halfTileH - halfBoxH - gridPos.collisionBox.offsetY;
 
-          let clampedX = transform.x;
-          let clampedY = transform.y;
-
-          // Only clamp in X if stepping off would put us in water/void
-          if (transform.x < minX) {
-            clampedX = this.shouldClampEdge(tileComp, tileTransform, 'left') ? minX : transform.x;
-          } else if (transform.x > maxX) {
-            clampedX = this.shouldClampEdge(tileComp, tileTransform, 'right') ? maxX : transform.x;
+          // Clamp at dangerous edges only
+          if (transform.x < minX && this.shouldClampEdge(tileComp, tileTransform, 'left')) {
+            transform.x = minX;
+          } else if (transform.x > maxX && this.shouldClampEdge(tileComp, tileTransform, 'right')) {
+            transform.x = maxX;
           }
 
-          if (transform.y < minY) {
-            clampedY = this.shouldClampEdge(tileComp, tileTransform, 'up') ? minY : transform.y;
-          } else if (transform.y > maxY) {
-            clampedY = this.shouldClampEdge(tileComp, tileTransform, 'down') ? maxY : transform.y;
+          if (transform.y < minY && this.shouldClampEdge(tileComp, tileTransform, 'up')) {
+            transform.y = minY;
+          } else if (transform.y > maxY && this.shouldClampEdge(tileComp, tileTransform, 'down')) {
+            transform.y = maxY;
           }
-
-          transform.x = clampedX;
-          transform.y = clampedY;
-          skipCollision = true;
         }
       } else {
-        // No longer on a tile — clear the flag and run normal collision
+        // findRidingTile didn't find anything — clear flag
         this.onMovingTile = false;
       }
     }
 
-    if (!skipCollision && this.validator.checkCollision(this.entity, transform.x, transform.y, this.previousX, this.previousY, gridPos, this._tmpCells)) {
+    if (this.validator.checkCollision(this.entity, transform.x, transform.y, this.previousX, this.previousY, gridPos, this._tmpCells)) {
       this.blockedByPushable = this.validator.blockedByPushable;
 
       const xOnlyBlocked = this.validator.checkCollision(this.entity, newX, this.previousY, this.previousX, this.previousY, gridPos, this._tmpCells);

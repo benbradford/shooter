@@ -1157,6 +1157,38 @@
       ]
     },
     {
+      "col": 22,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 23,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 24,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
+      "col": 25,
+      "row": 7,
+      "layer": 0,
+      "properties": [
+        "blocked"
+      ]
+    },
+    {
       "col": 26,
       "row": 7,
       "layer": 0,
@@ -3660,7 +3692,8 @@
       "type": "bell",
       "data": {
         "col": 25,
-        "row": 7
+        "row": 7,
+        "requiresAll": true
       }
     },
     {
@@ -3668,7 +3701,8 @@
       "type": "bell",
       "data": {
         "col": 24,
-        "row": 7
+        "row": 7,
+        "requiresAll": true
       }
     },
     {
@@ -3676,7 +3710,8 @@
       "type": "bell",
       "data": {
         "col": 23,
-        "row": 7
+        "row": 7,
+        "requiresAll": true
       }
     },
     {
@@ -3684,7 +3719,8 @@
       "type": "bell",
       "data": {
         "col": 22,
-        "row": 7
+        "row": 7,
+        "requiresAll": true
       }
     },
     {
@@ -3844,6 +3880,75 @@
       }
     },
     {
+      "id": "fly0",
+      "type": "fly",
+      "data": {
+        "col": 13,
+        "row": 9
+      },
+      "createOnAnyEvent": [
+        "event_trigger0"
+      ]
+    },
+    {
+      "id": "fly1",
+      "type": "fly",
+      "data": {
+        "col": 14,
+        "row": 9
+      },
+      "createOnAnyEvent": [
+        "event_trigger0"
+      ]
+    },
+    {
+      "id": "worm0",
+      "type": "worm",
+      "data": {
+        "col": 6,
+        "row": 1,
+        "difficulty": "medium"
+      },
+      "createOnAnyEvent": [
+        "event_trigger0"
+      ]
+    },
+    {
+      "id": "worm1",
+      "type": "worm",
+      "data": {
+        "col": 11,
+        "row": 1,
+        "difficulty": "medium"
+      },
+      "createOnAnyEvent": [
+        "event_trigger0"
+      ]
+    },
+    {
+      "id": "worm2",
+      "type": "worm",
+      "data": {
+        "col": 16,
+        "row": 1,
+        "difficulty": "medium"
+      },
+      "createOnAnyEvent": [
+        "event_trigger0as"
+      ]
+    },
+    {
+      "id": "breakable10",
+      "type": "breakable",
+      "data": {
+        "col": 1,
+        "row": 18,
+        "texture": "dungeon_vase",
+        "health": 1,
+        "rarity": "legendary"
+      }
+    },
+    {
       "id": "exit0",
       "type": "exit",
       "data": {
@@ -3874,6 +3979,20 @@
             "direction": "E"
           }
         ]
+      }
+    },
+    {
+      "id": "trigger0",
+      "type": "trigger",
+      "data": {
+        "eventToRaise": "event_trigger0",
+        "triggerCells": [
+          {
+            "col": 4,
+            "row": 5
+          }
+        ],
+        "oneShot": true
       }
     }
   ],

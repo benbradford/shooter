@@ -201,9 +201,10 @@ registerEntityFactory('moving_tile', (entityDef, ctx) => {
 });
 
 registerEntityFactory('bell', (entityDef, ctx) => {
-  const data = entityDef.data as { col: number; row: number };
+  const data = entityDef.data as { col: number; row: number; requiresAll?: boolean };
   return () => createBellEntity({
     scene: ctx.scene as GameScene, col: data.col, row: data.row, grid: ctx.grid,
     entityId: entityDef.id, eventManager: ctx.eventManager,
+    requiresAll: data.requiresAll, entityManager: ctx.entityManager,
   });
 });
