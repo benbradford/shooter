@@ -3,7 +3,7 @@
   "height": 14,
   "playerStart": {
     "x": 9,
-    "y": 2
+    "y": 6
   },
   "cells": [
     {
@@ -72,6 +72,22 @@
     },
     {
       "col": 8,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 9,
+      "row": 0,
+      "layer": 1,
+      "properties": [
+        "platform"
+      ]
+    },
+    {
+      "col": 10,
       "row": 0,
       "layer": 1,
       "properties": [
@@ -1418,6 +1434,80 @@
           }
         ]
       }
+    },
+    {
+      "id": "interaction0",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "dungeon3_lightning"
+      },
+      "createOnAnyEvent": [
+        "escort1_reached_destination"
+      ]
+    },
+    {
+      "id": "cellmodifier1",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 9,
+            "row": 0,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 10,
+            "row": 0,
+            "properties": [],
+            "layer": 0
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "dungeon_appear"
+      ]
+    },
+    {
+      "id": "interaction1",
+      "type": "interaction",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "filename": "dungeon3_second_door"
+      },
+      "createOnAnyEvent": [
+        "escort0_reached_destination"
+      ]
+    },
+    {
+      "id": "cellmodifier2",
+      "type": "cellmodifier",
+      "data": {
+        "col": 0,
+        "row": 0,
+        "cellsToModify": [
+          {
+            "col": 0,
+            "row": 6,
+            "properties": [],
+            "layer": 0
+          },
+          {
+            "col": 1,
+            "row": 6,
+            "properties": [],
+            "layer": 0
+          }
+        ]
+      },
+      "createOnAnyEvent": [
+        "second_door_appear"
+      ]
     }
   ],
   "levelTheme": "dungeon",

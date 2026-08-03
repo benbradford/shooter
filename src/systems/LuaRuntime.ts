@@ -16,6 +16,9 @@ import { registerPlayerAPI } from './lua-api/PlayerAPI';
 import { registerNpcAPI } from './lua-api/NpcAPI';
 import { registerWorldAPI } from './lua-api/WorldAPI';
 import { registerUIAPI, type SpeechColorState } from './lua-api/UIAPI';
+import { registerEffectsAPI } from './lua-api/EffectsAPI';
+import { getEffectHandler } from './effects/EffectRegistry';
+import './effects'; // Side-effect import: registers all effects
 
 const SPECIAL_ITEM_SCALE = 2;
 const SPECIAL_ITEM_Y_PERCENT = 0.18;
@@ -41,6 +44,7 @@ export class LuaRuntime {
   private commandQueue: Command[] = [];
   private fadeRectangle: Phaser.GameObjects.Rectangle | null = null;
   private specialItemDisplay: SpecialItemDisplay | null = null;
+  private activeEffects: Promise<void>[] = [];
 
   constructor(
     private readonly scene: GameScene,
@@ -59,6 +63,7 @@ export class LuaRuntime {
       registerNpcAPI(lua, this.scene, this.commandQueue, npcId);
       registerWorldAPI(lua, this.commandQueue);
       registerUIAPI(lua, this.scene, this.commandQueue, speechColors);
+      registerEffectsAPI(lua, this.commandQueue);
 
       await lua.doString(scriptContent);
 
@@ -66,6 +71,7 @@ export class LuaRuntime {
         await this.executeCommand(cmd);
       }
 
+      await Promise.all(this.activeEffects);
       await this.scaleDownSpecialItemDisplay();
     } finally {
       lua.global.close();
@@ -90,6 +96,7 @@ export class LuaRuntime {
     raiseEvent: (cmd) => { this.scene.eventManager.raiseEvent(cmd.eventName); },
     showSpecialItem: (cmd) => this.handleShowSpecialItem(cmd.itemType),
     hideSpecialItem: () => this.hideSpecialItemDisplay(),
+    createEffect: (cmd) => { this.activeEffects.push(this.handleCreateEffect(cmd.effectName, cmd.args)); },
   };
 
   private async executeCommand(cmd: Command): Promise<void> {
@@ -234,6 +241,15 @@ export class LuaRuntime {
       });
       if (idle) idle.setPaused(false);
     }
+  }
+
+  private async handleCreateEffect(effectName: string, args: Record<string, unknown>): Promise<void> {
+    const handler = getEffectHandler(effectName);
+    if (!handler) {
+      console.error(`[LuaRuntime] Unknown effect: ${effectName}`);
+      return;
+    }
+    await handler(this.scene, args);
   }
 
   private async handleShowSpecialItem(itemType: string): Promise<void> {

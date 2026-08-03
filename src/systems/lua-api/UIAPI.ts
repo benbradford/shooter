@@ -55,6 +55,10 @@ export function registerUIAPI(lua: LuaEngine, scene: GameScene, commandQueue: Co
   };
   lua.global.set('speech', speech);
 
+  lua.global.set('playSound', (key: string) => {
+    scene.sound.play(key);
+  });
+
   lua.global.set('fadeOut', (durationMs: number) => {
     commandQueue.push({ type: 'fadeOut', durationMs });
   });

@@ -16,7 +16,8 @@ export type Command =
   | { type: 'playerPlayAnim'; animKey: string; repeatType: string; startFrame?: number; endFrame?: number }
   | { type: 'raiseEvent'; eventName: string }
   | { type: 'showSpecialItem'; itemType: string }
-  | { type: 'hideSpecialItem' };
+  | { type: 'hideSpecialItem' }
+  | { type: 'createEffect'; effectName: string; args: Record<string, unknown> };
 
 export const DIRECTION_MAP: Record<string, Direction> = {
   'down': Direction.Down,
