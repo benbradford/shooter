@@ -168,6 +168,7 @@ When adding a new entity type, you MUST also:
 1. Add it to the editor (Toolbar, EditorBridge, CanvasInteraction, ContextPanel)
 2. Check system interactions: water, void, platforms, visual effects, collision clamping
 3. If the entity can carry/block the player, verify behavior with `canSwim`, `canJump`, and all ability flags
+4. **Register textures and guard animations:** Register in AssetRegistry, add to appropriate asset group. If it uses animations, guard creation with texture existence check AND remove/recreate (don't skip). If spawnable from Lua in any level, add texture to `enemyTextures` in `LoadingScene.ts`. Without this: `"Texture X not found"` or `"Cannot read 'duration'"` crash on level re-entry.
 
 ### Adding new cell properties
 When adding a new cell property, you MUST:

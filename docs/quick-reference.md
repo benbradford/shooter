@@ -141,9 +141,9 @@ Camera centers on the specified cell and stays there. Editor: Level Info panel �
 - Newlines: `<newline/>`
 
 **⚠️ Lua command blocking behavior:**
-- **Blocking (queued):** `say`, `wait`, `player.moveTo`, `player.punch`, `player.playAnim("once")`, `faceEachOther` — these pause the script until complete
-- **Non-blocking (fire-and-forget):** `createEffect`, `playSound`, `setFlag`, `raiseEvent`, `showSpecialItem`, `speech.*` — these execute immediately and the script continues
-- When adding new Lua commands: visual effects and sounds should default to non-blocking. Dialogue and movement should block.
+- **Blocking (queued):** `say`, `wait`, `player.moveTo`, `player.punch`, `player.playAnim("once")`, `faceEachOther`, `entity(id).moveTo`, `camera.lookAt`, `camera.followPlayer` — these pause the script until complete
+- **Non-blocking (fire-and-forget):** `createEffect`, `playSound`, `setFlag`, `raiseEvent`, `showSpecialItem`, `speech.*`, `spawn`, `kill`, `entity(id).look`, `entity(id).playAnim("repeat")` — these execute immediately and the script continues
+- When adding new Lua commands: visual effects and sounds should default to non-blocking. Dialogue, movement, and camera should block.
 
 **Lua Runtime Architecture:**
 - `src/systems/LuaRuntime.ts` — Orchestrator: executes Lua scripts, processes command queue, manages special item display
@@ -345,7 +345,12 @@ A platform-sized entity that follows a scripted path (wait/move steps). Players 
 2. Add necessary components
 3. Set update order (order matters!)
 4. Register factory in `src/systems/entity-factories/`
-5. **Editor integration (MANDATORY):**
+5. **Asset registration (MANDATORY for any entity with a sprite):**
+   - Register texture in `src/assets/AssetRegistry.ts`
+   - Add to an asset group that gets loaded when this entity appears
+   - If the entity uses animations: guard `createXxxAnimations()` with `if (!scene.textures.exists(key)) return;` AND remove/recreate animations (don't skip if they exist) — Phaser animations are global and persist after textures unload on level transitions. Without the guard: `Cannot read properties of undefined (reading 'duration')` crash on re-entry.
+   - If the entity can appear in any level (e.g. Lua-spawned): add texture to `enemyTextures` set in `LoadingScene.ts` to prevent unloading
+6. **Editor integration (MANDATORY):**
    - Add type to `ENTITY_TYPES` in `editor/panels/Toolbar.ts`
    - Add default data in `EditorBridge.addEntity()`
    - Add label in `CanvasInteraction.ts` labelMap

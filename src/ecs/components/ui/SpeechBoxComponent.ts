@@ -1,6 +1,7 @@
 import type { Component } from '../../Component';
 import type { Entity } from '../../Entity';
 import { Depth } from '../../../constants/DepthConstants';
+import { SoundManager } from '../../../systems/SoundManager';
 
 const CORNER_RADIUS_PX = 10;
 const BOX_ALPHA = 0.8;
@@ -52,6 +53,7 @@ export class SpeechBoxComponent implements Component {
   private isSkipping = false;
   private dismissResolve: (() => void) | null = null;
   private continueIndicator?: Phaser.GameObjects.Text;
+  private pipSound = 'pip1';
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -59,8 +61,9 @@ export class SpeechBoxComponent implements Component {
     private readonly textColor: string
   ) {}
 
-  async show(name: string, text: string, talkSpeed: number, timeout: number): Promise<void> {
+  async show(name: string, text: string, talkSpeed: number, timeout: number, pipSound?: string): Promise<void> {
     this.charSpeed = talkSpeed;
+    this.pipSound = pipSound ?? 'pip1';
     this.isDismissed = false;
     this.isSkipping = false;
 
@@ -319,8 +322,13 @@ export class SpeechBoxComponent implements Component {
 
         const char = segment.text[i];
         const isPunctuation = char === '.' || char === '!' || char === '?';
+        const isSpace = char === ' ';
         const baseDelay = isPunctuation ? PUNCTUATION_DELAY_MS : this.charSpeed;
         const delay = this.isSkipping ? SKIP_SPEED_MS : baseDelay;
+
+        if (!isSpace && !isPunctuation) {
+          SoundManager.getInstance().play(this.pipSound, { volume: 0.3 });
+        }
 
         await new Promise(resolve => setTimeout(resolve, delay));
       }

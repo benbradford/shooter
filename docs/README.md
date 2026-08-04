@@ -4,6 +4,16 @@ Quick reference for navigating the Dodging Bullets documentation.
 
 ## Documentation Principles
 
+### RFC 2119 Keywords
+
+This project uses [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119) keywords to indicate requirement levels in documentation and steering:
+
+- **MUST** / **MUST NOT** — Absolute requirement. Violating this will cause bugs, data loss, or broken builds.
+- **SHOULD** / **SHOULD NOT** — Strong recommendation. Exceptions exist but require understanding the consequences.
+- **MAY** — Optional. Acceptable to do or skip based on context.
+
+Rules using these keywords are categorized by the taxonomy (Safety > Environmental > Procedural > Defensive > Model-compensation). The keyword strength correlates with category: Safety rules are always MUST; Model-compensation rules are typically SHOULD or MAY.
+
 ### Keep Docs Lean
 
 **Document only what isn't easily found in code:**

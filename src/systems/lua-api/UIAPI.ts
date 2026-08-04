@@ -14,7 +14,7 @@ export function registerUIAPI(lua: LuaEngine, scene: GameScene, commandQueue: Co
     commandQueue.push({ type: 'wait', ms });
   });
 
-  lua.global.set('say', (name: string, text: string, speed: number, timeout?: number) => {
+  lua.global.set('say', (name: string, text: string, speed: number, timeout?: number, pipSound?: string) => {
     commandQueue.push({
       type: 'say',
       name,
@@ -22,7 +22,8 @@ export function registerUIAPI(lua: LuaEngine, scene: GameScene, commandQueue: Co
       speed,
       timeout: timeout ?? 10000,
       backgroundColor: speechColors.backgroundColor,
-      textColor: speechColors.textColor
+      textColor: speechColors.textColor,
+      pipSound: pipSound ?? 'pip1'
     });
   });
 

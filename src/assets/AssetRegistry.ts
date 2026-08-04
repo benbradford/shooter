@@ -488,6 +488,21 @@ export const ASSET_REGISTRY = {
     path: 'assets/sounds/lightning_zap.mp3',
     type: 'audio' as const,
   },
+  pip1: {
+    key: 'pip1',
+    path: 'assets/sounds/pip1.mp3',
+    type: 'audio' as const,
+  },
+  pip2: {
+    key: 'pip2',
+    path: 'assets/sounds/pip2.mp3',
+    type: 'audio' as const,
+  },
+  pip3: {
+    key: 'pip3',
+    path: 'assets/sounds/pip3.mp3',
+    type: 'audio' as const,
+  },
   skeleton_death: {
     key: 'skeleton_death',
     path: 'assets/sounds/skeleton_death.mp3',
@@ -1344,7 +1359,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', 'small_mushrooms', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'jump_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'bubble', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'jump_hup', 'player_impact1', 'player_impact2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx', 'push_lock_depression', 'click1', 'drag1', 'drag2', 'lightning_zap', 'exclamation'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', 'small_mushrooms', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'jump_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'bubble', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'jump_hup', 'player_impact1', 'player_impact2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx', 'push_lock_depression', 'click1', 'drag1', 'drag2', 'lightning_zap', 'pip1', 'pip2', 'pip3', 'exclamation'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,

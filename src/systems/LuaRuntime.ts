@@ -162,7 +162,7 @@ export class LuaRuntime {
     speechEntity.add(new TransformComponent(0, 0, 0, 1));
     const speechBox = speechEntity.add(new SpeechBoxComponent(this.scene, cmd.backgroundColor, cmd.textColor));
     this.scene.entityManager.add(speechEntity);
-    await speechBox.show(cmd.name, cmd.text, cmd.speed, cmd.timeout);
+    await speechBox.show(cmd.name, cmd.text, cmd.speed, cmd.timeout, cmd.pipSound);
     speechEntity.destroy();
   }
 

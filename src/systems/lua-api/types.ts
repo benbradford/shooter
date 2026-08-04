@@ -2,7 +2,7 @@ import { Direction } from '../../constants/Direction';
 
 export type Command =
   | { type: 'wait'; ms: number }
-  | { type: 'say'; name: string; text: string; speed: number; timeout: number; backgroundColor: string; textColor: string }
+  | { type: 'say'; name: string; text: string; speed: number; timeout: number; backgroundColor: string; textColor: string; pipSound: string }
   | { type: 'moveTo'; col: number; row: number; speed: number }
   | { type: 'look'; direction: string }
   | { type: 'npcLook'; npcId: string; direction: Direction }
