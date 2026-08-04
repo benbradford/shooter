@@ -1,0 +1,142 @@
+{
+  "group_id": "0f758540-ef11-413d-b4c9-827b69bff709",
+  "states": [
+    {
+      "character": {
+        "id": "40a3788b-6863-4411-97e7-be165a640eef",
+        "name": "standin",
+        "prompt": "SNES Zelda-style top-down enemy sprite. Small hooded demonic creature. Child-sized twisted humanoid wearing a tattered black hooded robe with ragged sleeves and torn hem. The hood frames a grotesque demonic face with glowing red eyes, unnaturally wide mouth, sharp uneven teeth and an expression of pure malice. Long clawed hands emerge from the sleeves. Dark grey, black and deep crimson colour palette with subtle sickly purple accents. Designed as a weak early-game enemy. True 90-degree overhead orthographic gameplay perspective. Chunky high-contrast pixel clusters with minimal dithering. Prioritise gameplay readability over realism. Inspired by SNES Zelda sprites with the material rendering quality of Metal Slug.",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-08-02T18:43:05.240910+00:00"
+      },
+      "folder": "standin",
+      "frames": {
+        "rotations": {
+          "south": "standin/rotations/south.png",
+          "south-east": "standin/rotations/south-east.png",
+          "east": "standin/rotations/east.png",
+          "north-east": "standin/rotations/north-east.png",
+          "north": "standin/rotations/north.png",
+          "north-west": "standin/rotations/north-west.png",
+          "west": "standin/rotations/west.png",
+          "south-west": "standin/rotations/south-west.png"
+        },
+        "animations": {
+          "Collapsing_forwards_and_dramatically_falling_to_th": {
+            "south": [
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_000.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_001.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_002.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_003.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_004.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_005.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_006.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_007.png",
+              "standin/animations/Collapsing_forwards_and_dramatically_falling_to_th/south/frame_008.png"
+            ]
+          },
+          "Running": {
+            "south": [
+              "standin/animations/Running/south/frame_000.png",
+              "standin/animations/Running/south/frame_001.png",
+              "standin/animations/Running/south/frame_002.png",
+              "standin/animations/Running/south/frame_003.png"
+            ],
+            "east": [
+              "standin/animations/Running/east/frame_000.png",
+              "standin/animations/Running/east/frame_001.png",
+              "standin/animations/Running/east/frame_002.png",
+              "standin/animations/Running/east/frame_003.png"
+            ],
+            "north": [
+              "standin/animations/Running/north/frame_000.png",
+              "standin/animations/Running/north/frame_001.png",
+              "standin/animations/Running/north/frame_002.png",
+              "standin/animations/Running/north/frame_003.png"
+            ],
+            "west": [
+              "standin/animations/Running/west/frame_000.png",
+              "standin/animations/Running/west/frame_001.png",
+              "standin/animations/Running/west/frame_002.png",
+              "standin/animations/Running/west/frame_003.png"
+            ]
+          },
+          "Throw_Object": {
+            "west": [
+              "standin/animations/Throw_Object/west/frame_000.png",
+              "standin/animations/Throw_Object/west/frame_001.png",
+              "standin/animations/Throw_Object/west/frame_002.png",
+              "standin/animations/Throw_Object/west/frame_003.png",
+              "standin/animations/Throw_Object/west/frame_004.png",
+              "standin/animations/Throw_Object/west/frame_005.png",
+              "standin/animations/Throw_Object/west/frame_006.png"
+            ],
+            "south": [
+              "standin/animations/Throw_Object/south/frame_000.png",
+              "standin/animations/Throw_Object/south/frame_001.png",
+              "standin/animations/Throw_Object/south/frame_002.png",
+              "standin/animations/Throw_Object/south/frame_003.png",
+              "standin/animations/Throw_Object/south/frame_004.png",
+              "standin/animations/Throw_Object/south/frame_005.png",
+              "standin/animations/Throw_Object/south/frame_006.png"
+            ],
+            "north": [
+              "standin/animations/Throw_Object/north/frame_000.png",
+              "standin/animations/Throw_Object/north/frame_001.png",
+              "standin/animations/Throw_Object/north/frame_002.png",
+              "standin/animations/Throw_Object/north/frame_003.png",
+              "standin/animations/Throw_Object/north/frame_004.png",
+              "standin/animations/Throw_Object/north/frame_005.png",
+              "standin/animations/Throw_Object/north/frame_006.png"
+            ],
+            "east": [
+              "standin/animations/Throw_Object/east/frame_000.png",
+              "standin/animations/Throw_Object/east/frame_001.png",
+              "standin/animations/Throw_Object/east/frame_002.png",
+              "standin/animations/Throw_Object/east/frame_003.png",
+              "standin/animations/Throw_Object/east/frame_004.png",
+              "standin/animations/Throw_Object/east/frame_005.png",
+              "standin/animations/Throw_Object/east/frame_006.png"
+            ]
+          },
+          "Falling_down_with_arms_waving_and_then_landing_in": {
+            "north": [
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_000.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_001.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_002.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_003.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_004.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_005.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_006.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_007.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_008.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_009.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_010.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_011.png",
+              "standin/animations/Falling_down_with_arms_waving_and_then_landing_in/north/frame_012.png"
+            ]
+          },
+          "Falling_Back_Death": {
+            "south": [
+              "standin/animations/Falling_Back_Death/south/frame_000.png",
+              "standin/animations/Falling_Back_Death/south/frame_001.png",
+              "standin/animations/Falling_Back_Death/south/frame_002.png",
+              "standin/animations/Falling_Back_Death/south/frame_003.png",
+              "standin/animations/Falling_Back_Death/south/frame_004.png",
+              "standin/animations/Falling_Back_Death/south/frame_005.png",
+              "standin/animations/Falling_Back_Death/south/frame_006.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-04T10:06:59.414200"
+}

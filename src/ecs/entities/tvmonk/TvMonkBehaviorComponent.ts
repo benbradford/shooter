@@ -38,6 +38,7 @@ export class TvMonkBehaviorComponent implements Component, EventListener {
   private readonly eventManager: EventManagerSystem;
   private currentDirection: Direction = Direction.Down;
   private phase: 'pre-combat' | 'combat' = 'pre-combat';
+  private paused = false;
 
   constructor(props: TvMonkBehaviorComponentProps) {
     this.playerEntity = props.playerEntity;
@@ -68,6 +69,7 @@ export class TvMonkBehaviorComponent implements Component, EventListener {
   }
 
   update(_delta: number): void {
+    if (this.paused) return;
     // Face toward player
     const transform = this.entity.get(TransformComponent);
     const playerTransform = this.playerEntity.get(TransformComponent);
@@ -90,6 +92,10 @@ export class TvMonkBehaviorComponent implements Component, EventListener {
       const playerDepth = playerSprite.sprite.depth;
       sprite.sprite.setDepth(playerTransform.y < transform.y ? playerDepth + 1 : playerDepth - 1);
     }
+  }
+
+  setPaused(paused: boolean): void {
+    this.paused = paused;
   }
 
   onDestroy(): void {

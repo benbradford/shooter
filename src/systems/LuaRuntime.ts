@@ -10,6 +10,8 @@ import { AnimationComponent } from '../ecs/components/core/AnimationComponent';
 import { GridPositionComponent } from '../ecs/components/movement/GridPositionComponent';
 import { AttackComboComponent } from '../ecs/components/combat/AttackComboComponent';
 import { NPCIdleComponent } from '../ecs/entities/npc/NPCIdleComponent';
+import { TvFaceComponent } from '../ecs/entities/tvmonk/TvFaceComponent';
+import { TvMonkBehaviorComponent } from '../ecs/entities/tvmonk/TvMonkBehaviorComponent';
 import { Depth } from '../constants/DepthConstants';
 import type { Command } from './lua-api/types';
 import { registerPlayerAPI } from './lua-api/PlayerAPI';
@@ -17,8 +19,11 @@ import { registerNpcAPI } from './lua-api/NpcAPI';
 import { registerWorldAPI } from './lua-api/WorldAPI';
 import { registerUIAPI, type SpeechColorState } from './lua-api/UIAPI';
 import { registerEffectsAPI } from './lua-api/EffectsAPI';
+import { registerEntityAPI } from './lua-api/EntityAPI';
 import { getEffectHandler } from './effects/EffectRegistry';
+import { getSpawnHandler } from './spawners/SpawnRegistry';
 import './effects'; // Side-effect import: registers all effects
+import './spawners'; // Side-effect import: registers all spawners
 
 const SPECIAL_ITEM_SCALE = 2;
 const SPECIAL_ITEM_Y_PERCENT = 0.18;
@@ -55,8 +60,12 @@ export class LuaRuntime {
     const factory = new LuaFactory();
     const lua = await factory.createEngine();
 
+    // Expose runtime on scene so effect callbacks can process commands immediately
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this.scene as any)._activeLuaRuntime = this;
+
     try {
-      this.commandQueue = [];
+      this.commandQueue.length = 0;
       const speechColors: SpeechColorState = { backgroundColor: 'purple', textColor: 'white' };
 
       registerPlayerAPI(lua, this.scene, this.commandQueue);
@@ -64,16 +73,36 @@ export class LuaRuntime {
       registerWorldAPI(lua, this.commandQueue);
       registerUIAPI(lua, this.scene, this.commandQueue, speechColors);
       registerEffectsAPI(lua, this.commandQueue);
+      registerEntityAPI(lua, this.commandQueue);
 
       await lua.doString(scriptContent);
 
-      for (const cmd of this.commandQueue) {
+      let commands = this.commandQueue.splice(0);
+
+      for (const cmd of commands) {
         await this.executeCommand(cmd);
       }
 
-      await Promise.all(this.activeEffects);
+      // Wait for async effects, then drain any commands added by callbacks
+      let drainAttempts = 0;
+      while (this.activeEffects.length > 0 || this.commandQueue.length > 0) {
+        await Promise.all(this.activeEffects);
+        this.activeEffects = [];
+
+        if (this.commandQueue.length > 0) {
+          commands = this.commandQueue.splice(0);
+          for (const cmd of commands) {
+            await this.executeCommand(cmd);
+          }
+        }
+
+        if (++drainAttempts > 100) break;
+      }
+
       await this.scaleDownSpecialItemDisplay();
     } finally {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.scene as any)._activeLuaRuntime = null;
       lua.global.close();
     }
   }
@@ -97,6 +126,13 @@ export class LuaRuntime {
     showSpecialItem: (cmd) => this.handleShowSpecialItem(cmd.itemType),
     hideSpecialItem: () => this.hideSpecialItemDisplay(),
     createEffect: (cmd) => { this.activeEffects.push(this.handleCreateEffect(cmd.effectName, cmd.args)); },
+    entityLook: (cmd) => this.handleEntityLook(cmd.entityId, cmd.direction),
+    entityMoveTo: (cmd) => this.handleEntityMoveTo(cmd.entityId, cmd.col, cmd.row, cmd.speed),
+    entityPlayAnim: (cmd) => this.handleEntityPlayAnim(cmd.entityId, cmd.animKey, cmd.repeatType),
+    spawn: (cmd) => { this.activeEffects.push(this.handleSpawn(cmd.spawnerName, cmd.entityId, cmd.args)); },
+    cameraLookAt: (cmd) => this.handleCameraLookAt(cmd.col, cmd.row, cmd.durationMs),
+    cameraFollowPlayer: (cmd) => this.handleCameraFollowPlayer(cmd.durationMs),
+    kill: (cmd) => this.handleKill(cmd.entityId),
   };
 
   private async executeCommand(cmd: Command): Promise<void> {
@@ -106,6 +142,13 @@ export class LuaRuntime {
       if (handler) await handler(cmd);
     } finally {
       this.playerEntity.tags.delete('interaction_active');
+    }
+  }
+
+  async processCallbackCommands(): Promise<void> {
+    while (this.commandQueue.length > 0) {
+      const cmd = this.commandQueue.shift()!;
+      await this.executeCommand(cmd);
     }
   }
 
@@ -241,6 +284,158 @@ export class LuaRuntime {
       });
       if (idle) idle.setPaused(false);
     }
+  }
+
+  private handleEntityLook(entityId: string, direction: number): void {
+    const entity = this.scene.entityManager.getAll().find(e => e.id === entityId);
+    if (!entity) { console.error(`[LuaRuntime] entity('${entityId}') not found`); return; }
+
+    // TvMonk uses TvFaceComponent for direction
+    const tvFace = entity.get(TvFaceComponent);
+    if (tvFace) {
+      const behavior = entity.get(TvMonkBehaviorComponent);
+      if (behavior) behavior.setPaused(true);
+      tvFace.setPaused(false);
+      tvFace.setDirection(direction);
+      return;
+    }
+
+    // NPCs use NPCIdleComponent
+    const npcIdle = entity.get(NPCIdleComponent);
+    if (npcIdle) {
+      npcIdle.setDirection(direction);
+      return;
+    }
+
+    // Generic fallback: play idle animation
+    const anim = entity.get(AnimationComponent);
+    if (anim) {
+      anim.animationSystem.play(`idle_${direction}`);
+    } else {
+      const sprite = entity.get(SpriteComponent);
+      if (sprite) sprite.sprite.play({ key: `idle_${direction}`, repeat: -1 });
+    }
+  }
+
+  private handleEntityMoveTo(entityId: string, col: number, row: number, speed: number): Promise<void> {
+    const entity = this.scene.entityManager.getAll().find(e => e.id === entityId);
+    if (!entity) { console.error(`[LuaRuntime] entity('${entityId}') not found`); return Promise.resolve(); }
+    const transform = entity.get(TransformComponent);
+    if (!transform) return Promise.resolve();
+
+    const grid = this.scene.getGrid();
+    const targetWorld = grid.cellToWorld(col, row);
+    const targetX = targetWorld.x + grid.cellSize / 2;
+    const targetY = targetWorld.y + grid.cellSize / 2;
+
+    const dx = targetX - transform.x;
+    const dy = targetY - transform.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const durationMs = (dist / speed) * 1000;
+
+    const gridPos = entity.get(GridPositionComponent);
+
+    return new Promise<void>(resolve => {
+      this.scene.tweens.add({
+        targets: transform,
+        x: targetX,
+        y: targetY,
+        duration: durationMs,
+        ease: 'Linear',
+        onComplete: () => {
+          if (gridPos) gridPos.currentCell = { col, row };
+          resolve();
+        }
+      });
+    });
+  }
+
+  private handleEntityPlayAnim(entityId: string, animKey: string, repeatType: string): Promise<void> {
+    const entity = this.scene.entityManager.getAll().find(e => e.id === entityId);
+    if (!entity) { console.error(`[LuaRuntime] entity('${entityId}') not found`); return Promise.resolve(); }
+    const sprite = entity.get(SpriteComponent);
+    if (!sprite) return Promise.resolve();
+
+    // Pause face/behavior components so they don't override the animation
+    const tvFace = entity.get(TvFaceComponent);
+    if (tvFace) tvFace.setPaused(true);
+    const behavior = entity.get(TvMonkBehaviorComponent);
+    if (behavior) behavior.setPaused(true);
+
+    const repeat = repeatType === 'repeat' ? -1 : 0;
+    sprite.sprite.play({ key: animKey, repeat });
+
+    if (repeatType === 'once' || repeatType === 'hold') {
+      return new Promise<void>(resolve => {
+        sprite.sprite.once('animationcomplete', () => {
+          if (repeatType === 'hold') {
+            sprite.sprite.stop();
+          }
+          resolve();
+        });
+      });
+    }
+    return Promise.resolve();
+  }
+
+  private handleKill(entityId: string): void {
+    const entity = this.scene.entityManager.getAll().find(e => e.id === entityId);
+    if (!entity) { console.error(`[LuaRuntime] kill: entity '${entityId}' not found`); return; }
+    entity.destroy();
+  }
+
+  private handleCameraLookAt(col: number, row: number, durationMs: number): Promise<void> {
+    const camera = this.scene.cameras.main;
+    const grid = this.scene.getGrid();
+    const worldPos = grid.cellToWorld(col, row);
+    const targetX = worldPos.x + grid.cellSize / 2;
+    const targetY = worldPos.y + grid.cellSize / 2;
+
+    camera.stopFollow();
+
+    return new Promise<void>(resolve => {
+      this.scene.tweens.add({
+        targets: camera,
+        scrollX: targetX - camera.width / 2,
+        scrollY: targetY - camera.height / 2,
+        duration: durationMs,
+        ease: 'Sine.easeInOut',
+        onComplete: () => resolve(),
+      });
+    });
+  }
+
+  private handleCameraFollowPlayer(durationMs: number): Promise<void> {
+    const camera = this.scene.cameras.main;
+    const player = this.scene.entityManager.getFirst('player');
+    const sprite = player?.get(SpriteComponent);
+    if (!sprite) return Promise.resolve();
+
+    const targetX = sprite.sprite.x - camera.width / 2;
+    const targetY = sprite.sprite.y - camera.height / 2;
+
+    return new Promise<void>(resolve => {
+      this.scene.tweens.add({
+        targets: camera,
+        scrollX: targetX,
+        scrollY: targetY,
+        duration: durationMs,
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          camera.startFollow(sprite.sprite, true, 0.1, 0.1);
+          resolve();
+        },
+      });
+    });
+  }
+
+  private async handleSpawn(spawnerName: string, entityId: string, args: Record<string, unknown>): Promise<void> {
+    const handler = getSpawnHandler(spawnerName);
+    if (!handler) {
+      console.error(`[LuaRuntime] Unknown spawner: ${spawnerName}`);
+      return;
+    }
+    await handler(this.scene, entityId, args);
   }
 
   private async handleCreateEffect(effectName: string, args: Record<string, unknown>): Promise<void> {

@@ -59,6 +59,16 @@ export function registerUIAPI(lua: LuaEngine, scene: GameScene, commandQueue: Co
     scene.sound.play(key);
   });
 
+  const camera = {
+    lookAt: (col: number, row: number, durationMs?: number) => {
+      commandQueue.push({ type: 'cameraLookAt', col, row, durationMs: durationMs ?? 500 });
+    },
+    followPlayer: (durationMs?: number) => {
+      commandQueue.push({ type: 'cameraFollowPlayer', durationMs: durationMs ?? 500 });
+    },
+  };
+  lua.global.set('camera', camera);
+
   lua.global.set('fadeOut', (durationMs: number) => {
     commandQueue.push({ type: 'fadeOut', durationMs });
   });

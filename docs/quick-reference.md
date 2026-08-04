@@ -130,8 +130,20 @@ Camera centers on the specified cell and stays there. Editor: Level Info panel �
 - `fadeIn(durationMs)` — Camera fade from black (queued)
 - `calculateDirection(fromX, fromY, toX, toY)` — Returns direction string between two points (e.g., `"down_left"`)
 - `speech.backgroundColor(color)` / `speech.textColor(color)` — Customize speech box colors for subsequent `say()` calls
+- `createEffect(effectName, args)` — Fire-and-forget visual effect (non-blocking). Supports `"lightning"` and `"arrow"`. Arrow accepts `onEnd` callback (e.g. `onEnd=entity("minion_0")` to damage on hit)
+- `playSound(key)` — Play a sound effect (non-blocking)
+- `spawn(type, id, args)` — Spawn an entity from a cutscene (e.g. `spawn("minion", "minion_0", {startCell={col=8, row=13}})`)
+- `kill(entityId)` — Destroy a spawned entity
+- `entity(id).look(dir)` / `entity(id).moveTo(col, row, speed)` / `entity(id).playAnim(key, repeatType)` — Control spawned entities by ID
+- `camera.lookAt(col, row, durationMs?)` — Smooth camera pan to cell (blocking)
+- `camera.followPlayer(durationMs?)` — Smooth camera return to player (blocking)
 - Text directives: `<collectible>`, `<warning>`, `<gold>`, `<success>`, `<hint>`
 - Newlines: `<newline/>`
+
+**⚠️ Lua command blocking behavior:**
+- **Blocking (queued):** `say`, `wait`, `player.moveTo`, `player.punch`, `player.playAnim("once")`, `faceEachOther` — these pause the script until complete
+- **Non-blocking (fire-and-forget):** `createEffect`, `playSound`, `setFlag`, `raiseEvent`, `showSpecialItem`, `speech.*` — these execute immediately and the script continues
+- When adding new Lua commands: visual effects and sounds should default to non-blocking. Dialogue and movement should block.
 
 **Lua Runtime Architecture:**
 - `src/systems/LuaRuntime.ts` — Orchestrator: executes Lua scripts, processes command queue, manages special item display
@@ -139,7 +151,9 @@ Camera centers on the specified cell and stays there. Editor: Level Info panel �
 - `src/systems/lua-api/PlayerAPI.ts` — Registers `player.*`, `calculateDirection`, `celebrate`
 - `src/systems/lua-api/NpcAPI.ts` — Registers `npc.*`, `faceEachOther`, `restoreDirections`
 - `src/systems/lua-api/WorldAPI.ts` — Registers `setFlag`, `getFlag`, `saveState`, `isFlagCondition`, `raiseEvent`
-- `src/systems/lua-api/UIAPI.ts` — Registers `wait`, `say`, `coins.*`, `speech.*`, `fadeOut/In`, `showSpecialItem/hideSpecialItem`
+- `src/systems/lua-api/UIAPI.ts` — Registers `wait`, `say`, `coins.*`, `speech.*`, `fadeOut/In`, `showSpecialItem/hideSpecialItem`, `playSound`, `camera.*`
+- `src/systems/lua-api/EffectsAPI.ts` — Registers `createEffect`
+- `src/systems/lua-api/EntityAPI.ts` — Registers `entity(id)`, `spawn`, `kill`
 
 **Player animation names:** `powerup`, `pickup`, `push`, `slide`, `uppercut`, `throw`, `punch`, `walk`, `run`, `death`, `swim`, `fall`, `idle`
 **Directions:** `"down"`, `"up"`, `"left"`, `"right"`, `"up_left"`, `"up_right"`, `"down_left"`, `"down_right"`

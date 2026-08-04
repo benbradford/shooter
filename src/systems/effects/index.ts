@@ -3,3 +3,5 @@
  * Import this file once to ensure all effects are available.
  */
 import './LightningEffect';
+import './ArrowEffect';
+import './ExclamationEffect';

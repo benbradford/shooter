@@ -17,7 +17,14 @@ export type Command =
   | { type: 'raiseEvent'; eventName: string }
   | { type: 'showSpecialItem'; itemType: string }
   | { type: 'hideSpecialItem' }
-  | { type: 'createEffect'; effectName: string; args: Record<string, unknown> };
+  | { type: 'createEffect'; effectName: string; args: Record<string, unknown> }
+  | { type: 'entityLook'; entityId: string; direction: Direction }
+  | { type: 'entityMoveTo'; entityId: string; col: number; row: number; speed: number }
+  | { type: 'entityPlayAnim'; entityId: string; animKey: string; repeatType: string }
+  | { type: 'spawn'; spawnerName: string; entityId: string; args: Record<string, unknown> }
+  | { type: 'cameraLookAt'; col: number; row: number; durationMs: number }
+  | { type: 'cameraFollowPlayer'; durationMs: number }
+  | { type: 'kill'; entityId: string };
 
 export const DIRECTION_MAP: Record<string, Direction> = {
   'down': Direction.Down,

@@ -47,6 +47,7 @@ export class TvFaceComponent implements Component {
   entity!: Entity;
 
   private readonly scene: Phaser.Scene;
+  private paused = false;
   private masks: ScreenMask[] = [];
   private canvasTexture: Phaser.Textures.CanvasTexture | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
@@ -122,6 +123,13 @@ export class TvFaceComponent implements Component {
     }
   }
 
+  setPaused(paused: boolean): void {
+    this.paused = paused;
+    if (!paused) {
+      this.lastRenderedFrame = -1; // force redraw on resume
+    }
+  }
+
   /** Called by event system in pre-combat phase */
   setMood(mood: TvMood): void {
     if (this.phase === 'dead') return;
@@ -144,6 +152,7 @@ export class TvFaceComponent implements Component {
 
   update(delta: number): void {
     if (this.phase === 'dead') return;
+    if (this.paused) return;
     // In combat, mood is driven by health
     if (this.phase === 'combat') {
       const health = this.entity.get(HealthComponent);

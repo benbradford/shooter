@@ -53,6 +53,17 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 68, frameHeight: 68 }
   },
+  silas: {
+    key: 'silas',
+    path: 'assets/npc/silas/silas_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
+  silas_arrow: {
+    key: 'silas_arrow',
+    path: 'assets/npc/silas/silas_arrow.png',
+    type: 'image' as const,
+  },
   village_boy: {
     key: 'village_boy',
     path: 'assets/npc/village_boy/village_boy_spritesheet.png',
@@ -1202,6 +1213,12 @@ export const ASSET_REGISTRY = {
     type: 'spritesheet' as const,
     config: { frameWidth: 80, frameHeight: 80 }
   },
+  minion: {
+    key: 'minion',
+    path: 'assets/minions/minion_spritesheet.png',
+    type: 'spritesheet' as const,
+    config: { frameWidth: 68, frameHeight: 68 }
+  },
   tv_static: {
     key: 'tv_static',
     path: 'assets/sounds/tv_static.mp3',
@@ -1327,7 +1344,7 @@ export type AssetKey = keyof typeof ASSET_REGISTRY;
  */
 export const ASSET_GROUPS = {
   // Core - always loaded (HUD + universal assets)
-  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', 'small_mushrooms', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'jump_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'bubble', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'jump_hup', 'player_impact1', 'player_impact2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx', 'push_lock_depression', 'click1', 'drag1', 'drag2', 'lightning_zap'] as const,
+  core: ['vignette', 'shadow', 'narry', 'coin', 'mushroom', 'small_mushrooms', 'smoke', 'crosshair', 'open_hand_icon', 'lips', 'lips_icon', 'speech_bubble', 'slide_icon', 'push_icon', 'jump_icon', 'hud_rings', 'stone_ring', 'stone_bg', 'arrows', 'water_ripple', 'murky_ripple', 'water_splash', 'murky_splash', 'fire', 'rock_spritesheet', 'dog_spritesheet', 'bark_icon', 'rock_icon', 'fear_icon', 'bubble', 'mist_orb', 'shimmer1', 'splash1', 'splash2', 'jump_hup', 'player_impact1', 'player_impact2', 'punch1', 'punch2', 'punch3', 'superpunch', 'coin1_sfx', 'coin2_sfx', 'bark_sfx', 'orb_sfx', 'push_lock_depression', 'click1', 'drag1', 'drag2', 'lightning_zap', 'exclamation'] as const,
 
   // Player and projectiles
   player: ['attacker'] as const,
@@ -1346,7 +1363,8 @@ export const ASSET_GROUPS = {
   fly: ['fly'] as const,
   red_skeleton: ['skeleton', 'bone_small', 'throw_whoosh1', 'bones_spawn', 'skeleton_death', 'skeleton_hit'] as const,
   puma: ['puma', 'cat_detect', 'cat_sound1', 'cat_sound2', 'cat_sound3', 'cat_sound4', 'cat_death'] as const,
-  tv_monk: ['tv_monk', 'tv_static'] as const,
+  tv_monk: ['tv_monk', 'tv_static', 'minion', 'silas', 'silas_arrow'] as const,
+  minion: ['minion'] as const,
   bullet_dude: ['bullet_dude_sprite', 'rock', 'bullet_default', 'bullet_default_shell', 'smoke'] as const,
 
   // NPCs
@@ -1355,6 +1373,7 @@ export const ASSET_GROUPS = {
   village_girl: ['village_girl'] as const,
   old_village_lady: ['old_village_lady'] as const,
   village_wizard: ['village_wizard'] as const,
+  silas: ['silas', 'silas_arrow'] as const,
   village_boy: ['village_boy'] as const,
   village_swim_teacher: ['village_swim_teacher'] as const,
 

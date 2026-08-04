@@ -1,0 +1,36 @@
+{
+  "group_id": "530800c8-e3ac-4854-be11-13af4acf6c4a",
+  "states": [
+    {
+      "character": {
+        "id": "26f2e26b-1fdd-4026-a5e2-3226af8b215b",
+        "name": "mexican hat wearing mysterious man with a beard in the style of metal slug",
+        "prompt": "mexican hat wearing mysterious man with a beard in the style of metal slug",
+        "size": {
+          "width": 68,
+          "height": 68
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-07-26T20:48:19.852605+00:00"
+      },
+      "folder": "mexican_hat_wearing_mysterious_man_with_a_beard_in",
+      "frames": {
+        "rotations": {
+          "south": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/south.png",
+          "south-east": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/south-east.png",
+          "east": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/east.png",
+          "north-east": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/north-east.png",
+          "north": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/north.png",
+          "north-west": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/north-west.png",
+          "west": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/west.png",
+          "south-west": "mexican_hat_wearing_mysterious_man_with_a_beard_in/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-04T11:02:33.155367"
+}
